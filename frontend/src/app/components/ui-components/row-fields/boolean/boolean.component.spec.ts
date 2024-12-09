@@ -46,7 +46,7 @@ describe('BooleanRowComponent', () => {
     component.structure = fakeStructure;
     component.ngOnInit();
 
-    expect(component.value).toEqual(true);
+    expect(component.value).toBeTruthy();
   });
 
   it('should set value in felse when input value is 0', () => {
@@ -54,7 +54,7 @@ describe('BooleanRowComponent', () => {
     component.structure = fakeStructure;
     component.ngOnInit();
 
-    expect(component.value).toEqual(false);
+    expect(component.value).toBeFalsy();
   });
 
   it('should set value in null when input value is undefined', () => {

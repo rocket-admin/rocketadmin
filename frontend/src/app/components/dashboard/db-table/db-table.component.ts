@@ -141,12 +141,16 @@ export class DbTableComponent implements OnInit {
   }
 
   getWidgetValue(column: string, value: string) {
+    console.log(this.tableData.widgets);
     if (this.tableData.widgets[column].widget_type === 'Select') {
-        const fieldOptions = this.tableData.widgets[column].widget_params.options;
-        if (fieldOptions) {
-          const cellValue = fieldOptions.find(option => option.value === value);
-            if (cellValue) return cellValue.label
-        }
+      console.log(this.tableData.widgets['Region']);
+      const fieldOptions = this.tableData.widgets[column].widget_params.options;
+      console.log('fieldOptions');
+      console.log(fieldOptions);
+      if (fieldOptions) {
+        const cellValue = fieldOptions.find(option => option.value === value);
+          if (cellValue) return cellValue.label
+      }
     }
     return value;
   }

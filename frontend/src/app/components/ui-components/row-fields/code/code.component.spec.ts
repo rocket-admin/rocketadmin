@@ -8,12 +8,19 @@ describe('CodeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CodeRowComponent]
+      declarations: [CodeRowComponent]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(CodeRowComponent);
     component = fixture.componentInstance;
+
+    component.widgetStructure = {
+      widget_params: {
+        language: 'css'
+      }
+    } as any;
+
     fixture.detectChanges();
   });
 

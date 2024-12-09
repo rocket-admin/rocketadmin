@@ -1,6 +1,7 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 
 import { NotificationsService } from './notifications.service';
 import { RouterTestingModule } from "@angular/router/testing";
@@ -162,7 +163,9 @@ describe('TablesService', () => {
     "search_fields": [],
     "sortable_by": [],
     "table_name": "contacts_with_uuid",
-    "sensitive_fields": []
+    "sensitive_fields": [],
+    "allow_csv_export": true,
+    "allow_csv_import": true
   };
 
   const tableWidgetsNetwork = [
@@ -181,7 +184,7 @@ describe('TablesService', () => {
       "description": "",
       "field_name": "email",
       "name": "user email",
-      "widget_params": {},
+      "widget_params": "",
       "widget_type": "Textarea"
     }
   ]
@@ -201,6 +204,7 @@ describe('TablesService', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         {

@@ -7,11 +7,29 @@ import { MasterPasswordService } from './master-password.service';
 describe('MasterPasswordService', () => {
   let service: MasterPasswordService;
   let dialog: MatDialog;
+  let mockLocalStorage;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ MatDialogModule ]
     });
+
+    let store = {};
+    mockLocalStorage = {
+      getItem: (key: string): string => {
+        return key in store ? store[key] : null;
+      },
+      setItem: (key: string, value: string) => {
+        store[key] = `${value}`;
+      },
+      removeItem: (key: string) => {
+        delete store[key];
+      },
+      clear: () => {
+        store = {};
+      }
+    };
+
     service = TestBed.get(MasterPasswordService);
     dialog = TestBed.get(MatDialog);
   });
@@ -29,4 +47,20 @@ describe('MasterPasswordService', () => {
       disableClose: true
     });
   });
+
+  it('should write master key in localstorage if masterEncryption is turned on', () => {
+    spyOn(localStorage, 'setItem').and.callFake(mockLocalStorage.setItem);
+
+    service.checkMasterPassword(true, '12345678', 'abcd-0987654321');
+
+    expect(localStorage.setItem).toHaveBeenCalledOnceWith('12345678__masterKey', 'abcd-0987654321');
+  })
+
+  it('should remove master key in localstorage if masterEncryption is turned off', () => {
+    spyOn(localStorage, 'removeItem').and.callFake(mockLocalStorage.removeItem);
+
+    service.checkMasterPassword(false, '12345678', 'abcd-0987654321');
+
+    expect(localStorage.removeItem).toHaveBeenCalledOnceWith('12345678__masterKey');
+  })
 });

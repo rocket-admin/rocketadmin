@@ -3,7 +3,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CustomActionType } from 'src/app/models/table';
+import { CustomActionMethod, CustomActionType } from 'src/app/models/table';
 import { DbTableActionsComponent } from './db-table-actions.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -55,314 +55,316 @@ describe('DbTableActionsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set selected action', () => {
-    const action = {
-      id: 'action_12345678',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+  it('should set selected rule', () => {
+    const rule = {
+      id: 'rule_12345678',
+      title: 'rule 1',
+      table_name: 'user',
+      events: [
+        {
+          event: null
+        }
+      ],
+      table_actions: []
     }
-    component.setSelectedAction(action)
-    expect(component.selectedAction).toEqual(action);
-    expect(component.updatedActionTitle).toEqual('action 1');
+    component.setSelectedRule(rule)
+    expect(component.selectedRule).toEqual(rule);
+    expect(component.selectedRuleTitle).toEqual('rule 1');
   });
 
-  it('should switch between actions on actions list click', () => {
-    const action = {
-      id: 'action_12345678',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+  it('should switch between rules on rules list click', () => {
+    const rule = {
+      id: 'rule_12345678',
+      title: 'rule 1',
+      table_name: 'user',
+      events: [],
+      table_actions: []
     }
-    const mockSetSelectedAction = spyOn(component, 'setSelectedAction');
+    const mockSetSelectedAction = spyOn(component, 'setSelectedRule');
 
-    component.switchActionView(action)
+    component.switchRulesView(rule)
 
-    expect(mockSetSelectedAction).toHaveBeenCalledOnceWith(action)
+    expect(mockSetSelectedAction).toHaveBeenCalledOnceWith(rule)
   });
 
-  it('should set the new action', () => {
-    component.addNewAction()
+  it('should set the new rule', () => {
+    component.tableName = 'user';
+    component.addNewRule()
 
-    expect(component.newAction).toEqual({
+    expect(component.newRule).toEqual({
       id: '',
       title: '',
-      type: CustomActionType.Single,
-      url: '',
-      tableName: '',
-      icon: '',
-      requireConfirmation: false
+      table_name: 'user',
+      events: [
+        {
+          event: null
+        }
+      ],
+      table_actions: [
+        {
+          method: CustomActionMethod.URL,
+          emails: [],
+          url: '',
+        }
+      ]
     })
   });
 
-  it('should set an error if user try to add action with empty name to the list', () => {
-    component.newAction = {
+  it('should set an error if user try to add rule with empty name to the list', () => {
+    component.newRule = {
       id: '',
       title: '',
-      type: CustomActionType.Single,
-      url: '',
-      tableName: '',
-      icon: '',
-      requireConfirmation: false
+      table_name: 'user',
+      events: [
+        {
+          event: null
+        }
+      ],
+      table_actions: [
+        {
+          method: CustomActionMethod.URL,
+          emails: [],
+          url: '',
+        }
+      ]
     }
-    component.handleAddNewAction()
+    component.handleAddNewRule()
 
     expect(component.actionNameError).toEqual('The name cannot be empty.');
   });
 
-  it('should set an error if user try to add action with the same name to the list', () => {
-    component.actions = [{
-      id: 'action_12345678',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
-    }]
-    component.newAction = {
+  it('should set an error if user try to add rule with the same name to the list', () => {
+    component.rules = [{
       id: '',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: '',
-      tableName: '',
-      icon: '',
-      requireConfirmation: false
+      title: 'rule 1',
+      table_name: 'user',
+      events: [],
+      table_actions: []
+    }]
+    component.newRule = {
+      id: '',
+      title: 'rule 1',
+      table_name: 'user',
+      events: [],
+      table_actions: []
     }
 
-    component.handleAddNewAction()
+    component.handleAddNewRule()
 
     expect(component.actionNameError).toEqual('You already have an action with this name.');
   });
 
-  it('should add new action to the list and switch to selected action', () => {
-    const mockNewAction = {
+  it('should add new rule to the list and switch to selected rule', () => {
+    const mockNewRule = {
       id: '',
-      title: 'action 2',
-      type: CustomActionType.Single,
-      url: '',
-      tableName: '',
-      icon: '',
-      requireConfirmation: false
+      title: 'rule 2',
+      table_name: 'user',
+      events: [],
+      table_actions: []
     }
 
-    component.actions = [{
-      id: 'action_12345678',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+    component.rules = [{
+      id: 'rule_12345678',
+      title: 'rule 1',
+      table_name: 'user',
+      events: [],
+      table_actions: []
     }]
 
-    component.newAction = mockNewAction;
+    component.newRule = mockNewRule;
 
-    component.handleAddNewAction()
+    component.handleAddNewRule()
 
-    expect(component.selectedAction).toEqual(mockNewAction);
-    expect(component.updatedActionTitle).toEqual('action 2');
-    expect(component.actions).toEqual([
+    expect(component.selectedRule).toEqual(mockNewRule);
+    expect(component.selectedRuleTitle).toEqual('rule 2');
+    expect(component.rules).toEqual([
       {
-        id: 'action_12345678',
-        title: 'action 1',
-        type: CustomActionType.Single,
-        url: 'https://google.com',
-        tableName: 'user',
-        icon: 'heart',
-        requireConfirmation: false
+        id: 'rule_12345678',
+        title: 'rule 1',
+        table_name: 'user',
+        events: [],
+        table_actions: []
       },
       {
         id: '',
-        title: 'action 2',
-        type: CustomActionType.Single,
-        url: '',
-        tableName: '',
-        icon: '',
-        requireConfirmation: false
+        title: 'rule 2',
+        table_name: 'user',
+        events: [],
+        table_actions: []
       }
     ]);
-    expect(component.newAction).toBeNull();
+    expect(component.newRule).toBeNull();
   });
 
-  it('should remove action if it is not saved and if it is not in the list yet and the list is empty', () => {
-    component.newAction = {
+  it('should remove rule if it is not saved and if it is not in the list yet and the list is empty', () => {
+    component.newRule = {
       id: '',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: '',
-      tableName: '',
-      icon: '',
-      requireConfirmation: false
+      title: 'rule 2',
+      table_name: 'user',
+      events: [],
+      table_actions: []
     }
-    component.actions = [];
 
-    component.undoAction();
+    component.rules = [];
 
-    expect(component.selectedAction).toBeNull();
-    expect(component.newAction).toBeNull();
+    component.undoRule();
+
+    expect(component.selectedRule).toBeNull();
+    expect(component.newRule).toBeNull();
   });
 
-  it('should remove action if it is not saved and if it is not in the list yet and switch to the first action in the list', () => {
-    const mockAction = {
-      id: '',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+  it('should remove rule if it is not saved and if it is not in the list yet and switch to the first rule in the list', () => {
+    const mockRule = {
+        id: 'rule_12345678',
+        title: 'rule 1',
+        table_name: 'user',
+        events: [
+          {
+            event: null
+          }
+        ],
+        table_actions: []
     };
-    component.newAction = {
-      id: '',
-      title: 'action 2',
-      type: CustomActionType.Single,
-      url: '',
-      tableName: '',
-      icon: '',
-      requireConfirmation: false
+    component.newRule = {
+        id: '',
+        title: 'rule 2',
+        table_name: 'user',
+        events: [
+          {
+            event: null
+          }
+        ],
+        table_actions: []
     }
-    component.actions = [ mockAction ];
+    component.rules = [ mockRule ];
 
-    component.undoAction();
+    component.undoRule();
 
-    expect(component.selectedAction).toEqual(mockAction);
-    expect(component.newAction).toBeNull();
+    expect(component.selectedRule).toEqual(mockRule);
+    expect(component.newRule).toBeNull();
   });
 
   it('should call remove action from the list when it is not saved', () => {
-    component.selectedAction = {
-      id: '',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+    component.selectedRule = {
+        id: '',
+        title: 'rule 1',
+        table_name: 'user',
+        events: [],
+        table_actions: []
     };
-    const mockRemoveActionFromLocalList = spyOn(component, 'removeActionFromLocalList');
+    const mockRemoveRuleFromLocalList = spyOn(component, 'removeRuleFromLocalList');
 
-    component.handleRemoveAction();
+    component.handleRemoveRule();
 
-    expect(mockRemoveActionFromLocalList).toHaveBeenCalledOnceWith('action 1');
+    expect(mockRemoveRuleFromLocalList).toHaveBeenCalledOnceWith('rule 1');
   });
 
   it('should call open delete confirm dialog when action is saved', () => {
-    component.selectedAction = {
-      id: 'action_12345678',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+    component.selectedRule = {
+        id: 'rule_12345678',
+        title: 'rule 1',
+        table_name: 'user',
+        events: [],
+        table_actions: []
     };
-    const mockOpenDeleteActionDialog = spyOn(component, 'openDeleteActionDialog');
+    const mockOpenDeleteRuleDialog = spyOn(component, 'openDeleteRuleDialog');
 
-    component.handleRemoveAction();
+    component.handleRemoveRule();
 
-    expect(mockOpenDeleteActionDialog).toHaveBeenCalledOnceWith();
+    expect(mockOpenDeleteRuleDialog).toHaveBeenCalledOnceWith();
   });
 
-  it('should remove action from the list if it is not saved and if it is only one actions in the list', () => {
-    component.actions = [
-        {
-        id: '',
-        title: 'action 1',
-        type: CustomActionType.Single,
-        url: 'https://google.com',
-        tableName: 'user',
-        icon: 'heart',
-        requireConfirmation: false
+  it('should remove rule from the list if it is not saved and if it is only one actions in the list', () => {
+    component.rules = [
+      {
+        id: 'rule_12345678',
+        title: 'rule 1',
+        table_name: 'user',
+        events: [],
+        table_actions: []
       }
     ];
 
-    component.removeActionFromLocalList('action 1');
+    component.removeRuleFromLocalList('rule 1');
 
-    expect(component.selectedAction).toBeNull();
-    expect(component.actions).toEqual([]);
+    expect(component.selectedRule).toBeNull();
+    expect(component.rules).toEqual([]);
   });
 
-  it('should remove action from the list if it is not saved and make active the first action in the list', () => {
-    const mockAction =  {
+  it('should remove rule from the list if it is not saved and make active the first rule in the list', () => {
+    const mockRule =  {
       id: '',
-      title: 'action 2',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'star',
-      requireConfirmation: false
-    };
-    component.actions = [
+      title: 'rule 2',
+      table_name: 'user',
+      events: [
         {
+          event: null
+        }
+      ],
+      table_actions: []
+    };
+    component.rules = [
+      {
         id: '',
-        title: 'action 1',
-        type: CustomActionType.Single,
-        url: 'https://google.com',
-        tableName: 'user',
-        icon: 'heart',
-        requireConfirmation: false
+        title: 'rule 1',
+        table_name: 'user',
+        events: [
+          {
+            event: null
+          }
+        ],
+        table_actions: []
       },
-      mockAction
+      mockRule
     ];
 
-    component.removeActionFromLocalList('action 1')
+    component.removeRuleFromLocalList('rule 1')
 
-    expect(component.selectedAction).toEqual(mockAction);
-    expect(component.actions).toEqual([mockAction]);
+    expect(component.selectedRule).toEqual(mockRule);
+    expect(component.rules).toEqual([mockRule]);
   });
 
-  it('should save action', () => {
-    const mockAction = {
+  it('should save rule', () => {
+    component.tableName = 'users';
+    const mockRule = {
       id: '',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+      title: 'rule 2',
+      table_name: '',
+      events: [],
+      table_actions: []
     };
     component.connectionID = '12345678';
-    component.tableName = 'users'
-    component.selectedAction = mockAction;
-    const fakeSavwAction = spyOn(tablesService, 'saveAction').and.returnValue(of());
+    component.selectedRule = mockRule;
+    const fakeSaveAction = spyOn(tablesService, 'saveRule').and.returnValue(of());
 
 
-    component.addAction();
+    component.addRule();
 
-    expect(fakeSavwAction).toHaveBeenCalledOnceWith('12345678', 'users', mockAction);
+    expect(fakeSaveAction).toHaveBeenCalledOnceWith('12345678', 'users', mockRule);
   });
 
   it('should open dialog for delete action confirmation', () => {
     const fakeConfirmationDialog = spyOn(dialog, 'open');
 
-    const mockAction = {
+    const mockRule = {
       id: '',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart',
-      requireConfirmation: false
+      title: 'rule 2',
+      table_name: 'user',
+      events: [],
+      table_actions: []
     };
     component.connectionID = '12345678';
-    component.tableName = 'users'
-    component.selectedAction = mockAction;
+    component.tableName = 'users';
+    component.selectedRule = mockRule;
 
-    component.openDeleteActionDialog();
+    component.openDeleteRuleDialog();
 
     expect(fakeConfirmationDialog).toHaveBeenCalledOnceWith(ActionDeleteDialogComponent, {
       width: '25em',
       data: {
         connectionID: '12345678',
         tableName: 'users',
-        action: mockAction
+        rule: mockRule
       }
     });
   });

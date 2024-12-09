@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DbTableFiltersDialogComponent', () => {
   let component: DbTableFiltersDialogComponent;
@@ -77,7 +78,8 @@ describe('DbTableFiltersDialogComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         MatAutocompleteModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {

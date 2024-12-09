@@ -5,6 +5,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog.component';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('ActionDeleteDialogComponent', () => {
   let component: ActionDeleteDialogComponent;
@@ -17,7 +18,8 @@ describe('ActionDeleteDialogComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule,
         MatDialogModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

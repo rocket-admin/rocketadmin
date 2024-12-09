@@ -12,6 +12,7 @@ import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
 import { LogAction, LogStatus } from 'src/app/models/logs';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('AuditComponent', () => {
   let component: AuditComponent;
@@ -77,7 +78,8 @@ describe('AuditComponent', () => {
         MatSnackBarModule,
         MatDialogModule,
         MatPaginatorModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ],
       declarations: [ AuditComponent ]
     })

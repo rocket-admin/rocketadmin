@@ -8,6 +8,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('ForeignKeyRowComponent', () => {
   let component: ForeignKeyRowComponent;
@@ -126,7 +127,8 @@ describe('ForeignKeyRowComponent', () => {
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatAutocompleteModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot()
       ],
     })
     .compileComponents();
