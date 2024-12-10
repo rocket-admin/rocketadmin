@@ -319,6 +319,23 @@ export class TableActionActivationService {
     return primaryKeyValuesArray;
   }
 
+  private escapePrimaryKeyValuesArray(array: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+    return array.map((record) => {
+      const escapedRecord: Record<string, unknown> = {};
+      for (const key in record) {
+        if (record.hasOwnProperty(key)) {
+          const escapedKey = escapeHtml(key);
+          // eslint-disable-next-line security/detect-object-injection
+          const value = record[key];
+          const escapedValue = typeof value === 'string' ? escapeHtml(value) : value;
+          // eslint-disable-next-line security/detect-object-injection
+          escapedRecord[escapedKey] = escapedValue;
+        }
+      }
+      return escapedRecord;
+    });
+  }
+
   private generateMessageContent(
     userInfo: UserInfoMessageData,
     triggerOperation: TableActionEventEnum,
@@ -334,8 +351,9 @@ export class TableActionActivationService {
           : triggerOperation === TableActionEventEnum.DELETE_ROW
             ? 'deleted a row'
             : 'performed an action';
+    primaryKeyValuesArray = this.escapePrimaryKeyValuesArray(primaryKeyValuesArray);        
     const textContent = `${userName ? escapeHtml(userName) : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${escapeHtml(tableName)}".`;
-    const testContentWithPrimaryKeys = `${textContent} Primary Keys: ${escapeHtml(JSON.stringify(primaryKeyValuesArray))}`;
+    const testContentWithPrimaryKeys = `${textContent} Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}`;
     const htmlContent = `<!doctype html>
 <html>
   <head>
@@ -437,7 +455,7 @@ table[class=body] .article {
                     <tr>
                       <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
                         <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">${textContent}</p>
-                        <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">Primary Keys: ${escapeHtml(JSON.stringify(primaryKeyValuesArray))}</p>
+                        <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}</p>
                       </td>
                     </tr>
                     <tr>
