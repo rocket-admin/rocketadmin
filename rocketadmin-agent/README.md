@@ -7,11 +7,20 @@ There are two options for installing Rocketadmin-agent: using Docker Desktop (fo
 Open Terminal app and run following commands:
 
 ```bash
-
 docker pull rocketadmin/rocketadmin-agent:latest
-docker run -it rocketadmin/rocketadmin-agent:latest
-
 ```
+
+```bash
+docker run -it rocketadmin/rocketadmin-agent:latest
+```
+
+(Note: If you run the RocketAdmin agent in a Docker container and your database is located on the "localhost" of your machine, you should add the --network=host option to the docker run command. The command will look like this:
+
+```bash
+docker run -it --network=host rocketadmin/rocketadmin-agent:latest
+```
+
+Also, note that in this case, the database host should be changed from "localhost" (or 127.0.0.1) to "host.docker.internal" due to Docker's networking features. For hosts other than "localhost", the command and host do not need to be changed.)
 
 Running these commands will start the application in interactive mode, displaying a command line dialog where you can enter the necessary connection parameters.
 
