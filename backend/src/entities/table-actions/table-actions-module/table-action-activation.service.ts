@@ -17,6 +17,7 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import axios, { AxiosResponse } from 'axios';
 import PQueue from 'p-queue';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { escapeHtml } from '../../email/utils/escape-html.util.js';
 
 export type ActionActivationResult = {
   location?: string;
@@ -333,8 +334,8 @@ export class TableActionActivationService {
           : triggerOperation === TableActionEventEnum.DELETE_ROW
             ? 'deleted a row'
             : 'performed an action';
-    const textContent = `${userName ? userName : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${tableName}".`;
-    const testContentWithPrimaryKeys = `${textContent} Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}`;
+    const textContent = `${userName ? escapeHtml(userName) : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${escapeHtml(tableName)}".`;
+    const testContentWithPrimaryKeys = `${textContent} Primary Keys: ${escapeHtml(JSON.stringify(primaryKeyValuesArray))}`;
     const htmlContent = `<!doctype html>
 <html>
   <head>
@@ -436,7 +437,7 @@ table[class=body] .article {
                     <tr>
                       <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
                         <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">${textContent}</p>
-                        <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}</p>
+                        <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">Primary Keys: ${escapeHtml(JSON.stringify(primaryKeyValuesArray))}</p>
                       </td>
                     </tr>
                     <tr>
