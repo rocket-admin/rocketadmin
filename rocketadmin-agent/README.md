@@ -29,9 +29,7 @@ Running these commands will start the application in interactive mode, displayin
 Clone the Rocketadmin Git Repository:
 
 ```bash
-
 git clone https://github.com/rocket-admin/rocketadmin.git
-
 ```
 
 Alternatively, download the ZIP archive, extract it, and open the containing folder in your terminal.
@@ -39,23 +37,18 @@ Alternatively, download the ZIP archive, extract it, and open the containing fol
 Build the Docker Image:
 
 ```bash
-
 docker build -t rocketadmin-agent -f Dockerfile.rocketadmin-agent .
-
 ```
 
 Run the Application in Interactive Mode:
 
 ```bash
-
 docker run -it rocketadmin-agent
-
 ```
 
 To avoid starting the container in interactive mode, you can pass environment variables directly in the `docker run` command:
 
 ```bash
-
 docker run -d \
   -p 3000:3000 \ # Maps port 3000 of the host to port 3000 of the container
   --name rocketadmin \
@@ -74,7 +67,6 @@ docker run -d \
   -e CONNECTION_AZURE_ENCRYPTION=0 \ # Set to 1 to enable encryption for MSSQL in Azure
   -e APP_PORT=3000 \ # Port where the application will run (default is 3000)
   rocketadmin/rocketadmin-agent:latest
-
 ```
 
 You can also run the project in Docker Compose mode by creating a `docker-compose.yml` file (an example can be found in the root of the `rocketadmin-agent` repository folder). Open the folder containing this file in your terminal and run the command `docker compose up`.
