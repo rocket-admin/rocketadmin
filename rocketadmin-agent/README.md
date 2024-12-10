@@ -71,4 +71,17 @@ docker run -d \
 
 You can also run the project in Docker Compose mode by creating a `docker-compose.yml` file (an example can be found in the root of the `rocketadmin-agent` repository folder). Open the folder containing this file in your terminal and run the command `docker compose up`.
 
-(Note: You can also create a `.config.env` file, an example of which can be found in the root of the `rocketadmin-agent` repository folder. Fill in all necessary variables and reference it in the `docker-compose.yml` file.)
+(Note: You can also create a .config.env file, an example of which can be found in the root of the rocketadmin-agent repository folder. Fill in all necessary variables and reference it in the docker-compose.yml file or pass it directly in the Docker command. Ensure that the path to the .config.env file is correct, or you should run the terminal instance from the folder where it is located:
+
+```bash
+docker run -it --env-file .config.env rocketadmin/rocketadmin-agent:latest
+```
+
+or
+
+```bash
+docker run -it --network=host --env-file .config.env rocketadmin/rocketadmin-agent:latest
+```
+
+if you run the RocketAdmin agent in a Docker container and your database is located on the "localhost" of your machine.
+)
