@@ -7,11 +7,20 @@ There are two options for installing Rocketadmin-agent: using Docker Desktop (fo
 Open Terminal app and run following commands:
 
 ```bash
-
 docker pull rocketadmin/rocketadmin-agent:latest
-docker run -it rocketadmin/rocketadmin-agent:latest
-
 ```
+
+```bash
+docker run -it rocketadmin/rocketadmin-agent:latest
+```
+
+(Note: If you run the RocketAdmin agent in a Docker container and your database is located on the "localhost" of your machine, you should add the --network=host option to the docker run command. The command will look like this:
+
+```bash
+docker run -it --network=host rocketadmin/rocketadmin-agent:latest
+```
+
+Also, note that in this case, the database host should be changed from "localhost" (or 127.0.0.1) to "host.docker.internal" due to Docker's networking features. For hosts other than "localhost", the command and host do not need to be changed.)
 
 Running these commands will start the application in interactive mode, displaying a command line dialog where you can enter the necessary connection parameters.
 
@@ -20,9 +29,7 @@ Running these commands will start the application in interactive mode, displayin
 Clone the Rocketadmin Git Repository:
 
 ```bash
-
 git clone https://github.com/rocket-admin/rocketadmin.git
-
 ```
 
 Alternatively, download the ZIP archive, extract it, and open the containing folder in your terminal.
@@ -30,23 +37,18 @@ Alternatively, download the ZIP archive, extract it, and open the containing fol
 Build the Docker Image:
 
 ```bash
-
 docker build -t rocketadmin-agent -f Dockerfile.rocketadmin-agent .
-
 ```
 
 Run the Application in Interactive Mode:
 
 ```bash
-
 docker run -it rocketadmin-agent
-
 ```
 
 To avoid starting the container in interactive mode, you can pass environment variables directly in the `docker run` command:
 
 ```bash
-
 docker run -d \
   -p 3000:3000 \ # Maps port 3000 of the host to port 3000 of the container
   --name rocketadmin \
@@ -65,9 +67,21 @@ docker run -d \
   -e CONNECTION_AZURE_ENCRYPTION=0 \ # Set to 1 to enable encryption for MSSQL in Azure
   -e APP_PORT=3000 \ # Port where the application will run (default is 3000)
   rocketadmin/rocketadmin-agent:latest
-
 ```
 
 You can also run the project in Docker Compose mode by creating a `docker-compose.yml` file (an example can be found in the root of the `rocketadmin-agent` repository folder). Open the folder containing this file in your terminal and run the command `docker compose up`.
 
-(Note: You can also create a `.config.env` file, an example of which can be found in the root of the `rocketadmin-agent` repository folder. Fill in all necessary variables and reference it in the `docker-compose.yml` file.)
+(Note: You can also create a .config.env file, an example of which can be found in the root of the rocketadmin-agent repository folder. Fill in all necessary variables and reference it in the docker-compose.yml file or pass it directly in the Docker command. Ensure that the path to the .config.env file is correct, or you should run the terminal instance from the folder where it is located:
+
+```bash
+docker run -it --env-file .config.env rocketadmin/rocketadmin-agent:latest
+```
+
+or
+
+```bash
+docker run -it --network=host --env-file .config.env rocketadmin/rocketadmin-agent:latest
+```
+
+if you run the RocketAdmin agent in a Docker container and your database is located on the "localhost" of your machine.
+)
