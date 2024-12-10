@@ -12,6 +12,7 @@ import {
   parseTestIbmDB2ConnectionString,
   parseTestDynamoDBConnectionString,
 } from '../parsers/string-connection-to-database-parsers.js';
+import { escapeHtml } from '../../entities/email/utils/escape-html.util.js';
 
 export type TestConnectionsFromJSON = {
   //string value represents the connection string, to connect to the database
@@ -1046,9 +1047,11 @@ export const Constants = {
     GROUP_INVITE: {
       GROUP_INVITE_SUBJECT_DATA: 'You were added to a group on Rocketadmin',
       GROUP_INVITE_TEXT_DATA: function (groupTitle: string) {
+        groupTitle = escapeHtml(groupTitle);
         return `You have been added to the "${groupTitle}" group. Glad to see you there.`;
       },
       GROUP_INVITE_HTML_DATA: function (groupTitle: string) {
+        groupTitle = escapeHtml(groupTitle);
         return `
         <!doctype html>
           <html>
@@ -1188,11 +1191,13 @@ export const Constants = {
     COMPANY_INVITE: {
       COMPANY_INVITE_SUBJECT_DATA: 'You were invited to a company on Rocketadmin',
       COMPANY_INVITE_TEXT_DATA: function (verificationString: string, companyId: string, companyName: string) {
+        companyName = escapeHtml(companyName);
         return `You have been added to a company${companyName ? ` "${companyName}" ` : ` `}in the Rocketadmin project.
          Please follow the link and accept the invitation:
            ${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${verificationString}/`;
       },
       COMPANY_INVITE_HTML_DATA: function (verificationString: string, companyId: string, companyName: string) {
+        companyName = escapeHtml(companyName);
         return `
         <!doctype html>
           <html>
@@ -1351,9 +1356,13 @@ export const Constants = {
     },
     COMPANY_2FA_ENABLED: {
       COMPANY_2FA_ENABLED_SUBJECT_DATA: '2FA was enabled in your company',
-      COMPANY_2FA_ENABLED_TEXT_DATA: (companyName: string): string =>
-        `Administrator enabled two-factor authentication for you company "${companyName}". Please enable 2FA in your account. It will be required for login soon.`,
-      COMPANY_2FA_ENABLED_HTML_DATA: (companyName: string): string => `
+      COMPANY_2FA_ENABLED_TEXT_DATA: (companyName: string): string => {
+        companyName = escapeHtml(companyName);
+        return `Administrator enabled two-factor authentication for you company "${companyName}". Please enable 2FA in your account. It will be required for login soon.`;
+      },
+      COMPANY_2FA_ENABLED_HTML_DATA: (companyName: string): string => {
+        companyName = escapeHtml(companyName);
+        return ` 
       <body>
       <p>
         Hi!
@@ -1365,7 +1374,8 @@ export const Constants = {
         Thanks.
       </p>
     </body>
-      `,
+      `;
+      },
     },
   },
 };
