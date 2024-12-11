@@ -8,10 +8,10 @@ describe('BaseRowFieldComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BaseRowFieldComponent]
+      declarations: [BaseRowFieldComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(BaseRowFieldComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -3,7 +3,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
-import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-row-boolean',

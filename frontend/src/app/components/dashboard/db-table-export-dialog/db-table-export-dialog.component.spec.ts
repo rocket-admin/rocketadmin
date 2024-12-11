@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DbTableExportDialogComponent', () => {
   let component: DbTableExportDialogComponent;
@@ -21,7 +22,8 @@ describe('DbTableExportDialogComponent', () => {
         MatDialogModule,
         HttpClientTestingModule,
         MatSnackBarModule,
-        FormsModule
+        FormsModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {

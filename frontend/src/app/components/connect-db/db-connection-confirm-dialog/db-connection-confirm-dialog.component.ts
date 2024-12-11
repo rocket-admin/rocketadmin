@@ -2,7 +2,6 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { NotificationsService } from 'src/app/services/notifications.service';
 import { DbConnectionDeleteDialogComponent } from '../db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { environment } from 'src/environments/environment';
 
@@ -21,7 +20,6 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
     private _connections: ConnectionsService,
     public dialogRef: MatDialogRef<DbConnectionDeleteDialogComponent>,
     public router: Router,
-    private _notifications: NotificationsService
   ) { }
 
   ngOnInit(): void {}

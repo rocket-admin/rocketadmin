@@ -21,7 +21,7 @@ describe('AddMemberDialogComponent', () => {
         Angulartics2Module.forRoot()
       ],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: { id: '' } },
+        { provide: MAT_DIALOG_DATA, useValue: { id: '', connections: [] } },
         { provide: MatDialogRef, useValue: MatDialogRef }
       ],
     })

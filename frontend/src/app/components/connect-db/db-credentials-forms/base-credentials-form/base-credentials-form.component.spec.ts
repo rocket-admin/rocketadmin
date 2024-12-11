@@ -11,7 +11,7 @@ describe('BaseCredentialsFormComponent', () => {
       imports: [BaseCredentialsFormComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(BaseCredentialsFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -168,7 +168,7 @@ describe('UserService', () => {
       message: "Password change request was requested successfully"
     }
 
-    service.requestPasswordReset('john@smith.com').subscribe((res) => {
+    service.requestPasswordReset('john@smith.com', 'company_1').subscribe((res) => {
       expect(res).toEqual(requestResponse);
       expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Success, 'Check your email.', [jasmine.objectContaining({
         type: AlertActionType.Button,
@@ -185,7 +185,7 @@ describe('UserService', () => {
   });
 
   it('should fall for requestPasswordReset and show Error alert', async () => {
-    const resMessage = service.requestPasswordReset('john@smith.com').toPromise();
+    const resMessage = service.requestPasswordReset('john@smith.com', 'company_1').toPromise();
 
     const req = httpMock.expectOne(`/user/password/reset/request`);
     expect(req.request.method).toBe("POST");

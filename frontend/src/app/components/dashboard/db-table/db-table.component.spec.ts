@@ -22,7 +22,18 @@ describe('DbTableComponent', () => {
       "id": "c768dde8-7348-46e8-a522-718a29b705e8",
       "field_name": "Region",
       "widget_type": "Select",
-      "widget_params": "// provide array of options to map database value (key 'value') in human readable value (key 'label');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  options: [\n    {\n      value: 'AK',\n      label: 'Alaska'\n    },\n    {\n      value: 'CA',\n      label: 'California'\n    }\n  ]\n}",
+      "widget_params": {
+        options: [
+          {
+            value: 'AK',
+            label: 'Alaska'
+          },
+          {
+            value: 'CA',
+            label: 'California'
+          }
+        ]
+      },
       "widget_options": null,
       "name": "State",
       "description": ""
@@ -31,7 +42,7 @@ describe('DbTableComponent', () => {
       "id": "ee3125ca-86cc-4c20-93f9-8a0b2c43d61f",
       "field_name": "address_id",
       "widget_type": "String",
-      "widget_params": "// No settings required",
+      "widget_params": "",
       "widget_options": null,
       "name": "",
       "description": ""

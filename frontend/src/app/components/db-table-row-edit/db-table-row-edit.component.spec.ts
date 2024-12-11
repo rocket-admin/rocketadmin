@@ -7,6 +7,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { MatDialogModule } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DbTableRowEditComponent', () => {
   let component: DbTableRowEditComponent;
@@ -20,7 +21,8 @@ describe('DbTableRowEditComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot()
       ],
       declarations: [ DbTableRowEditComponent ]
     })

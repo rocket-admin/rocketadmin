@@ -7,6 +7,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('BbBulkActionConfirmationDialogComponent', () => {
   let component: BbBulkActionConfirmationDialogComponent;
@@ -24,7 +25,8 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {

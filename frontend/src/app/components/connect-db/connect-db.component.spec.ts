@@ -24,7 +24,6 @@ describe('ConnectDBComponent', () => {
   let component: ConnectDBComponent;
   let fixture: ComponentFixture<ConnectDBComponent>;
   let dialog: MatDialog;
-  let mockLocalStorage;
 
   let fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert', 'dismissAlert']);
   let fakeConnectionsService = jasmine.createSpyObj('ConnectionsService', [
@@ -87,26 +86,10 @@ describe('ConnectDBComponent', () => {
     component = fixture.componentInstance;
     dialog = TestBed.get(MatDialog);
 
-    let store = {};
-    mockLocalStorage = {
-      getItem: (key: string): string => {
-        return key in store ? store[key] : null;
-      },
-      setItem: (key: string, value: string) => {
-        store[key] = `${value}`;
-      },
-      removeItem: (key: string) => {
-        delete store[key];
-      },
-      clear: () => {
-        store = {};
-      }
-    };
-
-      // @ts-ignore
-      global.window.fbq = jasmine.createSpy();
-      // @ts-ignore
-      global.window.Intercom = jasmine.createSpy();
+    // @ts-ignore
+    global.window.fbq = jasmine.createSpy();
+    // @ts-ignore
+    global.window.Intercom = jasmine.createSpy();
 
     fakeConnectionsService.currentConnection.and.returnValue(connectionCredsApp);
     fakeConnectionsService.getCurrentConnectionTitle.and.returnValue(of('Test connection via SSH tunnel to mySQL'));
@@ -159,8 +142,8 @@ describe('ConnectDBComponent', () => {
     fakeNotifications.showSuccessSnackbar.calls.reset();
   });
 
-  it('should generate password', () => {
-    component.generatePassword();
+  it('should generate password if toggle is enabled', () => {
+    component.generatePassword(true);
     expect(component.masterKey).toBeDefined();
   });
 
@@ -174,29 +157,6 @@ describe('ConnectDBComponent', () => {
       data: connectionCredsApp
     });
   });
-
-  it('should write master key in localstorage if masterEncryption is turned on', () => {
-    spyOn(localStorage, 'setItem').and.callFake(mockLocalStorage.setItem);
-
-    component.db.masterEncryption = true;
-    component.masterKey = 'abcd-0987654321';
-    component.connectionID = '12345678';
-
-    component.checkMasterPassword();
-
-    expect(localStorage.setItem).toHaveBeenCalledOnceWith('12345678__masterKey', 'abcd-0987654321');
-  })
-
-  it('should remove master key in localstorage if masterEncryption is turned off', () => {
-    spyOn(localStorage, 'removeItem').and.callFake(mockLocalStorage.removeItem);
-
-    component.db.masterEncryption = false;
-    component.connectionID = '12345678';
-
-    component.checkMasterPassword();
-
-    expect(localStorage.removeItem).toHaveBeenCalledOnceWith('12345678__masterKey');
-  })
 
   it('should create direct connection', () => {
     fakeConnectionsService.createConnection.and.returnValue(of(connectionCredsApp));
@@ -268,12 +228,14 @@ describe('ConnectDBComponent', () => {
   it('should open dialog on test error', () => {
     const fakeDialogOpen = spyOn(dialog, 'open');
     spyOnProperty(component, "db", "get").and.returnValue(connectionCredsApp);
+    component.masterKey = "master_password_12345678"
     component.handleConnectionError('Hostname is invalid');
 
     expect(fakeDialogOpen).toHaveBeenCalledOnceWith(DbConnectionConfirmDialogComponent, {
       width: '25em',
       data: {
         dbCreds: connectionCredsApp,
+        masterKey: 'master_password_12345678',
         errorMessage: 'Hostname is invalid'
       }
     });

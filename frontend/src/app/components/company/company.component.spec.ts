@@ -222,13 +222,12 @@ describe('CompanyComponent', () => {
 
   it('should open Add member dialog and pass company id and name', () => {
     const fakeAddMemberDialogOpen = spyOn(dialog, 'open');
-    component.company.id = 'company-12345678';
-    component.company.name = 'My company';
+    component.company = mockCompany;
 
     component.handleAddMemberDialogOpen();
     expect(fakeAddMemberDialogOpen).toHaveBeenCalledOnceWith(InviteMemberDialogComponent, {
       width: '25em',
-      data: {id: 'company-12345678', name: 'My company'}
+      data: mockCompany
     });
   });
 

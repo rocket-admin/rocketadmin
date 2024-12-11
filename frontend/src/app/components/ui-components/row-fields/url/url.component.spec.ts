@@ -1,18 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UrlComponent } from './url.component';
+import { UrlRowComponent } from './url.component';
+import { FormsModule } from '@angular/forms';
 
 describe('UrlComponent', () => {
-  let component: UrlComponent;
-  let fixture: ComponentFixture<UrlComponent>;
+  let component: UrlRowComponent;
+  let fixture: ComponentFixture<UrlRowComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UrlComponent]
+      imports: [
+        FormsModule
+      ],
+      declarations: [UrlRowComponent]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(UrlComponent);
+
+    fixture = TestBed.createComponent(UrlRowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
