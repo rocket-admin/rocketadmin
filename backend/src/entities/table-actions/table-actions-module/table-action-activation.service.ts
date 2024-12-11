@@ -17,6 +17,7 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import axios, { AxiosResponse } from 'axios';
 import PQueue from 'p-queue';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { escapeHtml } from '../../email/utils/escape-html.util.js';
 
 export type ActionActivationResult = {
   location?: string;
@@ -318,6 +319,23 @@ export class TableActionActivationService {
     return primaryKeyValuesArray;
   }
 
+  private escapePrimaryKeyValuesArray(array: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+    return array.map((record) => {
+      const escapedRecord: Record<string, unknown> = {};
+      for (const key in record) {
+        if (record.hasOwnProperty(key)) {
+          const escapedKey = escapeHtml(key);
+          // eslint-disable-next-line security/detect-object-injection
+          const value = record[key];
+          const escapedValue = typeof value === 'string' ? escapeHtml(value) : value;
+          // eslint-disable-next-line security/detect-object-injection
+          escapedRecord[escapedKey] = escapedValue;
+        }
+      }
+      return escapedRecord;
+    });
+  }
+
   private generateMessageContent(
     userInfo: UserInfoMessageData,
     triggerOperation: TableActionEventEnum,
@@ -333,7 +351,8 @@ export class TableActionActivationService {
           : triggerOperation === TableActionEventEnum.DELETE_ROW
             ? 'deleted a row'
             : 'performed an action';
-    const textContent = `${userName ? userName : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${tableName}".`;
+    primaryKeyValuesArray = this.escapePrimaryKeyValuesArray(primaryKeyValuesArray);        
+    const textContent = `${userName ? escapeHtml(userName) : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${escapeHtml(tableName)}".`;
     const testContentWithPrimaryKeys = `${textContent} Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}`;
     const htmlContent = `<!doctype html>
 <html>

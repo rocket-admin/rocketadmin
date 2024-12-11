@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { Logger } from '../helpers/logging/Logger.js';
 import { processExceptionMessage } from './utils/process-exception-message.js';
 import Sentry from '@sentry/minimal';
+import { Messages } from './text/messages.js';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -29,9 +30,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
       Logger.logError(exception);
     }
 
+    const ifErrorMasterPwdMissing = text === Messages.MASTER_PASSWORD_MISSING;
+    const ifErrorMasterPwdIncorrect = text === Messages.MASTER_PASSWORD_INCORRECT;
+    const masterPwdErrorType = ifErrorMasterPwdMissing
+      ? 'no_master_key'
+      : ifErrorMasterPwdIncorrect
+        ? 'invalid_master_key'
+        : undefined;
+
     response.status(status).json({
       message: text ? text : 'Something went wrong',
-      type: type ? type : undefined,
+      type: type ? type : masterPwdErrorType,
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,

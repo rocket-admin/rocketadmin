@@ -38,7 +38,7 @@ export class FindOneConnectionUseCase
       inputData.connectionId,
     );
 
-    if (connection.masterEncryption && !inputData.masterPwd && accessLevel !== AccessLevelEnum.none) {
+    if (connection.masterEncryption && !inputData.masterPwd) {
       throw new HttpException(
         {
           message: Messages.MASTER_PASSWORD_MISSING,
@@ -48,7 +48,7 @@ export class FindOneConnectionUseCase
       );
     }
 
-    if (connection.masterEncryption && inputData.masterPwd && accessLevel !== AccessLevelEnum.none) {
+    if (connection.masterEncryption && inputData.masterPwd) {
       const isMaterPwdValid = await Encryptor.verifyUserPassword(inputData.masterPwd, connection.master_hash);
       if (!isMaterPwdValid) {
         throw new HttpException(
