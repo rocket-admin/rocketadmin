@@ -169,3 +169,14 @@
     padding: 8px 12px;
 }
 
+.agent-token {
+    display: flex;
+    margin-top: 32px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.agent-token__copy-button {
+    margin-top: 4px;
+    margin-left: 12px;
+}

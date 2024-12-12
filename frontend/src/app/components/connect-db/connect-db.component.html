@@ -221,7 +221,7 @@
                 </li>
             </ol>-->
 
-            <div *ngIf="connectionToken" class="encription-password">
+            <div *ngIf="connectionToken" class="agent-token">
                 <mat-form-field appearance="outline" style="width:100%">
                     <mat-label>Token</mat-label>
                     <input matInput name="token" #token="ngModel" readonly
@@ -233,7 +233,7 @@
                 </mat-form-field>
                 <button type="button" mat-icon-button
                     data-testid="connection-agent-token-copy-button"
-                    class="encription-password__copy-button"
+                    class="agent-token__copy-button"
                     matTooltip="Copy mater password"
                     [cdkCopyToClipboard]="connectionToken"
                     (cdkCopyToClipboardCopied)="showCopyNotification('Connection token was copied to clipboard.')">
