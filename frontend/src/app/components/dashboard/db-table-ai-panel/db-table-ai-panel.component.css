@@ -91,6 +91,10 @@
     padding-left: 28px;
 }
 
+.ai-message ::ng-deep pre {
+    white-space: break-spaces;
+}
+
 .user-message ::ng-deep p,
 .ai-message ::ng-deep p {
     margin-bottom: 8px;
