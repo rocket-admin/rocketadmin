@@ -86,6 +86,14 @@
     margin: 4px 0;
 }
 
+.ai-error-message {
+    background-color: var(--color-warnPalette-100);
+    color: var(--color-warnPalette-100-contrast);
+    border-radius: 8px;
+    padding: 8px 8px 0;
+    margin: 4px 0;
+}
+
 .ai-message ::ng-deep ol,
 .ai-message ::ng-deep ul {
     padding-left: 28px;

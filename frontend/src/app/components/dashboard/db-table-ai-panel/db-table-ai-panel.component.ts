@@ -1,7 +1,8 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+
 import { Angulartics2 } from 'angulartics2';
-import { MarkdownService } from 'ngx-markdown';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { MarkdownService } from 'ngx-markdown';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 
@@ -92,7 +93,11 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         action: 'AI panel: message sent successfully',
       });
     },
-      () => {
+      (error_message) => {
+        this.messagesChain.push({
+          type: 'ai-error',
+          text: error_message
+        });
         this.submitting = false;
         this.angulartics2.eventTrack.next({
           action: 'AI panel: message sent and returned an error',

@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { CustomAction, Rule, TableSettings, Widget } from '../models/table';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
@@ -484,14 +484,14 @@ export class TablesService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
-          return EMPTY;
+          // this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          //   {
+          //     type: AlertActionType.Button,
+          //     caption: 'Dismiss',
+          //     action: (id: number) => this._notifications.dismissAlert()
+          //   }
+          // ]);
+          return throwError(() => new Error(err.error.message));
         })
       );
   }
