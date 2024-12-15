@@ -10,23 +10,33 @@
 }
 
 .settings-fields {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-column-gap: 16px;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     padding: 24px max(calc(50vw - 325px), 10%) 60px;
+}
+
+@media (width <= 600px) {
+    .settings-fields {
+        gap: 24px;
+        padding: 0 9vw 72px;
+    }
+}
+
+.settings-table-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.settings-table-display__title {
+    flex-grow: 1;
 }
 
 .settings-fields__heading {
     margin-top: 20px;
-}
-
-.settings-form__full-line {
-    grid-column: 1 / span 2;
-}
-
-.settings-form__toggle {
-    margin-bottom: 12px;
+    margin-bottom: -4px;
 }
 
 .icon-picker {
@@ -35,7 +45,18 @@
 }
 
 .order-settings {
+    display: flex;
+    gap: 12px;
+}
+
+.order-settings__panel {
+    flex-grow: 1;
+    margin-bottom: 8px;
+}
+
+.order-settings__expansion-panel {
     position: relative;
+    box-shadow: 0 0 1px 1px rgba(0,0,0,0.15);
 }
 
 .order-settings ::ng-deep .mat-expansion-panel-header {
@@ -44,10 +65,8 @@
     padding: 0.75em;
 }
 
-.settings-form__expansion-panel {
-    position: relative;
-    margin-bottom: 28px;
-    box-shadow: 0 0 1px 1px rgba(0,0,0,0.15);
+.order-settings__reset-button {
+    margin-top: 4px;
 }
 
 .mat-expansion-panel:not(.mat-expanded):hover {
@@ -100,27 +119,34 @@
     margin-bottom: 20px;
 }
 
-.settings-form__resetButton {
-    align-self: flex-start;
-    margin-top: 4px;
-    margin-left: -4px;
-}
-
 .form-group-ordering {
     display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (width <= 600px) {
+    .form-group-ordering {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 .form-group-ordering__ordering-by {
     width: 50%
 }
 
-.form-group-ordering__order-options {
-    flex-shrink: 0;
-    margin-left: 16px;
+@media (width <= 600px) {
+    .form-group-ordering__ordering-by {
+        width: 100%
+    }
 }
 
-.form-group-ordering__order-options * {
-    margin-right: 16px;
+.form-group-ordering__order-options {
+    flex-shrink: 0;
+    display: flex;
+    gap: 12px;
+    margin-top: -20px;
 }
 
 .actions {
