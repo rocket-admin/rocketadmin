@@ -1,6 +1,7 @@
 import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
+import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
@@ -12,12 +13,10 @@ import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/
 import JsonURL from "@jsonurl/jsonurl";
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
-import { filter } from 'lodash';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
 
@@ -54,6 +53,7 @@ export class DbTableRowEditComponent implements OnInit {
   public rowActions: CustomAction[];
   public referencedTables: any;
   public referencedTablesURLParams: any;
+  public isDesktop: boolean = true;
   public permissions: TablePermissions;
   public pageAction: string;
   public tableFiltersUrlString: string;
@@ -174,6 +174,8 @@ export class DbTableRowEditComponent implements OnInit {
             this.identityColumn = res.identity_column;
 
             if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns.length > 0 && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
+              this.isDesktop = window.innerWidth >= 600;
+
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {...table, displayTableName: table.display_name || normalizeTableName(table.table_name)}});
 
