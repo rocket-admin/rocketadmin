@@ -21,25 +21,45 @@
     <div class="row-edit-header">
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
         <div *ngIf="rowActions && rowActions.length">
-            <button type="button" mat-icon-button *ngFor="let action of rowActions"
-                [matTooltip]="action.title"
-                (click)="handleActivateAction(action)">
-                <mat-icon fontSet="material-icons-outlined">
-                    {{action.icon}}
-                </mat-icon>
-            </button>
+            <div class="row-actions_desktop">
+                <button type="button" mat-icon-button *ngFor="let action of rowActions"
+                    [matTooltip]="action.title"
+                    (click)="handleActivateAction(action)">
+                    <mat-icon fontSet="material-icons-outlined">
+                        {{action.icon}}
+                    </mat-icon>
+                </button>
+            </div>
+            <div class="row-actions_mobile">
+                <button type="button" mat-stroked-button *ngFor="let action of rowActions"
+                    (click)="handleActivateAction(action)">
+                    <mat-icon fontSet="material-icons-outlined">
+                        {{action.icon}}
+                    </mat-icon>
+                    {{action.title}}
+                </button>
+            </div>
         </div>
     </div>
     <div *ngIf="referencedTables && referencedTables.length" class="related-views">
-        <span class="mat-body-1">Review <span>for {{tableRowValues[identityColumn] || 'this entity'}}.</span></span>
-        <mat-chip-listbox class="related-tables">
-            <mat-chip-option *ngFor="let referencedTable of referencedTables; let i = index"
-                color="primary"
-                routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
-                [queryParams]="referencedTablesURLParams[i]">
-                {{referencedTable.displayTableName}}
-            </mat-chip-option>
-        </mat-chip-listbox>
+        <mat-expansion-panel [expanded]="isDesktop">
+            <mat-expansion-panel-header class="related-views__title">
+                <mat-panel-title>
+                    Records related to&nbsp;
+                    <span *ngIf="tableRowValues[identityColumn]">"{{tableRowValues[identityColumn]}}"</span>
+                    <span *ngIf="!tableRowValues[identityColumn]">this row</span>
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-chip-listbox class="related-tables">
+                <mat-chip-option *ngFor="let referencedTable of referencedTables; let i = index"
+                    color="primary"
+                    routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
+                    [queryParams]="referencedTablesURLParams[i]">
+                    {{referencedTable.displayTableName}}
+                </mat-chip-option>
+            </mat-chip-listbox>
+        </mat-expansion-panel>
     </div>
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="handleRowSubmitting(false)">
