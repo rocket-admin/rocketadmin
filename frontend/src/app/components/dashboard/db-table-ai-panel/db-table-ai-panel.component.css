@@ -59,7 +59,7 @@
 }
 
 .ai-message-chain-box {
-    height: calc(100vh - 44px - 252px);
+    height: calc(100vh - 44px - 252px - 48px);
     overflow-y: auto;
 }
 
@@ -156,4 +156,13 @@
     padding-left: 16px;
     padding-right: 16px;
     text-align: center;
+}
+
+.footer p {
+    color: rgba(0, 0, 0, 0.36) !important;
+    text-align: center;
+}
+
+.link {
+    color: var(--color-accentedPalette-500);
 }
