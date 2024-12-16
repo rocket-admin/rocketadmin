@@ -5,6 +5,7 @@ import { BrowserModule, Title } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IColorConfig, NgxThemeModule } from "@brumeilde/ngx-theme";
+import { MarkdownModule, MarkdownService, provideMarkdown } from "ngx-markdown";
 import { Router, RouterModule } from '@angular/router';
 
 import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
@@ -27,6 +28,7 @@ import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/bre
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CodeEditorModule } from '@ngstack/code-editor';
+import { CodeRowComponent } from "./components/ui-components/row-fields/code/code.component";
 import { CompanyComponent } from './components/company/company.component';
 import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
 import { ConfigModule } from './modules/config.module';
@@ -41,11 +43,13 @@ import { DateFilterComponent } from './components/ui-components/filter-fields/da
 import { DateRowComponent } from './components/ui-components/row-fields/date/date.component';
 import { DateTimeFilterComponent } from './components/ui-components/filter-fields/date-time/date-time.component';
 import { DateTimeRowComponent } from './components/ui-components/row-fields/date-time/date-time.component';
+import { Db2CredentialsFormComponent } from "./components/connect-db/db-credentials-forms/db2-credentials-form/db2-credentials-form.component";
 import { DbActionLinkDialogComponent } from './components/dashboard/db-action-link-dialog/db-action-link-dialog.component';
 import { DbConnectionConfirmDialogComponent } from './components/connect-db/db-connection-confirm-dialog/db-connection-confirm-dialog.component';
 import { DbConnectionDeleteDialogComponent } from './components/connect-db/db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './components/connect-db/db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DbTableActionsComponent } from "./components/dashboard/db-table-actions/db-table-actions.component";
+import { DbTableAiPanelComponent } from "./components/dashboard/db-table-ai-panel/db-table-ai-panel.component";
 import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
 import { DbTableExportDialogComponent } from './components/dashboard/db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableFiltersDialogComponent } from './components/dashboard/db-table-filters-dialog/db-table-filters-dialog.component';
@@ -58,6 +62,7 @@ import { DbTablesListComponent } from './components/dashboard/db-tables-list/db-
 import { DeleteMemberDialogComponent } from './components/company/delete-member-dialog/delete-member-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
+import { DynamodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component";
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailValidationDirective } from "./directives/emailValidator.directive";
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
@@ -75,6 +80,7 @@ import { HostnameValidationDirective } from "./directives/hostnameValidator.dire
 import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
 import { IdFilterComponent } from "./components/ui-components/filter-fields/id/id.component";
 import { IdRowComponent } from "./components/ui-components/row-fields/id/id.component";
+import { ImageRowComponent } from "./components/ui-components/row-fields/image/image.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
 import { InviteMemberDialogComponent } from './components/company/invite-member-dialog/invite-member-dialog.component';
 import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
@@ -87,6 +93,7 @@ import { MasterEncryptionPasswordComponent } from "./components/connect-db/maste
 import { MasterPasswordDialogComponent } from './components/master-password-dialog/master-password-dialog.component';
 import { MaterialModule } from './modules/material.module';
 import { MongodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mongodb-credentials-form/mongodb-credentials-form.component";
+import { MssqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mssql-credentials-form/mssql-credentials-form.component";
 import { MysqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mysql-credentials-form/mysql-credentials-form.component";
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgmatTableQueryReflectorModule } from './modules/ngmat-table-query-reflector.module';
@@ -94,6 +101,7 @@ import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from './services/notifications.service';
 import { NumberFilterComponent } from './components/ui-components/filter-fields/number/number.component';
 import { NumberRowComponent } from './components/ui-components/row-fields/number/number.component';
+import { OracledbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component";
 import { PageLoaderComponent } from './components/page-loader/page-loader.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PasswordChangeComponent } from './components/password-change/password-change.component';
@@ -137,6 +145,8 @@ import { TimeRowComponent } from './components/ui-components/row-fields/time/tim
 import { TokenInterceptor } from './services/token.interceptor';
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
 import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
+import { UrlRowComponent } from "./components/ui-components/row-fields/url/url.component";
+import { UrlValidatorDirective } from "./directives/url-validator.directive";
 import { UserAddDialogComponent } from './components/users/user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './components/users/user-delete-dialog/user-delete-dialog.component';
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
@@ -148,15 +158,6 @@ import { WidgetComponent } from "./components/dashboard/db-table-widgets/widget/
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
-import { OracledbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component";
-import { MssqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mssql-credentials-form/mssql-credentials-form.component";
-import { DynamodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component";
-import { CodeRowComponent } from "./components/ui-components/row-fields/code/code.component";
-import { ImageRowComponent } from "./components/ui-components/row-fields/image/image.component";
-import { UrlValidatorDirective } from "./directives/url-validator.directive";
-import { DbTableAiPanelComponent } from "./components/dashboard/db-table-ai-panel/db-table-ai-panel.component";
-import { MarkdownModule, MarkdownService, provideMarkdown } from "ngx-markdown";
-import { UrlRowComponent } from "./components/ui-components/row-fields/url/url.component";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -318,7 +319,8 @@ const saasExtraProviders = (environment as any).saas ? [
     DynamodbCredentialsFormComponent,
     ImageRowComponent,
     DbTableAiPanelComponent,
-    UrlRowComponent
+    UrlRowComponent,
+    Db2CredentialsFormComponent
   ],
   providers: [
     ConnectionsService,
