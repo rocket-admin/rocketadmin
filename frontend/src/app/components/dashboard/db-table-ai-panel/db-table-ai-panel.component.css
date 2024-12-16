@@ -59,7 +59,7 @@
 }
 
 .ai-message-chain-box {
-    height: calc(100vh - 44px - 252px);
+    height: calc(100vh - 44px - 252px - 48px);
     overflow-y: auto;
 }
 
@@ -81,6 +81,14 @@
 .ai-message {
     background-color: var(--color-primaryPalette-100);
     color: var(--color-primaryPalette-100-contrast);
+    border-radius: 8px;
+    padding: 8px 8px 0;
+    margin: 4px 0;
+}
+
+.ai-error-message {
+    background-color: var(--color-warnPalette-100);
+    color: var(--color-warnPalette-100-contrast);
     border-radius: 8px;
     padding: 8px 8px 0;
     margin: 4px 0;
@@ -148,4 +156,13 @@
     padding-left: 16px;
     padding-right: 16px;
     text-align: center;
+}
+
+.footer p {
+    color: rgba(0, 0, 0, 0.36) !important;
+    text-align: center;
+}
+
+.link {
+    color: var(--color-accentedPalette-500);
 }
