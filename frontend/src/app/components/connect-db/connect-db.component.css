@@ -28,12 +28,26 @@
     grid-row: 5 / span 4;
 }
 
+@media (width <= 600px) {
+    .credentials-fieldset {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
 .credentials-fieldset-no-warning {
     display: grid;
     grid-template-columns: subgrid;
     grid-template-rows: subgrid;
     grid-column: 1 / span 4;
     grid-row: 4 / span 4;
+}
+
+@media (width <= 600px) {
+    .credentials-fieldset-no-warning {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 .mat-h1 {
