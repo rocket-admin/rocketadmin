@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
-
 import { BaseCredentialsFormComponent } from '../base-credentials-form/base-credentials-form.component';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-oracledb-credentials-form',

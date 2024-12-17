@@ -130,24 +130,24 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "dissendium-v0:build"
+            "buildTarget": "dissendium-v0:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "dissendium-v0:build:production"
+              "buildTarget": "dissendium-v0:build:production"
             },
             "saas": {
-              "browserTarget": "dissendium-v0:build:saas"
+              "buildTarget": "dissendium-v0:build:saas"
             },
             "development": {
-              "browserTarget": "dissendium-v0:build:development"
+              "buildTarget": "dissendium-v0:build:development"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "dissendium-v0:build"
+            "buildTarget": "dissendium-v0:build"
           }
         },
         "test": {
