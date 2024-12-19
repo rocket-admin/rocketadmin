@@ -156,6 +156,7 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetComponent } from "./components/dashboard/db-table-widgets/widget/widget.component";
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
+import { ZapierComponent } from "./components/connection-settings/zapier/zapier.component";
 import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 
@@ -320,7 +321,8 @@ const saasExtraProviders = (environment as any).saas ? [
     ImageRowComponent,
     DbTableAiPanelComponent,
     UrlRowComponent,
-    Db2CredentialsFormComponent
+    Db2CredentialsFormComponent,
+    ZapierComponent
   ],
   providers: [
     ConnectionsService,
