@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserAIThreadsController } from './user-ai-threads.controller.js';
+import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-with-ai-assistant.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -20,11 +21,20 @@ import { UserAIThreadsController } from './user-ai-threads.controller.js';
       provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI,
       useClass: RequestInfoFromTableWithAIUseCase,
     },
+    {
+      provide: UseCaseType.CREATE_THREAD_WITH_AI_ASSISTANT,
+      useClass: CreateThreadWithAIAssistantUseCase,
+    },
   ],
   controllers: [UserAIRequestsController, UserAIThreadsController],
 })
 export class AIModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/ai/request/:connectionId', method: RequestMethod.POST });
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes(
+        { path: '/ai/request/:connectionId', method: RequestMethod.POST },
+        { path: '/ai/thread/:connectionId', method: RequestMethod.POST },
+      );
   }
 }

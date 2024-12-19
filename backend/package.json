@@ -69,6 +69,7 @@
     "eslint-plugin-security": "3.0.1",
     "express": "4.21.2",
     "express-rate-limit": "7.4.1",
+    "fetch-blob": "^4.0.0",
     "helmet": "8.0.0",
     "ip-range-check": "0.2.0",
     "json2csv": "^5.0.7",

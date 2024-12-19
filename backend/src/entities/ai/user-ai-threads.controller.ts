@@ -1,4 +1,4 @@
-import { UseInterceptors, Controller, Injectable, Inject, UseGuards, Post, Body } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, Inject, UseGuards, Post, Body, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
@@ -12,6 +12,7 @@ import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { Response } from 'express';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -39,14 +40,18 @@ export class UserAIThreadsController {
     @QueryTableName() tableName: string,
     @MasterPassword() masterPassword: string,
     @UserId() userId: string,
-    @Body() _requestData: CreateThreadWithAIAssistantBodyDTO,
-  ): Promise<any> {
+    @Body() requestData: CreateThreadWithAIAssistantBodyDTO,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
     const inputData: CreateThreadWithAssistantDS = {
       connectionId,
       tableName,
       master_password: masterPassword,
       user_id: userId,
+      user_message: requestData.user_message,
+      response,
     };
+
     return await this.createThreadWithAIAssistantUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 }
