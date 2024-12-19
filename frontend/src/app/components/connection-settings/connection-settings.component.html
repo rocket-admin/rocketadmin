@@ -1,154 +1,163 @@
-<app-alert></app-alert>
-<div class="settings-page">
-    <h1 class="mat-h1">Settings for <strong>{{connectionName}}</strong> connection</h1>
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" animationDuration="0ms">
+    <mat-tab label="Settings">
+        <app-alert></app-alert>
+        <div class="settings-page">
+            <h1 class="mat-h1">Settings for <strong>{{connectionName}}</strong> connection</h1>
 
-    <app-placeholder-connection-settings *ngIf="loading"></app-placeholder-connection-settings>
+            <app-placeholder-connection-settings *ngIf="loading"></app-placeholder-connection-settings>
 
-    <app-banner *ngIf="noTablesError" type="info" class="settings-banner">
-        <h3 class='mat-subheading-2'>Rocketadmin can not find any tables</h3>
-        <p class="mat-body-1">
-            There are no tables to apply settings.
-            Please grant Rocketadmin access to required tables or create new table.
-            You can create a table with SQL editor
-        </p>
-    </app-banner>
+            <app-banner *ngIf="noTablesError" type="info" class="settings-banner">
+                <h3 class='mat-subheading-2'>Rocketadmin can not find any tables</h3>
+                <p class="mat-body-1">
+                    There are no tables to apply settings.
+                    Please grant Rocketadmin access to required tables or create new table.
+                    You can create a table with SQL editor
+                </p>
+            </app-banner>
 
-    <app-banner *ngIf="isServerError" type="error" class="settings-banner">
-        <div *ngIf="serverError.details; else stringError" class="mat-body-1">
-            <strong>{{serverError.abstract}}</strong>
-            <p class="mat-body-1 error-details">{{serverError.details}}</p>
-        </div>
-        <ng-template #stringError>
-            <p class="mat-body-1">{{serverError.abstract}}</p>
-        </ng-template>
-        <div class="error-actions">
-            <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
-            <button *ngIf="isSaas" mat-flat-button color="warn" (click)="openIntercome()">Chat with support</button>
-            <a *ngIf="!isSaas" mat-flat-button color="warn"
-                href="https://github.com/rocket-admin/rocketadmin/issues" target="_blank">
-                Report a bug
-            </a>
-        </div>
-    </app-banner>
-
-    <form *ngIf="!isServerError && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="handleSettingsSubmitting()">
-        <div class="settings-form">
-            <div class="logo-uploader">
-                <div class="logo-box" *ngIf="connectionSettings.logo_url; else logoStub">
-                    <img [src]="connectionSettings.logo_url"
-                    class="logo-img"
-                    alt="project-logo">
+            <app-banner *ngIf="isServerError" type="error" class="settings-banner">
+                <div *ngIf="serverError.details; else stringError" class="mat-body-1">
+                    <strong>{{serverError.abstract}}</strong>
+                    <p class="mat-body-1 error-details">{{serverError.details}}</p>
                 </div>
-                <ng-template #logoStub>
-                    <mat-icon class="logo-stub">image</mat-icon>
+                <ng-template #stringError>
+                    <p class="mat-body-1">{{serverError.abstract}}</p>
                 </ng-template>
-                <mat-form-field appearance="outline" class="logo-input">
-                    <mat-label>Logo URL</mat-label>
-                    <input matInput name="logo-url" #username="ngModel"
-                        angulartics2On="change"
-                        angularticsAction="Connection settings: logo URL is edited"
-                        [disabled]="submitting"
-                        [(ngModel)]="connectionSettings.logo_url">
-                    <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
-                </mat-form-field>
-            </div>
+                <div class="error-actions">
+                    <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+                    <button *ngIf="isSaas" mat-flat-button color="warn" (click)="openIntercome()">Chat with support</button>
+                    <a *ngIf="!isSaas" mat-flat-button color="warn"
+                        href="https://github.com/rocket-admin/rocketadmin/issues" target="_blank">
+                        Report a bug
+                    </a>
+                </div>
+            </app-banner>
 
-            <!--<div class="logo-uploader">
-                <img *ngIf="connectionSettings.logo; else logoStub" [src]="connectionSettings.logo" alt="">
-                <ng-template #logoStub>
-                    <mat-icon>image</mat-icon>
-                </ng-template>
+            <form *ngIf="!isServerError && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="handleSettingsSubmitting()">
+                <div class="settings-form">
+                    <div class="logo-uploader">
+                        <div class="logo-box" *ngIf="connectionSettings.logo_url; else logoStub">
+                            <img [src]="connectionSettings.logo_url"
+                            class="logo-img"
+                            alt="project-logo">
+                        </div>
+                        <ng-template #logoStub>
+                            <mat-icon class="logo-stub">image</mat-icon>
+                        </ng-template>
+                        <mat-form-field appearance="outline" class="logo-input">
+                            <mat-label>Logo URL</mat-label>
+                            <input matInput name="logo-url" #username="ngModel"
+                                angulartics2On="change"
+                                angularticsAction="Connection settings: logo URL is edited"
+                                [disabled]="submitting"
+                                [(ngModel)]="connectionSettings.logo_url">
+                            <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+                        </mat-form-field>
+                    </div>
 
-                <div>
-                    <input type="file" class="file-input" name="logo"
-                        (change)="onFileSelected($event)" #fileUpload>
+                    <!--<div class="logo-uploader">
+                        <img *ngIf="connectionSettings.logo; else logoStub" [src]="connectionSettings.logo" alt="">
+                        <ng-template #logoStub>
+                            <mat-icon>image</mat-icon>
+                        </ng-template>
 
-                    <span class="file-name mat-body-2">{{ connectionSettings.logo ? 'Upload another logo.' : 'No logo uploaded yet.' }}</span>
+                        <div>
+                            <input type="file" class="file-input" name="logo"
+                                (change)="onFileSelected($event)" #fileUpload>
 
-                    <button type="button" mat-stroked-button class="upload-btn"
-                        (click)="fileUpload.click()">
-                        Upload file
+                            <span class="file-name mat-body-2">{{ connectionSettings.logo ? 'Upload another logo.' : 'No logo uploaded yet.' }}</span>
+
+                            <button type="button" mat-stroked-button class="upload-btn"
+                                (click)="fileUpload.click()">
+                                Upload file
+                            </button>
+                        </div>
+                    </div>-->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Project name</mat-label>
+                        <input matInput name="company-name" #username="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection settings: company name is edited"
+                            [disabled]="submitting"
+                            [(ngModel)]="connectionSettings.company_name">
+                        <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+                    </mat-form-field>
+
+                    <div class="color-theme">
+                        <div class="color-item">
+                            <div class="color-sample" [style.--color]="connectionSettings.primary_color"></div>
+                            <mat-form-field appearance="outline" class="color-input">
+                                <mat-label>Primary color (HEX)</mat-label>
+                                <input matInput name="primary-color" #username="ngModel"
+                                    angulartics2On="change"
+                                    angularticsAction="Connection settings: primary color is edited"
+                                    [disabled]="submitting"
+                                    [(ngModel)]="connectionSettings.primary_color">
+                                <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="color-item">
+                            <div class="color-sample" [style.--color]="connectionSettings.secondary_color"></div>
+                            <mat-form-field appearance="outline" class="color-input">
+                                <mat-label>Accented color (HEX)</mat-label>
+                                <input matInput name="accented-color" #username="ngModel"
+                                    angulartics2On="change"
+                                    angularticsAction="Connection settings: accented color is edited"
+                                    [disabled]="submitting"
+                                    [(ngModel)]="connectionSettings.secondary_color">
+                                <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+                            </mat-form-field>
+                        </div>
+
+                    </div>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Hidden tables</mat-label>
+                        <mat-select multiple
+                            name="columns_view"
+                            angulartics2On="click"
+                            angularticsAction="Connection settings: hidden tables is selected"
+                            [(ngModel)]="connectionSettings.hidden_tables"
+                            (optionSelectionChanges)="onColumnsViewChange($event)">
+                            <mat-option *ngFor="let table of tablesList" [value]="table.table" >
+                                <div class="table-name">
+                                    <span class="table-name__title">{{table.display_name || table.normalizedTableName}}</span>
+                                    <span class="table-name__line"> ({{table.table}})</span>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-slide-toggle
+                        class="audit-toggle" color="primary"
+                        angulartics2On="click"
+                        angularticsAction="Connection settings: log recording is toggled"
+                        [angularticsProperties]="{'enable': connectionSettings.tables_audit}"
+                        [(ngModel)]="connectionSettings.tables_audit">
+                        Record changes in tables
+                    </mat-slide-toggle>
+                </div>
+                <div *ngIf="accessLevel !== 'readonly'" class="actions">
+                    <button mat-flat-button color="warn"
+                        type="button"
+                        [disabled]="!isSettingsExist || submitting || connectionSettingsForm.form.invalid"
+                        (click)="resetSettings()">
+                        Reset
+                    </button>
+                    <button mat-flat-button color="primary"
+                        type="submit"
+                        class="settings-form__save-button"
+                        [disabled]="submitting || connectionSettingsForm.form.invalid || connectionSettingsForm.form.pristine">
+                        Save
                     </button>
                 </div>
-            </div>-->
-            <mat-form-field appearance="outline">
-                <mat-label>Project name</mat-label>
-                <input matInput name="company-name" #username="ngModel"
-                    angulartics2On="change"
-                    angularticsAction="Connection settings: company name is edited"
-                    [disabled]="submitting"
-                    [(ngModel)]="connectionSettings.company_name">
-                <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
-            </mat-form-field>
-
-            <div class="color-theme">
-                <div class="color-item">
-                    <div class="color-sample" [style.--color]="connectionSettings.primary_color"></div>
-                    <mat-form-field appearance="outline" class="color-input">
-                        <mat-label>Primary color (HEX)</mat-label>
-                        <input matInput name="primary-color" #username="ngModel"
-                            angulartics2On="change"
-                            angularticsAction="Connection settings: primary color is edited"
-                            [disabled]="submitting"
-                            [(ngModel)]="connectionSettings.primary_color">
-                        <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
-                    </mat-form-field>
-                </div>
-
-                <div class="color-item">
-                    <div class="color-sample" [style.--color]="connectionSettings.secondary_color"></div>
-                    <mat-form-field appearance="outline" class="color-input">
-                        <mat-label>Accented color (HEX)</mat-label>
-                        <input matInput name="accented-color" #username="ngModel"
-                            angulartics2On="change"
-                            angularticsAction="Connection settings: accented color is edited"
-                            [disabled]="submitting"
-                            [(ngModel)]="connectionSettings.secondary_color">
-                        <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
-                    </mat-form-field>
-                </div>
-
-            </div>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Hidden tables</mat-label>
-                <mat-select multiple
-                    name="columns_view"
-                    angulartics2On="click"
-                    angularticsAction="Connection settings: hidden tables is selected"
-                    [(ngModel)]="connectionSettings.hidden_tables"
-                    (optionSelectionChanges)="onColumnsViewChange($event)">
-                    <mat-option *ngFor="let table of tablesList" [value]="table.table" >
-                        <div class="table-name">
-                            <span class="table-name__title">{{table.display_name || table.normalizedTableName}}</span>
-                            <span class="table-name__line"> ({{table.table}})</span>
-                        </div>
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <mat-slide-toggle
-                class="audit-toggle" color="primary"
-                angulartics2On="click"
-                angularticsAction="Connection settings: log recording is toggled"
-                [angularticsProperties]="{'enable': connectionSettings.tables_audit}"
-                [(ngModel)]="connectionSettings.tables_audit">
-                Record changes in tables
-            </mat-slide-toggle>
+            </form>
         </div>
-        <div *ngIf="accessLevel !== 'readonly'" class="actions">
-            <button mat-flat-button color="warn"
-                type="button"
-                [disabled]="!isSettingsExist || submitting || connectionSettingsForm.form.invalid"
-                (click)="resetSettings()">
-                Reset
-            </button>
-            <button mat-flat-button color="primary"
-                type="submit"
-                class="settings-form__save-button"
-                [disabled]="submitting || connectionSettingsForm.form.invalid || connectionSettingsForm.form.pristine">
-                Save
-            </button>
+    </mat-tab>
+    <mat-tab label="Zapier">
+        <div class="zapier-page">
+            <app-zapier></app-zapier>
         </div>
-    </form>
-</div>
+    </mat-tab>
+</mat-tab-group>

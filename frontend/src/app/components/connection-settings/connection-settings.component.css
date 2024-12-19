@@ -1,3 +1,7 @@
+.zapier-page {
+    padding: 32px max(calc(50vw - 325px), 10%);
+}
+
 .settings-page {
     padding: 0 max(calc(50vw - 325px), 10%);
 }
