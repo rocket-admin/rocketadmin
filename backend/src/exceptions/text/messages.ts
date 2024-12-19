@@ -232,6 +232,7 @@ export const Messages = {
   SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
   SLACK_URL_MISSING: 'Slack url is missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
+  SOMETHING_WENT_WRONG_AI_THREAD: 'Something went wrong on AI thread creation, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
   SSH_PORT_MISSING: 'Ssh port is missing',

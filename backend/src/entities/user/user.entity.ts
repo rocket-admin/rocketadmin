@@ -1,4 +1,3 @@
- 
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import {
   Entity,
@@ -26,6 +25,7 @@ import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { UserRoleEnum } from './enums/user-role.enum.js';
 import { ExternalRegistrationProviderEnum } from './enums/external-registration-provider.enum.js';
 import { UserApiKeyEntity } from '../api-key/api-key.entity.js';
+import { AiUserThreadEntity } from '../ai/ai-data-entities/ai-user-threads/ai-user-threads.entity.js';
 
 @Entity('user')
 export class UserEntity {
@@ -109,6 +109,9 @@ export class UserEntity {
 
   @OneToMany((_) => UserApiKeyEntity, (api_key) => api_key.user)
   api_keys: Relation<UserApiKeyEntity>[];
+
+  @OneToMany((_) => AiUserThreadEntity, (thread) => thread.user)
+  ai_threads: Relation<AiUserThreadEntity>[];
 
   @Column({ default: false })
   isActive: boolean;

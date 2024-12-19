@@ -36,6 +36,10 @@ import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
 import { TableActionEntity } from '../../entities/table-actions/table-actions-module/table-action.entity.js';
+import { IAiUserThreadsRepository } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.interface.js';
+import { AiUserThreadEntity } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads.entity.js';
+import { IAiUserFilesRepository } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files-repository.interface.js';
+import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -65,4 +69,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
   actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
   userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
+  aiUserThreadsRepository: Repository<AiUserThreadEntity> & IAiUserThreadsRepository;
+  aiUserFilesRepository: Repository<AiUserFileEntity> & IAiUserFilesRepository;
 }
