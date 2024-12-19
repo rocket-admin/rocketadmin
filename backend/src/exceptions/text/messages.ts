@@ -16,6 +16,7 @@ import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 export const Messages = {
   AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',
+  AI_THREAD_NOT_FOUND: 'Thread with specified parameters not found',
   ACCOUNT_SUSPENDED:
     'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
   ACCESS_LEVEL_INVALID: 'Access level is invalid',
@@ -233,6 +234,7 @@ export const Messages = {
   SLACK_URL_MISSING: 'Slack url is missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SOMETHING_WENT_WRONG_AI_THREAD: 'Something went wrong on AI thread creation, check inserted parameters and try again',
+  SOMETHING_WENT_WRONG_AI_THREAD_MESSAGE: 'Something went wrong on AI thread message creation, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
   SSH_PORT_MISSING: 'Ssh port is missing',

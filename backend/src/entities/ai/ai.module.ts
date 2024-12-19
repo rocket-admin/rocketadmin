@@ -9,6 +9,7 @@ import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserAIThreadsController } from './user-ai-threads.controller.js';
 import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-with-ai-assistant.use.case.js';
+import { AddMessageToThreadWithAIAssistantUseCase } from './use-cases/add-message-to-thread-with-ai.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -25,6 +26,10 @@ import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-wi
       provide: UseCaseType.CREATE_THREAD_WITH_AI_ASSISTANT,
       useClass: CreateThreadWithAIAssistantUseCase,
     },
+    {
+      provide: UseCaseType.ADD_MESSAGE_TO_THREAD_WITH_AI_ASSISTANT,
+      useClass: AddMessageToThreadWithAIAssistantUseCase,
+    },
   ],
   controllers: [UserAIRequestsController, UserAIThreadsController],
 })
@@ -35,6 +40,7 @@ export class AIModule implements NestModule {
       .forRoutes(
         { path: '/ai/request/:connectionId', method: RequestMethod.POST },
         { path: '/ai/thread/:connectionId', method: RequestMethod.POST },
+        { path: '/ai/thread/message/:connectionId', method: RequestMethod.POST },
       );
   }
 }

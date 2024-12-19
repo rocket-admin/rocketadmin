@@ -135,6 +135,7 @@ export class CreateThreadWithAIAssistantUseCase
       openai,
       assistantId,
       thread.id,
+      savedThread.id,
       {
         connection: foundConnection,
         tableName,

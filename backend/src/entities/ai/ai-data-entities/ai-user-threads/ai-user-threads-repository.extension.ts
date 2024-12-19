@@ -9,6 +9,14 @@ export const aiUserThreadRepositoryExtension: IAiUserThreadsRepository = {
       .getMany();
   },
 
+  async findThreadByIdAndUserId(threadId: string, userId: string): Promise<AiUserThreadEntity> {
+    return await this.createQueryBuilder('ai_user_thread')
+      .leftJoin('ai_user_thread.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('ai_user_thread.id = :threadId', { threadId })
+      .getOne();
+  },
+
   async findThreadByIdAndUserIdWithFile(threadId: string, userId: string): Promise<AiUserThreadEntity> {
     return await this.createQueryBuilder('ai_user_thread')
       .leftJoin('ai_user_thread.user', 'user')
