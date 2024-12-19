@@ -1,5 +1,13 @@
 import { Component, OnInit, Inject, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { TablesService } from 'src/app/services/tables.service';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -13,11 +21,30 @@ import { map, startWith } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import JsonURL from "@jsonurl/jsonurl";
+import { DynamicModule } from 'ng-dynamic-component';
+import { RouterModule } from '@angular/router';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
 
 @Component({
   selector: 'app-db-table-filters-dialog',
   templateUrl: './db-table-filters-dialog.component.html',
-  styleUrls: ['./db-table-filters-dialog.component.css']
+  styleUrls: ['./db-table-filters-dialog.component.css'],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    DynamicModule,
+    RouterModule,
+    MatDialogModule,
+    ContentLoaderComponent
+  ]
 })
 export class DbTableFiltersDialogComponent implements OnInit {
 

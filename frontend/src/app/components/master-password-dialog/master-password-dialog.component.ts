@@ -1,14 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 
-import { MatDialogRef } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { ConnectionsService } from 'src/app/services/connections.service';
-
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-master-password-dialog',
   templateUrl: './master-password-dialog.component.html',
-  styleUrls: ['./master-password-dialog.component.css']
+  styleUrls: ['./master-password-dialog.component.css'],
+  imports: [FormsModule, MatDialogModule, MatInputModule, MatButtonModule]
 })
 export class MasterPasswordDialogComponent implements OnInit {
   public password: string = '';

@@ -4,15 +4,31 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { BannerComponent } from '../ui-components/banner/banner.component';
 import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
+import { BreadcrumbsComponent } from '../ui-components/breadcrumbs/breadcrumbs.component';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
 import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
+import { DynamicModule } from 'ng-dynamic-component';
 import JsonURL from "@jsonurl/jsonurl";
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { PlaceholderRowEditComponent } from '../skeletons/placeholder-row-edit/placeholder-row-edit.component';
+import { RouterModule } from '@angular/router';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -23,7 +39,26 @@ import { normalizeTableName } from '../../lib/normalize';
 @Component({
   selector: 'app-db-table-row-edit',
   templateUrl: './db-table-row-edit.component.html',
-  styleUrls: ['./db-table-row-edit.component.css']
+  styleUrls: ['./db-table-row-edit.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
+    RouterModule,
+    MatExpansionModule,
+    MatChipsModule,
+    DynamicModule,
+    AlertComponent,
+    PlaceholderRowEditComponent,
+    BannerComponent,
+    BreadcrumbsComponent
+  ]
 })
 export class DbTableRowEditComponent implements OnInit {
   public loading: boolean = true;

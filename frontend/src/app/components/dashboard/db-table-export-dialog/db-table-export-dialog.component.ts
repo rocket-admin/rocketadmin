@@ -2,11 +2,25 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Angulartics2 } from 'angulartics2';
 import { TablesService } from 'src/app/services/tables.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-db-table-export-dialog',
   templateUrl: './db-table-export-dialog.component.html',
-  styleUrls: ['./db-table-export-dialog.component.css']
+  styleUrls: ['./db-table-export-dialog.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatInputModule,
+    MatRadioModule
+  ]
 })
 export class DbTableExportDialogComponent {
 

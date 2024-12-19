@@ -2,11 +2,26 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Component, Inject, OnInit } from '@angular/core';
 import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
 
+import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
+import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { FormsModule } from '@angular/forms';
+import { IconPickerComponent } from '../../ui-components/icon-picker/icon-picker.component';
 import { Location } from '@angular/common';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatOptionModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
 import { NgForm } from '@angular/forms';
+import { PlaceholderTableSettingsComponent } from '../../skeletons/placeholder-table-settings/placeholder-table-settings.component';
 import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { normalizeTableName } from 'src/app/lib/normalize';
@@ -14,7 +29,24 @@ import { normalizeTableName } from 'src/app/lib/normalize';
 @Component({
   selector: 'app-db-table-settings',
   templateUrl: './db-table-settings.component.html',
-  styleUrls: ['./db-table-settings.component.css']
+  styleUrls: ['./db-table-settings.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    DragDropModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatIconModule,
+    MatExpansionModule,
+    MatRadioModule,
+    AlertComponent,
+    BreadcrumbsComponent,
+    IconPickerComponent,
+    PlaceholderTableSettingsComponent
+  ]
 })
 export class DbTableSettingsComponent implements OnInit {
 

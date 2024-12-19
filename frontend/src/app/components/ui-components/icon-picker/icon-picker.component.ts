@@ -1,11 +1,27 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-icon-picker',
   templateUrl: './icon-picker.component.html',
-  styleUrls: ['./icon-picker.component.css']
+  styleUrls: ['./icon-picker.component.css'],
+  imports: [
+    CommonModule,
+    MatMenuModule,
+    MatIconModule,
+    FormsModule,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule
+  ]
 })
 export class IconPickerComponent {
   @Input() resetButtonShown: boolean;

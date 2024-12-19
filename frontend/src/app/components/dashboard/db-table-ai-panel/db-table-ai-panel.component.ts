@@ -1,15 +1,31 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { Angulartics2 } from 'angulartics2';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { FormsModule } from '@angular/forms';
+import { MarkdownModule } from 'ngx-markdown';
 import { MarkdownService } from 'ngx-markdown';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 
 @Component({
   selector: 'app-db-table-ai-panel',
   templateUrl: './db-table-ai-panel.component.html',
-  styleUrl: './db-table-ai-panel.component.css'
+  styleUrl: './db-table-ai-panel.component.css',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MarkdownModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
+  ]
 })
 export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 

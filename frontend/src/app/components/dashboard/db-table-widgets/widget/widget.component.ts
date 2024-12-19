@@ -1,13 +1,30 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
+import { CodeEditorModule } from '@ngstack/code-editor';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 import { Widget } from 'src/app/models/table';
 
 @Component({
   selector: 'app-widget',
-  // standalone: true,
-  // imports: [],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatIconModule,
+    CodeEditorModule
+  ],
   templateUrl: './widget.component.html',
-  styleUrl: './widget.component.css'
+  styleUrl: './widget.component.css',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class WidgetComponent implements OnInit, OnChanges {
   @Input() index: number;

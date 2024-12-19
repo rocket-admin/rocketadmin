@@ -1,12 +1,32 @@
 import { Component, Input } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 import { TableProperties } from 'src/app/models/table';
 import { TableStateService } from 'src/app/services/table-state.service';
 
 @Component({
   selector: 'app-db-tables-list',
   templateUrl: './db-tables-list.component.html',
-  styleUrls: ['./db-tables-list.component.css']
+  styleUrls: ['./db-tables-list.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatListModule,
+    MatTooltipModule,
+    RouterModule,
+    ContentLoaderComponent
+  ]
 })
 export class DbTablesListComponent {
   @Input() connectionID: string;
