@@ -8,8 +8,8 @@ describe('BinaryDataCaptionFilterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BinaryDataCaptionFilterComponent ]
-    })
+    imports: [BinaryDataCaptionFilterComponent]
+})
     .compileComponents();
   }));
 

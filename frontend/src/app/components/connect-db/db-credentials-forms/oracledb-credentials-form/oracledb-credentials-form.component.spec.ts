@@ -10,12 +10,12 @@ describe('OracledbCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [OracledbCredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        OracledbCredentialsFormComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(OracledbCredentialsFormComponent);

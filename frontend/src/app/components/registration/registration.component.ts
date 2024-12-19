@@ -1,17 +1,36 @@
-import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
+import { AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, Component, NgZone, OnInit } from '@angular/core';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { NewAuthUser } from 'src/app/models/user';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { Router } from '@angular/router';
+import { UserPasswordComponent } from '../ui-components/user-password/user-password.component';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.component.html',
-  styleUrls: ['./registration.component.css']
+  styleUrls: ['./registration.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    AlertComponent,
+    UserPasswordComponent
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class RegistrationComponent implements OnInit, AfterViewInit {
 

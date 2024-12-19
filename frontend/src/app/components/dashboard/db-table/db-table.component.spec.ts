@@ -71,7 +71,7 @@ describe('DbTableComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
+    imports: [
         MatMenuModule,
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
@@ -80,10 +80,10 @@ describe('DbTableComponent', () => {
         BrowserAnimationsModule,
         MatSortModule,
         FormsModule,
-        MatDialogModule
-      ],
-      declarations: [ DbTableComponent ]
-    })
+        MatDialogModule,
+        DbTableComponent
+    ]
+})
     .compileComponents();
   }));
 

@@ -1,13 +1,15 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { GroupDeleteDialogComponent } from '../../users/group-delete-dialog/group-delete-dialog.component';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import { UserService } from 'src/app/services/user.service';
 import { ApiKey } from 'src/app/models/user';
 
 @Component({
   selector: 'app-api-key-delete-dialog',
   templateUrl: './api-key-delete-dialog.component.html',
-  styleUrl: './api-key-delete-dialog.component.css'
+  styleUrl: './api-key-delete-dialog.component.css',
+  imports: [CommonModule, MatDialogModule, MatButtonModule]
 })
 export class ApiKeyDeleteDialogComponent {
 
@@ -16,7 +18,7 @@ export class ApiKeyDeleteDialogComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ApiKey,
     private _userService: UserService,
-    public dialogRef: MatDialogRef<GroupDeleteDialogComponent>
+    public dialogRef: MatDialogRef<ApiKeyDeleteDialogComponent>
   ) { }
 
   deleteAPIkey() {

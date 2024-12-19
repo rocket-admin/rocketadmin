@@ -120,15 +120,15 @@ xdescribe('ForeignKeyFilterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ForeignKeyFilterComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatAutocompleteModule,
-        MatDialogModule
-      ],
-    })
+        MatDialogModule,
+        ForeignKeyFilterComponent
+    ],
+})
     .compileComponents();
   }));
 

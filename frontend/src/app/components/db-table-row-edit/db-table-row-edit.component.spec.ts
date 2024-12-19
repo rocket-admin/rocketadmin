@@ -17,15 +17,15 @@ describe('DbTableRowEditComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ DbTableRowEditComponent ]
-    })
+        Angulartics2Module.forRoot(),
+        DbTableRowEditComponent
+    ]
+})
     .compileComponents();
   }));
 

@@ -19,17 +19,17 @@ describe('GroupDeleteDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GroupDeleteDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        GroupDeleteDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

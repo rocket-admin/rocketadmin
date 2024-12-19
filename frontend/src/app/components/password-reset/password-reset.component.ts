@@ -1,13 +1,20 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { UserPasswordComponent } from '../ui-components/user-password/user-password.component';
 import { UserService } from 'src/app/services/user.service';
 import { map } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-password-change',
-  templateUrl: './password-change.component.html',
-  styleUrls: ['./password-change.component.css']
+  selector: 'app-password-reset',
+  templateUrl: './password-reset.component.html',
+  styleUrls: ['./password-reset.component.css'],
+  imports: [CommonModule, FormsModule, AlertComponent, UserPasswordComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PasswordResetComponent implements OnInit {
 

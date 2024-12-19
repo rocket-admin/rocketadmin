@@ -69,8 +69,7 @@ describe('DbTableFiltersDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DbTableFiltersDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
@@ -79,19 +78,20 @@ describe('DbTableFiltersDialogComponent', () => {
         ReactiveFormsModule,
         MatAutocompleteModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DbTableFiltersDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {
-          connectionID: '12345678',
-          tableName: 'users',
-          displayTableName: 'Users',
-          structure: mockStructureForFilterDialog
-        }},
+                connectionID: '12345678',
+                tableName: 'users',
+                displayTableName: 'Users',
+                structure: mockStructureForFilterDialog
+            } },
         { provide: MatDialogRef, useValue: {} },
         // { provide: ActivatedRoute, useValue: {} }
-      ],
-    })
+    ],
+})
     .compileComponents();
   });
 

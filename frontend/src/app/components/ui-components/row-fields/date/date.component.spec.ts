@@ -8,8 +8,8 @@ describe('DateRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DateRowComponent ]
-    })
+    imports: [DateRowComponent]
+})
     .compileComponents();
   }));
 

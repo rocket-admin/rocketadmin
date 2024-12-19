@@ -12,13 +12,13 @@ describe('DateTimeRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DateTimeRowComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
-        MatDialogModule
-      ]
-    })
+        MatDialogModule,
+        DateTimeRowComponent
+    ]
+})
     .compileComponents();
   }));
 

@@ -9,11 +9,11 @@ describe('UrlComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        FormsModule
-      ],
-      declarations: [UrlRowComponent]
-    })
+    imports: [
+        FormsModule,
+        UrlRowComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(UrlRowComponent);

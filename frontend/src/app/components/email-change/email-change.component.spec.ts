@@ -14,14 +14,14 @@ describe('EmailChangeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         RouterTestingModule.withRoutes([]),
         HttpClientTestingModule,
         MatSnackBarModule,
-        FormsModule
-      ],
-      declarations: [ EmailChangeComponent ]
-    })
+        FormsModule,
+        EmailChangeComponent
+    ]
+})
     .compileComponents();
   });
 

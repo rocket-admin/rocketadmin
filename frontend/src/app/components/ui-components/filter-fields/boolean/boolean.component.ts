@@ -1,13 +1,17 @@
 import { Component, Input } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
+import { FormsModule } from '@angular/forms';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-filter-boolean',
   templateUrl: './boolean.component.html',
-  styleUrls: ['./boolean.component.css']
+  styleUrls: ['./boolean.component.css'],
+  imports: [CommonModule, FormsModule, MatButtonToggleModule]
 })
 export class BooleanFilterComponent extends BaseFilterFieldComponent {
   @Input() value;

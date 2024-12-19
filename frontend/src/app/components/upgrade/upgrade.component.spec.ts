@@ -14,13 +14,13 @@ describe('UpgradeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule,
-        MatSnackBarModule
-      ],
-      declarations: [ UpgradeComponent ],
-    })
+        MatSnackBarModule,
+        UpgradeComponent
+    ],
+})
     .compileComponents();
   });
 

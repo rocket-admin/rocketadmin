@@ -39,24 +39,16 @@ describe('AppComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
-      imports: [
+    imports: [
         RouterTestingModule,
         HttpClientTestingModule,
         MatSnackBarModule,
         MatDialogModule,
         MatMenuModule,
-        Angulartics2Module.forRoot()
-      ],
-      // providers: [
-      //   {
-      //     provide: ConnectionsService,
-      //     useValue: fakeConnectionsSevice
-      //   }
-      // ]
-    }).compileComponents();
+        Angulartics2Module.forRoot(),
+        AppComponent
+    ],
+}).compileComponents();
   }));
 
   beforeEach(() => {

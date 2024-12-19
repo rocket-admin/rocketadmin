@@ -2,6 +2,11 @@ import { Component, Input } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { base64Validation } from 'src/app/validators/base64.validator';
 import { hexValidation } from 'src/app/validators/hex.validator';
 
@@ -19,7 +24,14 @@ enum FileType {
 @Component({
   selector: 'app-row-file',
   templateUrl: './file.component.html',
-  styleUrls: ['./file.component.css']
+  styleUrls: ['./file.component.css'],
+  imports: [
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatRadioModule,
+    MatButtonModule
+  ]
 })
 export class FileRowComponent extends BaseRowFieldComponent {
   @Input() value: Blob;

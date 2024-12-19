@@ -9,9 +9,8 @@ describe('IdRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ FormsModule ],
-      declarations: [ IdRowComponent ]
-    })
+    imports: [FormsModule, IdRowComponent]
+})
     .compileComponents();
   });
 

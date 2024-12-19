@@ -12,13 +12,13 @@ describe('InfoDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InfoDialogComponent ],
-      providers: [
+    imports: [InfoDialogComponent],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
-    })
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
     .compileComponents();
   });
 

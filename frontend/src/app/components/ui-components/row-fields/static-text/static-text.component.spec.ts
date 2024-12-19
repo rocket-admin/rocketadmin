@@ -8,8 +8,8 @@ describe('StaticTextRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ StaticTextRowComponent ]
-    })
+    imports: [StaticTextRowComponent]
+})
     .compileComponents();
   }));
 

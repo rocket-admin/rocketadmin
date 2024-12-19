@@ -8,8 +8,8 @@ describe('PlaceholderAddUserDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PlaceholderAddUserDialogComponent]
-    });
+    imports: [PlaceholderAddUserDialogComponent]
+});
     fixture = TestBed.createComponent(PlaceholderAddUserDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

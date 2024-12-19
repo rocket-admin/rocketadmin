@@ -1,12 +1,23 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { Angulartics2 } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { UsersService } from 'src/app/services/users.service';
 
 @Component({
   selector: 'app-group-add-dialog',
+  imports: [
+    FormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
+  ],
   templateUrl: './group-add-dialog.component.html',
   styleUrls: ['./group-add-dialog.component.css']
 })

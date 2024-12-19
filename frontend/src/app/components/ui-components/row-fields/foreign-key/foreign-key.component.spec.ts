@@ -121,16 +121,16 @@ describe('ForeignKeyRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ForeignKeyRowComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatAutocompleteModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-    })
+        Angulartics2Module.forRoot(),
+        ForeignKeyRowComponent
+    ],
+})
     .compileComponents();
   }));
 

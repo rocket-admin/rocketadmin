@@ -11,12 +11,12 @@ describe('MongodbCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MongodbCredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        MongodbCredentialsFormComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(MongodbCredentialsFormComponent);

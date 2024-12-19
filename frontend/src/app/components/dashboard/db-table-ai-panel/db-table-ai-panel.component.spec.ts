@@ -15,15 +15,15 @@ describe('DbTableAiPanelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DbTableAiPanelComponent
+    ],
+    providers: [
         { provide: MarkdownService, useValue: mockMarkdownService },
-      ],
-      declarations: [DbTableAiPanelComponent]
-    })
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(DbTableAiPanelComponent);

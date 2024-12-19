@@ -20,22 +20,21 @@ describe('EmailVerificationComponent', () => {
     routerSpy = {navigate: jasmine.createSpy('navigate')};
 
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         RouterTestingModule.withRoutes([]),
         HttpClientTestingModule,
-        MatSnackBarModule
-      ],
-      providers: [
+        MatSnackBarModule,
+        EmailVerificationComponent
+    ],
+    providers: [
         { provide: ActivatedRoute, useValue: {
-          paramMap: of(convertToParamMap({
-              'verification-token': '1234567890-abcd'
-            })
-          ),
-        }},
+                paramMap: of(convertToParamMap({
+                    'verification-token': '1234567890-abcd'
+                })),
+            } },
         { provide: Router, useValue: routerSpy },
-      ],
-      declarations: [ EmailVerificationComponent ]
-    })
+    ]
+})
     .compileComponents();
   });
 

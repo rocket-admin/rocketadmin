@@ -8,8 +8,8 @@ describe('SelectRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SelectRowComponent ]
-    })
+    imports: [SelectRowComponent]
+})
     .compileComponents();
   }));
 

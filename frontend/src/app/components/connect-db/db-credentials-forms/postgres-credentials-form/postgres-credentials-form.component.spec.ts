@@ -10,12 +10,12 @@ describe('PostgresCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PostgresCredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        PostgresCredentialsFormComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PostgresCredentialsFormComponent);

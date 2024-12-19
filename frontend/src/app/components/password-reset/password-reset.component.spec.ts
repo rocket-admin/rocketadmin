@@ -12,14 +12,14 @@ describe('PasswordResetComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         RouterTestingModule.withRoutes([]),
         HttpClientTestingModule,
         MatSnackBarModule,
-        FormsModule
-      ],
-      declarations: [ PasswordResetComponent ]
-    })
+        FormsModule,
+        PasswordResetComponent
+    ]
+})
     .compileComponents();
   });
 

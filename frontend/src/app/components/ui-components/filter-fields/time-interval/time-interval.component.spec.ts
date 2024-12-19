@@ -8,8 +8,8 @@ describe('TimeIntervalFilterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TimeIntervalFilterComponent ]
-    })
+    imports: [TimeIntervalFilterComponent]
+})
     .compileComponents();
   }));
 

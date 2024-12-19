@@ -10,13 +10,12 @@ describe('WidgetDeleteDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ MatSnackBarModule ],
-      declarations: [ WidgetDeleteDialogComponent ],
-      providers: [
+    imports: [MatSnackBarModule, WidgetDeleteDialogComponent],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
-      ],
-    })
+    ],
+})
     .compileComponents();
   });
 

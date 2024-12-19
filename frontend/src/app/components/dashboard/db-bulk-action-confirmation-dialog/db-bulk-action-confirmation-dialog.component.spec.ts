@@ -20,32 +20,32 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BbBulkActionConfirmationDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        BbBulkActionConfirmationDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {
-          primaryKeys: [{
-            column_name: 'id'
-          }],
-          selectedRows: [{
-            'id': '1234',
-            'name': 'Anna'
-          },
-          {
-            'id': '5678',
-            'name': 'John'
-          }
-        ]
-        } },
+                primaryKeys: [{
+                        column_name: 'id'
+                    }],
+                selectedRows: [{
+                        'id': '1234',
+                        'name': 'Anna'
+                    },
+                    {
+                        'id': '5678',
+                        'name': 'John'
+                    }
+                ]
+            } },
         { provide: MatDialogRef, useValue: mockDialogRef },
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

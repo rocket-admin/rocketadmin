@@ -25,23 +25,23 @@ describe('DbTableActionsComponent', () => {
     fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showSuccessSnackbar']);
 
     await TestBed.configureTestingModule({
-      declarations: [ DbTableActionsComponent ],
-      providers: [
+    providers: [
         HttpClientTestingModule,
         {
-          provide: NotificationsService,
-          useValue: fakeNotifications
+            provide: NotificationsService,
+            useValue: fakeNotifications
         }
-      ],
-      imports: [
+    ],
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule,
         MatDialogModule,
         MatSnackBarModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ]
-    })
+        Angulartics2Module.forRoot(),
+        DbTableActionsComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(DbTableActionsComponent);

@@ -9,11 +9,11 @@ describe('IconPickerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ IconPickerComponent ],
-      imports: [
-        MatMenuModule
-      ]
-    })
+    imports: [
+        MatMenuModule,
+        IconPickerComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(IconPickerComponent);

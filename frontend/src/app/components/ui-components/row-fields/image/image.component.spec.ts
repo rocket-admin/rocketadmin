@@ -9,11 +9,11 @@ describe('ImageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        FormsModule
-      ],
-      declarations: [ImageRowComponent]
-    })
+    imports: [
+        FormsModule,
+        ImageRowComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(ImageRowComponent);

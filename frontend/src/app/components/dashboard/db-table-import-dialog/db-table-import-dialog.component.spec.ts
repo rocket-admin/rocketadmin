@@ -17,26 +17,26 @@ describe('DbTableImportDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DbTableImportDialogComponent ],
-      imports: [
+    imports: [
         MatDialogModule,
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DbTableImportDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {
-          connectionID: '12345678',
-          tableName: 'users',
-          sortColumn: 'first_name',
-          sortOrder: 'asc',
-          filters: {first_name: {startswith: 'A'}},
-          search: ''
-        }},
+                connectionID: '12345678',
+                tableName: 'users',
+                sortColumn: 'first_name',
+                sortOrder: 'asc',
+                filters: { first_name: { startswith: 'A' } },
+                search: ''
+            } },
         { provide: MatDialogRef, useValue: mockDialogRef },
-      ]
-    })
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(DbTableImportDialogComponent);

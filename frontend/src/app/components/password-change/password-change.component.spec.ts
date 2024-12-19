@@ -28,19 +28,19 @@ describe('PasswordChangeComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         // RouterTestingModule.withRoutes([]),
         FormsModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        PasswordChangeComponent
+    ],
+    providers: [
         { provide: Router, useValue: routerSpy },
         { provide: Angulartics2, useValue: angulartics2Mock }
-      ],
-      declarations: [ PasswordChangeComponent ]
-    })
+    ]
+})
     .compileComponents();
   });
 

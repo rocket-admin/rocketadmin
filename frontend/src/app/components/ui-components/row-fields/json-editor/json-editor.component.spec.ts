@@ -8,8 +8,8 @@ describe('JsonEditorRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ JsonEditorRowComponent ]
-    })
+    imports: [JsonEditorRowComponent]
+})
     .compileComponents();
   });
 

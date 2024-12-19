@@ -72,7 +72,7 @@ describe('ConnectionSettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
@@ -80,17 +80,17 @@ describe('ConnectionSettingsComponent', () => {
         FormsModule,
         MatSelectModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ ConnectionSettingsComponent ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        ConnectionSettingsComponent
+    ],
+    providers: [
         {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => ConnectionSettingsComponent),
-          multi: true
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => ConnectionSettingsComponent),
+            multi: true
         },
-      ]
-    })
+    ]
+})
     .compileComponents();
   });
 

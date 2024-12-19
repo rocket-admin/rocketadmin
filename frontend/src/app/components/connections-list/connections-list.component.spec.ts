@@ -15,20 +15,20 @@ describe('ConnectionsListComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
-      ],
-      declarations: [ ConnectionsListComponent ],
-      providers: [
+        MatDialogModule,
+        ConnectionsListComponent
+    ],
+    providers: [
         {
-          provide: ConnectionsService,
-          // useClass: ConnectionsServiseStub
+            provide: ConnectionsService,
+            // useClass: ConnectionsServiseStub
         }
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

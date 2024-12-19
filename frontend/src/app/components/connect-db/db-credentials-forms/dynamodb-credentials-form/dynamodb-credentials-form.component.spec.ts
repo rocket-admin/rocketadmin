@@ -9,11 +9,11 @@ describe('DynamodbCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DynamodbCredentialsFormComponent],
-      imports: [
-        FormsModule
-      ]
-    })
+    imports: [
+        FormsModule,
+        DynamodbCredentialsFormComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(DynamodbCredentialsFormComponent);

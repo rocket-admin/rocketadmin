@@ -13,24 +13,24 @@ describe('PaymentFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule,
         MatSnackBarModule,
-        NgxStripeModule.forRoot('asdf')
-      ],
-      providers: [
+        NgxStripeModule.forRoot('asdf'),
+        PaymentFormComponent
+    ],
+    providers: [
         { provide: ActivatedRoute, useValue: {
-          snapshot: {
-            queryParams: {
-              'plan': 'team',
-              'period': 'monthly'
-            }
-          },
-        }},
-      ],
-      declarations: [ PaymentFormComponent ]
-    })
+                snapshot: {
+                    queryParams: {
+                        'plan': 'team',
+                        'period': 'monthly'
+                    }
+                },
+            } },
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PaymentFormComponent);

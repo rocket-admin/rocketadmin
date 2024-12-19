@@ -1,14 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, OnInit } from '@angular/core';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { User } from 'src/app/models/user';
+import { UserPasswordComponent } from '../ui-components/user-password/user-password.component';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-password-change',
   templateUrl: './password-change.component.html',
-  styleUrls: ['./password-change.component.css']
+  styleUrls: ['./password-change.component.css'],
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, AlertComponent, UserPasswordComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PasswordChangeComponent implements OnInit {
 

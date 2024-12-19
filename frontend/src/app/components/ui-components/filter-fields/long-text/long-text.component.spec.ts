@@ -8,8 +8,8 @@ describe('LongTextFilterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LongTextFilterComponent ]
-    })
+    imports: [LongTextFilterComponent]
+})
     .compileComponents();
   }));
 

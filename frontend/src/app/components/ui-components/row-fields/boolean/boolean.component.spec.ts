@@ -22,13 +22,13 @@ describe('BooleanRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BooleanRowComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         MatDialogModule,
-      ]
-    })
+        BooleanRowComponent,
+    ]
+})
     .compileComponents();
   }));
 

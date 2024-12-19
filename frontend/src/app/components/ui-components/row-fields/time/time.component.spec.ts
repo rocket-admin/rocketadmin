@@ -8,8 +8,8 @@ describe('TimeRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TimeRowComponent ]
-    })
+    imports: [TimeRowComponent]
+})
     .compileComponents();
   }));
 

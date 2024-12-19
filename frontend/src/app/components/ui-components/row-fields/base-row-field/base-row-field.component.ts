@@ -1,12 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TableField, TableForeignKey, WidgetStructure } from 'src/app/models/table';
 
+import { CommonModule } from '@angular/common';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-base-row-field',
   templateUrl: './base-row-field.component.html',
-  styleUrl: './base-row-field.component.css'
+  styleUrl: './base-row-field.component.css',
+  imports: [CommonModule]
 })
 export class BaseRowFieldComponent implements OnInit {
   @Input() key: string;

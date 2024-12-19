@@ -8,8 +8,8 @@ describe('PointRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PointRowComponent ]
-    })
+    imports: [PointRowComponent]
+})
     .compileComponents();
   }));
 

@@ -12,14 +12,14 @@ describe('CompanyMemberInvitationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CompanyMemberInvitationComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-    })
+        Angulartics2Module.forRoot(),
+        CompanyMemberInvitationComponent
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(CompanyMemberInvitationComponent);

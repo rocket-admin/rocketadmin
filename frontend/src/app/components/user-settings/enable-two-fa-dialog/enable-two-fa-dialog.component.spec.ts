@@ -17,20 +17,20 @@ describe('EnableTwoFADialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EnableTwoFADialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         // RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         FormsModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        EnableTwoFADialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
-      ],
-    })
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(EnableTwoFADialogComponent);

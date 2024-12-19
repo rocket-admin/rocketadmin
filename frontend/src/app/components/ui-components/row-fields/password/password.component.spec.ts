@@ -8,8 +8,8 @@ describe('PasswordRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PasswordRowComponent ]
-    })
+    imports: [PasswordRowComponent]
+})
     .compileComponents();
   });
 

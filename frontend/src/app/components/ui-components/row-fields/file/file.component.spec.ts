@@ -10,13 +10,12 @@ describe('FileRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FileRowComponent ],
-      imports: [
+    imports: [
         FormsModule,
-        MatRadioModule
-      ]
-
-    })
+        MatRadioModule,
+        FileRowComponent
+    ]
+})
     .compileComponents();
   });
 

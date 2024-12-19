@@ -10,12 +10,12 @@ describe('MysqlCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MysqlCredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        MysqlCredentialsFormComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(MysqlCredentialsFormComponent);

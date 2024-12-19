@@ -76,34 +76,33 @@ describe('DashboardComponent', () => {
     fakeTablesService = jasmine.createSpyObj('tablesService', {fetchTables: of(fakeTables)});
 
     TestBed.configureTestingModule({
-      declarations: [ DashboardComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DashboardComponent
+    ],
+    providers: [
         {
-          provide: ConnectionsService,
-          useValue: fakeConnectionsSevice
+            provide: ConnectionsService,
+            useValue: fakeConnectionsSevice
         },
         {
-          provide: TablesService,
-          useValue: fakeTablesService
+            provide: TablesService,
+            useValue: fakeTablesService
         },
         { provide: ActivatedRoute,
-          useValue: {paramMap: of(convertToParamMap({
-                'table-name': undefined
-              })
-            ),
-          }
+            useValue: { paramMap: of(convertToParamMap({
+                    'table-name': undefined
+                })),
+            }
         },
         { provide: Router, useValue: fakeRouter },
         { provide: Angulartics2, useValue: angulartics2Mock }
-      ]
-    })
+    ]
+})
     .compileComponents();
   }));
 

@@ -16,15 +16,15 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         FormsModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ LoginComponent ]
-    })
+        Angulartics2Module.forRoot(),
+        LoginComponent
+    ]
+})
     .compileComponents();
 
     // @ts-ignore

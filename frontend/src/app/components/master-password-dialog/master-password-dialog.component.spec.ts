@@ -13,19 +13,19 @@ describe('MasterPasswordDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        FormsModule
-      ],
-      declarations: [ MasterPasswordDialogComponent ],
-      providers: [
+        FormsModule,
+        MasterPasswordDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
-      ],
-    })
+    ],
+})
     .compileComponents();
   });
 

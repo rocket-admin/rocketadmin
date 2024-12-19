@@ -16,18 +16,18 @@ describe('GroupNameEditDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [GroupNameEditDialogComponent],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatDialogModule,
         MatSnackBarModule,
-        FormsModule
-      ],
-      providers: [
+        FormsModule,
+        GroupNameEditDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
-      ],
-    });
+    ],
+});
     fixture = TestBed.createComponent(GroupNameEditDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

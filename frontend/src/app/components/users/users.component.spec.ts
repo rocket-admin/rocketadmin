@@ -30,19 +30,19 @@ describe('UsersComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ UsersComponent ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        UsersComponent
+    ],
+    providers: [
         // { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

@@ -9,11 +9,11 @@ describe('MasterEncryptionPasswordComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MasterEncryptionPasswordComponent],
-      imports: [
-        HttpClientTestingModule
-      ],
-    })
+    imports: [
+        HttpClientTestingModule,
+        MasterEncryptionPasswordComponent
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(MasterEncryptionPasswordComponent);

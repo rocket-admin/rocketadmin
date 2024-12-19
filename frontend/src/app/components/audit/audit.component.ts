@@ -1,26 +1,55 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Subscription, merge } from 'rxjs';
 
+import { Angulartics2OnModule } from 'angulartics2';
+import { AppBannerComponent } from '../app-banner/app-banner.component';
+import { AppPlaceholderTableDataComponent } from '../app-placeholder-table-data/app-placeholder-table-data.component';
 import { AuditDataSource } from './audit-data-source';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { FormsModule } from '@angular/forms';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 import { Log } from 'src/app/models/logs';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatOptionModule } from '@angular/material/core';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { User } from '@sentry/angular-ivy';
 import { UsersService } from 'src/app/services/users.service';
-import { tap } from 'rxjs/operators';
-import { normalizeTableName } from 'src/app/lib/normalize';
 import { environment } from 'src/environments/environment';
+import { normalizeTableName } from 'src/app/lib/normalize';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-audit',
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    NgClass,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatButtonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    FormsModule,
+    RouterModule,
+    Angulartics2OnModule,
+    AppBannerComponent,
+    AppPlaceholderTableDataComponent
+  ],
   templateUrl: './audit.component.html',
-  styleUrls: ['./audit.component.css']
+  styleUrls: ['./audit.component.scss']
 })
 export class AuditComponent implements OnInit, OnDestroy {
   public isSaas = (environment as any).saas;

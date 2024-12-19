@@ -90,21 +90,21 @@ describe('DbTableWidgetsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([
-          { path: 'dashboard/:connection-id/:table-name', component: DashboardComponent}
+            { path: 'dashboard/:connection-id/:table-name', component: DashboardComponent }
         ]),
         MatSnackBarModule,
         MatDialogModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DbTableWidgetsComponent
+    ],
+    providers: [
         { provide: MatDialogRef, useValue: {} },
-      ],
-      declarations: [ DbTableWidgetsComponent ]
-    })
+    ]
+})
     .compileComponents();
   });
 

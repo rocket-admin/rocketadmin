@@ -10,12 +10,12 @@ fdescribe('Db2CredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [Db2CredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        Db2CredentialsFormComponent
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(Db2CredentialsFormComponent);

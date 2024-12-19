@@ -1,12 +1,19 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { Angulartics2 } from 'angulartics2';
 import { UsersService } from 'src/app/services/users.service';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-group-delete-dialog',
   templateUrl: './group-delete-dialog.component.html',
-  styleUrls: ['./group-delete-dialog.component.css']
+  styleUrls: ['./group-delete-dialog.component.css'],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule
+  ]
 })
 export class GroupDeleteDialogComponent implements OnInit {
 

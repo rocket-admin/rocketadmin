@@ -3,5 +3,5 @@
     <input type="date" matInput name="{{label}}-{{key}}"
         [required]="required" [disabled]="disabled" [readonly]="readonly"
         attr.data-testid="record-{{label}}-date"
-        [(ngModel)]="date" (ngModelChange)="onDateChange()">
+        [(ngModel)]="date" (change)="onDateChange()">
 </mat-form-field>

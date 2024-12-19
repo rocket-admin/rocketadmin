@@ -16,17 +16,17 @@ describe('RevokeInvitationDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RevokeInvitationDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        RevokeInvitationDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: { companyId: '', userEmail: '' } },
         { provide: MatDialogRef, useValue: MatDialogRef }
-      ],
-    })
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(RevokeInvitationDialogComponent);

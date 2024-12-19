@@ -8,8 +8,8 @@ describe('BinaryDataCaptionRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BinaryDataCaptionRowComponent ]
-    })
+    imports: [BinaryDataCaptionRowComponent]
+})
     .compileComponents();
   }));
 

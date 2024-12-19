@@ -13,18 +13,18 @@ describe('AddMemberDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InviteMemberDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        InviteMemberDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: { id: '', connections: [] } },
         { provide: MatDialogRef, useValue: MatDialogRef }
-      ],
-    })
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(InviteMemberDialogComponent);

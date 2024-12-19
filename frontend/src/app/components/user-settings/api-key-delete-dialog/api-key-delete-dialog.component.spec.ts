@@ -14,16 +14,16 @@ describe('ApiKeyDeleteDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         MatDialogModule,
-        HttpClientTestingModule
-      ],
-      providers: [
+        HttpClientTestingModule,
+        ApiKeyDeleteDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef }
-      ],
-      declarations: [ApiKeyDeleteDialogComponent]
-    })
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(ApiKeyDeleteDialogComponent);

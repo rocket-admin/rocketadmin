@@ -104,7 +104,7 @@ describe('DbTableSettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
@@ -114,10 +114,10 @@ describe('DbTableSettingsComponent', () => {
         MatRadioModule,
         MatInputModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ DbTableSettingsComponent ]
-    })
+        Angulartics2Module.forRoot(),
+        DbTableSettingsComponent
+    ]
+})
     .compileComponents();
   });
 

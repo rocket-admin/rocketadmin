@@ -95,8 +95,7 @@ describe('PermissionsAddDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PermissionsAddDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
@@ -105,18 +104,19 @@ describe('PermissionsAddDialogComponent', () => {
         MatCheckboxModule,
         RouterTestingModule.withRoutes([]),
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        PermissionsAddDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
         {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => PermissionsAddDialogComponent),
-          multi: true
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => PermissionsAddDialogComponent),
+            multi: true
         }
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

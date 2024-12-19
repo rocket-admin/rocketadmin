@@ -9,9 +9,8 @@ describe('IdFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ FormsModule ],
-      declarations: [ IdFilterComponent ]
-    })
+    imports: [FormsModule, IdFilterComponent]
+})
     .compileComponents();
   });
 

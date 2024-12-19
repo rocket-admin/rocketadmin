@@ -110,21 +110,21 @@ describe('CompanyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CompanyComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
         FormsModule,
         MatInputModule,
-        BrowserAnimationsModule
-      ],
-      providers: [
+        BrowserAnimationsModule,
+        CompanyComponent
+    ],
+    providers: [
         { provide: CompanyService, useValue: fakeCompanyService },
         { provide: UserService, useValue: fakeUserService }
-      ]
-    })
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(CompanyComponent);

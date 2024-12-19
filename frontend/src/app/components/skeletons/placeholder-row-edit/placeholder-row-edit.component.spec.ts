@@ -8,8 +8,8 @@ describe('PlaceholderRowEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlaceholderRowEditComponent ]
-    })
+    imports: [PlaceholderRowEditComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PlaceholderRowEditComponent);

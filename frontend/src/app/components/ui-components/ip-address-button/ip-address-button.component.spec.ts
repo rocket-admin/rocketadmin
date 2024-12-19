@@ -9,9 +9,8 @@ describe('IpAddressButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ IpAddressButtonComponent ],
-      imports: [ MatSnackBarModule ]
-    })
+    imports: [MatSnackBarModule, IpAddressButtonComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(IpAddressButtonComponent);

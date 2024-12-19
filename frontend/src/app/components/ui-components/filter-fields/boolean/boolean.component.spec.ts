@@ -22,13 +22,13 @@ describe('BooleanFilterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BooleanFilterComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
-        MatDialogModule
-       ]
-    })
+        MatDialogModule,
+        BooleanFilterComponent
+    ]
+})
     .compileComponents();
   }));
 

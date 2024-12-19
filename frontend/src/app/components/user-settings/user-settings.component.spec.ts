@@ -25,7 +25,7 @@ describe('UserSettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule,
         FormsModule,
@@ -34,17 +34,17 @@ describe('UserSettingsComponent', () => {
         MatDialogModule,
         MatSnackBarModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ UserSettingsComponent ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        UserSettingsComponent
+    ],
+    providers: [
         {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => UserSettingsComponent),
-          multi: true
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => UserSettingsComponent),
+            multi: true
         },
-      ]
-    })
+    ]
+})
     .compileComponents();
   });
 

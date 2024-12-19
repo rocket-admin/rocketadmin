@@ -8,8 +8,8 @@ describe('DbTablesListComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DbTablesListComponent ]
-    })
+    imports: [DbTablesListComponent]
+})
     .compileComponents();
   }));
 

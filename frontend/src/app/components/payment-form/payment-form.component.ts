@@ -3,24 +3,40 @@ import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import {
-  PaymentIntent,
   StripeCardElementOptions,
   StripeElementsOptions
 } from '@stripe/stripe-js';
 import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
-import { SubscriptionPlans, User } from 'src/app/models/user';
 import { addMonths, format } from 'date-fns'
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { PaymentService } from 'src/app/services/payment.service';
+import { ReactiveFormsModule } from '@angular/forms';
 import { UserService } from 'src/app/services/user.service';
 import plans from '../../consts/plans';
 
 @Component({
   selector: 'app-payment-form',
   templateUrl: './payment-form.component.html',
-  styleUrls: ['./payment-form.component.css']
+  styleUrls: ['./payment-form.component.css'],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NgxStripeModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    AlertComponent,
+  ],
 })
 export class PaymentFormComponent implements OnInit {
 

@@ -72,17 +72,17 @@ describe('AuditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         MatPaginatorModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ AuditComponent ]
-    })
+        Angulartics2Module.forRoot(),
+        AuditComponent
+    ]
+})
     .compileComponents();
   });
 

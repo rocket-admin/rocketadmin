@@ -10,13 +10,12 @@ describe('FileFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FileFilterComponent ],
-      imports: [
+    imports: [
         FormsModule,
-        MatRadioModule
-      ]
-
-    })
+        MatRadioModule,
+        FileFilterComponent
+    ]
+})
     .compileComponents();
   });
 

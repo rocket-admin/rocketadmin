@@ -21,18 +21,18 @@ describe('UserAddDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ UserAddDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {id: '12345678-123'} },
+        Angulartics2Module.forRoot(),
+        UserAddDialogComponent
+    ],
+    providers: [
+        { provide: MAT_DIALOG_DATA, useValue: { id: '12345678-123' } },
         { provide: MatDialogRef, useValue: mockDialogRef }
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

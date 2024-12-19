@@ -9,9 +9,8 @@ describe('LoaderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PageLoaderComponent ],
-      imports: [ RouterTestingModule.withRoutes([]) ],
-    })
+    imports: [RouterTestingModule.withRoutes([]), PageLoaderComponent],
+})
     .compileComponents();
   }));
 

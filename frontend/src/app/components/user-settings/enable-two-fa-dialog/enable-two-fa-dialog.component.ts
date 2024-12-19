@@ -3,9 +3,23 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { GroupDeleteDialogComponent } from '../../users/group-delete-dialog/group-delete-dialog.component';
 import { Angulartics2 } from 'angulartics2';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-enable-two-fa-dialog',
+  imports: [
+    NgClass,
+    FormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
+  ],
   templateUrl: './enable-two-fa-dialog.component.html',
   styleUrls: ['./enable-two-fa-dialog.component.css']
 })

@@ -26,27 +26,27 @@ xdescribe('DbConnectionDeleteDialogComponent', () => {
     routerSpy = {navigate: jasmine.createSpy('navigate')};
 
     TestBed.configureTestingModule({
-      declarations: [ DbConnectionDeleteDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         FormsModule,
         MatRadioModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DbConnectionDeleteDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
         { provide: Router, useValue: routerSpy },
         {
-          provide: ConnectionsService,
-          useValue: fakeConnectionsService
+            provide: ConnectionsService,
+            useValue: fakeConnectionsService
         },
         Angulartics2
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

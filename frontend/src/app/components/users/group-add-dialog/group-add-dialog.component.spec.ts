@@ -21,20 +21,20 @@ describe('GroupAddDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GroupAddDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         FormsModule,
         MatDialogModule,
-        Angulartics2Module.forRoot({})
-      ],
-      providers: [
+        Angulartics2Module.forRoot({}),
+        GroupAddDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

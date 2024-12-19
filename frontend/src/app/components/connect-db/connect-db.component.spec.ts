@@ -55,7 +55,7 @@ describe('ConnectDBComponent', () => {
 
   beforeEach(async() => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
@@ -65,19 +65,19 @@ describe('ConnectDBComponent', () => {
         MatInputModule,
         MatDialogModule,
         BrowserAnimationsModule,
-        Angulartics2Module.forRoot({})
-      ],
-      declarations: [ ConnectDBComponent ],
-      providers: [
+        Angulartics2Module.forRoot({}),
+        ConnectDBComponent
+    ],
+    providers: [
         {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => ConnectDBComponent),
-          multi: true
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => ConnectDBComponent),
+            multi: true
         },
         { provide: NotificationsService, useValue: fakeNotifications },
         { provide: ConnectionsService, useValue: fakeConnectionsService },
-      ]
-    })
+    ]
+})
     .compileComponents();
   });
 

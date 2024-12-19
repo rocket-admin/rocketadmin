@@ -17,19 +17,19 @@ describe('AccountDeleteConfirmationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatDialogModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        AccountDeleteConfirmationComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef }
-      ],
-      declarations: [ AccountDeleteConfirmationComponent ]
-    })
+    ]
+})
     .compileComponents();
   });
 

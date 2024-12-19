@@ -1,11 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, Input } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-filter-select',
   templateUrl: './select.component.html',
-  styleUrls: ['./select.component.css']
+  styleUrls: ['./select.component.css'],
+  imports: [CommonModule, FormsModule, MatSelectModule, MatOptionModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SelectFilterComponent extends BaseFilterFieldComponent {
   @Input() value: string;

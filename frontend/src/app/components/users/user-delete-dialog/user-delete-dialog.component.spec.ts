@@ -18,13 +18,12 @@ describe('UserDeleteDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ UserDeleteDialogComponent ],
-      imports: [HttpClientTestingModule, MatSnackBarModule],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {user: {email: 'user@test.com'}, group: {id: '12345678-123'}} },
+    imports: [HttpClientTestingModule, MatSnackBarModule, UserDeleteDialogComponent],
+    providers: [
+        { provide: MAT_DIALOG_DATA, useValue: { user: { email: 'user@test.com' }, group: { id: '12345678-123' } } },
         { provide: MatDialogRef, useValue: mockDialogRef },
-      ],
-    })
+    ],
+})
     .compileComponents();
   }));
 

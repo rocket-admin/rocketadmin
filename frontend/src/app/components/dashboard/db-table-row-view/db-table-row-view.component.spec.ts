@@ -9,11 +9,11 @@ describe('DbTableRowViewComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [DbTableRowViewComponent],
-      imports: [
-        MatSnackBarModule
-      ],
-    });
+    imports: [
+        MatSnackBarModule,
+        DbTableRowViewComponent
+    ],
+});
     fixture = TestBed.createComponent(DbTableRowViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

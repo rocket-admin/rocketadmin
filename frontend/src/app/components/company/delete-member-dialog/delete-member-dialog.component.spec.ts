@@ -13,25 +13,25 @@ describe('DeleteMemberDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DeleteMemberDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DeleteMemberDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {
-          companyId: '',
-          user: {
-            id: '',
-            email: '',
-            name: ''
-          }
-        }},
+                companyId: '',
+                user: {
+                    id: '',
+                    email: '',
+                    name: ''
+                }
+            } },
         { provide: MatDialogRef, useValue: MatDialogRef }
-      ],
-    })
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(DeleteMemberDialogComponent);

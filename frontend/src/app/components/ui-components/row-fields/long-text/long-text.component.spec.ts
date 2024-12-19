@@ -8,8 +8,8 @@ describe('LongTextRowComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LongTextRowComponent ]
-    })
+    imports: [LongTextRowComponent]
+})
     .compileComponents();
   }));
 

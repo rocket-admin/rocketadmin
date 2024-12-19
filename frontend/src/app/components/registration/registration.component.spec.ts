@@ -16,15 +16,15 @@ describe('RegistrationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         FormsModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      declarations: [ RegistrationComponent ]
-    })
+        Angulartics2Module.forRoot(),
+        RegistrationComponent
+    ]
+})
     .compileComponents();
 
     // @ts-ignore

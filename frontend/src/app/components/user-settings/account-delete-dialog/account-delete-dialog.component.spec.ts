@@ -18,18 +18,18 @@ describe('AccountDeleteDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         MatDialogModule,
         MatSnackBarModule,
         FormsModule,
         MatRadioModule,
-      ],
-      providers: [
+        AccountDeleteDialogComponent,
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef }
-      ],
-      declarations: [ AccountDeleteDialogComponent ]
-    })
+    ]
+})
     .compileComponents();
   });
 

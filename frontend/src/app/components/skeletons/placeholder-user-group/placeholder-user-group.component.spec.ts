@@ -8,8 +8,8 @@ describe('PlaceholderUserGroupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlaceholderUserGroupComponent ]
-    })
+    imports: [PlaceholderUserGroupComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PlaceholderUserGroupComponent);

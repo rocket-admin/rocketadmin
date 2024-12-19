@@ -21,28 +21,28 @@ describe('DbConnectionConfirmDialogComponent', () => {
     routerSpy = {navigate: jasmine.createSpy('navigate')};
 
     await TestBed.configureTestingModule({
-      declarations: [ DbConnectionConfirmDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        DbConnectionConfirmDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {
-          dbCreds: {
-            id: '12345678'
-          }
-        } },
+                dbCreds: {
+                    id: '12345678'
+                }
+            } },
         { provide: MatDialogRef, useValue: {} },
         { provide: Router, useValue: routerSpy },
         {
-          provide: ConnectionsService,
-          useValue: fakeConnectionsService
+            provide: ConnectionsService,
+            useValue: fakeConnectionsService
         }
-      ],
-    })
+    ],
+})
     .compileComponents();
   });
 

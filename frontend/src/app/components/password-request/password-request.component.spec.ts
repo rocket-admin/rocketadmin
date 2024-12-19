@@ -15,14 +15,14 @@ describe('PasswordRequestComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule,
         FormsModule,
-        MatSnackBarModule
-      ],
-      declarations: [ PasswordRequestComponent ]
-    })
+        MatSnackBarModule,
+        PasswordRequestComponent
+    ]
+})
     .compileComponents();
   });
 

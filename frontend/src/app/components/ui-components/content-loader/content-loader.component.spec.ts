@@ -8,8 +8,8 @@ describe('ContentLoaderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ContentLoaderComponent ]
-    })
+    imports: [ContentLoaderComponent]
+})
     .compileComponents();
   }));
 

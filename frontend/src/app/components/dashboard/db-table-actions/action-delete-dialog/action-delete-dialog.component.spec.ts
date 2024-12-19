@@ -13,19 +13,19 @@ describe('ActionDeleteDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ActionDeleteDialogComponent ],
-      imports: [
+    imports: [
         HttpClientTestingModule,
         RouterTestingModule,
         MatDialogModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
+        Angulartics2Module.forRoot(),
+        ActionDeleteDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
-      ],
-    })
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(ActionDeleteDialogComponent);
