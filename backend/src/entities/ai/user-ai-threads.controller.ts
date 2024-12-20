@@ -5,6 +5,7 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import {
   IAddMessageToThreadWithAIAssistant,
   ICreateThreadWithAIAssistant,
+  IGetAllThreadMessages,
   IGetAllUserThreadsWithAIAssistant,
 } from './ai-use-cases.interface.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
@@ -18,6 +19,8 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Response } from 'express';
 import { AddMessageToThreadWithAssistantDS } from './application/data-structures/add-message-to-thread-with-assistant.ds.js';
 import { FoundUserThreadsWithAiRO } from './application/dto/found-user-threads-with-ai.ro.js';
+import { FoundUserThreadMessagesRO } from './application/dto/found-user-thread-messages.ro.js';
+import { FindAllThreadMessagesDS } from './application/data-structures/find-all-thread-messages.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -32,6 +35,8 @@ export class UserAIThreadsController {
     private readonly addMessageToThreadWithAIAssistantUseCase: IAddMessageToThreadWithAIAssistant,
     @Inject(UseCaseType.GET_ALL_USER_THREADS_WITH_AI_ASSISTANT)
     private readonly getAllUserThreadsWithAIAssistantUseCase: IGetAllUserThreadsWithAIAssistant,
+    @Inject(UseCaseType.GET_ALL_THREAD_MESSAGES)
+    private readonly getAllThreadMessagesUseCase: IGetAllThreadMessages,
   ) {}
 
   @ApiOperation({ summary: 'Create new thread with ai assistant' })
@@ -102,5 +107,23 @@ export class UserAIThreadsController {
   @Get('/ai/threads')
   public async findUserThreadsWithAssistant(@UserId() userId: string): Promise<Array<FoundUserThreadsWithAiRO>> {
     return await this.getAllUserThreadsWithAIAssistantUseCase.execute(userId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Get all messages from a thread' })
+  @ApiResponse({
+    status: 201,
+    description: 'Return messages from a thread.',
+    type: FoundUserThreadsWithAiRO,
+  })
+  @Get('/ai/thread/messages/:threadId')
+  public async getUserMessagesFromThread(
+    @UserId() userId: string,
+    @SlugUuid('threadId') threadId: string,
+  ): Promise<Array<FoundUserThreadMessagesRO>> {
+    const inputData: FindAllThreadMessagesDS = {
+      threadId,
+      userId,
+    };
+    return await this.getAllThreadMessagesUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 }

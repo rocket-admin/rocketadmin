@@ -1,8 +1,10 @@
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { AddMessageToThreadWithAssistantDS } from './application/data-structures/add-message-to-thread-with-assistant.ds.js';
 import { CreateThreadWithAssistantDS } from './application/data-structures/create-thread-with-assistant.ds.js';
+import { FindAllThreadMessagesDS } from './application/data-structures/find-all-thread-messages.ds.js';
 import { RequestInfoFromTableDS } from './application/data-structures/request-info-from-table.ds.js';
 import { ResponseInfoDS } from './application/data-structures/response-info.ds.js';
+import { FoundUserThreadMessagesRO } from './application/dto/found-user-thread-messages.ro.js';
 import { FoundUserThreadsWithAiRO } from './application/dto/found-user-threads-with-ai.ro.js';
 
 export interface IRequestInfoFromTable {
@@ -19,4 +21,11 @@ export interface IAddMessageToThreadWithAIAssistant {
 
 export interface IGetAllUserThreadsWithAIAssistant {
   execute(userId: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserThreadsWithAiRO>>;
+}
+
+export interface IGetAllThreadMessages {
+  execute(
+    inputData: FindAllThreadMessagesDS,
+    inTransaction: InTransactionEnum,
+  ): Promise<Array<FoundUserThreadMessagesRO>>;
 }
