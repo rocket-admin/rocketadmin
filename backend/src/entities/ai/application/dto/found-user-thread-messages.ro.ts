@@ -13,7 +13,7 @@ export class FoundUserThreadMessagesRO {
   @ApiProperty()
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ enum: MessageRolesEnum })
   role: MessageRolesEnum;
 
   @ApiProperty({ type: FoundMessageContentRO })

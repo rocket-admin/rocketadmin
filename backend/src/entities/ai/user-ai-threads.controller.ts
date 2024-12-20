@@ -113,7 +113,8 @@ export class UserAIThreadsController {
   @ApiResponse({
     status: 201,
     description: 'Return messages from a thread.',
-    type: FoundUserThreadsWithAiRO,
+    type: FoundUserThreadMessagesRO,
+    isArray: true,
   })
   @Get('/ai/thread/messages/:threadId')
   public async getUserMessagesFromThread(
