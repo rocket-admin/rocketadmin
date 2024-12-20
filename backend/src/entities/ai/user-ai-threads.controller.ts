@@ -12,7 +12,6 @@ import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Response } from 'express';
-import { QueryUuid } from '../../decorators/query-uuid.decorator.js';
 import { AddMessageToThreadWithAssistantDS } from './application/data-structures/add-message-to-thread-with-assistant.ds.js';
 
 @UseInterceptors(SentryInterceptor)
@@ -66,11 +65,11 @@ export class UserAIThreadsController {
   @ApiBody({ type: CreateThreadWithAIAssistantBodyDTO })
   @ApiQuery({ name: 'tableName', required: true, type: String })
   @ApiQuery({ name: 'threadId', required: true, type: String })
-  @Post('/ai/thread/message/:connectionId')
+  @Post('/ai/thread/message/:connectionId/:threadId')
   public async addMessageToThreadWithAIAssistant(
     @SlugUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-    @QueryUuid('threadId') threadId: string,
+    @SlugUuid('threadId') threadId: string,
     @MasterPassword() masterPassword: string,
     @UserId() userId: string,
     @Body() requestData: CreateThreadWithAIAssistantBodyDTO,

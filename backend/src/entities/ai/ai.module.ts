@@ -40,7 +40,7 @@ export class AIModule implements NestModule {
       .forRoutes(
         { path: '/ai/request/:connectionId', method: RequestMethod.POST },
         { path: '/ai/thread/:connectionId', method: RequestMethod.POST },
-        { path: '/ai/thread/message/:connectionId', method: RequestMethod.POST },
+        { path: '/ai/thread/message/:connectionId/:threadId', method: RequestMethod.POST },
       );
   }
 }
