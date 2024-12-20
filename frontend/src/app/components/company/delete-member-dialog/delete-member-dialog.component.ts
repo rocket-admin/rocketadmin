@@ -1,12 +1,19 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { Angulartics2 } from 'angulartics2';
 import { CompanyService } from 'src/app/services/company.service';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-delete-member-dialog',
   templateUrl: './delete-member-dialog.component.html',
-  styleUrls: ['./delete-member-dialog.component.css']
+  styleUrls: ['./delete-member-dialog.component.css'],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+  ]
 })
 export class DeleteMemberDialogComponent {
   public submitting: boolean = false;

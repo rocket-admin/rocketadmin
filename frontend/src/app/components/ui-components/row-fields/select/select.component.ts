@@ -4,12 +4,11 @@ import { BaseRowFieldComponent } from '../base-row-field/base-row-field.componen
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-row-select',
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule],
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule],
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

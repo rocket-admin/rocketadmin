@@ -13,7 +13,6 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-enable-two-fa-dialog',
   imports: [
-    NgClass,
     FormsModule,
     MatDialogModule,
     MatFormFieldModule,

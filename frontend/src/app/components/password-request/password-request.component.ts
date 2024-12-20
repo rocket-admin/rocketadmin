@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { UserService } from 'src/app/services/user.service';
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -21,7 +20,6 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatOptionModule,
     AlertComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

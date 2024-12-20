@@ -43,8 +43,7 @@ import { UserService } from 'src/app/services/user.service';
     MatTooltipModule,
     CdkCopyToClipboard,
     Angulartics2Module,
-    AlertComponent,
-    EnableTwoFADialogComponent
+    AlertComponent
   ]
 })
 export class UserSettingsComponent implements OnInit {

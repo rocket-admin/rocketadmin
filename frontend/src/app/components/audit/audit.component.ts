@@ -1,10 +1,8 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { Subscription, merge } from 'rxjs';
 
 import { Angulartics2OnModule } from 'angulartics2';
-import { AppBannerComponent } from '../app-banner/app-banner.component';
-import { AppPlaceholderTableDataComponent } from '../app-placeholder-table-data/app-placeholder-table-data.component';
 import { AuditDataSource } from './audit-data-source';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +11,6 @@ import { Log } from 'src/app/models/logs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatOptionModule } from '@angular/material/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,25 +25,25 @@ import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { tap } from 'rxjs/operators';
+import { BannerComponent } from '../ui-components/banner/banner.component';
+import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 
 @Component({
   selector: 'app-audit',
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     NgClass,
+    AsyncPipe,
     MatFormFieldModule,
     MatSelectModule,
-    MatOptionModule,
     MatButtonModule,
     MatTableModule,
     MatPaginatorModule,
     FormsModule,
     RouterModule,
     Angulartics2OnModule,
-    AppBannerComponent,
-    AppPlaceholderTableDataComponent
+    BannerComponent,
+    PlaceholderTableDataComponent
   ],
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.scss']

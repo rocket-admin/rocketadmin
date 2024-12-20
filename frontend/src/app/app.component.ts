@@ -16,6 +16,17 @@ import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { normalizeTableName } from './lib/normalize';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatTabsModule } from '@angular/material/tabs';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -24,7 +35,20 @@ amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatTabsModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatBadgeModule,
+    MatMenuModule,
+    MatTooltipModule,
+  ],
 })
 
 export class AppComponent {

@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { Widget } from 'src/app/models/table';
 
@@ -18,7 +17,6 @@ import { Widget } from 'src/app/models/table';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatOptionModule,
     MatIconModule,
     CodeEditorModule
   ],

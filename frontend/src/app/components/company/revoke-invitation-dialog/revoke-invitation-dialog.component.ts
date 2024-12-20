@@ -1,12 +1,19 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 import { Angulartics2 } from 'angulartics2';
 import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-revoke-invitation-dialog',
   templateUrl: './revoke-invitation-dialog.component.html',
-  styleUrls: ['./revoke-invitation-dialog.component.css']
+  styleUrls: ['./revoke-invitation-dialog.component.css'],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule
+  ]
 })
 export class RevokeInvitationDialogComponent {
   public submitting: boolean = false;
