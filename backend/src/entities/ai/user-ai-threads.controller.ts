@@ -1,8 +1,12 @@
-import { UseInterceptors, Controller, Injectable, Inject, UseGuards, Post, Body, Res } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, Inject, UseGuards, Post, Body, Res, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { IAddMessageToThreadWithAIAssistant, ICreateThreadWithAIAssistant } from './ai-use-cases.interface.js';
+import {
+  IAddMessageToThreadWithAIAssistant,
+  ICreateThreadWithAIAssistant,
+  IGetAllUserThreadsWithAIAssistant,
+} from './ai-use-cases.interface.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { CreateThreadWithAIAssistantBodyDTO } from './application/dto/create-thread-with-ai-assistant-body.dto.js';
 import { CreateThreadWithAssistantDS } from './application/data-structures/create-thread-with-assistant.ds.js';
@@ -13,6 +17,7 @@ import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Response } from 'express';
 import { AddMessageToThreadWithAssistantDS } from './application/data-structures/add-message-to-thread-with-assistant.ds.js';
+import { FoundUserThreadsWithAiRO } from './application/dto/found-user-threads-with-ai.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -25,6 +30,8 @@ export class UserAIThreadsController {
     private readonly createThreadWithAIAssistantUseCase: ICreateThreadWithAIAssistant,
     @Inject(UseCaseType.ADD_MESSAGE_TO_THREAD_WITH_AI_ASSISTANT)
     private readonly addMessageToThreadWithAIAssistantUseCase: IAddMessageToThreadWithAIAssistant,
+    @Inject(UseCaseType.GET_ALL_USER_THREADS_WITH_AI_ASSISTANT)
+    private readonly getAllUserThreadsWithAIAssistantUseCase: IGetAllUserThreadsWithAIAssistant,
   ) {}
 
   @ApiOperation({ summary: 'Create new thread with ai assistant' })
@@ -64,7 +71,6 @@ export class UserAIThreadsController {
   @UseGuards(ConnectionEditGuard)
   @ApiBody({ type: CreateThreadWithAIAssistantBodyDTO })
   @ApiQuery({ name: 'tableName', required: true, type: String })
-  @ApiQuery({ name: 'threadId', required: true, type: String })
   @Post('/ai/thread/message/:connectionId/:threadId')
   public async addMessageToThreadWithAIAssistant(
     @SlugUuid('connectionId') connectionId: string,
@@ -85,5 +91,16 @@ export class UserAIThreadsController {
       response,
     };
     return await this.addMessageToThreadWithAIAssistantUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Get all user threads with assistant' })
+  @ApiResponse({
+    status: 201,
+    description: 'Return user threads.',
+    type: FoundUserThreadsWithAiRO,
+  })
+  @Get('/ai/threads')
+  public async findUserThreadsWithAssistant(@UserId() userId: string): Promise<Array<FoundUserThreadsWithAiRO>> {
+    return await this.getAllUserThreadsWithAIAssistantUseCase.execute(userId, InTransactionEnum.OFF);
   }
 }
