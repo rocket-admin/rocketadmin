@@ -42,11 +42,17 @@ export class AiStreamsRunner {
   private readonly streamEventTypesListeners: Map<Events, any> = new Map();
   private toolArgumentName: string;
   private isMongoDB: boolean;
+  private readonly eventTypesToResolveImmediately: Events[] = [
+    'thread.message.completed',
+    'thread.run.requires_action',
+    'error',
+  ];
 
   constructor(
     private readonly openai: OpenAI,
     private readonly assistantId: string,
-    private readonly threadId: string,
+    private readonly thread_ai_id: string,
+    private readonly thread_in_db_id: string,
     private readonly connectionParameters: { connection: ConnectionEntity; tableName: string; userEmail: string },
     private readonly response: Response | null,
   ) {
@@ -54,14 +60,14 @@ export class AiStreamsRunner {
     this.isMongoDB = this.connectionParameters.connection.type === ConnectionTypesEnum.mongodb;
     this.toolArgumentName = this.isMongoDB ? 'pipeline' : 'query';
     if (this.response) {
-      this.response.setHeader('X-OpenAI-Thread-ID', this.threadId);
+      this.response.setHeader('X-OpenAI-Thread-ID', this.thread_in_db_id);
     }
   }
 
   public async runThread(additionalInstructions: string = null): Promise<void> {
     return new Promise((resolve, reject) => {
       const run = this.openai.beta.threads.runs
-        .stream(this.threadId, {
+        .stream(this.thread_ai_id, {
           assistant_id: this.assistantId,
           additional_instructions: additionalInstructions ? additionalInstructions : undefined,
         })
@@ -69,7 +75,10 @@ export class AiStreamsRunner {
           const listener = this.streamEventTypesListeners.get(event.event);
           if (listener) {
             try {
-              resolve(await listener(event, run));
+              await listener(event, run);
+              if (this.eventTypesToResolveImmediately.includes(event.event)) {
+                resolve();
+              }
             } catch (error) {
               await run.done();
               reject(error);
@@ -144,7 +153,7 @@ export class AiStreamsRunner {
 
     return new Promise((resolve, reject) => {
       this.openai.beta.threads.runs
-        .submitToolOutputsStream(this.threadId, runId, {
+        .submitToolOutputsStream(this.thread_ai_id, runId, {
           tool_outputs: [
             {
               tool_call_id: toolCallId,
@@ -230,10 +239,7 @@ export class AiStreamsRunner {
 //   'thread.run.step.expired',
 //   (_event: AssistantStreamEvent.ThreadRunStepExpired) => {},
 // );
-// this.streamEventTypesListeners.set(
-//   'thread.message.created',
-//   (_event: AssistantStreamEvent.ThreadMessageCreated) => {},
-// );
+
 // this.streamEventTypesListeners.set(
 //   'thread.message.in_progress',
 //   (_event: AssistantStreamEvent.ThreadMessageInProgress) => {},

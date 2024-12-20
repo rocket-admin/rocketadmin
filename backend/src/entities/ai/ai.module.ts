@@ -9,6 +9,9 @@ import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserAIThreadsController } from './user-ai-threads.controller.js';
 import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-with-ai-assistant.use.case.js';
+import { AddMessageToThreadWithAIAssistantUseCase } from './use-cases/add-message-to-thread-with-ai.use.case.js';
+import { FindAllUserThreadsWithAssistantUseCase } from './use-cases/find-all-user-threads-with-assistant.use.case.js';
+import { FindAllMessagesInAiThreadUseCase } from './use-cases/find-all-messages-in-ai-thread.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -25,6 +28,18 @@ import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-wi
       provide: UseCaseType.CREATE_THREAD_WITH_AI_ASSISTANT,
       useClass: CreateThreadWithAIAssistantUseCase,
     },
+    {
+      provide: UseCaseType.ADD_MESSAGE_TO_THREAD_WITH_AI_ASSISTANT,
+      useClass: AddMessageToThreadWithAIAssistantUseCase,
+    },
+    {
+      provide: UseCaseType.GET_ALL_USER_THREADS_WITH_AI_ASSISTANT,
+      useClass: FindAllUserThreadsWithAssistantUseCase,
+    },
+    {
+      provide: UseCaseType.GET_ALL_THREAD_MESSAGES,
+      useClass: FindAllMessagesInAiThreadUseCase,
+    },
   ],
   controllers: [UserAIRequestsController, UserAIThreadsController],
 })
@@ -35,6 +50,9 @@ export class AIModule implements NestModule {
       .forRoutes(
         { path: '/ai/request/:connectionId', method: RequestMethod.POST },
         { path: '/ai/thread/:connectionId', method: RequestMethod.POST },
+        { path: '/ai/thread/message/:connectionId/:threadId', method: RequestMethod.POST },
+        { path: '/ai/threads', method: RequestMethod.GET },
+        { path: '/ai/thread/messages/:threadId', method: RequestMethod.GET },
       );
   }
 }

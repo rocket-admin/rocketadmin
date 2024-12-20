@@ -9,6 +9,9 @@ export class AiUserFileEntity {
   @Column({ type: 'varchar', length: 128 })
   file_ai_id: string;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
   @OneToOne((_) => AiUserThreadEntity, (thread) => thread.thread_file, { onDelete: 'CASCADE' })
   @JoinColumn()
   thread: Relation<AiUserThreadEntity>;
