@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BinaryDataCaptionFilterComponent } from './binary-data-caption.component';
 
@@ -6,12 +6,11 @@ describe('BinaryDataCaptionFilterComponent', () => {
   let component: BinaryDataCaptionFilterComponent;
   let fixture: ComponentFixture<BinaryDataCaptionFilterComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-    imports: [BinaryDataCaptionFilterComponent]
-})
-    .compileComponents();
-  }));
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [BinaryDataCaptionFilterComponent]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BinaryDataCaptionFilterComponent);

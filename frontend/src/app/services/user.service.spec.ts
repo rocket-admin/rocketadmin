@@ -1,7 +1,7 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TestBed, async } from '@angular/core/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { TestBed } from '@angular/core/testing';
 
 import { NotificationsService } from './notifications.service';
 import { Router } from '@angular/router';

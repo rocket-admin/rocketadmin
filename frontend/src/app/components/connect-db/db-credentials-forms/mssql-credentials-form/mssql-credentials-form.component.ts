@@ -7,12 +7,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-mssql-credentials-form',
   templateUrl: './mssql-credentials-form.component.html',
   styleUrls: ['../base-credentials-form/base-credentials-form.component.css', './mssql-credentials-form.component.css'],
   imports: [
+    NgIf,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,

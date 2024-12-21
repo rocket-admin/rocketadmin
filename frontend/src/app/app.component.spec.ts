@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { Angulartics2Module } from 'angulartics2';
 import { AppComponent } from './app.component';
@@ -9,6 +9,7 @@ import { ConnectionsService } from './services/connections.service';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AppComponent', () => {
   let app: AppComponent;
@@ -37,19 +38,20 @@ describe('AppComponent', () => {
     "externalRegistrationProvider": null
   }
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-    imports: [
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
         RouterTestingModule,
         HttpClientTestingModule,
         MatSnackBarModule,
         MatDialogModule,
         MatMenuModule,
         Angulartics2Module.forRoot(),
-        AppComponent
-    ],
-}).compileComponents();
-  }));
+        AppComponent,
+        BrowserAnimationsModule
+      ],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);

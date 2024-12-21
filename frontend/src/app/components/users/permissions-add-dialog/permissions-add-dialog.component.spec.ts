@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule, NG_VALUE_ACCESSOR }   from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -93,32 +93,32 @@ describe('PermissionsAddDialogComponent', () => {
     "tables": fakeTablePermissionsResponse
   }
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async() => {
+    await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
-        MatSnackBarModule,
-        FormsModule,
-        MatRadioModule,
-        MatSlideToggleModule,
-        MatCheckboxModule,
-        RouterTestingModule.withRoutes([]),
-        MatDialogModule,
-        Angulartics2Module.forRoot(),
-        PermissionsAddDialogComponent
+      HttpClientTestingModule,
+      MatSnackBarModule,
+      FormsModule,
+      MatRadioModule,
+      MatSlideToggleModule,
+      MatCheckboxModule,
+      RouterTestingModule.withRoutes([]),
+      MatDialogModule,
+      Angulartics2Module.forRoot(),
+      PermissionsAddDialogComponent
     ],
     providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => PermissionsAddDialogComponent),
-            multi: true
-        }
+      { provide: MAT_DIALOG_DATA, useValue: {} },
+      { provide: MatDialogRef, useValue: mockDialogRef },
+      {
+          provide: NG_VALUE_ACCESSOR,
+          useExisting: forwardRef(() => PermissionsAddDialogComponent),
+          multi: true
+      }
     ],
-})
+  })
     .compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PermissionsAddDialogComponent);
@@ -131,7 +131,7 @@ describe('PermissionsAddDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set initial state of permissions', async () => {
+  it('should set initial state of permissions', waitForAsync(async () => {
     spyOn(usersService, 'fetchPermission').and.returnValue(of(fakePermissionsResponse));
 
     component.ngOnInit();
@@ -143,7 +143,7 @@ describe('PermissionsAddDialogComponent', () => {
     expect(component.connectionAccess).toEqual('readonly');
     expect(component.groupAccess).toEqual('edit');
     expect(component.tablesAccess).toEqual(fakeTablePermissionsApp);
-  });
+  }));
 
   it('should uncheck actions if table is readonly', () => {
     component.tablesAccess = [...fakeTablePermissionsApp];

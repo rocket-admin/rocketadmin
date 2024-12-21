@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from 'src/app/models/alert';
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConnectionType, DBtype } from 'src/app/models/connection';
 import { FormsModule, NG_VALUE_ACCESSOR }   from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -20,7 +20,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
 
-describe('ConnectDBComponent', () => {
+fdescribe('ConnectDBComponent', () => {
   let component: ConnectDBComponent;
   let fixture: ComponentFixture<ConnectDBComponent>;
   let dialog: MatDialog;

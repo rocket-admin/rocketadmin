@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NumberFilterComponent } from './number.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('NumberFilterComponent', () => {
   let component: NumberFilterComponent;
@@ -8,9 +9,8 @@ describe('NumberFilterComponent', () => {
 
   beforeEach((() => {
     TestBed.configureTestingModule({
-    imports: [NumberFilterComponent]
-})
-    .compileComponents();
+      imports: [NumberFilterComponent, BrowserAnimationsModule]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

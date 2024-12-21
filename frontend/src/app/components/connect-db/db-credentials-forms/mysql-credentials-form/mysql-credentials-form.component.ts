@@ -7,6 +7,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-mysql-credentials-form',
@@ -14,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['../base-credentials-form/base-credentials-form.component.css', './mysql-credentials-form.component.css'],
   standalone: true,
   imports: [
+    NgIf,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,

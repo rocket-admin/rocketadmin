@@ -49,6 +49,14 @@ body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
   --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
 }
 
+.mat-elevation-z4 {
+  box-shadow: 0 2px 4px -1px #0003,0 4px 5px #00000024,0 1px 10px #0000001f;
+}
+
+.mat-elevation-z2 {
+  box-shadow: 0 3px 1px -2px #0003,0 2px 2px #00000024,0 1px 5px #0000001f;
+}
+
 $button-custom-level: mat.m2-define-typography-level(
   $font-family: 'Noto Sans',
   $font-weight: 500,

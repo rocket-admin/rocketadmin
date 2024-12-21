@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AsyncPipe, NgClass } from '@angular/common';
+import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Subscription, merge } from 'rxjs';
 
 import { Angulartics2OnModule } from 'angulartics2';
@@ -32,6 +32,8 @@ import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-da
   selector: 'app-audit',
   standalone: true,
   imports: [
+    NgIf,
+    NgForOf,
     NgClass,
     AsyncPipe,
     MatFormFieldModule,
@@ -46,7 +48,7 @@ import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-da
     PlaceholderTableDataComponent
   ],
   templateUrl: './audit.component.html',
-  styleUrls: ['./audit.component.scss']
+  styleUrls: ['./audit.component.css']
 })
 export class AuditComponent implements OnInit, OnDestroy {
   public isSaas = (environment as any).saas;

@@ -6,6 +6,7 @@ import { EmailChangeComponent } from './email-change.component';
 import { FormsModule }   from '@angular/forms';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('EmailChangeComponent', () => {
   let component: EmailChangeComponent;
@@ -19,7 +20,8 @@ describe('EmailChangeComponent', () => {
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
-        EmailChangeComponent
+        EmailChangeComponent,
+        BrowserAnimationsModule
     ]
 })
     .compileComponents();

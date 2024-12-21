@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ForeignKeyRowComponent } from './foreign-key.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -9,6 +9,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('ForeignKeyRowComponent', () => {
   let component: ForeignKeyRowComponent;
@@ -119,20 +120,20 @@ describe('ForeignKeyRowComponent', () => {
       column_default: '',
   }
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-    imports: [
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatAutocompleteModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
-        ForeignKeyRowComponent
-    ],
-})
-    .compileComponents();
-  }));
+        ForeignKeyRowComponent,
+        BrowserAnimationsModule
+      ],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ForeignKeyRowComponent);

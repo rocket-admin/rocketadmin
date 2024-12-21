@@ -8,6 +8,7 @@ import { LoginComponent } from './login.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -22,7 +23,8 @@ describe('LoginComponent', () => {
         FormsModule,
         MatSnackBarModule,
         Angulartics2Module.forRoot(),
-        LoginComponent
+        LoginComponent,
+        BrowserAnimationsModule
     ]
 })
     .compileComponents();

@@ -7,6 +7,7 @@ import { FormsModule }   from '@angular/forms';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('PasswordRequestComponent', () => {
   let component: PasswordRequestComponent;
@@ -20,7 +21,8 @@ describe('PasswordRequestComponent', () => {
         RouterTestingModule,
         FormsModule,
         MatSnackBarModule,
-        PasswordRequestComponent
+        PasswordRequestComponent,
+        BrowserAnimationsModule
     ]
 })
     .compileComponents();

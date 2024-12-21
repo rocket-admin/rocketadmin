@@ -6,6 +6,7 @@ import { AccountDeleteDialogComponent } from './account-delete-dialog.component'
 import { FormsModule }   from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AccountDeleteDialogComponent', () => {
   let component: AccountDeleteDialogComponent;
@@ -24,6 +25,7 @@ describe('AccountDeleteDialogComponent', () => {
         FormsModule,
         MatRadioModule,
         AccountDeleteDialogComponent,
+        BrowserAnimationsModule
     ],
     providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

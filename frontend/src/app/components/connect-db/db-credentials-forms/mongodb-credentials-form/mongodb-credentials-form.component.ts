@@ -7,12 +7,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-mongodb-credentials-form',
   templateUrl: './mongodb-credentials-form.component.html',
   styleUrls: ['../base-credentials-form/base-credentials-form.component.css', './mongodb-credentials-form.component.css'],
   imports: [
+    NgIf,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,

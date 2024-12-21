@@ -1,6 +1,6 @@
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog.component';
@@ -22,10 +22,10 @@ xdescribe('DbConnectionDeleteDialogComponent', () => {
     close: () => { }
   };
 
-  beforeEach(async((): void => {
+  beforeEach(async (): Promise<void> => {
     routerSpy = {navigate: jasmine.createSpy('navigate')};
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
     imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
@@ -46,9 +46,8 @@ xdescribe('DbConnectionDeleteDialogComponent', () => {
         },
         Angulartics2
     ],
-})
-    .compileComponents();
-  }));
+  }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DbConnectionDeleteDialogComponent);

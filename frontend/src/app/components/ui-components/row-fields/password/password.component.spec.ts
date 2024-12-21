@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PasswordRowComponent } from './password.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('PasswordRowComponent', () => {
   let component: PasswordRowComponent;
@@ -8,9 +9,8 @@ describe('PasswordRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [PasswordRowComponent]
-})
-    .compileComponents();
+      imports: [PasswordRowComponent, BrowserAnimationsModule]
+    }).compileComponents();
   });
 
   beforeEach(() => {

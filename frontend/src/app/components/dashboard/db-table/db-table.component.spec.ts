@@ -1,5 +1,5 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableComponent } from './db-table.component';
@@ -69,9 +69,9 @@ describe('DbTableComponent', () => {
     "age": "gt"
   }
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-    imports: [
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
         MatMenuModule,
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
@@ -82,10 +82,9 @@ describe('DbTableComponent', () => {
         FormsModule,
         MatDialogModule,
         DbTableComponent
-    ]
-})
-    .compileComponents();
-  }));
+      ]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DbTableComponent);

@@ -6,6 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { Angulartics2Module } from 'angulartics2';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AddMemberDialogComponent', () => {
   let component: InviteMemberDialogComponent;
@@ -18,7 +19,8 @@ describe('AddMemberDialogComponent', () => {
         MatSnackBarModule,
         FormsModule,
         Angulartics2Module.forRoot(),
-        InviteMemberDialogComponent
+        InviteMemberDialogComponent,
+        BrowserAnimationsModule
     ],
     providers: [
         { provide: MAT_DIALOG_DATA, useValue: { id: '', connections: [] } },

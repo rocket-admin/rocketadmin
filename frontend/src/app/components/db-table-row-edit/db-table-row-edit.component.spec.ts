@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { DbTableRowEditComponent } from './db-table-row-edit.component';
@@ -15,19 +15,18 @@ describe('DbTableRowEditComponent', () => {
   let tablesService: TablesService;
   let connectionsService: ConnectionsService;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-    imports: [
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
         DbTableRowEditComponent
-    ]
-})
-    .compileComponents();
-  }));
+      ]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DbTableRowEditComponent);

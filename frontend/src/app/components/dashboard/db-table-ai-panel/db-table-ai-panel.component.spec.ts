@@ -4,6 +4,7 @@ import { DbTableAiPanelComponent } from './db-table-ai-panel.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Angulartics2Module } from 'angulartics2';
 import { MarkdownService } from 'ngx-markdown';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('DbTableAiPanelComponent', () => {
   let component: DbTableAiPanelComponent;
@@ -18,7 +19,8 @@ describe('DbTableAiPanelComponent', () => {
     imports: [
         HttpClientTestingModule,
         Angulartics2Module.forRoot(),
-        DbTableAiPanelComponent
+        DbTableAiPanelComponent,
+        BrowserAnimationsModule
     ],
     providers: [
         { provide: MarkdownService, useValue: mockMarkdownService },

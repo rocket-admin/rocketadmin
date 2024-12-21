@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog.component';
@@ -18,36 +18,34 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
     close: () => { }
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-    imports: [
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
         BbBulkActionConfirmationDialogComponent
-    ],
-    providers: [
+      ],
+      providers: [
         { provide: MAT_DIALOG_DATA, useValue: {
-                primaryKeys: [{
-                        column_name: 'id'
-                    }],
-                selectedRows: [{
-                        'id': '1234',
-                        'name': 'Anna'
-                    },
-                    {
-                        'id': '5678',
-                        'name': 'John'
-                    }
-                ]
-            } },
+          primaryKeys: [{
+            column_name: 'id'
+          }],
+          selectedRows: [{
+            'id': '1234',
+            'name': 'Anna'
+          },
+          {
+            'id': '5678',
+            'name': 'John'
+          }]
+        }},
         { provide: MatDialogRef, useValue: mockDialogRef },
-    ],
-})
-    .compileComponents();
-  }));
+      ],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BbBulkActionConfirmationDialogComponent);

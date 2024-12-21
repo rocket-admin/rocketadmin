@@ -5,12 +5,14 @@ import { Router } from '@angular/router';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbConnectionDeleteDialogComponent } from '../db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { environment } from 'src/environments/environment';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-db-connection-confirm-dialog',
   templateUrl: './db-connection-confirm-dialog.component.html',
   styleUrls: ['./db-connection-confirm-dialog.component.css'],
   imports: [
+    NgIf,
     MatDialogModule,
     MatButtonModule
   ]

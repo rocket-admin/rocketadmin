@@ -73,11 +73,9 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
-  // public isMasterKeyTurnedOn: boolean = false;
   public masterKey: string;
   public connectionToken: string | null = null;
   public submitting: boolean = false;
-  // public userOS = null;
   public otherOS = [];
   public warning: Alert = {
     id: 10000000,
@@ -95,12 +93,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     [DBtype.DB2]: '50000'
   }
 
-  // public osAgents = {
-  //   Mac: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-macos',
-  //   Windows: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-windows.exe',
-  //   Linux: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-linux'
-  // }
-
   private getTitleSubscription: Subscription;
 
   constructor(
@@ -116,18 +108,10 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
-    // this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
 
     if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
     });
-
-    // if (navigator.appVersion.indexOf("Win") != -1) this.userOS = "Windows";
-    // if (navigator.appVersion.indexOf("Mac") != -1) this.userOS = "Mac";
-    // if (navigator.appVersion.indexOf("Linux") != -1) this.userOS = "Linux";
-    // if (this.userOS === null) this.userOS = "Linux";
-
-    // this.otherOS = Object.keys(this.osAgents).filter(os => os !== this.userOS);
 
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
@@ -174,8 +158,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
                 action: (id: number) => this._notifications.dismissAlert()
               }
             ]);
-            //@ts-ignore
-            // Intercom('show');
           };
         },
         () => {this.submitting = false},
@@ -252,8 +234,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       }
     });
     this.submitting = false;
-    //@ts-ignore
-    // Intercom('show');
   }
 
   handleCredentialsSubmitting(connectForm: NgForm) {
@@ -284,9 +264,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   createConnection(connectForm: NgForm) {
-    // if (connectForm.form.vald) {
-
-    // }
     if (this.db.connectionType === 'direct') {
       const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
         width: '36em',
@@ -351,8 +328,4 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   handleMasterKeyChange(newMasterKey: string): void {
     this.masterKey = newMasterKey;
   }
-
-  // handleMasterKeyToggle(isTurnedOn: boolean): void {
-  //   this.isMasterKeyTurnedOn = isTurnedOn;
-  // }
 }

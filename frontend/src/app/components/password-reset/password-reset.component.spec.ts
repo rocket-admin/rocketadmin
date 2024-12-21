@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PasswordResetComponent } from './password-change.component';
+import { PasswordResetComponent } from './password-reset.component';
 import { RouterTestingModule } from "@angular/router/testing";
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule }   from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('PasswordResetComponent', () => {
   let component: PasswordResetComponent;
@@ -17,7 +18,8 @@ describe('PasswordResetComponent', () => {
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
-        PasswordResetComponent
+        PasswordResetComponent,
+        BrowserAnimationsModule
     ]
 })
     .compileComponents();

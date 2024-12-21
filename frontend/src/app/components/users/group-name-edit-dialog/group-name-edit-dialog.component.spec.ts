@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('GroupNameEditDialogComponent', () => {
   let component: GroupNameEditDialogComponent;
@@ -21,7 +22,8 @@ describe('GroupNameEditDialogComponent', () => {
         MatDialogModule,
         MatSnackBarModule,
         FormsModule,
-        GroupNameEditDialogComponent
+        GroupNameEditDialogComponent,
+        BrowserAnimationsModule
     ],
     providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

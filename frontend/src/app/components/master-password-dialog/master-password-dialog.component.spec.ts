@@ -6,6 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { MasterPasswordDialogComponent } from './master-password-dialog.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('MasterPasswordDialogComponent', () => {
   let component: MasterPasswordDialogComponent;
@@ -19,7 +20,8 @@ describe('MasterPasswordDialogComponent', () => {
         MatSnackBarModule,
         MatDialogModule,
         FormsModule,
-        MasterPasswordDialogComponent
+        MasterPasswordDialogComponent,
+        BrowserAnimationsModule
     ],
     providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

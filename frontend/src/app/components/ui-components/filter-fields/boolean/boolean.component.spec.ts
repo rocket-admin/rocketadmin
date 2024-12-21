@@ -1,9 +1,10 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BooleanFilterComponent } from './boolean.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('BooleanFilterComponent', () => {
   let component: BooleanFilterComponent;
@@ -20,17 +21,17 @@ describe('BooleanFilterComponent', () => {
     "character_maximum_length": 1
   }
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-    imports: [
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         MatDialogModule,
-        BooleanFilterComponent
-    ]
-})
-    .compileComponents();
-  }));
+        BooleanFilterComponent,
+        BrowserAnimationsModule
+      ]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BooleanFilterComponent);

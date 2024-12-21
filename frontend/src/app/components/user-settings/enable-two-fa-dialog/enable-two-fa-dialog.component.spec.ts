@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('EnableTwoFADialogComponent', () => {
   let component: EnableTwoFADialogComponent;
@@ -24,7 +25,8 @@ describe('EnableTwoFADialogComponent', () => {
         FormsModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
-        EnableTwoFADialogComponent
+        EnableTwoFADialogComponent,
+        BrowserAnimationsModule
     ],
     providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

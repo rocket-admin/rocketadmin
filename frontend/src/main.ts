@@ -76,11 +76,12 @@ if ((environment as any).saas) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(), PasswordStrengthMeterComponent, CodeEditorModule.forRoot(), 
+        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(), CodeEditorModule.forRoot(),
         // ...saasExtraModules,
         NgxThemeModule.forRoot(colorConfig, {
             frameworks: ['material'], // optional, default : ['tailwind', 'material']
         }), NgxStripeModule.forRoot('pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk'), ConfigModule.buildForConfigUrl('/config.json')),
+        PasswordStrengthMeterComponent,
         ConnectionsService,
         UsersService,
         NotificationsService,

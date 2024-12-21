@@ -1,11 +1,10 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { FormsModule }   from '@angular/forms';
 import { UserAddDialogComponent } from './user-add-dialog.component';
-import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { Angulartics2Module } from 'angulartics2';
@@ -19,22 +18,22 @@ describe('UserAddDialogComponent', () => {
     close: () => { }
   };
 
-  beforeEach(async(() => {
+  beforeEach(async() => {
     TestBed.configureTestingModule({
-    imports: [
+      imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
         Angulartics2Module.forRoot(),
         UserAddDialogComponent
-    ],
-    providers: [
+      ],
+      providers: [
         { provide: MAT_DIALOG_DATA, useValue: { id: '12345678-123' } },
         { provide: MatDialogRef, useValue: mockDialogRef }
-    ],
-})
+      ],
+  })
     .compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(UserAddDialogComponent);

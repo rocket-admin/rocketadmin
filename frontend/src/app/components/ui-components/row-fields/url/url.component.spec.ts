@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { UrlRowComponent } from './url.component';
 import { FormsModule } from '@angular/forms';
@@ -11,10 +12,10 @@ describe('UrlComponent', () => {
     await TestBed.configureTestingModule({
     imports: [
         FormsModule,
-        UrlRowComponent
+        UrlRowComponent,
+        BrowserAnimationsModule
     ]
-})
-    .compileComponents();
+  }).compileComponents();
 
     fixture = TestBed.createComponent(UrlRowComponent);
     component = fixture.componentInstance;

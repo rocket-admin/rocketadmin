@@ -1,6 +1,6 @@
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -60,7 +60,7 @@ describe('DashboardComponent', () => {
     }
   ]
 
-  beforeEach(async(() => {
+  beforeEach(async () => {
 
     // const paramMapSubject = new BehaviorSubject(convertToParamMap({
     //   'table-name': undefined
@@ -75,7 +75,7 @@ describe('DashboardComponent', () => {
 
     fakeTablesService = jasmine.createSpyObj('tablesService', {fetchTables: of(fakeTables)});
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
     imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
@@ -102,9 +102,7 @@ describe('DashboardComponent', () => {
         { provide: Router, useValue: fakeRouter },
         { provide: Angulartics2, useValue: angulartics2Mock }
     ]
-})
-    .compileComponents();
-  }));
+  })});
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DashboardComponent);

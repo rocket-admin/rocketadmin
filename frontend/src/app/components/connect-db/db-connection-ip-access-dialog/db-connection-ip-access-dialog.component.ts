@@ -10,6 +10,7 @@ import googlIPsList from 'src/app/consts/google-IP-addresses';
 import * as ipaddr from 'ipaddr.js';
 import isIP from 'validator/lib/isIP';
 import { IpAddressButtonComponent } from '../../ui-components/ip-address-button/ip-address-button.component';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-db-connection-ip-access-dialog',
@@ -17,6 +18,7 @@ import { IpAddressButtonComponent } from '../../ui-components/ip-address-button/
   styleUrls: ['./db-connection-ip-access-dialog.component.css'],
   standalone: true,
   imports: [
+    NgIf,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,

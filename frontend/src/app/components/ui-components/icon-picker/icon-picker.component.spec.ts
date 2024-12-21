@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { IconPickerComponent } from './icon-picker.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('IconPickerComponent', () => {
   let component: IconPickerComponent;
@@ -11,7 +12,8 @@ describe('IconPickerComponent', () => {
     await TestBed.configureTestingModule({
     imports: [
         MatMenuModule,
-        IconPickerComponent
+        IconPickerComponent,
+        BrowserAnimationsModule
     ]
 })
     .compileComponents();

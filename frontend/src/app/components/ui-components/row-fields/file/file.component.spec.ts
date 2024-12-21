@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FileRowComponent } from './file.component';
 import { FormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('FileRowComponent', () => {
   let component: FileRowComponent;
@@ -10,13 +11,13 @@ describe('FileRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [
+      imports: [
         FormsModule,
         MatRadioModule,
-        FileRowComponent
-    ]
-})
-    .compileComponents();
+        FileRowComponent,
+        BrowserAnimationsModule
+      ]
+    }).compileComponents();
   });
 
   beforeEach(() => {
