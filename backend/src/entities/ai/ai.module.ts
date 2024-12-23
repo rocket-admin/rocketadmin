@@ -12,6 +12,7 @@ import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-wi
 import { AddMessageToThreadWithAIAssistantUseCase } from './use-cases/add-message-to-thread-with-ai.use.case.js';
 import { FindAllUserThreadsWithAssistantUseCase } from './use-cases/find-all-user-threads-with-assistant.use.case.js';
 import { FindAllMessagesInAiThreadUseCase } from './use-cases/find-all-messages-in-ai-thread.use.case.js';
+import { DeleteThreadWithAIAssistantUseCase } from './use-cases/delete-thread-with-ai-assistant.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -40,6 +41,10 @@ import { FindAllMessagesInAiThreadUseCase } from './use-cases/find-all-messages-
       provide: UseCaseType.GET_ALL_THREAD_MESSAGES,
       useClass: FindAllMessagesInAiThreadUseCase,
     },
+    {
+      provide: UseCaseType.DELETE_THREAD_WITH_AI_ASSISTANT,
+      useClass: DeleteThreadWithAIAssistantUseCase,
+    },
   ],
   controllers: [UserAIRequestsController, UserAIThreadsController],
 })
@@ -53,6 +58,7 @@ export class AIModule implements NestModule {
         { path: '/ai/thread/message/:connectionId/:threadId', method: RequestMethod.POST },
         { path: '/ai/threads', method: RequestMethod.GET },
         { path: '/ai/thread/messages/:threadId', method: RequestMethod.GET },
+        { path: '/ai/thread/:threadId', method: RequestMethod.DELETE },
       );
   }
 }
