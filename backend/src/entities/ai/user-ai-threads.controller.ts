@@ -1,10 +1,22 @@
-import { UseInterceptors, Controller, Injectable, Inject, UseGuards, Post, Body, Res, Get } from '@nestjs/common';
+import {
+  UseInterceptors,
+  Controller,
+  Injectable,
+  Inject,
+  UseGuards,
+  Post,
+  Body,
+  Res,
+  Get,
+  Delete,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import {
   IAddMessageToThreadWithAIAssistant,
   ICreateThreadWithAIAssistant,
+  IDeleteThreadWithAIAssistant,
   IGetAllThreadMessages,
   IGetAllUserThreadsWithAIAssistant,
 } from './ai-use-cases.interface.js';
@@ -21,6 +33,7 @@ import { AddMessageToThreadWithAssistantDS } from './application/data-structures
 import { FoundUserThreadsWithAiRO } from './application/dto/found-user-threads-with-ai.ro.js';
 import { FoundUserThreadMessagesRO } from './application/dto/found-user-thread-messages.ro.js';
 import { FindAllThreadMessagesDS } from './application/data-structures/find-all-thread-messages.ds.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -37,6 +50,8 @@ export class UserAIThreadsController {
     private readonly getAllUserThreadsWithAIAssistantUseCase: IGetAllUserThreadsWithAIAssistant,
     @Inject(UseCaseType.GET_ALL_THREAD_MESSAGES)
     private readonly getAllThreadMessagesUseCase: IGetAllThreadMessages,
+    @Inject(UseCaseType.DELETE_THREAD_WITH_AI_ASSISTANT)
+    private readonly deleteThreadWithAIAssistantUseCase: IDeleteThreadWithAIAssistant,
   ) {}
 
   @ApiOperation({ summary: 'Create new thread with ai assistant' })
@@ -126,5 +141,24 @@ export class UserAIThreadsController {
       userId,
     };
     return await this.getAllThreadMessagesUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Delete users thread with ai assistant' })
+  @ApiResponse({
+    status: 201,
+    description: 'Delete users thread.',
+    type: SuccessResponse,
+    isArray: true,
+  })
+  @Delete('/ai/thread/:threadId')
+  public async deleteThreadWithAssistant(
+    @UserId() userId: string,
+    @SlugUuid('threadId') threadId: string,
+  ): Promise<SuccessResponse> {
+    const inputData: FindAllThreadMessagesDS = {
+      threadId,
+      userId,
+    };
+    return await this.deleteThreadWithAIAssistantUseCase.execute(inputData, InTransactionEnum.ON);
   }
 }
