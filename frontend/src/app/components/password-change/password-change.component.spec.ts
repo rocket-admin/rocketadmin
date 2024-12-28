@@ -11,6 +11,8 @@ import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
 import { CompanyMemberRole } from 'src/app/models/company';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('PasswordChangeComponent', () => {
   let component: PasswordChangeComponent;
@@ -29,16 +31,18 @@ describe('PasswordChangeComponent', () => {
 
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
-        // RouterTestingModule.withRoutes([]),
-        FormsModule,
-        MatSnackBarModule,
-        Angulartics2Module.forRoot(),
-        PasswordChangeComponent
+      HttpClientTestingModule,
+      // RouterTestingModule.withRoutes([]),
+      FormsModule,
+      MatSnackBarModule,
+      Angulartics2Module.forRoot(),
+      BrowserAnimationsModule,
+      PasswordChangeComponent
     ],
     providers: [
-        { provide: Router, useValue: routerSpy },
-        { provide: Angulartics2, useValue: angulartics2Mock }
+      { provide: IPasswordStrengthMeterService, useValue: {} },
+      { provide: Router, useValue: routerSpy },
+      { provide: Angulartics2, useValue: angulartics2Mock }
     ]
 })
     .compileComponents();

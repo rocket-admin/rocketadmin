@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { Angulartics2Module } from 'angulartics2';
@@ -10,6 +9,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('AppComponent', () => {
   let app: AppComponent;
@@ -42,7 +42,6 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         RouterTestingModule,
-        HttpClientTestingModule,
         MatSnackBarModule,
         MatDialogModule,
         MatMenuModule,
@@ -50,6 +49,7 @@ describe('AppComponent', () => {
         AppComponent,
         BrowserAnimationsModule
       ],
+      providers: [provideHttpClient()]
     }).compileComponents();
   });
 

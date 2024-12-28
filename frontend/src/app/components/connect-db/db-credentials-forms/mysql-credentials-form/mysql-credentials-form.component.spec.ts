@@ -3,6 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MysqlCredentialsFormComponent } from './mysql-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('MysqlCredentialsFormComponent', () => {
   let component: MysqlCredentialsFormComponent;
@@ -13,8 +16,11 @@ describe('MysqlCredentialsFormComponent', () => {
     imports: [
         FormsModule,
         MatCheckboxModule,
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot({}),
         MysqlCredentialsFormComponent
-    ]
+    ],
+    providers: [provideHttpClient()]
 })
     .compileComponents();
 

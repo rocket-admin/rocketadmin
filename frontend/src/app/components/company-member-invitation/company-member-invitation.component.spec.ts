@@ -5,6 +5,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Angulartics2Module } from 'angulartics2';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 
 describe('CompanyMemberInvitationComponent', () => {
   let component: CompanyMemberInvitationComponent;
@@ -13,12 +14,13 @@ describe('CompanyMemberInvitationComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
-        MatSnackBarModule,
-        Angulartics2Module.forRoot(),
-        CompanyMemberInvitationComponent
+      HttpClientTestingModule,
+      RouterTestingModule.withRoutes([]),
+      MatSnackBarModule,
+      Angulartics2Module.forRoot(),
+      CompanyMemberInvitationComponent
     ],
+    providers: [{ provide: IPasswordStrengthMeterService, useValue: {} }]
 })
     .compileComponents();
 

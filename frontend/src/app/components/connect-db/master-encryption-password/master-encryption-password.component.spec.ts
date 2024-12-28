@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MasterEncryptionPasswordComponent } from './master-encryption-password.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('MasterEncryptionPasswordComponent', () => {
   let component: MasterEncryptionPasswordComponent;
@@ -10,7 +11,8 @@ describe('MasterEncryptionPasswordComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
+        provideHttpClientTesting,
+        Angulartics2Module.forRoot({}),
         MasterEncryptionPasswordComponent
     ],
 })

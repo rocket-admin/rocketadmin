@@ -299,12 +299,12 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     }
   }
 
-  confirmDeleteConnection (connection: Connection) {
+  confirmDeleteConnection(connectionCreds: any, event: Event): void {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.dialog.open(DbConnectionDeleteDialogComponent, {
       width: '32em',
-      data: connection
+      data: connectionCreds
     });
   }
 

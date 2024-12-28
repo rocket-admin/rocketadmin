@@ -20,7 +20,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
 
-fdescribe('ConnectDBComponent', () => {
+describe('ConnectDBComponent', () => {
   let component: ConnectDBComponent;
   let fixture: ComponentFixture<ConnectDBComponent>;
   let dialog: MatDialog;
@@ -149,9 +149,9 @@ fdescribe('ConnectDBComponent', () => {
 
   it('should open delete connection dialog', () => {
     const fakeDialogOpen = spyOn(dialog, 'open');
-    event = jasmine.createSpyObj('event', [ 'preventDefault', 'stopImmediatePropagation' ]);
+    const event = jasmine.createSpyObj('event', [ 'preventDefault', 'stopImmediatePropagation' ]);
 
-    component.confirmDeleteConnection(connectionCredsApp);
+    component.confirmDeleteConnection(connectionCredsApp, event);
     expect(fakeDialogOpen).toHaveBeenCalledOnceWith(DbConnectionDeleteDialogComponent, {
       width: '32em',
       data: connectionCredsApp

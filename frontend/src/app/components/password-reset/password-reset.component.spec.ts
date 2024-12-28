@@ -6,6 +6,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule }   from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 
 describe('PasswordResetComponent', () => {
   let component: PasswordResetComponent;
@@ -14,13 +15,14 @@ describe('PasswordResetComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-        RouterTestingModule.withRoutes([]),
-        HttpClientTestingModule,
-        MatSnackBarModule,
-        FormsModule,
-        PasswordResetComponent,
-        BrowserAnimationsModule
-    ]
+      RouterTestingModule.withRoutes([]),
+      HttpClientTestingModule,
+      MatSnackBarModule,
+      FormsModule,
+      PasswordResetComponent,
+      BrowserAnimationsModule
+    ],
+    providers: [{ provide: IPasswordStrengthMeterService, useValue: {} }]
 })
     .compileComponents();
   });

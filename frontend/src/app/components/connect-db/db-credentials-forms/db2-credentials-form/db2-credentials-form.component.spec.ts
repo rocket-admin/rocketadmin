@@ -4,8 +4,8 @@ import { Db2CredentialsFormComponent } from './db2-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Angulartics2Module } from 'angulartics2';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('Db2CredentialsFormComponent', () => {
   let component: Db2CredentialsFormComponent;
@@ -14,13 +14,13 @@ describe('Db2CredentialsFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
         FormsModule,
         MatCheckboxModule,
         Db2CredentialsFormComponent,
         BrowserAnimationsModule,
         Angulartics2Module.forRoot()
-    ]
+    ],
+    providers: [provideHttpClient()]
 })
     .compileComponents();
 

@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ConnectionsListComponent } from './connections-list.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { RouterTestingModule } from "@angular/router/testing";
+import { Angulartics2Module } from 'angulartics2';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('ConnectionsListComponent', () => {
   let component: ConnectionsListComponent;
@@ -18,6 +19,7 @@ describe('ConnectionsListComponent', () => {
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
+        Angulartics2Module.forRoot({}),
         ConnectionsListComponent
     ],
     providers: [
