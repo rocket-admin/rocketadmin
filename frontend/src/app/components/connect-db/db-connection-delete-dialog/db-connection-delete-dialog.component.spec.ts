@@ -4,13 +4,13 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from "@angular/router/testing";
 import { of } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
+import { provideHttpClient } from '@angular/common/http';
 
 xdescribe('DbConnectionDeleteDialogComponent', () => {
   let component: DbConnectionDeleteDialogComponent;
@@ -27,24 +27,24 @@ xdescribe('DbConnectionDeleteDialogComponent', () => {
 
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
-        MatSnackBarModule,
-        MatDialogModule,
-        FormsModule,
-        MatRadioModule,
-        Angulartics2Module.forRoot(),
-        DbConnectionDeleteDialogComponent
+      RouterTestingModule.withRoutes([]),
+      MatSnackBarModule,
+      MatDialogModule,
+      FormsModule,
+      MatRadioModule,
+      Angulartics2Module.forRoot(),
+      DbConnectionDeleteDialogComponent
     ],
     providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: Router, useValue: routerSpy },
-        {
-            provide: ConnectionsService,
-            useValue: fakeConnectionsService
-        },
-        Angulartics2
+      provideHttpClient(),
+      { provide: MAT_DIALOG_DATA, useValue: {} },
+      { provide: MatDialogRef, useValue: mockDialogRef },
+      { provide: Router, useValue: routerSpy },
+      {
+          provide: ConnectionsService,
+          useValue: fakeConnectionsService
+      },
+      Angulartics2
     ],
   }).compileComponents();
   });

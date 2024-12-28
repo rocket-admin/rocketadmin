@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -13,6 +12,7 @@ import { UsersComponent } from './users.component';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -31,7 +31,6 @@ describe('UsersComponent', () => {
   beforeEach(async() => {
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
@@ -39,11 +38,10 @@ describe('UsersComponent', () => {
         UsersComponent
       ],
       providers: [
-        // { provide: MAT_DIALOG_DATA, useValue: {} },
+        provideHttpClient(),
         { provide: MatDialogRef, useValue: {} },
       ],
-    })
-    .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {

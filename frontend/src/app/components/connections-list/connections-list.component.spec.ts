@@ -6,7 +6,7 @@ import { ConnectionsListComponent } from './connections-list.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { RouterTestingModule } from "@angular/router/testing";
 import { Angulartics2Module } from 'angulartics2';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('ConnectionsListComponent', () => {
   let component: ConnectionsListComponent;
@@ -15,18 +15,18 @@ describe('ConnectionsListComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
-        MatSnackBarModule,
-        MatDialogModule,
-        Angulartics2Module.forRoot({}),
-        ConnectionsListComponent
+      RouterTestingModule.withRoutes([]),
+      MatSnackBarModule,
+      MatDialogModule,
+      Angulartics2Module.forRoot({}),
+      ConnectionsListComponent
     ],
     providers: [
-        {
-            provide: ConnectionsService,
-            // useClass: ConnectionsServiseStub
-        }
+      provideHttpClient(),
+      {
+        provide: ConnectionsService,
+        // useClass: ConnectionsServiseStub
+      }
     ],
 })
     .compileComponents();

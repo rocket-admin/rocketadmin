@@ -4,13 +4,11 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
-import { TablesService } from 'src/app/services/tables.service';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTableFiltersDialogComponent', () => {
   let component: DbTableFiltersDialogComponent;
@@ -69,8 +67,7 @@ describe('DbTableFiltersDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [
-        HttpClientTestingModule,
+      imports: [
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
@@ -80,19 +77,19 @@ describe('DbTableFiltersDialogComponent', () => {
         BrowserAnimationsModule,
         Angulartics2Module.forRoot(),
         DbTableFiltersDialogComponent
-    ],
-    providers: [
+      ],
+      providers: [
+        provideHttpClient(),
         { provide: MAT_DIALOG_DATA, useValue: {
-                connectionID: '12345678',
-                tableName: 'users',
-                displayTableName: 'Users',
-                structure: mockStructureForFilterDialog
-            } },
+            connectionID: '12345678',
+            tableName: 'users',
+            displayTableName: 'Users',
+            structure: mockStructureForFilterDialog
+        }},
         { provide: MatDialogRef, useValue: {} },
         // { provide: ActivatedRoute, useValue: {} }
-    ],
-})
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

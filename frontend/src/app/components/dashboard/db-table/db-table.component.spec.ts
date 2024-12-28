@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableComponent } from './db-table.component';
@@ -12,6 +11,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { SelectionModel } from '@angular/cdk/collections';
 import { TablesDataSource } from '../db-tables-data-source';
 import { MatDialogModule } from '@angular/material/dialog';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -73,7 +73,6 @@ describe('DbTableComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         MatMenuModule,
-        HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatPaginatorModule,
@@ -82,7 +81,8 @@ describe('DbTableComponent', () => {
         FormsModule,
         MatDialogModule,
         DbTableComponent
-      ]
+      ],
+      providers: [provideHttpClient()]
     }).compileComponents();
   });
 

@@ -10,7 +10,6 @@ import { ConnectDBComponent } from './connect-db.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -19,6 +18,7 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 import { RouterTestingModule } from "@angular/router/testing";
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('ConnectDBComponent', () => {
   let component: ConnectDBComponent;
@@ -56,26 +56,26 @@ describe('ConnectDBComponent', () => {
   beforeEach(async() => {
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
-        MatSnackBarModule,
-        FormsModule,
-        MatSelectModule,
-        MatRadioModule,
-        MatInputModule,
-        MatDialogModule,
-        BrowserAnimationsModule,
-        Angulartics2Module.forRoot({}),
-        ConnectDBComponent
+      RouterTestingModule.withRoutes([]),
+      MatSnackBarModule,
+      FormsModule,
+      MatSelectModule,
+      MatRadioModule,
+      MatInputModule,
+      MatDialogModule,
+      BrowserAnimationsModule,
+      Angulartics2Module.forRoot({}),
+      ConnectDBComponent
     ],
     providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ConnectDBComponent),
-            multi: true
-        },
-        { provide: NotificationsService, useValue: fakeNotifications },
-        { provide: ConnectionsService, useValue: fakeConnectionsService },
+      provideHttpClient(),
+      {
+          provide: NG_VALUE_ACCESSOR,
+          useExisting: forwardRef(() => ConnectDBComponent),
+          multi: true
+      },
+      { provide: NotificationsService, useValue: fakeNotifications },
+      { provide: ConnectionsService, useValue: fakeConnectionsService },
     ]
 })
     .compileComponents();

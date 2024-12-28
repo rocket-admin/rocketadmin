@@ -5,15 +5,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ConnectionSettings } from 'src/app/models/connection';
 import { ConnectionSettingsComponent } from './connection-settings.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('ConnectionSettingsComponent', () => {
   let component: ConnectionSettingsComponent;
@@ -71,9 +71,10 @@ describe('ConnectionSettingsComponent', () => {
   };
 
   beforeEach(async () => {
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
     await TestBed.configureTestingModule({
-    imports: [
-        HttpClientTestingModule,
+      imports: [
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
@@ -82,20 +83,20 @@ describe('ConnectionSettingsComponent', () => {
         BrowserAnimationsModule,
         Angulartics2Module.forRoot(),
         ConnectionSettingsComponent
-    ],
-    providers: [
+      ],
+      providers: [
+        provideHttpClient(),
         {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ConnectionSettingsComponent),
-            multi: true
+          provide: NG_VALUE_ACCESSOR,
+          useExisting: forwardRef(() => ConnectionSettingsComponent),
+          multi: true
         },
-    ]
-})
-    .compileComponents();
+        { provide: MatSnackBar, useValue: matSnackBarSpy }
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {
-
     fixture = TestBed.createComponent(ConnectionSettingsComponent);
     component = fixture.componentInstance;
     tablesService = TestBed.inject(TablesService);

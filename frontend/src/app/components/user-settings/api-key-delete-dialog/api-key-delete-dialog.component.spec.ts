@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ApiKeyDeleteDialogComponent } from './api-key-delete-dialog.component';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('ApiKeyDeleteDialogComponent', () => {
   let component: ApiKeyDeleteDialogComponent;
@@ -14,17 +14,16 @@ describe('ApiKeyDeleteDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [
+      imports: [
         MatDialogModule,
-        HttpClientTestingModule,
         ApiKeyDeleteDialogComponent
-    ],
-    providers: [
+      ],
+      providers: [
+        provideHttpClient(),
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef }
-    ]
-})
-    .compileComponents();
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ApiKeyDeleteDialogComponent);
     component = fixture.componentInstance;

@@ -1,4 +1,3 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -7,6 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { MasterPasswordDialogComponent } from './master-password-dialog.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('MasterPasswordDialogComponent', () => {
   let component: MasterPasswordDialogComponent;
@@ -14,21 +14,20 @@ describe('MasterPasswordDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [
-        HttpClientTestingModule,
+      imports: [
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         FormsModule,
         MasterPasswordDialogComponent,
         BrowserAnimationsModule
-    ],
-    providers: [
+      ],
+      providers: [
+        provideHttpClient(),
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
-    ],
-})
-    .compileComponents();
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule, NG_VALUE_ACCESSOR }   from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRadioModule } from '@angular/material/radio';
@@ -14,6 +13,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AccessLevel } from 'src/app/models/user';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('PermissionsAddDialogComponent', () => {
   let component: PermissionsAddDialogComponent;
@@ -95,29 +96,29 @@ describe('PermissionsAddDialogComponent', () => {
 
   beforeEach(async() => {
     await TestBed.configureTestingModule({
-    imports: [
-      HttpClientTestingModule,
-      MatSnackBarModule,
-      FormsModule,
-      MatRadioModule,
-      MatSlideToggleModule,
-      MatCheckboxModule,
-      RouterTestingModule.withRoutes([]),
-      MatDialogModule,
-      Angulartics2Module.forRoot(),
-      PermissionsAddDialogComponent
-    ],
-    providers: [
-      { provide: MAT_DIALOG_DATA, useValue: {} },
-      { provide: MatDialogRef, useValue: mockDialogRef },
-      {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => PermissionsAddDialogComponent),
-          multi: true
-      }
-    ],
-  })
-    .compileComponents();
+      imports: [
+        MatSnackBarModule,
+        FormsModule,
+        MatRadioModule,
+        MatSlideToggleModule,
+        MatCheckboxModule,
+        RouterTestingModule.withRoutes([]),
+        MatDialogModule,
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot(),
+        PermissionsAddDialogComponent
+      ],
+      providers: [
+        provideHttpClient(),
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => PermissionsAddDialogComponent),
+            multi: true
+        }
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

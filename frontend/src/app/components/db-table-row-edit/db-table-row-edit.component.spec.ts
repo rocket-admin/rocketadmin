@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { DbTableRowEditComponent } from './db-table-row-edit.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from "@angular/router/testing";
 import { MatDialogModule } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTableRowEditComponent', () => {
   let component: DbTableRowEditComponent;
@@ -16,14 +16,19 @@ describe('DbTableRowEditComponent', () => {
   let connectionsService: ConnectionsService;
 
   beforeEach(async () => {
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
         DbTableRowEditComponent
+      ],
+      providers:[
+        provideHttpClient(),
+        { provide: MatSnackBar, useValue: matSnackBarSpy }
       ]
     }).compileComponents();
   });

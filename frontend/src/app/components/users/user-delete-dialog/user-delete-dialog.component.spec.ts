@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { UserDeleteDialogComponent } from './user-delete-dialog.component';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('UserDeleteDialogComponent', () => {
   let component: UserDeleteDialogComponent;
@@ -17,14 +17,14 @@ describe('UserDeleteDialogComponent', () => {
   };
 
   beforeEach(async() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatSnackBarModule, UserDeleteDialogComponent],
+    await TestBed.configureTestingModule({
+      imports: [MatSnackBarModule, UserDeleteDialogComponent],
       providers: [
-          { provide: MAT_DIALOG_DATA, useValue: { user: { email: 'user@test.com' }, group: { id: '12345678-123' } } },
-          { provide: MatDialogRef, useValue: mockDialogRef },
+        provideHttpClient(),
+        { provide: MAT_DIALOG_DATA, useValue: { user: { email: 'user@test.com' }, group: { id: '12345678-123' } } },
+        { provide: MatDialogRef, useValue: mockDialogRef },
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CompanyService } from './company.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('CompanyService', () => {
   let service: CompanyService;
@@ -10,16 +10,9 @@ describe('CompanyService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         MatSnackBarModule
       ],
-      // providers: [
-      //   AuthService,
-      //   {
-      //     provide: NotificationsService,
-      //     useValue: fakeNotifications
-      //   }
-      // ]
+      providers: [provideHttpClient()]
     });
     service = TestBed.inject(CompanyService);
   });

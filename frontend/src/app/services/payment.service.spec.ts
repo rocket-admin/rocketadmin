@@ -1,18 +1,16 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PaymentService } from './payment.service';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('PaymentService', () => {
   let service: PaymentService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        MatSnackBarModule
-      ],
-    });
+      imports: [MatSnackBarModule],
+      providers: [provideHttpClient()]
+    }).compileComponents();
     service = TestBed.inject(PaymentService);
   });
 

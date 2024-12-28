@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TableRowService } from './table-row.service';
 import { NotificationsService } from './notifications.service';
 import { AlertActionType, AlertType } from '../models/alert';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('TableRowService', () => {
   let service: TableRowService;
@@ -62,11 +63,10 @@ describe('TableRowService', () => {
     fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
 
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        MatSnackBarModule
-      ],
+      imports: [MatSnackBarModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: NotificationsService,
           useValue: fakeNotifications
@@ -74,8 +74,8 @@ describe('TableRowService', () => {
       ]
     });
 
-    service = TestBed.get(TableRowService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(TableRowService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {

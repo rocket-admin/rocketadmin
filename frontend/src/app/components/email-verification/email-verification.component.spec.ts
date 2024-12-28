@@ -2,12 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EmailVerificationComponent } from './email-verification.component';
 import { RouterTestingModule } from "@angular/router/testing";
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('EmailVerificationComponent', () => {
   let component: EmailVerificationComponent;
@@ -20,22 +20,21 @@ describe('EmailVerificationComponent', () => {
     routerSpy = {navigate: jasmine.createSpy('navigate')};
 
     await TestBed.configureTestingModule({
-    imports: [
+      imports: [
         RouterTestingModule.withRoutes([]),
-        HttpClientTestingModule,
         MatSnackBarModule,
         EmailVerificationComponent
-    ],
-    providers: [
-        { provide: ActivatedRoute, useValue: {
-                paramMap: of(convertToParamMap({
-                    'verification-token': '1234567890-abcd'
-                })),
-            } },
+      ],
+      providers: [
+        provideHttpClient(),
+        {provide: ActivatedRoute, useValue: {
+          paramMap: of(convertToParamMap({
+            'verification-token': '1234567890-abcd'
+          })),
+        }},
         { provide: Router, useValue: routerSpy },
-    ]
-})
-    .compileComponents();
+      ]
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -3,12 +3,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Angulartics2Module } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { FormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { LoginComponent } from './login.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -18,16 +18,15 @@ describe('LoginComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
-        FormsModule,
-        MatSnackBarModule,
-        Angulartics2Module.forRoot(),
-        LoginComponent,
-        BrowserAnimationsModule
-    ]
-})
-    .compileComponents();
+      RouterTestingModule.withRoutes([]),
+      FormsModule,
+      MatSnackBarModule,
+      Angulartics2Module.forRoot(),
+      LoginComponent,
+      BrowserAnimationsModule
+    ],
+    providers: [provideHttpClient()]
+  }).compileComponents();
 
     // @ts-ignore
     global.window.google  = jasmine.createSpyObj(['accounts']);

@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { UpgradeComponent } from './upgrade.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { UserService } from 'src/app/services/user.service';
-import { of } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('UpgradeComponent', () => {
   let component: UpgradeComponent;
@@ -14,14 +13,13 @@ describe('UpgradeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [
-        HttpClientTestingModule,
+      imports: [
         RouterTestingModule,
         MatSnackBarModule,
         UpgradeComponent
-    ],
-})
-    .compileComponents();
+      ],
+      providers: [provideHttpClient()]
+    }).compileComponents();
   });
 
   beforeEach(() => {

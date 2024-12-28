@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -8,6 +7,7 @@ import { UserAddDialogComponent } from './user-add-dialog.component';
 import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('UserAddDialogComponent', () => {
   let component: UserAddDialogComponent;
@@ -19,20 +19,19 @@ describe('UserAddDialogComponent', () => {
   };
 
   beforeEach(async() => {
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         MatSnackBarModule,
         FormsModule,
         Angulartics2Module.forRoot(),
         UserAddDialogComponent
       ],
       providers: [
+        provideHttpClient(),
         { provide: MAT_DIALOG_DATA, useValue: { id: '12345678-123' } },
         { provide: MatDialogRef, useValue: mockDialogRef }
       ],
-  })
-    .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {

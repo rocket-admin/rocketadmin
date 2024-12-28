@@ -1,10 +1,11 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { UsersService } from './users.service';
 import { NotificationsService } from './notifications.service';
 import { AccessLevel } from '../models/user';
 import { RouterTestingModule } from '@angular/router/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -105,11 +106,12 @@ describe('UsersService', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         MatSnackBarModule,
         RouterTestingModule.withRoutes([]),
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: NotificationsService,
           useValue: fakeNotifications
@@ -117,8 +119,8 @@ describe('UsersService', () => {
       ]
     });
 
-    service = TestBed.get(UsersService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(UsersService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   it('should be created', () => {

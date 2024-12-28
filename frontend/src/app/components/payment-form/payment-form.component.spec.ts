@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ActivatedRoute } from '@angular/router';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgxStripeModule } from 'ngx-stripe';
 import { PaymentFormComponent } from './payment-form.component';
 import { RouterTestingModule } from '@angular/router/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('PaymentFormComponent', () => {
   let component: PaymentFormComponent;
@@ -13,25 +13,24 @@ describe('PaymentFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [
-        HttpClientTestingModule,
+      imports: [
         RouterTestingModule,
         MatSnackBarModule,
         NgxStripeModule.forRoot('asdf'),
         PaymentFormComponent
-    ],
-    providers: [
-        { provide: ActivatedRoute, useValue: {
-                snapshot: {
-                    queryParams: {
-                        'plan': 'team',
-                        'period': 'monthly'
-                    }
-                },
-            } },
-    ]
-})
-    .compileComponents();
+      ],
+      providers: [
+        provideHttpClient(),
+        {provide: ActivatedRoute, useValue: {
+          snapshot: {
+            queryParams: {
+              'plan': 'team',
+              'period': 'monthly'
+            }
+          },
+        }},
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PaymentFormComponent);
     component = fixture.componentInstance;

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { DbTableSettingsComponent } from './db-table-settings.component';
@@ -15,6 +14,7 @@ import { of } from 'rxjs';
 import { TableSettings, TableOrdering } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTableSettingsComponent', () => {
   let component: DbTableSettingsComponent;
@@ -104,8 +104,7 @@ describe('DbTableSettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [
-        HttpClientTestingModule,
+      imports: [
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
@@ -116,9 +115,11 @@ describe('DbTableSettingsComponent', () => {
         BrowserAnimationsModule,
         Angulartics2Module.forRoot(),
         DbTableSettingsComponent
-    ]
-})
-    .compileComponents();
+      ],
+      providers: [
+        provideHttpClient()
+      ]
+    }).compileComponents();
   });
 
   beforeEach(() => {
