@@ -313,7 +313,7 @@
                 angulartics2On="click"
                 angularticsAction="Connection creds edit: delete db is clicked"
                 [disabled]="submitting"
-                (click)="confirmDeleteConnection(db)">
+                (click)="confirmDeleteConnection(db, $event)">
                 Delete
             </button>
             <button type="button" mat-button color="primary" class="test-button"
