@@ -15,10 +15,10 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { RouterTestingModule } from "@angular/router/testing";
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('ConnectDBComponent', () => {
   let component: ConnectDBComponent;
@@ -56,7 +56,6 @@ describe('ConnectDBComponent', () => {
   beforeEach(async() => {
     await TestBed.configureTestingModule({
     imports: [
-      RouterTestingModule.withRoutes([]),
       MatSnackBarModule,
       FormsModule,
       MatSelectModule,
@@ -69,6 +68,7 @@ describe('ConnectDBComponent', () => {
     ],
     providers: [
       provideHttpClient(),
+      provideRouter([]),
       {
           provide: NG_VALUE_ACCESSOR,
           useExisting: forwardRef(() => ConnectDBComponent),

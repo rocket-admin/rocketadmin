@@ -4,11 +4,11 @@ import { ForeignKeyFilterComponent } from './foreign-key.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 xdescribe('ForeignKeyFilterComponent', () => {
   let component: ForeignKeyFilterComponent;
@@ -122,14 +122,13 @@ xdescribe('ForeignKeyFilterComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatAutocompleteModule,
         MatDialogModule,
         ForeignKeyFilterComponent,
         BrowserAnimationsModule
       ],
-      providers: [provideHttpClient()]
+      providers: [provideHttpClient(), provideRouter([])]
     }).compileComponents();
   });
 

@@ -5,7 +5,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRadioModule } from '@angular/material/radio';
 
 import { PermissionsAddDialogComponent } from './permissions-add-dialog.component';
-import { RouterTestingModule } from '@angular/router/testing';
 import { forwardRef } from '@angular/core';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
@@ -15,6 +14,7 @@ import { AccessLevel } from 'src/app/models/user';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 
 describe('PermissionsAddDialogComponent', () => {
   let component: PermissionsAddDialogComponent;
@@ -102,7 +102,6 @@ describe('PermissionsAddDialogComponent', () => {
         MatRadioModule,
         MatSlideToggleModule,
         MatCheckboxModule,
-        RouterTestingModule.withRoutes([]),
         MatDialogModule,
         BrowserAnimationsModule,
         Angulartics2Module.forRoot(),
@@ -110,6 +109,7 @@ describe('PermissionsAddDialogComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
         {

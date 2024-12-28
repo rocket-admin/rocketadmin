@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PageLoaderComponent } from './page-loader.component';
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter } from '@angular/router';
 
 describe('LoaderComponent', () => {
   let component: PageLoaderComponent;
@@ -9,7 +9,8 @@ describe('LoaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule.withRoutes([]), PageLoaderComponent],
+      imports: [PageLoaderComponent],
+      providers: [provideRouter([])]
     }).compileComponents();
   });
 

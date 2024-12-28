@@ -6,9 +6,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('DbTableFiltersDialogComponent', () => {
   let component: DbTableFiltersDialogComponent;
@@ -68,7 +68,6 @@ describe('DbTableFiltersDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         FormsModule,
@@ -80,6 +79,7 @@ describe('DbTableFiltersDialogComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: MAT_DIALOG_DATA, useValue: {
             connectionID: '12345678',
             tableName: 'users',

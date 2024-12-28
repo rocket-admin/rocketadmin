@@ -2,12 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { DbTableRowEditComponent } from './db-table-row-edit.component';
-import { RouterTestingModule } from "@angular/router/testing";
 import { MatDialogModule } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('DbTableRowEditComponent', () => {
   let component: DbTableRowEditComponent;
@@ -20,7 +20,6 @@ describe('DbTableRowEditComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
@@ -28,6 +27,7 @@ describe('DbTableRowEditComponent', () => {
       ],
       providers:[
         provideHttpClient(),
+        provideRouter([]),
         { provide: MatSnackBar, useValue: matSnackBarSpy }
       ]
     }).compileComponents();

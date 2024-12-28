@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EmailVerificationComponent } from './email-verification.component';
-import { RouterTestingModule } from "@angular/router/testing";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
@@ -21,12 +20,12 @@ describe('EmailVerificationComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         EmailVerificationComponent
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         {provide: ActivatedRoute, useValue: {
           paramMap: of(convertToParamMap({
             'verification-token': '1234567890-abcd'

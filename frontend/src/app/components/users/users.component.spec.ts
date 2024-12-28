@@ -5,7 +5,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
-import { RouterTestingModule } from "@angular/router/testing";
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 import { UsersComponent } from './users.component';
@@ -13,6 +12,7 @@ import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -31,7 +31,6 @@ describe('UsersComponent', () => {
   beforeEach(async() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
@@ -39,6 +38,7 @@ describe('UsersComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: MatDialogRef, useValue: {} },
       ],
     }).compileComponents();
@@ -48,7 +48,7 @@ describe('UsersComponent', () => {
     fixture = TestBed.createComponent(UsersComponent);
     component = fixture.componentInstance;
     usersService = TestBed.inject(UsersService);
-    dialog = TestBed.get(MatDialog);
+    dialog = TestBed.inject(MatDialog);
     fixture.detectChanges();
   });
 

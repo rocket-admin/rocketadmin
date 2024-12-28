@@ -4,11 +4,11 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Angulartics2Module } from 'angulartics2';
 
 import { NotificationsService } from './notifications.service';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TableOrdering } from '../models/table';
 import { TablesService } from './tables.service';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('TablesService', () => {
   let service: TablesService;
@@ -202,13 +202,13 @@ describe('TablesService', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         Angulartics2Module.forRoot()
       ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         {
           provide: NotificationsService,
           useValue: fakeNotifications

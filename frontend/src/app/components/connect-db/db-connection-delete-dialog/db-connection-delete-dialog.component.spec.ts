@@ -5,8 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
@@ -26,27 +25,27 @@ xdescribe('DbConnectionDeleteDialogComponent', () => {
     routerSpy = {navigate: jasmine.createSpy('navigate')};
 
     await TestBed.configureTestingModule({
-    imports: [
-      RouterTestingModule.withRoutes([]),
-      MatSnackBarModule,
-      MatDialogModule,
-      FormsModule,
-      MatRadioModule,
-      Angulartics2Module.forRoot(),
-      DbConnectionDeleteDialogComponent
-    ],
-    providers: [
-      provideHttpClient(),
-      { provide: MAT_DIALOG_DATA, useValue: {} },
-      { provide: MatDialogRef, useValue: mockDialogRef },
-      { provide: Router, useValue: routerSpy },
-      {
-          provide: ConnectionsService,
-          useValue: fakeConnectionsService
-      },
-      Angulartics2
-    ],
-  }).compileComponents();
+      imports: [
+        MatSnackBarModule,
+        MatDialogModule,
+        FormsModule,
+        MatRadioModule,
+        Angulartics2Module.forRoot(),
+        DbConnectionDeleteDialogComponent
+      ],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MatDialogRef, useValue: mockDialogRef },
+        { provide: Router, useValue: routerSpy },
+        {
+            provide: ConnectionsService,
+            useValue: fakeConnectionsService
+        },
+        Angulartics2
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

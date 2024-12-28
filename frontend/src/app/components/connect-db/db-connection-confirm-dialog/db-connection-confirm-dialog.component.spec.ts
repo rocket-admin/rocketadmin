@@ -5,8 +5,7 @@ import { Angulartics2Module } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
 
@@ -21,29 +20,28 @@ describe('DbConnectionConfirmDialogComponent', () => {
     routerSpy = {navigate: jasmine.createSpy('navigate')};
 
     await TestBed.configureTestingModule({
-    imports: [
-      RouterTestingModule.withRoutes([]),
-      MatSnackBarModule,
-      MatDialogModule,
-      Angulartics2Module.forRoot(),
-      DbConnectionConfirmDialogComponent
-    ],
-    providers: [
-      provideHttpClient(),
-      { provide: MAT_DIALOG_DATA, useValue: {
-              dbCreds: {
-                  id: '12345678'
-              }
-          } },
-      { provide: MatDialogRef, useValue: {} },
-      { provide: Router, useValue: routerSpy },
-      {
-          provide: ConnectionsService,
-          useValue: fakeConnectionsService
-      }
-    ],
-})
-    .compileComponents();
+      imports: [
+        MatSnackBarModule,
+        MatDialogModule,
+        Angulartics2Module.forRoot(),
+        DbConnectionConfirmDialogComponent
+      ],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: MAT_DIALOG_DATA, useValue: {
+                dbCreds: {
+                    id: '12345678'
+                }
+            } },
+        { provide: MatDialogRef, useValue: {} },
+        { provide: Router, useValue: routerSpy },
+        {
+            provide: ConnectionsService,
+            useValue: fakeConnectionsService
+        }
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

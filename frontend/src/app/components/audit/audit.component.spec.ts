@@ -5,7 +5,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
@@ -13,6 +12,7 @@ import { LogAction, LogStatus } from 'src/app/models/logs';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('AuditComponent', () => {
   let component: AuditComponent;
@@ -73,7 +73,6 @@ describe('AuditComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-      RouterTestingModule.withRoutes([]),
       MatSnackBarModule,
       MatDialogModule,
       MatPaginatorModule,
@@ -81,7 +80,7 @@ describe('AuditComponent', () => {
       Angulartics2Module.forRoot(),
       AuditComponent
     ],
-    providers: [provideHttpClient()]
+    providers: [provideHttpClient(), provideRouter([])]
 })
     .compileComponents();
   });
@@ -91,7 +90,7 @@ describe('AuditComponent', () => {
     component = fixture.componentInstance;
     tablesService = TestBed.inject(TablesService);
     usersService = TestBed.inject(UsersService);
-    dialog = TestBed.get(MatDialog);
+    dialog = TestBed.inject(MatDialog);
 
     fixture.autoDetectChanges();
   });

@@ -5,11 +5,11 @@ import { AuthService } from 'src/app/services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RegistrationComponent } from './registration.component';
-import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
@@ -19,7 +19,6 @@ describe('RegistrationComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         FormsModule,
         MatSnackBarModule,
         Angulartics2Module.forRoot(),
@@ -28,6 +27,7 @@ describe('RegistrationComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: IPasswordStrengthMeterService, useValue: {} }
       ]
     }).compileComponents();

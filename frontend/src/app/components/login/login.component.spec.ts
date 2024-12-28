@@ -5,10 +5,10 @@ import { AuthService } from 'src/app/services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -18,14 +18,13 @@ describe('LoginComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
-      RouterTestingModule.withRoutes([]),
       FormsModule,
       MatSnackBarModule,
       Angulartics2Module.forRoot(),
       LoginComponent,
       BrowserAnimationsModule
     ],
-    providers: [provideHttpClient()]
+    providers: [provideHttpClient(), provideRouter([])]
   }).compileComponents();
 
     // @ts-ignore

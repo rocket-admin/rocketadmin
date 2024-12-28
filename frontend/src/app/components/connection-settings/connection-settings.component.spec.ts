@@ -8,12 +8,12 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('ConnectionSettingsComponent', () => {
   let component: ConnectionSettingsComponent;
@@ -75,7 +75,6 @@ describe('ConnectionSettingsComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         FormsModule,
@@ -86,6 +85,7 @@ describe('ConnectionSettingsComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         {
           provide: NG_VALUE_ACCESSOR,
           useExisting: forwardRef(() => ConnectionSettingsComponent),

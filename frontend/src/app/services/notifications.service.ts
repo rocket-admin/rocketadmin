@@ -3,14 +3,13 @@ import { Alert, AlertAction, AlertType, ServerError } from '../models/alert';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-let idCounter = 0;
-
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationsService {
 
   public alert: Alert;
+  public idCounter = 0;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -35,9 +34,9 @@ export class NotificationsService {
   }
 
   showAlert(type: AlertType, message: ServerError | string, actions: AlertAction[]) {
-    idCounter++;
+    this.idCounter++;
     this.alert = {
-      id: idCounter,
+      id: this.idCounter,
       type: type,
       message: message,
       actions: actions

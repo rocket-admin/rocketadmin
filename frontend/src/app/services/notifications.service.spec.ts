@@ -25,8 +25,9 @@ describe('NotificationsService', () => {
       imports: [ MatSnackBarModule ],
     })
 
-    service = TestBed.get(NotificationsService);
-    snackBar = TestBed.get(MatSnackBar);
+    service = TestBed.inject(NotificationsService);
+    snackBar = TestBed.inject(MatSnackBar);
+    service.idCounter = 0;
   });
 
   it('should be created', () => {

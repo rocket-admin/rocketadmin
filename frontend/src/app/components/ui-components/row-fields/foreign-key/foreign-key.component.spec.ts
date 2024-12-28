@@ -4,12 +4,12 @@ import { ForeignKeyRowComponent } from './foreign-key.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('ForeignKeyRowComponent', () => {
   let component: ForeignKeyRowComponent;
@@ -123,7 +123,6 @@ describe('ForeignKeyRowComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatAutocompleteModule,
         MatDialogModule,
@@ -131,7 +130,7 @@ describe('ForeignKeyRowComponent', () => {
         ForeignKeyRowComponent,
         BrowserAnimationsModule
       ],
-      providers: [provideHttpClient()]
+      providers: [provideHttpClient(), provideRouter([])]
     }).compileComponents();
   });
 

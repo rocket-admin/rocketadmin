@@ -3,11 +3,11 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('BbBulkActionConfirmationDialogComponent', () => {
   let component: BbBulkActionConfirmationDialogComponent;
@@ -21,7 +21,6 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
@@ -29,6 +28,7 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: MAT_DIALOG_DATA, useValue: {
           primaryKeys: [{
             column_name: 'id'

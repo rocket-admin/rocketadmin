@@ -4,12 +4,12 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatDialog } from '@angu
 import { FormsModule }   from '@angular/forms';
 import { GroupAddDialogComponent } from './group-add-dialog.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('GroupAddDialogComponent', () => {
   let component: GroupAddDialogComponent;
@@ -23,7 +23,6 @@ describe('GroupAddDialogComponent', () => {
   beforeEach(async() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         FormsModule,
         MatDialogModule,
@@ -33,6 +32,7 @@ describe('GroupAddDialogComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
       ],

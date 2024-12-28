@@ -1,4 +1,4 @@
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -7,7 +7,6 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardComponent } from './dashboard.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
@@ -77,7 +76,6 @@ describe('DashboardComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
@@ -85,6 +83,7 @@ describe('DashboardComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         {
           provide: ConnectionsService,
           useValue: fakeConnectionsSevice

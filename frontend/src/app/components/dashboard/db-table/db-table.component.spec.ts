@@ -7,11 +7,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
-import { RouterTestingModule } from "@angular/router/testing";
 import { SelectionModel } from '@angular/cdk/collections';
 import { TablesDataSource } from '../db-tables-data-source';
 import { MatDialogModule } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -73,7 +73,6 @@ describe('DbTableComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         MatMenuModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatPaginatorModule,
         BrowserAnimationsModule,
@@ -82,7 +81,7 @@ describe('DbTableComponent', () => {
         MatDialogModule,
         DbTableComponent
       ],
-      providers: [provideHttpClient()]
+      providers: [provideHttpClient(), provideRouter([])]
     }).compileComponents();
   });
 
