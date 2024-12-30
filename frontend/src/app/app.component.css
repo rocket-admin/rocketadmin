@@ -55,19 +55,20 @@
 }
 
 .nav-bar__account-button ::ng-deep .mat-badge-content {
-    top: 6px;
-    right: 6px !important;
+    top: 14px;
+    left: 32px;
     color: var(--color-accentedPalette);
-    height: 8px !important;
-    width: 8px !important;
+    height: 7px !important;
+    width: 7px !important;
+    z-index: 1;
 }
 
 .nav-menu__list-link-icon ::ng-deep .mat-badge-content {
-    top: 0;
-    right: 0 !important;
+    top: 6px;
+    left: 26px;
     color: var(--color-accentedPalette);
-    height: 8px !important;
-    width: 8px !important;
+    height: 7px !important;
+    width: 7px !important;
 }
 
 .nav-bar__button_active {

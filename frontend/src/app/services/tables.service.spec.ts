@@ -1,13 +1,14 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Angulartics2, Angulartics2Module } from 'angulartics2';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Angulartics2Module } from 'angulartics2';
 
 import { NotificationsService } from './notifications.service';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TableOrdering } from '../models/table';
 import { TablesService } from './tables.service';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('TablesService', () => {
   let service: TablesService;
@@ -201,12 +202,13 @@ describe('TablesService', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         Angulartics2Module.forRoot()
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
         {
           provide: NotificationsService,
           useValue: fakeNotifications
@@ -214,8 +216,8 @@ describe('TablesService', () => {
       ]
     });
 
-    service = TestBed.get(TablesService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(TablesService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   it('should be created', () => {

@@ -1,18 +1,18 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
-import { RouterTestingModule } from "@angular/router/testing";
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 import { UsersComponent } from './users.component';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -28,29 +28,27 @@ describe('UsersComponent', () => {
     "isMain": true
   };
 
-  beforeEach(async(() => {
+  beforeEach(async() => {
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        UsersComponent
       ],
-      declarations: [ UsersComponent ],
       providers: [
-        // { provide: MAT_DIALOG_DATA, useValue: {} },
+        provideHttpClient(),
+        provideRouter([]),
         { provide: MatDialogRef, useValue: {} },
       ],
-    })
-    .compileComponents();
-  }));
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(UsersComponent);
     component = fixture.componentInstance;
     usersService = TestBed.inject(UsersService);
-    dialog = TestBed.get(MatDialog);
+    dialog = TestBed.inject(MatDialog);
     fixture.detectChanges();
   });
 

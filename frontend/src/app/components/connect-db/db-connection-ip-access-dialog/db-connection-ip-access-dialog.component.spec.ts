@@ -10,16 +10,16 @@ describe('DbConnectionIpAccessDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DbConnectionIpAccessDialogComponent ],
-      imports: [
+    imports: [
         MatDialogModule,
-        MatSnackBarModule
-      ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {host: "database-2.cvfuxe8nltiq.us-east-2.rds.amazonaws.com"} },
+        MatSnackBarModule,
+        DbConnectionIpAccessDialogComponent
+    ],
+    providers: [
+        { provide: MAT_DIALOG_DATA, useValue: { host: "database-2.cvfuxe8nltiq.us-east-2.rds.amazonaws.com" } },
         { provide: MatDialogRef, useValue: {} },
-      ]
-    })
+    ]
+})
     .compileComponents();
   });
 

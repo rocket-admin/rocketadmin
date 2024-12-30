@@ -1,12 +1,12 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { GroupDeleteDialogComponent } from './group-delete-dialog.component';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('GroupDeleteDialogComponent', () => {
   let component: GroupDeleteDialogComponent;
@@ -17,21 +17,20 @@ describe('GroupDeleteDialogComponent', () => {
     close: () => { }
   };
 
-  beforeEach(async(() => {
+  beforeEach(async() => {
     TestBed.configureTestingModule({
-      declarations: [ GroupDeleteDialogComponent ],
       imports: [
-        HttpClientTestingModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        GroupDeleteDialogComponent
       ],
       providers: [
+        provideHttpClient(),
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
       ],
-    })
-    .compileComponents();
-  }));
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(GroupDeleteDialogComponent);

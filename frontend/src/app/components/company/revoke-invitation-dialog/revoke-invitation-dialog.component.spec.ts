@@ -4,7 +4,7 @@ import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog.comp
 import { Angulartics2Module } from 'angulartics2';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('RevokeInvitationDialogComponent', () => {
   let component: RevokeInvitationDialogComponent;
@@ -16,17 +16,17 @@ describe('RevokeInvitationDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RevokeInvitationDialogComponent ],
-      imports: [
-        HttpClientTestingModule,
-        MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: { companyId: '', userEmail: '' } },
-        { provide: MatDialogRef, useValue: MatDialogRef }
-      ],
-    })
+    imports: [
+      MatSnackBarModule,
+      Angulartics2Module.forRoot(),
+      RevokeInvitationDialogComponent
+    ],
+    providers: [
+      provideHttpClient(),
+      { provide: MAT_DIALOG_DATA, useValue: { companyId: '', userEmail: '' } },
+      { provide: MatDialogRef, useValue: MatDialogRef }
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(RevokeInvitationDialogComponent);

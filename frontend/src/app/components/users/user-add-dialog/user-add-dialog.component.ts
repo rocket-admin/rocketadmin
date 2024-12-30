@@ -1,16 +1,32 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { UsersService } from 'src/app/services/users.service';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { UserGroup } from 'src/app/models/user';
 import { Angulartics2 } from 'angulartics2';
 import { CompanyService } from 'src/app/services/company.service';
 import { UserService } from 'src/app/services/user.service';
 import { differenceBy } from "lodash";
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { PlaceholderAddUserDialogComponent } from '../../skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
+import { NgForOf, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-user-add-dialog',
   templateUrl: './user-add-dialog.component.html',
-  styleUrls: ['./user-add-dialog.component.css']
+  styleUrls: ['./user-add-dialog.component.css'],
+  imports: [
+    NgIf,
+    NgForOf,
+    MatDialogModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    PlaceholderAddUserDialogComponent
+  ]
 })
 export class UserAddDialogComponent implements OnInit {
 

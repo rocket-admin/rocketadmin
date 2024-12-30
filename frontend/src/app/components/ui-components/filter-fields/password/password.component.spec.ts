@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PasswordFilterComponent } from './password.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('PasswordFilterComponent', () => {
   let component: PasswordFilterComponent;
@@ -8,9 +9,8 @@ describe('PasswordFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PasswordFilterComponent ]
-    })
-    .compileComponents();
+      imports: [PasswordFilterComponent, BrowserAnimationsModule]
+    }).compileComponents();
   });
 
   beforeEach(() => {

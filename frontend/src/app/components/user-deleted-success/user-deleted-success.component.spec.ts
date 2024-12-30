@@ -8,8 +8,8 @@ describe('UserDeletedSuccessComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UserDeletedSuccessComponent ]
-    })
+    imports: [UserDeletedSuccessComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(UserDeletedSuccessComponent);

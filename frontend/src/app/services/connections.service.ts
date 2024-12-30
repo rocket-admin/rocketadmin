@@ -184,7 +184,9 @@ export class ConnectionsService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          const errorMessage = err.error?.message || 'Unknown error';
+          const errorDetails = err.error?.originalMessage || '';
+          this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, [
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
@@ -210,10 +212,11 @@ export class ConnectionsService {
         }),
         catchError((err) => {
           console.log(err);
-          if (err.error.type === 'no_master_key' && this.router.url !== '/connections-list') {
+          if (err.error?.type === 'no_master_key' && this.router.url !== '/connections-list') {
             this._masterPassword.showMasterPasswordDialog()
           };
-          this._notifications.showErrorSnackbar(err.error.message);
+          const errorMessage = err.error?.message || 'Unknown error';
+          this._notifications.showErrorSnackbar(errorMessage);
           return EMPTY;
         }
         )
@@ -240,7 +243,9 @@ export class ConnectionsService {
       map(res => res),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, []);
+        const errorMessage = err.error?.message || 'Unknown error';
+        const errorDetails = err.error?.originalMessage || '';
+        this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, []);
         return EMPTY;
       }
       )
@@ -259,25 +264,24 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-
-
     return this._http.post('/connection', dbCredentials, {
       headers: masterKey ? {
         masterpwd: masterKey
       } : {}
     })
     .pipe(
-      map((res: Connection) => {
+      map((res: any) => {
         this._masterPassword.checkMasterPassword(connection.masterEncryption, res.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection was added successfully.');
         return res;
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, []);
-        return throwError(() => new Error(err.error.message));
-      }
-      )
+        const errorMessage = err.error?.message || 'Unknown error';
+        const errorDetails = err.error?.originalMessage || '';
+        this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, []);
+        return throwError(() => new Error(errorMessage));
+      })
     );
   }
 
@@ -307,7 +311,9 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+        const errorMessage = err.error?.message || 'Unknown error';
+        const errorDetails = err.error?.originalMessage || '';
+        this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
@@ -316,7 +322,7 @@ export class ConnectionsService {
         ]);
         // this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);
         console.log('updateConnection catchError');
-        return throwError(() => new Error(err.error.message));
+        return throwError(() => new Error(errorMessage));
       }
       )
     );
@@ -330,7 +336,8 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(err.error.message);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(errorMessage);
         return EMPTY;
       }
       )
@@ -352,7 +359,8 @@ export class ConnectionsService {
       map(res => res),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(err.error.message);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(errorMessage);
         return EMPTY;
       }
       )
@@ -372,7 +380,8 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(`${err.error.message}.`);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(`${errorMessage}.`);
         return EMPTY;
       }
       )
@@ -388,7 +397,8 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(`${err.error.message}.`);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(`${errorMessage}.`);
         return EMPTY;
       }
       )
@@ -404,7 +414,8 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(`${err.error.message}.`);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(`${errorMessage}.`);
         return EMPTY;
       }
       )
@@ -419,7 +430,8 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(`${err.error.message}.`);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(`${errorMessage}.`);
         return EMPTY;
       }
       )

@@ -3,23 +3,57 @@ import { Component, OnInit } from '@angular/core';
 import { CustomAction, CustomActionMethod, CustomActionType, CustomEvent, EventType, Rule } from 'src/app/models/table';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
+import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
+import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
+import { CommonModule } from '@angular/common';
 import { CompanyMember } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
+import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { IconPickerComponent } from '../../ui-components/icon-picker/icon-picker.component';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-db-table-actions',
   templateUrl: './db-table-actions.component.html',
-  styleUrls: ['./db-table-actions.component.css']
+  styleUrls: ['./db-table-actions.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
+    MatSidenavModule,
+    MatListModule,
+    MatRadioModule,
+    AlertComponent,
+    BreadcrumbsComponent,
+    ContentLoaderComponent,
+    IconPickerComponent
+  ]
 })
 export class DbTableActionsComponent implements OnInit {
   public connectionID: string | null = null;

@@ -2,6 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamodbCredentialsFormComponent } from './dynamodb-credentials-form.component';
 import { FormsModule } from '@angular/forms';
+import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('DynamodbCredentialsFormComponent', () => {
   let component: DynamodbCredentialsFormComponent;
@@ -9,11 +12,14 @@ describe('DynamodbCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DynamodbCredentialsFormComponent],
-      imports: [
-        FormsModule
-      ]
-    })
+    imports: [
+        FormsModule,
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot({}),
+        DynamodbCredentialsFormComponent
+    ],
+    providers: [provideHttpClient()]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(DynamodbCredentialsFormComponent);

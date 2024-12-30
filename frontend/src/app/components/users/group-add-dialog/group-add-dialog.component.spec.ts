@@ -1,14 +1,15 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatDialog } from '@angular/material/dialog';
 
 import { FormsModule }   from '@angular/forms';
 import { GroupAddDialogComponent } from './group-add-dialog.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('GroupAddDialogComponent', () => {
   let component: GroupAddDialogComponent;
@@ -19,24 +20,24 @@ describe('GroupAddDialogComponent', () => {
     close: () => { }
   };
 
-  beforeEach(async(() => {
+  beforeEach(async() => {
     TestBed.configureTestingModule({
-      declarations: [ GroupAddDialogComponent ],
       imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         FormsModule,
         MatDialogModule,
-        Angulartics2Module.forRoot({})
+        Angulartics2Module.forRoot({}),
+        GroupAddDialogComponent,
+        BrowserAnimationsModule
       ],
       providers: [
+        provideHttpClient(),
+        provideRouter([]),
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
       ],
-    })
-    .compileComponents();
-  }));
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(GroupAddDialogComponent);

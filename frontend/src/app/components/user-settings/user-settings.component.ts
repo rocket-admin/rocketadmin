@@ -1,20 +1,50 @@
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
+import { ApiKey, User } from 'src/app/models/user';
 import { Component, Input, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
-import { AuthService } from 'src/app/services/auth.service';
-import { EnableTwoFADialogComponent } from './enable-two-fa-dialog/enable-two-fa-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { ApiKey, User } from 'src/app/models/user';
-import { UserService } from 'src/app/services/user.service';
-import { NotificationsService } from 'src/app/services/notifications.service';
+import { Angulartics2Module } from 'angulartics2';
 import { ApiKeyDeleteDialogComponent } from './api-key-delete-dialog/api-key-delete-dialog.component';
+import { AuthService } from 'src/app/services/auth.service';
+import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
+import { EnableTwoFADialogComponent } from './enable-two-fa-dialog/enable-two-fa-dialog.component';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NotificationsService } from 'src/app/services/notifications.service';
+import { RouterModule } from '@angular/router';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-user-settings',
   templateUrl: './user-settings.component.html',
-  styleUrls: ['./user-settings.component.css']
+  styleUrls: ['./user-settings.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    CdkCopyToClipboard,
+    Angulartics2Module,
+    AlertComponent
+  ]
 })
 export class UserSettingsComponent implements OnInit {
   public currentUser: User = null;

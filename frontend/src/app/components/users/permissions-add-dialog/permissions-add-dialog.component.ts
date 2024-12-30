@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupDeleteDialogComponent } from '../group-delete-dialog/group-delete-dialog.component';
 import { UserGroup, TablePermission, AccessLevel } from 'src/app/models/user';
@@ -8,9 +8,32 @@ import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { GroupAddDialogComponent } from '../group-add-dialog/group-add-dialog.component';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { Angulartics2 } from 'angulartics2';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
+import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
+import { AlertComponent } from '../../ui-components/alert/alert.component';
 
 @Component({
   selector: 'app-permissions-add-dialog',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    ContentLoaderComponent,
+    AlertComponent
+  ],
   templateUrl: './permissions-add-dialog.component.html',
   styleUrls: ['./permissions-add-dialog.component.css']
 })

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JsonEditorFilterComponent } from './json-editor.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('JsonEditorFilterComponent', () => {
   let component: JsonEditorFilterComponent;
@@ -8,9 +9,8 @@ describe('JsonEditorFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ JsonEditorFilterComponent ]
-    })
-    .compileComponents();
+      imports: [JsonEditorFilterComponent, BrowserAnimationsModule]
+    }).compileComponents();
   });
 
   beforeEach(() => {

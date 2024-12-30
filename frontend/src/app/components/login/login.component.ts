@@ -1,21 +1,39 @@
-import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
+import { AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, Component, NgZone, OnInit } from '@angular/core';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
+import { CommonModule } from '@angular/common';
 import { ExistingAuthUser } from 'src/app/models/user';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { RouterModule } from '@angular/router';
 import { accounts } from 'google-one-tap';
-
+import { environment } from 'src/environments/environment';
 
 declare var google: any;
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    MatButtonModule
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginComponent implements OnInit, AfterViewInit {
 

@@ -1,14 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTableModule } from '@angular/material/table';
 import { PaymentService } from 'src/app/services/payment.service';
 import { PlanKey } from 'src/app/models/plans';
-import { User } from 'src/app/models/user';
-import { UserService } from 'src/app/services/user.service';
+import { RouterModule } from '@angular/router';
 import plans from '../../consts/plans';
 
 @Component({
   selector: 'app-upgrade',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatTableModule,
+    MatChipsModule,
+    RouterModule,
+    AlertComponent
+  ],
   templateUrl: './upgrade.component.html',
   styleUrls: ['./upgrade.component.css']
 })

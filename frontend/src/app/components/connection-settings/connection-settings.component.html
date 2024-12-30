@@ -55,24 +55,6 @@
                         </mat-form-field>
                     </div>
 
-                    <!--<div class="logo-uploader">
-                        <img *ngIf="connectionSettings.logo; else logoStub" [src]="connectionSettings.logo" alt="">
-                        <ng-template #logoStub>
-                            <mat-icon>image</mat-icon>
-                        </ng-template>
-
-                        <div>
-                            <input type="file" class="file-input" name="logo"
-                                (change)="onFileSelected($event)" #fileUpload>
-
-                            <span class="file-name mat-body-2">{{ connectionSettings.logo ? 'Upload another logo.' : 'No logo uploaded yet.' }}</span>
-
-                            <button type="button" mat-stroked-button class="upload-btn"
-                                (click)="fileUpload.click()">
-                                Upload file
-                            </button>
-                        </div>
-                    </div>-->
                     <mat-form-field appearance="outline">
                         <mat-label>Project name</mat-label>
                         <input matInput name="company-name" #username="ngModel"
@@ -129,13 +111,13 @@
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-slide-toggle
+                    <mat-slide-toggle name="audit"
                         class="audit-toggle" color="primary"
                         angulartics2On="click"
                         angularticsAction="Connection settings: log recording is toggled"
                         [angularticsProperties]="{'enable': connectionSettings.tables_audit}"
                         [(ngModel)]="connectionSettings.tables_audit">
-                        Record changes in tables
+                        Log changes in tables
                     </mat-slide-toggle>
                 </div>
                 <div *ngIf="accessLevel !== 'readonly'" class="actions">

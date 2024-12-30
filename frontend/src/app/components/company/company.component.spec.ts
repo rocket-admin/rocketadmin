@@ -8,7 +8,6 @@ import { CompanyComponent } from './company.component';
 import { CompanyService } from 'src/app/services/company.service';
 import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
 import { FormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { InviteMemberDialogComponent } from './invite-member-dialog/invite-member-dialog.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -16,6 +15,7 @@ import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revo
 import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('CompanyComponent', () => {
   let component: CompanyComponent;
@@ -110,21 +110,21 @@ describe('CompanyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CompanyComponent ],
-      imports: [
-        HttpClientTestingModule,
+    imports: [
         MatSnackBarModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
         FormsModule,
         MatInputModule,
-        BrowserAnimationsModule
-      ],
-      providers: [
+        BrowserAnimationsModule,
+        CompanyComponent
+    ],
+    providers: [
+        provideHttpClient(),
         { provide: CompanyService, useValue: fakeCompanyService },
         { provide: UserService, useValue: fakeUserService }
-      ]
-    })
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(CompanyComponent);

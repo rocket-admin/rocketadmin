@@ -1,11 +1,17 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+
 import { Alert } from 'src/app/models/alert';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-alert',
   templateUrl: './alert.component.html',
-  styleUrls: ['./alert.component.css']
+  styleUrls: ['./alert.component.css'],
+  imports: [CommonModule, MatIconModule, MatButtonModule, RouterModule],
 })
 export class AlertComponent implements OnInit {
   @Input() alert: Alert;

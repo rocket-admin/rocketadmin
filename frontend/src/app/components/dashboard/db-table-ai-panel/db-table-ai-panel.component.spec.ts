@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DbTableAiPanelComponent } from './db-table-ai-panel.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Angulartics2Module } from 'angulartics2';
 import { MarkdownService } from 'ngx-markdown';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTableAiPanelComponent', () => {
   let component: DbTableAiPanelComponent;
@@ -16,15 +17,15 @@ describe('DbTableAiPanelComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        DbTableAiPanelComponent,
+        BrowserAnimationsModule
       ],
       providers: [
+        provideHttpClient(),
         { provide: MarkdownService, useValue: mockMarkdownService },
-      ],
-      declarations: [DbTableAiPanelComponent]
-    })
-    .compileComponents();
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DbTableAiPanelComponent);
     component = fixture.componentInstance;

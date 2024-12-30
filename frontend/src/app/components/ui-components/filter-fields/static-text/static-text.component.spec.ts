@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { StaticTextFilterComponent } from './static-text.component';
 
@@ -6,12 +6,11 @@ describe('StaticTextFilterComponent', () => {
   let component: StaticTextFilterComponent;
   let fixture: ComponentFixture<StaticTextFilterComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ StaticTextFilterComponent ]
-    })
-    .compileComponents();
-  }));
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [StaticTextFilterComponent]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(StaticTextFilterComponent);

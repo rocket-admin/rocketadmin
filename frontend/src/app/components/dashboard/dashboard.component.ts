@@ -1,17 +1,31 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
 
-import { Angulartics2 } from 'angulartics2';
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { BannerComponent } from '../ui-components/banner/banner.component';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { ContentLoaderComponent } from '../ui-components/content-loader/content-loader.component';
 import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
+import { DbTableAiPanelComponent } from './db-table-ai-panel/db-table-ai-panel.component';
+import { DbTableComponent } from './db-table/db-table.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
+import { DbTableRowViewComponent } from './db-table-row-view/db-table-row-view.component';
+import { DbTablesListComponent } from './db-tables-list/db-tables-list.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import JsonURL from "@jsonurl/jsonurl";
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { PlaceholderTableViewComponent } from '../skeletons/placeholder-table-view/placeholder-table-view.component';
+import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
@@ -35,7 +49,24 @@ interface DataToActivateActions {
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatSidenavModule,
+    DbTablesListComponent,
+    DbTableComponent,
+    DbTableAiPanelComponent,
+    DbTableRowViewComponent,
+    AlertComponent,
+    ContentLoaderComponent,
+    PlaceholderTableViewComponent,
+    BannerComponent,
+    RouterModule,
+    Angulartics2Module
+  ]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 

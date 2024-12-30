@@ -3,6 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PostgresCredentialsFormComponent } from './postgres-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('PostgresCredentialsFormComponent', () => {
   let component: PostgresCredentialsFormComponent;
@@ -10,12 +13,15 @@ describe('PostgresCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PostgresCredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot({}),
+        PostgresCredentialsFormComponent
+    ],
+    providers: [provideHttpClient()]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PostgresCredentialsFormComponent);

@@ -1,15 +1,31 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { Connection } from 'src/app/models/connection';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import * as ipaddr from 'ipaddr.js';
 import isIP from 'validator/lib/isIP';
+import { IpAddressButtonComponent } from '../../ui-components/ip-address-button/ip-address-button.component';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-db-connection-ip-access-dialog',
   templateUrl: './db-connection-ip-access-dialog.component.html',
-  styleUrls: ['./db-connection-ip-access-dialog.component.css']
+  styleUrls: ['./db-connection-ip-access-dialog.component.css'],
+  standalone: true,
+  imports: [
+    NgIf,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    ClipboardModule,
+    IpAddressButtonComponent
+  ]
 })
 export class DbConnectionIpAccessDialogComponent implements OnInit {
 

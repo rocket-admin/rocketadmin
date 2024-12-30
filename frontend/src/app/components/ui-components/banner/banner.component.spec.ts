@@ -10,11 +10,11 @@ describe('BannerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        MatSnackBarModule
-      ],
-      declarations: [ BannerComponent ]
-    })
+    imports: [
+        MatSnackBarModule,
+        BannerComponent
+    ]
+})
     .compileComponents();
   });
 

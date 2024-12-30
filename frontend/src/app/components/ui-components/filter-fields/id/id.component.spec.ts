@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormsModule } from '@angular/forms';
 import { IdFilterComponent } from './id.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('IdFilterComponent', () => {
   let component: IdFilterComponent;
@@ -9,10 +10,8 @@ describe('IdFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ FormsModule ],
-      declarations: [ IdFilterComponent ]
-    })
-    .compileComponents();
+      imports: [FormsModule, IdFilterComponent, BrowserAnimationsModule]
+    }).compileComponents();
   });
 
   beforeEach(() => {

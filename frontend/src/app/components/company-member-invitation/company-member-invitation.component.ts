@@ -1,16 +1,36 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-
-// import { CompanyService } from 'src/app/services/company.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDividerModule } from '@angular/material/divider';
 import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { Angulartics2 } from 'angulartics2';
+import { PlaceholderCompanyInvitationComponent } from '../skeletons/placeholder-company-invitation/placeholder-company-invitation.component';
+import { BannerComponent } from '../ui-components/banner/banner.component';
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { UserPasswordComponent } from '../ui-components/user-password/user-password.component';
 
 @Component({
   selector: 'app-company-member-invitation',
   templateUrl: './company-member-invitation.component.html',
-  styleUrls: ['./company-member-invitation.component.css']
+  styleUrls: ['./company-member-invitation.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    PlaceholderCompanyInvitationComponent,
+    BannerComponent,
+    AlertComponent,
+    UserPasswordComponent
+  ]
 })
 export class CompanyMemberInvitationComponent implements OnInit {
 

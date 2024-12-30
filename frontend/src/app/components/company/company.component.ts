@@ -2,7 +2,7 @@ import { Company, CompanyMember, CompanyMemberRole } from 'src/app/models/compan
 
 import { Angulartics2 } from 'angulartics2';
 import { CompanyService } from 'src/app/services/company.service';
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
 import { InviteMemberDialogComponent } from './invite-member-dialog/invite-member-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,11 +11,40 @@ import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import { orderBy } from "lodash";
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTableModule } from '@angular/material/table';
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
+import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-company',
   templateUrl: './company.component.html',
-  styleUrls: ['./company.component.css']
+  styleUrls: ['./company.component.css'],
+  imports: [
+    NgIf,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    MatTableModule,
+    AlertComponent,
+    PlaceholderCompanyComponent,
+    PlaceholderTableDataComponent
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CompanyComponent {
 
@@ -158,19 +187,19 @@ export class CompanyComponent {
     });
   }
 
-  switchSuspendance(value: boolean, memberEmail: string) {
-    console.log(value, memberEmail);
+  switchSuspendance(isSuspendance: boolean, memberEmail: string) {
+    console.log(isSuspendance, memberEmail);
     this.submittingUsersChange = true;
-    if (value) {
-      this._company.restoreCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
-        this.angulartics2.eventTrack.next({
-          action: 'Company: member is restored',
-        });
-      });
-    } else {
+    if (isSuspendance) {
       this._company.suspendCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
         this.angulartics2.eventTrack.next({
           action: 'Company: member is suspended',
+        });
+      });
+    } else {
+      this._company.restoreCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
+        this.angulartics2.eventTrack.next({
+          action: 'Company: member is restored',
         });
       });
     }

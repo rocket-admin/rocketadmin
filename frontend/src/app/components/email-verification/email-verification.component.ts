@@ -1,13 +1,18 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { AuthService } from 'src/app/services/auth.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-email-verification',
   templateUrl: './email-verification.component.html',
-  styleUrls: ['./email-verification.component.css']
+  styleUrls: ['./email-verification.component.css'],
+  imports: [CommonModule, FormsModule, RouterModule, AlertComponent]
 })
 export class EmailVerificationComponent implements OnInit {
 

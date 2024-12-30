@@ -1,36 +1,35 @@
-import { of } from 'rxjs';
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ConnectionsListComponent } from './connections-list.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { RouterTestingModule } from "@angular/router/testing";
-import { UserService } from 'src/app/services/user.service';
+import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('ConnectionsListComponent', () => {
   let component: ConnectionsListComponent;
   let fixture: ComponentFixture<ConnectionsListComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot({}),
+        ConnectionsListComponent
       ],
-      declarations: [ ConnectionsListComponent ],
       providers: [
+        provideHttpClient(),
+        provideRouter([]),
         {
           provide: ConnectionsService,
           // useClass: ConnectionsServiseStub
         }
       ],
-    })
-    .compileComponents();
-  }));
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ConnectionsListComponent);

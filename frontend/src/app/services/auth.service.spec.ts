@@ -1,11 +1,11 @@
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AlertActionType, AlertType } from '../models/alert';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { AuthService } from './auth.service';
-import { ConnectionsService } from './connections.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from './notifications.service';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -24,10 +24,11 @@ describe('AuthService', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         MatSnackBarModule
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         AuthService,
         {
           provide: NotificationsService,
@@ -36,8 +37,8 @@ describe('AuthService', () => {
       ]
     });
 
-    httpMock = TestBed.get(HttpTestingController);
-    service = TestBed.get(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(AuthService);
   });
 
   afterEach(() => {

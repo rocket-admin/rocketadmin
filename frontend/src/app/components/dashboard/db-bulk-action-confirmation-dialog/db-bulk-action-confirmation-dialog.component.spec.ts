@@ -1,13 +1,13 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('BbBulkActionConfirmationDialogComponent', () => {
   let component: BbBulkActionConfirmationDialogComponent;
@@ -18,17 +18,17 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
     close: () => { }
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ BbBulkActionConfirmationDialogComponent ],
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        BbBulkActionConfirmationDialogComponent
       ],
       providers: [
+        provideHttpClient(),
+        provideRouter([]),
         { provide: MAT_DIALOG_DATA, useValue: {
           primaryKeys: [{
             column_name: 'id'
@@ -40,14 +40,12 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
           {
             'id': '5678',
             'name': 'John'
-          }
-        ]
-        } },
+          }]
+        }},
         { provide: MatDialogRef, useValue: mockDialogRef },
       ],
-    })
-    .compileComponents();
-  }));
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BbBulkActionConfirmationDialogComponent);

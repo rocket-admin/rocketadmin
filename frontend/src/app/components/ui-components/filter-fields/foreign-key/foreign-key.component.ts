@@ -2,8 +2,17 @@ import { Component, Input } from '@angular/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSpinner } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
 
@@ -16,7 +25,18 @@ interface Suggestion {
 @Component({
   selector: 'app-filter-foreign-key',
   templateUrl: './foreign-key.component.html',
-  styleUrls: ['./foreign-key.component.css']
+  styleUrls: ['./foreign-key.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatSpinner,
+    RouterModule
+  ]
 })
 export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
   @Input() value;

@@ -2,8 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MongodbCredentialsFormComponent } from './mongodb-credentials-form.component';
 import { FormsModule } from '@angular/forms';
-import { ConnectionType, DBtype } from 'src/app/models/connection';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('MongodbCredentialsFormComponent', () => {
   let component: MongodbCredentialsFormComponent;
@@ -11,12 +13,15 @@ describe('MongodbCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MongodbCredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot({}),
+        MongodbCredentialsFormComponent
+    ],
+    providers: [provideHttpClient()]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(MongodbCredentialsFormComponent);

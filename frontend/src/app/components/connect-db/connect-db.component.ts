@@ -1,17 +1,39 @@
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 
 import { AccessLevel } from 'src/app/models/user';
-import { Angulartics2 } from 'angulartics2';
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { Db2CredentialsFormComponent } from './db-credentials-forms/db2-credentials-form/db2-credentials-form.component';
 import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
+import { DynamodbCredentialsFormComponent } from './db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component';
+import { FormsModule } from '@angular/forms';
+import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MongodbCredentialsFormComponent } from './db-credentials-forms/mongodb-credentials-form/mongodb-credentials-form.component';
+import { MssqlCredentialsFormComponent } from './db-credentials-forms/mssql-credentials-form/mssql-credentials-form.component';
+import { MysqlCredentialsFormComponent } from './db-credentials-forms/mysql-credentials-form/mysql-credentials-form.component';
 import { NgForm } from '@angular/forms';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { OracledbCredentialsFormComponent } from './db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component';
+import { PostgresCredentialsFormComponent } from './db-credentials-forms/postgres-credentials-form/postgres-credentials-form.component';
 import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
@@ -20,17 +42,40 @@ import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-connect-db',
   templateUrl: './connect-db.component.html',
-  styleUrls: ['./connect-db.component.css']
+  styleUrls: ['./connect-db.component.css'],
+  imports: [
+    MatInputModule,
+    MatSelectModule,
+    MatButtonToggleModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    CdkCopyToClipboard,
+    RouterModule,
+    FormsModule,
+    CommonModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    MatSlideToggleModule,
+    Db2CredentialsFormComponent,
+    DynamodbCredentialsFormComponent,
+    MongodbCredentialsFormComponent,
+    MssqlCredentialsFormComponent,
+    MysqlCredentialsFormComponent,
+    OracledbCredentialsFormComponent,
+    PostgresCredentialsFormComponent,
+    IpAddressButtonComponent,
+    AlertComponent,
+    Angulartics2Module
+  ]
 })
 export class ConnectDBComponent implements OnInit, OnDestroy {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
-  // public isMasterKeyTurnedOn: boolean = false;
   public masterKey: string;
   public connectionToken: string | null = null;
   public submitting: boolean = false;
-  // public userOS = null;
   public otherOS = [];
   public warning: Alert = {
     id: 10000000,
@@ -48,12 +93,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     [DBtype.DB2]: '50000'
   }
 
-  // public osAgents = {
-  //   Mac: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-macos',
-  //   Windows: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-windows.exe',
-  //   Linux: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-linux'
-  // }
-
   private getTitleSubscription: Subscription;
 
   constructor(
@@ -69,18 +108,10 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
-    // this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
 
     if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
     });
-
-    // if (navigator.appVersion.indexOf("Win") != -1) this.userOS = "Windows";
-    // if (navigator.appVersion.indexOf("Mac") != -1) this.userOS = "Mac";
-    // if (navigator.appVersion.indexOf("Linux") != -1) this.userOS = "Linux";
-    // if (this.userOS === null) this.userOS = "Linux";
-
-    // this.otherOS = Object.keys(this.osAgents).filter(os => os !== this.userOS);
 
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
@@ -127,8 +158,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
                 action: (id: number) => this._notifications.dismissAlert()
               }
             ]);
-            //@ts-ignore
-            // Intercom('show');
           };
         },
         () => {this.submitting = false},
@@ -205,8 +234,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       }
     });
     this.submitting = false;
-    //@ts-ignore
-    // Intercom('show');
   }
 
   handleCredentialsSubmitting(connectForm: NgForm) {
@@ -237,9 +264,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   createConnection(connectForm: NgForm) {
-    // if (connectForm.form.vald) {
-
-    // }
     if (this.db.connectionType === 'direct') {
       const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
         width: '36em',
@@ -275,12 +299,12 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     }
   }
 
-  confirmDeleteConnection (connection: Connection) {
+  confirmDeleteConnection(connectionCreds: any, event: Event): void {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.dialog.open(DbConnectionDeleteDialogComponent, {
       width: '32em',
-      data: connection
+      data: connectionCreds
     });
   }
 
@@ -304,8 +328,4 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   handleMasterKeyChange(newMasterKey: string): void {
     this.masterKey = newMasterKey;
   }
-
-  // handleMasterKeyToggle(isTurnedOn: boolean): void {
-  //   this.isMasterKeyTurnedOn = isTurnedOn;
-  // }
 }

@@ -1,4 +1,8 @@
 import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -8,7 +12,13 @@ import { format } from 'date-fns'
 @Component({
   selector: 'app-row-date-time',
   templateUrl: './date-time.component.html',
-  styleUrls: ['./date-time.component.css']
+  styleUrls: ['./date-time.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule
+  ]
 })
 export class DateTimeRowComponent extends BaseRowFieldComponent {
   @Input() value: string;

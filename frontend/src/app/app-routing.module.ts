@@ -16,13 +16,12 @@ import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 import { LoginComponent } from './components/login/login.component';
-import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgModule } from '@angular/core';
 import { PageLoaderComponent } from './components/page-loader/page-loader.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PasswordChangeComponent } from './components/password-change/password-change.component';
 import { PasswordRequestComponent } from './components/password-request/password-request.component';
-import { PasswordResetComponent } from './components/password-reset/password-change.component';
+import { PasswordResetComponent } from './components/password-reset/password-reset.component';
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
@@ -41,7 +40,6 @@ const routes: Routes = [
   {path: 'external/user/email/verify/:verification-token', component: EmailVerificationComponent, title: 'Email verification | Rocketadmin'},
   {path: 'external/user/email/change/verify/:change-token', component: EmailChangeComponent, title: 'Email updating | Rocketadmin'},
   {path: 'deleted', component: UserDeletedSuccessComponent, title: 'User deleted | Rocketadmin'},
-  {path: 'new-version', component: NewVersionComponent, title: 'New version | Rocketadmin'},
   {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard], title: 'Add new database | Rocketadmin'},
   {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard], title: 'Connections | Rocketadmin'},
   {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},

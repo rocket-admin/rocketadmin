@@ -3,13 +3,22 @@ import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
 import { Subscription, first } from 'rxjs';
 
 import { Angulartics2 } from 'angulartics2';
+import { Angulartics2OnModule } from 'angulartics2';
 import { Connection } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
+import { PlaceholderUserGroupComponent } from '../skeletons/placeholder-user-group/placeholder-user-group.component';
+import { PlaceholderUserGroupsComponent } from '../skeletons/placeholder-user-groups/placeholder-user-groups.component';
 import { Title } from '@angular/platform-browser';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
@@ -18,6 +27,20 @@ import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-users',
+  imports: [
+    NgIf,
+    NgForOf,
+    NgClass,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    MatExpansionModule,
+    MatAccordion,
+    MatTooltipModule,
+    Angulartics2OnModule,
+    PlaceholderUserGroupsComponent,
+    PlaceholderUserGroupComponent
+  ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })

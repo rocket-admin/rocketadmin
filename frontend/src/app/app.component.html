@@ -45,7 +45,7 @@
                 <div matListItemTitle>Log out</div>
             </mat-list-item>
         </mat-nav-list>
-        <a mat-flat-button color="accent" *ngIf="isSaas" class="connection-navigation__upgrade-button" routerLink="/upgrade"
+        <a mat-flat-button color="accent" *ngIf="isSaas && currentUser && currentUser.role === 'ADMIN'" class="connection-navigation__upgrade-button" routerLink="/upgrade"
             routerLinkActive="nav-bar__button_active">
             Upgrade
         </a>
@@ -101,7 +101,7 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" *ngIf="isSaas"
+                <a routerLink="/upgrade" *ngIf="isSaas && currentUser && currentUser.role === 'ADMIN'"
                     mat-flat-button color="accent"
                     data-testid="upgrade-header-link"
                     routerLinkActive="mat-accent" class="nav-bar__upgrade-button">

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormsModule } from '@angular/forms';
 import { IdRowComponent } from './id.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('IdRowComponent', () => {
   let component: IdRowComponent;
@@ -9,10 +10,8 @@ describe('IdRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ FormsModule ],
-      declarations: [ IdRowComponent ]
-    })
-    .compileComponents();
+      imports: [FormsModule, IdRowComponent, BrowserAnimationsModule]
+    }).compileComponents();
   });
 
   beforeEach(() => {

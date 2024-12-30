@@ -1,19 +1,18 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PageLoaderComponent } from './page-loader.component';
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter } from '@angular/router';
 
 describe('LoaderComponent', () => {
   let component: PageLoaderComponent;
   let fixture: ComponentFixture<PageLoaderComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ PageLoaderComponent ],
-      imports: [ RouterTestingModule.withRoutes([]) ],
-    })
-    .compileComponents();
-  }));
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PageLoaderComponent],
+      providers: [provideRouter([])]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PageLoaderComponent);

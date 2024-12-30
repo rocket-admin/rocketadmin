@@ -8,8 +8,8 @@ describe('PlaceholderTableWidgetsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlaceholderTableWidgetsComponent ]
-    })
+    imports: [PlaceholderTableWidgetsComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PlaceholderTableWidgetsComponent);

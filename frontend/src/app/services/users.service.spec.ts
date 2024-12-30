@@ -1,11 +1,11 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { TestBed } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { UsersService } from './users.service';
 import { NotificationsService } from './notifications.service';
 import { AccessLevel } from '../models/user';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -105,12 +105,11 @@ describe('UsersService', () => {
     fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar']);
 
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        MatSnackBarModule,
-        RouterTestingModule.withRoutes([]),
-      ],
+      imports: [MatSnackBarModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
         {
           provide: NotificationsService,
           useValue: fakeNotifications
@@ -118,8 +117,8 @@ describe('UsersService', () => {
       ]
     });
 
-    service = TestBed.get(UsersService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(UsersService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   it('should be created', () => {
@@ -149,7 +148,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchConnectionUsers and show Error snackbar', async () => {
+  it('should fall fetchConnectionUsers and show Error snackbar', waitForAsync(async () => {
     const fetchConnectionUsers = service.fetchConnectionUsers('12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/users/12345678`);
@@ -158,7 +157,7 @@ describe('UsersService', () => {
     await fetchConnectionUsers;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call fetchConnectionGroups', () => {
     let isSubscribeCalled = false;
@@ -185,7 +184,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchConnectionGroups and show Error snackbar', async () => {
+  it('should fall fetchConnectionGroups and show Error snackbar', waitForAsync(async () => { // Updated test case
     const fetchConnectionGroups = service.fetchConnectionGroups('12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/groups/12345678`);
@@ -194,7 +193,7 @@ describe('UsersService', () => {
     await fetchConnectionGroups;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call fetcGroupUsers', () => {
     let isSubscribeCalled = false;
@@ -220,7 +219,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchConnectionGroups and show Error snackbar', async () => {
+  it('should fall fetchConnectionGroups and show Error snackbar', waitForAsync(async () => { // Updated test case
     const fetchConnectionGroups = service.fetcGroupUsers('12345678').toPromise();
 
     const req = httpMock.expectOne(`/group/users/12345678`);
@@ -229,7 +228,7 @@ describe('UsersService', () => {
     await fetchConnectionGroups;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call createUsersGroup', () => {
     let isSubscribeCalled = false;
@@ -247,7 +246,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall createUsersGroup and show Error snackbar', async () => {
+  it('should fall createUsersGroup and show Error snackbar', waitForAsync(async () => { // Updated test case
     const createUsersGroup = service.createUsersGroup('12345678', 'Managers').toPromise();
 
     const req = httpMock.expectOne(`/connection/group/12345678`);
@@ -256,7 +255,7 @@ describe('UsersService', () => {
     await createUsersGroup;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call fetchPermission', () => {
     let isSubscribeCalled = false;
@@ -273,7 +272,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchPermission and show Error snackbar', async () => {
+  it('should fall fetchPermission and show Error snackbar', waitForAsync(async () => { // Updated test case
     const fetchPermission = service.fetchPermission('12345678', 'group12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/permissions?connectionId=12345678&groupId=group12345678`);
@@ -282,7 +281,7 @@ describe('UsersService', () => {
     await fetchPermission;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call updatePermission and show Success snackbar', () => {
     let isSubscribeCalled = false;
@@ -300,7 +299,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall updatePermission and show Error snackbar', async () => {
+  it('should fall updatePermission and show Error snackbar', waitForAsync(async () => { // Updated test case
     const updatePermission = service.updatePermission('12345678', permissionsApp).toPromise();
 
     const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4?connectionId=12345678`);
@@ -309,7 +308,7 @@ describe('UsersService', () => {
     await updatePermission;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call addGroupUser and show Success snackbar', () => {
     let isSubscribeCalled = false;
@@ -330,7 +329,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall addGroupUser and show Error snackbar', async () => {
+  it('should fall addGroupUser and show Error snackbar', waitForAsync(async () => { // Updated test case
     const addGroupUser = service.addGroupUser('group12345678', 'eric.cartman@south.park').toPromise();
 
     const req = httpMock.expectOne(`/group/user`);
@@ -339,7 +338,7 @@ describe('UsersService', () => {
     await addGroupUser;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call deleteUsersGroup and show Success snackbar', () => {
     let isSubscribeCalled = false;
@@ -361,7 +360,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall deleteUsersGroup and show Error snackbar', async () => {
+  it('should fall deleteUsersGroup and show Error snackbar', waitForAsync(async () => { // Updated test case
     const deleteUsersGroup = service.deleteUsersGroup('group12345678').toPromise();
 
     const req = httpMock.expectOne(`/group/group12345678`);
@@ -370,7 +369,7 @@ describe('UsersService', () => {
     await deleteUsersGroup;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 
   it('should call deleteGroupUser and show Success snackbar', () => {
     let isSubscribeCalled = false;
@@ -396,7 +395,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall deleteGroupUser and show Error snackbar', async () => {
+  it('should fall deleteGroupUser and show Error snackbar', waitForAsync(async () => { // Updated test case
     const deleteGroupUser = service.deleteGroupUser('eric.cartman@south.park', 'group12345678').toPromise();
 
     const req = httpMock.expectOne(`/group/user/delete`);
@@ -405,5 +404,5 @@ describe('UsersService', () => {
     await deleteGroupUser;
 
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
+  }));
 });

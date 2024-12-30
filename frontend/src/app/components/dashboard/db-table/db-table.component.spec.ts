@@ -1,5 +1,4 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableComponent } from './db-table.component';
@@ -8,10 +7,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
-import { RouterTestingModule } from "@angular/router/testing";
 import { SelectionModel } from '@angular/cdk/collections';
 import { TablesDataSource } from '../db-tables-data-source';
 import { MatDialogModule } from '@angular/material/dialog';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -69,23 +69,21 @@ describe('DbTableComponent', () => {
     "age": "gt"
   }
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [
         MatMenuModule,
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatPaginatorModule,
         BrowserAnimationsModule,
         MatSortModule,
         FormsModule,
-        MatDialogModule
+        MatDialogModule,
+        DbTableComponent
       ],
-      declarations: [ DbTableComponent ]
-    })
-    .compileComponents();
-  }));
+      providers: [provideHttpClient(), provideRouter([])]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DbTableComponent);

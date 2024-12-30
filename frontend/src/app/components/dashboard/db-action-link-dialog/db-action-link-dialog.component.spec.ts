@@ -13,15 +13,15 @@ describe('DbActionLinkDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DbActionLinkDialogComponent ],
-      imports: [
-        MatDialogModule
-      ],
-      providers: [
+    imports: [
+        MatDialogModule,
+        DbActionLinkDialogComponent
+    ],
+    providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef }
-      ]
-    })
+    ]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(DbActionLinkDialogComponent);

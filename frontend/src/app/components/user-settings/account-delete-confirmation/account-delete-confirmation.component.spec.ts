@@ -3,9 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { AccountDeleteConfirmationComponent } from './account-delete-confirmation.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('AccountDeleteConfirmationComponent', () => {
   let component: AccountDeleteConfirmationComponent;
@@ -17,19 +17,19 @@ describe('AccountDeleteConfirmationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
-        MatDialogModule,
-        MatSnackBarModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
-        { provide: MatDialogRef, useValue: mockDialogRef }
-      ],
-      declarations: [ AccountDeleteConfirmationComponent ]
-    })
+    imports: [
+      MatDialogModule,
+      MatSnackBarModule,
+      Angulartics2Module.forRoot(),
+      AccountDeleteConfirmationComponent
+    ],
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      { provide: MAT_DIALOG_DATA, useValue: {} },
+      { provide: MatDialogRef, useValue: mockDialogRef }
+    ]
+})
     .compileComponents();
   });
 

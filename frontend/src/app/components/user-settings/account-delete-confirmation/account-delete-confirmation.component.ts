@@ -1,12 +1,20 @@
 import { Component, Inject, OnInit } from '@angular/core';
-
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-account-delete-confirmation',
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './account-delete-confirmation.component.html',
   styleUrls: ['./account-delete-confirmation.component.css']
 })

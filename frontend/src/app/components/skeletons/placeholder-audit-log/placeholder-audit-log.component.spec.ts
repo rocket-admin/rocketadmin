@@ -8,8 +8,8 @@ describe('PlaceholderAuditLogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlaceholderAuditLogComponent ]
-    })
+    imports: [PlaceholderAuditLogComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(PlaceholderAuditLogComponent);

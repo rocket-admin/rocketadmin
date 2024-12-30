@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PasswordRequestComponent } from './password-request.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule }   from '@angular/forms';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('PasswordRequestComponent', () => {
   let component: PasswordRequestComponent;
@@ -16,14 +17,14 @@ describe('PasswordRequestComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         RouterTestingModule,
         FormsModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        PasswordRequestComponent,
+        BrowserAnimationsModule
       ],
-      declarations: [ PasswordRequestComponent ]
-    })
-    .compileComponents();
+      providers: [provideHttpClient()]
+    }).compileComponents();
   });
 
   beforeEach(() => {

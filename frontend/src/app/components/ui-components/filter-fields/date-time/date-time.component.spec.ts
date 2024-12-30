@@ -1,17 +1,17 @@
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DateTimeFilterComponent } from './date-time.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('DateTimeFilterComponent', () => {
   let component: DateTimeFilterComponent;
   let fixture: ComponentFixture<DateTimeFilterComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ DateTimeFilterComponent ]
-    })
-    .compileComponents();
-  }));
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [DateTimeFilterComponent, BrowserAnimationsModule]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DateTimeFilterComponent);

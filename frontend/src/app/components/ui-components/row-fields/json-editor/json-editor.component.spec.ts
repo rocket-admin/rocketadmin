@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JsonEditorRowComponent } from './json-editor.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('JsonEditorRowComponent', () => {
   let component: JsonEditorRowComponent;
@@ -8,9 +9,8 @@ describe('JsonEditorRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ JsonEditorRowComponent ]
-    })
-    .compileComponents();
+      imports: [JsonEditorRowComponent, BrowserAnimationsModule]
+    }).compileComponents();
   });
 
   beforeEach(() => {

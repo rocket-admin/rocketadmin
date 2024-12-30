@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ContentLoaderComponent } from './content-loader.component';
 
@@ -6,12 +6,11 @@ describe('ContentLoaderComponent', () => {
   let component: ContentLoaderComponent;
   let fixture: ComponentFixture<ContentLoaderComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ContentLoaderComponent ]
-    })
-    .compileComponents();
-  }));
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ContentLoaderComponent]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ContentLoaderComponent);

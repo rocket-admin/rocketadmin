@@ -1,16 +1,15 @@
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardComponent } from './dashboard.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -60,7 +59,7 @@ describe('DashboardComponent', () => {
     }
   ]
 
-  beforeEach(async(() => {
+  beforeEach(async () => {
 
     // const paramMapSubject = new BehaviorSubject(convertToParamMap({
     //   'table-name': undefined
@@ -75,16 +74,16 @@ describe('DashboardComponent', () => {
 
     fakeTablesService = jasmine.createSpyObj('tablesService', {fetchTables: of(fakeTables)});
 
-    TestBed.configureTestingModule({
-      declarations: [ DashboardComponent ],
+    await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        DashboardComponent
       ],
       providers: [
+        provideHttpClient(),
+        provideRouter([]),
         {
           provide: ConnectionsService,
           useValue: fakeConnectionsSevice
@@ -94,18 +93,16 @@ describe('DashboardComponent', () => {
           useValue: fakeTablesService
         },
         { provide: ActivatedRoute,
-          useValue: {paramMap: of(convertToParamMap({
-                'table-name': undefined
-              })
-            ),
+          useValue: { paramMap: of(convertToParamMap({
+              'table-name': undefined
+            })),
           }
         },
         { provide: Router, useValue: fakeRouter },
         { provide: Angulartics2, useValue: angulartics2Mock }
       ]
     })
-    .compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DashboardComponent);

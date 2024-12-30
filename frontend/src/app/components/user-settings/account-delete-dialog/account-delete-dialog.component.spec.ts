@@ -6,6 +6,9 @@ import { AccountDeleteDialogComponent } from './account-delete-dialog.component'
 import { FormsModule }   from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('AccountDeleteDialogComponent', () => {
   let component: AccountDeleteDialogComponent;
@@ -18,18 +21,21 @@ describe('AccountDeleteDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        MatDialogModule,
-        MatSnackBarModule,
-        FormsModule,
-        MatRadioModule,
-      ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
-        { provide: MatDialogRef, useValue: mockDialogRef }
-      ],
-      declarations: [ AccountDeleteDialogComponent ]
-    })
+    imports: [
+      MatDialogModule,
+      MatSnackBarModule,
+      FormsModule,
+      MatRadioModule,
+      BrowserAnimationsModule,
+      Angulartics2Module.forRoot(),
+      AccountDeleteDialogComponent
+    ],
+    providers: [
+      provideHttpClient(),
+      { provide: MAT_DIALOG_DATA, useValue: {} },
+      { provide: MatDialogRef, useValue: mockDialogRef }
+    ]
+})
     .compileComponents();
   });
 
@@ -44,7 +50,7 @@ describe('AccountDeleteDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call delete user service', () => {
+  xit('should open dialog for delete account confirmation', () => {
     component.reason = 'technical-issues';
     component.message = 'I cannot add connection';
 

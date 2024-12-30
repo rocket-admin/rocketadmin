@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ImageRowComponent } from './image.component';
 import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('ImageComponent', () => {
   let component: ImageRowComponent;
@@ -9,12 +10,11 @@ describe('ImageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        FormsModule
-      ],
-      declarations: [ImageRowComponent]
-    })
-    .compileComponents();
+    imports: [
+        FormsModule,
+        ImageRowComponent,
+        BrowserAnimationsModule
+    ]}).compileComponents();
 
     fixture = TestBed.createComponent(ImageRowComponent);
     component = fixture.componentInstance;

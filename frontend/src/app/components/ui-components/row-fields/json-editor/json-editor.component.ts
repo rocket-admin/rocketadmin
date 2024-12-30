@@ -1,11 +1,14 @@
 import { Component, Input } from '@angular/core';
 
 import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
+import { CodeEditorModule } from '@ngstack/code-editor';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-row-json-editor',
   templateUrl: './json-editor.component.html',
-  styleUrls: ['./json-editor.component.css']
+  styleUrls: ['./json-editor.component.css'],
+  imports: [CommonModule, CodeEditorModule],
 })
 export class JsonEditorRowComponent extends BaseRowFieldComponent {
   @Input() value: Object;

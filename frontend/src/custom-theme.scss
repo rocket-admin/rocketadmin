@@ -8,9 +8,9 @@ $md-app-primary-color: palette.createpalette('primaryPalette');
 $md-app-accented-color: palette.createpalette('accentedPalette');
 $md-app-warn-color: palette.createpalette('warnPalette');
 
-$custom-palette-primary: mat.define-palette($md-app-primary-color);
-$custom-palette-accent: mat.define-palette($md-app-accented-color);
-$custom-palette-warn: mat.define-palette($md-app-warn-color);
+$custom-palette-primary: mat.m2-define-palette($md-app-primary-color);
+$custom-palette-accent: mat.m2-define-palette($md-app-accented-color);
+$custom-palette-warn: mat.m2-define-palette($md-app-warn-color);
 
 html {
   --mdc-shape-small: 0px !important;
@@ -49,7 +49,15 @@ body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
   --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
 }
 
-$button-custom-level: mat.define-typography-level(
+.mat-elevation-z4 {
+  box-shadow: 0 2px 4px -1px #0003,0 4px 5px #00000024,0 1px 10px #0000001f;
+}
+
+.mat-elevation-z2 {
+  box-shadow: 0 3px 1px -2px #0003,0 2px 2px #00000024,0 1px 5px #0000001f;
+}
+
+$button-custom-level: mat.m2-define-typography-level(
   $font-family: 'Noto Sans',
   $font-weight: 500,
   $font-size: 14px,
@@ -57,7 +65,7 @@ $button-custom-level: mat.define-typography-level(
   $letter-spacing: normal,
 );
 
-$body-1-custom-level: mat.define-typography-level(
+$body-1-custom-level: mat.m2-define-typography-level(
   $font-family: 'Noto Sans',
   $font-weight: 400,
   $font-size: 14px,
@@ -65,7 +73,7 @@ $body-1-custom-level: mat.define-typography-level(
   $letter-spacing: normal,
 );
 
-$caption-custom-level: mat.define-typography-level(
+$caption-custom-level: mat.m2-define-typography-level(
   $font-family: 'Noto Sans',
   $font-weight: 400,
   $font-size: 12px,
@@ -73,7 +81,7 @@ $caption-custom-level: mat.define-typography-level(
   $letter-spacing: normal
 );
 
-$custom-typography-config: mat.define-typography-config(
+$custom-typography-config: mat.m2-define-typography-config(
     $font-family: 'Noto Sans',
     $button: $button-custom-level,
     $body-1: $body-1-custom-level,
@@ -81,7 +89,7 @@ $custom-typography-config: mat.define-typography-config(
 );
 
 
-$custom-theme: mat.define-light-theme((
+$custom-theme: mat.m2-define-light-theme((
  color: (
     primary: $custom-palette-primary,
     accent: $custom-palette-accent,

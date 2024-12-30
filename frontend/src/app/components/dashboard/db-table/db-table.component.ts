@@ -3,17 +3,35 @@ import { CustomAction, TableForeignKey, TablePermissions, TableRow } from 'src/a
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table-import-dialog.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import { MatChipsModule } from '@angular/material/chips';
 
 interface Column {
   title: string,
@@ -23,7 +41,27 @@ interface Column {
 @Component({
   selector: 'app-db-table',
   templateUrl: './db-table.component.html',
-  styleUrls: ['./db-table.component.css']
+  styleUrls: ['./db-table.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatMenuModule,
+    MatTooltipModule,
+    ClipboardModule,
+    DragDropModule,
+    PlaceholderTableDataComponent
+  ]
 })
 
 export class DbTableComponent implements OnInit {

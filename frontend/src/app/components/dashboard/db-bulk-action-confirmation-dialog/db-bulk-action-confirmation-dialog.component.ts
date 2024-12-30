@@ -1,5 +1,8 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { TablesService } from 'src/app/services/tables.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -8,7 +11,13 @@ import { DbActionLinkDialogComponent } from '../db-action-link-dialog/db-action-
 @Component({
   selector: 'app-db-rows-delete-dialog',
   templateUrl: './db-bulk-action-confirmation-dialog.component.html',
-  styleUrls: ['./db-bulk-action-confirmation-dialog.component.css']
+  styleUrls: ['./db-bulk-action-confirmation-dialog.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule
+  ]
 })
 export class BbBulkActionConfirmationDialogComponent implements OnInit {
 

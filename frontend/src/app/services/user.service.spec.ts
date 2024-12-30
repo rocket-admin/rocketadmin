@@ -1,13 +1,13 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TestBed, async } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { TestBed } from '@angular/core/testing';
 
 import { NotificationsService } from './notifications.service';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { UserService } from './user.service';
-import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('UserService', () => {
   let service: UserService;
@@ -33,11 +33,12 @@ describe('UserService', () => {
 
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         RouterTestingModule,
         MatSnackBarModule
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         UserService,
         {
           provide: NotificationsService,
@@ -47,7 +48,7 @@ describe('UserService', () => {
       ]
     });
 
-    httpMock = TestBed.get(HttpTestingController);
+    httpMock = TestBed.inject(HttpTestingController);
     service = TestBed.inject(UserService);
   });
 

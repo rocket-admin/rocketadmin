@@ -1,4 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -7,7 +10,8 @@ import { DBtype } from 'src/app/models/connection';
 @Component({
   selector: 'app-row-boolean',
   templateUrl: './boolean.component.html',
-  styleUrls: ['./boolean.component.css']
+  styleUrls: ['./boolean.component.css'],
+  imports: [CommonModule, FormsModule, MatButtonToggleModule]
 })
 export class BooleanRowComponent extends BaseRowFieldComponent {
   @Input() value: boolean | number | string | null;

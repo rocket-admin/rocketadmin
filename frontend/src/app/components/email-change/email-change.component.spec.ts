@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from "@angular/router/testing";
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EmailChangeComponent } from './email-change.component';
 import { FormsModule }   from '@angular/forms';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('EmailChangeComponent', () => {
   let component: EmailChangeComponent;
@@ -15,14 +16,13 @@ describe('EmailChangeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes([]),
-        HttpClientTestingModule,
         MatSnackBarModule,
-        FormsModule
+        FormsModule,
+        EmailChangeComponent,
+        BrowserAnimationsModule
       ],
-      declarations: [ EmailChangeComponent ]
-    })
-    .compileComponents();
+      providers: [provideHttpClient(), provideRouter([])]
+    }).compileComponents();
   });
 
   beforeEach(() => {

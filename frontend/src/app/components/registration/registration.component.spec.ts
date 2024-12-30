@@ -3,11 +3,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Angulartics2Module } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { FormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RegistrationComponent } from './registration.component';
-import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
@@ -17,15 +19,18 @@ describe('RegistrationComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
         FormsModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        BrowserAnimationsModule,
+        RegistrationComponent
       ],
-      declarations: [ RegistrationComponent ]
-    })
-    .compileComponents();
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: IPasswordStrengthMeterService, useValue: {} }
+      ]
+    }).compileComponents();
 
     // @ts-ignore
     global.window.gtag = jasmine.createSpy();

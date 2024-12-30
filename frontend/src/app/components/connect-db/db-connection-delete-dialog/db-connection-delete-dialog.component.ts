@@ -1,13 +1,26 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-db-connection-delete-dialog',
   templateUrl: './db-connection-delete-dialog.component.html',
-  styleUrls: ['./db-connection-delete-dialog.component.css']
+  styleUrls: ['./db-connection-delete-dialog.component.css'],
+  imports: [
+    MatDialogModule,
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatRadioModule
+  ]
 })
 export class DbConnectionDeleteDialogComponent implements OnInit {
 

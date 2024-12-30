@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { InviteMemberDialogComponent } from './invite-member-dialog.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { FormsModule } from '@angular/forms';
-import { Angulartics2Module } from 'angulartics2';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
+import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
+import { InviteMemberDialogComponent } from './invite-member-dialog.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('AddMemberDialogComponent', () => {
   let component: InviteMemberDialogComponent;
@@ -13,18 +14,19 @@ describe('AddMemberDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InviteMemberDialogComponent ],
-      imports: [
-        HttpClientTestingModule,
-        MatSnackBarModule,
-        FormsModule,
-        Angulartics2Module.forRoot()
-      ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: { id: '', connections: [] } },
-        { provide: MatDialogRef, useValue: MatDialogRef }
-      ],
-    })
+    imports: [
+      MatSnackBarModule,
+      FormsModule,
+      Angulartics2Module.forRoot(),
+      InviteMemberDialogComponent,
+      BrowserAnimationsModule
+    ],
+    providers: [
+      provideHttpClient(),
+      { provide: MAT_DIALOG_DATA, useValue: { id: '', connections: [] } },
+      { provide: MatDialogRef, useValue: MatDialogRef }
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(InviteMemberDialogComponent);

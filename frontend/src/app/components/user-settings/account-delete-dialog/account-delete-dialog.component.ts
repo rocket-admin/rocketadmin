@@ -1,9 +1,25 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { AccountDeleteConfirmationComponent } from '../account-delete-confirmation/account-delete-confirmation.component';
 
 @Component({
   selector: 'app-account-delete-dialog',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatRadioModule
+  ],
   templateUrl: './account-delete-dialog.component.html',
   styleUrls: ['./account-delete-dialog.component.css']
 })

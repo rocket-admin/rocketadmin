@@ -1,13 +1,30 @@
 import { CompanyMemberRole } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Angulartics2 } from 'angulartics2';
+import { FormsModule } from '@angular/forms';
+import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { NgForOf, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-invite-member-dialog',
   templateUrl: './invite-member-dialog.component.html',
-  styleUrls: ['./invite-member-dialog.component.css']
+  styleUrls: ['./invite-member-dialog.component.css'],
+  standalone: true,
+  imports: [
+    NgIf,
+    NgForOf,
+    FormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule
+  ]
 })
 export class InviteMemberDialogComponent {
   public companyMemberEmail: string;

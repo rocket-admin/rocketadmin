@@ -1,12 +1,29 @@
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
+
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { UserService } from 'src/app/services/user.service';
 import { map } from 'rxjs/operators';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 @Component({
   selector: 'app-email-change',
   templateUrl: './email-change.component.html',
-  styleUrls: ['./email-change.component.css']
+  styleUrls: ['./email-change.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    AlertComponent
+  ]
 })
 export class EmailChangeComponent implements OnInit {
 

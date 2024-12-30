@@ -1,9 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { Connection, ConnectionItem } from 'src/app/models/connection';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { Angulartics2Module } from 'angulartics2';
+import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { PlaceholderConnectionsComponent } from '../skeletons/placeholder-connections/placeholder-connections.component';
+import { RouterModule } from '@angular/router';
 import { UiSettings } from 'src/app/models/ui-settings';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { User } from 'src/app/models/user';
@@ -12,7 +20,17 @@ import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-connections-list',
   templateUrl: './connections-list.component.html',
-  styleUrls: ['./connections-list.component.css']
+  styleUrls: ['./connections-list.component.css'],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    AlertComponent,
+    PlaceholderConnectionsComponent,
+    Angulartics2Module
+  ]
 })
 export class ConnectionsListComponent implements OnInit {
 

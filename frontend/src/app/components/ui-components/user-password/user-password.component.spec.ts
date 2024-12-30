@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
 import { UserPasswordComponent } from './user-password.component';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('UserPasswordComponent', () => {
   let component: UserPasswordComponent;
@@ -9,8 +11,8 @@ describe('UserPasswordComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UserPasswordComponent ],
-      imports: [ FormsModule ]
+      imports: [FormsModule, BrowserAnimationsModule, UserPasswordComponent],
+      providers: [{ provide: IPasswordStrengthMeterService, useValue: {} }]
     })
     .compileComponents();
 

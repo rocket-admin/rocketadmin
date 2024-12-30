@@ -1,14 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
+import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
+import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { FormsModule } from '@angular/forms';
 import { Location } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { PlaceholderTableWidgetsComponent } from '../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
 import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { UIwidgets } from "src/app/consts/field-types";
+import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
 import { normalizeTableName } from 'src/app/lib/normalize';
@@ -16,7 +28,21 @@ import { normalizeTableName } from 'src/app/lib/normalize';
 @Component({
   selector: 'app-db-table-widgets',
   templateUrl: './db-table-widgets.component.html',
-  styleUrls: ['./db-table-widgets.component.css']
+  styleUrls: ['./db-table-widgets.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    RouterModule,
+    AlertComponent,
+    PlaceholderTableWidgetsComponent,
+    BreadcrumbsComponent,
+    WidgetComponent
+  ],
 })
 export class DbTableWidgetsComponent implements OnInit {
 

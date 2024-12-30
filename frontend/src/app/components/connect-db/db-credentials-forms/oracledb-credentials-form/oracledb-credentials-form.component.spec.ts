@@ -3,6 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OracledbCredentialsFormComponent } from './oracledb-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('OracledbCredentialsFormComponent', () => {
   let component: OracledbCredentialsFormComponent;
@@ -10,12 +13,15 @@ describe('OracledbCredentialsFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [OracledbCredentialsFormComponent],
-      imports: [
+    imports: [
         FormsModule,
-        MatCheckboxModule
-      ]
-    })
+        MatCheckboxModule,
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot({}),
+        OracledbCredentialsFormComponent
+    ],
+    providers: [provideHttpClient()]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(OracledbCredentialsFormComponent);

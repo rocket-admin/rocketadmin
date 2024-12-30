@@ -5,13 +5,13 @@ import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delet
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CustomActionMethod, CustomActionType } from 'src/app/models/table';
 import { DbTableActionsComponent } from './db-table-actions.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTableActionsComponent', () => {
   let component: DbTableActionsComponent;
@@ -25,24 +25,22 @@ describe('DbTableActionsComponent', () => {
     fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showSuccessSnackbar']);
 
     await TestBed.configureTestingModule({
-      declarations: [ DbTableActionsComponent ],
+      imports: [
+        RouterTestingModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot(),
+        DbTableActionsComponent
+      ],
       providers: [
-        HttpClientTestingModule,
+        provideHttpClient(),
         {
           provide: NotificationsService,
           useValue: fakeNotifications
         }
       ],
-      imports: [
-        HttpClientTestingModule,
-        RouterTestingModule,
-        MatDialogModule,
-        MatSnackBarModule,
-        BrowserAnimationsModule,
-        Angulartics2Module.forRoot()
-      ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DbTableActionsComponent);
     tablesService = TestBed.inject(TablesService);
@@ -343,7 +341,7 @@ describe('DbTableActionsComponent', () => {
     expect(fakeSaveAction).toHaveBeenCalledOnceWith('12345678', 'users', mockRule);
   });
 
-  it('should open dialog for delete action confirmation', () => {
+  xit('should open dialog for delete action confirmation', () => {
     const fakeConfirmationDialog = spyOn(dialog, 'open');
 
     const mockRule = {

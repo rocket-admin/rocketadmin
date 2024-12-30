@@ -3,9 +3,10 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { EnableTwoFADialogComponent } from './enable-two-fa-dialog.component';
 import { FormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('EnableTwoFADialogComponent', () => {
   let component: EnableTwoFADialogComponent;
@@ -17,21 +18,20 @@ describe('EnableTwoFADialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EnableTwoFADialogComponent ],
       imports: [
-        HttpClientTestingModule,
-        // RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         FormsModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        EnableTwoFADialogComponent,
+        BrowserAnimationsModule
       ],
       providers: [
+        provideHttpClient(),
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },
       ],
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EnableTwoFADialogComponent);
     component = fixture.componentInstance;

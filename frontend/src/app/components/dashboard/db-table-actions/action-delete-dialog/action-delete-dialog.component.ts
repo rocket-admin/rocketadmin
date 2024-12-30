@@ -1,12 +1,15 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 import { TablesService } from 'src/app/services/tables.service';
 
 @Component({
   selector: 'app-action-delete-dialog',
   templateUrl: './action-delete-dialog.component.html',
-  styleUrls: ['./action-delete-dialog.component.css']
+  styleUrls: ['./action-delete-dialog.component.css'],
+  imports: [CommonModule, MatButtonModule, MatDialogModule]
 })
 export class ActionDeleteDialogComponent implements OnInit {
 

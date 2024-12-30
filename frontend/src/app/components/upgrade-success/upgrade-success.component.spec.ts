@@ -11,17 +11,16 @@ describe('UpgradeSuccessComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UpgradeSuccessComponent ],
-      imports: [ MatSnackBarModule ],
-      providers: [
+    imports: [MatSnackBarModule, UpgradeSuccessComponent],
+    providers: [
         { provide: ActivatedRoute, useValue: {
-          snapshot: {queryParams: {
-            plan: 'free'
-          }},
-        }},
+                snapshot: { queryParams: {
+                        plan: 'free'
+                    } },
+            } },
         // { provide: Router, useValue: routerSpy },
-      ],
-    })
+    ],
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(UpgradeSuccessComponent);

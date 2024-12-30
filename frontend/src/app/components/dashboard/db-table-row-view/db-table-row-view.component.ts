@@ -1,12 +1,25 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { TableRow, Widget } from 'src/app/models/table';
+
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { RouterModule } from '@angular/router';
 import { TableStateService } from 'src/app/services/table-state.service';
 
 @Component({
   selector: 'app-db-table-row-view',
   templateUrl: './db-table-row-view.component.html',
-  styleUrls: ['./db-table-row-view.component.css']
+  styleUrls: ['./db-table-row-view.component.css'],
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    ClipboardModule,
+    RouterModule,
+    CommonModule
+  ]
 })
 export class DbTableRowViewComponent implements OnInit {
   @Input() columns: object[];
