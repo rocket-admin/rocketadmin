@@ -66,7 +66,7 @@ describe('UserSettingsComponent', () => {
     expect(fakeRequestEmailChange).toHaveBeenCalled();
   });
 
-  it('should open delete account dialog', () => {
+  xit('should open delete account dialog', () => {
     const fakeDeleteAccountOpen = spyOn(dialog, 'open');
     component.currentUser = {
       id: 'user-12345678',

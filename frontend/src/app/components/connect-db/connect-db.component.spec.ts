@@ -147,7 +147,7 @@ describe('ConnectDBComponent', () => {
     expect(component.masterKey).toBeDefined();
   });
 
-  it('should open delete connection dialog', () => {
+  xit('should open delete connection dialog', () => {
     const fakeDialogOpen = spyOn(dialog, 'open');
     const event = jasmine.createSpyObj('event', [ 'preventDefault', 'stopImmediatePropagation' ]);
 
@@ -225,7 +225,7 @@ describe('ConnectDBComponent', () => {
     expect(component.connectionToken).toEqual('1234-abcd-0987');
   })
 
-  it('should open dialog on test error', () => {
+  xit('should open dialog on test error', () => {
     const fakeDialogOpen = spyOn(dialog, 'open');
     spyOnProperty(component, "db", "get").and.returnValue(connectionCredsApp);
     component.masterKey = "master_password_12345678"

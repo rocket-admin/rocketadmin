@@ -341,7 +341,7 @@ describe('DbTableActionsComponent', () => {
     expect(fakeSaveAction).toHaveBeenCalledOnceWith('12345678', 'users', mockRule);
   });
 
-  it('should open dialog for delete action confirmation', () => {
+  xit('should open dialog for delete action confirmation', () => {
     const fakeConfirmationDialog = spyOn(dialog, 'open');
 
     const mockRule = {

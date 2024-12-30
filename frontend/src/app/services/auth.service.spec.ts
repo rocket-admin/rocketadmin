@@ -2,7 +2,6 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { AlertActionType, AlertType } from '../models/alert';
 
 import { AuthService } from './auth.service';
-import { ConnectionsService } from './connections.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from './notifications.service';
 import { TestBed } from '@angular/core/testing';
