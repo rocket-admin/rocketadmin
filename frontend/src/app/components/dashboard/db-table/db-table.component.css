@@ -135,14 +135,11 @@
 }
 
 .active-filters {
-    margin-bottom: 12px;
-}
-
-.active-filters-list {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 12px;
 }
 
 .empty-table-message {

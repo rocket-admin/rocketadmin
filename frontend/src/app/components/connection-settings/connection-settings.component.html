@@ -127,13 +127,13 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-slide-toggle
+            <mat-slide-toggle name="audit"
                 class="audit-toggle" color="primary"
                 angulartics2On="click"
                 angularticsAction="Connection settings: log recording is toggled"
                 [angularticsProperties]="{'enable': connectionSettings.tables_audit}"
                 [(ngModel)]="connectionSettings.tables_audit">
-                Record changes in tables
+                Log changes in tables
             </mat-slide-toggle>
         </div>
         <div *ngIf="accessLevel !== 'readonly'" class="actions">

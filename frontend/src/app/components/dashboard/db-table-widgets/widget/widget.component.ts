@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Widget } from 'src/app/models/table';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-widget',
@@ -18,6 +19,7 @@ import { Widget } from 'src/app/models/table';
     MatInputModule,
     MatSelectModule,
     MatIconModule,
+    MatButtonModule,
     CodeEditorModule
   ],
   templateUrl: './widget.component.html',

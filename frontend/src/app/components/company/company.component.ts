@@ -23,12 +23,14 @@ import { MatTableModule } from '@angular/material/table';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-company',
   templateUrl: './company.component.html',
   styleUrls: ['./company.component.css'],
   imports: [
+    NgIf,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -185,19 +187,19 @@ export class CompanyComponent {
     });
   }
 
-  switchSuspendance(value: boolean, memberEmail: string) {
-    console.log(value, memberEmail);
+  switchSuspendance(isSuspendance: boolean, memberEmail: string) {
+    console.log(isSuspendance, memberEmail);
     this.submittingUsersChange = true;
-    if (value) {
-      this._company.restoreCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
-        this.angulartics2.eventTrack.next({
-          action: 'Company: member is restored',
-        });
-      });
-    } else {
+    if (isSuspendance) {
       this._company.suspendCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
         this.angulartics2.eventTrack.next({
           action: 'Company: member is suspended',
+        });
+      });
+    } else {
+      this._company.restoreCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
+        this.angulartics2.eventTrack.next({
+          action: 'Company: member is restored',
         });
       });
     }

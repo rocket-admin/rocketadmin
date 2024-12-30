@@ -24,6 +24,8 @@ import { RouterModule } from '@angular/router';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-db-table-settings',
@@ -34,6 +36,8 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     FormsModule,
     RouterModule,
     DragDropModule,
+    MatButtonModule,
+    MatSlideToggleModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,

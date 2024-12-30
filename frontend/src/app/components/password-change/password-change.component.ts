@@ -10,12 +10,13 @@ import { Router } from '@angular/router';
 import { User } from 'src/app/models/user';
 import { UserPasswordComponent } from '../ui-components/user-password/user-password.component';
 import { UserService } from 'src/app/services/user.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-password-change',
   templateUrl: './password-change.component.html',
   styleUrls: ['./password-change.component.css'],
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, AlertComponent, UserPasswordComponent],
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, AlertComponent, UserPasswordComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PasswordChangeComponent implements OnInit {

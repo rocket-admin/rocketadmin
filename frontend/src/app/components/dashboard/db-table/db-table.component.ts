@@ -31,6 +31,7 @@ import { TableStateService } from 'src/app/services/table-state.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import { MatChipsModule } from '@angular/material/chips';
 
 interface Column {
   title: string,
@@ -51,6 +52,7 @@ interface Column {
     MatButtonModule,
     MatIconModule,
     MatCheckboxModule,
+    MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,

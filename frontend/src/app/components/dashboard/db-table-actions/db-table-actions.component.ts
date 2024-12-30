@@ -30,6 +30,7 @@ import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -39,6 +40,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     CommonModule,
     FormsModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatDialogModule,
     MatIconModule,
     MatInputModule,

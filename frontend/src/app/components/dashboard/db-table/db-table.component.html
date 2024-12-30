@@ -147,21 +147,13 @@
 </div>
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0" class="active-filters">
-    <mat-chip-list class="active-filters-list"
-        cdkDropList
-        cdkDropListOrientation="horizontal">
-        <mat-chip
-            cdkDrag
-            *ngFor="let activeFilter of activeFilters | keyvalue"
-            (removed)="removeFilter.emit(activeFilter.key)"
-            >
-            {{ getFilter(activeFilter) }}
-            <button matChipRemove>
-                <mat-icon>cancel</mat-icon>
-            </button>
-        </mat-chip>
-        <button mat-button color="warn" class="active-filters-reset-button" *ngIf="getFiltersCount(activeFilters) > 1" (click)="resetAllFilters.emit()">Reset filters</button>
-    </mat-chip-list>
+    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
+        (removed)="removeFilter.emit(activeFilter.key)">
+        {{ getFilter(activeFilter) }}
+        <button matChipRemove>
+            <mat-icon>cancel</mat-icon>
+        </button>
+    </mat-chip-row>
 </div>
 
 <div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">

@@ -6,12 +6,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupAddDialogComponent } from '../group-add-dialog/group-add-dialog.component';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-group-name-edit-dialog',
   templateUrl: './group-name-edit-dialog.component.html',
   styleUrls: ['./group-name-edit-dialog.component.css'],
   imports: [
+    NgIf,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,

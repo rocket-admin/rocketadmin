@@ -11,11 +11,11 @@ import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-d
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgClass } from '@angular/common';
+import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
 import { PlaceholderUserGroupComponent } from '../skeletons/placeholder-user-group/placeholder-user-group.component';
 import { PlaceholderUserGroupsComponent } from '../skeletons/placeholder-user-groups/placeholder-user-groups.component';
@@ -28,11 +28,14 @@ import { UsersService } from '../../services/users.service';
 @Component({
   selector: 'app-users',
   imports: [
+    NgIf,
+    NgForOf,
     NgClass,
     MatButtonModule,
     MatIconModule,
     MatListModule,
     MatExpansionModule,
+    MatAccordion,
     MatTooltipModule,
     Angulartics2OnModule,
     PlaceholderUserGroupsComponent,

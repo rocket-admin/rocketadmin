@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { NgForOf, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-invite-member-dialog',
@@ -15,6 +16,8 @@ import { MatSelectModule } from '@angular/material/select';
   styleUrls: ['./invite-member-dialog.component.css'],
   standalone: true,
   imports: [
+    NgIf,
+    NgForOf,
     FormsModule,
     MatDialogModule,
     MatFormFieldModule,

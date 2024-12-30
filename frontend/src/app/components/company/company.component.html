@@ -114,8 +114,10 @@
                         Member
                     </mat-option>
                 </mat-select>
-                <ng-template #noSelect attr.data-testid="company-member-user-role-{{i}}-cell">
-                    {{element.role === "ADMIN" ? 'Superadmin' : 'Member'}}
+                <ng-template #noSelect>
+                    <span attr.data-testid="company-member-user-role-{{i}}-cell">
+                        {{element.role === "ADMIN" ? 'Superadmin' : 'Member'}}
+                    </span>
                 </ng-template>
             </td>
         </ng-container>

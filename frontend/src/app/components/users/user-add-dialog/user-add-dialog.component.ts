@@ -11,12 +11,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { PlaceholderAddUserDialogComponent } from '../../skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
+import { NgForOf, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-user-add-dialog',
   templateUrl: './user-add-dialog.component.html',
   styleUrls: ['./user-add-dialog.component.css'],
   imports: [
+    NgIf,
+    NgForOf,
     MatDialogModule,
     FormsModule,
     MatFormFieldModule,

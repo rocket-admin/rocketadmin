@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UserService } from 'src/app/services/user.service';
 import { AlertComponent } from '../ui-components/alert/alert.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-password-request',
@@ -20,6 +21,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatButtonModule,
     AlertComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

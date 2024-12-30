@@ -8,10 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { UsersService } from 'src/app/services/users.service';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-group-add-dialog',
   imports: [
+    NgIf,
     FormsModule,
     MatDialogModule,
     MatFormFieldModule,
