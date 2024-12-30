@@ -259,15 +259,13 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-
-
     return this._http.post('/connection', dbCredentials, {
       headers: masterKey ? {
         masterpwd: masterKey
       } : {}
     })
     .pipe(
-      map((res: Connection) => {
+      map((res: any) => {
         this._masterPassword.checkMasterPassword(connection.masterEncryption, res.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection was added successfully.');
         return res;
