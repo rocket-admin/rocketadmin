@@ -23,6 +23,8 @@ import { normalizeTableName } from '../../lib/normalize'
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { PlaceholderConnectionSettingsComponent } from '../skeletons/placeholder-connection-settings/placeholder-connection-settings.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
+import { ZapierComponent } from './zapier/zapier.component';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-connection-settings',
@@ -30,6 +32,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
   styleUrls: ['./connection-settings.component.css'],
   imports: [
     CommonModule,
+    MatTabsModule,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -41,7 +44,8 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
     BannerComponent,
     PlaceholderConnectionSettingsComponent,
     AlertComponent,
-    Angulartics2Module
+    Angulartics2Module,
+    ZapierComponent
   ]
 })
 export class ConnectionSettingsComponent implements OnInit, OnDestroy {

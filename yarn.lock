@@ -4890,6 +4890,7 @@ __metadata:
     eslint-plugin-security: 3.0.1
     express: 4.21.2
     express-rate-limit: 7.4.1
+    fetch-blob: ^4.0.0
     helmet: 8.0.0
     ibm_db: ^3.3.0
     ip-range-check: 0.2.0
@@ -7330,6 +7331,15 @@ __metadata:
   version: 4.2.3
   resolution: "fecha@npm:4.2.3"
   checksum: f94e2fb3acf5a7754165d04549460d3ae6c34830394d20c552197e3e000035d69732d74af04b9bed3283bf29fe2a9ebdcc0085e640b0be3cc3658b9726265e31
+  languageName: node
+  linkType: hard
+
+"fetch-blob@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "fetch-blob@npm:4.0.0"
+  dependencies:
+    node-domexception: ^1.0.0
+  checksum: 6ce7f3d666561d454a9e679ca842f5b749bae2c38af22ede4cb501afe84cbee11dbc0d032811f2594d33eeaa846d59c3d917524ff5c43b1bcfaaaa2e0ccaed55
   languageName: node
   linkType: hard
 
@@ -10429,7 +10439,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-domexception@npm:1.0.0":
+"node-domexception@npm:1.0.0, node-domexception@npm:^1.0.0":
   version: 1.0.0
   resolution: "node-domexception@npm:1.0.0"
   checksum: ee1d37dd2a4eb26a8a92cd6b64dfc29caec72bff5e1ed9aba80c294f57a31ba4895a60fd48347cf17dd6e766da0ae87d75657dfd1f384ebfa60462c2283f5c7f
