@@ -1,3 +1,5 @@
+import * as ipaddr from 'ipaddr.js';
+
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
@@ -38,6 +40,8 @@ import { Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
+import googlIPsList from 'src/app/consts/google-IP-addresses';
+import isIP from 'validator/lib/isIP';
 
 @Component({
   selector: 'app-connect-db',
@@ -229,6 +233,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       width: '25em',
       data: {
         dbCreds: this.db,
+        provider: this.getProvider(),
         masterKey: this.masterKey,
         errorMessage
       }
@@ -267,7 +272,10 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     if (this.db.connectionType === 'direct') {
       const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
         width: '36em',
-        data: this.db
+        data: {
+          db: this.db,
+          provider: this.getProvider()
+        }
       });
 
       ipAddressDilaog.afterClosed().subscribe( async (action) => {
@@ -327,5 +335,23 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   handleMasterKeyChange(newMasterKey: string): void {
     this.masterKey = newMasterKey;
+  }
+
+  getProvider() {
+    let provider: string = null;
+    if (this.db.host.endsWith('.amazonaws.com')) provider = 'amazon';
+    if (this.db.host.endsWith('.azure.com')) provider = 'azure';
+    if (this.db.host.endsWith('.mongodb.net')) provider = 'mongoatlas';
+    if (this.db.host.endsWith('.ondigitalocean.com')) provider = 'digitalocean';
+    if(isIP(this.db.host)) {
+      const hostIP = ipaddr.parse(this.db.host);
+      for (const addr of googlIPsList) {
+        if (hostIP.match(ipaddr.parseCIDR(addr))) {
+          provider = 'google';
+          return;
+        }
+      }
+    }
+    return provider;
   }
 }

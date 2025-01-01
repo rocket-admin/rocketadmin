@@ -4,6 +4,7 @@ import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 import { ExistingAuthUser } from 'src/app/models/user';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +32,8 @@ declare var google: any;
     MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    EmailValidationDirective
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

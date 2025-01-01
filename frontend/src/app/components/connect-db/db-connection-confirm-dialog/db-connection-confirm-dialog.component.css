@@ -3,3 +3,15 @@
     align-items: flex-end;
     gap: 12px;
 }
+
+.link {
+    display: inline-block;
+    color: var(--color-primaryPalette-500);
+    margin-top: 15px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .link {
+        color: #fff;
+    }
+}

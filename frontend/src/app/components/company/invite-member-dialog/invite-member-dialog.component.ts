@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { NgForOf, NgIf } from '@angular/common';
+import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 
 @Component({
   selector: 'app-invite-member-dialog',
@@ -23,7 +24,8 @@ import { NgForOf, NgIf } from '@angular/common';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatButtonModule
+    MatButtonModule,
+    EmailValidationDirective
   ]
 })
 export class InviteMemberDialogComponent {

@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UserService } from 'src/app/services/user.service';
-import { AlertComponent } from '../ui-components/alert/alert.component';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-password-request',
@@ -22,6 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    EmailValidationDirective,
     AlertComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
