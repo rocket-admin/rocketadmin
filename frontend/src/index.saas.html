@@ -114,6 +114,13 @@
       overflow: hidden;
       width: 100vw;
     }
+
+    @media(prefers-color-scheme: dark) {
+      .initialLoader {
+        background-color: #303030;
+      }
+    }
+
     #lottie {
         background-color:#ffffff;
         width:100%;
@@ -123,6 +130,16 @@
         transform: translate3d(0,0,0);
         text-align: center;
         opacity: 1;
+    }
+
+    @media(prefers-color-scheme: dark) {
+      #lottie {
+        background-color: #303030;
+      }
+
+      #lottie svg rect {
+        fill: #303030;
+      }
     }
 </style>
 </head>
