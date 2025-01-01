@@ -82,7 +82,7 @@
     width: max(calc(45vw - 260px), 2%);
 }
 
-@media (width <= 600px) {
+@media (width <= 1280px) {
     .related-views {
         position: initial;
         height: auto;
