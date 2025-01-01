@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
+import { NgIf } from '@angular/common';
 import { base64Validation } from 'src/app/validators/base64.validator';
 import { hexValidation } from 'src/app/validators/hex.validator';
 
@@ -26,6 +27,7 @@ enum FileType {
   templateUrl: './file.component.html',
   styleUrls: ['./file.component.css'],
   imports: [
+    NgIf,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
