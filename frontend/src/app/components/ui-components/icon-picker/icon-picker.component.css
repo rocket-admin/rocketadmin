@@ -1,5 +1,17 @@
 .anchor-icon-button {
-    background-color: var(--color-primaryPalette-100);
+    background-color: var(--bg-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    .anchor-icon-button {
+        --bg-color: #292929;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .anchor-icon-button {
+        --bg-color: var(--color-primaryPalette-100);
+    }
 }
 
 .icons-menu {

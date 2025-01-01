@@ -205,11 +205,36 @@
 }
 
 .db-table ::ng-deep .db-table-row:hover {
-    background-color: var(--color-primaryPalette-50);
+    background-color: var(--hover-color) !important;
+}
+
+
+@media (prefers-color-scheme: dark) {
+    .db-table ::ng-deep .db-table-row:hover {
+        --hover-color: var(--color-primaryPalette-800);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .db-table ::ng-deep .db-table-row:hover {
+        --hover-color: var(--color-primaryPalette-50);
+    }
 }
 
 .db-table-row_selected {
-    background-color: var(--color-primaryPalette-100);
+    background-color: var(--selected-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    .db-table-row_selected {
+        --selected-color: var(--color-primaryPalette-900);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .db-table-row_selected {
+        --selected-color: var(--color-primaryPalette-100);
+    }
 }
 
 @media (width <= 600px) {
@@ -249,7 +274,7 @@
 .db-table ::ng-deep .mat-mdc-footer-cell {
     border-bottom-width: 1px;
     border-bottom-style: solid;
-    border-bottom-color: rgba(0, 0, 0, 0.12);
+    border-bottom-color: var(--mat-table-row-item-outline-color);
     padding-right: 24px;
     min-height: 36px;
 }
@@ -379,7 +404,19 @@ th.mat-header-cell, td.mat-cell {
     top: 50%;
     display: none;
     transform: translate(0, -50%) scale(0.85);
-    background-color: var(--color-primaryPalette-50);
+    background-color: var(--hover-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    .field-value-copy-button {
+        --hover-color: var(--color-primaryPalette-800);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .field-value-copy-button {
+        --hover-color: var(--color-primaryPalette-50);
+    }
 }
 
 .db-table-cell:hover .field-value-copy-button {

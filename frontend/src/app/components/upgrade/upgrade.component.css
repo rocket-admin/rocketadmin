@@ -49,7 +49,7 @@
     flex-direction: column;
     align-items: flex-start;
     border-radius: 12px;
-    color: rgba(0, 0, 0, 0.87);
+    color: var(--mat-sidenav-content-text-color);
     padding: 1.5em;
 }
 
@@ -87,13 +87,41 @@
 }
 
 .per {
-    color: rgba(0, 0, 0, 0.54);
+    color: var(--color-value);
 }
 
-.period {
+@media (prefers-color-scheme: dark) {
+    .per {
+        --color-value: rgba(255, 255, 255, 0.46);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .per {
+        --color-value: rgba(0, 0, 0, 0.54);
+    }
+}
+
+.users {
     font-weight: 400;
     margin-top: 0.25em;
     margin-bottom: 2em;
+}
+
+.users__value {
+    color: var(--color-value);
+}
+
+@media (prefers-color-scheme: dark) {
+    .users__value {
+        --color-value: #fff;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .users__value {
+        --color-value: #333;
+    }
 }
 
 .current {

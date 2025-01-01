@@ -57,11 +57,20 @@
 .warningMessage {
     display: flex;
     align-items: center;
-    /* border: 2px solid rgba(0, 0, 0, 0.87); */
-    /* border-radius: 6px; */
-    background: #F5F5F5;
     margin-bottom: 8px;
     padding: 16px 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .warningMessage {
+        background: #424242;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .warningMessage {
+        background: #F5F5F5;
+    }
 }
 
 .warningMessage__icon {

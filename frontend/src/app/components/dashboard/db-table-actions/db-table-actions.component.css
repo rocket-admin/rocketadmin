@@ -111,7 +111,8 @@
 
 .text_highlighted {
     background: var(--color-accentedPalette-100);
-    margin-bottom: 0;
+    color: var(--color-accentedPalette-100-contrast);
+    margin-bottom: 0 !important;
     padding: 4px;
 }
 
@@ -237,7 +238,7 @@
 }
 
 .event__or {
-    margin-top: -22px;
+    margin-top: -22px !important;
 }
 
 .event__removeButton {

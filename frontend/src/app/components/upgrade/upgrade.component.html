@@ -31,9 +31,9 @@
                         <div>
                             <span class="price">${{ plan.price }}</span><span class="per">/monthly</span>
                         </div>
-                        <span class="per period">
-                            <span *ngIf="plan.price !== 0">per each <strong style="color: #333">10 users</strong></span>
-                            <span *ngIf="plan.price === 0">up to <strong style="color: #333">3 users</strong></span>
+                        <span class="per users">
+                            <span *ngIf="plan.price !== 0">per each <strong class="users__value">10 users</strong></span>
+                            <span *ngIf="plan.price === 0">up to <strong class="users__value">3 users</strong></span>
                         </span>
                         <button mat-flat-button color="accent"
                             *ngIf="plan.key === currentPlan.key; else activeButton"

@@ -23,7 +23,7 @@
 }
 
 .banner-box {
-    background-color: #F4F4F4;
+    background-color: var(--bg-color);
     border-left: 12px solid var(--alert-theme-color);
     border-radius: 4px;
     box-shadow:
@@ -32,6 +32,18 @@
         0px 2px 4px 0px rgba(0, 0, 0, 0.14);
     padding: 24px 20px 24px 28px;
     width: clamp(300px, 50vw, 450px);
+}
+
+@media (prefers-color-scheme: dark) {
+    .banner-box {
+        --bg-color: #292929;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .banner-box {
+        --bg-color: #F4F4F4;
+    }
 }
 
 .banner-box ::ng-deep .error-actions {

@@ -96,15 +96,15 @@
 }
 
 .order-item {
-    background: white;
-    color: rgba(0, 0, 0, 0.87);
+    background: var(--mat-expansion-container-background-color);
+    color: var(--mat-expansion-container-text-color);
     box-sizing: border-box;
     cursor: move;
     padding: 20px 12px;
 }
 
 .order-item:not(:last-child) {
-    border-bottom: solid 1px #ccc;
+    border-bottom: solid 1px var(--mat-table-row-item-outline-color);
 }
 
 .cdk-drag-preview {
@@ -156,11 +156,23 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #fff;
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    background-color: var(--mat-sidenav-content-background-color);
+    box-shadow: var(--shadow);
     height: 64px;
     padding: 0 max(calc(50vw - 325px), 10%);
     width: 100vw;
+}
+
+@media (prefers-color-scheme: dark) {
+    .actions {
+        --shadow: 0 3px 1px -2px rgba(0,0,0,.5),0 2px 2px 0 rgba(0,0,0,.64),0 1px 5px 0 rgba(0,0,0,0.85);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .actions {
+        --shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    }
 }
 
 .settings-form__back-button {

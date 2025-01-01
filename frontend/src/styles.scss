@@ -49,13 +49,35 @@ body {
     bottom: 0;
     left: 0;
     transform: translateX(-100%);
-    background-image: linear-gradient(
-        90deg,
-        transparent 40%,
-        rgba(255,255,255, 1),
-        transparent 60%
-    );
+    // background-image: linear-gradient(
+    //     90deg,
+    //     transparent 40%,
+    //     rgba(255,255,255, 1),
+    //     transparent 60%
+    // );
     animation: shimmer 1000ms ease-in-out infinite alternate;
+}
+
+@media (prefers-color-scheme: light) {
+    .skeleton::after {
+        background-image: linear-gradient(
+            90deg,
+            transparent 40%,
+            var(--mat-sidenav-content-background-color, #fff),
+            transparent 60%
+        );
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .skeleton::after {
+        background-image: linear-gradient(
+            90deg,
+            transparent 40%,
+            var(--mat-sidenav-content-background-color, #303030),
+            transparent 60%
+        );
+    }
 }
 
 @keyframes shimmer {
