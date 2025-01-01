@@ -98,7 +98,7 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #fff;
+    background-color: var(--mat-sidenav-content-background-color);
     font-size: 14px;
     padding: 0 16px;
 }
@@ -145,8 +145,8 @@
     height: 85vh;
 }
 
-.agreement {
-    margin-top: auto;
+.register-form .agreement {
+    margin-top: auto !important;
 }
 
 .link {

@@ -1,8 +1,13 @@
 .main-menu-container {
     display: flex;
     flex-direction: column;
-    background: #fff;
     height: 100vh;
+}
+
+@media (prefers-color-scheme: light) {
+    .main-menu-container {
+        --mat-sidenav-content-background-color: #fff;
+    }
 }
 
 .main-menu-sidenav {
@@ -84,6 +89,8 @@
 }
 
 .nav-bar__upgrade-button {
+    --mdc-filled-button-label-text-color: #424242;
+    --mdc-filled-button-container-color: #fff;
     --mdc-filled-button-container-height: 28px;
 
     margin-right: -8px;
@@ -275,4 +282,10 @@
 .user-email {
     color: rgba(0, 0, 0, 0.54);
     font-size: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .user-email {
+        color: rgba(255, 255, 255, 0.7);
+    }
 }

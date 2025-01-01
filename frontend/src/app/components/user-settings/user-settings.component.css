@@ -42,7 +42,7 @@
 }
 
 .user-settings__value {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
 }
 
 .twoFA-toggle {
@@ -85,6 +85,18 @@
 
 .api-key-list-item:hover {
     background: var(--color-primaryPalette-50);
+}
+
+@media (prefers-color-scheme: dark) {
+    .api-key-list-item:hover {
+        background: var(--color-primaryPalette-500);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .api-key-list-item:hover {
+        background: var(--color-primaryPalette-50);
+    }
 }
 
 .api-key {
