@@ -4,7 +4,7 @@
         Please make sure our servers are able to access your database. Rocketadmin uses <app-ip-address-button ip="18.221.81.73"></app-ip-address-button> IP address for all outbound requests.
     </p>
     <br>
-    <div *ngIf="provider === 'amazon'" class="mat-body">
+    <div *ngIf="data.provider === 'amazon'" class="mat-body">
         <strong>Setup VPC security groups.</strong>
         <ol class="rules">
             <li>Open the Amazon RDS <strong>console</strong>.</li>
@@ -22,7 +22,7 @@
             <li>Click <strong>Save</strong>.</li>
         </ol>
     </div>
-    <div *ngIf="provider === 'azure'" class="mat-body">
+    <div *ngIf="data.provider === 'azure'" class="mat-body">
         <strong>Setup firewall rules.</strong>
         <ol class="rules">
             <li>Open your database overview and select <strong>Networking</strong> from the navigation pane.</li>
@@ -35,7 +35,7 @@
             <li>Click <strong>Save</strong>.</li>
         </ol>
     </div>
-    <div *ngIf="provider === 'google'" class="mat-body">
+    <div *ngIf="data.provider === 'google'" class="mat-body">
         <strong>Setup authorized networks</strong>
         <ol class="rules">
             <li>Open your instance overview and select <strong>Connections</strong> from the navigation pane.</li>
@@ -46,21 +46,21 @@
             <li>Click <strong>Done</strong> and then <strong>Save</strong> to update the instance.</li>
         </ol>
     </div>
-    <ng-container *ngIf="provider === null">
-        <div *ngIf="db.type === 'postgres'" class="mat-body">
+    <ng-container *ngIf="data.provider === null">
+        <div *ngIf="data.db.type === 'postgres'" class="mat-body">
             Give privileges to a user:
             <div class="codeSnippet">
                 <code class="code">
-                    <pre>GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;</pre>
-                    <pre>ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot; GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;</pre>
-                    <pre>GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA "public" TO &quot;{{db.username}}&quot;;</pre>
+                    <pre>GRANT CONNECT ON DATABASE &quot;{{data.db.database}}&quot; TO &quot;{{data.db.username}}&quot;;</pre>
+                    <pre>ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{data.db.schema || 'public'}}&quot; GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{data.db.username}}&quot;;</pre>
+                    <pre>GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA "public" TO &quot;{{data.db.username}}&quot;;</pre>
 
                 </code>
                 <button type="button" mat-icon-button
                     matTooltip="Copy the command."
-                    cdkCopyToClipboard="GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;
-ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot; GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{db.schema || 'public'}}&quot; TO &quot;{{db.username}}&quot;;"
+                    cdkCopyToClipboard="GRANT CONNECT ON DATABASE &quot;{{data.db.database}}&quot; TO &quot;{{data.db.username}}&quot;;
+ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{data.db.schema || 'public'}}&quot; GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{data.db.username}}&quot;;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{data.db.schema || 'public'}}&quot; TO &quot;{{data.db.username}}&quot;;"
                     (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
                     <mat-icon>content_copy</mat-icon>
                 </button>
@@ -81,16 +81,16 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{db.schema |
             </div>
         </div>
 
-        <div *ngIf="db.type === 'mysql'" class="mat-body">
+        <div *ngIf="data.db.type === 'mysql'" class="mat-body">
             Give privileges to user and allow to connect: <br/>
 
             <div class="codeSnippet">
                 <code class="code">
-                    <pre>GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`&#64;`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;</pre>
+                    <pre>GRANT ALL PRIVILEGES ON {{data.db.database}} TO `{{data.db.username}}`&#64;`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;</pre>
                 </code>
                 <button type="button" mat-icon-button
                     matTooltip="Copy the command."
-                    cdkCopyToClipboard="GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;"
+                    cdkCopyToClipboard="GRANT ALL PRIVILEGES ON {{data.db.database}} TO `{{data.db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;"
                     (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
                     <mat-icon>content_copy</mat-icon>
                 </button>
@@ -111,7 +111,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{db.schema |
             </div>
         </div>
 
-        <div *ngIf="db.type === 'oracledb'" class="mat-body">
+        <div *ngIf="data.db.type === 'oracledb'" class="mat-body">
             <p>
                 Start the SQL PLUS Command Line and connect to the database as user SYSTEM.
                 Provide the SYSTEM password that you assigned upon installation (Windows) or
@@ -133,15 +133,26 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{db.schema |
     </ng-container>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-    <button *ngIf="provider === null" mat-button mat-dialog-close mat-dialog-close>Cancel</button>
-    <a *ngIf="provider === 'amazon'" mat-button href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.create-cluster.console.configure-inbound-rules.html">
-        Learn more
+    <button *ngIf="data.provider === null" mat-button mat-dialog-close mat-dialog-close>Cancel</button>
+    <a *ngIf="data.provider === 'amazon'" mat-button target="_blank"
+        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_mysql">
+        Learn more for AWS
     </a>
-    <a *ngIf="provider === 'azure'" mat-button href="https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal">
-        Learn more
+    <a *ngIf="data.provider === 'azure'" mat-button target="_blank"
+        href="https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal">
+        Learn more for Azure
     </a>
-    <a *ngIf="provider === 'google'" mat-button href="https://cloud.google.com/sql/docs/mysql/authorize-networks#console">
-        Learn more
+    <a *ngIf="data.provider === 'google'" mat-button target="_blank"
+        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_google_cloud">
+        Learn more for Google Cloud
+    </a>
+    <a *ngIf="data.provider === 'mongoatlas'" mat-button target="_blank"
+        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_mongo_atlas">
+        Learn more for MongoDB Atlas
+    </a>
+    <a *ngIf="data.provider === 'digitalocean'" mat-button target="_blank"
+        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql">
+        Learn more for DigitalOcean
     </a>
     <button mat-flat-button color="primary"
         mat-dialog-close="confirmed">

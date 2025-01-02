@@ -250,7 +250,7 @@ export class TablesDataSource implements DataSource<Object> {
                 {
                   type: AlertActionType.Anchor,
                   caption: 'Instruction',
-                  to: 'https://help.rocketadmin.com/'
+                  to: 'https://docs.rocketadmin.com/'
                 }
               ]
             }

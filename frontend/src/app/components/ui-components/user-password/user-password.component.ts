@@ -6,12 +6,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PasswordStrengthMeterComponent } from 'angular-password-strength-meter';
+import { PasswordValidationDirective } from 'src/app/directives/passwordValidator.directive';
 
 @Component({
   selector: 'app-user-password',
   templateUrl: './user-password.component.html',
   styleUrls: ['./user-password.component.css'],
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatIconModule, PasswordStrengthMeterComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    PasswordValidationDirective,
+    PasswordStrengthMeterComponent
+  ]
 })
 export class UserPasswordComponent implements OnInit {
 

@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { CommonModule } from '@angular/common';
+import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,6 +23,7 @@ import { map } from 'rxjs/operators';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    EmailValidationDirective,
     AlertComponent
   ]
 })
