@@ -1,6 +1,7 @@
 import { AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, Component, NgZone, OnInit } from '@angular/core';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -33,7 +34,8 @@ declare var google: any;
     MatSelectModule,
     MatIconModule,
     MatButtonModule,
-    EmailValidationDirective
+    EmailValidationDirective,
+    AlertComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
