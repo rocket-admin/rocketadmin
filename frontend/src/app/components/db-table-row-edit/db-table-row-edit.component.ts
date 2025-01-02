@@ -209,7 +209,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.identityColumn = res.identity_column;
 
             if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns.length > 0 && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
-              this.isDesktop = window.innerWidth >= 600;
+              this.isDesktop = window.innerWidth >= 1280;
 
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {...table, displayTableName: table.display_name || normalizeTableName(table.table_name)}});
