@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { UrlValidatorDirective } from 'src/app/directives/url-validator.directive';
 
 @Component({
   selector: 'app-image',
@@ -14,7 +15,8 @@ import { MatInputModule } from '@angular/material/input';
     CommonModule,
     FormsModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    UrlValidatorDirective
   ]
 })
 export class ImageRowComponent extends BaseRowFieldComponent {

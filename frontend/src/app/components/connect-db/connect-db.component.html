@@ -193,47 +193,16 @@
                 <p class="mat-body-1">
                     Once the installation is successfully completed, the new connection will appear in the list of your admin panels.
                 </p>
+
+                <a mat-stroked-button color="accent"
+                    href="https://docs.rocketadmin.com/Create%20connections/Agent%20connection/agent_connection"
+                    target="_blank"
+                    data-testid="connection-agent-instruction-link"
+                    angulartics2On="click"
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: open agent connection instruction">
+                    Check out the complete guide
+                </a>
             </div>
-
-
-
-
-            <!--<h2 class="mat-h2">Installation via Docker</h2>-->
-
-            <!--<ol class="instruction-steps">
-                <li class="instruction-step">
-                    Install Docker. On Linux, please install
-                    <a href="https://docs.docker.com/compose/install/" target="_blank"
-                        class="instruction-step__link">
-                        Docker Compose
-                    </a>
-                    as well.<br/>
-                    Note: Docker Desktop on Windows and MacOS already include Docker Compose.
-                </li>
-                <li class="instruction-step">
-                    Create <strong>docker-compose.yml</strong> file.
-                    Copy and paste configuration from
-                    <a href="https://github.com/rocket-admin/rocketadmin-agent/blob/master/docker-compose.yml" target="_blank"
-                        class="instruction-step__link">
-                        (source file)
-                    </a>
-                    or download this file.
-                </li>
-                <li class="instruction-step">
-                    Create <strong>.config.env</strong> file in the same directory. Copy and paste the contents of
-                    <a href="https://github.com/rocket-admin/rocketadmin-agent/blob/master/.config.env" target="_blank"
-                        class="instruction-step__link">
-                        (source file)
-                    </a> or download this file.
-                </li>
-                <li class="instruction-step">
-                    Open <strong>.config.env</strong> file and specify all required credentials.
-                </li>
-                <li class="instruction-step">
-                    Open Terminal app and run:
-                    <code class="instruction-command">docker-compose up --build</code>
-                </li>
-            </ol>-->
 
             <div *ngIf="connectionToken" class="agent-token">
                 <mat-form-field appearance="outline" style="width:100%">

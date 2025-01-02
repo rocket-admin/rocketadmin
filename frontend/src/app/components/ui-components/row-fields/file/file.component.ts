@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
+import { Base64ValidationDirective } from 'src/app/directives/base64Validator.directive';
 import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 import { FormsModule } from '@angular/forms';
+import { HexValidationDirective } from 'src/app/directives/hexValidator.directive';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -32,7 +34,9 @@ enum FileType {
     MatFormFieldModule,
     MatInputModule,
     MatRadioModule,
-    MatButtonModule
+    MatButtonModule,
+    HexValidationDirective,
+    Base64ValidationDirective
   ]
 })
 export class FileRowComponent extends BaseRowFieldComponent {

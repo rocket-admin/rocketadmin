@@ -34,6 +34,12 @@
     margin-right: 20px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .file-name {
+        color: rgba(255, 255, 255, 0.5);
+    }
+}
+
 .upload-btn {
     margin-right: 12px;
 }
