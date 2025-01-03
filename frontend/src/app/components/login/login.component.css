@@ -73,7 +73,7 @@
     }
 }
 
-.loginTitle {
+.login-header .loginTitle {
     font-weight: 600;
     margin-bottom: 40px;
     text-align: center;
