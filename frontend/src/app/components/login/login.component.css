@@ -73,10 +73,10 @@
     }
 }
 
-.login-header .loginTitle {
-    font-weight: 600;
-    margin-bottom: 40px;
-    text-align: center;
+.loginTitle {
+    font-weight: 600 !important;
+    margin-bottom: 40px !important;
+    text-align: center !important;
 }
 
 .loginTitle__emphasis {

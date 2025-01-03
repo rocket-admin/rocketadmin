@@ -15,9 +15,9 @@
 }
 
 .registrationTitle {
-    font-weight: 700;
-    margin-top: -4px;
-    margin-bottom: 32px;
+    font-weight: 700 !important;
+    margin-top: -4px !important;
+    margin-bottom: 32px !important;
 }
 
 .registrationTitle_mobile {
