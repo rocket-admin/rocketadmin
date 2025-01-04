@@ -74,9 +74,9 @@
 }
 
 .loginTitle {
-    font-weight: 600;
-    margin-bottom: 40px;
-    text-align: center;
+    font-weight: 600 !important;
+    margin-bottom: 40px !important;
+    text-align: center !important;
 }
 
 .loginTitle__emphasis {

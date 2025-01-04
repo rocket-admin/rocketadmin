@@ -1,35 +1,34 @@
 import * as Sentry from "@sentry/angular-ivy";
 
-import { enableProdMode, APP_INITIALIZER, ErrorHandler, importProvidersFrom } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, enableProdMode, importProvidersFrom } from '@angular/core';
+import { BrowserModule, Title, bootstrapApplication } from "@angular/platform-browser";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { IColorConfig, NgxThemeModule } from "@brumeilde/ngx-theme";
+import { MarkdownModule, provideMarkdown } from "ngx-markdown";
+import { Router, RouterModule } from "@angular/router";
 
-
+import { Angulartics2Module } from "angulartics2";
+import { AppComponent } from "./app/app.component";
+import { AppRoutingModule } from "./app/app-routing.module";
+import { ClipboardModule } from "@angular/cdk/clipboard";
+import { CodeEditorModule } from "@ngstack/code-editor";
+import { ConfigModule } from "./app/modules/config.module";
+import { ConnectionsService } from "./app/services/connections.service";
+import { CookieService } from "ngx-cookie-service";
+import { DragDropModule } from "@angular/cdk/drag-drop";
+import { DynamicModule } from "ng-dynamic-component";
+import { EncodeUrlParamsSafelyInterceptor } from "./app/services/url-params.interceptor";
+import { NgxStripeModule } from "ngx-stripe";
+import { NotificationsService } from "./app/services/notifications.service";
+import { PasswordStrengthMeterComponent } from "angular-password-strength-meter";
+import { TablesService } from "./app/services/tables.service";
+import { TokenInterceptor } from "./app/services/token.interceptor";
+import { UsersService } from "./app/services/users.service";
 import { environment } from './environments/environment';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { ConnectionsService } from "./app/services/connections.service";
-import { UsersService } from "./app/services/users.service";
-import { NotificationsService } from "./app/services/notifications.service";
-import { TablesService } from "./app/services/tables.service";
-import { CookieService } from "ngx-cookie-service";
-import { provideMarkdown, MarkdownModule } from "ngx-markdown";
-import { Title, BrowserModule, bootstrapApplication } from "@angular/platform-browser";
-import { provideZxvbnServiceForPSM } from "angular-password-strength-meter/zxcvbn";
-import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from "@angular/common/http";
-import { TokenInterceptor } from "./app/services/token.interceptor";
-import { EncodeUrlParamsSafelyInterceptor } from "./app/services/url-params.interceptor";
-import { Router, RouterModule } from "@angular/router";
-import { IColorConfig, NgxThemeModule } from "@brumeilde/ngx-theme";
-import { AppRoutingModule } from "./app/app-routing.module";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { provideAnimations } from "@angular/platform-browser/animations";
-import { DynamicModule } from "ng-dynamic-component";
-import { Angulartics2Module } from "angulartics2";
-import { ClipboardModule } from "@angular/cdk/clipboard";
-import { DragDropModule } from "@angular/cdk/drag-drop";
-import { PasswordStrengthMeterComponent } from "angular-password-strength-meter";
-import { CodeEditorModule } from "@ngstack/code-editor";
-import { NgxStripeModule } from "ngx-stripe";
-import { ConfigModule } from "./app/modules/config.module";
-import { AppComponent } from "./app/app.component";
+import { provideZxvbnServiceForPSM } from "angular-password-strength-meter/zxcvbn";
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -44,10 +43,10 @@ const saasExtraProviders = (environment as any).saas ? [
   },
 ] : [];
 const colorConfig: IColorConfig<Palettes, Colors> = {
-  palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB', warnPalette: '#FB2424' },
+  palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB', warnPalette: '#FB2424', whitePalette: '#FFFFFF' },
   simpleColors: { myColorName: '#2e959a' },
 };
-type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
+type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string, whitePalette: string };
 type Colors = { myColorName: string };
 
 
