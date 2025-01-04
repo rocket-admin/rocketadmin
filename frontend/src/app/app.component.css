@@ -59,6 +59,12 @@
     transition: outline 0.2s;
 }
 
+@media (prefers-color-scheme: dark) {
+    .nav-bar__button {
+        color: #fff;
+    }
+}
+
 .nav-bar__account-button ::ng-deep .mat-badge-content {
     top: 14px;
     left: 32px;

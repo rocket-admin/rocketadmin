@@ -130,6 +130,12 @@
     pointer-events: none;
 }
 
+@media (prefers-color-scheme: dark) {
+    .ai-icon ::ng-deep svg path {
+        fill: #fff;
+    }
+}
+
 .db-table-manage-columns-button {
     display: inline-block;
 }
