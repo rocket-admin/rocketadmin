@@ -7,10 +7,12 @@
 $md-app-primary-color: palette.createpalette('primaryPalette');
 $md-app-accented-color: palette.createpalette('accentedPalette');
 $md-app-warn-color: palette.createpalette('warnPalette');
+$md-app-white-color: palette.createpalette('whitePalette');
 
 $custom-palette-primary: mat.m2-define-palette($md-app-primary-color);
 $custom-palette-accent: mat.m2-define-palette($md-app-accented-color);
 $custom-palette-warn: mat.m2-define-palette($md-app-warn-color);
+$custom-palette-white: mat.m2-define-palette($md-app-white-color);
 
 html {
   --mdc-shape-small: 0px !important;
@@ -20,36 +22,38 @@ html {
   --mdc-outlined-text-field-container-shape: 0px !important;
 }
 
-body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
-  --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
-  --mdc-protected-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
-  --mdc-filled-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
-  --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-body .mat-mdc-flat-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
-  --mat-mdc-button-persistent-ripple-color: var(--color-accentedPalette-500-contrast) !important;
-  --mdc-protected-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
-  --mdc-filled-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
-  --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
-  --mat-mdc-button-persistent-ripple-color: var(--color-warnPalette-500-contrast) !important;
-  --mdc-protected-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
-  --mdc-filled-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
-  --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-@media (prefers-color-scheme: dark) {
-  body .mat-mdc-outlined-button:not(:disabled) {
-    --mdc-outlined-button-label-text-color: #fff !important;
+@media (prefered-color-scheme: light) {
+  body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
+    --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
+    --mdc-protected-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
+    --mdc-filled-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
+    --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
   }
 
-  // body .mat-mdc-button:not(:disabled) {
-  //   --mdc-text-button-label-text-color: #fff !important;
-  // }
+  body .mat-mdc-flat-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
+    --mat-mdc-button-persistent-ripple-color: var(--color-accentedPalette-500-contrast) !important;
+    --mdc-protected-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
+    --mdc-filled-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
+    --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
+    --mat-mdc-button-persistent-ripple-color: var(--color-warnPalette-500-contrast) !important;
+    --mdc-protected-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
+    --mdc-filled-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
+    --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
+  }
 }
+
+// @media (prefers-color-scheme: dark) {
+//   body .mat-mdc-outlined-button:not(:disabled) {
+//     --mdc-outlined-button-label-text-color: #fff !important;
+//   }
+
+//   // body .mat-mdc-button:not(:disabled) {
+//   //   --mdc-text-button-label-text-color: #fff !important;
+//   // }
+// }
 
 // .mat-mdc-checkbox .mdc-form-field {
 //   --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
@@ -110,7 +114,7 @@ $custom-light-theme: mat.m2-define-light-theme((
 
 $custom-dark-theme: mat.m2-define-dark-theme((
   color: (
-    primary: $custom-palette-primary,
+    primary: $custom-palette-white,
     accent: $custom-palette-accent,
     warn: $custom-palette-warn,
   ),
