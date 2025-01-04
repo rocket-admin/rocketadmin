@@ -3,7 +3,7 @@
 }
 
 .permissions-form ::ng-deep .mat-mdc-dialog-content {
-    color: #0a0a0a;
+    color: var(--mat-sidenav-content-text-color);
 }
 
 .permissions {
@@ -46,7 +46,7 @@
 }
 
 .table-name {
-    --normalized-table-name-color: rgba(0, 0, 0, 1);
+    --normalized-table-name-color: var(--mat-sidenav-content-text-color);
     --orginal-table-name-color: rgba(0, 0, 0, 0.6);
 
     justify-self: flex-start;
@@ -56,10 +56,22 @@
     padding-left: 16px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .table-name {
+        --orginal-table-name-color: rgba(255, 255, 255, 0.75);
+    }
+}
+
 .table-name_disabled {
     --normalized-table-name-color: rgba(0, 0, 0, 0.38);
     --orginal-table-name-color: rgba(0, 0, 0, 0.38);
+}
 
+@media (prefers-color-scheme: dark) {
+    .table-name_disabled {
+        --normalized-table-name-color: rgba(255, 255, 255, 0.38);
+        --orginal-table-name-color: rgba(255, 255, 255, 0.38);
+    }
 }
 
 .table-name__title {
@@ -99,4 +111,10 @@
 
 .visibilityIcon_visible {
     color: var(--color-accentedPalette-500);
+}
+
+@media (prefers-color-scheme: dark) {
+    .visibilityIcon_visible {
+        color: var(--color-accentedDarkPalette-500)
+    }
 }

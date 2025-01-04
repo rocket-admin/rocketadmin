@@ -81,6 +81,12 @@
     font-weight: 500 !important;
 }
 
+@media (prefers-color-scheme: dark) {
+    .nav-bar__button_active {
+        --mdc-text-button-label-text-color: var(--color-accentedDarkPalette-500) !important;
+    }
+}
+
 @media screen and (max-width: 600px) {
     .nav-bar__button_active {
         color: inherit;

@@ -43,10 +43,10 @@ const saasExtraProviders = (environment as any).saas ? [
   },
 ] : [];
 const colorConfig: IColorConfig<Palettes, Colors> = {
-  palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB', warnPalette: '#FB2424', whitePalette: '#FFFFFF' },
+  palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB', warnPalette: '#FB2424', whitePalette: '#FFFFFF', accentedDarkPalette: '#C176FC', warnDarkPalette: '#B01919' },
   simpleColors: { myColorName: '#2e959a' },
 };
-type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string, whitePalette: string };
+type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string, whitePalette: string, accentedDarkPalette: string, warnDarkPalette: string };
 type Colors = { myColorName: string };
 
 

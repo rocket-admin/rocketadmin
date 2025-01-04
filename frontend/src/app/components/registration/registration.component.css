@@ -41,6 +41,12 @@
     color: var(--color-accentedPalette-500)
 }
 
+@media (prefers-color-scheme: dark) {
+    .registrationTitle__emphasis {
+        color: var(--color-accentedDarkPalette-500)
+    }
+}
+
 .register-form-box {
     display: flex;
     flex-direction: column;
@@ -151,6 +157,12 @@
 
 .link {
     color: var(--color-accentedPalette-500);
+}
+
+@media (prefers-color-scheme: dark) {
+    .link {
+        color: var(--color-accentedDarkPalette-500)
+    }
 }
 
 .register-form__github-button {
