@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { CustomAction, TableForeignKey, TablePermissions, TableRow } from 'src/app/models/table';
+import { CustomAction, TableForeignKey, TablePermissions, TableProperties, TableRow } from 'src/app/models/table';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Observable, merge, of } from 'rxjs';
+import { map, startWith, tap } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
@@ -8,9 +11,10 @@ import { CommonModule } from '@angular/common';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table-import-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,10 +32,7 @@ import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table
 import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableStateService } from 'src/app/services/table-state.service';
-import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
-import { tap } from 'rxjs/operators';
-import { MatChipsModule } from '@angular/material/chips';
 
 interface Column {
   title: string,
@@ -55,7 +56,9 @@ interface Column {
     MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
+    ReactiveFormsModule,
     MatInputModule,
+    MatAutocompleteModule,
     MatMenuModule,
     MatTooltipModule,
     ClipboardModule,
@@ -75,6 +78,7 @@ export class DbTableComponent implements OnInit {
   @Input() activeFilters: object;
   @Input() filterComparators: object;
   @Input() selection: SelectionModel<any>;
+  @Input() tables: TableProperties[];
 
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
@@ -85,7 +89,9 @@ export class DbTableComponent implements OnInit {
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();
 
+  // public tablesSwitchControl = new FormControl('');
   public tableData: any;
+  public filteredTables: TableProperties[];
   // public selection: any;
   public columns: Column[];
   public displayedColumns: string[] = [];
@@ -136,6 +142,21 @@ export class DbTableComponent implements OnInit {
     this._tableState.cast.subscribe(row => {
       this.selectedRow = row;
     });
+  }
+
+  onInput(searchValue: string) {
+    this.filteredTables = this.filterTables(searchValue)
+  }
+
+  onInputFocus() {
+    this.filteredTables = this.tables;
+  }
+
+  private filterTables(searchValue: string): any[] {
+    const filterValue = searchValue.toLowerCase();
+    return this.tables.filter((table) =>
+      table.normalizedTableName.toLowerCase().includes(filterValue)
+    );
   }
 
   loadRowsPage() {
@@ -363,5 +384,9 @@ export class DbTableComponent implements OnInit {
 
   showCopyNotification(message: string) {
     this._notifications.showSuccessSnackbar(message);
+  }
+
+  switchTable(e) {
+
   }
 }

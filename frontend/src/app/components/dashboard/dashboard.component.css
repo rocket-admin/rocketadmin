@@ -8,10 +8,11 @@
     max-width: 240px;
 }
 
-/* .mat-sidenav {
-    padding-bottom: 16px;
-    width: clamp(200px, 15%, 280px);
-} */
+@media (width <= 600px) {
+    .table-list-sidenav {
+        display: none;
+    }
+}
 
 .side-bar_collapsed {
     position: static;
@@ -25,7 +26,7 @@
 
 @media (width <= 600px) {
     .side-bar_collapsed {
-        margin-left: -65px;
+        display: none;
     }
 }
 
@@ -44,13 +45,6 @@
     margin-top: 24px;
 }
 
-@media (width <= 600px) {
-    .toggle-button-position {
-        margin-bottom: -8px;
-        margin-top: 0;
-    }
-}
-
 .toggle-button {
     background-color: var(--mat-sidenav-content-background-color);
     border-radius: 4px 0 0 4px !important;
@@ -58,13 +52,6 @@
     line-height: 24px;
     min-width: 52px !important;
     box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.1),0px 6px 8px 0px rgba(0, 0, 0, 0.07),0px 1px 8px 0px rgba(0, 0, 0, 0.06);
-}
-
-@media (width <= 600px) {
-    .toggle-button {
-        min-width: 0 !important;
-        width: 36px !important;
-    }
 }
 
 .toggle-button::ng-deep .mat-button-wrapper {
@@ -77,12 +64,6 @@
 
 .toggle-button-position__opened::ng-deep .material-icons {
     margin-left: -2px;
-}
-
-@media (width <= 600px) {
-    .toggle-button-position__opened::ng-deep .material-icons {
-        margin-right: -2px;
-    }
 }
 
 .toggle-button-position__closed::ng-deep .material-icons {
@@ -125,12 +106,6 @@
     overflow-x: hidden;
 }
 
-@media (width <= 600px) {
-    .table-preview {
-        padding-top: 36px;
-    }
-}
-
 .table-preview-content {
     flex-grow: 1;
     width: 100%;
@@ -138,26 +113,5 @@
 
 .sidenav-content__toggle-button {
     display: none !important;
-}
-
-@media (width <= 600px) {
-    .sidenav-content__toggle-button {
-        /* margin-top: 24px; */
-        position: relative;
-        margin-bottom: -36px;
-        z-index: 2;
-    }
-
-    .sidenav-content__toggle-button::ng-deep .material-icons {
-        margin-right: -4px;
-    }
-
-    .sidenav-content__toggle-button_shown-mobile {
-        display: block !important;
-    }
-
-    .sidenav-content__toggle-button_shown-mobile::ng-deep .material-icons {
-        margin-left: -2px;
-    }
 }
 

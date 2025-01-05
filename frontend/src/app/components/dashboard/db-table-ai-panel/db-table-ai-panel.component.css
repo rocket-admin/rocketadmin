@@ -8,6 +8,13 @@
     transition: width 400ms ease, transform 400ms ease, opacity 400ms ease;
 }
 
+@media (width <= 600px) {
+    .ai-panel-sidebar {
+        width: 100vw;
+        z-index: 10;
+    }
+}
+
 .ai-panel-sidebar_open {
     opacity: 1;
     transform: translateX(24px);
@@ -32,6 +39,14 @@
     height: 100vh;
     width: clamp(200px, 22vw, 400px);
     z-index: 0;
+}
+
+@media (width <= 600px) {
+    .ai-panel-sidebar-content {
+        left: 0;
+        width: 100vw;
+        z-index: 5;
+    }
 }
 
 .ai-panel-sidebar__header {
@@ -165,4 +180,10 @@
 
 .link {
     color: var(--color-accentedPalette-500);
+}
+
+@media (prefers-color-scheme: dark) {
+    .link {
+        color: var(--color-accentedDarkPalette-500);
+    }
 }

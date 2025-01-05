@@ -22,6 +22,13 @@
     }
 }
 
+@media (width <= 600px) {
+    .alert {
+        display: grid;
+        grid-template-columns: auto 1fr;
+    }
+}
+
 .alert_error {
     --alert-theme-color: #FB2424;
     z-index: 2;
@@ -73,6 +80,12 @@
 
 .actions {
     margin-left: auto;
+}
+
+@media (width <= 600px) {
+    .actions {
+        grid-column: 1 / -1;
+    }
 }
 
 .mat-flat-button {

@@ -1,6 +1,29 @@
 <div class="db-table-header" #focus>
     <div class="db-table-title">
-        <h2 class="mat-h2">{{ displayName }}</h2>
+        <h2 class="mat-h2 table-name">{{ displayName }}</h2>
+
+        <mat-form-field appearance="outline" class="table-switcher">
+            <mat-label>Table</mat-label>
+            <input type="text"
+                placeholder="Select a table"
+                matInput
+                [value]="name"
+                [matAutocomplete]="auto"
+                (focus)="onInputFocus()"
+                (input)="onInput($event.target.value)">
+            <mat-autocomplete autoActiveFirstOption
+                #auto="matAutocomplete">
+                <mat-option *ngFor="let table of filteredTables"
+                    class="table-switcher-option"
+                    [value]="table.table">
+                    <a class="table-switcher-link"
+                        routerLink="/dashboard/{{connectionID}}/{{table.table}}"
+                        [queryParams]="{page_index: 0, page_size: 30}">
+                        {{table.normalizedTableName}}
+                </a>
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
 
         <button mat-icon-button (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
@@ -42,8 +65,8 @@
                     angulartics2On="click"
                     angularticsAction="Dashboard: AI is clicked"
                     (click)="handleViewAIpanel()">
-                    <mat-icon svgIcon="ai_rocket"></mat-icon>
-                    AI
+                    <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
+                    AI insights
                 </button>
 
                 <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"

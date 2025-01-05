@@ -81,6 +81,7 @@
                     [connectionID]="connectionID"
                     [isTestConnection]="currentConnectionIsTest"
                     [accessLevel]="currentConnectionAccessLevel"
+                    [tables]="tablesList"
                     (openFilters)="openTableFilters($event)"
                     (removeFilter)="removeFilter($event)"
                     (resetAllFilters)="clearAllFilters()"

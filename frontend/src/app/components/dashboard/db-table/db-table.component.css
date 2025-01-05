@@ -33,9 +33,38 @@
     }
 }
 
-.db-table-title .mat-h2 {
-    margin-bottom: 0;
-    margin-right: 8px;
+.table-name {
+    margin-bottom: 0 !important;
+    margin-right: 8px !important;
+}
+
+@media (width <= 600px) {
+    .table-name {
+        display: none;
+    }
+}
+
+.table-switcher {
+    display: none;
+}
+
+@media (width <= 600px) {
+    .table-switcher {
+        display: initial;
+        margin-top: 12px;
+    }
+}
+
+.table-switcher-option ::ng-deep .mdc-list-item__primary-text {
+    width: 100%;
+}
+
+.table-switcher-link {
+    display: inline-block;
+    color: inherit;
+    line-height: 48px;
+    text-decoration: none;
+    width: 100%;
 }
 
 .db-table-bulk-actions {
@@ -128,6 +157,12 @@
     --mdc-theme-text-disabled-on-background: rgba(0, 0, 0, 0.78);
 
     pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-icon ::ng-deep svg path {
+        fill: #fff;
+    }
 }
 
 .db-table-manage-columns-button {
@@ -450,6 +485,12 @@ tr.mat-row:hover {
 
 .foreign-key-link {
     color: var(--color-accentedPalette-500);
+}
+
+@media (prefers-color-scheme: dark) {
+    .foreign-key-link {
+        color: var(--color-accentedDarkPalette-500);
+    }
 }
 
 .empty-table {
