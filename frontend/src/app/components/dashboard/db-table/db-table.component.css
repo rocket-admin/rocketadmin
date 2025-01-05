@@ -51,7 +51,20 @@
 @media (width <= 600px) {
     .table-switcher {
         display: initial;
+        margin-top: 12px;
     }
+}
+
+.table-switcher-option ::ng-deep .mdc-list-item__primary-text {
+    width: 100%;
+}
+
+.table-switcher-link {
+    display: inline-block;
+    color: inherit;
+    line-height: 48px;
+    text-decoration: none;
+    width: 100%;
 }
 
 .db-table-bulk-actions {

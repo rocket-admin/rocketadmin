@@ -106,12 +106,6 @@
     overflow-x: hidden;
 }
 
-@media (width <= 600px) {
-    .table-preview {
-        padding-top: 12px;
-    }
-}
-
 .table-preview-content {
     flex-grow: 1;
     width: 100%;

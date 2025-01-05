@@ -14,10 +14,12 @@
             <mat-autocomplete autoActiveFirstOption
                 #auto="matAutocomplete">
                 <mat-option *ngFor="let table of filteredTables"
+                    class="table-switcher-option"
                     [value]="table.table">
-                    <a routerLink="/dashboard/{{connectionID}}/{{table.table}}"
-                    [queryParams]="{page_index: 0, page_size: 30}">
-                    {{table.normalizedTableName}}
+                    <a class="table-switcher-link"
+                        routerLink="/dashboard/{{connectionID}}/{{table.table}}"
+                        [queryParams]="{page_index: 0, page_size: 30}">
+                        {{table.normalizedTableName}}
                 </a>
                 </mat-option>
             </mat-autocomplete>
