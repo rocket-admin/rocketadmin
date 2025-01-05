@@ -33,9 +33,25 @@
     }
 }
 
-.db-table-title .mat-h2 {
-    margin-bottom: 0;
-    margin-right: 8px;
+.table-name {
+    margin-bottom: 0 !important;
+    margin-right: 8px !important;
+}
+
+@media (width <= 600px) {
+    .table-name {
+        display: none;
+    }
+}
+
+.table-switcher {
+    display: none;
+}
+
+@media (width <= 600px) {
+    .table-switcher {
+        display: initial;
+    }
 }
 
 .db-table-bulk-actions {
