@@ -12,6 +12,7 @@ import { TablesDataSource } from '../db-tables-data-source';
 import { MatDialogModule } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -79,6 +80,7 @@ describe('DbTableComponent', () => {
         MatSortModule,
         FormsModule,
         MatDialogModule,
+        Angulartics2Module.forRoot({}),
         DbTableComponent
       ],
       providers: [provideHttpClient(), provideRouter([])]

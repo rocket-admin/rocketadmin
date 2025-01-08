@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PasswordStrengthMeterComponent } from 'angular-password-strength-meter';
 import { PasswordValidationDirective } from 'src/app/directives/passwordValidator.directive';
+import { Angulartics2OnModule } from 'angulartics2';
 
 @Component({
   selector: 'app-user-password',
@@ -19,7 +20,8 @@ import { PasswordValidationDirective } from 'src/app/directives/passwordValidato
     MatInputModule,
     MatIconModule,
     PasswordValidationDirective,
-    PasswordStrengthMeterComponent
+    PasswordStrengthMeterComponent,
+    Angulartics2OnModule
   ]
 })
 export class UserPasswordComponent implements OnInit {

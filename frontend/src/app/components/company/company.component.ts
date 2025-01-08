@@ -1,6 +1,6 @@
 import { Company, CompanyMember, CompanyMemberRole } from 'src/app/models/company';
 
-import { Angulartics2 } from 'angulartics2';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { CompanyService } from 'src/app/services/company.service';
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
@@ -40,6 +40,7 @@ import { NgIf } from '@angular/common';
     MatSlideToggleModule,
     MatTooltipModule,
     MatTableModule,
+    Angulartics2OnModule,
     AlertComponent,
     PlaceholderCompanyComponent,
     PlaceholderTableDataComponent
