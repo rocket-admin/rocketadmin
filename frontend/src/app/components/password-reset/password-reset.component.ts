@@ -14,7 +14,13 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-password-reset',
   templateUrl: './password-reset.component.html',
   styleUrls: ['./password-reset.component.css'],
-  imports: [CommonModule, FormsModule, MatButtonModule, AlertComponent, UserPasswordComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    AlertComponent,
+    UserPasswordComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PasswordResetComponent implements OnInit {

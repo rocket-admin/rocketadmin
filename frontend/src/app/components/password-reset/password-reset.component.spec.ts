@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('PasswordResetComponent', () => {
   let component: PasswordResetComponent;
@@ -18,7 +19,8 @@ describe('PasswordResetComponent', () => {
         MatSnackBarModule,
         FormsModule,
         PasswordResetComponent,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot({})
       ],
       providers: [
         provideHttpClient(),
