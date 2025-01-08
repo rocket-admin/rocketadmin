@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
-import { Angulartics2 } from 'angulartics2';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Angulartics2Module } from 'angulartics2';
 import { ApiKeyDeleteDialogComponent } from './api-key-delete-dialog/api-key-delete-dialog.component';
 import { AuthService } from 'src/app/services/auth.service';
@@ -43,7 +43,8 @@ import { UserService } from 'src/app/services/user.service';
     MatTooltipModule,
     CdkCopyToClipboard,
     Angulartics2Module,
-    AlertComponent
+    AlertComponent,
+    Angulartics2OnModule
   ]
 })
 export class UserSettingsComponent implements OnInit {

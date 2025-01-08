@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
 import { AlertComponent } from '../../ui-components/alert/alert.component';
-import { Angulartics2 } from 'angulartics2';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -41,7 +41,8 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     AlertComponent,
     PlaceholderTableWidgetsComponent,
     BreadcrumbsComponent,
-    WidgetComponent
+    WidgetComponent,
+    Angulartics2OnModule
   ],
 })
 export class DbTableWidgetsComponent implements OnInit {

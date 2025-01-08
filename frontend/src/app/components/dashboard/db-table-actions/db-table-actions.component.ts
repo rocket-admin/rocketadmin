@@ -4,7 +4,7 @@ import { CustomAction, CustomActionMethod, CustomActionType, CustomEvent, EventT
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
-import { Angulartics2 } from 'angulartics2';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
 import { CommonModule } from '@angular/common';
 import { CompanyMember } from 'src/app/models/company';
@@ -52,7 +52,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     AlertComponent,
     BreadcrumbsComponent,
     ContentLoaderComponent,
-    IconPickerComponent
+    IconPickerComponent,
+    Angulartics2OnModule
   ]
 })
 export class DbTableActionsComponent implements OnInit {
