@@ -21,6 +21,20 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
 
   public isSaas = (environment as any).saas;
   public submitting: boolean = false;
+  public providerNames = {
+    amazon: 'Amazon Web Services',
+    azure: 'Microsoft Azure',
+    google: 'Google Cloud Platform',
+    mongoatlas: 'MongoDB Atlas',
+    digitalocean: 'DigitalOcean',
+  };
+  public providerDocsLink = {
+    amazon: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_mysql',
+    azure: 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal',
+    google: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_google_cloud',
+    mongoatlas: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_mongo_atlas',
+    digitalocean: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql',
+  }
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

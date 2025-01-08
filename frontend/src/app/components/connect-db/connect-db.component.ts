@@ -230,7 +230,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   handleConnectionError(errorMessage: string) {
     this.dialog.open(DbConnectionConfirmDialogComponent, {
-      width: '25em',
+      width: '32em',
       data: {
         dbCreds: this.db,
         provider: this.getProvider(),

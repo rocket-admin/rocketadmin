@@ -1,36 +1,21 @@
 <h1 mat-dialog-title>Connection error</h1>
 <mat-dialog-content class="mat-body">
     <p>Connection does not exist or credentials are incorrect.</p>
-    <strong>Error: {{data.errorMessage}}</strong>
-    <a *ngIf="data.provider === 'amazon'" class="link" target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_mysql">
-        Check out AWS integration guide.
-    </a>
-    <a *ngIf="data.provider === 'azure'" class="link" target="_blank"
-        href="https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal">
-        Check out Azure integration guide.
-    </a>
-    <a *ngIf="data.provider === 'google'" class="link" target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_google_cloud">
-        Check out Google Cloud integration guide.
-    </a>
-    <a *ngIf="data.provider === 'mongoatlas'" class="link" target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_mongo_atlas">
-        Check out MongoDB Atlas integration guide.
-    </a>
-    <a *ngIf="data.provider === 'digitalocean'" class="link" target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql">
-        Check out DigitalOcean integration guide.
-    </a>
+    <strong class="connection-error-message">Error: {{data.errorMessage}}</strong>
+
+    <div *ngIf="data.provider" class="docs-notification">
+        Need help with {{providerNames[data.provider]}} integration?
+        <a [href]="providerDocsLink[data.provider]"
+            target="_blank" class="docs-link">
+            Open docs
+        </a>
+    </div>
 </mat-dialog-content>
 <mat-dialog-actions class="connection-error__actions" align="end">
-    <button mat-button mat-dialog-close="change" color="accent">
-        Keep editing
-    </button>
     <button *ngIf="data.dbCreds && data.dbCreds.id; else addButton"
         mat-button mat-dialog-close
         (click)="editConnection()">
-        Save anyway
+    Save anyway
     </button>
     <ng-template #addButton>
         <button mat-button mat-dialog-close color="primary"
@@ -38,9 +23,15 @@
             Add anyway
         </button>
     </ng-template>
-    <button *ngIf="isSaas" mat-flat-button color="accent" (click)="openIntercome()">Chat with support</button>
-    <a *ngIf="!isSaas" mat-flat-button color="accent"
-        href="https://github.com/rocket-admin/rocketadmin/issues" target="_blank">
-        Report a bug
-    </a>
+
+    <div class="main-actions">
+        <button mat-button mat-dialog-close="change" color="accent" >
+            Keep editing
+        </button>
+        <button *ngIf="isSaas" mat-flat-button color="accent" (click)="openIntercome()" cdkFocusInitial>Chat with support</button>
+        <a *ngIf="!isSaas" mat-flat-button color="accent"
+            href="https://github.com/rocket-admin/rocketadmin/issues" target="_blank" cdkFocusInitial>
+            Report a bug
+        </a>
+    </div>
 </mat-dialog-actions>
