@@ -87,13 +87,16 @@
 }
 
 .user-message {
+    align-self: flex-end;
     background-color: var(--color-primaryPalette-50);
     color: var(--color-primaryPalette-50-contrast);
     border-radius: 8px;
     padding: 8px 8px 0;
     margin: 4px 0;
+    width: 80%;
 }
 .ai-message {
+    align-self: flex-start;
     background-color: var(--color-primaryPalette-100);
     color: var(--color-primaryPalette-100-contrast);
     border-radius: 8px;
@@ -121,6 +124,36 @@
 .user-message ::ng-deep p,
 .ai-message ::ng-deep p {
     margin-bottom: 8px;
+}
+
+.suggestions-title {
+    display: block;
+    color: rgba(0,0,0, 0.54);
+    padding: 16px 16px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .suggestions-title {
+        color: rgba(255,255,255, 0.54);
+    }
+}
+
+.suggestion-button {
+    height: auto;
+    padding: 8px 16px;
+}
+
+.suggestion-button ::ng-deep .mdc-list-item__content {
+    text-overflow: initial;
+    /* white-space: wrap; */
+    overflow: initial;
+}
+
+
+.suggestion-button ::ng-deep .mdc-list-item__primary-text {
+    text-overflow: initial;
+    white-space: wrap;
+    overflow: initial;
 }
 
 .loading {
@@ -167,7 +200,7 @@
 }
 
 .ai-placeholder {
-    margin-top:160px;
+    margin-top:72px;
     padding-left: 16px;
     padding-right: 16px;
     text-align: center;

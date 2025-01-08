@@ -18,13 +18,29 @@
     </div>
 
     <div class="ai-panel-chat">
-        <div *ngIf="messagesChain.length" class="ai-message-chain-box" #chatContainer>
+        <div *ngIf="messagesChain.length; else suggestions" class="ai-message-chain-box" #chatContainer>
             <div class="ai-message-chain">
                 <div *ngFor="let message of messagesChain" class="{{message.type}}-message">
                     <markdown>{{message.text}}</markdown>
                 </div>
             </div>
         </div>
+
+        <ng-template #suggestions>
+            <div class="mat-elevation-z2">
+                <span class="suggestions-title">Suggested insights</span>
+                <mat-action-list role="list">
+                    <button mat-list-item *ngFor="let suggestion of aiRequestSuggestions"
+                        class="suggestion-button"
+                        (click)="sendMessage(suggestion)"
+                        angulartics2On="click"
+                        angularticsAction="AI panel: suggested request is clicked">
+                        {{suggestion}}
+                    </button>
+                </mat-action-list>
+            </div>
+
+        </ng-template>
 
         <div class="loading">
             <div *ngIf="submitting">
@@ -48,8 +64,7 @@
             <div class="ai-message-form__footer">
                 <span> {{charactrsNumber}} / 256</span>
                 <button mat-icon-button type="submit"
-                    class="ai-message-form__button"
-                    (click)="sendMessage()">
+                    class="ai-message-form__button">
                     <mat-icon>send</mat-icon>
                 </button>
             </div>

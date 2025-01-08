@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
-import { Angulartics2 } from 'angulartics2';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-db-table-ai-panel',
@@ -24,7 +25,9 @@ import { TablesService } from 'src/app/services/tables.service';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatListModule,
+    MatButtonModule,
+    Angulartics2Module
   ]
 })
 export class DbTableAiPanelComponent implements OnInit, OnDestroy {
@@ -41,6 +44,13 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     type: string;
     text: string
   }[] = [];
+  public aiRequestSuggestions: string[] = [
+    'How many records were created last month?',
+    'Are there any duplicate rows in this table?',
+    // 'Are there any columns with inconsistent data types?',
+    'Which columns have empty values?',
+    'What trends can you predict based on this table?'
+  ]
   public submitting: boolean = false;
 
   constructor(
@@ -89,7 +99,10 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  sendMessage() {
+  sendMessage(suggestedMessage?: string): void {
+    if (suggestedMessage) {
+      this.message = suggestedMessage;
+    }
     this.submitting = true;
     this.messagesChain.push({
       type: 'user',
