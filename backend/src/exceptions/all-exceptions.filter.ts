@@ -4,6 +4,7 @@ import { processExceptionMessage } from './utils/process-exception-message.js';
 import Sentry from '@sentry/minimal';
 import { Messages } from './text/messages.js';
 
+export type ExceptionType = 'no_master_key' | 'invalid_master_key' | 'query_timeout';
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   async catch(exception: any, host: ArgumentsHost) {
@@ -30,22 +31,33 @@ export class AllExceptionsFilter implements ExceptionFilter {
       Logger.logError(exception);
     }
 
-    const ifErrorMasterPwdMissing = text === Messages.MASTER_PASSWORD_MISSING;
-    const ifErrorMasterPwdIncorrect = text === Messages.MASTER_PASSWORD_INCORRECT;
-    const masterPwdErrorType = ifErrorMasterPwdMissing
-      ? 'no_master_key'
-      : ifErrorMasterPwdIncorrect
-        ? 'invalid_master_key'
-        : undefined;
+    const customExceptionType = this.getErrorType(text);
 
     response.status(status).json({
       message: text ? text : 'Something went wrong',
-      type: type ? type : masterPwdErrorType,
+      type: type ? type : customExceptionType,
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
       originalMessage: originalMessage,
       internalCode: internalCode,
     });
+  }
+
+  private getErrorType(errorText: string): ExceptionType | undefined {
+    const ifErrorMasterPwdMissing = errorText === Messages.MASTER_PASSWORD_MISSING;
+    const ifErrorMasterPwdIncorrect = errorText === Messages.MASTER_PASSWORD_INCORRECT;
+    const ifTimeOutError = errorText.toLowerCase().includes('timeout');
+
+    if (ifErrorMasterPwdMissing) {
+      return 'no_master_key';
+    }
+    if (ifErrorMasterPwdIncorrect) {
+      return 'invalid_master_key';
+    }
+    if (ifTimeOutError) {
+      return 'query_timeout';
+    }
+    return undefined;
   }
 }
