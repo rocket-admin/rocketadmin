@@ -23,7 +23,7 @@ export class FindAllMessagesInAiThreadUseCase
   }
 
   public async implementation(inputData: FindAllThreadMessagesDS): Promise<Array<FoundUserThreadMessagesRO>> {
-    const { threadId, userId } = inputData;
+    const { threadId, userId, limit } = inputData;
     const foundThread = await this._dbContext.aiUserThreadsRepository.findThreadByIdAndUserId(threadId, userId);
     if (!foundThread) {
       throw new NotFoundException(Messages.AI_THREAD_NOT_FOUND);
@@ -31,7 +31,9 @@ export class FindAllMessagesInAiThreadUseCase
 
     const { openai } = getOpenAiClient();
 
-    const messages: MessagesPage = await openai.beta.threads.messages.list(foundThread.thread_ai_id);
+    const messages: MessagesPage = await openai.beta.threads.messages.list(foundThread.thread_ai_id, {
+      limit,
+    });
     return messages.data.map((message) => buildFoundUserThreadMessagesRO(message));
   }
 }
