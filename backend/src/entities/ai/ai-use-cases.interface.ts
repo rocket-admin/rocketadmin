@@ -2,6 +2,7 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AddMessageToThreadWithAssistantDS } from './application/data-structures/add-message-to-thread-with-assistant.ds.js';
 import { CreateThreadWithAssistantDS } from './application/data-structures/create-thread-with-assistant.ds.js';
+import { DeleteThreadWithAssistantDS } from './application/data-structures/delete-thread-with-assistant.ds.js';
 import { FindAllThreadMessagesDS } from './application/data-structures/find-all-thread-messages.ds.js';
 import { RequestInfoFromTableDS } from './application/data-structures/request-info-from-table.ds.js';
 import { ResponseInfoDS } from './application/data-structures/response-info.ds.js';
@@ -32,5 +33,5 @@ export interface IGetAllThreadMessages {
 }
 
 export interface IDeleteThreadWithAIAssistant {
-  execute(inputData: FindAllThreadMessagesDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+  execute(inputData: DeleteThreadWithAssistantDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
