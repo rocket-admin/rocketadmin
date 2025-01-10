@@ -35,6 +35,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -50,6 +51,7 @@ import { normalizeTableName } from '../../lib/normalize';
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
+    MatListModule,
     RouterModule,
     MatExpansionModule,
     MatChipsModule,
@@ -87,6 +89,7 @@ export class DbTableRowEditComponent implements OnInit {
   public fieldsOrdered: string[];
   public rowActions: CustomAction[];
   public referencedTables: any;
+  public referencedRecords: {} = {};
   public referencedTablesURLParams: any;
   public isDesktop: boolean = true;
   public permissions: TablePermissions;
@@ -223,6 +226,60 @@ export class DbTableRowEditComponent implements OnInit {
                     filters: JsonURL.stringify(params),
                     page_index: 0
                 }});
+
+                console.log('referenced_table_names_and_columns');
+                console.log(res.referenced_table_names_and_columns[0].referenced_by);
+
+              res.referenced_table_names_and_columns[0].referenced_by.forEach((table: any) => {
+                const filters = {[table.column_name]: {
+                  eq: this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name]
+                }};
+
+                console.log('filters');
+                console.log(filters);
+
+                this._tables.fetchTable({
+                  connectionID: this.connectionID,
+                  tableName: table.table_name,
+                  requstedPage: 1,
+                  chunkSize: 30,
+                  filters
+                }).subscribe((res) => {
+                  let fieldsOrder = [];
+
+                  if (res.identity_column && res.list_fields.length && res.list_fields.includes(res.identity_column)) {
+                    const identityIndex = res.list_fields.indexOf(res.identity_column);
+                    fieldsOrder = res.list_fields.splice(identityIndex, 1);
+                    fieldsOrder.slice(0, 3)
+                  }
+
+                  if (res.identity_column && res.list_fields.length && !res.list_fields.includes(res.identity_column)) {
+                    fieldsOrder = res.list_fields.slice(0, 2);
+                    fieldsOrder.unshift(res.identity_column);
+                  }
+
+                  if (res.identity_column && !res.list_fields.length) {
+                    fieldsOrder = res.structure.slice(0, 3).map((field: TableField) => field.column_name);
+                    fieldsOrder.unshift(res.identity_column);
+                  }
+
+                  if (!res.identity_column && res.list_fields.length) {
+                    fieldsOrder = res.list_fields.slice(0, 3);
+                  }
+
+                  if (!res.identity_column && !res.list_fields.length) {
+                    fieldsOrder = res.structure.slice(0, 3).map((field: TableField) => field.column_name);
+                  }
+
+                  const tableRecords = {
+                    rows: res.rows,
+                    fieldsOrder,
+                    list_fields: res.list_fields,
+                    identity_column: res.identity_column
+                  }
+                  this.referencedRecords[table.table_name] = tableRecords;
+                });
+              });
             }
 
             this.loading = false;

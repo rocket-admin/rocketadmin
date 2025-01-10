@@ -41,26 +41,51 @@
             </div>
         </div>
     </div>
-    <div *ngIf="referencedTables && referencedTables.length" class="related-views">
-        <mat-expansion-panel [expanded]="isDesktop">
-            <mat-expansion-panel-header class="related-views__title">
-                <mat-panel-title>
-                    Records related to&nbsp;
-                    <span *ngIf="tableRowValues[identityColumn]">"{{tableRowValues[identityColumn]}}"</span>
-                    <span *ngIf="!tableRowValues[identityColumn]">this row</span>
-                </mat-panel-title>
-            </mat-expansion-panel-header>
 
-            <mat-chip-listbox class="related-tables">
-                <mat-chip-option *ngFor="let referencedTable of referencedTables; let i = index"
-                    color="primary"
-                    routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
-                    [queryParams]="referencedTablesURLParams[i]">
-                    {{referencedTable.displayTableName}}
-                </mat-chip-option>
-            </mat-chip-listbox>
-        </mat-expansion-panel>
+    <div *ngIf="referencedTables && referencedTables.length" class="related-views">
+
+        <h3>
+            Records related to&nbsp;
+            <span *ngIf="tableRowValues[identityColumn]">"{{tableRowValues[identityColumn]}}"</span>
+            <span *ngIf="!tableRowValues[identityColumn]">this row</span>
+        </h3>
+
+        <mat-accordion multi="true">
+            <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index">
+                <mat-expansion-panel-header>
+                    <mat-panel-title> {{referencedTable.displayTableName}} </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <mat-nav-list>
+                    <a mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name].rows">
+                        <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].fieldsOrder[0]]}}</span>
+                        <span matListItemLine>
+                            <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
+                                <strong>{{field_name}}:</strong>
+                                {{row[field_name] | json}}
+                            </span>
+                        </span>
+                    </a>
+                </mat-nav-list>
+
+
+
+                <ul class="related-records">
+                    <li *ngFor="let row of referencedRecords[referencedTable.table_name].rows" class="related-record">
+                        <!--<div *ngFor="let field of row | keyvalue">{{field.key}}: {{field.value}}</div>-->
+                        <div *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
+                            <strong>{{field_name}}:</strong>
+                            {{row[field_name] | json}}
+                        </div>
+
+                        <!--<strong *ngFor="let field of record.value.rows">{{field | json}}</strong>-->
+                        <!--<div *ngFor="let field of record | keyvalue"><strong>{{field.key}}:</strong> {{field.value}}</div>-->
+                    </li>
+                </ul>
+            </mat-expansion-panel>
+        </mat-accordion>
     </div>
+
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="handleRowSubmitting(false)">
         <div *ngFor="let value of fieldsOrdered; let index = index">
