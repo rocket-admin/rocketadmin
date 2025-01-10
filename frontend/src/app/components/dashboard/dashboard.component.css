@@ -30,7 +30,7 @@
     }
 }
 
-.table-list-sidenav ::ng-deep .mat-drawer:not(.mat-drawer-opened):not(.mat-drawer-animating) .mat-drawer-inner-container {
+.table-list-sidenav-container ::ng-deep .mat-drawer:not(.mat-drawer-opened):not(.mat-drawer-animating) .mat-drawer-inner-container {
     display: initial;
 }
 
