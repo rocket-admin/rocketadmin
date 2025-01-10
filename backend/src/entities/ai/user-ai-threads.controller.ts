@@ -9,6 +9,7 @@ import {
   Res,
   Get,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
@@ -34,6 +35,7 @@ import { FoundUserThreadsWithAiRO } from './application/dto/found-user-threads-w
 import { FoundUserThreadMessagesRO } from './application/dto/found-user-thread-messages.ro.js';
 import { FindAllThreadMessagesDS } from './application/data-structures/find-all-thread-messages.ds.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { DeleteThreadWithAssistantDS } from './application/data-structures/delete-thread-with-assistant.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -131,14 +133,25 @@ export class UserAIThreadsController {
     type: FoundUserThreadMessagesRO,
     isArray: true,
   })
+  @ApiQuery({ name: 'limit', required: false })
   @Get('/ai/thread/messages/:threadId')
   public async getUserMessagesFromThread(
     @UserId() userId: string,
     @SlugUuid('threadId') threadId: string,
+    @Query('limit') limit: string,
   ): Promise<Array<FoundUserThreadMessagesRO>> {
+    let parsedLimit: number;
+    if (limit) {
+      parsedLimit = parseInt(limit);
+    }
+    if (!parsedLimit) {
+      parsedLimit = 10;
+    }
+
     const inputData: FindAllThreadMessagesDS = {
       threadId,
       userId,
+      limit: parsedLimit,
     };
     return await this.getAllThreadMessagesUseCase.execute(inputData, InTransactionEnum.OFF);
   }
@@ -155,7 +168,7 @@ export class UserAIThreadsController {
     @UserId() userId: string,
     @SlugUuid('threadId') threadId: string,
   ): Promise<SuccessResponse> {
-    const inputData: FindAllThreadMessagesDS = {
+    const inputData: DeleteThreadWithAssistantDS = {
       threadId,
       userId,
     };

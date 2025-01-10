@@ -145,7 +145,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           userEmail,
         );
       } catch (e) {
-        console.log('🚀 ~ GetTableRowsUseCase ~ implementation ~ e:', e)
         Sentry.captureException(e);
         throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
       }
