@@ -20,7 +20,7 @@ export class CompanyInfoEntity {
   @Column({ type: 'boolean', default: false })
   is2faEnabled: boolean;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: true })
   show_test_connections: boolean;
 
   @BeforeInsert()
