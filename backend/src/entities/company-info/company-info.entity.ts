@@ -1,4 +1,3 @@
- 
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryColumn, Relation } from 'typeorm';
 import { UserEntity } from '../user/user.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
@@ -20,6 +19,9 @@ export class CompanyInfoEntity {
 
   @Column({ type: 'boolean', default: false })
   is2faEnabled: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  show_test_connections: boolean;
 
   @BeforeInsert()
   getRandomName(): void {

@@ -30,6 +30,7 @@ import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification
 import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa-status-in-company.use.case.js';
 import { SuspendUsersInCompanyUseCase } from './use-cases/suspend-users-in-company.use.case.js';
 import { UnsuspendUsersInCompanyUseCase } from './use-cases/unsuspend-users-in-company.use.case.js';
+import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test-connections-company-display-mode.use.case.js';
 
 @Module({
   imports: [
@@ -115,6 +116,10 @@ import { UnsuspendUsersInCompanyUseCase } from './use-cases/unsuspend-users-in-c
       provide: UseCaseType.UNSUSPEND_USERS_IN_COMPANY,
       useClass: UnsuspendUsersInCompanyUseCase,
     },
+    {
+      provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY,
+      useClass: ToggleCompanyTestConnectionsDisplayModeUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -135,6 +140,7 @@ export class CompanyInfoModule implements NestModule {
         { path: 'company/2fa/:companyId', method: RequestMethod.PUT },
         { path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
         { path: '/company/users/unsuspend/:companyId', method: RequestMethod.PUT },
+        { path: '/company/connections/display/', method: RequestMethod.PUT },
       );
   }
 }

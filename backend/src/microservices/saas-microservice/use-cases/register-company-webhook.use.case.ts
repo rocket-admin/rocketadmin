@@ -47,6 +47,7 @@ export class RegisteredCompanyWebhookUseCase
     newCompanyInfo.name = companyName;
     newCompanyInfo.id = companyId;
     newCompanyInfo.users = [foundUser];
+    newCompanyInfo.show_test_connections = true;
     const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     return {

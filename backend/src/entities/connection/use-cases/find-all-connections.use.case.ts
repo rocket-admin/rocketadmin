@@ -43,7 +43,7 @@ export class FindAllConnectionsUseCase
     }
     const allFoundUserConnections = await this._dbContext.connectionRepository.findAllUserConnections(user.id, false);
 
-    if (user.showTestConnections && isSaaS()) {
+    if (user.showTestConnections && isSaaS() && user.company.show_test_connections) {
       let allFoundUserTestConnections = await this._dbContext.connectionRepository.findAllUserTestConnections(user.id);
       const availableTestConnections = Constants.getTestConnectionsArr();
       if (allFoundUserTestConnections.length < availableTestConnections.length) {
