@@ -66,6 +66,9 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty({ required: false })
   is2faEnabled: boolean;
+
+  @ApiProperty()
+  show_test_connections: boolean;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {

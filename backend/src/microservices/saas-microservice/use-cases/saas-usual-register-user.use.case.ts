@@ -116,6 +116,7 @@ export class SaasUsualRegisterUseCase
     const newCompanyInfo = new CompanyInfoEntity();
     newCompanyInfo.id = companyId;
     newCompanyInfo.name = companyName;
+    newCompanyInfo.show_test_connections = true;
     newCompanyInfo.connections = [...testConnections];
     const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
     savedUser.company = savedCompanyInfo;

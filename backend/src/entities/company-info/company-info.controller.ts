@@ -13,6 +13,7 @@ import {
   Res,
   Get,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
@@ -32,6 +33,7 @@ import {
   IRemoveUserFromCompany,
   IRevokeUserInvitationInCompany,
   ISuspendUsersInCompany,
+  IToggleCompanyTestConnectionsMode,
   IUpdateCompanyName,
   IUpdateUsers2faStatusInCompany,
   IUpdateUsersCompanyRoles,
@@ -42,7 +44,7 @@ import { ITokenExp } from '../user/utils/generate-gwt-token.js';
 import { Response } from 'express';
 import { Constants } from '../../helpers/constants/constants.js';
 import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
 import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
@@ -63,6 +65,7 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users-2fa-status-in-company.dto.js';
 import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
 import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
+import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -103,6 +106,8 @@ export class CompanyInfoController {
     private readonly suspendUsersInCompanyUseCase: ISuspendUsersInCompany,
     @Inject(UseCaseType.UNSUSPEND_USERS_IN_COMPANY)
     private readonly unSuspendUsersInCompanyUseCase: ISuspendUsersInCompany,
+    @Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY)
+    private readonly toggleTestConnectionsCompanyDisplayModeUseCase: IToggleCompanyTestConnectionsMode,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -316,6 +321,27 @@ export class CompanyInfoController {
   ): Promise<SuccessResponse> {
     const { name } = nameData;
     return await this.updateCompanyNameUseCase.execute({ name, companyId }, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Set company test connections visibility' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company test connections visibility was updated.',
+    type: SuccessResponse,
+  })
+  @ApiQuery({ name: 'displayMode', required: true, type: 'string', enum: ['on', 'off'] })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/connections/display/')
+  async updateCompanyTestConnectionsVisibility(
+    @UserId() userId: string,
+    @Query('displayMode') displayMode: string,
+  ): Promise<SuccessResponse> {
+    const newDisplayMode = displayMode === 'on';
+    const inputData: ToggleTestConnectionDisplayModeDs = {
+      userId,
+      displayMode: newDisplayMode,
+    };
+    return await this.toggleTestConnectionsCompanyDisplayModeUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Update users roles in company' })
