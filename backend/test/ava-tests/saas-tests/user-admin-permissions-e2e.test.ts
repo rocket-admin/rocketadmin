@@ -311,7 +311,7 @@ test.serial(`${currentTest} should return a created group`, async (t) => {
     t.is(result.hasOwnProperty('users'), true);
     t.is(typeof result.users, 'object');
     t.is(result.users.length, 1);
-    t.is(result.users[0].email, testData.users.simpleUserEmail);
+    t.is(result.users[0].email, testData.users.simpleUserEmail.toLowerCase());
     t.is(result.users[0].isActive, true);
   } catch (error) {
     console.error(error);

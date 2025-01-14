@@ -255,9 +255,9 @@ test.serial(`${currentTest} should remove user from company`, async (t) => {
 
     const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
     const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
-    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
+    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail.toLowerCase());
 
-    t.is(foundSimpleUserInResult.email, simpleUserEmail);
+    t.is(foundSimpleUserInResult.email, simpleUserEmail.toLowerCase());
 
     const removeUserFromCompanyResult = await request(app.getHttpServer())
       .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
@@ -318,7 +318,7 @@ test.serial(`${currentTest} should remove user invitation from company`, async (
 
     const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
     const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
-    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
+    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail.toLowerCase());
 
     const removeUserFromCompanyResult = await request(app.getHttpServer())
       .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)

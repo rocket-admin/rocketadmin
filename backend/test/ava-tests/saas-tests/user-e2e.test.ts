@@ -61,7 +61,7 @@ test.serial(`${currentTest} should user info for this user`, async (t) => {
     const getUserRO: IUserInfo = JSON.parse(getUserResult.text);
 
     t.is(getUserRO.isActive, false);
-    t.is(getUserRO.email, adminUserRegisterInfo.email);
+    t.is(getUserRO.email, adminUserRegisterInfo.email.toLowerCase());
     t.is(getUserRO.hasOwnProperty('createdAt'), true);
   } catch (err) {
     throw err;
@@ -88,7 +88,7 @@ test.serial(`${currentTest} should return user deletion result`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const deleteUserRO = JSON.parse(deleteUserResult.text);
-    t.is(deleteUserRO.email, adminUserRegisterInfo.email);
+    t.is(deleteUserRO.email, adminUserRegisterInfo.email.toLowerCase());
     getUserResult = await request(app.getHttpServer())
       .get('/user')
       .set('Cookie', token)

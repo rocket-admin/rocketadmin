@@ -25,7 +25,8 @@ export class AddUserInGroupUseCase
   }
 
   protected async implementation(inputData: AddUserInGroupWithSaaSDs): Promise<AddedUserInGroupDs> {
-    const { email, groupId } = inputData;
+    const { groupId } = inputData;
+    const email = inputData.email.toLowerCase();
     const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 
     const foundConnection =
@@ -62,7 +63,7 @@ export class AddUserInGroupUseCase
       );
     }
 
-    const foundUser = companyWithUsers.users.find((u) => u.email === email);
+    const foundUser = companyWithUsers.users.find((u) => u.email.toLowerCase() === email);
     if (!foundUser) {
       throw new HttpException(
         {
@@ -74,7 +75,7 @@ export class AddUserInGroupUseCase
     //todo remove in future
     if (isSaaS()) {
       const saasFoundCompany = await this.saasCompanyGatewayService.getCompanyInfo(foundConnection.company.id);
-      const saasFoundUserInCompany = saasFoundCompany?.users.find((u) => u.email === email);
+      const saasFoundUserInCompany = saasFoundCompany?.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
 
       if (foundUser && !saasFoundUserInCompany && saasFoundCompany.users.length) {
         await slackPostMessage(`probable desynchronization of users (adding a user to a group, user not found is saas, but found in core)
@@ -94,10 +95,10 @@ export class AddUserInGroupUseCase
 
     foundGroup.users.push(foundUser);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
-    await sendInvitedInNewGroup(foundUser.email, foundGroup.title);
+    await sendInvitedInNewGroup(foundUser.email.toLowerCase(), foundGroup.title);
     return {
       group: buildFoundGroupResponseDto(savedGroup),
-      message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
+      message: Messages.USER_ADDED_IN_GROUP(foundUser.email.toLowerCase()),
       external_invite: false,
     };
   }

@@ -16,7 +16,7 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
       .createQueryBuilder('user')
       .where('user.id = id', { id: userId });
     const { email } = await userQb.getOne();
-    const newLogRecord = buildTableLogsEntity(logData, email);
+    const newLogRecord = buildTableLogsEntity(logData, email.toLowerCase());
     const savedLogRecord = await this.save(newLogRecord);
     return buildCreatedLogRecord(savedLogRecord);
   },
@@ -70,7 +70,7 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
       qb.andWhere('tableLogs.createdAt <= :date_to', { date_to: dateTo });
     }
     if (searchedEmail) {
-      qb.andWhere('tableLogs.email = :searchMail', { searchMail: searchedEmail });
+      qb.andWhere('tableLogs.email = :searchMail', { searchMail: searchedEmail.toLowerCase() });
     }
     if (logOperationType) {
       qb.andWhere('tableLogs.operationType = :logOperationType', { logOperationType: logOperationType });
@@ -139,7 +139,7 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
       qb.andWhere('tableLogs.createdAt <= :date_to', { date_to: dateTo });
     }
     if (searchedEmail) {
-      qb.andWhere('tableLogs.email = :searchMail', { searchMail: searchedEmail });
+      qb.andWhere('tableLogs.email = :searchMail', { searchMail: searchedEmail.toLowerCase() });
     }
     if (logOperationType) {
       qb.andWhere('tableLogs.operationType = :logOperationType', { logOperationType: logOperationType });

@@ -21,7 +21,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
   ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
     const registrationResult = await this.sendRequestToSaaS(`/webhook/company/register`, 'POST', {
       userId,
-      userEmail,
+      userEmail: userEmail?.toLowerCase(),
       gitHubId,
     });
 
@@ -65,7 +65,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
   ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
     const registrationResult = await this.sendRequestToSaaS(`/webhook/company/invite`, 'POST', {
       userId: newUserId,
-      userEmail: newUserEmail,
+      userEmail: newUserEmail?.toLowerCase(),
       companyId: companyId,
       userRole: userRole,
       inviterId: inviterId,
@@ -140,7 +140,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     userEmail: string,
     gitHubId: number,
   ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
-    return await this.registerCompanyWhenUserInviteInGroup(userId, userEmail, gitHubId);
+    return await this.registerCompanyWhenUserInviteInGroup(userId, userEmail?.toLowerCase(), gitHubId);
   }
 
   public async invitationSentWebhook(
@@ -151,7 +151,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     verificationString: string,
   ): Promise<void> {
     const { body, status } = await this.sendRequestToSaaS(`/webhook/company/invitation`, 'POST', {
-      userEmail: newUserEmail,
+      userEmail: newUserEmail?.toLowerCase(),
       companyId: companyId,
       userRole: userRole,
       inviterId: inviterId,
@@ -178,7 +178,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       newUserId,
       companyId,
       userRole,
-      newUserEmail,
+      newUserEmail: newUserEmail?.toLowerCase(),
     });
     if (isObjectEmpty(result.body)) {
       return null;

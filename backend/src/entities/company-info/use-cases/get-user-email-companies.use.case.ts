@@ -24,7 +24,7 @@ export class GetUserEmailCompaniesUseCase
 
   protected async implementation(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
     const useEmailCompaniesInfosFromCore = (
-      await this._dbContext.companyInfoRepository.findCompanyInfosByUserEmail(userEmail)
+      await this._dbContext.companyInfoRepository.findCompanyInfosByUserEmail(userEmail.toLowerCase())
     ).filter((companyInfo) => !!companyInfo);
     if (!useEmailCompaniesInfosFromCore.length) {
       throw new HttpException(

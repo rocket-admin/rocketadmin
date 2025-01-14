@@ -62,7 +62,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
   async findCompanyInfosByUserEmail(userEmail: string): Promise<CompanyInfoEntity[]> {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.users', 'users')
-      .where('users.email = :userEmail', { userEmail })
+      .where('users.email = :userEmail', { userEmail: userEmail?.toLowerCase() })
       .andWhere('users."externalRegistrationProvider" IS NULL')
       .getMany();
   },
