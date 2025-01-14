@@ -21,7 +21,8 @@ export class RemoveUserFromGroupUseCase
   }
 
   protected async implementation(inputData: AddUserInGroupDs): Promise<RemoveUserFromGroupResultDs> {
-    const { groupId, email } = inputData;
+    const { groupId } = inputData;
+    const email = inputData.email.toLowerCase();
     const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
     if (!foundUser) {
       throw new HttpException(

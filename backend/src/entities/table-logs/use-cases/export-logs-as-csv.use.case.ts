@@ -32,7 +32,7 @@ export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, Streamab
     let perPage = parseInt(query['perPage']);
     const dateFrom = query['dateFrom'];
     const dateTo = query['dateTo'];
-    const searchedEmail = query['email'];
+    const searchedEmail = query['email']?.toLowerCase();
     const operationType: LogOperationTypeEnum = query['operationType'];
     const searchedAffectedPrimaryKey: string = query['affected_primary_key'];
 

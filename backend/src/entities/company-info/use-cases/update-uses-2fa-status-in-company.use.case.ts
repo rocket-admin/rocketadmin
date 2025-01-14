@@ -40,7 +40,7 @@ export class UpdateUses2faStatusInCompanyUseCase
       }
     }
     if (is2faEnabled) {
-      const usersEmails = foundCompany.users.map((user) => user.email);
+      const usersEmails = foundCompany.users.map((user) => user.email.toLowerCase());
       send2faEnabledInCompany(usersEmails, foundCompany.name);
     }
     await this._dbContext.companyInfoRepository.save(foundCompany);

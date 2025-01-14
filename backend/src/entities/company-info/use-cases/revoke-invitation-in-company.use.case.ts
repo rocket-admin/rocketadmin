@@ -23,7 +23,8 @@ export class RevokeUserInvitationInCompanyUseCase
   }
 
   protected async implementation(inputData: RevokeUserInvitationDs): Promise<SuccessResponse> {
-    const { companyId, email } = inputData;
+    const { companyId } = inputData;
+    const email = inputData.email.toLowerCase();
     const foundCompanyWithInvitations =
       await this._dbContext.companyInfoRepository.findCompanyWithInvitationsById(companyId);
     if (!foundCompanyWithInvitations) {

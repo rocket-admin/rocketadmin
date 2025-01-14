@@ -20,7 +20,8 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
   }
 
   protected async implementation(userData: UsualLoginDs): Promise<IToken> {
-    const { email, companyId } = userData;
+    const { companyId } = userData;
+    const email = userData.email.toLowerCase();
     let user: UserEntity = null;
 
     if (companyId) {

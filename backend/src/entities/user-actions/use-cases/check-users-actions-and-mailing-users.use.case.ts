@@ -36,7 +36,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
         await this.updateOrCreateActionForUser(u);
       }),
     );
-    const userEmails = filteredUsers.map((u) => u.email);
+    const userEmails = filteredUsers.map((u) => u.email?.toLowerCase());
     return getUniqArrayStrings(userEmails);
   }
 

@@ -148,7 +148,7 @@ test.serial(`${currentTest} should return all users in current group`, async (t)
     t.is(result.length === 1, true);
 
     // t.is(result[0].isActive).toBe(true);
-    t.is(result[0].email, firstUserEmail);
+    t.is(result[0].email, firstUserEmail.toLowerCase());
   } catch (e) {
     console.error(e);
     throw e;
@@ -305,7 +305,7 @@ test.serial(`${currentTest} should return a group with new added user`, async (t
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
 
-    t.is(result.users[1].email, secondUserRegisterInfo.email);
+    t.is(result.users[1].email, secondUserRegisterInfo.email.toLowerCase());
     // t.is(result.users[0].isActive).toBe(true);
   } catch (e) {
     console.error(e);
@@ -783,7 +783,7 @@ test.serial(`${currentTest} should return a group without deleted user`, async (
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
 
-    t.is(result.users[1].email, secondUserRegisterInfo.email);
+    t.is(result.users[1].email, secondUserRegisterInfo.email.toLowerCase());
     // t.is(result.users[0].isActive).toBe(true);
 
     const removeUserFromGroup = await request(app.getHttpServer())
@@ -867,7 +867,7 @@ test.serial(`${currentTest} should throw an error, when group id not passed in r
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
 
-    t.is(result.users[1].email, secondUserRegisterInfo.email);
+    t.is(result.users[1].email, secondUserRegisterInfo.email.toLowerCase());
     // t.is(result.users[0].isActive).toBe(true);
 
     requestBody.groupId = undefined;
@@ -944,7 +944,7 @@ test.serial(`${currentTest} should throw an error, when email is not passed in r
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
 
-    t.is(result.users[1].email, secondUserRegisterInfo.email);
+    t.is(result.users[1].email, secondUserRegisterInfo.email.toLowerCase());
     // t.is(result.users[0].isActive).toBe(true);
 
     requestBody.email = undefined;
@@ -1093,7 +1093,7 @@ test.serial(`${currentTest} should throw an error, when group id is incorrect`, 
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
 
-    t.is(result.users[1].email, secondUserRegisterInfo.email);
+    t.is(result.users[1].email, secondUserRegisterInfo.email.toLowerCase());
 
     requestBody.groupId = faker.string.uuid();
     const removeUserFromGroup = await request(app.getHttpServer())

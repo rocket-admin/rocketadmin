@@ -34,7 +34,7 @@ export class SaasUserGatewayService extends BaseSaasGatewayService {
   public async updateUserEmailInSaas(userId: string, newEmail: string): Promise<SuccessResponse | null> {
     const result = await this.sendRequestToSaaS(`/webhook/user/email/update`, 'POST', {
       userId,
-      newEmail,
+      newEmail: newEmail?.toLowerCase(),
     });
 
     if (result.status > 299) {
