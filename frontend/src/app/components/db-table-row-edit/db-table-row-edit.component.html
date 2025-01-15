@@ -57,8 +57,8 @@
                 </mat-expansion-panel-header>
 
                 <mat-nav-list>
-                    <a mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name].rows">
-                        <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].fieldsOrder[0]]}}</span>
+                    <a mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name]?.rows">
+                        <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].identityColumn]}}</span>
                         <span matListItemLine>
                             <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
                                 <strong>{{field_name}}:</strong>
@@ -67,21 +67,6 @@
                         </span>
                     </a>
                 </mat-nav-list>
-
-
-
-                <ul class="related-records">
-                    <li *ngFor="let row of referencedRecords[referencedTable.table_name].rows" class="related-record">
-                        <!--<div *ngFor="let field of row | keyvalue">{{field.key}}: {{field.value}}</div>-->
-                        <div *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
-                            <strong>{{field_name}}:</strong>
-                            {{row[field_name] | json}}
-                        </div>
-
-                        <!--<strong *ngFor="let field of record.value.rows">{{field | json}}</strong>-->
-                        <!--<div *ngFor="let field of record | keyvalue"><strong>{{field.key}}:</strong> {{field.value}}</div>-->
-                    </li>
-                </ul>
             </mat-expansion-panel>
         </mat-accordion>
     </div>

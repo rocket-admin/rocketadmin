@@ -227,16 +227,10 @@ export class DbTableRowEditComponent implements OnInit {
                     page_index: 0
                 }});
 
-                console.log('referenced_table_names_and_columns');
-                console.log(res.referenced_table_names_and_columns[0].referenced_by);
-
               res.referenced_table_names_and_columns[0].referenced_by.forEach((table: any) => {
                 const filters = {[table.column_name]: {
                   eq: this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name]
                 }};
-
-                console.log('filters');
-                console.log(filters);
 
                 this._tables.fetchTable({
                   connectionID: this.connectionID,
@@ -245,34 +239,35 @@ export class DbTableRowEditComponent implements OnInit {
                   chunkSize: 30,
                   filters
                 }).subscribe((res) => {
+                  let identityColumn = res.identity_column;
                   let fieldsOrder = [];
 
-                  if (res.identity_column && res.list_fields.length && res.list_fields.includes(res.identity_column)) {
-                    const identityIndex = res.list_fields.indexOf(res.identity_column);
-                    fieldsOrder = res.list_fields.splice(identityIndex, 1);
-                    fieldsOrder.slice(0, 3)
-                  }
+                  console.log(res);
 
-                  if (res.identity_column && res.list_fields.length && !res.list_fields.includes(res.identity_column)) {
-                    fieldsOrder = res.list_fields.slice(0, 2);
-                    fieldsOrder.unshift(res.identity_column);
+                  if (res.identity_column && res.list_fields.length) {
+                    identityColumn = res.identity_column;
+                    fieldsOrder = res.list_fields.filter((field: string) => field !== res.identity_column).slice(0, 3);
                   }
 
                   if (res.identity_column && !res.list_fields.length) {
-                    fieldsOrder = res.structure.slice(0, 3).map((field: TableField) => field.column_name);
-                    fieldsOrder.unshift(res.identity_column);
+                    identityColumn = res.identity_column;
+                    fieldsOrder = res.structure.filter((field: TableField) => field.column_name !== res.identity_column).map((field: TableField) => field.column_name).slice(0, 3);
                   }
 
                   if (!res.identity_column && res.list_fields.length) {
-                    fieldsOrder = res.list_fields.slice(0, 3);
+                    identityColumn = res.list_fields[0];
+                    fieldsOrder = res.list_fields.slice(1, 4);
                   }
 
                   if (!res.identity_column && !res.list_fields.length) {
-                    fieldsOrder = res.structure.slice(0, 3).map((field: TableField) => field.column_name);
+                    identityColumn = res.structure[0].column_name;
+                    console.log(identityColumn);
+                    fieldsOrder = res.structure.slice(1, 4).map((field: TableField) => field.column_name);
                   }
 
                   const tableRecords = {
                     rows: res.rows,
+                    identityColumn,
                     fieldsOrder,
                     list_fields: res.list_fields,
                     identity_column: res.identity_column

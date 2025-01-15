@@ -96,14 +96,6 @@
     }
 }
 
-.related-records {
-    list-style: none;
-}
-
-.related-record {
-    border-bottom: 1px solid gray;
-}
-
 .related-tables {
     margin-top: -4px;
 }
