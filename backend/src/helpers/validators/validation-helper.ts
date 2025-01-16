@@ -24,6 +24,10 @@ export class ValidationHelper {
     return validator.isJWT(token);
   }
 
+  public static isValidDomain(domain: string): boolean {
+    return validator.isFQDN(domain, { require_tld: true });
+  }
+
   public static validateOrThrowHttpExceptionEmail(email: string): boolean {
     const isEmailValid = ValidationHelper.isValidEmail(email);
     if (isEmailValid) {

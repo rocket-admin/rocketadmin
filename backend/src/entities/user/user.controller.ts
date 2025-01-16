@@ -13,7 +13,7 @@ import {
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import isEmail from 'validator/lib/isEmail.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators/index.js';
@@ -140,6 +140,7 @@ export class UserController {
   @Post('user/login/')
   async usualLogin(
     @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
     @Body() loginUserData: LoginUserDto,
   ): Promise<ITokenExp> {
     const { email, password, companyId: userCompanyId } = loginUserData;
@@ -148,6 +149,7 @@ export class UserController {
       password: password,
       gclidValue: null,
       companyId: userCompanyId,
+      request_domain: request.hostname,
     };
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);

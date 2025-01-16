@@ -339,6 +339,26 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     return null;
   }
 
+  public async getCompanyIdByCustomDomainAndUserId(
+    customCompanyDomain: string,
+    userId: string,
+  ): Promise<string | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/domain/${customCompanyDomain}/${userId}`, 'GET', null);
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return result.body.companyId as string;
+    }
+    return null;
+  }
+
   private isDataFoundSassCompanyInfoDS(data: unknown): data is FoundSassCompanyInfoDS {
     return (
       typeof data === 'object' &&

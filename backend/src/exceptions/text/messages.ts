@@ -230,11 +230,13 @@ export const Messages = {
   SAAS_UPDATE_2FA_STATUS_FAILED_UNHANDLED_ERROR: `Failed to update 2fa status in SaaS. Please contact our support team.`,
   SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
   SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
+  SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR: `Failed to get company id by custom domain in. Please contact our support team.`,
   SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
   SLACK_URL_MISSING: 'Slack url is missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SOMETHING_WENT_WRONG_AI_THREAD: 'Something went wrong on AI thread creation, check inserted parameters and try again',
-  SOMETHING_WENT_WRONG_AI_THREAD_MESSAGE: 'Something went wrong on AI thread message creation, check inserted parameters and try again',
+  SOMETHING_WENT_WRONG_AI_THREAD_MESSAGE:
+    'Something went wrong on AI thread message creation, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
   SSH_PORT_MISSING: 'Ssh port is missing',
@@ -363,4 +365,6 @@ export const Messages = {
     `Invalid action method ${method}, supported methods are ${enumToString(TableActionMethodEnum)}`,
   INVALID_EVENT_TYPE: (type: string) =>
     `Invalid event type ${type}, supported types are ${enumToString(TableActionEventEnum)}`,
+  INVALID_REQUEST_DOMAIN: `Invalid request domain`,
+  INVALID_REQUEST_DOMAIN_FORMAT: `Invalid request domain format`,
 };

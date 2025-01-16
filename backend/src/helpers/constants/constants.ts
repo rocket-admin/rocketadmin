@@ -284,7 +284,7 @@ export const Constants = {
     return this.getTestConnectionsArr().map((connection) => connection.host);
   },
 
-  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://localhost:3000`,
+  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://127.0.0.1:3000`,
 
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
   AUTOADMIN_EMAIL_TEXT: `Hi there!

@@ -177,14 +177,17 @@ export const userCustomRepositoryExtension: IUserRepository = {
     email: string,
     externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
   ): Promise<Array<UserEntity>> {
-    const usersQb = this.createQueryBuilder('user').where('user.email = :userEmail', {
-      userEmail: email?.toLowerCase(),
-    });
+    const usersQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.email = :userEmail', {
+        userEmail: email?.toLowerCase(),
+      });
     if (externalRegistrationProvider) {
       usersQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', {
         externalRegistrationProvider: externalRegistrationProvider,
       });
     }
+
     return await usersQb.getMany();
   },
 
