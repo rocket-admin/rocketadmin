@@ -24,7 +24,8 @@ export class VerifyChangeUserEmailUseCase
   }
 
   protected async implementation(inputData: ChangeUserEmailDs): Promise<OperationResultMessageDs> {
-    const { newEmail, verificationString } = inputData;
+    const { verificationString } = inputData;
+    const newEmail = inputData.newEmail.toLowerCase();
     const verificationEntity =
       await this._dbContext.emailChangeRepository.findEmailChangeWithVerificationString(verificationString);
     if (!verificationEntity || !verificationEntity.user) {

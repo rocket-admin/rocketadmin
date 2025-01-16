@@ -31,7 +31,7 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
     let perPage = parseInt(query['perPage']);
     const dateFrom = query['dateFrom'];
     const dateTo = query['dateTo'];
-    const searchedEmail = query['email'];
+    const searchedEmail = query['email']?.toLowerCase();
     const searchedAffectedPrimaryKey: string = query['affected_primary_key'];
     const operationType: LogOperationTypeEnum = query['operationType'];
     if (operationType) {

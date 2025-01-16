@@ -30,13 +30,14 @@ export class SuspendUsersInCompanyUseCase
   }
 
   protected async implementation(inputData: SuspendUsersInCompanyDS): Promise<SuccessResponse> {
-    const { companyInfoId, usersEmails } = inputData;
+    const { companyInfoId } = inputData;
+    const usersEmails = inputData.usersEmails.map((email) => email.toLowerCase());
     const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyInfoId);
     if (!foundCompany) {
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
     }
     const userIdsToSuspend = foundCompany.users
-      .filter((user) => usersEmails.includes(user.email))
+      .filter((user) => usersEmails.includes(user.email.toLowerCase()))
       .map((user) => user.id);
 
     if (!userIdsToSuspend.length) {

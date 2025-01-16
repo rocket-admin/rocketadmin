@@ -20,7 +20,8 @@ export class RequestResetUserPasswordUseCase
   }
 
   protected async implementation(emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
-    const { email, companyId } = emailData;
+    const { companyId } = emailData;
+    const email = emailData.email.toLowerCase();
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
     if (!foundUser) {
       throw new HttpException(

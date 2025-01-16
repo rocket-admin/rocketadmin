@@ -28,7 +28,8 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
   protected async implementation(
     inputData: InviteUserInCompanyAndConnectionGroupDs,
   ): Promise<InvitedUserInCompanyAndConnectionGroupDs> {
-    const { inviterId, companyId, groupId, invitedUserEmail, invitedUserCompanyRole } = inputData;
+    const { inviterId, companyId, groupId, invitedUserCompanyRole } = inputData;
+    const invitedUserEmail = inputData.invitedUserEmail.toLowerCase();
     const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
     if (!foundCompany) {
       throw new HttpException(

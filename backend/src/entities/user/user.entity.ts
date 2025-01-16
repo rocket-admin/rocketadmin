@@ -49,6 +49,7 @@ export class UserEntity {
     if (this.password) {
       this.password = await Encryptor.hashUserPassword(this.password);
     }
+    this.emailToLowerCase();
   }
 
   @BeforeUpdate()
@@ -56,6 +57,7 @@ export class UserEntity {
     if (this.isOTPEnabled && this.otpSecretKey) {
       this.otpSecretKey = Encryptor.encryptData(this.otpSecretKey);
     }
+    this.emailToLowerCase();
   }
 
   @AfterLoad()
@@ -63,6 +65,7 @@ export class UserEntity {
     if (this.isOTPEnabled && this.otpSecretKey) {
       this.otpSecretKey = Encryptor.decryptData(this.otpSecretKey);
     }
+    this.emailToLowerCase();
   }
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -132,4 +135,10 @@ export class UserEntity {
 
   @Column({ default: true })
   showTestConnections: boolean;
+
+  private emailToLowerCase() {
+    if (this.email) {
+      this.email = this.email.toLowerCase();
+    }
+  }
 }

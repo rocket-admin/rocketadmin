@@ -6,9 +6,9 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseInterceptors,
@@ -56,7 +56,7 @@ import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
 import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PasswordDto } from './dto/password.dto.js';
 import { EmailDto } from './dto/email.dto.js';
 import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
@@ -472,11 +472,11 @@ export class UserController {
     description: 'Display mode of test connections changed.',
     type: SuccessResponse,
   })
-  @ApiParam({ name: 'displayMode', required: true, type: 'string', enum: ['on', 'off'] })
+  @ApiQuery({ name: 'displayMode', required: true, type: 'string', enum: ['on', 'off'] })
   @Put('user/test/connections/display/')
   async toggleTestConnectionsDisplayMode(
     @UserId() userId: string,
-    @Param('displayMode') displayMode: string,
+    @Query('displayMode') displayMode: string,
   ): Promise<SuccessResponse> {
     const newDisplayMode = displayMode === 'on';
     const toggleConnectionDisplayModeDs = {

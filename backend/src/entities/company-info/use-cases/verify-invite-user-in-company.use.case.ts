@@ -40,9 +40,9 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
     const {
       company: { users },
       groupId,
-      invitedUserEmail,
       role,
     } = foundInvitation;
+    const invitedUserEmail = foundInvitation.invitedUserEmail.toLowerCase();
     const foundUser = users.find((user) => user.email === invitedUserEmail);
     if (foundUser && foundUser.isActive) {
       throw new HttpException(
@@ -78,7 +78,9 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
           HttpStatus.BAD_REQUEST,
         );
       }
-      const userAlreadyIngroup = foundGroup.users.find((user) => user.email === savedUser.email);
+      const userAlreadyIngroup = foundGroup.users.find(
+        (user) => user.email.toLowerCase() === savedUser.email.toLowerCase(),
+      );
       if (!userAlreadyIngroup) {
         foundGroup.users.push(savedUser);
         await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
@@ -90,7 +92,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
         savedUser.id,
         foundInvitation.company.id,
         foundInvitation.role,
-        savedUser.email,
+        savedUser.email.toLowerCase(),
       );
       if (!saasResult) {
         throw new HttpException(

@@ -15,7 +15,7 @@ export const invitationInCompanyCustomRepositoryExtension: IInvitationInCompanyR
     const qb = this.createQueryBuilder('invitation_in_company')
       .leftJoinAndSelect('invitation_in_company.company', 'company')
       .where('company.id = :companyId', { companyId: companyInfo.id })
-      .andWhere('invitation_in_company.invitedUserEmail = :newUserEmail', { newUserEmail });
+      .andWhere('invitation_in_company.invitedUserEmail = :newUserEmail', { newUserEmail: newUserEmail?.toLowerCase() });
     const foundInvitation = await qb.getOne();
     if (foundInvitation) {
       await this.remove(foundInvitation);
@@ -25,7 +25,7 @@ export const invitationInCompanyCustomRepositoryExtension: IInvitationInCompanyR
     newInvitation.company = companyInfo;
     newInvitation.groupId = groupId ? groupId : null;
     newInvitation.inviterId = inviterId;
-    newInvitation.invitedUserEmail = newUserEmail;
+    newInvitation.invitedUserEmail = newUserEmail?.toLowerCase();
     newInvitation.role = invitedUserRole;
     return await this.save(newInvitation);
   },
