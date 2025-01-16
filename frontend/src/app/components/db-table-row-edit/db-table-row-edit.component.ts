@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Alert, AlertType, ServerError } from 'src/app/models/alert';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
@@ -35,6 +35,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
+import { MatListModule } from '@angular/material/list';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -50,6 +52,7 @@ import { normalizeTableName } from '../../lib/normalize';
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
+    MatListModule,
     RouterModule,
     MatExpansionModule,
     MatChipsModule,
@@ -86,7 +89,8 @@ export class DbTableRowEditComponent implements OnInit {
   public serverError: ServerError;
   public fieldsOrdered: string[];
   public rowActions: CustomAction[];
-  public referencedTables: any;
+  public referencedTables: any = [];
+  public referencedRecords: {} = {};
   public referencedTablesURLParams: any;
   public isDesktop: boolean = true;
   public permissions: TablePermissions;
@@ -101,6 +105,8 @@ export class DbTableRowEditComponent implements OnInit {
     type: AlertType.Error,
     message: 'This is a TEST DATABASE, public to all. Avoid entering sensitive data!'
   }
+
+  private routeSub: Subscription | undefined;
 
   originalOrder = () => { return 0; }
 
@@ -128,12 +134,12 @@ export class DbTableRowEditComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
-    this.tableName = this._tables.currentTableName;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
     const navUrlParams = this._tableState.getBackUrlParams();
     this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};
 
-    this.route.queryParams.subscribe((params) => {
+    this.routeSub = this.route.queryParams.subscribe((params) => {
+      this.tableName = this.route.snapshot.paramMap.get('table-name');
       if (Object.keys(params).length === 0) {
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
@@ -223,6 +229,60 @@ export class DbTableRowEditComponent implements OnInit {
                     filters: JsonURL.stringify(params),
                     page_index: 0
                 }});
+
+              res.referenced_table_names_and_columns[0].referenced_by.forEach((table: any) => {
+                const filters = {[table.column_name]: {
+                  eq: this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name]
+                }};
+
+                this._tables.fetchTable({
+                  connectionID: this.connectionID,
+                  tableName: table.table_name,
+                  requstedPage: 1,
+                  chunkSize: 30,
+                  filters
+                }).subscribe((res) => {
+                  let identityColumn = res.identity_column;
+                  let fieldsOrder = [];
+
+                  console.log(res);
+
+                  if (res.identity_column && res.list_fields.length) {
+                    identityColumn = res.identity_column;
+                    fieldsOrder = res.list_fields.filter((field: string) => field !== res.identity_column).slice(0, 3);
+                  }
+
+                  if (res.identity_column && !res.list_fields.length) {
+                    identityColumn = res.identity_column;
+                    fieldsOrder = res.structure.filter((field: TableField) => field.column_name !== res.identity_column).map((field: TableField) => field.column_name).slice(0, 3);
+                  }
+
+                  if (!res.identity_column && res.list_fields.length) {
+                    identityColumn = res.list_fields[0];
+                    fieldsOrder = res.list_fields.slice(1, 4);
+                  }
+
+                  if (!res.identity_column && !res.list_fields.length) {
+                    identityColumn = res.structure[0].column_name;
+                    console.log(identityColumn);
+                    fieldsOrder = res.structure.slice(1, 4).map((field: TableField) => field.column_name);
+                  }
+
+                  const tableRecords = {
+                    rows: res.rows,
+                    links: res.rows.map(row => {
+                      let params = {};
+                      Object.keys(res.primaryColumns).forEach((key) => {
+                        params[res.primaryColumns[key].column_name] = row[res.primaryColumns[key].column_name];
+                      });
+                      return params;
+                    }),
+                    identityColumn,
+                    fieldsOrder
+                  }
+                  this.referencedRecords[table.table_name] = tableRecords;
+                });
+              });
             }
 
             this.loading = false;
