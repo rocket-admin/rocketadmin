@@ -55,7 +55,8 @@
                 <mat-expansion-panel-header>
                     <mat-panel-title> {{referencedTable.displayTableName}} </mat-panel-title>
                     <mat-panel-description class="related-records__actions">
-                        <a mat-icon-button
+                        <span *ngIf="!referencedRecords[referencedTable.table_name]?.rows.length">No related records</span>
+                        <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]?.rows.length"
                             [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'settings']"
                             matTooltip="Set up records view">
                             <mat-icon>settings</mat-icon>

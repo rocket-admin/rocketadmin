@@ -89,7 +89,7 @@ export class DbTableRowEditComponent implements OnInit {
   public serverError: ServerError;
   public fieldsOrdered: string[];
   public rowActions: CustomAction[];
-  public referencedTables: any;
+  public referencedTables: any = [];
   public referencedRecords: {} = {};
   public referencedTablesURLParams: any;
   public isDesktop: boolean = true;
