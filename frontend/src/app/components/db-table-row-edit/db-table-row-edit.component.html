@@ -54,6 +54,19 @@
             <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index">
                 <mat-expansion-panel-header>
                     <mat-panel-title> {{referencedTable.displayTableName}} </mat-panel-title>
+                    <mat-panel-description class="related-records__actions">
+                        <a mat-icon-button
+                            [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'settings']"
+                            matTooltip="Set up records view">
+                            <mat-icon>settings</mat-icon>
+                        </a>
+                        <a mat-icon-button
+                            routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
+                            [queryParams]="referencedTablesURLParams[i]"
+                            matTooltip="Open records in table view">
+                            <mat-icon>open_in_new</mat-icon>
+                        </a>
+                    </mat-panel-description>
                 </mat-expansion-panel-header>
 
                 <mat-nav-list>
