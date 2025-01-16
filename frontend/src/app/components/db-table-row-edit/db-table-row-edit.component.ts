@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Alert, AlertType, ServerError } from 'src/app/models/alert';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
@@ -36,6 +36,7 @@ import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
 import { MatListModule } from '@angular/material/list';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -105,6 +106,8 @@ export class DbTableRowEditComponent implements OnInit {
     message: 'This is a TEST DATABASE, public to all. Avoid entering sensitive data!'
   }
 
+  private routeSub: Subscription | undefined;
+
   originalOrder = () => { return 0; }
 
   constructor(
@@ -131,12 +134,12 @@ export class DbTableRowEditComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
-    this.tableName = this._tables.currentTableName;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
     const navUrlParams = this._tableState.getBackUrlParams();
     this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};
 
-    this.route.queryParams.subscribe((params) => {
+    this.routeSub = this.route.queryParams.subscribe((params) => {
+      this.tableName = this.route.snapshot.paramMap.get('table-name');
       if (Object.keys(params).length === 0) {
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
@@ -267,10 +270,15 @@ export class DbTableRowEditComponent implements OnInit {
 
                   const tableRecords = {
                     rows: res.rows,
+                    links: res.rows.map(row => {
+                      let params = {};
+                      Object.keys(res.primaryColumns).forEach((key) => {
+                        params[res.primaryColumns[key].column_name] = row[res.primaryColumns[key].column_name];
+                      });
+                      return params;
+                    }),
                     identityColumn,
-                    fieldsOrder,
-                    list_fields: res.list_fields,
-                    identity_column: res.identity_column
+                    fieldsOrder
                   }
                   this.referencedRecords[table.table_name] = tableRecords;
                 });

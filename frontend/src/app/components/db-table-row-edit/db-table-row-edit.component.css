@@ -114,6 +114,14 @@
     border: 1px solid var(--mdc-chip-elevated-container-color) !important;
 }
 
+.related-record {
+    --mdc-list-list-item-two-line-container-height: 60px;
+}
+
+.related-record ::ng-deep .mdc-list-item__primary-text::before {
+    height: 24px;
+}
+
 .widget {
     display: grid;
     grid-template-columns: 0 1fr 36px;
