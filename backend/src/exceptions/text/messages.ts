@@ -231,6 +231,7 @@ export const Messages = {
   SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
   SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
   SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR: `Failed to get company id by custom domain in. Please contact our support team.`,
+  SAAS_GET_COMPANY_CUSTOM_DOMAIN_BY_ID_FAILED_UNHANDLED_ERROR: `Failed to get company custom domain by id. Please contact our support team.`,
   SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
   SLACK_URL_MISSING: 'Slack url is missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',

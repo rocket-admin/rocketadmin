@@ -6,6 +6,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { sendEmailChangeRequest } from '../../email/send-email.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { IRequestEmailChange } from './user-use-cases.interfaces.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
 @Injectable()
 export class RequestChangeUserEmailUseCase
@@ -15,6 +16,7 @@ export class RequestChangeUserEmailUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -29,10 +31,15 @@ export class RequestChangeUserEmailUseCase
         HttpStatus.FORBIDDEN,
       );
     }
-    const savedEmailChangeRequest = await this._dbContext.emailChangeRepository.createOrUpdateEmailChangeEntity(
-      foundUser,
+    const savedEmailChangeRequest =
+      await this._dbContext.emailChangeRepository.createOrUpdateEmailChangeEntity(foundUser);
+    const userCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
+    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(userCompanyInfo.id);
+    const mailingResult = await sendEmailChangeRequest(
+      foundUser.email,
+      savedEmailChangeRequest.verification_string,
+      companyCustomDomain,
     );
-    const mailingResult = await sendEmailChangeRequest(foundUser.email, savedEmailChangeRequest.verification_string);
     const resultMessage = mailingResult.messageId
       ? Messages.EMAIL_CHANGE_REQUESTED_SUCCESSFULLY
       : Messages.EMAIL_CHANGE_REQUESTED;

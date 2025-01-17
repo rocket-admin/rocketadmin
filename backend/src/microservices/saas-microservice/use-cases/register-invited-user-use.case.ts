@@ -9,6 +9,7 @@ import { RegisterUserDs } from '../../../entities/user/application/data-structur
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { ISaaSRegisterInvitedUser } from './saas-use-cases.interface.js';
+import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
 @Injectable()
 export class SaasRegisterInvitedUserUseCase
@@ -18,6 +19,7 @@ export class SaasRegisterInvitedUserUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -61,7 +63,9 @@ export class SaasRegisterInvitedUserUseCase
     const createdEmailVerification =
       await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
 
-    await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string);
+    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+
+    await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string, companyCustomDomain);
     return {
       id: savedUser.id,
       createdAt: savedUser.createdAt,

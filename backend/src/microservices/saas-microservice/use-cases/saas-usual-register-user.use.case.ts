@@ -19,6 +19,7 @@ import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
+import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
 export class SaasUsualRegisterUseCase
   extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDto>
@@ -27,6 +28,7 @@ export class SaasUsualRegisterUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -84,7 +86,8 @@ export class SaasUsualRegisterUseCase
     // }
     const createdEmailVerification =
       await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
-    await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string);
+    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+    await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string, companyCustomDomain);
 
     if (foundCompany) {
       foundCompany.users.push(savedUser);
