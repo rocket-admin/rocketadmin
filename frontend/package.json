@@ -18,7 +18,7 @@
     "@angular/cdk": "~19.0.3",
     "@angular/common": "~19.0.4",
     "@angular/compiler": "~19.0.4",
-    "@angular/core": "~19.0.5",
+    "@angular/core": "~19.1.1",
     "@angular/forms": "~19.0.4",
     "@angular/material": "~19.0.3",
     "@angular/platform-browser": "~19.0.4",
