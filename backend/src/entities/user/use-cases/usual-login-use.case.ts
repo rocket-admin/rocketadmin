@@ -74,12 +74,15 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     //   throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
     // }
 
-    const appDomain = Constants.ALLOWED_REQUEST_DOMAIN();
-    if (requestDomain === appDomain) {
+    const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`];
+
+    if (allowedDomains.includes(requestDomain)) {
       return;
     }
+
     if (isTest()) {
-      if (appDomain.includes(requestDomain)) {
+      allowedDomains.push(`127.0.0.1`);
+      if (allowedDomains.includes(requestDomain)) {
         return;
       }
     }
