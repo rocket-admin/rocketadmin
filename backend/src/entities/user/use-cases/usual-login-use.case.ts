@@ -73,7 +73,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
     }
 
-    const appDomain = Constants.APP_DOMAIN_ADDRESS;
+    const appDomain = Constants.ALLOWED_REQUEST_DOMAIN();
     if (requestDomain === appDomain) {
       return;
     }
