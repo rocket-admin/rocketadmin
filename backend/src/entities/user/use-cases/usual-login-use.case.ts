@@ -69,9 +69,10 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     if (!isSaaS()) {
       return;
     }
-    if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
-      throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
-    }
+
+    // if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
+    //   throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
+    // }
 
     const appDomain = Constants.ALLOWED_REQUEST_DOMAIN();
     if (requestDomain === appDomain) {
