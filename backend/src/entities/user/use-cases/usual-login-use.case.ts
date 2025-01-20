@@ -66,6 +66,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
   }
 
   private async validateRequestDomain(requestDomain: string, companyId: string, userId: string): Promise<void> {
+    console.log('🚀 ~ UsualLoginUseCase ~ validateRequestDomain ~ requestDomain:', requestDomain)
     if (!isSaaS()) {
       return;
     }
