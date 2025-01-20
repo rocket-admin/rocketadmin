@@ -9,7 +9,6 @@ import { generateGwtToken, generateTemporaryJwtToken, IToken } from '../utils/ge
 import { IUsualLogin } from './user-use-cases.interfaces.js';
 import { UserEntity } from '../user.entity.js';
 import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { isTest } from '../../../helpers/app/is-test.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
@@ -66,15 +65,13 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
   }
 
   private async validateRequestDomain(requestDomain: string, companyId: string, userId: string): Promise<void> {
-    console.log('🚀 ~ UsualLoginUseCase ~ validateRequestDomain ~ requestDomain:', requestDomain);
-    return;
     if (!isSaaS()) {
       return;
     }
 
-    // if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
-    //   throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
-    // }
+    if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
+      throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
+    }
 
     const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`];
 
