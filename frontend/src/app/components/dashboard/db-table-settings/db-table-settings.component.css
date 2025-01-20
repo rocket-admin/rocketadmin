@@ -35,8 +35,8 @@
 }
 
 .settings-fields__heading {
-    margin-top: 20px;
-    margin-bottom: -4px;
+    margin-top: 20px !important;
+    margin-bottom: -4px !important;
 }
 
 .icon-picker {
