@@ -47,14 +47,15 @@ export async function sendEmailToUser(letterContent: IMessage): Promise<SMTPTran
 export async function sendPasswordResetRequest(
   email: string,
   requestString: string,
+  customCompanyDomain: string | null,
 ): Promise<SMTPTransport.SentMessageInfo> {
   const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   const letterContent: IMessage = {
     from: emailFrom,
     to: email,
     subject: Constants.EMAIL.PASSWORD.RESET_PASSWORD_REQUEST_SUBJECT_DATA,
-    text: Constants.EMAIL.PASSWORD.RESET_PASSWORD_EMAIL_TEXT(requestString),
-    html: Constants.EMAIL.PASSWORD.RESET_PASSWORD_EMAIL_HTML(requestString),
+    text: Constants.EMAIL.PASSWORD.RESET_PASSWORD_EMAIL_TEXT(requestString, customCompanyDomain),
+    html: Constants.EMAIL.PASSWORD.RESET_PASSWORD_EMAIL_HTML(requestString, customCompanyDomain),
   };
   return await sendEmailToUser(letterContent);
 }
@@ -62,14 +63,15 @@ export async function sendPasswordResetRequest(
 export async function sendEmailChangeRequest(
   email: string,
   requestString: string,
+  customCompanyDomain: string | null,
 ): Promise<SMTPTransport.SentMessageInfo> {
   const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   const letterContent: IMessage = {
     from: emailFrom,
     to: email,
     subject: Constants.EMAIL.EMAIL.CHANGE_EMAIL_SUBJECT_DATA,
-    text: Constants.EMAIL.EMAIL.CHANGE_EMAIL_TEXT(requestString),
-    html: Constants.EMAIL.EMAIL.CHANGE_EMAIL_HTML(requestString),
+    text: Constants.EMAIL.EMAIL.CHANGE_EMAIL_TEXT(requestString, customCompanyDomain),
+    html: Constants.EMAIL.EMAIL.CHANGE_EMAIL_HTML(requestString, customCompanyDomain),
   };
   return await sendEmailToUser(letterContent);
 }
@@ -101,14 +103,15 @@ export async function sendReminderToUser(email: string): Promise<SMTPTransport.S
 export async function sendEmailConfirmation(
   email: string,
   verificationString: string,
+  customCompanyDomain: string | null,
 ): Promise<SMTPTransport.SentMessageInfo> {
   const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   const letterContent: IMessage = {
     from: emailFrom,
     to: email,
     subject: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_SUBJECT,
-    text: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_TEXT(verificationString),
-    html: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_HTML(verificationString),
+    text: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_TEXT(verificationString, customCompanyDomain),
+    html: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_HTML(verificationString, customCompanyDomain),
   };
   return await sendEmailToUser(letterContent);
 }
@@ -118,14 +121,25 @@ export async function sendInvitationToCompany(
   verificationString: string,
   companyId: string,
   companyName: string,
+  customCompanyDomain: string | null,
 ): Promise<SMTPTransport.SentMessageInfo | null> {
   const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   const letterContent: IMessage = {
     from: emailFrom,
     to: email,
     subject: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_SUBJECT_DATA,
-    text: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_TEXT_DATA(verificationString, companyId, companyName),
-    html: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_HTML_DATA(verificationString, companyId, companyName),
+    text: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_TEXT_DATA(
+      verificationString,
+      customCompanyDomain,
+      companyId,
+      companyName,
+    ),
+    html: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_HTML_DATA(
+      verificationString,
+      customCompanyDomain,
+      companyId,
+      companyName,
+    ),
   };
   return await sendEmailToUser(letterContent);
 }

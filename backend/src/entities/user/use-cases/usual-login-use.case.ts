@@ -9,18 +9,25 @@ import { generateGwtToken, generateTemporaryJwtToken, IToken } from '../utils/ge
 import { IUsualLogin } from './user-use-cases.interfaces.js';
 import { UserEntity } from '../user.entity.js';
 import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { isTest } from '../../../helpers/app/is-test.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 
 @Injectable()
 export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualLogin {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
 
   protected async implementation(userData: UsualLoginDs): Promise<IToken> {
-    const { companyId } = userData;
+    const { request_domain } = userData;
+    let { companyId } = userData;
     const email = userData.email.toLowerCase();
     let user: UserEntity = null;
 
@@ -35,6 +42,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
         throw new BadRequestException(Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
       }
       user = foundUsers[0];
+      companyId = foundUsers[0].company.id;
     }
 
     if (!user) {
@@ -43,6 +51,9 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     if (!userData.password) {
       throw new BadRequestException(Messages.PASSWORD_MISSING);
     }
+
+    await this.validateRequestDomain(request_domain, companyId, user.id);
+
     const passwordValidationResult = await Encryptor.verifyUserPassword(userData.password, user.password);
     if (!passwordValidationResult) {
       throw new BadRequestException(Messages.LOGIN_DENIED);
@@ -52,5 +63,33 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     }
     const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(user.id);
     return generateGwtToken(user, get2FaScope(user, foundUserCompany));
+  }
+
+  private async validateRequestDomain(requestDomain: string, companyId: string, userId: string): Promise<void> {
+    if (!isSaaS()) {
+      return;
+    }
+    if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
+      throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
+    }
+
+    const appDomain = Constants.APP_DOMAIN_ADDRESS;
+    if (requestDomain === appDomain) {
+      return;
+    }
+    if (isTest()) {
+      if (appDomain.includes(requestDomain)) {
+        return;
+      }
+    }
+    const companyIdByDomain: string | null = await this.saasCompanyGatewayService.getCompanyIdByCustomDomainAndUserId(
+      requestDomain,
+      userId,
+    );
+
+    if (companyIdByDomain && companyIdByDomain === companyId) {
+      return;
+    }
+    throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN);
   }
 }

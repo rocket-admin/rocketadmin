@@ -284,7 +284,7 @@ export const Constants = {
     return this.getTestConnectionsArr().map((connection) => connection.host);
   },
 
-  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://localhost:3000`,
+  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://127.0.0.1:3000`,
 
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
   AUTOADMIN_EMAIL_TEXT: `Hi there!
@@ -434,15 +434,16 @@ export const Constants = {
 
   EMAIL: {
     AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
-    API_PATH: 'v2.autoadmin.org/api',
     PASSWORD: {
       RESET_PASSWORD_REQUEST_SUBJECT_DATA: 'Reset password request',
-      RESET_PASSWORD_EMAIL_TEXT: function (requestString: string): string {
+      RESET_PASSWORD_EMAIL_TEXT: function (requestString: string, customCompanyDomain: string | null): string {
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `We've received a request to change your password.
-          Follow the link to confirm - ${Constants.APP_DOMAIN_ADDRESS}/external/user/password/reset/verify/${requestString}.
+          Follow the link to confirm - ${domain}/external/user/password/reset/verify/${requestString}.
           If you don't use this link within 3 hours, it will expire. If you didn't request a password reset, you can ignore this email; your password will not be changed.`;
       },
-      RESET_PASSWORD_EMAIL_HTML: function (requestString: string): string {
+      RESET_PASSWORD_EMAIL_HTML: function (requestString: string, customCompanyDomain: string | null): string {
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `
         <!doctype html>
           <html>
@@ -554,7 +555,7 @@ export const Constants = {
                                           <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;" width="auto">
                                             <tbody>
                                               <tr>
-                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${Constants.APP_DOMAIN_ADDRESS}/external/user/password/reset/verify/${requestString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Reset Password</a> </td>
+                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${domain}/external/user/password/reset/verify/${requestString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Reset Password</a> </td>
                                               </tr>
                                             </tbody>
                                           </table>
@@ -594,42 +595,19 @@ export const Constants = {
 
         `;
       },
-
-      NEW_PASSWORD_SUBJECT_DATA: `Password for Rocketadmin changed`,
-      NEW_PASSWORD_EMAIL_TEXT: function (newPassword: string): string {
-        return `Hi! Your password for Rocketadmin has been changed. Your new password is: ${newPassword}
-         If it wasn't you, please contact our support team.`;
-      },
-      NEW_PASSWORD_EMAIL_HTML: function (newPassword: string): string {
-        return `
-        <body>
-          <p>
-            Hi!
-          </p>
-          <p>
-          Your password for Rocketadmin has been changed. Your new password is:
-          <b>${newPassword}</b>
-          </p>
-          <p>
-          If it wasn't you, please contact our support team or reply to this email with your questions.
-          </p>
-          <p>
-          Thanks.
-          </p>
-        </body>
-        `;
-      },
     },
     EMAIL: {
       CHANGE_EMAIL_SUBJECT_DATA: 'Email Change Request',
-      CHANGE_EMAIL_TEXT: function (requestString: string) {
+      CHANGE_EMAIL_TEXT: function (requestString: string, customCompanyDomain: string | null) {
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `We received a request to change your email address.
-          Follow the link to confirm - ${Constants.APP_DOMAIN_ADDRESS}/external/user/email/change/verify/${requestString}.
+          Follow the link to confirm - ${domain}/external/user/email/change/verify/${requestString}.
           If you didn't request an email change, please contact our support team or reply to this email with your questions.`;
       },
       CHANGED_EMAIL_TEXT: 'Hi! Your email address has been successfully updated. Thanks!',
       CHANGED_EMAIL_SUBJECT_DATA: 'Your Rocketadmin email has been successfully changed',
-      CHANGE_EMAIL_HTML: function (requestString: string) {
+      CHANGE_EMAIL_HTML: function (requestString: string, customCompanyDomain: string | null) {
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `
         <!doctype html>
           <html>
@@ -741,7 +719,7 @@ export const Constants = {
                                           <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;" width="auto">
                                             <tbody>
                                               <tr>
-                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${Constants.APP_DOMAIN_ADDRESS}/external/user/email/change/verify/${requestString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Change Email</a> </td>
+                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${domain}/external/user/email/change/verify/${requestString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Change Email</a> </td>
                                               </tr>
                                             </tbody>
                                           </table>
@@ -886,12 +864,14 @@ export const Constants = {
         </html>
       `,
       CONFIRM_EMAIL_SUBJECT: `Finish your registration in Rocketadmin`,
-      CONFIRM_EMAIL_TEXT: function (verificationString: string) {
+      CONFIRM_EMAIL_TEXT: function (verificationString: string, customCompanyDomain: string | null) {
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `To keep your account secure, we need to verify your email address. Please follow the link to complete the verification.
-       ${Constants.APP_DOMAIN_ADDRESS}/external/user/email/verify/${verificationString}
+       ${domain}/external/user/email/verify/${verificationString}
        `;
       },
-      CONFIRM_EMAIL_HTML: function (verificationString: string) {
+      CONFIRM_EMAIL_HTML: function (verificationString: string, customCompanyDomain: string | null) {
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `
          <!doctype html>
           <html>
@@ -1003,7 +983,7 @@ export const Constants = {
                                           <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;" width="auto">
                                             <tbody>
                                               <tr>
-                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${Constants.APP_DOMAIN_ADDRESS}/external/user/email/verify/${verificationString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 45px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Verify</a> </td>
+                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${domain}/external/user/email/verify/${verificationString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 45px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Verify</a> </td>
                                               </tr>
                                             </tbody>
                                           </table>
@@ -1190,14 +1170,26 @@ export const Constants = {
     },
     COMPANY_INVITE: {
       COMPANY_INVITE_SUBJECT_DATA: 'You were invited to a company on Rocketadmin',
-      COMPANY_INVITE_TEXT_DATA: function (verificationString: string, companyId: string, companyName: string) {
+      COMPANY_INVITE_TEXT_DATA: function (
+        verificationString: string,
+        customCompanyDomain: string | null,
+        companyId: string,
+        companyName: string,
+      ) {
         companyName = escapeHtml(companyName);
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `You have been added to a company${companyName ? ` "${companyName}" ` : ` `}in the Rocketadmin project.
          Please follow the link and accept the invitation:
-           ${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${verificationString}/`;
+           ${domain}/company/${companyId}/verify/${verificationString}/`;
       },
-      COMPANY_INVITE_HTML_DATA: function (verificationString: string, companyId: string, companyName: string) {
+      COMPANY_INVITE_HTML_DATA: function (
+        verificationString: string,
+        customCompanyDomain: string | null,
+        companyId: string,
+        companyName: string,
+      ) {
         companyName = escapeHtml(companyName);
+        const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `
         <!doctype html>
           <html>
@@ -1314,7 +1306,7 @@ export const Constants = {
                                           <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;" width="auto">
                                             <tbody>
                                               <tr>
-                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${verificationString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 45px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Accept Invitation</a> </td>
+                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${domain}/company/${companyId}/verify/${verificationString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 45px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Accept Invitation</a> </td>
                                               </tr>
                                             </tbody>
                                           </table>
