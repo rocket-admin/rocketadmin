@@ -13,6 +13,7 @@ import {
   parseTestDynamoDBConnectionString,
 } from '../parsers/string-connection-to-database-parsers.js';
 import { escapeHtml } from '../../entities/email/utils/escape-html.util.js';
+import { isTest } from '../app/is-test.js';
 
 export type TestConnectionsFromJSON = {
   //string value represents the connection string, to connect to the database
@@ -285,6 +286,12 @@ export const Constants = {
   },
 
   APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://127.0.0.1:3000`,
+  ALLOWED_REQUEST_DOMAIN: function (): string {
+    if (isTest()) {
+      return Constants.APP_DOMAIN_ADDRESS;
+    }
+    return `app.rocketadmin.com`;
+  },
 
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
   AUTOADMIN_EMAIL_TEXT: `Hi there!
