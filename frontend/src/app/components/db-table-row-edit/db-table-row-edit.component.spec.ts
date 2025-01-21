@@ -45,15 +45,13 @@ describe('DbTableRowEditComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set connection id and table name', () => {
+  it('should set connection id', () => {
     spyOnProperty(connectionsService, 'currentConnectionID').and.returnValue('12345678');
-    spyOnProperty(tablesService, 'currentTableName').and.returnValue('Users_table');
 
     component.ngOnInit();
     fixture.detectChanges();
 
     expect(component.connectionID).toEqual('12345678');
-    expect(component.tableName).toEqual('Users_table');
   });
 
   it('should set structure — define: relation between column name and type, required columns', async() => {

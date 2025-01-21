@@ -157,7 +157,7 @@ export class UserModule implements NestModule {
         { path: 'user/email/change/request', method: RequestMethod.GET },
         { path: 'user/settings', method: RequestMethod.POST },
         { path: 'user/settings', method: RequestMethod.GET },
-        {path: 'user/test/connections/display/', method: RequestMethod.PUT},
+        { path: 'user/test/connections/display/', method: RequestMethod.PUT },
       )
       .apply(TemporaryAuthMiddleware)
       .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST })

@@ -25,6 +25,7 @@ export class GetUsersInfosByEmailUseCase
     );
     return foundUsers.map((user) => {
       delete user.password;
+      delete user.company;
       return user;
     });
   }

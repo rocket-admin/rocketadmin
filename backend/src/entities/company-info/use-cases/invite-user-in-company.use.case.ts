@@ -28,7 +28,8 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
   protected async implementation(
     inputData: InviteUserInCompanyAndConnectionGroupDs,
   ): Promise<InvitedUserInCompanyAndConnectionGroupDs> {
-    const { inviterId, companyId, groupId, invitedUserEmail, invitedUserCompanyRole } = inputData;
+    const { inviterId, companyId, groupId, invitedUserCompanyRole } = inputData;
+    const invitedUserEmail = inputData.invitedUserEmail.toLowerCase();
     const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
     if (!foundCompany) {
       throw new HttpException(
@@ -66,6 +67,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
     }
 
     if (foundInvitedUser && !foundInvitedUser.isActive) {
+      const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
       const renewedInvitation = await this._dbContext.invitationInCompanyRepository.createOrUpdateInvitationInCompany(
         foundCompany,
         groupId,
@@ -78,6 +80,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
         renewedInvitation.verification_string,
         foundCompany.id,
         foundCompany.name,
+        companyCustomDomain,
       );
 
       if (!sendEmailResult && !isTest() && !isSaaS()) {
@@ -116,7 +119,14 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       invitedUserEmail,
       invitedUserCompanyRole,
     );
-    await sendInvitationToCompany(invitedUserEmail, newInvitation.verification_string, companyId, foundCompany.name);
+    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+    await sendInvitationToCompany(
+      invitedUserEmail,
+      newInvitation.verification_string,
+      companyId,
+      foundCompany.name,
+      companyCustomDomain,
+    );
     if (isSaaS()) {
       await this.saasCompanyGatewayService.invitationSentWebhook(
         companyId,

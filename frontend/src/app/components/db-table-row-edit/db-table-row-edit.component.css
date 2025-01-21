@@ -96,22 +96,16 @@
     }
 }
 
-.related-tables {
-    margin-top: -4px;
+.related-records__actions {
+    justify-content: flex-end;
 }
 
-@media (width <= 600px) {
-    .related-tables {
-        margin: 4px -14px 0;
-    }
+.related-record {
+    --mdc-list-list-item-two-line-container-height: 60px;
 }
 
-.related-tables ::ng-deep .mat-mdc-standard-chip {
-    background-color: transparent !important;
-}
-
-.related-tables ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__action--primary::before {
-    border: 1px solid var(--mdc-chip-elevated-container-color) !important;
+.related-record ::ng-deep .mdc-list-item__primary-text::before {
+    height: 24px;
 }
 
 .widget {

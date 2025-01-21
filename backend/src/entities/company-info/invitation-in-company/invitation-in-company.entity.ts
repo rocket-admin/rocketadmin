@@ -1,5 +1,14 @@
- 
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  AfterLoad,
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 
@@ -33,4 +42,25 @@ export class InvitationInCompanyEntity {
   @ManyToOne((_) => CompanyInfoEntity, (companyInfo) => companyInfo.invitations, { onDelete: 'CASCADE' })
   @JoinColumn()
   company: Relation<CompanyInfoEntity>;
+
+  @BeforeInsert()
+  beforeInsertActions() {
+    this.emailToLowerCase();
+  }
+
+  @BeforeUpdate()
+  beforeUpdateActions() {
+    this.emailToLowerCase();
+  }
+
+  @AfterLoad()
+  afterLoadActions() {
+    this.emailToLowerCase();
+  }
+
+  private emailToLowerCase() {
+    if (this.invitedUserEmail) {
+      this.invitedUserEmail = this.invitedUserEmail.toLowerCase();
+    }
+  }
 }

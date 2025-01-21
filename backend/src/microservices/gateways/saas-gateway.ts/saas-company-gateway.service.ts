@@ -21,7 +21,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
   ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
     const registrationResult = await this.sendRequestToSaaS(`/webhook/company/register`, 'POST', {
       userId,
-      userEmail,
+      userEmail: userEmail?.toLowerCase(),
       gitHubId,
     });
 
@@ -65,7 +65,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
   ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
     const registrationResult = await this.sendRequestToSaaS(`/webhook/company/invite`, 'POST', {
       userId: newUserId,
-      userEmail: newUserEmail,
+      userEmail: newUserEmail?.toLowerCase(),
       companyId: companyId,
       userRole: userRole,
       inviterId: inviterId,
@@ -140,7 +140,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     userEmail: string,
     gitHubId: number,
   ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
-    return await this.registerCompanyWhenUserInviteInGroup(userId, userEmail, gitHubId);
+    return await this.registerCompanyWhenUserInviteInGroup(userId, userEmail?.toLowerCase(), gitHubId);
   }
 
   public async invitationSentWebhook(
@@ -151,7 +151,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     verificationString: string,
   ): Promise<void> {
     const { body, status } = await this.sendRequestToSaaS(`/webhook/company/invitation`, 'POST', {
-      userEmail: newUserEmail,
+      userEmail: newUserEmail?.toLowerCase(),
       companyId: companyId,
       userRole: userRole,
       inviterId: inviterId,
@@ -178,7 +178,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       newUserId,
       companyId,
       userRole,
-      newUserEmail,
+      newUserEmail: newUserEmail?.toLowerCase(),
     });
     if (isObjectEmpty(result.body)) {
       return null;
@@ -335,6 +335,50 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       return {
         success: result.body.success as boolean,
       };
+    }
+    return null;
+  }
+
+  public async getCompanyIdByCustomDomainAndUserId(
+    customCompanyDomain: string,
+    userId: string,
+  ): Promise<string | null> {
+    const result = await this.sendRequestToSaaS(
+      `/webhook/company/domain/${customCompanyDomain}/${userId}`,
+      'GET',
+      null,
+    );
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return result.body.companyId as string;
+    }
+    return null;
+  }
+
+  public async getCompanyCustomDomainById(companyId: string): Promise<string | null> {
+    if (!isSaaS()) {
+      return null;
+    }
+    const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/domain/`, 'GET', null);
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_GET_COMPANY_CUSTOM_DOMAIN_BY_ID_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return result.body.customCompanyDomain as string;
     }
     return null;
   }

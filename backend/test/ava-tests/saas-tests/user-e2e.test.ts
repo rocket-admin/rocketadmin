@@ -1,25 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import test from 'ava';
+import { faker } from '@faker-js/faker';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import test from 'ava';
+import { ValidationError } from 'class-validator';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { IUserInfo } from '../../../src/entities/user/user.interface.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { TestUtils } from '../../utils/test.utils.js';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
-import { Constants } from '../../../src/helpers/constants/constants.js';
-import { IUserInfo } from '../../../src/entities/user/user.interface.js';
-import { faker } from '@faker-js/faker';
-import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
-import cookieParser from 'cookie-parser';
 import {
   registerUserAndReturnUserInfo,
   registerUserOnSaasAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
-import { createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions } from '../../utils/user-with-different-permissions-utils.js';
-import { Messages } from '../../../src/exceptions/text/messages.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
+import { sendRequestToSaasPart } from '../../utils/send-request-to-saas-part.util.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 let app: INestApplication;
 let currentTest: string;
@@ -61,7 +60,7 @@ test.serial(`${currentTest} should user info for this user`, async (t) => {
     const getUserRO: IUserInfo = JSON.parse(getUserResult.text);
 
     t.is(getUserRO.isActive, false);
-    t.is(getUserRO.email, adminUserRegisterInfo.email);
+    t.is(getUserRO.email, adminUserRegisterInfo.email.toLowerCase());
     t.is(getUserRO.hasOwnProperty('createdAt'), true);
   } catch (err) {
     throw err;
@@ -88,7 +87,7 @@ test.serial(`${currentTest} should return user deletion result`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const deleteUserRO = JSON.parse(deleteUserResult.text);
-    t.is(deleteUserRO.email, adminUserRegisterInfo.email);
+    t.is(deleteUserRO.email, adminUserRegisterInfo.email.toLowerCase());
     getUserResult = await request(app.getHttpServer())
       .get('/user')
       .set('Cookie', token)
@@ -369,3 +368,96 @@ test.serial(`${currentTest} should toggle test connections display mode`, async 
   }
   t.pass();
 });
+
+test.serial(
+  `${currentTest} should throw exception when user login with company id from custom domain (domain not added)`,
+  async (t) => {
+    try {
+      const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+      const { email, password } = adminUserRegisterInfo;
+
+      const foundCompanyInfos = await request(app.getHttpServer())
+        .get(`/company/my/email/${email}`)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
+
+      const loginBodyRequest = {
+        email,
+        password,
+        companyId: foundCompanyInfosRO[0].id,
+      };
+      const testHostName = faker.internet.domainName();
+      const loginUserResult = await request(app.getHttpServer())
+        .post('/user/login/')
+        .send(loginBodyRequest)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .set('Host', testHostName);
+
+      t.is(loginUserResult.status, 400);
+      const loginUserRO = JSON.parse(loginUserResult.text);
+      t.is(loginUserRO.message, Messages.INVALID_REQUEST_DOMAIN);
+    } catch (err) {
+      throw err;
+    }
+    t.pass();
+  },
+);
+
+test.serial(
+  `${currentTest} should login user successfully with company id from custom domain (is added)`,
+  async (t) => {
+    try {
+      const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+      const { email, password, token } = adminUserRegisterInfo;
+
+      const foundCompanyInfos = await request(app.getHttpServer())
+        .get(`/company/my/email/${email}`)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
+      const companyId = foundCompanyInfosRO[0].id;
+
+      const loginBodyRequest = {
+        email,
+        password,
+        companyId,
+      };
+
+      const customDomain = faker.internet.domainName();
+      const requestDomainData = {
+        hostname: customDomain,
+      };
+
+      const registerDomainResponse = await sendRequestToSaasPart(
+        `custom-domain/register/${companyId}`,
+        'POST',
+        requestDomainData,
+        token,
+      );
+      t.is(registerDomainResponse.status, 201);
+      const registerDomainResponseRO = await registerDomainResponse.json();
+
+      t.is(registerDomainResponseRO.hostname, customDomain);
+      t.is(registerDomainResponseRO.companyId, companyId);
+      t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
+      t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+      t.is(Object.keys(registerDomainResponseRO).length, 5);
+
+      const loginUserResult = await request(app.getHttpServer())
+        .post('/user/login/')
+        .send(loginBodyRequest)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .set('Host', customDomain);
+
+      t.is(loginUserResult.status, 201);
+    } catch (err) {
+      throw err;
+    }
+    t.pass();
+  },
+);

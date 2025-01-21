@@ -1,12 +1,13 @@
-import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IRequestPasswordReset } from './user-use-cases.interfaces.js';
 import { HttpException, HttpStatus, Inject } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { sendPasswordResetRequest } from '../../email/send-email.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { sendPasswordResetRequest } from '../../email/send-email.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
+import { IRequestPasswordReset } from './user-use-cases.interfaces.js';
 
 export class RequestResetUserPasswordUseCase
   extends AbstractUseCase<RequestRestUserPasswordDto, OperationResultMessageDs>
@@ -15,12 +16,14 @@ export class RequestResetUserPasswordUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
 
   protected async implementation(emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
-    const { email, companyId } = emailData;
+    const { companyId } = emailData;
+    const email = emailData.email.toLowerCase();
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
     if (!foundUser) {
       throw new HttpException(
@@ -30,11 +33,15 @@ export class RequestResetUserPasswordUseCase
         HttpStatus.FORBIDDEN,
       );
     }
+    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+
     const savedResetPasswordRequest =
       await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(foundUser);
+
     const mailingResult = await sendPasswordResetRequest(
       foundUser.email,
       savedResetPasswordRequest.verification_string,
+      companyCustomDomain,
     );
     const resultMessage = mailingResult.messageId
       ? Messages.PASSWORD_RESET_REQUESTED_SUCCESSFULLY

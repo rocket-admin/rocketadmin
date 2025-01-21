@@ -33,6 +33,7 @@ import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { normalizeTableName } from '../../../lib/normalize'
+import { Angulartics2OnModule } from 'angulartics2';
 
 interface Column {
   title: string,
@@ -63,6 +64,7 @@ interface Column {
     MatTooltipModule,
     ClipboardModule,
     DragDropModule,
+    Angulartics2OnModule,
     PlaceholderTableDataComponent
   ]
 })

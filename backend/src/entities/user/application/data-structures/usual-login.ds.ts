@@ -11,4 +11,6 @@ export class UsualLoginDs {
   companyId: string;
 
   gclidValue: string;
+
+  request_domain: string;
 }

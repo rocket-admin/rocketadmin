@@ -8,7 +8,7 @@ export function buildTableLogsEntity(logData: CreateLogRecordDs, userEmail: stri
   newLogs.received_data = row as string;
   newLogs.table_name = table_name;
   newLogs.cognitoUserName = userId;
-  newLogs.email = userEmail;
+  newLogs.email = userEmail.toLowerCase();
   newLogs.createdAt = new Date();
   newLogs.operationType = operationType;
   newLogs.operationStatusResult = operationStatusResult;

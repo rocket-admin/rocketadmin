@@ -30,6 +30,10 @@
     }
 }
 
+.table-list-sidenav-container ::ng-deep .mat-drawer:not(.mat-drawer-opened):not(.mat-drawer-animating) .mat-drawer-inner-container {
+    display: initial;
+}
+
 .mat-list-item {
     text-decoration: none;
 }

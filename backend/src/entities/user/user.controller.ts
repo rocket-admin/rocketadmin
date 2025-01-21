@@ -6,14 +6,14 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import isEmail from 'validator/lib/isEmail.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators/index.js';
@@ -56,7 +56,7 @@ import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
 import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PasswordDto } from './dto/password.dto.js';
 import { EmailDto } from './dto/email.dto.js';
 import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
@@ -140,6 +140,7 @@ export class UserController {
   @Post('user/login/')
   async usualLogin(
     @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
     @Body() loginUserData: LoginUserDto,
   ): Promise<ITokenExp> {
     const { email, password, companyId: userCompanyId } = loginUserData;
@@ -148,6 +149,7 @@ export class UserController {
       password: password,
       gclidValue: null,
       companyId: userCompanyId,
+      request_domain: request.hostname,
     };
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
@@ -472,11 +474,11 @@ export class UserController {
     description: 'Display mode of test connections changed.',
     type: SuccessResponse,
   })
-  @ApiParam({ name: 'displayMode', required: true, type: 'string', enum: ['on', 'off'] })
+  @ApiQuery({ name: 'displayMode', required: true, type: 'string', enum: ['on', 'off'] })
   @Put('user/test/connections/display/')
   async toggleTestConnectionsDisplayMode(
     @UserId() userId: string,
-    @Param('displayMode') displayMode: string,
+    @Query('displayMode') displayMode: string,
   ): Promise<SuccessResponse> {
     const newDisplayMode = displayMode === 'on';
     const toggleConnectionDisplayModeDs = {
