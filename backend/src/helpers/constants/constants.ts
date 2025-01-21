@@ -12,7 +12,7 @@ import {
   parseTestIbmDB2ConnectionString,
   parseTestDynamoDBConnectionString,
 } from '../parsers/string-connection-to-database-parsers.js';
-import { escapeHtml } from '../../entities/email/utils/escape-html.util.js';
+import { escapeHtml, wrapStringInTagAWithoutLink } from '../../entities/email/utils/escape-html.util.js';
 import { isTest } from '../app/is-test.js';
 
 export type TestConnectionsFromJSON = {
@@ -1039,6 +1039,7 @@ export const Constants = {
       },
       GROUP_INVITE_HTML_DATA: function (groupTitle: string) {
         groupTitle = escapeHtml(groupTitle);
+        groupTitle = wrapStringInTagAWithoutLink(groupTitle);
         return `
         <!doctype html>
           <html>
@@ -1196,6 +1197,7 @@ export const Constants = {
         companyName: string,
       ) {
         companyName = escapeHtml(companyName);
+        companyName = wrapStringInTagAWithoutLink(companyName);
         const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
         return `
         <!doctype html>
@@ -1361,6 +1363,7 @@ export const Constants = {
       },
       COMPANY_2FA_ENABLED_HTML_DATA: (companyName: string): string => {
         companyName = escapeHtml(companyName);
+        companyName = wrapStringInTagAWithoutLink(companyName);
         return ` 
       <body>
       <p>
