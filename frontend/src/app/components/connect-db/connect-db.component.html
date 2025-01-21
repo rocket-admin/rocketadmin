@@ -76,7 +76,7 @@
         <app-mysql-credentials-form *ngIf="db.type === 'mysql' && db.connectionType === 'direct'"
             [ngClass]="{
                 'credentials-fieldset': !db.isTestConnection,
-                'credentials-fieldset-no-warning': db.isTestConnection
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
             }"
             [connection]="db"
             [submitting]="submitting"
@@ -90,7 +90,7 @@
         <app-postgres-credentials-form *ngIf="db.type === 'postgres' && db.connectionType === 'direct'"
             [ngClass]="{
                 'credentials-fieldset': !db.isTestConnection,
-                'credentials-fieldset-no-warning': db.isTestConnection
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
             }"
             [connection]="db"
             [submitting]="submitting"
@@ -104,7 +104,7 @@
         <app-mongodb-credentials-form *ngIf="db.type === 'mongodb' && db.connectionType === 'direct'"
             [ngClass]="{
                 'credentials-fieldset': !db.isTestConnection,
-                'credentials-fieldset-no-warning': db.isTestConnection
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
             }"
             [connection]="db"
             [submitting]="submitting"
@@ -129,7 +129,7 @@
         <app-oracledb-credentials-form *ngIf="db.type === 'oracledb' && db.connectionType === 'direct'"
             [ngClass]="{
                 'credentials-fieldset': !db.isTestConnection,
-                'credentials-fieldset-no-warning': db.isTestConnection
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
             }"
             [connection]="db"
             [submitting]="submitting"
@@ -143,7 +143,7 @@
         <app-mssql-credentials-form *ngIf="db.type === 'mssql' && db.connectionType === 'direct'"
             [ngClass]="{
                 'credentials-fieldset': !db.isTestConnection,
-                'credentials-fieldset-no-warning': db.isTestConnection
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
             }"
             [connection]="db"
             [submitting]="submitting"
@@ -157,7 +157,7 @@
         <app-db2-credentials-form *ngIf="db.type === 'ibmdb2' && db.connectionType === 'direct'"
             [ngClass]="{
                 'credentials-fieldset': !db.isTestConnection,
-                'credentials-fieldset-no-warning': db.isTestConnection
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
             }"
             [connection]="db"
             [submitting]="submitting"
