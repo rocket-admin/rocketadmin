@@ -17,6 +17,9 @@
                 {{suggestion.displayString}}
             </mat-option>
         </mat-autocomplete>
+        <mat-hint>Improve search performance by configuring <em>Foreign key search fields</em>&nbsp;
+            <a routerLink="/dashboard/{{connectionID}}/{{relations.referenced_table_name}}/settings" target="_blank" class="hint-link">here</a>.
+        </mat-hint>
     </mat-form-field>
     <a routerLink="/dashboard/{{connectionID}}/{{relations.referenced_table_name}}/entry"
         [queryParams]="currentFieldQueryParams"
