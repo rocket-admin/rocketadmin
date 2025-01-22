@@ -12,12 +12,12 @@ import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post
 import { Constants } from '../../../helpers/constants/constants.js';
 import { getProcessVariable } from '../../../helpers/get-process-variable.js';
 import { IMessage } from '../../email/email/email.interface.js';
-import { sendEmailToUser } from '../../email/send-email.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import axios, { AxiosResponse } from 'axios';
 import PQueue from 'p-queue';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { escapeHtml } from '../../email/utils/escape-html.util.js';
+import { EmailService } from '../../email/email/email.service.js';
 
 export type ActionActivationResult = {
   location?: string;
@@ -41,6 +41,7 @@ export class TableActionActivationService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly emailService: EmailService,
   ) {}
 
   public async activateTableAction(
@@ -155,7 +156,7 @@ export class TableActionActivationService {
               text: text,
               html: html,
             };
-            return sendEmailToUser(letterContent);
+            return this.emailService.sendEmailToUser(letterContent);
           }),
         ),
       );
@@ -351,7 +352,7 @@ export class TableActionActivationService {
           : triggerOperation === TableActionEventEnum.DELETE_ROW
             ? 'deleted a row'
             : 'performed an action';
-    primaryKeyValuesArray = this.escapePrimaryKeyValuesArray(primaryKeyValuesArray);        
+    primaryKeyValuesArray = this.escapePrimaryKeyValuesArray(primaryKeyValuesArray);
     const textContent = `${userName ? escapeHtml(userName) : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${escapeHtml(tableName)}".`;
     const testContentWithPrimaryKeys = `${textContent} Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}`;
     const htmlContent = `<!doctype html>

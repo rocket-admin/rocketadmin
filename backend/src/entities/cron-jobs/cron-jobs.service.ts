@@ -6,12 +6,12 @@ import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { slackPostMessage } from '../../helpers/index.js';
 import { Constants } from '../../helpers/constants/constants.js';
-import { sendRemindersToUsers } from '../email/utils/send-reminders-to-users.js';
 import {
   ICheckUsersActionsAndMailingUsers,
   ICheckUsersLogsAndUpdateActionsUseCase,
 } from '../user-actions/use-cases/use-cases-interfaces.js';
 import { JobListEntity } from './job-list.entity.js';
+import { EmailService } from '../email/email/email.service.js';
 
 @Injectable()
 export class CronJobsService {
@@ -22,6 +22,7 @@ export class CronJobsService {
     private readonly checkUsersActionsAndMailingUsersUseCase: ICheckUsersActionsAndMailingUsers,
     @InjectRepository(JobListEntity)
     private readonly jobListRepository: Repository<JobListEntity>,
+    private readonly emailService: EmailService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -56,7 +57,7 @@ export class CronJobsService {
       );
       const emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
       await slackPostMessage(`found ${emails.length} emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
-      const mailingResults = await sendRemindersToUsers(emails);
+      const mailingResults = await this.emailService.sendRemindersToUsers(emails);
       if (mailingResults.length === 0) {
         const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
         await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);

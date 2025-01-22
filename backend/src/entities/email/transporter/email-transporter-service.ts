@@ -3,13 +3,16 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { IMessage } from '../email/email.interface.js';
 import { EmailConfigService } from '../email-config/email-config.service.js';
 import { IEmailTransporterInterface } from './email-transporter.interface.js';
-
+import { Injectable } from '@nestjs/common';
+@Injectable()
 export class EmailTransporterService implements IEmailTransporterInterface {
-  constructor(private readonly emailConfigService: EmailConfigService) {}
+  private transporter: nodemailer.Transporter;
+  constructor(private readonly emailConfigService: EmailConfigService) {
+    this.transporter = this.createTransporter();
+  }
 
   public async transportEmail(mail: IMessage): Promise<SMTPTransport.SentMessageInfo> {
-    const transporter = await this.createTransporter();
-    return await transporter.sendMail({
+    return await this.transporter.sendMail({
       from: mail.from,
       to: mail.to,
       subject: mail.subject,
@@ -18,7 +21,7 @@ export class EmailTransporterService implements IEmailTransporterInterface {
     });
   }
 
-  private async createTransporter(): Promise<nodemailer.Transporter<SMTPTransport.SentMessageInfo>> {
+  private createTransporter(): nodemailer.Transporter<SMTPTransport.SentMessageInfo> {
     const transportConfig = this.emailConfigService.getEmailServiceConfig();
     return nodemailer.createTransport(transportConfig);
   }

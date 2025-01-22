@@ -7,10 +7,10 @@ import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-i
 import { IAddUserInGroup } from './use-cases.interfaces.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { sendInvitedInNewGroup } from '../../email/send-email.js';
 import { buildFoundGroupResponseDto } from '../utils/biuld-found-group-response.dto.js';
 import { slackPostMessage } from '../../../helpers/index.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { EmailService } from '../../email/email/email.service.js';
 
 export class AddUserInGroupUseCase
   extends AbstractUseCase<AddUserInGroupWithSaaSDs, AddedUserInGroupDs>
@@ -20,6 +20,7 @@ export class AddUserInGroupUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -95,7 +96,7 @@ export class AddUserInGroupUseCase
 
     foundGroup.users.push(foundUser);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
-    await sendInvitedInNewGroup(foundUser.email.toLowerCase(), foundGroup.title);
+    await this.emailService.sendInvitedInNewGroup(foundUser.email.toLowerCase(), foundGroup.title);
     return {
       group: buildFoundGroupResponseDto(savedGroup),
       message: Messages.USER_ADDED_IN_GROUP(foundUser.email.toLowerCase()),

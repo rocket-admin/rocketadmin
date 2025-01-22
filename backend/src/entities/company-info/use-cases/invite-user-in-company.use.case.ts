@@ -6,11 +6,11 @@ import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-str
 import { IInviteUserInCompanyAndConnectionGroup } from './company-info-use-cases.interface.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { sendInvitationToCompany } from '../../email/send-email.js';
 import { Logger } from '../../../helpers/logging/Logger.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { isTest } from '../../../helpers/app/is-test.js';
+import { EmailService } from '../../email/email/email.service.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class InviteUserInCompanyAndConnectionGroupUseCase
@@ -21,6 +21,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -75,7 +76,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
         invitedUserEmail,
         invitedUserCompanyRole,
       );
-      const sendEmailResult = await sendInvitationToCompany(
+      const sendEmailResult = await this.emailService.sendInvitationToCompany(
         invitedUserEmail,
         renewedInvitation.verification_string,
         foundCompany.id,
@@ -120,7 +121,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       invitedUserCompanyRole,
     );
     const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-    await sendInvitationToCompany(
+    await this.emailService.sendInvitationToCompany(
       invitedUserEmail,
       newInvitation.verification_string,
       companyId,

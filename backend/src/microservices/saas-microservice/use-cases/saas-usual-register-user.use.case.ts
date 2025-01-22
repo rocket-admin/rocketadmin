@@ -6,7 +6,6 @@ import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import assert from 'assert';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
-import { sendEmailConfirmation } from '../../../entities/email/send-email.js';
 import { GroupEntity } from '../../../entities/group/group.entity.js';
 import { PermissionEntity } from '../../../entities/permission/permission.entity.js';
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
@@ -20,6 +19,7 @@ import { CompanyInfoEntity } from '../../../entities/company-info/company-info.e
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { EmailService } from '../../../entities/email/email/email.service.js';
 
 export class SaasUsualRegisterUseCase
   extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDto>
@@ -29,6 +29,7 @@ export class SaasUsualRegisterUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -87,7 +88,7 @@ export class SaasUsualRegisterUseCase
     const createdEmailVerification =
       await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
     const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-    await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string, companyCustomDomain);
+    await this.emailService.sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string, companyCustomDomain);
 
     if (foundCompany) {
       foundCompany.users.push(savedUser);

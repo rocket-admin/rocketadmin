@@ -4,12 +4,12 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { RegisterInvitedUserDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
-import { sendEmailConfirmation } from '../../../entities/email/send-email.js';
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { ISaaSRegisterInvitedUser } from './saas-use-cases.interface.js';
 import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { EmailService } from '../../../entities/email/email/email.service.js';
 
 @Injectable()
 export class SaasRegisterInvitedUserUseCase
@@ -20,6 +20,7 @@ export class SaasRegisterInvitedUserUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -65,7 +66,11 @@ export class SaasRegisterInvitedUserUseCase
 
     const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
 
-    await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string, companyCustomDomain);
+    await this.emailService.sendEmailConfirmation(
+      savedUser.email,
+      createdEmailVerification.verification_string,
+      companyCustomDomain,
+    );
     return {
       id: savedUser.id,
       createdAt: savedUser.createdAt,

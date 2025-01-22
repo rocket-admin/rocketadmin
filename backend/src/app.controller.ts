@@ -16,6 +16,7 @@ export class AppController {
 
   @Get('/hello')
   async getHello(): Promise<string> {
+
     return this.getHelloUseCase.execute(undefined, InTransactionEnum.OFF);
   }
 }

@@ -4,10 +4,10 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { sendPasswordResetRequest } from '../../email/send-email.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
 import { IRequestPasswordReset } from './user-use-cases.interfaces.js';
+import { EmailService } from '../../email/email/email.service.js';
 
 export class RequestResetUserPasswordUseCase
   extends AbstractUseCase<RequestRestUserPasswordDto, OperationResultMessageDs>
@@ -17,6 +17,7 @@ export class RequestResetUserPasswordUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -38,7 +39,7 @@ export class RequestResetUserPasswordUseCase
     const savedResetPasswordRequest =
       await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(foundUser);
 
-    const mailingResult = await sendPasswordResetRequest(
+    const mailingResult = await this.emailService.sendPasswordResetRequest(
       foundUser.email,
       savedResetPasswordRequest.verification_string,
       companyCustomDomain,
