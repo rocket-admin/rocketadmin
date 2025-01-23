@@ -56,38 +56,6 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     return canInviteMoreUsersResult.body.success as boolean;
   }
 
-  public async inviteNewUserInCompany(
-    companyId: string,
-    newUserEmail: string,
-    newUserId: string,
-    userRole: string,
-    inviterId: string,
-  ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
-    const registrationResult = await this.sendRequestToSaaS(`/webhook/company/invite`, 'POST', {
-      userId: newUserId,
-      userEmail: newUserEmail?.toLowerCase(),
-      companyId: companyId,
-      userRole: userRole,
-      inviterId: inviterId,
-    });
-    if (registrationResult.status > 299) {
-      throw new HttpException(
-        {
-          message: Messages.FAILED_INVITE_USER_IN_COMPANY_UNHANDLED_ERROR,
-          originalMessage: registrationResult?.body?.message ? registrationResult.body.message : undefined,
-        },
-        registrationResult.status,
-      );
-    }
-    if (isObjectEmpty(registrationResult.body)) {
-      return null;
-    }
-    return {
-      companyId: registrationResult.body.companyId as string,
-      userId: registrationResult.body.userId as string,
-    };
-  }
-
   public async removeUserFromCompany(companyId: string, userId: string): Promise<SuccessResponse | null> {
     const removalResult = await this.sendRequestToSaaS(`/webhook/company/remove`, 'POST', {
       userId: userId,
