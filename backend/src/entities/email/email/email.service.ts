@@ -12,6 +12,10 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Logger } from '../../../helpers/logging/Logger.js';
 import PQueue from 'p-queue';
 import Mail from 'nodemailer/lib/mailer/index.js';
+import { EMAIL_TEXT } from '../email-text/email-text.js';
+import { escapeHtml } from '../utils/escape-html.util.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 
 interface ICronMessagingResults {
   messageId?: string;
@@ -21,6 +25,7 @@ interface ICronMessagingResults {
 
 @Injectable()
 export class EmailService {
+  private readonly emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   constructor(
     @Inject(BaseType.NUNJUCKS)
     private readonly nunjucksEnv: nunjucks.Environment,
@@ -33,6 +38,47 @@ export class EmailService {
     if (mailResult) {
       return mailResult;
     }
+  }
+
+  public async sendEmailActionToUser(
+    userEmail: string,
+    userInfo: UserInfoMessageData,
+    triggerOperation: TableActionEventEnum,
+    tableName: string,
+    primaryKeyValuesArray: Array<Record<string, unknown>>,
+  ): Promise<SMTPTransport.SentMessageInfo | null> {
+    const currentYear = new Date().getFullYear();
+    const action =
+      triggerOperation === TableActionEventEnum.ADD_ROW
+        ? 'added a row'
+        : triggerOperation === TableActionEventEnum.UPDATE_ROW
+          ? 'updated a row'
+          : triggerOperation === TableActionEventEnum.DELETE_ROW
+            ? 'deleted a row'
+            : 'performed an action';
+    const textContent = EMAIL_TEXT.ACTION_EMAIL.EMAIL_TEXT(
+      userInfo,
+      triggerOperation,
+      tableName,
+      primaryKeyValuesArray,
+    );
+
+    const primaryKeysValuesStr = JSON.stringify(primaryKeyValuesArray);
+    const letterContent: IMessage = {
+      from: this.emailFrom,
+      to: userEmail,
+      subject: EMAIL_TEXT.ACTION_EMAIL.EMAIL_SUBJECT,
+      text: textContent,
+      html: this.nunjucksEnv.render('action-email-activation.njk', {
+        userInfo,
+        triggerOperation,
+        tableName,
+        action,
+        primaryKeysValuesStr,
+        currentYear,
+      }),
+    };
+    return await this.sendEmailToUser(letterContent);
   }
 
   public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults>> {
@@ -70,28 +116,16 @@ export class EmailService {
   }
 
   public async sendInvitedInNewGroup(email: string, groupTitle: string): Promise<SMTPTransport.SentMessageInfo> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+    const currentYear = new Date().getFullYear();
     const letterContent: IMessage = {
-      from: emailFrom,
+      from: this.emailFrom,
       to: email,
-      subject: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_SUBJECT_DATA,
-      text: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_TEXT_DATA(groupTitle),
-      html: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_HTML_DATA(groupTitle),
-    };
-    return await this.sendEmailToUser(letterContent);
-  }
-
-  public async send2faEnabledInCompanyToUser(
-    email: string,
-    companyName: string,
-  ): Promise<SMTPTransport.SentMessageInfo> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
-    const letterContent: IMessage = {
-      from: emailFrom,
-      to: email,
-      subject: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_SUBJECT_DATA,
-      text: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_TEXT_DATA(companyName),
-      html: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_HTML_DATA(companyName),
+      subject: EMAIL_TEXT.INVITE_IN_GROUP.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.INVITE_IN_GROUP.EMAIL_TEXT(groupTitle),
+      html: this.nunjucksEnv.render('invite-in-group-notification.njk', {
+        groupTitle,
+        currentYear,
+      }),
     };
     return await this.sendEmailToUser(letterContent);
   }
@@ -100,26 +134,23 @@ export class EmailService {
     email: string,
     verificationString: string,
     companyId: string,
-    companyName: string,
+    invitedCompanyName: string,
     customCompanyDomain: string | null,
   ): Promise<SMTPTransport.SentMessageInfo | null> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+    const currentYear = new Date().getFullYear();
+    const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
+    const link = `${domain}/company/${companyId}/verify/${verificationString}/`;
+    const companyName = invitedCompanyName ? ` "${invitedCompanyName}" ` : ` `;
     const letterContent: IMessage = {
-      from: emailFrom,
+      from: this.emailFrom,
       to: email,
-      subject: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_SUBJECT_DATA,
-      text: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_TEXT_DATA(
-        verificationString,
-        customCompanyDomain,
-        companyId,
+      subject: EMAIL_TEXT.INVITE_IN_COMPANY.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.INVITE_IN_COMPANY.EMAIL_TEXT(link, escapeHtml(companyName)),
+      html: this.nunjucksEnv.render('invite-in-company-notification.njk', {
+        linkToAccept: link,
         companyName,
-      ),
-      html: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_HTML_DATA(
-        verificationString,
-        customCompanyDomain,
-        companyId,
-        companyName,
-      ),
+        currentYear,
+      }),
     };
     return await this.sendEmailToUser(letterContent);
   }
@@ -129,37 +160,27 @@ export class EmailService {
     verificationString: string,
     customCompanyDomain: string | null,
   ): Promise<SMTPTransport.SentMessageInfo> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+    const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
+    const link = `${domain}/external/user/email/verify/${verificationString}`;
+    const currentYear = new Date().getFullYear();
     const letterContent: IMessage = {
-      from: emailFrom,
+      from: this.emailFrom,
       to: email,
-      subject: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_SUBJECT,
-      text: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_TEXT(verificationString, customCompanyDomain),
-      html: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_HTML(verificationString, customCompanyDomain),
-    };
-    return await this.sendEmailToUser(letterContent);
-  }
-
-  public async sendReminderToUser(email: string): Promise<SMTPTransport.SentMessageInfo> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
-    const letterContent: IMessage = {
-      from: emailFrom,
-      to: email,
-      subject: Constants.AUTOADMIN_EMAIL_SUBJECT_DATA,
-      text: Constants.AUTOADMIN_EMAIL_TEXT,
-      html: Constants.AUTOADMIN_EMAIL_BODY,
+      subject: EMAIL_TEXT.CONFIRM_EMAIL.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.CONFIRM_EMAIL.EMAIL_TEXT(link),
+      html: this.nunjucksEnv.render('confirm-email-notification.njk', { linkToConfirm: link, currentYear }),
     };
     return await this.sendEmailToUser(letterContent);
   }
 
   public async sendEmailChanged(email: string): Promise<SMTPTransport.SentMessageInfo> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+    const currentYear = new Date().getFullYear();
     const letterContent: IMessage = {
-      from: emailFrom,
+      from: this.emailFrom,
       to: email,
-      subject: Constants.EMAIL.EMAIL.CHANGED_EMAIL_SUBJECT_DATA,
-      text: Constants.EMAIL.EMAIL.CHANGED_EMAIL_TEXT,
-      html: Constants.EMAIL.EMAIL.CHANGED_EMAIL_HTML,
+      subject: EMAIL_TEXT.CHANGED_EMAIL.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.CHANGED_EMAIL.EMAIL_TEXT,
+      html: this.nunjucksEnv.render('changed-email-notification.njk', { currentYear }),
     };
     return await this.sendEmailToUser(letterContent);
   }
@@ -169,13 +190,15 @@ export class EmailService {
     requestString: string,
     customCompanyDomain: string | null,
   ): Promise<SMTPTransport.SentMessageInfo> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+    const currentYear = new Date().getFullYear();
+    const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
+    const linkToConfirm = `${domain}/external/user/email/change/verify/${requestString}`;
     const letterContent: IMessage = {
-      from: emailFrom,
+      from: this.emailFrom,
       to: email,
-      subject: Constants.EMAIL.EMAIL.CHANGE_EMAIL_SUBJECT_DATA,
-      text: Constants.EMAIL.EMAIL.CHANGE_EMAIL_TEXT(requestString, customCompanyDomain),
-      html: Constants.EMAIL.EMAIL.CHANGE_EMAIL_HTML(requestString, customCompanyDomain),
+      subject: EMAIL_TEXT.CHANGE_EMAIL_REQUEST.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.CHANGE_EMAIL_REQUEST.EMAIL_TEXT(linkToConfirm),
+      html: this.nunjucksEnv.render('change-email-request-notification.njk', { linkToConfirm, currentYear }),
     };
     return await this.sendEmailToUser(letterContent);
   }
@@ -185,13 +208,15 @@ export class EmailService {
     requestString: string,
     customCompanyDomain: string | null,
   ): Promise<SMTPTransport.SentMessageInfo> {
-    const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+    const currentYear = new Date().getFullYear();
+    const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
+    const linkToConfirm = `${domain}/external/user/password/reset/verify/${requestString}`;
     const letterContent: IMessage = {
-      from: emailFrom,
+      from: this.emailFrom,
       to: email,
-      subject: Constants.EMAIL.PASSWORD.RESET_PASSWORD_REQUEST_SUBJECT_DATA,
-      text: Constants.EMAIL.PASSWORD.RESET_PASSWORD_EMAIL_TEXT(requestString, customCompanyDomain),
-      html: Constants.EMAIL.PASSWORD.RESET_PASSWORD_EMAIL_HTML(requestString, customCompanyDomain),
+      subject: EMAIL_TEXT.RESET_PASSWORD_REQUEST.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.RESET_PASSWORD_REQUEST.EMAIL_TEXT(linkToConfirm),
+      html: this.nunjucksEnv.render('reset-password-request-notification.njk', { linkToConfirm, currentYear }),
     };
     return await this.sendEmailToUser(letterContent);
   }
@@ -207,6 +232,33 @@ export class EmailService {
     const emailGenerator = new EmailGenerator();
     const emailMessage = emailGenerator.generateEmail(testEmail);
     return await this.emailTransporterService.transportEmail(emailMessage);
+  }
+
+  private async sendReminderToUser(email: string): Promise<SMTPTransport.SentMessageInfo> {
+    const letterContent: IMessage = {
+      from: this.emailFrom,
+      to: email,
+      subject: EMAIL_TEXT.ROCKETADMIN_REMINDER.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.ROCKETADMIN_REMINDER.EMAIL_TEXT,
+      html: this.nunjucksEnv.render('rocketadmin-reminder-email.html'),
+    };
+    return await this.sendEmailToUser(letterContent);
+  }
+
+  private async send2faEnabledInCompanyToUser(
+    email: string,
+    companyName: string,
+  ): Promise<SMTPTransport.SentMessageInfo> {
+    const letterContent: IMessage = {
+      from: this.emailFrom,
+      to: email,
+      subject: EMAIL_TEXT.COMPANY_2FA_ENABLED.EMAIL_SUBJECT,
+      text: EMAIL_TEXT.COMPANY_2FA_ENABLED.EMAIL_TEXT(companyName),
+      html: this.nunjucksEnv.render('company-2fa-enabled-notification.njk', {
+        companyName,
+      }),
+    };
+    return await this.sendEmailToUser(letterContent);
   }
 
   private async sendEmailWithTimeout(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
