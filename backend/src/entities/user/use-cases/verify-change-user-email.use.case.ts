@@ -3,12 +3,12 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { sendEmailChanged } from '../../email/send-email.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { IVerifyEmailChange } from './user-use-cases.interfaces.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasUserGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-user-gateway.service.js';
+import { EmailService } from '../../email/email/email.service.js';
 
 @Injectable()
 export class VerifyChangeUserEmailUseCase
@@ -19,6 +19,7 @@ export class VerifyChangeUserEmailUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly userGatewayService: SaasUserGatewayService,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -73,7 +74,7 @@ export class VerifyChangeUserEmailUseCase
     foundUser.email = newEmail;
     await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.emailChangeRepository.removeEmailChangeEntity(verificationEntity);
-    await sendEmailChanged(newEmail);
+    await this.emailService.sendEmailChanged(newEmail);
     return { message: Messages.EMAIL_CHANGED };
   }
 }

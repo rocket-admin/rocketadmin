@@ -1,5 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { IEmailConfig, IEmailConfigService } from './email-config.interface.js';
 
+@Injectable()
 export class EmailConfigService implements IEmailConfigService {
   public getEmailServiceConfig(): IEmailConfig | string {
     const pullConfig = process.env.EMAIL_CONFIG_STRING;

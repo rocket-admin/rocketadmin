@@ -3,10 +3,10 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { sendEmailConfirmation } from '../../email/send-email.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { IRequestEmailVerification } from './user-use-cases.interfaces.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { EmailService } from '../../email/email/email.service.js';
 
 @Injectable()
 export class RequestEmailVerificationUseCase
@@ -17,6 +17,7 @@ export class RequestEmailVerificationUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -44,7 +45,11 @@ export class RequestEmailVerificationUseCase
 
     const newEmailVerification =
       await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
-    await sendEmailConfirmation(foundUser.email, newEmailVerification.verification_string, companyCustomDomain);
+    await this.emailService.sendEmailConfirmation(
+      foundUser.email,
+      newEmailVerification.verification_string,
+      companyCustomDomain,
+    );
     return { message: Messages.EMAIL_VERIFICATION_REQUESTED };
   }
 }

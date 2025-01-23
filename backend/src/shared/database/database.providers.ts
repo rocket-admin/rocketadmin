@@ -1,10 +1,11 @@
 import { DataSource } from 'typeorm';
 import { configService } from '../config/config.service.js';
+import { BaseType } from '../../common/data-injection.tokens.js';
 let appDataSourceCache: DataSource = null;
 
 export const databaseProviders = [
   {
-    provide: 'DATA_SOURCE',
+    provide: BaseType.DATA_SOURCE,
     useFactory: async () => {
       if (appDataSourceCache && appDataSourceCache.isInitialized) {
         return appDataSourceCache;

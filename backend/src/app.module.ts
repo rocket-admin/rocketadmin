@@ -29,6 +29,7 @@ import { CompanyInfoModule } from './entities/company-info/company-info.module.j
 import { TableTriggersModule } from './entities/table-actions/table-action-rules-module/action-rules.module.js';
 import { ApiKeyModule } from './entities/api-key/api-key.module.js';
 import { AIModule } from './entities/ai/ai.module.js';
+import { EmailModule } from './entities/email/email/email.module.js';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { AIModule } from './entities/ai/ai.module.js';
     TableTriggersModule,
     ApiKeyModule,
     AIModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [
