@@ -3,7 +3,7 @@ import * as nunjucks from 'nunjucks';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { join } from 'path';
+import { isTest } from '../../../helpers/app/is-test.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -13,7 +13,9 @@ const __dirname = path.dirname(__filename);
     {
       provide: BaseType.NUNJUCKS,
       useFactory: () => {
-        const pathToTemplates = join(__dirname, '..', '..', '..', '..', 'public', 'email-templates');
+        const pathToTemplates = isTest()
+          ? process.cwd() + '/public/email-templates'
+          : path.join(__dirname, '..', '..', '..', '..', 'public', 'email-templates');
         const env = new nunjucks.Environment(new nunjucks.FileSystemLoader(pathToTemplates));
         return env;
       },
