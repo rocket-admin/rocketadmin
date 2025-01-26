@@ -53,9 +53,9 @@
         <mat-accordion multi="true">
             <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index">
                 <mat-expansion-panel-header>
-                    <mat-panel-title> {{referencedTable.displayTableName}} </mat-panel-title>
+                    <mat-panel-title class="related-records__table-name"> {{referencedTable.displayTableName}} </mat-panel-title>
                     <mat-panel-description class="related-records__actions">
-                        <span *ngIf="!referencedRecords[referencedTable.table_name]?.rows.length">No related records</span>
+                        <span *ngIf="!referencedRecords[referencedTable.table_name]?.rows.length">Absent</span>
                         <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]?.rows.length"
                             [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'settings']"
                             matTooltip="Set up records view">

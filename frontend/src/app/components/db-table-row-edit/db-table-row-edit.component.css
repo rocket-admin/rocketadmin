@@ -96,7 +96,12 @@
     }
 }
 
+.related-records__table-name {
+    flex: 1 0 auto;
+}
+
 .related-records__actions {
+    flex-grow: 0;
     justify-content: flex-end;
 }
 
