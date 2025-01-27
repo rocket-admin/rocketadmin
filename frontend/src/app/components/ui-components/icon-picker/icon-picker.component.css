@@ -41,6 +41,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    color: var(--mat-sidenav-content-text-color);
     height: 40px;
     width: 40px;
 }
@@ -62,7 +63,18 @@
     margin-top: 4px;
 }
 
+.icon-input__hint {
+    color: rgba(0, 0, 0, 0.64);
+}
+
+@media (prefers-color-scheme: dark) {
+    .icon-input__hint {
+        color: rgba(255, 255, 255, 0.64);
+    }
+}
+
 .google-icons-link {
     color: var(--color-primaryPalette-500);
+    font-weight: 600;
     text-decoration: none;
 }

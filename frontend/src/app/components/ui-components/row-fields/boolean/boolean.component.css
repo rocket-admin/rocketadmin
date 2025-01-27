@@ -5,14 +5,27 @@
     margin-bottom: 20px;
 }
 
-.checkbox-line {
-    margin-bottom: 20px;
+.radio-line ::ng-deep .mat-button-toggle-appearance-standard.mat-button-toggle-checked {
+    --mat-standard-button-toggle-selected-state-text-color: var(--color-accentedPalette-500-contrast);
+    --mat-standard-button-toggle-selected-state-background-color: var(--color-accentedPalette-500);
 }
 
-.radio-group {
-    margin-left: 12px;
+@media (prefers-color-scheme: dark) {
+    .radio-line ::ng-deep .mat-button-toggle-appearance-standard.mat-button-toggle-checked {
+        --mat-standard-button-toggle-selected-state-text-color: var(--color-accentedDarkPalette-500-contrast);
+        --mat-standard-button-toggle-selected-state-background-color: var(--color-accentedDarkPalette-500);
+    }
 }
 
-.radio-button {
-    margin-right: 28px;
+
+/* .radio-line ::ng-deep .mat-button-toggle-appearance-standard.mat-button-toggle-checked {
+    --mat-standard-button-toggle-selected-state-text-color: var(--color-primaryPalette-500-contrast);
+    --mat-standard-button-toggle-selected-state-background-color: var(--color-primaryPalette-500);
 }
+
+@media (prefers-color-scheme: dark) {
+    .radio-line ::ng-deep .mat-button-toggle-appearance-standard.mat-button-toggle-checked {
+        --mat-standard-button-toggle-selected-state-text-color: var(--color-whitePalette-500-contrast);
+        --mat-standard-button-toggle-selected-state-background-color: var(--color-whitePalette-500);
+    }
+} */
