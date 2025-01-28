@@ -1,5 +1,6 @@
 
 export default {
+  require: ['./_force-exit.mjs'],
   files: ['test/ava-tests/**'],
   typescript: {
     extensions: ['ts'],

@@ -26,6 +26,7 @@ import { fileURLToPath } from 'url';
 import { join } from 'path';
 import { send } from 'process';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -56,6 +57,15 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After tests error ' + e);
+  }
 });
 
 currentTest = 'GET /connection/tables/:slug';
@@ -2023,8 +2033,6 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   t.is(rows[42][testTableColumnName], row[testTableColumnName]);
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
 
-  
-  
   // check that rows adding was logged
 
   const getLogsResponse = await request(app.getHttpServer())
@@ -2037,7 +2045,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const getLogsRO = JSON.parse(getLogsResponse.text);
   t.is(getLogsRO.hasOwnProperty('logs'), true);
   t.is(getLogsRO.hasOwnProperty('pagination'), true);
-  t.is(getLogsRO.logs.length > 0 , true);
+  t.is(getLogsRO.logs.length > 0, true);
   const addRowLogIndex = getLogsRO.logs.findIndex((log) => log.operationType === 'addRow');
   t.is(getLogsRO.logs[addRowLogIndex].hasOwnProperty('affected_primary_key'), true);
   t.is(typeof getLogsRO.logs[addRowLogIndex].affected_primary_key, 'object');

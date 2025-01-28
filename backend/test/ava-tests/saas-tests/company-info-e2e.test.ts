@@ -22,6 +22,7 @@ import {
   inviteUserInCompanyAndAcceptInvitation,
   inviteUserInCompanyAndGroupAndAcceptInvitation,
 } from '../../utils/register-user-and-return-user-info.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -47,6 +48,15 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After custom field error: ' + e);
+  }
 });
 
 currentTest = 'GET /company/my';
@@ -429,7 +439,7 @@ test.serial(`${currentTest} should revoke user invitation from company`, async (
       .set('Cookie', adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-      
+
     t.is(invitationResult.status, 200);
 
     const foundCompanyInfoWithInvitation = await request(app.getHttpServer())
@@ -1026,74 +1036,77 @@ test.serial(`${currentTest} should suspend users in company`, async (t) => {
 });
 
 currentTest = 'PUT /company/connections/display/';
-test.serial(`${currentTest} should toggle to 'off ' show test connections option in company. Test connections should not be returned `, async (t) => {
-  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-  const {
-    connections,
-    firstTableInfo,
-    groups,
-    permissions,
-    secondTableInfo,
-    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
-  } = testData;
+test.serial(
+  `${currentTest} should toggle to 'off ' show test connections option in company. Test connections should not be returned `,
+  async (t) => {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+    } = testData;
 
-  const foundCompanyInfo = await request(app.getHttpServer())
-    .get('/company/my/full')
-    .set('Content-Type', 'application/json')
-    .set('Cookie', adminUserToken)
-    .set('Accept', 'application/json');
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
 
-  t.is(foundCompanyInfo.status, 200);
-  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+    t.is(foundCompanyInfo.status, 200);
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
-  const foundUserTestConnectionsInfo = await request(app.getHttpServer())
-    .get('/connections')
-    .set('Cookie', simpleUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const foundUserTestConnectionsInfo = await request(app.getHttpServer())
+      .get('/connections')
+      .set('Cookie', simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(foundUserTestConnectionsInfo.status, 200);
+    t.is(foundUserTestConnectionsInfo.status, 200);
 
-  const result = foundUserTestConnectionsInfo.body.connections;
+    const result = foundUserTestConnectionsInfo.body.connections;
 
-  t.is(result.length, 5);
+    t.is(result.length, 5);
 
-  // toggle to off
-  const toggleTestConnectionsResponse = await request(app.getHttpServer())
-    .put('/company/connections/display/?displayMode=off')
-    .set('Content-Type', 'application/json')
-    .set('Cookie', adminUserToken)
-    .set('Accept', 'application/json');
-  t.is(toggleTestConnectionsResponse.status, 200);
+    // toggle to off
+    const toggleTestConnectionsResponse = await request(app.getHttpServer())
+      .put('/company/connections/display/?displayMode=off')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+    t.is(toggleTestConnectionsResponse.status, 200);
 
-  const resultAfterToggle = await request(app.getHttpServer())
-    .get('/connections')
-    .set('Cookie', simpleUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const resultAfterToggle = await request(app.getHttpServer())
+      .get('/connections')
+      .set('Cookie', simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const resultAfterToggleRO = JSON.parse(resultAfterToggle.text);
-  t.is(resultAfterToggle.status, 200);
-  t.is(resultAfterToggleRO.connections.length, 1);
+    const resultAfterToggleRO = JSON.parse(resultAfterToggle.text);
+    t.is(resultAfterToggle.status, 200);
+    t.is(resultAfterToggleRO.connections.length, 1);
 
-  // toggle to on
+    // toggle to on
 
-  const toggleTestConnectionsResponseOn = await request(app.getHttpServer())
-    .put('/company/connections/display/?displayMode=on')
-    .set('Content-Type', 'application/json')
-    .set('Cookie', adminUserToken)
-    .set('Accept', 'application/json');
+    const toggleTestConnectionsResponseOn = await request(app.getHttpServer())
+      .put('/company/connections/display/?displayMode=on')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
 
-  t.is(toggleTestConnectionsResponseOn.status, 200);
+    t.is(toggleTestConnectionsResponseOn.status, 200);
 
-  const resultAfterToggleOn = await request(app.getHttpServer())
-    .get('/connections')
-    .set('Cookie', simpleUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const resultAfterToggleOn = await request(app.getHttpServer())
+      .get('/connections')
+      .set('Cookie', simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const resultAfterToggleOnRO = JSON.parse(resultAfterToggleOn.text);
+    const resultAfterToggleOnRO = JSON.parse(resultAfterToggleOn.text);
 
-  t.is(resultAfterToggleOn.status, 200);
-  t.is(resultAfterToggleOnRO.connections.length, 5);
-});
+    t.is(resultAfterToggleOn.status, 200);
+    t.is(resultAfterToggleOnRO.connections.length, 5);
+  },
+);

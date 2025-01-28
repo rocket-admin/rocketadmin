@@ -101,7 +101,7 @@
     "ibm_db": "^3.3.0"
   },
   "devDependencies": {
-    "@ava/typescript": "4.1.0",
+    "@ava/typescript": "5.0.0",
     "@nestjs/cli": "^10.4.8",
     "@nestjs/schematics": "10.2.3",
     "@nestjs/testing": "^10.4.13",
@@ -119,7 +119,7 @@
     "@types/validator": "^13.12.2",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
-    "ava": "5.3.1",
+    "ava": "6.2.0",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",

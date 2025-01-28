@@ -16,6 +16,7 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 let app: INestApplication;
 let currentTest: string;
@@ -41,6 +42,15 @@ test.beforeEach(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After tests error ' + e);
+  }
 });
 
 currentTest = 'GET /user';

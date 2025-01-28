@@ -16,6 +16,7 @@ import { MockFactory } from '../../mock.factory.js';
 import { sendRequestToSaasPart } from '../../utils/send-request-to-saas-part.util.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -43,6 +44,15 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After custom field error: ' + e);
+  }
 });
 
 currentTest = 'POST custom-domain/register/:companyId';

@@ -19,6 +19,7 @@ import { faker } from '@faker-js/faker';
 import { nanoid } from 'nanoid';
 import { Constants } from '../../../src/helpers/constants/constants.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -45,6 +46,15 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After tests error ' + e);
+  }
 });
 
 currentTest = 'GET /company/my';

@@ -7,6 +7,7 @@ import { ApplicationModule } from '../../../src/app.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 let app: INestApplication;
 
@@ -18,6 +19,15 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   await app.init();
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After tests error ' + e);
+  }
 });
 
 test.serial(' > get hello', async (t) => {

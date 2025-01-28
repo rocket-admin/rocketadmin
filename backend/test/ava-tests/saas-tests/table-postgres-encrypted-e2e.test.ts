@@ -52,20 +52,15 @@ test.before(async () => {
   app.getHttpServer().listen(0);
 });
 
-test.after.always('Close app connection', async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
-});
-
-test.after('Drop test tables', async () => {
+test.after(async () => {
   try {
     const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     await dropTestTables(testTables, connectionToTestDB);
-  } catch (e) {}
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After tests error ' + e);
+  }
 });
 
 currentTest = 'GET /connection/tables/:slug';
