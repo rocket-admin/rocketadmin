@@ -25,7 +25,7 @@ class ConfigService {
   public ensureValues(keys: Array<string>) {
     const isTest = this.isTestEnvironment();
     if (isTest) {
-      console.log('Running test environment');
+      console.info('Running test environment');
     }
     keys.forEach((k) => this.getValue(k, !isTest));
     return this;

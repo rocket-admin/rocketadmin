@@ -19,6 +19,7 @@ export async function getTunnel(connection: ConnectionParams, freePort: number) 
 
   const tunnelOptions = {
     autoClose: true,
+    reconnectOnError: false,
   };
 
   const serverOptions = {

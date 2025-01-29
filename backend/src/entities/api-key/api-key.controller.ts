@@ -91,7 +91,6 @@ export class ApiKeyController {
   })
   @Get('/check/apikey')
   public async checkApiKey(): Promise<any> {
-    console.log('Api key is valid');
     return {
       result: true,
       message: 'Api key is valid',

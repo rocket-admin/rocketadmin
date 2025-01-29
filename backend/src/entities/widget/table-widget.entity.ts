@@ -43,7 +43,7 @@ export class TableWidgetEntity {
         this.widget_options = JSON.stringify(this.widget_options);
       }
     } catch (e) {
-      console.log('-> Error widget options stringify ' + e.message);
+      console.error('-> Error widget options stringify ' + e.message);
     }
   }
 
@@ -54,7 +54,7 @@ export class TableWidgetEntity {
         this.widget_options = JSON.stringify(this.widget_options);
       }
     } catch (e) {
-      console.log('-> Error widget options stringify ' + e.message);
+      console.error('-> Error widget options stringify ' + e.message);
     }
   }
 
@@ -68,7 +68,7 @@ export class TableWidgetEntity {
         });
       }
     } catch (e) {
-      console.log('-> Error widget options parse ' + e.message);
+      console.error('-> Error widget options parse ' + e.message);
     }
   }
 

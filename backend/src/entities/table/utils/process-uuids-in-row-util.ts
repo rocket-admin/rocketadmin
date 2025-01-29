@@ -16,7 +16,7 @@ export function processUuidsInRowUtil(
         row[widget.field_name] = uuidStringify(widgetParams);
       }
     } catch (e) {
-      console.log('-> Error in UUID widget processing', e);
+      console.error('-> Error in UUID widget processing', e);
     }
   }
 
