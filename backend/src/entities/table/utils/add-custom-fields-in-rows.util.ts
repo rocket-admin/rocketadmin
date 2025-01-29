@@ -2,6 +2,7 @@ import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import sjson from 'secure-json-parse';
 import { getPropertyValueByDescriptor, getValuesBetweenCurlies, replaceTextInCurlies } from '../../../helpers/index.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 export function addCustomFieldsInRowsUtil(
   rows: FoundRowsDS,
@@ -16,10 +17,9 @@ export function addCustomFieldsInRowsUtil(
   });
   parsedRows.data = parsedRows.data.map((row: any) => {
     const customFields = customTableFields.map((field) => {
-
       const fieldNamesFromTemplateString = getValuesBetweenCurlies(field.template_string);
       const fieldValuesForTemplateString = fieldNamesFromTemplateString
-        .filter((fieldName) => row.hasOwnProperty(fieldName) && getPropertyValueByDescriptor(row, fieldName))
+        .filter((fieldName) => isObjectPropertyExists(row, fieldName) && getPropertyValueByDescriptor(row, fieldName))
         .map((fieldName) => getPropertyValueByDescriptor(row, fieldName));
 
       const generatedUrlString = replaceTextInCurlies(
@@ -27,7 +27,7 @@ export function addCustomFieldsInRowsUtil(
         fieldNamesFromTemplateString,
         fieldValuesForTemplateString,
       );
-      
+
       return {
         type: field.type,
         url_template: generatedUrlString,

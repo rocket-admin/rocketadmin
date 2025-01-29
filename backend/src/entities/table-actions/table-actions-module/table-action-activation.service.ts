@@ -15,6 +15,7 @@ import PQueue from 'p-queue';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { escapeHtml } from '../../email/utils/escape-html.util.js';
 import { EmailService } from '../../email/email/email.service.js';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 export type ActionActivationResult = {
   location?: string;
@@ -290,7 +291,10 @@ export class TableActionActivationService {
     for (const primaryKeyInBody of request_body) {
       const pKeysObj: Record<string, unknown> = {};
       for (const primaryKey of tablePrimaryKeys) {
-        if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
+        if (
+          isObjectPropertyExists(primaryKeyInBody, primaryKey.column_name) &&
+          primaryKeyInBody[primaryKey.column_name]
+        ) {
           pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
         }
       }
@@ -306,7 +310,7 @@ export class TableActionActivationService {
     return array.map((record) => {
       const escapedRecord: Record<string, unknown> = {};
       for (const key in record) {
-        if (record.hasOwnProperty(key)) {
+        if (isObjectPropertyExists(record, key)) {
           const escapedKey = escapeHtml(key);
           // eslint-disable-next-line security/detect-object-injection
           const value = record[key];

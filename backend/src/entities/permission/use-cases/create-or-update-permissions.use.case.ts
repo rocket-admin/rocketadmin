@@ -14,6 +14,7 @@ import { buildFinalTablesPermissions } from '../utils/build-final-tables-permiss
 import { buildNewPermissionEntityConnection } from '../utils/build-new-permission-entity-connection.js';
 import { buildNewPermissionEntityGroup } from '../utils/build-new-permission-entity-group.js';
 import { ICreateOrUpdatePermissions } from './permissions-use-cases.interface.js';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 @Injectable()
 export class CreateOrUpdatePermissionsUseCase
@@ -136,15 +137,14 @@ export class CreateOrUpdatePermissionsUseCase
         for (const key in accessLevel) {
           // has own property check added to avoid object injection
           // eslint-disable-next-line security/detect-object-injection
-          if (accessLevel.hasOwnProperty(key) && !accessLevel[key]) {
+          if (isObjectPropertyExists(accessLevel, key) && !accessLevel[key]) {
             const permissionIndex = groupToUpdate.permissions.findIndex(
               (permission: PermissionEntity) => permission.accessLevel === key && tableName === permission.tableName,
             );
             if (permissionIndex >= 0) {
               const permissionInGroup = groupToUpdate.permissions.at(permissionIndex);
-              const deletedPermission = await this._dbContext.permissionRepository.removePermissionEntity(
-                permissionInGroup,
-              );
+              const deletedPermission =
+                await this._dbContext.permissionRepository.removePermissionEntity(permissionInGroup);
               deletedPermissions.push(deletedPermission);
             }
           }
@@ -161,7 +161,7 @@ export class CreateOrUpdatePermissionsUseCase
         for (const key in accessLevel) {
           // has own property check added to avoid object injection
           // eslint-disable-next-line security/detect-object-injection
-          if (accessLevel.hasOwnProperty(key) && accessLevel[key]) {
+          if (isObjectPropertyExists(accessLevel, key) && accessLevel[key]) {
             const permissionIndex = groupToUpdate.permissions.findIndex(
               (permission: PermissionEntity) => permission.accessLevel === key && tableName === permission.tableName,
             );
@@ -171,9 +171,8 @@ export class CreateOrUpdatePermissionsUseCase
               permissionEntity.accessLevel = key;
               permissionEntity.tableName = tableName;
               groupToUpdate.permissions.push(permissionEntity);
-              const createdPermission = await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(
-                permissionEntity,
-              );
+              const createdPermission =
+                await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permissionEntity);
               createdPermissions.push(createdPermission);
             }
           }

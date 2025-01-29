@@ -3620,7 +3620,8 @@ test.serial(`${currentTest} should return csv file with table data`, async (t) =
     .set('Accept', 'text/csv');
 
   if (getTableCsvResponse.status !== 201) {
-    console.log(getTableCsvResponse.text);
+    const getTableCsvResponseRO = JSON.parse(getTableCsvResponse.text);
+    console.log(getTableCsvResponseRO);
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;

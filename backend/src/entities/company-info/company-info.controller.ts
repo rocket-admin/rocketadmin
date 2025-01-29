@@ -168,6 +168,7 @@ export class CompanyInfoController {
   @UseGuards(CompanyUserGuard)
   @Get('my/full')
   async getUserCompanies(@UserId() userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
+    console.log('\n CALLED CONTROLLER \n');
     return await this.getUserFullCompanyInfoUseCase.execute(userId);
   }
 

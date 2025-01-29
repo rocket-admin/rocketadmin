@@ -91,6 +91,7 @@ currentTest = 'GET /company/my/full';
 
 test.serial(`${currentTest} should return full found company info for company admin user`, async (t) => {
   try {
+    console.log('\nCALLED CONNECTIONS CREATION\n');
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
       connections,
@@ -101,6 +102,7 @@ test.serial(`${currentTest} should return full found company info for company ad
       users: { adminUserToken, simpleUserToken },
     } = testData;
 
+    console.log('\nCALLED GET COMPANY INFO\n');
     const foundCompanyInfo = await request(app.getHttpServer())
       .get('/company/my/full')
       .set('Content-Type', 'application/json')
@@ -108,6 +110,7 @@ test.serial(`${currentTest} should return full found company info for company ad
       .set('Accept', 'application/json');
 
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+    // console.log('🚀 ~ test.serial ~ foundCompanyInfoRO:', foundCompanyInfoRO);
     // console.log(
     //   `🚀 ~ file: non-saas-company-info-e2e.test.ts:87 ~ test ~ foundCompanyInfoRO: \n\n
     // ${JSON.stringify(foundCompanyInfoRO)}

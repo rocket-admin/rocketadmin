@@ -27,8 +27,11 @@ export class GetUserCompanyFullInfoUseCase
   }
 
   protected async implementation(userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
+    console.log('\n CALLED USE CASE \n');
+
     const foundFullUserCoreCompanyInfo =
       await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
+
     if (!foundFullUserCoreCompanyInfo) {
       throw new HttpException(
         {

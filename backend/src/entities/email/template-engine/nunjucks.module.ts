@@ -16,6 +16,9 @@ const __dirname = path.dirname(__filename);
         const pathToTemplates = isTest()
           ? process.cwd() + '/public/email-templates'
           : path.join(__dirname, '..', '..', '..', '..', 'public', 'email-templates');
+
+        console.log('\n\n🚀 ~ pathToTemplates:\n\n', pathToTemplates);
+
         const env = new nunjucks.Environment(new nunjucks.FileSystemLoader(pathToTemplates));
         return env;
       },

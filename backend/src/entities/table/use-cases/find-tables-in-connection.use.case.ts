@@ -23,6 +23,7 @@ import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unkno
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { TableInfoEntity } from '../../table-info/table-info.entity.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -205,36 +206,37 @@ export class FindTablesInConnectionUseCase
     });
     tables.map((table) => {
       allTablePermissions.map((permission) => {
-        if (permission.tableName === table.tableName && tablesAndAccessLevels.hasOwnProperty(table.tableName)) {
+        if (
+          permission.tableName === table.tableName &&
+          isObjectPropertyExists(tablesAndAccessLevels, table.tableName)
+        ) {
           tablesAndAccessLevels[table.tableName].push(permission.accessLevel);
         }
       });
     });
     const tablesWithPermissions: Array<ITableAndViewPermissionData> = [];
     for (const key in tablesAndAccessLevels) {
-      if (tablesAndAccessLevels.hasOwnProperty(key)) {
-        // eslint-disable-next-line security/detect-object-injection
-        const addPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.add);
-        // eslint-disable-next-line security/detect-object-injection
-        const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
-        // eslint-disable-next-line security/detect-object-injection
-        const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
+      // eslint-disable-next-line security/detect-object-injection
+      const addPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.add);
+      // eslint-disable-next-line security/detect-object-injection
+      const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
+      // eslint-disable-next-line security/detect-object-injection
+      const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
 
-        const readOnly = !(addPermission || deletePermission || editPermission);
-        tablesWithPermissions.push({
-          tableName: key,
-          isView: tables.find((table) => table.tableName === key).isView,
-          accessLevel: {
-            // eslint-disable-next-line security/detect-object-injection
-            visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
-            // eslint-disable-next-line security/detect-object-injection
-            readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly) && !readOnly,
-            add: addPermission,
-            delete: deletePermission,
-            edit: editPermission,
-          },
-        });
-      }
+      const readOnly = !(addPermission || deletePermission || editPermission);
+      tablesWithPermissions.push({
+        tableName: key,
+        isView: tables.find((table) => table.tableName === key).isView,
+        accessLevel: {
+          // eslint-disable-next-line security/detect-object-injection
+          visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
+          // eslint-disable-next-line security/detect-object-injection
+          readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly) && !readOnly,
+          add: addPermission,
+          delete: deletePermission,
+          edit: editPermission,
+        },
+      });
     }
     return tablesWithPermissions.filter((tableWithPermission: ITableAndViewPermissionData) => {
       return !!tableWithPermission.accessLevel.visibility;

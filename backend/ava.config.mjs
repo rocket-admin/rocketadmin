@@ -13,6 +13,6 @@ export default {
   workerThreads: false,
   verbose: true,
   timeout: '5m',
-  // failFast: true,
+  failFast: false,
   concurrency: 3,
 };
