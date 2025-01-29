@@ -53,20 +53,15 @@ test.before(async () => {
   app.getHttpServer().listen(0);
 });
 
-test.after.always('Close app connection', async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
-});
-
-test.after('Drop test tables', async () => {
+test.after(async () => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
     await dropTestTables(testTables, connectionToTestDB);
-  } catch (e) {}
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After tests error ' + e);
+  }
 });
 
 currentTest = 'GET /connection/tables/:slug';
@@ -2074,8 +2069,6 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
   t.is(rows[42].id, rows[41].id + 1);
 
-  
-  
   // check that rows adding was logged
 
   const getLogsResponse = await request(app.getHttpServer())
@@ -2088,7 +2081,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const getLogsRO = JSON.parse(getLogsResponse.text);
   t.is(getLogsRO.hasOwnProperty('logs'), true);
   t.is(getLogsRO.hasOwnProperty('pagination'), true);
-  t.is(getLogsRO.logs.length > 0 , true);
+  t.is(getLogsRO.logs.length > 0, true);
   const addRowLogIndex = getLogsRO.logs.findIndex((log) => log.operationType === 'addRow');
   t.is(getLogsRO.logs[addRowLogIndex].hasOwnProperty('affected_primary_key'), true);
   t.is(typeof getLogsRO.logs[addRowLogIndex].affected_primary_key, 'object');

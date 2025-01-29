@@ -8,6 +8,7 @@ import { getValuesBetweenCurlies, replaceTextInCurlies } from '../../../helpers/
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
 import sjson from 'secure-json-parse';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 export function processRowsUtil(
   rows: FoundRowsDS,
@@ -28,7 +29,7 @@ export function processRowsUtil(
       const customFields = customTableFields.map((field) => {
         const fieldNamesFromTemplateString = getValuesBetweenCurlies(field.template_string);
         const fieldValuesForTemplateString = fieldNamesFromTemplateString
-          .filter((fieldName) => row.hasOwnProperty(fieldName) && getPropertyValueByDescriptor(row, fieldName))
+          .filter((fieldName) => isObjectPropertyExists(row, fieldName) && getPropertyValueByDescriptor(row, fieldName))
           .map((fieldName) => getPropertyValueByDescriptor(row, fieldName));
 
         const generatedUrlString = replaceTextInCurlies(

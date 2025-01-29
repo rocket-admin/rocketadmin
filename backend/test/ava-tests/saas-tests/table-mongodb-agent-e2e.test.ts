@@ -24,6 +24,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -69,6 +70,15 @@ test.before(async () => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   await testUtils.sleep(2000);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After tests error ' + e);
+  }
 });
 
 test.beforeEach(async () => {

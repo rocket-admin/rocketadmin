@@ -1,5 +1,6 @@
 
 export default {
+  require: ['./_force-exit.mjs'],
   files: ['test/ava-tests/**'],
   typescript: {
     extensions: ['ts'],
@@ -12,6 +13,6 @@ export default {
   workerThreads: false,
   verbose: true,
   timeout: '5m',
-  // failFast: true,
+  failFast: false,
   concurrency: 3,
 };

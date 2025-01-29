@@ -89,19 +89,13 @@ test.beforeEach(async () => {
   testEntitiesSeedsCount = testTableCreationResult.testEntitiesSeedsCount;
 });
 
-test.after.always('Close app connection', async () => {
+test.after(async () => {
   try {
     await Cacher.clearAllCache();
     await app.close();
   } catch (e) {
-    console.error('After custom field error: ' + e);
+    console.error('After tests error ' + e);
   }
-});
-
-test.after('Drop test tables', async () => {
-  try {
-    // await dropTestTables(testTables, connectionToTestDB);
-  } catch (e) {}
 });
 
 currentTest = 'GET /connection/tables/:slug';

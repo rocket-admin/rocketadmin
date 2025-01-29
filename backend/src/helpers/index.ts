@@ -13,7 +13,6 @@ export { isConnectionEntityAgent, isConnectionTypeAgent } from './is-connection-
 export { isTestConnection } from './is-test-connection.js';
 export { isObjectEmpty } from './is-object-empty.js';
 export { lengthInBytes } from './str-length-in-bytes.js';
-export { listTables } from './get-tables-helper.js';
 export { objectKeysToLowercase } from './object-keys-to-lowercase.js';
 export { renameObjectKeyName } from './rename-object-key-name.js';
 export { replaceTextInCurlies } from './operate-values-between-curlies.js';

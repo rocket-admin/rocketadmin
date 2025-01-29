@@ -1,6 +1,6 @@
 import knex from 'knex';
 import { Knex } from 'knex';
-import { LRUCache } from 'lru-cache'
+import { LRUCache } from 'lru-cache';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 
@@ -40,4 +40,16 @@ export function getTestKnex(connectionParams): Knex {
   });
   knexCache.set(JSON.stringify(connectionParams), newKnex);
   return newKnex;
+}
+
+export async function clearAllTestKnex() {
+  const elements = [];
+  knexCache.forEach((value, key) => {
+    elements.push({ key, value });
+  });
+  for (const element of elements) {
+    await element.value.destroy();
+    knexCache.delete(element.key);
+  }
+  knexCache.clear();
 }

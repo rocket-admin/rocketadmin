@@ -21,6 +21,7 @@ import { ValidationError } from 'class-validator';
 import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { getTestData } from '../../utils/get-test-data.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -50,6 +51,15 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After custom field error: ' + e);
+  }
 });
 
 function getTestConnectionData() {

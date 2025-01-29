@@ -4,13 +4,17 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { QueryOrderingEnum } from '../../../enums/index.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 export function findOrderingFieldUtil(
   query: Record<string, unknown>,
   tableStructure: Array<TableStructureDS>,
   tableSettings: TableSettingsEntity,
 ): OrderingFiledDs | undefined {
-  if (!query.hasOwnProperty('sort_by') || !query.hasOwnProperty('sort_order')) {
+  if (
+    !isObjectPropertyExists(query, 'sort_by') ||
+    !isObjectPropertyExists(query, 'sort_order')
+  ) {
     return undefined;
   }
 

@@ -14,6 +14,7 @@ import { TestUtils } from '../../utils/test.utils.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -83,9 +84,14 @@ test.beforeEach(async (t) => {
   await resetPostgresTestDB(testTableName);
 });
 
-// test.after('cleanup', async (t) => {
-//   await dropTestTables(testTables, mockFactory.generateConnectionToTestPostgresDBInDocker());
-// });
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After custom field error: ' + e);
+  }
+});
 
 type RegisterUserData = {
   email: string;

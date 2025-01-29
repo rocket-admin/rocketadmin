@@ -2,11 +2,12 @@ import { BadRequestException, createParamDecorator, ExecutionContext } from '@ne
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
+import { isObjectPropertyExists } from '../helpers/validators/is-object-property-exists-validator.js';
 
 export const QueryUuid = createParamDecorator((paramName: string, ctx: ExecutionContext): string => {
   const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
   const query = request.query;
-  if (query.hasOwnProperty(paramName)) {
+  if (isObjectPropertyExists(query, paramName)) {
     // eslint-disable-next-line security/detect-object-injection
     const uuId = query[paramName];
     if (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId)) {

@@ -14,6 +14,7 @@ import { TableLogsEntity } from './table-logs.entity.js';
 import { buildCreatedLogRecord } from './utils/build-created-log-record.js';
 import { buildTableLogsEntity } from './utils/build-table-logs-entity.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
+import { isObjectPropertyExists } from '../../helpers/validators/is-object-property-exists-validator.js';
 
 @Injectable()
 export class TableLogsService {
@@ -50,10 +51,10 @@ export class TableLogsService {
         if (
           old_data &&
           typeof old_data === 'object' &&
-          old_data.hasOwnProperty(fieldName) &&
+          isObjectPropertyExists(old_data, fieldName) &&
           row &&
           typeof row === 'object' &&
-          row.hasOwnProperty(fieldName)
+          isObjectPropertyExists(row, fieldName)
         ) {
           // eslint-disable-next-line security/detect-object-injection
           if (this.compareValues(old_data[fieldName], row[fieldName])) {
@@ -68,11 +69,11 @@ export class TableLogsService {
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
           }
         } else {
-          if (old_data && typeof old_data === 'object' && old_data.hasOwnProperty(fieldName)) {
+          if (old_data && typeof old_data === 'object' && isObjectPropertyExists(old_data, fieldName)) {
             // eslint-disable-next-line security/detect-object-injection
             old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
           }
-          if (row && typeof row === 'object' && row.hasOwnProperty(fieldName)) {
+          if (row && typeof row === 'object' && isObjectPropertyExists(row, fieldName)) {
             // eslint-disable-next-line security/detect-object-injection
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
           }
@@ -145,10 +146,10 @@ export class TableLogsService {
         if (
           old_data &&
           typeof old_data === 'object' &&
-          old_data.hasOwnProperty(fieldName) &&
+          isObjectPropertyExists(old_data, fieldName) &&
           row &&
           typeof row === 'object' &&
-          row.hasOwnProperty(fieldName)
+          isObjectPropertyExists(row, fieldName)
         ) {
           // eslint-disable-next-line security/detect-object-injection
           if (this.compareValues(old_data[fieldName], row[fieldName])) {
@@ -163,13 +164,12 @@ export class TableLogsService {
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
           }
         } else {
-           
-          if (old_data && typeof old_data === 'object' && old_data.hasOwnProperty(fieldName)) {
+          if (old_data && typeof old_data === 'object' && isObjectPropertyExists(old_data, fieldName)) {
             // eslint-disable-next-line security/detect-object-injection
             old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
           }
-           
-          if (row && typeof row === 'object' && row.hasOwnProperty(fieldName)) {
+
+          if (row && typeof row === 'object' && isObjectPropertyExists(row, fieldName)) {
             // eslint-disable-next-line security/detect-object-injection
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
           }

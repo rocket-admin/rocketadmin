@@ -167,7 +167,7 @@ async function resetPostgresTestDbTableCompositePrimaryKeys(
   await Knex.destroy();
 }
 
-test.after.always('Close app connection', async () => {
+test.after(async () => {
   try {
     await Cacher.clearAllCache();
     await app.close();

@@ -59,6 +59,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Constants } from '../../helpers/constants/constants.js';
 import { ImportCSVInTableDs } from './application/data-structures/import-scv-in-table.ds.js';
 import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
+import { isObjectPropertyExists } from '../../helpers/validators/is-object-property-exists-validator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -236,7 +237,7 @@ export class TableController {
       searchingFieldValue: searchingFieldValue,
       tableName: tableName,
       userId: userId,
-      filters: body.filters,
+      filters: body?.filters,
     };
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
@@ -572,7 +573,7 @@ export class TableController {
       searchingFieldValue: searchingFieldValue,
       tableName: tableName,
       userId: userId,
-      filters: body.filters,
+      filters: body?.filters,
     };
     return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
@@ -651,7 +652,7 @@ export class TableController {
 
     for (const primaryColumn of primaryColumns) {
       let property = {};
-      if (primaryColumn.hasOwnProperty('column_name')) {
+      if (isObjectPropertyExists(primaryColumn, 'column_name')) {
         property = {
           [primaryColumn.column_name]: query[primaryColumn.column_name],
         };

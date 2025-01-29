@@ -87,7 +87,7 @@ export class EmailService {
       userEmails.map(async (email: string, index) => {
         return await queue.add(async () => {
           const result = await this.sendReminderToUser(email);
-          console.log(`${index} email sending result ${JSON.stringify(result)}`);
+          console.info(`${index} email sending result ${JSON.stringify(result)}`);
           return result;
         });
       }),

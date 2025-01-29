@@ -175,8 +175,25 @@ export class Cacher {
   }
 
   public static async clearAllCache(): Promise<void> {
-    await knexCache.clear();
-    await tunnelCache.clear();
+    const elements = [];
+    knexCache.forEach((value, key) => {
+      elements.push({ key, value });
+    });
+    for (const element of elements) {
+      await element.value.destroy();
+      knexCache.delete(element.key);
+    }
+    knexCache.clear();
+
+    const tunnelElements = [];
+    tunnelCache.forEach((value, key) => {
+      tunnelElements.push({ key, value });
+    });
+    for (const element of tunnelElements) {
+      await element.value.close();
+      tunnelCache.delete(element.key);
+    }
+    tunnelCache.clear();
     await driverCache.clear();
     await invitationCache.clear();
     await tableStructureCache.clear();

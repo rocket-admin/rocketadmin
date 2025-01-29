@@ -17,6 +17,7 @@ import { faker } from '@faker-js/faker';
 import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { MockFactory } from '../../mock.factory.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 let app: INestApplication;
 let currentTest: string;
@@ -41,6 +42,15 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+  try {
+    await Cacher.clearAllCache();
+    await app.close();
+  } catch (e) {
+    console.error('After custom field error: ' + e);
+  }
 });
 
 currentTest = `POST /apikey`;

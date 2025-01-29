@@ -26,7 +26,7 @@ export class DatabaseService {
 
   public async closeConnection() {
     try {
-      return;
+      return await this.dataSource.destroy();
     } catch (e) {
       console.error(e);
     }

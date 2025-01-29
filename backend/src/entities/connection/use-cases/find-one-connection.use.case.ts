@@ -84,7 +84,7 @@ export class FindOneConnectionUseCase
       try {
         filteredConnection = Encryptor.decryptConnectionCredentials(connection, inputData.masterPwd);
       } catch (e) {
-        console.log('-> Error decrypting connection credentials', e);
+        console.error('-> Error decrypting connection credentials', e);
         throw new HttpException(
           {
             message: Messages.FAILED_DECRYPT_CONNECTION_CREDENTIALS,

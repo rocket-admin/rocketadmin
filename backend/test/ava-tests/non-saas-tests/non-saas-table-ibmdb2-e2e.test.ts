@@ -59,20 +59,13 @@ test.before(async () => {
   app.getHttpServer().listen(0);
 });
 
-test.after.always('Close app connection', async () => {
+test.after(async () => {
   try {
     await Cacher.clearAllCache();
     await app.close();
   } catch (e) {
-    console.error('After custom field error: ' + e);
+    console.error('After tests error ' + e);
   }
-});
-
-test.after('Drop test tables', async () => {
-  try {
-    const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
-    // await dropTestTables(testTables, connectionToTestDB);
-  } catch (e) {}
 });
 
 currentTest = 'GET /connection/tables/:slug';

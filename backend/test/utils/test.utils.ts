@@ -2,17 +2,20 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import jwt from 'jsonwebtoken';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 // @ts-ignore
 export class TestUtils {
   databaseService: DatabaseService;
+  schedulerRegistry: SchedulerRegistry;
 
-  constructor(databaseService: DatabaseService) {
+  constructor(databaseService: DatabaseService, schedulerRegistry: SchedulerRegistry) {
     if (process.env.NODE_ENV !== 'test') {
       throw new Error('ERROR-TEST-UTILS-ONLY-FOR-TESTS');
     }
     this.databaseService = databaseService;
+    this.schedulerRegistry = schedulerRegistry;
   }
 
   async shutdownServer(server) {
@@ -21,6 +24,18 @@ export class TestUtils {
       await this.closeDbConnection();
     } catch (e) {
       console.log('shutdown server error ->', e);
+    }
+  }
+
+  public clearCrons(): void {
+    try {
+      const jobs = this.schedulerRegistry.getCronJobs();
+      jobs.forEach((job, jobName) => {
+        job.stop();
+        this.schedulerRegistry.deleteCronJob(jobName);
+      });
+    } catch (e) {
+      console.log('clear cron error ->', e);
     }
   }
 
