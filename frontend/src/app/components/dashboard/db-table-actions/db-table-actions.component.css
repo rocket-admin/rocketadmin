@@ -191,46 +191,17 @@
 
 .code-snippet-box {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    height: calc(100vh - 200px);
-    overflow-y: auto;
-    flex-grow: 1;
-}
-
-.action-codeSnippet {
-    height: 100%;
-    width: 100%;
-}
-
-.action-codeSnippet ::ng-deep .ngs-code-editor {
-    height: 100%;
-}
-
-.lang-select {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 156px;
-    z-index: 5;
-}
-
-.lang-select ::ng-deep .mdc-text-field {
-    background-color: #fff;
-}
-
-::ng-deep .CodeMirror-wrap pre.CodeMirror-line,
-::ng-deep .CodeMirror-wrap pre.CodeMirror-line-like {
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    word-break: break-word;
+    border: 1px solid #b0b0b0;
+    margin-top: 8px;
+    margin-bottom: 20px;
+    max-width: 1100px;
+    padding: 8px 12px;
 }
 
 .copy-button {
     position: absolute;
-    right: 184px;
-    top: 26px;
+    right: 32px;
+    top: 32px;
     background-color: #fff;
     z-index: 5;
 }

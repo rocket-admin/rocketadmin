@@ -24,6 +24,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: var(--mat-sidenav-content-text-color);
+    margin-top: 8px;
 }
 
 .icons-list {
@@ -32,7 +34,7 @@
     grid-template-columns: repeat(5, 40px);
     grid-gap: 4px;
     justify-content: space-between;
-    margin-top: 12px;
+    margin-top: 8px;
     margin-bottom: 12px;
 }
 
