@@ -57,6 +57,7 @@ export class ConnectionsService {
   public companyName: string;
 
   private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
+  private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
   constructor(
     private _http: HttpClient,
@@ -126,6 +127,10 @@ export class ConnectionsService {
     return this.connectionNameSubject.asObservable();
   }
 
+  getCurrentConnectionSigningKey() {
+    return this.connectionSigningKeySubject.asObservable();
+  }
+
   setConnectionID(id: string) {
     this.connectionID = id;
   }
@@ -139,6 +144,7 @@ export class ConnectionsService {
         this.connectionAccessLevel = res.accessLevel;
         this.groupsAccessLevel = res.groupManagement;
         this.connectionNameSubject.next(res.connection.title || res.connection.database);
+        this.connectionSigningKeySubject.next(res.connection.signing_key);
         if (res.connectionProperties) {
           console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
