@@ -6,6 +6,7 @@ import { map, startWith, tap } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
+import { Angulartics2OnModule } from 'angulartics2';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
@@ -33,7 +34,6 @@ import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { normalizeTableName } from '../../../lib/normalize'
-import { Angulartics2OnModule } from 'angulartics2';
 
 interface Column {
   title: string,
@@ -286,6 +286,8 @@ export class DbTableComponent implements OnInit {
       return `${displayedName} = ...${filterValue}`
     } else if (comparator == 'contains') {
       return `${displayedName} = ...${filterValue}...`
+    } else if (comparator == 'icontains') {
+      return `${displayedName} != ...${filterValue}...`
     } else if (comparator == 'empty') {
       return `${displayedName} = ' '`
     } else {

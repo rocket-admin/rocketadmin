@@ -1,11 +1,13 @@
 import { AlertActionType, AlertType } from 'src/app/models/alert';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Component, OnInit } from '@angular/core';
 import { CustomAction, CustomActionMethod, CustomActionType, CustomEvent, EventType, Rule } from 'src/app/models/table';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
-import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { CodeEditorModule } from '@ngstack/code-editor';
 import { CommonModule } from '@angular/common';
 import { CompanyMember } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
@@ -15,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IconPickerComponent } from '../../ui-components/icon-picker/icon-picker.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +26,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -30,7 +34,6 @@ import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -38,6 +41,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   styleUrls: ['./db-table-actions.component.css'],
   imports: [
     CommonModule,
+    ClipboardModule,
     FormsModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -49,6 +53,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatSidenavModule,
     MatListModule,
     MatRadioModule,
+    MatTabsModule,
+    CodeEditorModule,
     AlertComponent,
     BreadcrumbsComponent,
     ContentLoaderComponent,
@@ -110,10 +116,9 @@ export class DbTableActionsComponent implements OnInit {
 
   async ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
-    this.signingKey = this._connections.currentConnection.signing_key;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
-    this.codeSnippets = codeSnippets(this._connections.currentConnection.signing_key);
+    this._connections.getCurrentConnectionSigningKey().subscribe(signingKey => this.codeSnippets = codeSnippets(signingKey));
 
     try {
       this.rulesData = await this.getRules();
@@ -139,7 +144,6 @@ export class DbTableActionsComponent implements OnInit {
       if (arg === 'delete-rule') {
         try {
           this.rulesData = await this.getRules();
-          console.log(this.rulesData);
           this.rules = this.rulesData.action_rules;
           this.selectedRule = this.rules[0];
           this.selectedRuleTitle = this.selectedRule.title;
@@ -153,8 +157,13 @@ export class DbTableActionsComponent implements OnInit {
   }
 
   get currentConnection() {
+    // this.codeSnippets = codeSnippets(this._connections.currentConnection.signing_key);
     return this._connections.currentConnection;
   }
+
+  // get codeSnippets() {
+  //   return codeSnippets(this._connections.currentConnection.signing_key);
+  // }
 
   getCrumbs(name: string) {
     return [
