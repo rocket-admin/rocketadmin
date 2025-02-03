@@ -8,14 +8,14 @@ $md-app-primary-color: palette.createpalette('primaryPalette');
 $md-app-accented-color: palette.createpalette('accentedPalette');
 $md-app-warn-color: palette.createpalette('warnPalette');
 $md-app-white-color: palette.createpalette('whitePalette');
-$md-app-accented-dark-color: palette.createpalette('accentedDarkPalette');
+// $md-app-accented-dark-color: palette.createpalette('accentedDarkPalette');
 $md-app-warn-dark-color: palette.createpalette('warnDarkPalette');
 
 $custom-palette-primary: mat.m2-define-palette($md-app-primary-color);
 $custom-palette-accent: mat.m2-define-palette($md-app-accented-color);
 $custom-palette-warn: mat.m2-define-palette($md-app-warn-color);
 $custom-palette-white: mat.m2-define-palette($md-app-white-color);
-$custom-palette-accented-dark: mat.m2-define-palette($md-app-accented-dark-color);
+// $custom-palette-accented-dark: mat.m2-define-palette($md-app-accented-dark-color);
 $custom-palette-warn-dark: mat.m2-define-palette($md-app-warn-dark-color);
 
 html {
@@ -119,7 +119,7 @@ $custom-light-theme: mat.m2-define-light-theme((
 $custom-dark-theme: mat.m2-define-dark-theme((
   color: (
     primary: $custom-palette-white,
-    accent: $custom-palette-accented-dark,
+    accent: $custom-palette-accent,
     warn: $custom-palette-warn-dark,
   ),
   density: -3,
