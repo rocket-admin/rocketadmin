@@ -28,7 +28,10 @@ export class TokenInterceptor implements HttpInterceptor {
     if (url.startsWith('/assets')) {
       return undefined;
     }
-    if (url.startsWith('https://')) {
+    if (url.startsWith('/saas')) {
+      return url;
+    }
+    if (url.startsWith('http://')) {
       return url;
     }
     return `${baseURL}${url}`;
