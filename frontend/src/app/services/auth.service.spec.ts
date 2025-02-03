@@ -69,7 +69,7 @@ fdescribe('AuthService', () => {
       isSignUpUserCalled = true;
     });
 
-    const req = httpMock.expectOne('https://saas.rocketadmin.com/saas/user/register');
+    const req = httpMock.expectOne('/saas/user/register');
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(userData);
     req.flush(signUpResponse);
@@ -85,7 +85,7 @@ fdescribe('AuthService', () => {
 
     const tokenExpiration = service.signUpUser(userData).toPromise();
 
-    const req = httpMock.expectOne('https://saas.rocketadmin.com/saas/user/register');
+    const req = httpMock.expectOne('/saas/user/register');
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
@@ -185,7 +185,7 @@ fdescribe('AuthService', () => {
       isLoginWithGoogleCalled = true;
     });
 
-    const req = httpMock.expectOne(`https://saas.rocketadmin.com/saas/user/google/login`);
+    const req = httpMock.expectOne(`/saas/user/google/login`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({ token: 'google-token-12345678'});
     req.flush(googleResponse);
@@ -196,7 +196,7 @@ fdescribe('AuthService', () => {
   it('should fall for loginWithGoogle and show Error alert', async () => {
     const googleResponse = service.loginWithGoogle('google-token-12345678').toPromise();
 
-    const req = httpMock.expectOne(`https://saas.rocketadmin.com/saas/user/google/login`);
+    const req = httpMock.expectOne(`/saas/user/google/login`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({ token: 'google-token-12345678'});
     req.flush(fakeError, {status: 400, statusText: ''});
