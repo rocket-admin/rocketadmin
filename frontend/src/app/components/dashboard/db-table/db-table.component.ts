@@ -1,3 +1,4 @@
+import { ActivatedRoute, Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CustomAction, TableForeignKey, TablePermissions, TableProperties, TableRow } from 'src/app/models/table';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -5,13 +6,13 @@ import { Observable, merge, of } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
-import { ActivatedRoute } from '@angular/router';
 import { Angulartics2OnModule } from 'angulartics2';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table-import-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import JsonURL from "@jsonurl/jsonurl";
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -123,6 +124,7 @@ export class DbTableComponent implements OnInit {
     private _tableState: TableStateService,
     private _notifications: NotificationsService,
     private route: ActivatedRoute,
+    public router: Router,
     public dialog: MatDialog,
   ) {}
 
@@ -134,7 +136,21 @@ export class DbTableComponent implements OnInit {
 
     merge(this.sort.sortChange, this.paginator.page)
       .pipe(
-          tap(() => this.loadRowsPage())
+          tap(() => {
+            const filters = JsonURL.stringify( this.activeFilters );
+
+
+            this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
+              queryParams: {
+                filters,
+                sort_active: this.sort.active,
+                sort_direction: this.sort.direction.toUpperCase(),
+                page_index: this.paginator.pageIndex,
+                page_size: this.paginator.pageSize
+              }
+            });
+            this.loadRowsPage()
+          })
       )
       .subscribe();
   }
@@ -162,7 +178,6 @@ export class DbTableComponent implements OnInit {
   }
 
   loadRowsPage() {
-    console.log(this.paginator);
     this.tableData.fetchRows({
       connectionID: this.connectionID,
       tableName: this.name,
@@ -202,12 +217,8 @@ export class DbTableComponent implements OnInit {
   }
 
   getWidgetValue(column: string, value: string) {
-    console.log(this.tableData.widgets);
     if (this.tableData.widgets[column].widget_type === 'Select') {
-      console.log(this.tableData.widgets['Region']);
       const fieldOptions = this.tableData.widgets[column].widget_params.options;
-      console.log('fieldOptions');
-      console.log(fieldOptions);
       if (fieldOptions) {
         const cellValue = fieldOptions.find(option => option.value === value);
           if (cellValue) return cellValue.label
@@ -318,7 +329,7 @@ export class DbTableComponent implements OnInit {
   }
 
   stashUrlParams() {
-    this._tableState.setBackUrlParams(this.paginator.pageIndex, this.paginator.pageSize, this.sort.active, this.sort.direction);
+    this._tableState.setBackUrlParams(this.route.snapshot.queryParams.page_index, this.route.snapshot.queryParams.page_size, this.route.snapshot.queryParams.sort_active, this.route.snapshot.queryParams.sort_direction);
     this.stashFilters();
   }
 
@@ -338,8 +349,6 @@ export class DbTableComponent implements OnInit {
 
   handleAction(e, action, element) {
     e.stopPropagation();
-
-    console.log(element);
 
     this.activateActions.emit({
       action,
