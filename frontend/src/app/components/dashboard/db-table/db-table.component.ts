@@ -337,11 +337,6 @@ export class DbTableComponent implements OnInit {
     this._tableState.setBackUrlFilters(this.activeFilters);
   }
 
-  getPrimaryKeys() {
-    return this.selection.selected
-      .map(row => Object.assign({}, ...this.tableData.keyAttributes.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]}))));
-  }
-
   getIdentityFieldsValues() {
     if (this.tableData.identityColumn) return this.selection.selected.map(row => row[this.tableData.identityColumn]);
     return null;
@@ -358,7 +353,7 @@ export class DbTableComponent implements OnInit {
   }
 
   handleActions(action) {
-    const primaryKeys = this.getPrimaryKeys();
+    const primaryKeys = this.selection.selected.map(row => this.tableData.getQueryParams(row));
     const identityFieldValues = this.getIdentityFieldsValues();
 
     this.activateActions.emit({
