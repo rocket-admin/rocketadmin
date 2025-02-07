@@ -24,12 +24,12 @@ export class TokenInterceptor implements HttpInterceptor {
     private _configuration: ConfigurationService
   ) {}
 
-  normalizeURL(url: string, baseURL: string): string {
+  normalizeURL(url: string, baseURL: string, saasURL: string): string {
     if (url.startsWith('/assets')) {
       return undefined;
     }
     if (url.startsWith('/saas')) {
-      return url;
+      return `${saasURL}${url}`;
     }
     if (url.startsWith('http://')) {
       return url;
@@ -43,7 +43,7 @@ export class TokenInterceptor implements HttpInterceptor {
     const connectionID = this._connections.currentConnectionID;
 
     request = request.clone({
-      url: this.normalizeURL(request.url, environment.apiRoot || this.config.baseURL),
+      url: this.normalizeURL(request.url, environment.apiRoot || this.config.baseURL, environment.saasURL),
       setHeaders: {
         GCLID: autoadmin_gclid_cookie
       },
