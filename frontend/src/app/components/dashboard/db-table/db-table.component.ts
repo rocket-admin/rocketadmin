@@ -184,7 +184,7 @@ export class DbTableComponent implements OnInit {
       requstedPage: this.paginator.pageIndex,
       pageSize: this.paginator.pageSize,
       sortColumn: this.sort.active,
-      sortOrder: this.sort.direction.toLocaleUpperCase(),
+      sortOrder: this.sort.direction.toUpperCase(),
       filters: this.activeFilters,
       search: this.searchString,
       isTablePageSwitched: true
@@ -264,7 +264,7 @@ export class DbTableComponent implements OnInit {
         connectionID: this.connectionID,
         tableName: this.name,
         sortColumn: this.sort.active,
-        sortOrder: this.sort.direction.toLocaleUpperCase(),
+        sortOrder: this.sort.direction.toUpperCase(),
         filters: this.activeFilters,
         search: this.searchString
       }
@@ -329,6 +329,7 @@ export class DbTableComponent implements OnInit {
   }
 
   stashUrlParams() {
+    console.log('stashUrlParams');
     this._tableState.setBackUrlParams(this.route.snapshot.queryParams.page_index, this.route.snapshot.queryParams.page_size, this.route.snapshot.queryParams.sort_active, this.route.snapshot.queryParams.sort_direction);
     this.stashFilters();
   }
