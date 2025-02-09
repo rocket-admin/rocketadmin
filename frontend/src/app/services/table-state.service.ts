@@ -38,8 +38,8 @@ export class TableStateService {
     const params = {
       page_index: pageIndex,
       page_size: pageSize,
-      sort_active: sortField,
-      sort_direction: sortDirection.toUpperCase()
+      ...(sortField !== undefined && { sort_active: sortField }),
+      ...(sortDirection !== undefined && { sort_direction: sortDirection.toUpperCase() })
     };
     this.setSessionStorageItem('backUrlParams', params);
   }
