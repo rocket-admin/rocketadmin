@@ -68,6 +68,18 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     try {
+      const tableStructure = await this.getTableStructure(tableName);
+      for (const key in primaryKey) {
+        const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+        if (foundKeySchema?.data_type === 'number') {
+          const numericValue = Number(primaryKey[key]);
+          if (!isNaN(numericValue)) {
+            primaryKey[key] = numericValue;
+          } else {
+            continue;
+          }
+        }
+      }
       const { documentClient } = this.getDynamoDb();
       const params = {
         TableName: tableName,
@@ -100,7 +112,12 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     for (const key in primaryKey) {
       const foundKeySchema = tableStructure.find((el) => el.column_name === key);
       if (foundKeySchema?.data_type === 'number') {
-        primaryKey[key] = Number(primaryKey[key]);
+        const numericValue = Number(primaryKey[key]);
+        if (!isNaN(numericValue)) {
+          primaryKey[key] = numericValue;
+        } else {
+          continue;
+        }
       }
     }
     let availableFields: string[] = [];
@@ -115,7 +132,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
     const result = await documentClient.send(new GetItemCommand(params));
 
-    const foundRow = result.Item ? this.transformAndFilterRow(result.Item, availableFields) : null;
+    const foundRow = result.Item ? this.transformAndFilterRow(result.Item, availableFields, tableStructure) : null;
     if (!foundRow) {
       return null;
     }
@@ -169,7 +186,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const large_dataset = rows.length >= DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT;
 
       return {
-        data: rows.map((row) => this.transformAndFilterRow(row, availableFields)),
+        data: rows.map((row) => this.transformAndFilterRow(row, availableFields, tableStructure)),
         large_dataset,
         pagination: {} as any,
       };
@@ -177,8 +194,25 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     if (searchedFieldValue && settings.search_fields?.length > 0) {
       const searchFields = settings.search_fields.length > 0 ? settings.search_fields : availableFields;
-      filterExpression = searchFields.map((field) => `begins_with(#${field}, :searchedFieldValue)`).join(' OR ');
-      expressionAttributeValues = { ':searchedFieldValue': { S: searchedFieldValue } };
+      filterExpression = searchFields
+        .map((field) => {
+          const fieldInfo = tableStructure.find((el) => el.column_name === field);
+          const isNumberField = fieldInfo?.data_type === 'number';
+          if (isNumberField) {
+            const numericValue = Number(searchedFieldValue);
+            if (!isNaN(numericValue)) {
+              expressionAttributeValues[`:${field}_value`] = { N: String(numericValue) };
+              return `#${field} = :${field}_value`;
+            }
+            return null;
+          } else {
+            expressionAttributeValues[`:${field}_value`] = { S: searchedFieldValue };
+            return `begins_with(#${field}, :${field}_value)`;
+          }
+        })
+        .filter((expression) => expression !== null)
+        .join(' OR ');
+
       searchFields.forEach((field) => {
         expressionAttributeNames[`#${field}`] = field;
       });
@@ -288,7 +322,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
 
     return {
-      data: rows.map((row) => this.transformAndFilterRow(row, availableFields)),
+      data: rows.map((row) => this.transformAndFilterRow(row, availableFields, tableStructure)),
       pagination,
       large_dataset,
     };
@@ -356,6 +390,18 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     try {
+      const tableStructure = await this.getTableStructure(tableName);
+      for (const key in primaryKey) {
+        const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+        if (foundKeySchema?.data_type === 'number') {
+          const numericValue = Number(primaryKey[key]);
+          if (!isNaN(numericValue)) {
+            primaryKey[key] = numericValue;
+          } else {
+            continue;
+          }
+        }
+      }
       const { documentClient } = this.getDynamoDb();
       const params = {
         TableName: tableName,
@@ -533,6 +579,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   private transformAndFilterRow(
     row: { [key: string]: { [type: string]: any } },
     availableFields: string[],
+    tableStructure: Array<TableStructureDS>,
   ): { [key: string]: any } {
     const transformedRow: { [key: string]: any } = {};
 
@@ -540,6 +587,13 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const attribute = row[key];
       const attributeType = Object.keys(attribute)[0];
       transformedRow[key] = attribute[attributeType];
+      const fieldInfo = tableStructure.find((el) => el.column_name === key);
+      if (fieldInfo?.data_type === 'number') {
+        const valueToNumber = Number(transformedRow[key]);
+        if (!isNaN(valueToNumber)) {
+          transformedRow[key] = valueToNumber;
+        }
+      }
     });
 
     if (availableFields.length > 0) {
