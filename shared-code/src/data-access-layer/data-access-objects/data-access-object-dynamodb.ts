@@ -1,6 +1,13 @@
 /* eslint-disable security/detect-object-injection */
+import { DeleteItemCommand, DynamoDB, GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
+import * as csv from 'csv';
 import { Stream } from 'stream';
+import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
+import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -11,18 +18,10 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
-import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { DeleteItemCommand, DynamoDB, GetItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import * as csv from 'csv';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 
 export type DdAndClient = {
   dynamoDb: DynamoDB;
@@ -102,18 +101,21 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       Key: marshall(primaryKey),
     };
     const result = await documentClient.send(new GetItemCommand(params));
-    const foundRow = result.Item ? unmarshall(result.Item) : null;
+
+    console.log('🚀 ~ DataAccessObjectDynamoDB ~ result:', result);
+
+    const foundRow = result.Item ? this.transformAndFilterRow(result.Item, availableFields) : null;
     if (!foundRow) {
       return null;
     }
-    const rowKeys = Object.keys(foundRow);
-    if (availableFields.length > 0) {
-      for (const key of rowKeys) {
-        if (!availableFields.includes(key)) {
-          delete foundRow[key];
-        }
-      }
-    }
+    // const rowKeys = Object.keys(foundRow);
+    // if (availableFields.length > 0) {
+    //   for (const key of rowKeys) {
+    //     if (!availableFields.includes(key)) {
+    //       delete foundRow[key];
+    //     }
+    //   }
+    // }
     return foundRow;
   }
 
@@ -534,11 +536,13 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       transformedRow[key] = attribute[attributeType];
     });
 
-    Object.keys(transformedRow).forEach((key) => {
-      if (!availableFields.includes(key)) {
-        delete transformedRow[key];
-      }
-    });
+    if (availableFields.length > 0) {
+      Object.keys(transformedRow).forEach((key) => {
+        if (!availableFields.includes(key)) {
+          delete transformedRow[key];
+        }
+      });
+    }
 
     return transformedRow;
   }
