@@ -421,7 +421,7 @@ export async function createTestDynamoDBTable(
     KeySchema: [
       { AttributeName: 'id', KeyType: 'HASH' }, // Primary key
     ],
-    AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+    AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'N' }],
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5,
@@ -439,7 +439,7 @@ export async function createTestDynamoDBTable(
     for (let i = 0; i < testEntitiesSeedsCount; i++) {
       const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
       const item = {
-        id: { S: `${i}` },
+        id: { N: i },
         name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
         email: { S: faker.internet.email() },
         age: {
