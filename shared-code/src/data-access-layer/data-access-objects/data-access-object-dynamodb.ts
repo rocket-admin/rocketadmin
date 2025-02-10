@@ -1,5 +1,12 @@
 /* eslint-disable security/detect-object-injection */
-import { DeleteItemCommand, DynamoDB, GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  DeleteItemCommand,
+  DynamoDB,
+  GetItemCommand,
+  PutItemCommand,
+  ScanCommand,
+  UpdateItemCommand,
+} from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import * as csv from 'csv';
@@ -102,20 +109,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
     const result = await documentClient.send(new GetItemCommand(params));
 
-    console.log('🚀 ~ DataAccessObjectDynamoDB ~ result:', result);
-
     const foundRow = result.Item ? this.transformAndFilterRow(result.Item, availableFields) : null;
     if (!foundRow) {
       return null;
     }
-    // const rowKeys = Object.keys(foundRow);
-    // if (availableFields.length > 0) {
-    //   for (const key of rowKeys) {
-    //     if (!availableFields.includes(key)) {
-    //       delete foundRow[key];
-    //     }
-    //   }
-    // }
     return foundRow;
   }
 
