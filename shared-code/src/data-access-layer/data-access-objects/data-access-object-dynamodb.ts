@@ -96,9 +96,15 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
     settings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
+    const tableStructure = await this.getTableStructure(tableName);
+    for (const key in primaryKey) {
+      const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+      if (foundKeySchema?.data_type === 'number') {
+        primaryKey[key] = Number(primaryKey[key]);
+      }
+    }
     let availableFields: string[] = [];
     if (settings) {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = this.findAvailableFields(settings, tableStructure);
     }
 
@@ -299,10 +305,13 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
     const tableDescription = await dynamoDb.describeTable(params);
     const keySchema = tableDescription.Table.KeySchema;
+    const attributeDefinitions = tableDescription.Table.AttributeDefinitions;
+
     const primaryKeys = keySchema.map((key) => {
+      const attributeDefinition = attributeDefinitions.find((attr) => attr.AttributeName === key.AttributeName);
       return {
         column_name: key.AttributeName,
-        data_type: this.convertTypeName(key.KeyType),
+        data_type: this.convertTypeName(attributeDefinition.AttributeType),
       };
     });
     return primaryKeys;
