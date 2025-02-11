@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -97,23 +96,22 @@ export class DeleteRowsFromTableUseCase
 
     primaryKeys.forEach((primaryKey) => {
       Object.keys(primaryKey).forEach((key) => {
-        if (
-          (!primaryKey[key] && primaryKey[key] !== '') ||
-          (typeof primaryKey[key] === 'object' && !Object.keys(primaryKey[key]).length)
-        ) {
+        // eslint-disable-next-line security/detect-object-injection
+        if (!primaryKey[key] && primaryKey[key] !== '') {
+          // eslint-disable-next-line security/detect-object-injection
           delete primaryKey[key];
         }
       });
 
       const receivedPrimaryColumns = Object.keys(primaryKey);
-      // if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
-      //   throw new HttpException(
-      //     {
-      //       message: Messages.PRIMARY_KEY_INVALID,
-      //     },
-      //     HttpStatus.BAD_REQUEST,
-      //   );
-      // }
+      if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
+        throw new HttpException(
+          {
+            message: Messages.PRIMARY_KEY_INVALID,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     });
 
     let oldRowsData: Array<Record<string, unknown>>;

@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -85,23 +84,22 @@ export class DeleteRowFromTableUseCase
     const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
 
     Object.keys(primaryKey).forEach((key) => {
-      if (
-        (!primaryKey[key] && primaryKey[key] !== '') ||
-        (typeof primaryKey[key] === 'object' && !Object.keys(primaryKey[key]).length)
-      ) {
+      // eslint-disable-next-line security/detect-object-injection
+      if (!primaryKey[key] && primaryKey[key] !== '') {
+        // eslint-disable-next-line security/detect-object-injection
         delete primaryKey[key];
       }
     });
 
-    // const receivedPrimaryColumns = Object.keys(primaryKey);
-    // if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
-    //   throw new HttpException(
-    //     {
-    //       message: Messages.PRIMARY_KEY_INVALID,
-    //     },
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
+    const receivedPrimaryColumns = Object.keys(primaryKey);
+    if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
+      throw new HttpException(
+        {
+          message: Messages.PRIMARY_KEY_INVALID,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
     if (tableSettings && !tableSettings?.can_delete) {
