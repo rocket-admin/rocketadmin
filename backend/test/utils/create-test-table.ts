@@ -457,6 +457,7 @@ export async function createTestDynamoDBTable(
         set_column: { SS: ['value1', 'value2'] },
         map_column: { M: { key1: { S: 'value1' }, key2: { S: 'value2' } } },
         binary_column: { B: Buffer.from('hello') },
+        binary_set_column: { BS: [Buffer.from('value1'), Buffer.from('value2')] },
       };
 
       const params: PutItemCommandInput = {

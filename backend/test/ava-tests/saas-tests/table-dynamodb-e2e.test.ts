@@ -191,7 +191,7 @@ test.serial(`${currentTest} should return rows of selected table without search 
   t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
   t.is(getTableRowsRO.hasOwnProperty('large_dataset'), true);
   t.is(getTableRowsRO.rows.length, Constants.DEFAULT_PAGINATION.perPage);
-  t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+  t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
   t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
   t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
   t.is(getTableRowsRO.rows[10].hasOwnProperty(testTableSecondColumnName), true);
@@ -260,7 +260,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
   t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
   t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
   t.is(getTableRowsRO.rows.length, 1);
-  t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+  t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
   t.is(getTableRowsRO.rows[0].id, searchedDescription);
   t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableColumnName), true);
   t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableSecondColumnName), true);
@@ -325,7 +325,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
     t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
@@ -399,7 +399,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
     t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
@@ -478,7 +478,7 @@ should return all found rows with pagination page=1 perPage=2`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -556,7 +556,7 @@ should return all found rows with pagination page=1 perPage=3`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -632,7 +632,7 @@ should return all found rows with sorting ids by DESC`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       // t.is(getTableRowsRO.rows[0].id, 42);
       // t.is(getTableRowsRO.rows[1].id, 41);
       // t.is(getTableRowsRO.rows[41].id, 1);
@@ -708,7 +708,7 @@ should return all found rows with sorting ids by ASC`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.rows[41].id, searchedLastId);
@@ -785,7 +785,7 @@ should return all found rows with sorting ports by DESC and with pagination page
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, preSearchedLastId);
       t.is(getTableRowsRO.rows[1].id, searchedLastId);
 
@@ -860,7 +860,7 @@ test.serial(
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, preSearchedSecondId);
 
@@ -935,7 +935,7 @@ test.serial(
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 3);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
 
@@ -1013,7 +1013,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1090,7 +1090,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1168,7 +1168,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1245,7 +1245,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1328,7 +1328,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
 
       const foundId = 0;
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
@@ -1414,7 +1414,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
 
       const foundId = 0;
 
@@ -1504,7 +1504,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
 
       const findRowId = 21;
 
@@ -1809,7 +1809,7 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
 
   t.is(typeof getTableStructureRO, 'object');
   t.is(typeof getTableStructureRO.structure, 'object');
-  t.is(getTableStructureRO.structure.length, 10);
+  t.is(getTableStructureRO.structure.length, 11);
 
   for (const element of getTableStructureRO.structure) {
     t.is(element.hasOwnProperty('column_name'), true);
@@ -3062,6 +3062,7 @@ test.serial(`${currentTest} found row`, async (t) => {
 
   t.is(foundRowInTableResponse.status, 200);
   const foundRowInTableRO = JSON.parse(foundRowInTableResponse.text);
+
   t.is(foundRowInTableRO.hasOwnProperty('row'), true);
   t.is(foundRowInTableRO.hasOwnProperty('structure'), true);
   t.is(foundRowInTableRO.hasOwnProperty('foreignKeys'), true);
@@ -3074,7 +3075,7 @@ test.serial(`${currentTest} found row`, async (t) => {
   t.is(typeof foundRowInTableRO.foreignKeys, 'object');
   t.is(foundRowInTableRO.row.id, idForSearch);
   t.is(foundRowInTableRO.row[testTableColumnName], testSearchedUserName);
-  t.is(Object.keys(foundRowInTableRO.row).length, 10);
+  t.is(Object.keys(foundRowInTableRO.row).length, 11);
 });
 
 test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {

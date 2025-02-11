@@ -21,7 +21,7 @@ import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
-import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { DynamoDBType, TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
@@ -29,6 +29,7 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { binaryToHex, hexToBinary, isBinary } from '../../helpers/binary-hex-string-convertion.js';
 
 export type DdAndClient = {
   dynamoDb: DynamoDB;
@@ -45,6 +46,8 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown> | number> {
     try {
       const { documentClient } = this.getDynamoDb();
+      const structure = await this.getTableStructure(tableName);
+      row = this.convertHexDataToBinary(row, structure);
       const params = {
         TableName: tableName,
         Item: marshall(row),
@@ -391,6 +394,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     try {
       const tableStructure = await this.getTableStructure(tableName);
+      row = this.convertHexDataToBinary(row, tableStructure);
       for (const key in primaryKey) {
         const foundKeySchema = tableStructure.find((el) => el.column_name === key);
         if (foundKeySchema?.data_type === 'number') {
@@ -434,7 +438,8 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     primaryKeys: Array<Record<string, unknown>>,
   ): Promise<Record<string, unknown>> {
     const { documentClient } = this.getDynamoDb();
-
+    const structure = await this.getTableStructure(tableName);
+    newValues = this.convertHexDataToBinary(newValues, structure);
     const updatePromises = primaryKeys.map((primaryKey) => {
       const updateExpression =
         'SET ' +
@@ -529,6 +534,55 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     throw new Error('Method not implemented.');
   }
 
+  private convertHexDataToBinary(
+    row: Record<string, unknown>,
+    tableStructure: Array<TableStructureDS>,
+  ): Record<string, unknown> {
+    const binaryColumns = tableStructure
+      .map((el) => {
+        return {
+          column_name: el.column_name,
+          data_type: el.data_type,
+        };
+      })
+      .filter((el) => {
+        return isBinary(el.data_type);
+      });
+
+    const binarySetColumns = tableStructure
+      .map((el) => {
+        return {
+          column_name: el.column_name,
+          data_type: el.data_type,
+          dynamo_db_type: el.dynamo_db_type,
+        };
+      })
+      .filter((el) => {
+        return el?.dynamo_db_type === 'BS';
+      });
+
+    if (binaryColumns.length) {
+      for (const column of binaryColumns) {
+        if (row[column.column_name]) {
+          row[column.column_name] = hexToBinary(row[column.column_name] as string);
+        }
+      }
+    }
+
+    if (binarySetColumns.length) {
+      for (const column of binarySetColumns) {
+        if (row[column.column_name] && Array.isArray(row[column.column_name])) {
+          try {
+            row[column.column_name] = (row[column.column_name] as string[]).map((value) => hexToBinary(value));
+          } catch (_e) {
+            continue;
+          }
+        }
+      }
+    }
+    return row;
+  }
+
   private getDynamoDb(): DdAndClient {
     const endpoint = this.connection.host;
     const accessKeyId = this.connection.username;
@@ -593,6 +647,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         if (!isNaN(valueToNumber)) {
           transformedRow[key] = valueToNumber;
         }
+      }
+      if (fieldInfo?.dynamo_db_type === 'BS') {
+        const valuesArray = transformedRow[key];
+        transformedRow[key] = valuesArray.map((value) => binaryToHex(value));
       }
     });
 
@@ -659,7 +717,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     });
   }
 
-  private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName: string): Promise<TableStructureDS[]> {
+  private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(
+    tableName: string,
+  ): Promise<Array<TableStructureDS>> {
     try {
       const { dynamoDb } = this.getDynamoDb();
       const documentClient = DynamoDBDocumentClient.from(dynamoDb);
@@ -684,7 +744,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         });
       });
 
-      const tableStructure = Object.keys(attributeTypes).map((attributeName) => {
+      const tableStructure: Array<TableStructureDS> = Object.keys(attributeTypes).map((attributeName) => {
         return {
           allow_null: true,
           character_maximum_length: null,
@@ -694,6 +754,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           data_type_params: null,
           udt_name: null,
           extra: null,
+          dynamo_db_type: (attributeTypes[attributeName] as DynamoDBType) ?? null,
         };
       });
 
