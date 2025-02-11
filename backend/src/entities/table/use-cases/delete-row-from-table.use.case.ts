@@ -91,15 +91,15 @@ export class DeleteRowFromTableUseCase
       }
     });
 
-    const receivedPrimaryColumns = Object.keys(primaryKey);
-    if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
-      throw new HttpException(
-        {
-          message: Messages.PRIMARY_KEY_INVALID,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // const receivedPrimaryColumns = Object.keys(primaryKey);
+    // if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
+    //   throw new HttpException(
+    //     {
+    //       message: Messages.PRIMARY_KEY_INVALID,
+    //     },
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
 
     const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
     if (tableSettings && !tableSettings?.can_delete) {

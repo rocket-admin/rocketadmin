@@ -104,14 +104,14 @@ export class DeleteRowsFromTableUseCase
       });
 
       const receivedPrimaryColumns = Object.keys(primaryKey);
-      if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
-        throw new HttpException(
-          {
-            message: Messages.PRIMARY_KEY_INVALID,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      // if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
+      //   throw new HttpException(
+      //     {
+      //       message: Messages.PRIMARY_KEY_INVALID,
+      //     },
+      //     HttpStatus.BAD_REQUEST,
+      //   );
+      // }
     });
 
     let oldRowsData: Array<Record<string, unknown>>;
