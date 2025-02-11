@@ -11,6 +11,7 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import * as csv from 'csv';
 import { Stream } from 'stream';
+import { binaryToHex, hexToBinary, isBinary } from '../../helpers/binary-hex-string-convertion.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
@@ -29,7 +30,6 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { binaryToHex, hexToBinary, isBinary } from '../../helpers/binary-hex-string-convertion.js';
 
 export type DdAndClient = {
   dynamoDb: DynamoDB;
@@ -46,8 +46,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown> | number> {
     try {
       const { documentClient } = this.getDynamoDb();
-      const structure = await this.getTableStructure(tableName);
-      row = this.convertHexDataToBinary(row, structure);
       const params = {
         TableName: tableName,
         Item: marshall(row),
@@ -394,7 +392,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     try {
       const tableStructure = await this.getTableStructure(tableName);
-      row = this.convertHexDataToBinary(row, tableStructure);
       for (const key in primaryKey) {
         const foundKeySchema = tableStructure.find((el) => el.column_name === key);
         if (foundKeySchema?.data_type === 'number') {
