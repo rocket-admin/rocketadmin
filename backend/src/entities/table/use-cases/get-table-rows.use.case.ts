@@ -36,6 +36,7 @@ import Sentry from '@sentry/minimal';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
+import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -231,34 +232,38 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         allow_csv_import: allowCsvImport,
       };
 
-      let identities = [];
+      const identities = [];
 
       if (tableForeignKeys?.length > 0) {
-        identities = await Promise.all(
-          tableForeignKeys.map(async (foreignKey) => {
-            const foreignKeysValuesCollection = rowsRO.rows
-              .filter((row) => row[foreignKey.column_name])
-              .map((row) => row[foreignKey.column_name]) as (string | number)[];
+        for (const foreignKey of tableForeignKeys) {
+          const foreignKeysValuesCollection = rowsRO.rows
+            .filter((row) => row[foreignKey.column_name])
+            .map((row) => row[foreignKey.column_name]) as (string | number)[];
 
-            const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
-              connectionId,
-              foreignKey.referenced_table_name,
-            );
+          const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+            connectionId,
+            foreignKey.referenced_table_name,
+          );
 
-            const identityColumns = await dao.getIdentityColumns(
-              foreignKey.referenced_table_name,
-              foreignKey.referenced_column_name,
-              foreignTableSettings?.identity_column,
-              foreignKeysValuesCollection,
-              userEmail,
-            );
+          const identityColumns = await this.getBatchedIdentityColumns(
+            foreignKeysValuesCollection,
+            foreignKey,
+            dao,
+            foreignTableSettings,
+            userEmail,
+          );
 
-            return {
+          if (identities.findIndex((el) => el.referenced_table_name === foreignKey.referenced_table_name) > -1) {
+            identities
+              .find((el) => el.referenced_table_name === foreignKey.referenced_table_name)
+              .identity_columns.push(...identityColumns);
+          } else {
+            identities.push({
               referenced_table_name: foreignKey.referenced_table_name,
               identity_columns: identityColumns,
-            };
-          }),
-        );
+            });
+          }
+        }
       }
 
       const foreignKeysConformity = tableForeignKeys.map((key) => ({
@@ -276,15 +281,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           const foundIdentityForCurrentValue = foundIdentityForCurrentTable?.identity_columns.find(
             (el) => el[element.realFKeyName] === row[element.currentFKeyName],
           );
-
           row[element.currentFKeyName] = foundIdentityForCurrentValue ? { ...foundIdentityForCurrentValue } : {};
         });
       });
 
       operationResult = OperationResultStatusEnum.successfully;
-      if (connectionId === 'JYCEZYqk' && tableName === 'followers') {
-        console.log('PROCESS ROWS ON LAST STAGE BEFORE RETURNING TO USER ', JSON.stringify(rowsRO.rows));
-      }
       return rowsRO;
     } catch (e) {
       Sentry.captureException(e);
@@ -343,5 +344,39 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         autocomplete_columns: [],
       };
     }
+  }
+
+  private chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const results = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      results.push(array.slice(i, i + chunkSize));
+    }
+    return results;
+  }
+
+  private async getBatchedIdentityColumns(
+    foreignKeysValuesCollection: Array<string | number>,
+    foreignKey: ForeignKeyDS,
+    dao: IDataAccessObject | IDataAccessObjectAgent,
+    foreignTableSettings: TableSettingsDS,
+    userEmail: string,
+  ): Promise<Array<Record<string, unknown>>> {
+    foreignKeysValuesCollection = [...new Set(foreignKeysValuesCollection)];
+    const batchSize = 50;
+    const chunkedValues = this.chunkArray(foreignKeysValuesCollection, batchSize);
+    let identityColumns = [];
+
+    for (const chunk of chunkedValues) {
+      const result = await dao.getIdentityColumns(
+        foreignKey.referenced_table_name,
+        foreignKey.referenced_column_name,
+        foreignTableSettings?.identity_column,
+        chunk,
+        userEmail,
+      );
+      identityColumns = identityColumns.concat(result);
+    }
+
+    return identityColumns;
   }
 }

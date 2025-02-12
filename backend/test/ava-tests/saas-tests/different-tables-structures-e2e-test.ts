@@ -27,6 +27,7 @@ import { fileURLToPath } from 'url';
 import { join } from 'path';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { clearAllTestKnex, getTestKnex } from '../../utils/get-test-knex.js';
+import { Knex } from 'knex';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -92,15 +93,48 @@ const createTransactionsTableRawQuery = `CREATE TABLE transactions (
     FOREIGN KEY (reviewerId) REFERENCES users(userId)
 );`;
 
-const fillUsersTableRawQuery = `INSERT INTO users (username) VALUES
-('Alice'),
-('Bob'),
-('Charlie');`;
+const testEntitiesCount = 500;
 
-const fillTransactionsRawQuery = `INSERT INTO transactions (buyerId, reviewerId, transaction_date, description, amount) VALUES
-(1, 2, '2023-10-01', 'Purchase of office supplies', 150.00),
-(2, 3, '2023-10-02', 'Consulting services payment', 200.50),
-(3, 1, '2023-10-03', 'Design contract', 750.75);`;
+async function fillUsersTable(knex: Knex<any, any[]>): Promise<void> {
+  for (let i = 0; i < testEntitiesCount; i++) {
+    await knex('users').insert({ username: faker.person.firstName() });
+  }
+}
+
+const insertedIdCombos: Array<{ buyerid: number; reviewerid: number }> = [];
+
+async function fillTransactionsTable(knex: Knex<any, any[]>): Promise<void> {
+  for (let i = 0; i < testEntitiesCount; i++) {
+    const { buyerid, reviewerid } = getUniqueIdsComboForInsert();
+    await knex('transactions').insert({
+      buyerid: buyerid,
+      reviewerid: reviewerid,
+      transaction_date: faker.date.past(),
+      description: faker.lorem.sentence(),
+      amount: faker.number.int({ min: 100, max: 10000 }),
+    });
+  }
+}
+
+function getUniqueIdsCombo(): { buyerid: number; reviewerid: number } {
+  return {
+    buyerid: faker.number.int({ min: 1, max: testEntitiesCount }),
+    reviewerid: faker.number.int({ min: 1, max: testEntitiesCount }),
+  };
+}
+
+function getUniqueIdsComboForInsert(): { buyerid: number; reviewerid: number } {
+  if (insertedIdCombos.length >= testEntitiesCount) {
+    return insertedIdCombos.shift();
+  }
+  while (true) {
+    const { buyerid, reviewerid } = getUniqueIdsCombo();
+    if (!insertedIdCombos.find((idCombo) => idCombo.buyerid === buyerid && idCombo.reviewerid === reviewerid)) {
+      insertedIdCombos.push({ buyerid, reviewerid });
+      return { buyerid, reviewerid };
+    }
+  }
+}
 
 async function loadTestData(): Promise<void> {
   const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
@@ -109,8 +143,8 @@ async function loadTestData(): Promise<void> {
   await testKnex.raw(`DROP TABLE IF EXISTS users;`);
   await testKnex.raw(createUsersTableRawQuery);
   await testKnex.raw(createTransactionsTableRawQuery);
-  await testKnex.raw(fillUsersTableRawQuery);
-  await testKnex.raw(fillTransactionsRawQuery);
+  await fillUsersTable(testKnex);
+  await fillTransactionsTable(testKnex);
   await clearAllTestKnex();
 }
 
@@ -161,7 +195,7 @@ test.serial(`${currentTest} should return list of rows of the tables`, async (t)
     t.is(createConnectionResponse.status, 201);
 
     const foundRowsFromUsersTableResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testUsersTableName}`)
+      .get(`/table/rows/${createConnectionRO.id}?tableName=${testUsersTableName}&page=1&perPage=500`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -171,14 +205,14 @@ test.serial(`${currentTest} should return list of rows of the tables`, async (t)
     t.is(foundRowsFromUsersTableRO.hasOwnProperty('rows'), true);
     t.is(foundRowsFromUsersTableRO.hasOwnProperty('primaryColumns'), true);
     t.is(foundRowsFromUsersTableRO.hasOwnProperty('pagination'), true);
-    t.is(foundRowsFromUsersTableRO.rows.length, 3);
+    t.is(foundRowsFromUsersTableRO.rows.length, 500);
     t.is(Object.keys(foundRowsFromUsersTableRO.rows[1]).length, 4);
     t.is(foundRowsFromUsersTableRO.rows[0].hasOwnProperty('userid'), true);
     t.is(foundRowsFromUsersTableRO.rows[1].hasOwnProperty('username'), true);
     t.is(foundRowsFromUsersTableRO.rows[2].hasOwnProperty('created_at'), true);
 
     const foundRowsFromTransactionsTableResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTransactionsTableName}`)
+      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTransactionsTableName}&page=1&perPage=500`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -188,7 +222,7 @@ test.serial(`${currentTest} should return list of rows of the tables`, async (t)
     t.is(foundRowsFromTransactionsTableRO.hasOwnProperty('rows'), true);
     t.is(foundRowsFromTransactionsTableRO.hasOwnProperty('primaryColumns'), true);
     t.is(foundRowsFromTransactionsTableRO.hasOwnProperty('pagination'), true);
-    t.is(foundRowsFromTransactionsTableRO.rows.length, 3);
+    t.is(foundRowsFromTransactionsTableRO.rows.length, 500);
     t.is(Object.keys(foundRowsFromTransactionsTableRO.rows[1]).length, 7);
     t.is(foundRowsFromTransactionsTableRO.rows[0].hasOwnProperty('buyerid'), true);
     t.is(foundRowsFromTransactionsTableRO.rows[1].hasOwnProperty('reviewerid'), true);
@@ -205,8 +239,6 @@ test.serial(`${currentTest} should return list of rows of the tables`, async (t)
       t.is(reviewerId.hasOwnProperty('userid'), true);
       t.is(typeof reviewerId.userid, 'number');
     }
-
-    
   } catch (error) {
     console.error(error);
     throw error;
