@@ -229,13 +229,13 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         allow_csv_import: allowCsvImport,
       };
 
-      const identities = [];
+      const identitiesMap = new Map<string, any[]>();
 
       if (tableForeignKeys?.length > 0) {
         for (const foreignKey of tableForeignKeys) {
           const foreignKeysValuesCollection = rowsRO.rows
-            .filter((row) => row[foreignKey.column_name])
-            .map((row) => row[foreignKey.column_name]) as (string | number)[];
+            .map((row) => row[foreignKey.column_name])
+            .filter((value) => value !== undefined) as (string | number)[];
 
           const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
             connectionId,
@@ -250,18 +250,17 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
             userEmail,
           );
 
-          if (identities.findIndex((el) => el.referenced_table_name === foreignKey.referenced_table_name) > -1) {
-            identities
-              .find((el) => el.referenced_table_name === foreignKey.referenced_table_name)
-              .identity_columns.push(...identityColumns);
-          } else {
-            identities.push({
-              referenced_table_name: foreignKey.referenced_table_name,
-              identity_columns: identityColumns,
-            });
+          if (!identitiesMap.has(foreignKey.referenced_table_name)) {
+            identitiesMap.set(foreignKey.referenced_table_name, []);
           }
+          identitiesMap.get(foreignKey.referenced_table_name)?.push(...identityColumns);
         }
       }
+
+      const identities = Array.from(identitiesMap, ([referenced_table_name, identity_columns]) => ({
+        referenced_table_name,
+        identity_columns,
+      }));
 
       const foreignKeysConformity = tableForeignKeys.map((key) => ({
         currentFKeyName: key.column_name,
