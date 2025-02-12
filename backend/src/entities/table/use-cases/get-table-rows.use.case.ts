@@ -68,6 +68,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const dao = getDataAccessObject(connection);
       const tablesInConnection = await dao.getTablesFromDB();
       const tableNames = tablesInConnection.map((table) => table.tableName);
+
       if (!tableNames.includes(tableName)) {
         throw new BadRequestException(Messages.TABLE_NOT_FOUND);
       }
@@ -265,21 +266,28 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const foreignKeysConformity = tableForeignKeys.map((key) => ({
         currentFKeyName: key.column_name,
         realFKeyName: key.referenced_column_name,
-        referenced_table_name: key.referenced_table_name,
+        referencedTableName: key.referenced_table_name,
       }));
 
-      foreignKeysConformity.forEach((element) => {
-        const foundIdentityForCurrentTable = identities.find(
-          (el) => el.referenced_table_name === element.referenced_table_name,
+      for (const element of foreignKeysConformity) {
+        const identityForCurrentTable = identities.find(
+          (el) => el.referenced_table_name === element.referencedTableName,
         );
 
-        rowsRO.rows.forEach((row) => {
-          const foundIdentityForCurrentValue = foundIdentityForCurrentTable?.identity_columns.find(
-            (el) => el[element.realFKeyName] === row[element.currentFKeyName],
-          );
-          row[element.currentFKeyName] = foundIdentityForCurrentValue ? { ...foundIdentityForCurrentValue } : {};
-        });
-      });
+        if (!identityForCurrentTable) continue;
+
+        const identityColumnsMap = new Map(
+          identityForCurrentTable.identity_columns.map((col) => [col[element.realFKeyName], col]),
+        );
+
+        for (const row of rowsRO.rows) {
+          const identityForCurrentValue = identityColumnsMap.get(row[element.currentFKeyName]);
+          row[element.currentFKeyName] =
+            typeof identityForCurrentValue === 'object' && identityForCurrentValue !== null
+              ? { ...identityForCurrentValue }
+              : {};
+        }
+      }
 
       operationResult = OperationResultStatusEnum.successfully;
       return rowsRO;
