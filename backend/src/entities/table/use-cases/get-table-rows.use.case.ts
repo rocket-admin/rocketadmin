@@ -145,10 +145,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           autocompleteFields,
           userEmail,
         );
-
-        if (connectionId === 'JYCEZYqk' && tableName === 'followers') {
-          console.log('ROWS RETURNED BY DATA ACCESS OBJECT ', JSON.stringify(rows));
-        }
       } catch (e) {
         Sentry.captureException(e);
         throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
