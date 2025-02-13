@@ -13,6 +13,7 @@ export function buildUpdateConnectionPropertiesObject(
     tables_audit,
     human_readable_table_names,
     allow_ai_requests,
+    default_showing_table,
   } = inputData;
   return {
     hidden_tables: hidden_tables,
@@ -24,6 +25,7 @@ export function buildUpdateConnectionPropertiesObject(
     tables_audit: tables_audit,
     human_readable_table_names: human_readable_table_names,
     allow_ai_requests: allow_ai_requests,
+    default_showing_table: default_showing_table,
   };
 }
 
@@ -37,4 +39,5 @@ export interface IUpdateConnectionPropertiesObject {
   tables_audit: boolean;
   human_readable_table_names: boolean;
   allow_ai_requests: boolean;
+  default_showing_table: string;
 }

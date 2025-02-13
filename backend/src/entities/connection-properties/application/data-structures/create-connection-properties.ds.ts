@@ -11,4 +11,5 @@ export class CreateConnectionPropertiesDs {
   tables_audit: boolean;
   human_readable_table_names: boolean;
   allow_ai_requests: boolean;
+  default_showing_table: string;
 }
