@@ -10,7 +10,7 @@ export async function validateCreateConnectionPropertiesDs(
   createConnectionProperties: CreateConnectionPropertiesDs,
   connection: ConnectionEntity,
 ): Promise<boolean> {
-  const { hidden_tables } = createConnectionProperties;
+  const { hidden_tables, default_showing_table } = createConnectionProperties;
   const errors = [];
   const dao = getDataAccessObject(connection);
   const tablesInConnection = (await dao.getTablesFromDB()).map((table) => table.tableName);
@@ -23,6 +23,10 @@ export async function validateCreateConnectionPropertiesDs(
         errors.push(Messages.TABLE_WITH_NAME_NOT_EXISTS(hiddenTable));
       }
     }
+  }
+
+  if (default_showing_table && !tablesInConnection.includes(default_showing_table)) {
+    errors.push(Messages.TABLE_WITH_NAME_NOT_EXISTS(default_showing_table));
   }
 
   if (errors.length > 0) {

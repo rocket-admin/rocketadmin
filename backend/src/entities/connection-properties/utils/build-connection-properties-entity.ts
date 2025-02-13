@@ -18,5 +18,6 @@ export function buildConnectionPropertiesEntity(
   newConnectionProperties.tables_audit = propertiesInfo.tables_audit;
   newConnectionProperties.human_readable_table_names = propertiesInfo.human_readable_table_names;
   newConnectionProperties.allow_ai_requests = propertiesInfo.allow_ai_requests;
+  newConnectionProperties.default_showing_table = propertiesInfo.default_showing_table;
   return newConnectionProperties;
 }
