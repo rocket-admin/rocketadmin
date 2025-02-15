@@ -13,7 +13,8 @@
             <a mat-icon-button
                 [routerLink]="selectedRow.link"
                 [queryParams]="selectedRow.primaryKeys"
-                matTooltip="Open the record">
+                matTooltip="Open the record"
+                (click)="stashUrlParams()">
                 <mat-icon fontSet="material-icons-outlined">create</mat-icon>
             </a>
         </div>

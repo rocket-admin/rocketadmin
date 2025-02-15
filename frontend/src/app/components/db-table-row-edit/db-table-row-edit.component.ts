@@ -24,19 +24,19 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { PlaceholderRowEditComponent } from '../skeletons/placeholder-row-edit/placeholder-row-edit.component';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
-import { MatListModule } from '@angular/material/list';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -136,7 +136,10 @@ export class DbTableRowEditComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
     const navUrlParams = this._tableState.getBackUrlParams();
-    this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};
+    this.backUrlParams = {
+      ...navUrlParams,
+      ...(this.tableFiltersUrlString !== 'null' ? { filters: this.tableFiltersUrlString } : {})
+    };
 
     this.routeSub = this.route.queryParams.subscribe((params) => {
       this.tableName = this.route.snapshot.paramMap.get('table-name');
