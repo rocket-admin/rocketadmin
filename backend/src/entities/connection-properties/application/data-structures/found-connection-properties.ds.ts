@@ -33,4 +33,7 @@ export class FoundConnectionPropertiesDs {
 
   @ApiProperty()
   allow_ai_requests: boolean;
+
+  @ApiProperty()
+  default_showing_table: string;
 }

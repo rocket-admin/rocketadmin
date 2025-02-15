@@ -12,6 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum } from '../../enums/index.js';
@@ -21,14 +22,13 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds.js';
 import { IConnectionPropertiesRO } from './connection-properties.interface.js';
+import { CreateConnectionPropertiesDto } from './dto/create-connection-properties.dto.js';
 import {
   ICreateConnectionProperties,
   IDeleteConnectionProperties,
   IFindConnectionProperties,
   IUpdateConnectionProperties,
 } from './use-cases/connection-properties-use.cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateConnectionPropertiesDto } from './dto/create-connection-properties.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -107,6 +107,7 @@ export class ConnectionPropertiesController {
       tables_audit: connectionPropertiesData.tables_audit,
       human_readable_table_names: connectionPropertiesData.human_readable_table_names,
       allow_ai_requests: connectionPropertiesData.allow_ai_requests,
+      default_showing_table: connectionPropertiesData.default_showing_table,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -151,6 +152,7 @@ export class ConnectionPropertiesController {
       tables_audit: connectionPropertiesData.tables_audit,
       human_readable_table_names: connectionPropertiesData.human_readable_table_names,
       allow_ai_requests: connectionPropertiesData.allow_ai_requests,
+      default_showing_table: connectionPropertiesData.default_showing_table,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);

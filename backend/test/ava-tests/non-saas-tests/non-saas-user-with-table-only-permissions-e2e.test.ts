@@ -2138,7 +2138,7 @@ test.serial(
 
       t.is(updateConnectionResponse.status, 200);
 
-      const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+      const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(firstTableInfo.testTableName, false);
       newConnectionProperties.hidden_tables = [];
       newConnectionProperties.tables_audit = false;
 

@@ -139,6 +139,7 @@ test.serial(`${currentTest} should return created connection properties`, async 
     t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
     t.is(createConnectionPropertiesRO.allow_ai_requests, newConnectionProperties.allow_ai_requests);
+    t.is(createConnectionPropertiesRO.default_showing_table, newConnectionProperties.default_showing_table);
   } catch (e) {
     throw e;
   }
