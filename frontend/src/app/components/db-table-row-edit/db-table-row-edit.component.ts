@@ -330,7 +330,8 @@ export class DbTableRowEditComponent implements OnInit {
       },
       {
         label: this.dispalyTableName,
-        link: `/dashboard/${this.connectionID}/${this.tableName}`
+        link: `/dashboard/${this.connectionID}/${this.tableName}`,
+        queryParams: this.backUrlParams
       },
       {
         label: pageTitle,
