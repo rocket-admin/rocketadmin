@@ -198,6 +198,9 @@ export class DbTableRowEditComponent implements OnInit {
 
             this.nonModifyingFields = res.structure.filter((field: TableField) => !this.getModifyingFields(res.structure).some(modifyingField => field.column_name === modifyingField.column_name)).map((field: TableField) => field.column_name);
             this.readonlyFields = [...res.readonly_fields, ...this.nonModifyingFields];
+            if (this.connectionType === DBtype.Dynamo) {
+              this.readonlyFields = [...this.readonlyFields, ...res.primaryColumns.map((field: TableField) => field.column_name)];
+            }
             this.tableForeignKeys = res.foreignKeys;
             // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
             this.tableRowValues = {...res.row};
@@ -390,7 +393,6 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
-    console.log(typeof(updatedValue));
     if (typeof(updatedValue) === 'object' && updatedValue !== null) {
       for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
         delete this.tableRowValues[field][prop];
@@ -434,6 +436,14 @@ export class DbTableRowEditComponent implements OnInit {
       };
     }
     //end crutch
+
+    // don't ovverride primary key fields for dynamoDB
+    if (this.connectionType === DBtype.Dynamo) {
+      const primaryKeyFields = Object.keys(this.keyAttributesFromURL);
+      primaryKeyFields.forEach((field) => {
+        delete updatedRow[field];
+      });
+    }
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)
