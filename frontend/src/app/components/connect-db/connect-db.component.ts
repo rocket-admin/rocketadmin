@@ -270,38 +270,66 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   createConnection(connectForm: NgForm) {
     if (this.db.connectionType === 'direct') {
-      const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
-        width: '36em',
-        data: {
-          db: this.db,
-          provider: this.getProvider()
-        }
-      });
+      if (this.db.type !== DBtype.Dynamo) {
+        const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
+          width: '36em',
+          data: {
+            db: this.db,
+            provider: this.getProvider()
+          }
+        });
 
-      ipAddressDilaog.afterClosed().subscribe( async (action) => {
-        if (action === 'confirmed') {
-          this.submitting = true;
-          let credsCorrect: TestConnection = null;
+        ipAddressDilaog.afterClosed().subscribe( async (action) => {
+          if (action === 'confirmed') {
+            this.submitting = true;
+            let credsCorrect: TestConnection = null;
 
-          try {
-            (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
+            try {
+              (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
 
+              this.angulartics2.eventTrack.next({
+                action: `Connect DB: automatic test connection on add is ${credsCorrect.result ? 'passed' : 'failed'}`,
+                properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage: credsCorrect.message }
+              });
+
+              if (credsCorrect && credsCorrect.result) {
+                this.createConnectionRequest();
+              } else {
+                this.handleConnectionError(credsCorrect.message);
+              };
+            } catch (e) {
+              credsCorrect = null;
+              this.submitting = false;
+            }
+          }
+        })
+      } else {
+        this.submitting = true;
+        let credsCorrect: TestConnection = null;
+
+        this._connections.testConnection(this.connectionID, this.db).toPromise()
+          .then((res: TestConnection) => {
+            credsCorrect = res;
             this.angulartics2.eventTrack.next({
               action: `Connect DB: automatic test connection on add is ${credsCorrect.result ? 'passed' : 'failed'}`,
-              properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage: credsCorrect.message }
+              properties: {
+                connectionType: this.db.connectionType,
+                dbType: this.db.type,
+                errorMessage: credsCorrect.message
+              }
             });
-
             if (credsCorrect && credsCorrect.result) {
               this.createConnectionRequest();
             } else {
               this.handleConnectionError(credsCorrect.message);
-            };
-          } catch (e) {
+            }
+          })
+          .catch((e) => {
             credsCorrect = null;
             this.submitting = false;
-          }
-        }
-      })
+          });
+      }
+
     } else {
       this.createConnectionRequest();
     }
@@ -340,6 +368,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   getProvider() {
     let provider: string = null;
     if (this.db.host.endsWith('.amazonaws.com')) provider = 'amazon';
+    if (this.db.host.endsWith('.amazonaws.com') && this.db.type === DBtype.Dynamo) provider = 'amazonDynamoDB';
     if (this.db.host.endsWith('.azure.com')) provider = 'azure';
     if (this.db.host.endsWith('.mongodb.net')) provider = 'mongoatlas';
     if (this.db.host.endsWith('.ondigitalocean.com')) provider = 'digitalocean';
