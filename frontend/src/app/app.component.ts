@@ -126,12 +126,12 @@ export class AppComponent {
       'permissions': {
         caption: 'Permissions'
       },
+      'connection-settings': {
+        caption: 'Connection settings'
+      },
       'edit-db': {
         caption: 'Edit connection'
       },
-      'connection-settings': {
-        caption: 'Connection settings'
-      }
     }
 
     document.cookie = "G_AUTH2_MIGRATION=informational";

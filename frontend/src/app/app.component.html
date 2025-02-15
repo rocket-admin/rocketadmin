@@ -92,7 +92,11 @@
                     routerLink="{{tab}}/{{connectionID}}"
                     routerLinkActive="nav-bar__button_active"
                     class="nav-bar__button">
-                    {{navigationTabs[tab].caption}}
+                    <span *ngIf="tab !== 'edit-db' ">{{navigationTabs[tab].caption}}</span>
+                    <mat-icon *ngIf="tab === 'edit-db' "
+                        matTooltip="Database credentials">
+                        key_vertical
+                    </mat-icon>
                 </a>
             </div>
 
