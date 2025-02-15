@@ -40,6 +40,25 @@
     margin: 0 -8px;
 }
 
+.tables-list__header {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    justify-items: center;
+    background-color: var(--color-accentedPalette-100);
+    padding: 8px 0;
+}
+
+.tables-list__item {
+    display: contents;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.tables-list__divider {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
 .table-name-title {
     justify-self: flex-start;
     padding-left: 16px;
