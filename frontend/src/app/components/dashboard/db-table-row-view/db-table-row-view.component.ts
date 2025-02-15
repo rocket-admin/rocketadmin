@@ -83,10 +83,10 @@ export class DbTableRowViewComponent implements OnInit {
 
   stashUrlParams() {
     this._tableState.setBackUrlParams(this.route.snapshot.queryParams.page_index, this.route.snapshot.queryParams.page_size, this.route.snapshot.queryParams.sort_active, this.route.snapshot.queryParams.sort_direction);
-    if (Object.keys(this.activeFilters).length === 0) {
-      this._tableState.setBackUrlFilters(null);
-    } else {
+    if (this.activeFilters && Object.keys(this.activeFilters).length > 0) {
       this._tableState.setBackUrlFilters(this.activeFilters);
+    } else {
+      this._tableState.setBackUrlFilters(null);
     }
   }
 

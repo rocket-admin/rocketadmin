@@ -334,10 +334,10 @@ export class DbTableComponent implements OnInit {
   }
 
   stashFilters() {
-    if (Object.keys(this.activeFilters).length === 0) {
-      this._tableState.setBackUrlFilters(null);
-    } else {
+    if (this.activeFilters && Object.keys(this.activeFilters).length > 0) {
       this._tableState.setBackUrlFilters(this.activeFilters);
+    } else {
+      this._tableState.setBackUrlFilters(null);
     }
   }
 
