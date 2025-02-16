@@ -2,6 +2,7 @@
     <ng-container *ngFor="let crumb of crumbs; let i = index">
         <a mat-button *ngIf="crumb.link; else staticCrumb"
             [routerLink]="crumb.link"
+            [queryParams]="crumb.queryParams"
             class="breadcrumb">
             {{crumb.label}}
         </a>

@@ -119,7 +119,7 @@ export class ConnectionsService {
   get visibleTabs() {
     let tabs = ['dashboard', 'audit'];
     if (this.groupsAccessLevel) tabs.push('permissions');
-    if (this.isPermitted(this.connectionAccessLevel)) tabs.push('edit-db', 'connection-settings');
+    if (this.isPermitted(this.connectionAccessLevel)) tabs.push('connection-settings', 'edit-db');
     return tabs;
   }
 

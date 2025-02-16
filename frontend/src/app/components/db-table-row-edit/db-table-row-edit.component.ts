@@ -136,7 +136,10 @@ export class DbTableRowEditComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
     const navUrlParams = this._tableState.getBackUrlParams();
-    this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};
+    this.backUrlParams = {
+      ...navUrlParams,
+      ...(this.tableFiltersUrlString !== 'null' ? { filters: this.tableFiltersUrlString } : {})
+    };
 
     this.routeSub = this.route.queryParams.subscribe((params) => {
       this.tableName = this.route.snapshot.paramMap.get('table-name');
@@ -330,7 +333,8 @@ export class DbTableRowEditComponent implements OnInit {
       },
       {
         label: this.dispalyTableName,
-        link: `/dashboard/${this.connectionID}/${this.tableName}`
+        link: `/dashboard/${this.connectionID}/${this.tableName}`,
+        queryParams: this.backUrlParams
       },
       {
         label: pageTitle,
