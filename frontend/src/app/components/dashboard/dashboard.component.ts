@@ -83,6 +83,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public comparators: object;
   public pageIndex: number;
   public pageSize: number;
+  public sortColumn: string;
+  public sortOrder: 'ASC' | 'DESC';
 
   public loading: boolean = true;
   public isServerError: boolean = false;
@@ -235,6 +237,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.comparators = getComparatorsFromUrl(this.filters);
       this.pageIndex = parseInt(queryParams.page_index) || 0;
       this.pageSize = parseInt(queryParams.page_size) || 30;
+      this.sortColumn = queryParams.sort_active;
+      this.sortOrder = queryParams.sort_direction;
+
       const search = queryParams.search;
       this.getRows(search);
     })
@@ -353,8 +358,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           tableName: this.selectedTableName,
           requstedPage: this.pageIndex,
           pageSize: this.pageSize,
-          sortColumn: undefined,
-          sortOrder: undefined,
+          sortColumn: this.sortColumn,
+          sortOrder: this.sortOrder,
           filters: this.filters,
           search,
           shownColumns

@@ -36,6 +36,7 @@ import Sentry from '@sentry/minimal';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
+import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -67,6 +68,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const dao = getDataAccessObject(connection);
       const tablesInConnection = await dao.getTablesFromDB();
       const tableNames = tablesInConnection.map((table) => table.tableName);
+
       if (!tableNames.includes(tableName)) {
         throw new BadRequestException(Messages.TABLE_NOT_FOUND);
       }
@@ -227,55 +229,64 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         allow_csv_import: allowCsvImport,
       };
 
-      let identities = [];
+      const identitiesMap = new Map<string, any[]>();
 
       if (tableForeignKeys?.length > 0) {
-        identities = await Promise.all(
-          tableForeignKeys.map(async (foreignKey) => {
-            const foreignKeysValuesCollection = rowsRO.rows
-              .filter((row) => row[foreignKey.column_name])
-              .map((row) => row[foreignKey.column_name]) as (string | number)[];
+        for (const foreignKey of tableForeignKeys) {
+          const foreignKeysValuesCollection = rowsRO.rows
+            .map((row) => row[foreignKey.column_name])
+            .filter((value) => value !== undefined) as (string | number)[];
 
-            const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
-              connectionId,
-              foreignKey.referenced_table_name,
-            );
+          const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+            connectionId,
+            foreignKey.referenced_table_name,
+          );
 
-            const identityColumns = await dao.getIdentityColumns(
-              foreignKey.referenced_table_name,
-              foreignKey.referenced_column_name,
-              foreignTableSettings?.identity_column,
-              foreignKeysValuesCollection,
-              userEmail,
-            );
+          const identityColumns = await this.getBatchedIdentityColumns(
+            foreignKeysValuesCollection,
+            foreignKey,
+            dao,
+            foreignTableSettings,
+            userEmail,
+          );
 
-            return {
-              referenced_table_name: foreignKey.referenced_table_name,
-              identity_columns: identityColumns,
-            };
-          }),
-        );
+          if (!identitiesMap.has(foreignKey.referenced_table_name)) {
+            identitiesMap.set(foreignKey.referenced_table_name, []);
+          }
+          identitiesMap.get(foreignKey.referenced_table_name)?.push(...identityColumns);
+        }
       }
+
+      const identities = Array.from(identitiesMap, ([referenced_table_name, identity_columns]) => ({
+        referenced_table_name,
+        identity_columns,
+      }));
 
       const foreignKeysConformity = tableForeignKeys.map((key) => ({
         currentFKeyName: key.column_name,
         realFKeyName: key.referenced_column_name,
-        referenced_table_name: key.referenced_table_name,
+        referencedTableName: key.referenced_table_name,
       }));
 
-      foreignKeysConformity.forEach((element) => {
-        const foundIdentityForCurrentTable = identities.find(
-          (el) => el.referenced_table_name === element.referenced_table_name,
+      for (const element of foreignKeysConformity) {
+        const identityForCurrentTable = identities.find(
+          (el) => el.referenced_table_name === element.referencedTableName,
         );
 
-        rowsRO.rows.forEach((row) => {
-          const foundIdentityForCurrentValue = foundIdentityForCurrentTable?.identity_columns.find(
-            (el) => el[element.realFKeyName] === row[element.currentFKeyName],
-          );
+        if (!identityForCurrentTable) continue;
 
-          row[element.currentFKeyName] = foundIdentityForCurrentValue ? { ...foundIdentityForCurrentValue } : {};
-        });
-      });
+        const identityColumnsMap = new Map(
+          identityForCurrentTable.identity_columns.map((col) => [col[element.realFKeyName], col]),
+        );
+
+        for (const row of rowsRO.rows) {
+          const identityForCurrentValue = identityColumnsMap.get(row[element.currentFKeyName]);
+          row[element.currentFKeyName] =
+            typeof identityForCurrentValue === 'object' && identityForCurrentValue !== null
+              ? { ...identityForCurrentValue }
+              : {};
+        }
+      }
 
       operationResult = OperationResultStatusEnum.successfully;
       return rowsRO;
@@ -308,7 +319,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         userId,
       );
     }
-
   }
 
   private async attachForeignColumnNames(
@@ -337,5 +347,39 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         autocomplete_columns: [],
       };
     }
+  }
+
+  private chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const results = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      results.push(array.slice(i, i + chunkSize));
+    }
+    return results;
+  }
+
+  private async getBatchedIdentityColumns(
+    foreignKeysValuesCollection: Array<string | number>,
+    foreignKey: ForeignKeyDS,
+    dao: IDataAccessObject | IDataAccessObjectAgent,
+    foreignTableSettings: TableSettingsDS,
+    userEmail: string,
+  ): Promise<Array<Record<string, unknown>>> {
+    foreignKeysValuesCollection = [...new Set(foreignKeysValuesCollection)];
+    const batchSize = 50;
+    const chunkedValues = this.chunkArray(foreignKeysValuesCollection, batchSize);
+    let identityColumns = [];
+
+    for (const chunk of chunkedValues) {
+      const result = await dao.getIdentityColumns(
+        foreignKey.referenced_table_name,
+        foreignKey.referenced_column_name,
+        foreignTableSettings?.identity_column,
+        chunk,
+        userEmail,
+      );
+      identityColumns = identityColumns.concat(result);
+    }
+
+    return identityColumns;
   }
 }

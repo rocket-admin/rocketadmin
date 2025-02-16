@@ -34,11 +34,12 @@ export class TableStateService {
   }
 
   setBackUrlParams(pageIndex: number, pageSize: number, sortField: string, sortDirection: string) {
+    console.log('setBackUrlParams', pageIndex, pageSize, sortField, sortDirection);
     const params = {
       page_index: pageIndex,
       page_size: pageSize,
-      sort_active: sortField,
-      sort_direction: sortDirection
+      ...(sortField !== undefined && { sort_active: sortField }),
+      ...(sortDirection !== undefined && { sort_direction: sortDirection.toUpperCase() })
     };
     this.setSessionStorageItem('backUrlParams', params);
   }

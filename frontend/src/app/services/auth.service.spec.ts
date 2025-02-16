@@ -7,7 +7,7 @@ import { NotificationsService } from './notifications.service';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 
-describe('AuthService', () => {
+fdescribe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
 

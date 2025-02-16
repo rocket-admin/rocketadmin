@@ -33,6 +33,9 @@ export class ConnectionPropertiesEntity {
   @Column({ default: true })
   allow_ai_requests: boolean;
 
+  @Column({ default: null })
+  default_showing_table: string;
+
   @OneToOne((_) => ConnectionEntity, (connection) => connection.connection_properties, {
     onDelete: 'CASCADE',
   })
