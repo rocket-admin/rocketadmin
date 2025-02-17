@@ -12,6 +12,15 @@
     padding: 72px max(calc(50vw - 535px), 10%) 24px;
 }
 
+
+@media (prefers-color-scheme: dark) {
+    .wrapper {
+        background-image:
+            url('../../../assets/bg/connections-list-left-decoration_dark.svg'),
+            url('../../../assets/bg/connections-list-right-decoration_dark.svg');
+    }
+}
+
 @media (width <= 600px) {
     .wrapper {
         padding: 48px 9vw;
@@ -148,6 +157,13 @@
     text-decoration: none;
     width: 100%;
     transition: border 200ms, box-shadow 200ms;
+}
+
+@media (prefers-color-scheme: dark) {
+    .connection {
+        background-color: #000;
+        border: 1px solid #313131;
+    }
 }
 
 .connection:hover {

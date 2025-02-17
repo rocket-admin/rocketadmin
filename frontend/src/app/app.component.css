@@ -19,6 +19,12 @@
     background-color: #212121;
 }
 
+@media (prefers-color-scheme: dark) {
+    .nav-bar {
+        border-bottom: 1px solid #303030;
+    }
+}
+
 .nav-bar_interior {
     --mat-toolbar-standard-height: 44px !important;
 
@@ -239,6 +245,13 @@
 
 .tab-content-wrapper {
     flex: 1 0 auto;
+    background-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .tab-content-wrapper {
+        background-color: #212121;
+    }
 }
 
 .content {

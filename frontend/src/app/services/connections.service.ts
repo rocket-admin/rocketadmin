@@ -153,14 +153,14 @@ export class ConnectionsService {
         } else {
           this.connectionLogo = null;
           this.companyName = null;
-          this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB' }});
+          this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
         }
       });
     } else {
       this.connection = {...this.connectionInitialState};
       this.connectionLogo = null;
       this.companyName = null;
-      this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB' }});
+      this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
     }
   }
 
