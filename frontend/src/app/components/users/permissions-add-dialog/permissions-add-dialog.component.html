@@ -43,59 +43,65 @@
             <app-content-loader *ngIf="loading"></app-content-loader>
             <div class="tables-list">
                 <div *ngIf="connectionAccess === 'edit'" class="tables-overlay"></div>
-                <div>Visibility</div>
-                <div class="table-name-title">Table name</div>
-                <div>ReadOnly</div>
-                <div>Add</div>
-                <div>Delete</div>
-                <div>Edit</div>
-                <ng-container *ngFor="let table of tablesAccess; let i = index">
-                    <div class="tableVisibility">
-                        <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"
-                            class="visually-hidden"
+                <div class="tables-list__header">
+                    <div>Visibility</div>
+                    <div class="table-name-title">Table name</div>
+                    <div>ReadOnly</div>
+                    <div>Add</div>
+                    <div>Delete</div>
+                    <div>Edit</div>
+                </div>
+
+                <div *ngFor="let table of tablesAccess; let i = index" class="tables-list__item">
+                    <div style="display: contents;">
+                        <div class="tableVisibility">
+                            <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"
+                                class="visually-hidden"
+                                (change)="uncheckActions(table)"
+                                [(ngModel)]="table.accessLevel.visibility">
+                            <label for="{{table.tableName}}-visibility">
+                                <mat-icon class="visibilityIcon" [ngClass]="{'visibilityIcon_visible' : table.accessLevel.visibility}"
+                                    matTooltip="{{ table.accessLevel.visibility ? 'Table visible' : 'Table invisible' }}">
+                                    {{ table.accessLevel.visibility ? 'visibility' : 'visibility_off' }}
+                                </mat-icon>
+                            </label>
+                        </div>
+
+                        <div class="table-name" [ngClass]="{'table-name_disabled': !table.accessLevel.visibility}">
+                            <span class="table-name__title">{{table.display_name}}</span>
+                            <span class="table-name__line">{{table.tableName}}</span>
+                        </div>
+
+                        <mat-slide-toggle name="{{table.tableName}}-readonly-toggle"
+                            [disabled]="!table.accessLevel.visibility"
                             (change)="uncheckActions(table)"
-                            [(ngModel)]="table.accessLevel.visibility">
-                        <label for="{{table.tableName}}-visibility">
-                            <mat-icon class="visibilityIcon" [ngClass]="{'visibilityIcon_visible' : table.accessLevel.visibility}"
-                                matTooltip="{{ table.accessLevel.visibility ? 'Table visible' : 'Table invisible' }}">
-                                {{ table.accessLevel.visibility ? 'visibility' : 'visibility_off' }}
-                            </mat-icon>
-                        </label>
+                            [(ngModel)]="table.accessLevel.readonly"
+                            (click)="onVisibilityChange($event, i)">
+                        </mat-slide-toggle>
+                        <div (click)="onRecordActionPermissionChange('add', i)">
+                            <mat-checkbox name="{{table.tableName}}-add"
+                                matTooltip="Add"
+                                [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
+                                [checked]="table.accessLevel.add">
+                            </mat-checkbox>
+                        </div>
+                        <div (click)="onRecordActionPermissionChange('delete', i)">
+                            <mat-checkbox name="{{table.tableName}}-delete"
+                                matTooltip="Delete"
+                                [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
+                                [checked]="table.accessLevel.delete">
+                            </mat-checkbox>
+                        </div>
+                        <div (click)="onRecordActionPermissionChange('edit', i)">
+                            <mat-checkbox name="{{table.tableName}}-edit"
+                                matTooltip="Edit"
+                                [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
+                                [checked]="table.accessLevel.edit">
+                            </mat-checkbox>
+                        </div>
                     </div>
-
-                    <div class="table-name" [ngClass]="{'table-name_disabled': !table.accessLevel.visibility}">
-                        <span class="table-name__title">{{table.display_name}}</span>
-                        <span class="table-name__line">{{table.tableName}}</span>
-                    </div>
-
-                    <mat-slide-toggle name="{{table.tableName}}-readonly-toggle"
-                        [disabled]="!table.accessLevel.visibility"
-                        (change)="uncheckActions(table)"
-                        [(ngModel)]="table.accessLevel.readonly"
-                        (click)="onVisibilityChange($event, i)">
-                    </mat-slide-toggle>
-                    <div (click)="onRecordActionPermissionChange('add', i)">
-                        <mat-checkbox name="{{table.tableName}}-add"
-                            matTooltip="Add"
-                            [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
-                            [checked]="table.accessLevel.add">
-                        </mat-checkbox>
-                    </div>
-                    <div (click)="onRecordActionPermissionChange('delete', i)">
-                        <mat-checkbox name="{{table.tableName}}-delete"
-                            matTooltip="Delete"
-                            [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
-                            [checked]="table.accessLevel.delete">
-                        </mat-checkbox>
-                    </div>
-                    <div (click)="onRecordActionPermissionChange('edit', i)">
-                        <mat-checkbox name="{{table.tableName}}-edit"
-                            matTooltip="Edit"
-                            [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
-                            [checked]="table.accessLevel.edit">
-                        </mat-checkbox>
-                    </div>
-                </ng-container>
+                    <mat-divider class="tables-list__divider"></mat-divider>
+                </div>
             </div>
         </div>
     </mat-dialog-content>

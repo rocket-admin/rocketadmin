@@ -74,7 +74,7 @@
                     data-testid="table-add-record-link"
                     angulartics2On="click"
                     angularticsAction="Dashboard: add row is clicked"
-                    (click)="stashFilters()">
+                    (click)="stashUrlParams()">
                     <mat-icon>add</mat-icon>
                     Add row
                 </a>
@@ -310,7 +310,7 @@
                     <a mat-icon-button *ngIf="tableData.permissions.add"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element, 'dub')"
-                        attr.data-testid="table-edit-record-{{i}}-link"
+                        attr.data-testid="table-duplicate-record-{{i}}-link"
                         attr.data-test-primary-key-name="{{tableData.keyAttributes[0]?.column_name}}"
                         attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
                         angulartics2On="click"

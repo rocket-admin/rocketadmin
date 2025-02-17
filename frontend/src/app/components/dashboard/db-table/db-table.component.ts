@@ -329,13 +329,16 @@ export class DbTableComponent implements OnInit {
   }
 
   stashUrlParams() {
-    console.log('stashUrlParams');
     this._tableState.setBackUrlParams(this.route.snapshot.queryParams.page_index, this.route.snapshot.queryParams.page_size, this.route.snapshot.queryParams.sort_active, this.route.snapshot.queryParams.sort_direction);
     this.stashFilters();
   }
 
   stashFilters() {
-    this._tableState.setBackUrlFilters(this.activeFilters);
+    if (this.activeFilters && Object.keys(this.activeFilters).length > 0) {
+      this._tableState.setBackUrlFilters(this.activeFilters);
+    } else {
+      this._tableState.setBackUrlFilters(null);
+    }
   }
 
   getIdentityFieldsValues() {

@@ -13,7 +13,8 @@
     <app-placeholder-user-groups *ngIf="groups === null"></app-placeholder-user-groups>
 
     <mat-accordion multi="true" *ngIf="groups">
-        <mat-expansion-panel *ngFor="let groupItem of groups" (opened)="openUsersList(groupItem.group.id)"
+        <mat-expansion-panel *ngFor="let groupItem of groups"
+            (opened)="openUsersList(groupItem.group.id)"
             [ngClass]="{'expansion-panel_admin': groupItem.group.title === 'Admin'}">
             <mat-expansion-panel-header class="group-item">
                 <mat-panel-title>

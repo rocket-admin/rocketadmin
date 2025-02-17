@@ -34,15 +34,18 @@ header {
 
 .group-actions {
     display: none;
+    flex-grow: 0 !important;
     justify-content: flex-end;
     align-items: center;
 }
 
-.group-item:hover .title-edit-button {
+.group-item:hover .title-edit-button,
+.mat-expanded .title-edit-button {
     display: block;
 }
 
-.group-item:hover .group-actions {
+.group-item:hover .group-actions,
+.mat-expanded .group-actions {
     display: flex;
 }
 

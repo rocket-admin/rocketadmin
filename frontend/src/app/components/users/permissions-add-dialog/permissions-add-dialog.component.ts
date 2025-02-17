@@ -18,6 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-permissions-add-dialog',
@@ -31,6 +32,7 @@ import { AlertComponent } from '../../ui-components/alert/alert.component';
     MatIconModule,
     MatSlideToggleModule,
     MatTooltipModule,
+    MatDividerModule,
     ContentLoaderComponent,
     AlertComponent
   ],
