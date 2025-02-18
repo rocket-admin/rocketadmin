@@ -201,6 +201,13 @@
     margin-bottom: 24px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .table-surface {
+        --mat-table-background-color: #171717;
+        --mat-paginator-container-background-color: #171717;
+    }
+}
+
 .table-box {
     overflow-x: auto;
     width: 100%;

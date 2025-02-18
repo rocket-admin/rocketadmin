@@ -16,6 +16,12 @@
     width: clamp(200px, 22vw, 400px);
 }
 
+@media (prefers-color-scheme: dark) {
+    .row-preview-sidebar_open {
+        border-left: 1px solid var(--mat-sidenav-container-divider-color);
+    }
+}
+
 @media (width <= 600px) {
     .row-preview-sidebar_open {
         width: 0;
@@ -51,6 +57,12 @@
 
 .row-preview-sidebar__field:not(:last-child) {
     border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+    .row-preview-sidebar__field:not(:last-child) {
+        border-bottom: solid 1px rgba(255, 255, 255, 0.04);
+    }
 }
 
 .row-preview-sidebar__image {
