@@ -294,7 +294,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: radial-gradient(var(--mat-sidenav-content-background-color) 1em, var(--icon-box-color) 1em);
+    background-image: radial-gradient(#fff 1em, var(--icon-box-color) 1em);
     border-radius: 4px;
     height: 36px;
     margin-right: 12px;
@@ -303,14 +303,14 @@
 
 @media (prefers-color-scheme: light) {
     .testConnectionLink__iconBox {
-        --icon-box-color: #E8F1EA;
+        --icon-box-color: var(--color-accentedDarkPalette-700);
 
     }
 }
 
 @media (prefers-color-scheme: dark) {
     .testConnectionLink__iconBox {
-        --icon-box-color: #292929;
+        --icon-box-color: var(--color-accentedDarkPalette-500);
 
     }
 }
