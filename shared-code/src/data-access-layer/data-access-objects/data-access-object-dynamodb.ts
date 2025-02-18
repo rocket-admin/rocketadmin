@@ -30,6 +30,7 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 
 export type DdAndClient = {
   dynamoDb: DynamoDB;
@@ -425,6 +426,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       primaryKeyColumns.forEach((key) => {
         responseObject[key.column_name] = row[key.column_name];
       });
+
+      if (isObjectEmpty(responseObject)) {
+        return primaryKey;
+      }
       return responseObject;
     } catch (e) {
       e.message += '.';
@@ -632,6 +637,11 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       if (fieldInfo?.dynamo_db_type === 'BS') {
         const valuesArray = transformedRow[key];
         transformedRow[key] = valuesArray.map((value) => binaryToHex(value));
+      }
+
+      if (fieldInfo?.dynamo_db_type === 'L') {
+        const valuesArray = transformedRow[key];
+        transformedRow[key] = valuesArray.map((value) => Object.values(value)[0]);
       }
     });
 
