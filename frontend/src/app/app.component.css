@@ -10,6 +10,14 @@
     }
 }
 
+@media (prefers-color-scheme: dark) {
+    .main-menu-container {
+        --mat-sidenav-content-background-color: #212121;
+        --mat-sidenav-container-background-color: #212121;
+        --mat-sidenav-container-divider-color: #303030;
+    }
+}
+
 .main-menu-sidenav {
     width: 60vw;
 }
@@ -245,13 +253,6 @@
 
 .tab-content-wrapper {
     flex: 1 0 auto;
-    background-color: #fff;
-}
-
-@media (prefers-color-scheme: dark) {
-    .tab-content-wrapper {
-        background-color: #212121;
-    }
 }
 
 .content {
