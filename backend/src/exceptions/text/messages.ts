@@ -37,6 +37,8 @@ export const Messages = {
   CANNOT_CHANGE_ADMIN_GROUP: 'You can not change admin group permissions',
   CANNOT_CREATE_CONNECTION_TO_THIS_HOST: 'You cannot create a connection to this host',
   CANNOT_SET_THIS_EMAIL: 'You cannot set this email',
+  CANT_CREATE_CONNECTION_USER_NON_COMPANY_ADMIN: `Only company administrators can add new connections`,
+  CANT_CREATE_CONNECTION_USER_NOT_INVITED_AT_ANY_GROUP: `You cannot create a connection because you are not invited to any group. Please ask your administrator to add you to a group first.`,
   CANT_CREATE_PERMISSION_TYPE_CONNECTION:
     'You can not create more than one permission of type "Connection" for the same group',
   CANT_CREATE_PERMISSION_TYPE_GROUP: 'You can not create more than one permission of type "Group" for the same group',
