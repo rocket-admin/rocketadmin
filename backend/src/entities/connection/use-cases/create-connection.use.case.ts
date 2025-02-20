@@ -37,9 +37,9 @@ export class CreateConnectionUseCase
       throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
     }
 
-    if (connectionAuthor.role !== UserRoleEnum.ADMIN) {
-      throw new BadRequestException(Messages.CANT_CREATE_CONNECTION_USER_NOT_INVITED_AT_ANY_GROUP);
-    }
+    // if (connectionAuthor.role !== UserRoleEnum.ADMIN) {
+    //   throw new BadRequestException(Messages.CANT_CREATE_CONNECTION_USER_NON_COMPANY_ADMIN);
+    // }
 
     // const userGroups = await this._dbContext.groupRepository.findAllUserGroups(connectionAuthor.id);
 
