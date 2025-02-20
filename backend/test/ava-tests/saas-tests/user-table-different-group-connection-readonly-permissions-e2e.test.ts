@@ -1792,6 +1792,53 @@ test.serial(`${currentTest} should return added row`, async (t) => {
   }
 });
 
+test.serial(`${currentTest} should throw an exception, when user does not have add permission`, async (t) => {
+  try {
+    const permissionToAdd = {
+      visibility: true,
+      readonly: false,
+      add: false,
+      delete: false,
+      edit: false,
+    };
+    const testData =
+      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
+        app,
+        permissionToAdd,
+      );
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+
+    const randomName = faker.person.firstName();
+    const randomEmail = faker.internet.email();
+
+    const created_at = new Date();
+    const updated_at = new Date();
+    const addRowInTable = await request(app.getHttpServer())
+      .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+      .send({
+        [firstTableInfo.testTableColumnName]: randomName,
+        [firstTableInfo.testTableSecondColumnName]: randomEmail,
+        created_at: created_at,
+        updated_at: updated_at,
+      })
+      .set('Cookie', simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const addRowInTableRO = JSON.parse(addRowInTable.text);
+    t.is(addRowInTable.status, 403);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});
+
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData =
@@ -2239,6 +2286,8 @@ test.serial(
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
 
+      const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+      console.log('🚀 ~ createConnectionPropertiesRO:', createConnectionPropertiesRO);
       t.is(createConnectionPropertiesResponse.status, 201);
 
       const addRowInTable = await request(app.getHttpServer())
