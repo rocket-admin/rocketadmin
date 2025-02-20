@@ -1,4 +1,5 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -10,11 +11,9 @@ import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.
 import { ConnectionEntity } from '../connection.entity.js';
 import { buildConnectionEntity } from '../utils/build-connection-entity.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
+import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { ICreateConnection } from './use-cases.interfaces.js';
-import { processAWSConnection } from '../utils/process-aws-connection.util.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionUseCase
