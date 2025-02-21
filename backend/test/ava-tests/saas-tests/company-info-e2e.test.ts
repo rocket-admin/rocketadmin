@@ -95,7 +95,7 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
 currentTest = 'GET /company/my/full';
 
-test.serial(`${currentTest} should return full found company info for company admin user`, async (t) => {
+test.only(`${currentTest} should return full found company info for company admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
