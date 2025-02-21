@@ -2,16 +2,17 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { IGetUserFullCompanyInfo } from './company-info-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import {
   FoundUserCompanyInfoDs,
   FoundUserFullCompanyInfoDs,
 } from '../application/data-structures/found-company-info.ds.js';
-import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
+import { CompanyInfoEntity } from '../company-info.entity.js';
 import { buildFoundCompanyFullInfoDs, buildFoundCompanyInfoDs } from '../utils/build-found-company-info-ds.js';
+import { IGetUserFullCompanyInfo } from './company-info-use-cases.interface.js';
 
 @Injectable()
 export class GetUserCompanyFullInfoUseCase
@@ -27,11 +28,9 @@ export class GetUserCompanyFullInfoUseCase
   }
 
   protected async implementation(userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
+    const foundCompanyInfoByUserId = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
 
-    const foundFullUserCoreCompanyInfo =
-      await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
-
-    if (!foundFullUserCoreCompanyInfo) {
+    if (!foundCompanyInfoByUserId) {
       throw new HttpException(
         {
           message: Messages.COMPANY_NOT_FOUND,
@@ -42,16 +41,17 @@ export class GetUserCompanyFullInfoUseCase
 
     const foundUser = await this._dbContext.userRepository.findOneUserByIdAndCompanyId(
       userId,
-      foundFullUserCoreCompanyInfo.id,
+      foundCompanyInfoByUserId.id,
     );
 
-    if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+    let foundFullUserCoreCompanyInfo: CompanyInfoEntity;
+
+    if (foundUser.role === UserRoleEnum.ADMIN) {
+      foundFullUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findFullCompanyInfoByCompanyId(
+        foundCompanyInfoByUserId.id,
       );
+    } else {
+      foundFullUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
     }
 
     let foundUserCompanySaasInfo = null;

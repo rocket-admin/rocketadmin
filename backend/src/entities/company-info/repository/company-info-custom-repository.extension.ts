@@ -46,6 +46,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .getOne();
   },
 
+  // returns groups and connections where user is invited
   async findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.users', 'current_user')
@@ -56,6 +57,20 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .leftJoinAndSelect('connections.author', 'connection_author')
       .leftJoinAndSelect('groups.users', 'groups_users')
       .where('current_user.id = :userId', { userId })
+      .getOne();
+  },
+
+  // returns groups and connections what exists in this company
+  async findFullCompanyInfoByCompanyId(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.users', 'current_user')
+      .leftJoinAndSelect('company_info.users', 'users')
+      .leftJoinAndSelect('company_info.connections', 'connections')
+      .leftJoinAndSelect('company_info.invitations', 'invitations')
+      .leftJoinAndSelect('connections.groups', 'groups')
+      .leftJoinAndSelect('connections.author', 'connection_author')
+      .leftJoinAndSelect('groups.users', 'groups_users')
+      .where('company_info.id = :companyId', { companyId })
       .getOne();
   },
 
