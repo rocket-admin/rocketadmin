@@ -1,26 +1,53 @@
 import {
-  UseInterceptors,
-  Controller,
-  Injectable,
-  Put,
-  UseGuards,
   Body,
+  Controller,
+  Delete,
+  Get,
   HttpException,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
-  Res,
-  Get,
-  Delete,
+  Put,
   Query,
+  Res,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
-import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
-import { UserId } from '../../decorators/user-id.decorator.js';
-import { Messages } from '../../exceptions/text/messages.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
+import { CompanyUserGuard } from '../../guards/company-user.guard.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { SimpleFoundUserInCompanyInfoDs } from '../user/dto/found-user.dto.js';
+import { ITokenExp } from '../user/utils/generate-gwt-token.js';
+import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
+import {
+  FoundUserCompanyInfoDs,
+  FoundUserEmailCompaniesInfoDs,
+  FoundUserFullCompanyInfoDs,
+} from './application/data-structures/found-company-info.ds.js';
+import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
+import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
+import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
+import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
+import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
+import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
+import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
+import { TokenExpirationResponseDto } from './application/dto/token-expiration-response.dto.js';
+import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
+import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users-2fa-status-in-company.dto.js';
+import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
+import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
 import {
   ICheckVerificationLinkAvailable,
   IDeleteCompany,
@@ -39,33 +66,6 @@ import {
   IUpdateUsersCompanyRoles,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
-import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
-import { ITokenExp } from '../user/utils/generate-gwt-token.js';
-import { Response } from 'express';
-import { Constants } from '../../helpers/constants/constants.js';
-import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
-import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
-import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
-import { TokenExpirationResponseDto } from './application/dto/token-expiration-response.dto.js';
-import { CompanyUserGuard } from '../../guards/company-user.guard.js';
-import {
-  FoundUserCompanyInfoDs,
-  FoundUserEmailCompaniesInfoDs,
-  FoundUserFullCompanyInfoDs,
-} from './application/data-structures/found-company-info.ds.js';
-import { SimpleFoundUserInfoDs } from '../user/dto/found-user.dto.js';
-import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
-import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
-import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
-import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
-import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
-import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users-2fa-status-in-company.dto.js';
-import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
-import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
-import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -137,12 +137,12 @@ export class CompanyInfoController {
   @ApiResponse({
     status: 200,
     description: 'Get users in company.',
-    type: SimpleFoundUserInfoDs,
+    type: SimpleFoundUserInCompanyInfoDs,
     isArray: true,
   })
   @UseGuards(CompanyUserGuard)
   @Get('users/:companyId')
-  async getUsersInCompany(@SlugUuid('companyId') companyId: string): Promise<Array<SimpleFoundUserInfoDs>> {
+  async getUsersInCompany(@SlugUuid('companyId') companyId: string): Promise<Array<SimpleFoundUserInCompanyInfoDs>> {
     return await this.getUsersInCompanyUseCase.execute(companyId);
   }
 
