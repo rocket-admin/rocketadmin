@@ -636,14 +636,14 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       }
       if (fieldInfo?.dynamo_db_type === 'BS') {
         const valuesArray = transformedRow[key];
-        if (valuesArray) {
+        if (valuesArray && Array.isArray(valuesArray)) {
           transformedRow[key] = valuesArray.map((value) => binaryToHex(value));
         }
       }
 
       if (fieldInfo?.dynamo_db_type === 'L') {
         const valuesArray = transformedRow[key];
-        if (valuesArray) {
+        if (valuesArray && Array.isArray(valuesArray)) {
           transformedRow[key] = valuesArray.map((value) => Object.values(value)[0]);
         }
       }
