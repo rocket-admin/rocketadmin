@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -14,6 +14,7 @@ import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.j
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { ICreateConnection } from './use-cases.interfaces.js';
+import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionUseCase
@@ -36,15 +37,9 @@ export class CreateConnectionUseCase
       throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
     }
 
-    // if (connectionAuthor.role !== UserRoleEnum.ADMIN) {
-    //   throw new BadRequestException(Messages.CANT_CREATE_CONNECTION_USER_NON_COMPANY_ADMIN);
-    // }
-
-    // const userGroups = await this._dbContext.groupRepository.findAllUserGroups(connectionAuthor.id);
-
-    // if (!userGroups.length) {
-    //   throw new BadRequestException(Messages.CANT_CREATE_CONNECTION_USER_NOT_INVITED_AT_ANY_GROUP);
-    // }
+    if (connectionAuthor.role !== UserRoleEnum.ADMIN && connectionAuthor.role !== UserRoleEnum.DB_ADMIN) {
+      throw new BadRequestException(Messages.CANT_CREATE_CONNECTION_USER_NON_COMPANY_ADMIN);
+    }
 
     await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email));
     await validateCreateConnectionData(createConnectionData);
