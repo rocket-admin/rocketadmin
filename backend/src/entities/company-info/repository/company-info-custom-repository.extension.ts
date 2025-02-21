@@ -77,11 +77,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.users', 'current_user')
       .leftJoinAndSelect('company_info.users', 'users')
-      .leftJoinAndSelect('company_info.connections', 'connections')
       .leftJoinAndSelect('company_info.invitations', 'invitations')
-      .leftJoinAndSelect('connections.groups', 'groups')
-      .leftJoinAndSelect('connections.author', 'connection_author')
-      .leftJoinAndSelect('groups.users', 'groups_users')
       .where('company_info.id = :companyId', { companyId })
       .getOne();
   },
@@ -92,12 +88,12 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.users', 'users')
       .leftJoinAndSelect('users.groups', 'groups')
-      .leftJoinAndSelect('groups.connections', 'connections')
-      .leftJoinAndSelect('connections.groups', 'groups')
+      .leftJoinAndSelect('groups.connection', 'connections')
       .leftJoinAndSelect('connections.author', 'connection_author')
-      .leftJoinAndSelect('groups.users', 'groups_users')
+      .leftJoinAndSelect('connections.groups', 'connection_groups')
+      .leftJoinAndSelect('connection_groups.users', 'connection_groups_users')
       .where('company_info.id = :companyId', { companyId })
-      .getMany();
+      .getOne();
   },
 
   async findCompanyInfosByUserEmail(userEmail: string): Promise<CompanyInfoEntity[]> {
