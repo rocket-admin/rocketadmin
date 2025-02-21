@@ -42,7 +42,11 @@ export class CompanyUserGuard implements CanActivate {
             HttpStatus.BAD_REQUEST,
           );
         }
-        resolve(foundUser?.role === UserRoleEnum.ADMIN || foundUser?.role === UserRoleEnum.USER);
+        resolve(
+          foundUser?.role === UserRoleEnum.ADMIN ||
+            foundUser?.role === UserRoleEnum.USER ||
+            foundUser?.role === UserRoleEnum.DB_ADMIN,
+        );
         return;
       } catch (e) {
         reject(e);
