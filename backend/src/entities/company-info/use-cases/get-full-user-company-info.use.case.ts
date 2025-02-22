@@ -47,9 +47,20 @@ export class GetUserCompanyFullInfoUseCase
     let foundFullUserCoreCompanyInfo: CompanyInfoEntity;
 
     if (foundUser.role === UserRoleEnum.ADMIN) {
-      foundFullUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findFullCompanyInfoByCompanyId(
-        foundCompanyInfoByUserId.id,
-      );
+      //todo will be reworked in architecture refactoring
+      const companyId = foundCompanyInfoByUserId.id;
+
+      const [companyInfoWithoutConnections, companyInfoWithUsers] = await Promise.all([
+        this._dbContext.companyInfoRepository.findCompanyInfoByCompanyIdWithoutConnections(companyId),
+        this._dbContext.companyInfoRepository.findAllCompanyWithConnectionsUsersJoining(companyId),
+      ]);
+
+      const uniqueConnections = companyInfoWithUsers.users
+        .flatMap((user) => user.groups.map((group) => group.connection))
+        .filter((connection, index, self) => index === self.findIndex((t) => t.id === connection.id));
+
+      companyInfoWithoutConnections.connections = uniqueConnections;
+      foundFullUserCoreCompanyInfo = companyInfoWithoutConnections;
     } else {
       foundFullUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
     }
