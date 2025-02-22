@@ -110,9 +110,9 @@ export class CompanyComponent {
           this.currentUser = res.find(member => member.email === user.email);
 
           if (this.currentUser.role === 'ADMIN') {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'actions'];
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'access', 'actions'];
           } else {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA'];
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'access'];
           }
 
           const currentMembers = orderBy(res, ['role', 'email']);

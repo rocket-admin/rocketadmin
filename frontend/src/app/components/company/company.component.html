@@ -150,7 +150,7 @@
             <th mat-header-cell *matHeaderCellDef>Suspended</th>
             <td mat-cell *matCellDef="let element; let i = index"
                 data-label="Suspended"
-                class="active-status-cell company-member-cell">
+                class="company-member-cell_content-center company-member-cell">
                 <mat-slide-toggle *ngIf="!element.invitedUserEmail"
                     class="active-status-toggle"
                     [disabled]="unsuspendedAdminsCount === 1 && element.role === 'ADMIN' && currentUser.email === element.email"
@@ -161,6 +161,17 @@
                     [(ngModel)]="element.suspended"
                     (change)="switchSuspendance($event.checked, element.email)">
                 </mat-slide-toggle>
+            </td>
+        </ng-container>
+
+        <!-- Active Column -->
+        <ng-container matColumnDef="access">
+            <th mat-header-cell *matHeaderCellDef matTooltip="Access to connection">Access</th>
+            <td mat-cell *matCellDef="let element; let i = index"
+                data-label="Access"
+                class="company-member-cell company-member-cell_content-center">
+                <mat-icon *ngIf="element.has_groups" class="company-member-cell_accessed" fontSet="material-icons-outlined">check_circle</mat-icon>
+                <mat-icon *ngIf="!element.has_groups" class="company-member-cell_not-accessed" fontSet="material-icons-outlined">cancel</mat-icon>
             </td>
         </ng-container>
 

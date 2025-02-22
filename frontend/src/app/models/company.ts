@@ -39,7 +39,8 @@ export interface CompanyMember {
     name: string,
     email: string,
     is_2fa_enabled: boolean,
-    role: CompanyMemberRole
+    role: CompanyMemberRole,
+    has_groups: boolean
 }
 
 export enum CompanyMemberRole {
