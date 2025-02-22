@@ -21,7 +21,7 @@ export class UserService {
     portal_link: '',
     subscriptionLevel: SubscriptionPlans.free,
     is_2fa_enabled: false,
-    role: CompanyMemberRole.Member,
+    role: CompanyMemberRole.Specialist,
     externalRegistrationProvider: null,
   }
 
