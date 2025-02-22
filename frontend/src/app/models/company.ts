@@ -39,12 +39,14 @@ export interface CompanyMember {
     name: string,
     email: string,
     is_2fa_enabled: boolean,
-    role: CompanyMemberRole
+    role: CompanyMemberRole,
+    has_groups: boolean
 }
 
 export enum CompanyMemberRole {
-    SuperAdmin = 'ADMIN',
-    Member = 'USER',
+    CAO = 'ADMIN',
+    SystemAdmin = 'DB_ADMIN',
+    Specialist = 'USER',
 }
 
 export interface CompanyMemberInvitation {

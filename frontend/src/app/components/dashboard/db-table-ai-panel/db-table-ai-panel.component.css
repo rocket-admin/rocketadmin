@@ -41,6 +41,12 @@
     z-index: 0;
 }
 
+@media (prefers-color-scheme: dark) {
+    .ai-panel-sidebar-content {
+        border-left: 1px solid var(--mat-sidenav-container-divider-color);
+    }
+}
+
 @media (width <= 600px) {
     .ai-panel-sidebar-content {
         left: 0;

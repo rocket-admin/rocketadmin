@@ -30,7 +30,7 @@ import { EmailValidationDirective } from 'src/app/directives/emailValidator.dire
 })
 export class InviteMemberDialogComponent {
   public companyMemberEmail: string;
-  public companyMemberRole: CompanyMemberRole = CompanyMemberRole.Member;
+  public companyMemberRole: CompanyMemberRole = CompanyMemberRole.Specialist;
   public submitting: boolean = false;
   public companyUsersGroup: string = null;
   public groups: {

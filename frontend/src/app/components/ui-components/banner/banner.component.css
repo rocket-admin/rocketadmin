@@ -10,16 +10,16 @@
 }
 
 .banner_error {
-    --alert-theme-color: #FB2424;
+    --alert-theme-color: #B71C1C;
 
     z-index: 2;
 }
 .banner_info {
-    --alert-theme-color: #0288D1;
+    --alert-theme-color: #01579B;
 }
 
 .banner_success {
-    --alert-theme-color: #2E7D32;
+    --alert-theme-color: #1B5E20;
 }
 
 .banner-box {

@@ -61,7 +61,7 @@ describe('CompanyComponent', () => {
                 "createdAt": "2024-01-06T21:11:36.746Z",
                 "name": null,
                 "is_2fa_enabled": false,
-                "role": CompanyMemberRole.SuperAdmin
+                "role": CompanyMemberRole.CAO
               }
             ]
           },
@@ -75,7 +75,7 @@ describe('CompanyComponent', () => {
         "groupId": null,
         "inviterId": "user1",
         "invitedUserEmail": "admin1@test.com",
-        "role": CompanyMemberRole.SuperAdmin,
+        "role": CompanyMemberRole.CAO,
       }
     ]
   }
@@ -199,7 +199,7 @@ describe('CompanyComponent', () => {
         "groupId": null,
         "inviterId": "user1",
         "invitedUserEmail": "admin1@test.com",
-        "role": CompanyMemberRole.SuperAdmin,
+        "role": CompanyMemberRole.CAO,
         "pending": true,
         email: "admin1@test.com"
       }
@@ -240,7 +240,8 @@ describe('CompanyComponent', () => {
       "email": "user1@test.com",
       "name": "User 3333",
       "is_2fa_enabled": false,
-      "role": CompanyMemberRole.Member
+      "role": CompanyMemberRole.Specialist,
+      "has_groups": false
     }
 
     component.handleDeleteMemberDialogOpen(fakeMember);
@@ -273,7 +274,7 @@ describe('CompanyComponent', () => {
     component.company.id = 'company-12345678';
     component.company.name = 'New company name';
 
-    component.updateRole('user-12345678', CompanyMemberRole.SuperAdmin);
+    component.updateRole('user-12345678', CompanyMemberRole.CAO);
     expect(fakeCompanyService.updateCompanyMemberRole).toHaveBeenCalledOnceWith('company-12345678', 'user-12345678', 'ADMIN');
     expect(fakeCompanyService.fetchCompanyMembers).toHaveBeenCalledWith('company-12345678');
   });

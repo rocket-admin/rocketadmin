@@ -14,6 +14,11 @@ export function buildFoundCompanyFullInfoDs(
   companyInfoFromSaas: FoundSassCompanyInfoDS | null,
   userRole: UserRoleEnum,
 ): FoundUserFullCompanyInfoDs {
+  if (!companyInfoFromCore.show_test_connections) {
+    companyInfoFromCore.connections = companyInfoFromCore.connections.filter(
+      (connection) => !connection.isTestConnection,
+    );
+  }
   const responseObject = buildFoundCompanyInfoDs(companyInfoFromCore, companyInfoFromSaas, userRole) as any;
   const connectionsRO: Array<FoundSipleConnectionInfoDS> = companyInfoFromCore.connections.map((connection) => {
     return {

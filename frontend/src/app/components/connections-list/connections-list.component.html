@@ -186,7 +186,8 @@
             Show less
         </button>
 
-        <a mat-flat-button data-testid="add-connection-button"
+        <a mat-flat-button *ngIf="currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN'"
+            data-testid="add-connection-button"
             color="primary"
             [ngClass]="connections.length ? 'fabAddButton' : 'addButton'"
             routerLink="/connect-db"
