@@ -76,7 +76,7 @@ describe('UserSettingsComponent', () => {
       "portal_link": "stripe.link",
       "subscriptionLevel": SubscriptionPlans.free,
       "is_2fa_enabled": false,
-      role: CompanyMemberRole.Member,
+      role: CompanyMemberRole.Specialist,
       externalRegistrationProvider: null
     }
 
@@ -91,7 +91,7 @@ describe('UserSettingsComponent', () => {
         "portal_link": "stripe.link",
         "subscriptionLevel": SubscriptionPlans.free,
         "is_2fa_enabled": false,
-        role: CompanyMemberRole.Member,
+        role: CompanyMemberRole.Specialist,
         externalRegistrationProvider: null
       }
     });

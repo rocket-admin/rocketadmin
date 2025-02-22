@@ -43,8 +43,9 @@ export interface CompanyMember {
 }
 
 export enum CompanyMemberRole {
-    SuperAdmin = 'ADMIN',
-    Member = 'USER',
+    CAO = 'ADMIN',
+    SystemAdmin = 'DB_ADMIN',
+    Specialist = 'USER',
 }
 
 export interface CompanyMemberInvitation {

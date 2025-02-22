@@ -67,7 +67,7 @@ describe('PasswordChangeComponent', () => {
       portal_link: 'http://lsdkjfl.dhj',
       subscriptionLevel: SubscriptionPlans.free,
       "is_2fa_enabled": false,
-      role: CompanyMemberRole.Member,
+      role: CompanyMemberRole.Specialist,
       externalRegistrationProvider: null
 
     };
