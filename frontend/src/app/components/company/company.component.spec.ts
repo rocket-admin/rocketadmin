@@ -240,7 +240,8 @@ describe('CompanyComponent', () => {
       "email": "user1@test.com",
       "name": "User 3333",
       "is_2fa_enabled": false,
-      "role": CompanyMemberRole.Specialist
+      "role": CompanyMemberRole.Specialist,
+      "has_groups": false
     }
 
     component.handleDeleteMemberDialogOpen(fakeMember);
