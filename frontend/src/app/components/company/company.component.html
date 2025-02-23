@@ -204,5 +204,12 @@
         <tr mat-header-row *matHeaderRowDef="membersTableDisplayedColumns" class="company-members-table-heading"></tr>
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
+
+    <!--<mat-slide-toggle style="margin-top: 20px;" *ngIf="currentUser && currentUser.role === 'ADMIN'"
+        name="showTestConnections"
+        data-testid="company-test-connections-switch"
+        [(ngModel)]="company.show_test_connections">
+        Show test connections
+    </mat-slide-toggle>-->
 </div>
 
