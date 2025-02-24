@@ -24,6 +24,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-company',
@@ -40,6 +41,7 @@ import { NgIf } from '@angular/common';
     MatSlideToggleModule,
     MatTooltipModule,
     MatTableModule,
+    RouterModule,
     Angulartics2OnModule,
     AlertComponent,
     PlaceholderCompanyComponent,

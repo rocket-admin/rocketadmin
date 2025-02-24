@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { PlaceholderAddUserDialogComponent } from '../../skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
 import { NgForOf, NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-user-add-dialog',
@@ -25,6 +26,7 @@ import { NgForOf, NgIf } from '@angular/common';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    RouterModule,
     PlaceholderAddUserDialogComponent
   ]
 })
