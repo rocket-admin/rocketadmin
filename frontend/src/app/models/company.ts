@@ -31,6 +31,7 @@ export interface Company {
     connections: CompanyConnection[],
     invitations: CompanyMemberInvitation[],
     is_payment_method_added: boolean,
+    show_test_connections: boolean
 }
 
 export interface CompanyMember {

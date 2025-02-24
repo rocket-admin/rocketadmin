@@ -21,7 +21,7 @@ export class PaymentService {
   createIntentToSubscription(companyId: string) {
     const config = this._configuration.getConfig();
 
-    return this._http.post<any>(config.saasURL + `/company/stripe/${companyId}`, {})
+    return this._http.post<any>(config.saasURL + `/saas/company/stripe/${companyId}`, {})
       .pipe(
         map(res => res),
         catchError((err) => {
@@ -41,7 +41,7 @@ export class PaymentService {
   createSubscription(companyId: string, defaultPaymentMethodId: string | null | PaymentMethod, subscriptionLevel: string) {
     const config = this._configuration.getConfig();
 
-    return this._http.post<any>(config.saasURL + `/company/setup/intent/${companyId}`, {defaultPaymentMethodId, subscriptionLevel})
+    return this._http.post<any>(config.saasURL + `/saas/company/setup/intent/${companyId}`, {defaultPaymentMethodId, subscriptionLevel})
       .pipe(
         map(res => res),
         catchError((err) => {
@@ -61,7 +61,7 @@ export class PaymentService {
   changeSubscription(companyId: string, subscriptionLevel: string) {
     const config = this._configuration.getConfig();
 
-    return this._http.post<any>(config.saasURL + `/company/subscription/upgrade/${companyId}`, {subscriptionLevel})
+    return this._http.post<any>(config.saasURL + `/saas/company/subscription/upgrade/${companyId}`, {subscriptionLevel})
       .pipe(
         map(res => res),
         catchError((err) => {

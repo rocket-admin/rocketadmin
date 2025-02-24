@@ -49,7 +49,10 @@
             <p class="mat-body-1">{{serverError.abstract}}</p>
         </ng-template>
         <div class="error-actions">
-            <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+            <a mat-stroked-button *ngIf="accesLevel === 'edit'"
+                routerLink="/edit-db/{{connectionID}}">
+                Check database credentials
+            </a>
             <button *ngIf="isSaas" mat-flat-button color="warn" (click)="openIntercome()">Chat with support</button>
             <a *ngIf="!isSaas" mat-flat-button color="warn"
                 href="https://github.com/rocket-admin/rocketadmin/issues" target="_blank">
