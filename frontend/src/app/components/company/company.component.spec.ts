@@ -77,7 +77,8 @@ describe('CompanyComponent', () => {
         "invitedUserEmail": "admin1@test.com",
         "role": CompanyMemberRole.CAO,
       }
-    ]
+    ],
+    show_test_connections: false
   }
 
   const mockMembers = [
