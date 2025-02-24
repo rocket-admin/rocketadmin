@@ -40,6 +40,9 @@ export class FoundUserDto {
 
   @ApiProperty({ enum: ExternalRegistrationProviderEnum })
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
+
+  @ApiProperty({ default: true })
+  show_test_connections: boolean;
 }
 
 export class SimpleFoundUserInfoDs {

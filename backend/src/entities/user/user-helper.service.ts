@@ -47,6 +47,7 @@ export class UserHelperService implements OnModuleInit {
       is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
       company: user.company ? { id: user.company.id } : null,
       externalRegistrationProvider: user.externalRegistrationProvider,
+      show_test_connections: user.showTestConnections,
     };
   }
 

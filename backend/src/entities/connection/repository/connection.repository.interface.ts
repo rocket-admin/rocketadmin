@@ -39,4 +39,6 @@ export interface IConnectionRepository {
   findAllUserTestConnections(userId: string): Promise<Array<ConnectionEntity>>;
 
   isUserFromConnection(userId: string, connectionId: string): Promise<boolean>;
+
+  findAllCompanyUsersNonTestsConnections(companyId: string): Promise<Array<ConnectionEntity>>;
 }

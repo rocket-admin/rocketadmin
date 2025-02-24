@@ -51,6 +51,7 @@ export function buildCreatedConnectionDs(
             is_2fa_enabled: user.isOTPEnabled,
             role: user.role,
             externalRegistrationProvider: user.externalRegistrationProvider,
+            show_test_connections: user.showTestConnections,
           };
         }),
       };
