@@ -2,26 +2,25 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { AccessLevelEnum } from '../../../src/enums/index.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
-import { TestUtils } from '../../utils/test.utils.js';
+import { getTestData } from '../../utils/get-test-data.js';
 import {
   inviteUserInCompanyAndAcceptInvitation,
   registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { getTestData } from '../../utils/get-test-data.js';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -1593,54 +1592,57 @@ test.serial(`${currentTest} should return restored connection`, async (t) => {
   }
 });
 
-test.serial(`${currentTest} should return restored connection. Restored connection should will return list of tables correctly`, async (t) => {
-  try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
-      getTestConnectionData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+test.serial(
+  `${currentTest} should return restored connection. Restored connection should will return list of tables correctly`,
+  async (t) => {
+    try {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+        getTestConnectionData();
+      const { token } = await registerUserAndReturnUserInfo(app);
 
-    const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-    newPgConnection.masterEncryption = true;
+      const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+      newPgConnection.masterEncryption = true;
 
-    const createConnectionResult = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newPgConnection)
-      .set('masterpwd', 'ahalaimahalai')
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createConnectionResult.status, 201);
+      const createConnectionResult = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newPgConnection)
+        .set('masterpwd', 'ahalaimahalai')
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createConnectionResult.status, 201);
 
-    const createConnectionRO = JSON.parse(createConnectionResult.text);
-    const { id, groups } = createConnectionRO;
-    const groupId = groups[0].id;
-    const restoreConnectionResult = await request(app.getHttpServer())
-      .put(`/connection/encryption/restore/${id}`)
-      .send(newPgConnection)
-      .set('masterpwd', 'hamalaiahalai')
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(restoreConnectionResult.status, 200);
-    const restoreConnectionResultRO = JSON.parse(restoreConnectionResult.text);
-    const { connection } = restoreConnectionResultRO;
-    t.is(connection.id, id);
+      const createConnectionRO = JSON.parse(createConnectionResult.text);
+      const { id, groups } = createConnectionRO;
+      const groupId = groups[0].id;
+      const restoreConnectionResult = await request(app.getHttpServer())
+        .put(`/connection/encryption/restore/${id}`)
+        .send(newPgConnection)
+        .set('masterpwd', 'hamalaiahalai')
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(restoreConnectionResult.status, 200);
+      const restoreConnectionResultRO = JSON.parse(restoreConnectionResult.text);
+      const { connection } = restoreConnectionResultRO;
+      t.is(connection.id, id);
 
-    const findTablesResponse = await request(app.getHttpServer())
-      .get(`/connection/tables/${id}`)
-      .set('Content-Type', 'application/json')
-       .set('masterpwd', 'hamalaiahalai')
-      .set('Cookie', token)
-      .set('Accept', 'application/json');
+      const findTablesResponse = await request(app.getHttpServer())
+        .get(`/connection/tables/${id}`)
+        .set('Content-Type', 'application/json')
+        .set('masterpwd', 'hamalaiahalai')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
 
-    const tables = JSON.parse(findTablesResponse.text);
-  
-    t.is(findTablesResponse.status, 200);
-    t.is(tables.length > 0, true);
-  } catch (e) {
-    throw e;
-  }
-});
+      const tables = JSON.parse(findTablesResponse.text);
+
+      t.is(findTablesResponse.status, 200);
+      t.is(tables.length > 0, true);
+    } catch (e) {
+      throw e;
+    }
+  },
+);
 
 currentTest = 'GET /connection/groups/:slug';
 test.serial(`${currentTest} should groups in connection`, async (t) => {
