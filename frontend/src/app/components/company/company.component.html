@@ -108,20 +108,20 @@
                     [(ngModel)]="element.role"
                     (ngModelChange)="updateRole(element.id, element.role)">
                     <mat-option value="ADMIN" attr.data-testid="company-member-superadmin-role-{{i}}-select-option">
-                        Chief Account Officer
+                        Account Owner
                     </mat-option>
                     <mat-option value="DB_ADMIN" attr.data-testid="company-member-dbadmin-role-{{i}}-select-option">
                         System Admin
                     </mat-option>
                     <mat-option value="USER" attr.data-testid="company-member-user-role-{{i}}-select-option">
-                        Specialist
+                        Member
                     </mat-option>
                 </mat-select>
                 <ng-template #noSelect>
                     <span attr.data-testid="company-member-user-role-{{i}}-cell">
-                        {{element.role === "ADMIN" ? 'Chief Account Officer' : null}}
+                        {{element.role === "ADMIN" ? 'Account Owner' : null}}
                         {{element.role === "DB_ADMIN" ? 'System Admin' : null}}
-                        {{element.role === "USER" ? 'Specialist' : null}}
+                        {{element.role === "USER" ? 'Member' : null}}
                     </span>
                 </ng-template>
             </td>
