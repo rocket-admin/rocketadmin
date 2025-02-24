@@ -12,5 +12,6 @@ export function buildFoundUserDto(user: UserEntity): FoundUserDto {
     role: user.role,
     is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
     externalRegistrationProvider: user.externalRegistrationProvider,
+    show_test_connections: user.showTestConnections,
   };
 }
