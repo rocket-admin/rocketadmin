@@ -51,6 +51,8 @@ export class UserSettingsComponent implements OnInit {
   public currentUser: User = null;
   public submittingChangedName: boolean;
   public userName: string;
+  public submittingChangedShowTestConnections: boolean;
+  public showTestConnections: 'on' | 'off';
   public emailVerificationWarning: Alert = {
     id: 10000001,
     type: AlertType.Warning,
@@ -92,6 +94,7 @@ export class UserSettingsComponent implements OnInit {
         this.currentUser =user;
         this.userName = user.name;
         this.is2FAEnabledToggle = user.is_2fa_enabled;
+        this.showTestConnections = user.show_test_connections;
       });
     this.getAPIkeys();
   }
@@ -172,6 +175,18 @@ export class UserSettingsComponent implements OnInit {
           });
         }
       });
+  }
+
+  changeShowTestConnections(checked: boolean) {
+    const displayMode = checked ? 'on' : 'off';
+    this.submittingChangedShowTestConnections = true;
+    this._userService.updateShowTestConnections(displayMode).subscribe(() => {
+      this.submittingChangedShowTestConnections = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: show test connections is updated successfully',
+      });
+    });
+
   }
 
   getAPIkeys() {

@@ -207,4 +207,16 @@ export class CompanyComponent {
       });
     }
   }
+
+  changeShowTestConnections(checked: boolean) {
+    const displayMode = checked ? 'on' : 'off';
+    this.submitting = true;
+    this._company.updateShowTestConnections(displayMode).subscribe(() => {
+      this.submitting = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: show test connections is updated successfully',
+      });
+    });
+
+  }
 }
