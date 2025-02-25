@@ -6,7 +6,7 @@ export async function sendRequestToSaasPart(
   requestBody: Record<string, any>,
   authCookieValue: string,
 ): Promise<Response> {
-  return await fetch(`http://rocketadmin-private-microservice:3001/${route}`, {
+  return await fetch(`http://rocketadmin-private-microservice:3001/saas/${route}`, {
     method,
     body: JSON.stringify(requestBody),
     headers: {
