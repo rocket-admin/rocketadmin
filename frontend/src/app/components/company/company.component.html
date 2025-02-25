@@ -208,7 +208,8 @@
     <!--<mat-slide-toggle style="margin-top: 20px;" *ngIf="currentUser && currentUser.role === 'ADMIN'"
         name="showTestConnections"
         data-testid="company-test-connections-switch"
-        [(ngModel)]="company.show_test_connections">
+        [(ngModel)]="company.show_test_connections"
+        (change)="changeShowTestConnections($event.checked)">
         Show test connections
     </mat-slide-toggle>-->
 </div>
