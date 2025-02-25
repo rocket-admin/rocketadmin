@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -336,6 +337,9 @@ export class CompanyInfoController {
     @UserId() userId: string,
     @Query('displayMode') displayMode: string,
   ): Promise<SuccessResponse> {
+    if (displayMode !== 'on' && displayMode !== 'off') {
+      throw new BadRequestException(Messages.INVALID_DISPLAY_MODE);
+    }
     const newDisplayMode = displayMode === 'on';
     const inputData: ToggleTestConnectionDisplayModeDs = {
       userId,

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -480,6 +481,9 @@ export class UserController {
     @UserId() userId: string,
     @Query('displayMode') displayMode: string,
   ): Promise<SuccessResponse> {
+    if (displayMode !== 'on' && displayMode !== 'off') {
+      throw new BadRequestException(Messages.INVALID_DISPLAY_MODE);
+    }
     const newDisplayMode = displayMode === 'on';
     const toggleConnectionDisplayModeDs = {
       userId: userId,
