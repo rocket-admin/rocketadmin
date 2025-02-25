@@ -315,7 +315,7 @@ export class UserService {
   }
 
   updateShowTestConnections(displayMode: 'on' | 'off') {
-    return this._http.put<any>(`/user/test/connections/display`, { displayMode })
+    return this._http.put<any>(`/user/test/connections/display`, undefined, { params: { displayMode } })
       .pipe(
         map(res => {
           if (displayMode === 'on') {

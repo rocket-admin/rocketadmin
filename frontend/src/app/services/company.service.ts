@@ -203,7 +203,7 @@ export class CompanyService {
   }
 
   updateShowTestConnections(displayMode: 'on' | 'off') {
-    return this._http.put<any>(`/company/connections/display`, { displayMode })
+    return this._http.put<any>(`/company/connections/display`, undefined, { params: { displayMode }})
       .pipe(
         map(res => {
           if (displayMode === 'on') {
