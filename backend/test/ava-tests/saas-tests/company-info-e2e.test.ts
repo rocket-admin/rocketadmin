@@ -806,7 +806,7 @@ test.serial(
     });
 
     const subscriptionUpgradeResult = await fetch(
-      `http://rocketadmin-private-microservice:3001/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
+      `http://rocketadmin-private-microservice:3001/saas/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
       {
         method: 'POST',
         headers: {
