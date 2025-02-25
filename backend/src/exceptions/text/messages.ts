@@ -167,6 +167,7 @@ export const Messages = {
   INCORRECT_TABLE_LOG_ACTION_TYPE: `Incorrect log operation type, supported types are ${enumToString(
     LogOperationTypeEnum,
   )}`,
+  INVALID_DISPLAY_MODE: `Invalid display mode. Supported values are "on" and "off"`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
   INVALID_USER_COMPANY_ROLE: `Invalid user role in company. Only supported is ${enumToString(UserRoleEnum)}`,
   INVALID_JWT_TOKEN: `JWT token syntax is invalid`,
