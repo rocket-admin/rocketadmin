@@ -55,6 +55,7 @@ export class ConnectionsService {
   public currentPage: string;
   public connectionLogo: string;
   public companyName: string;
+  public defaultDisplayTable: string;
 
   private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
   private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -98,6 +99,10 @@ export class ConnectionsService {
 
   get name() {
     return this.companyName;
+  }
+
+  get defaultTableToOpen() {
+    return this.defaultDisplayTable;
   }
 
   get currentConnection() {
@@ -149,6 +154,7 @@ export class ConnectionsService {
           console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
+          this.defaultDisplayTable = res.connectionProperties.default_showing_table;
           this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
           this.connectionLogo = null;

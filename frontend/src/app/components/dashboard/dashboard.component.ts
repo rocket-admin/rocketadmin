@@ -126,6 +126,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._connections.currentConnection.isTestConnection
   }
 
+  get defaultTableToOpen () {
+    return this._connections.defaultTableToOpen;
+  }
+
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
     // this.isTestConnection = this._connections.currentConnection.isTestConnection;
@@ -175,15 +179,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.route.paramMap
         .pipe(
           map((params: ParamMap) => {
-            const tableName = params.get('table-name');
+            let tableName = params.get('table-name');
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
               this.title.setTitle(`${this.selectedTableDisplayName} table | Rocketadmin`);
               this.selection.clear();
             } else {
-              this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});
-              this.selectedTableName = this.tablesList[0].table;
+              if (this.defaultTableToOpen) {
+                tableName = this.defaultTableToOpen
+              } else {
+                tableName = this.tablesList[0].table;
+              };
+              this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], {replaceUrl: true});
+              this.selectedTableName = tableName;
             };
           })
         ).subscribe();
