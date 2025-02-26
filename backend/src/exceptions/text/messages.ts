@@ -51,6 +51,8 @@ export const Messages = {
     'It seems like the value you entered for the unique field already exists in database. Please check your input and try again with a different value',
   CANT_LIST_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to list and exclude`,
+  CANT_SHOW_TABLE_AND_EXCLUDE: (tableName: string) =>
+    `You cannot select the same table "${tableName}" to show by default and exclude`,
   CANT_VIEW_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to view and exclude`,
   CANT_ORDER_AND_EXCLUDE: `You cannot select the same field names to order and exclude`,
