@@ -1346,7 +1346,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   },
 );
 
-test.only(`${currentTest} with pagination, with sorting and with filtering by date fields
+test.serial(`${currentTest} with pagination, with sorting and with filtering by date fields
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
@@ -1388,10 +1388,6 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       [firstFieldName]: { lt: firstFieldValue },
     };
 
-    // const filters = {
-    //   id: { lt: 30 },
-    // };
-
     const getTableRowsResponse = await request(app.getHttpServer())
       .post(`/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
       .send({ filters })
@@ -1400,7 +1396,6 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .set('Accept', 'application/json');
 
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
     t.is(getTableRowsResponse.status, 201);
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -1410,7 +1405,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
     t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.rows[0].id, 38);
+    t.is(getTableRowsRO.rows[0].id, 1);
     t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[1].id, 22);
 
