@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsEmail, IsStrongPassword, MaxLength } from 'class-validator';
 
-export class ChangeUsualUserPasswordDs {
+export class ChangeUsualUserPasswordDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -25,4 +25,8 @@ export class ChangeUsualUserPasswordDs {
   @IsNotEmpty()
   @IsString()
   oldPassword: string;
+}
+
+export class ChangeUsualUserPasswordDs extends ChangeUsualUserPasswordDto {
+  userId: string;
 }
