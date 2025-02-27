@@ -103,6 +103,9 @@ export class UsersComponent implements OnInit, OnDestroy {
     this._usersService.fetchConnectionGroups(this.connectionID)
       .subscribe((res: any) => {
         // this.groups = res;
+        res.forEach(groupItem => {
+          this.fetchGroupUsers(groupItem.group.id);
+        });
         this.groups = res.sort((a, b) => {
           if (a.group.title === 'Admin') return -1;
           if (b.group.title === 'Admin') return 1;
@@ -112,6 +115,26 @@ export class UsersComponent implements OnInit, OnDestroy {
         console.log('this.groups');
         console.log(this.groups);
       });
+  }
+
+  fetchGroupUsers(groupID: string) {
+    this.users[groupID] = null;
+    this._usersService.fetcGroupUsers(groupID)
+      .subscribe(res => {
+        if (res.length) {
+          let groupUsers = [...res];
+          const userIndex = groupUsers.findIndex(user => user.email === this.currentUser.email);
+
+          if (userIndex !== -1) {
+            const user = groupUsers.splice(userIndex, 1)[0];
+            groupUsers.unshift(user);
+          }
+
+          this.users[groupID] = groupUsers;
+        } else {
+          this.users[groupID] = 'empty';
+        };
+      })
   }
 
   openCreateUsersGroupDialog(event) {
@@ -163,24 +186,5 @@ export class UsersComponent implements OnInit, OnDestroy {
       this.users[groupID] = null;
       this.fetchGroupUsers(groupID);
     };
-  }
-
-  fetchGroupUsers(groupID: string) {
-    this._usersService.fetcGroupUsers(groupID)
-      .subscribe(res => {
-        if (res.length) {
-          let groupUsers = [...res];
-          const userIndex = groupUsers.findIndex(user => user.email === this.currentUser.email);
-
-          if (userIndex !== -1) {
-            const user = groupUsers.splice(userIndex, 1)[0];
-            groupUsers.unshift(user);
-          }
-
-          this.users[groupID] = groupUsers;
-        } else {
-          this.users[groupID] = 'empty';
-        };
-      })
   }
 }
