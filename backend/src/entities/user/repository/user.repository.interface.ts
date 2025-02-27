@@ -57,4 +57,6 @@ export interface IUserRepository {
   unSuspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
 
   bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>>;
+
+  findOneUserByEmailAndGroupId(email: string, groupId: string): Promise<UserEntity>;
 }
