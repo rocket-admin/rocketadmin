@@ -23,7 +23,7 @@ export class RemoveUserFromGroupUseCase
   protected async implementation(inputData: AddUserInGroupDs): Promise<RemoveUserFromGroupResultDs> {
     const { groupId } = inputData;
     const email = inputData.email.toLowerCase();
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndGroupId(email, groupId);
     if (!foundUser) {
       throw new HttpException(
         {
@@ -47,6 +47,14 @@ export class RemoveUserFromGroupUseCase
         return e.id;
       })
       .indexOf(foundUser.id);
+    if (delIndex === -1) {
+      throw new HttpException(
+        {
+          message: Messages.USER_NOT_FOUND,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     groupToUpdate.users.splice(delIndex, 1);
     const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
     return buildRemoveUserFromGroupResultDs(updatedGroup);
