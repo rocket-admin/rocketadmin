@@ -65,6 +65,9 @@ export interface User {
     is_2fa_enabled: boolean,
     role: CompanyMemberRole,
     externalRegistrationProvider: RegistrationProvider | null,
+    company: {
+        id: string,
+    }
 }
 
 export enum AccessLevel {
