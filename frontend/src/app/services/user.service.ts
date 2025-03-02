@@ -23,6 +23,9 @@ export class UserService {
     is_2fa_enabled: false,
     role: CompanyMemberRole.Specialist,
     externalRegistrationProvider: null,
+    company: {
+      id: ''
+    }
   }
 
   private user = new BehaviorSubject<any>(this.initialUserState);
