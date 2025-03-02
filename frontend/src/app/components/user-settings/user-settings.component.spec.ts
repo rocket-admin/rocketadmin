@@ -77,7 +77,10 @@ describe('UserSettingsComponent', () => {
       "subscriptionLevel": SubscriptionPlans.free,
       "is_2fa_enabled": false,
       role: CompanyMemberRole.Specialist,
-      externalRegistrationProvider: null
+      externalRegistrationProvider: null,
+      company: {
+        id: 'company_123',
+      }
     }
 
     component.confirmDeleteAccount();

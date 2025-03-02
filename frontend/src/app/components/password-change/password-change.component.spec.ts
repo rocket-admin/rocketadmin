@@ -68,7 +68,10 @@ describe('PasswordChangeComponent', () => {
       subscriptionLevel: SubscriptionPlans.free,
       "is_2fa_enabled": false,
       role: CompanyMemberRole.Specialist,
-      externalRegistrationProvider: null
+      externalRegistrationProvider: null,
+      company: {
+        id: 'company_123',
+      }
 
     };
     const fakeChangePassword = spyOn(userService, 'changePassword').and.returnValue(of());

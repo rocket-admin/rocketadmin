@@ -148,7 +148,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       });
   }
 
-  private fetchAndPopulateGroupUsers(groupId: string): Observable<any[]> {
+  fetchAndPopulateGroupUsers(groupId: string): Observable<any[]> {
     return this._usersService.fetcGroupUsers(groupId).pipe(
       tap((res: any[]) => {
         if (res.length) {
@@ -192,7 +192,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     const availableMembers = differenceBy(this.companyMembers, this.users[group.id] as [], 'email');
     this.dialog.open(UserAddDialogComponent, {
       width: '25em',
-      data: { availableMembers, group}
+      data: { availableMembers, group }
     })
   }
 
