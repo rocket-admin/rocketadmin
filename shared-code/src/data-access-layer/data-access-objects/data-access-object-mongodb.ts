@@ -72,7 +72,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
 
     if (identityColumnName === '_id') {
-      fieldValues.map((value) => this.createObjectIdFromSting(String(value)));
+      fieldValues = fieldValues.map((value) => this.createObjectIdFromSting(String(value))) as any;
     }
 
     const query = {
