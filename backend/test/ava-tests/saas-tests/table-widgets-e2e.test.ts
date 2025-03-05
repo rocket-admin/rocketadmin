@@ -3,26 +3,27 @@ import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import JSON5 from 'json5';
+import { MongoClient } from 'mongodb';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { CreateOrUpdateTableWidgetsDto } from '../../../src/entities/widget/dto/create-table-widget.dto.js';
+import { WidgetTypeEnum } from '../../../src/enums/widget-type.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { compareTableWidgetsArrays } from '../../utils/compare-table-widgets-arrays.js';
+import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
+import { getTestKnex } from '../../utils/get-test-knex.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { CreateOrUpdateTableWidgetsDto } from '../../../src/entities/widget/dto/create-table-widget.dto.js';
-import { WidgetTypeEnum } from '../../../src/enums/widget-type.enum.js';
-import { createTestTable } from '../../utils/create-test-table.js';
-import { getTestKnex } from '../../utils/get-test-knex.js';
-import JSON5 from 'json5';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -782,3 +783,134 @@ test.serial(`${currentTest} should return created table widgets`, async (t) => {
   t.is(getTableStructureRO.foreignKeys[0].hasOwnProperty('autocomplete_columns'), true);
   t.is(getTableStructureRO.foreignKeys[0].autocomplete_columns.length, 5);
 });
+
+// Table widgets for mongodb database
+test.serial(
+  `${currentTest} should return created table widgets as foreign keys, when database is mongodb`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const { token } = await registerUserAndReturnUserInfo(app);
+
+    const mongoConnectionString =
+      `mongodb://${connectionToTestDB.username}` +
+      `:${connectionToTestDB.password}` +
+      `@${connectionToTestDB.host}` +
+      `:${connectionToTestDB.port}` +
+      `/${connectionToTestDB.database}`;
+
+    const referencedOnTableTableName = `users`;
+    const referencedByTableName = `orders`;
+    const testTableColumnName = `user_name`;
+    const testReferencedColumnsName = `product_description`;
+    const referencedByColumnName = 'user_id';
+    const referencedOnColumnName = '_id';
+
+    const client = new MongoClient(mongoConnectionString);
+    await client.connect();
+    const db = client.db(connectionToTestDB.database);
+    const referencedCollection = db.collection(referencedOnTableTableName);
+    const referencedByCollection = db.collection(referencedByTableName);
+
+    await referencedCollection.drop();
+    await referencedByCollection.drop();
+
+    const insertedReferencedIds = [];
+    for (let index = 0; index < 42; index++) {
+      const insertedReferencedId = await referencedCollection.insertOne({
+        [testTableColumnName]: faker.person.fullName(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+      insertedReferencedIds.push(insertedReferencedId.insertedId.toHexString());
+    }
+
+    for (let index = 0; index < 42; index++) {
+      await referencedByCollection.insertOne({
+        [referencedByColumnName]: insertedReferencedIds[index],
+        [testReferencedColumnsName]: faker.lorem.lines(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    }
+
+    const foreignKeyWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+      widgets: [
+        {
+          widget_type: WidgetTypeEnum.Foreign_key,
+          widget_params: JSON.stringify({
+            referenced_column_name: referencedOnColumnName,
+            referenced_table_name: referencedOnTableTableName,
+            constraint_name: 'manually_created_constraint',
+            column_name: referencedByColumnName,
+          }),
+          field_name: referencedByColumnName,
+          description: 'User ID as foreign key',
+          name: 'User ID',
+          widget_options: JSON.stringify({}),
+        },
+      ],
+    };
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+    const connectionId = createConnectionRO.id;
+
+    const createTableWidgetResponse = await request(app.getHttpServer())
+      .post(`/widget/${connectionId}?tableName=${referencedByTableName}`)
+      .send(foreignKeyWidgetsDTO)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+    console.log('🚀 ~ createTableWidgetRO:', createTableWidgetRO);
+    t.is(createTableWidgetResponse.status, 201);
+
+    const getTableWidgets = await request(app.getHttpServer())
+      .get(`/widgets/${connectionId}?tableName=${referencedByTableName}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    t.is(getTableWidgets.status, 200);
+    const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+    t.is(typeof getTableWidgetsRO, 'object');
+    t.is(getTableWidgetsRO.length, 1);
+
+    t.is(getTableWidgetsRO[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+
+    const getTableStructureResponse = await request(app.getHttpServer())
+      .get(`/table/structure/${connectionId}?tableName=${referencedByTableName}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
+
+    t.is(getTableStructureResponse.status, 200);
+    t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
+    t.is(getTableStructureRO.table_widgets.length, 1);
+    t.is(getTableStructureRO.table_widgets[0].field_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+    t.is(getTableStructureRO.table_widgets[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+    t.is(getTableStructureRO.hasOwnProperty('foreignKeys'), true);
+    t.is(getTableStructureRO.foreignKeys.length, 1);
+    t.is(getTableStructureRO.foreignKeys[0].column_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+    t.is(getTableStructureRO.foreignKeys[0].referenced_table_name, referencedOnTableTableName);
+
+    // check table rows received with foreign keys from widget
+
+    const getRowsResponse = await request(app.getHttpServer())
+      .get(`/table/rows/${connectionId}?tableName=${referencedByTableName}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    t.is(getRowsResponse.status, 200);
+    const getRowsRO = JSON.parse(getRowsResponse.text);
+    t.is(typeof getRowsRO.rows[0], 'object');
+    t.is(getRowsRO.rows[0].hasOwnProperty('_id'), true);
+  },
+);
