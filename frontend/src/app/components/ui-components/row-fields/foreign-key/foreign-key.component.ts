@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
 import { RouterModule } from '@angular/router';
+import { TableForeignKey } from 'src/app/models/table';
 
 interface Suggestion {
   displayString: string;
@@ -50,6 +51,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
   public identityColumn: string;
   public primaeyKeys: {data_type: string, column_name: string}[];
 
+  public fkRelations: TableForeignKey = null;
   autocmpleteUpdate = new Subject<string>();
 
   constructor(
@@ -69,12 +71,22 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
   ngOnInit(): void {
     super.ngOnInit();
     this.connectionID = this._connections.currentConnectionID;
-    this.relations && this._tables.fetchTable({
+
+    if (this.widgetStructure && this.widgetStructure.widget_params) {
+      this.fkRelations = this.widgetStructure.widget_params as TableForeignKey;
+    } else if (this.relations) {
+      this.fkRelations = this.relations;
+    }
+
+    console.log('test fkRelations');
+    console.log(this.fkRelations);
+
+    this.fkRelations && this._tables.fetchTable({
         connectionID: this.connectionID,
-        tableName: this.relations.referenced_table_name,
+        tableName: this.fkRelations.referenced_table_name,
         requstedPage: 1,
         chunkSize: 10,
-        foreignKeyRowName: this.relations.referenced_column_name,
+        foreignKeyRowName: this.fkRelations.referenced_column_name,
         foreignKeyRowValue: this.value
       }).subscribe((res: any) => {
         if (res.rows.length) {
@@ -88,7 +100,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
                 Object.values(modifiedRow).filter(value => value).join(' | ');
               console.log('test identityColumn');
               console.log(this.currentDisplayedString);
-              this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
+              this.currentFieldValue = res.rows[0][this.fkRelations.referenced_column_name];
             this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
             this.onFieldChange.emit(this.currentFieldValue);
           }
@@ -96,12 +108,12 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
 
         this._tables.fetchTable({
           connectionID: this.connectionID,
-          tableName: this.relations.referenced_table_name,
+          tableName: this.fkRelations.referenced_table_name,
           requstedPage: 1,
           chunkSize: 20,
           foreignKeyRowName: 'autocomplete',
           foreignKeyRowValue: '',
-          referencedColumn: this.relations.referenced_column_name
+          referencedColumn: this.fkRelations.referenced_column_name
           }).subscribe((res:any) => {
             this.identityColumn = res.identity_column;
             this.suggestions = res.rows.map(row => {
@@ -109,7 +121,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
               return {
                 displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` : Object.values(modifiedRow).filter(value => value).join(' | '),
                 primaryKeys: Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: row[primaeyKey.column_name]}))),
-                fieldValue: row[this.relations.referenced_column_name]
+                fieldValue: row[this.fkRelations.referenced_column_name]
               }
             });
             this.fetching = false;
@@ -127,12 +139,12 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
       this.fetching = true;
       this._tables.fetchTable({
         connectionID: this.connectionID,
-        tableName: this.relations.referenced_table_name,
+        tableName: this.fkRelations.referenced_table_name,
         requstedPage: 1,
         chunkSize: 20,
         foreignKeyRowName: 'autocomplete',
         foreignKeyRowValue: this.currentDisplayedString,
-        referencedColumn: this.relations.referenced_column_name
+        referencedColumn: this.fkRelations.referenced_column_name
       }).subscribe((res: any) => {
         this.identityColumn = res.identity_column;
         if (res.rows.length === 0) {
@@ -145,7 +157,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
             return {
               displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` : Object.values(modifiedRow).filter(value => value).join(' | '),
               primaryKeys: Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: row[primaeyKey.column_name]}))),
-              fieldValue: row[this.relations.referenced_column_name]
+              fieldValue: row[this.fkRelations.referenced_column_name]
             }
           });
         }
@@ -156,9 +168,9 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
 
   getModifiedRow(row) {
     let modifiedRow;
-    if (this.relations.autocomplete_columns && this.relations.autocomplete_columns.length > 0) {
-      let autocompleteColumns = [...this.relations.autocomplete_columns]
-      if (this.identityColumn) autocompleteColumns.splice(this.relations.autocomplete_columns.indexOf(this.identityColumn), 1);
+    if (this.fkRelations.autocomplete_columns && this.fkRelations.autocomplete_columns.length > 0) {
+      let autocompleteColumns = [...this.fkRelations.autocomplete_columns]
+      if (this.identityColumn) autocompleteColumns.splice(this.fkRelations.autocomplete_columns.indexOf(this.identityColumn), 1);
       modifiedRow = autocompleteColumns
         .reduce((rowObject, columnName)=> (rowObject[columnName]=row[columnName],rowObject),{});
     } else {
