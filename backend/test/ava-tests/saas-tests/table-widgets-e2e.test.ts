@@ -679,7 +679,7 @@ test.serial(`${currentTest} should throw exception when tableName not passed in 
 
 //foreign key widget tests
 currentTest = 'POST /widget/:slug/';
-test.serial(`${currentTest} should return created table widgets`, async (t) => {
+test.serial(`${currentTest} should return created table widgets for postgres database`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
   const { token } = await registerUserAndReturnUserInfo(app);
   const firstTableData = await createTestTable(connectionToTestDB);
@@ -782,6 +782,20 @@ test.serial(`${currentTest} should return created table widgets`, async (t) => {
   t.is(widgetParams.column_name, referencedColumnName);
   t.is(getTableStructureRO.foreignKeys[0].hasOwnProperty('autocomplete_columns'), true);
   t.is(getTableStructureRO.foreignKeys[0].autocomplete_columns.length, 5);
+
+  // check table rows received with foreign keys from widget
+
+  const getRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${connectionId}?tableName=${referencedTableTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  t.is(getRowsResponse.status, 200);
+  const getRowsRO = JSON.parse(getRowsResponse.text);
+  t.is(typeof getRowsRO.rows[0], 'object');
+  for (const row of getRowsRO.rows) {
+    t.is(row.hasOwnProperty('id'), true);
+  }
 });
 
 // Table widgets for mongodb database
@@ -868,7 +882,6 @@ test.serial(
       .set('Cookie', token)
       .set('Accept', 'application/json');
     const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-    console.log('🚀 ~ createTableWidgetRO:', createTableWidgetRO);
     t.is(createTableWidgetResponse.status, 201);
 
     const getTableWidgets = await request(app.getHttpServer())
@@ -911,6 +924,8 @@ test.serial(
     t.is(getRowsResponse.status, 200);
     const getRowsRO = JSON.parse(getRowsResponse.text);
     t.is(typeof getRowsRO.rows[0], 'object');
-    t.is(getRowsRO.rows[0].hasOwnProperty('_id'), true);
+    for (const row of getRowsRO.rows) {
+      t.is(row.hasOwnProperty('_id'), true);
+    }
   },
 );
