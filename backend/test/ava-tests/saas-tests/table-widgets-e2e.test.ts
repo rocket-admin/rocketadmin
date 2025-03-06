@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import ibmdb from 'ibm_db';
 import JSON5 from 'json5';
 import { MongoClient } from 'mongodb';
 import request from 'supertest';
@@ -24,6 +25,8 @@ import { getTestData } from '../../utils/get-test-data.js';
 import { getTestKnex } from '../../utils/get-test-knex.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
+import { nanoid } from 'nanoid';
+import { getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -1166,6 +1169,168 @@ test.serial(
     }
   },
 );
+
+test.serial(`${currentTest} should return created table widgets for IBMDB2 database and return rows with attached foreign entities info`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const firstTableData = await createTestTable(connectionToTestDB);
+  const connectionParamsCopy = {
+    ...connectionToTestDB,
+  };
+  if (connectionToTestDB.type === 'mysql') {
+    connectionParamsCopy.type = 'mysql2';
+  }
+
+  const connStr = `DATABASE=${connectionToTestDB.database};HOSTNAME=${connectionToTestDB.host};UID=${connectionToTestDB.username};PWD=${connectionToTestDB.password};PORT=${connectionToTestDB.port};PROTOCOL=TCPIP`;
+  const ibmDatabase = ibmdb();
+  await ibmDatabase.open(connStr);
+
+  const referencedByTableTableName = getRandomTestTableName().toUpperCase();
+  const referencedColumnName = 'REFERENCED_ON_ID';
+
+  const queryCheckSchemaExists = `SELECT COUNT(*) FROM SYSCAT.SCHEMATA WHERE SCHEMANAME = '${connectionToTestDB.schema}'`;
+  const schemaExists = await ibmDatabase.query(queryCheckSchemaExists);
+
+  if (!schemaExists.length || !schemaExists[0]['1']) {
+    const queryCreateSchema = `CREATE SCHEMA ${connectionToTestDB.schema}`;
+    try {
+      await ibmDatabase.query(queryCreateSchema);
+    } catch (error) {
+      console.error(`Error while creating schema: ${error}`);
+      console.info(`Query: ${queryCreateSchema}`);
+    }
+  }
+
+  const queryCheckTableExists = `SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABNAME = '${referencedByTableTableName}' AND TABSCHEMA = '${connectionToTestDB.schema}'`;
+  const tableExists = await ibmDatabase.query(queryCheckTableExists);
+
+  if (tableExists.length && tableExists[0]['1']) {
+    await ibmDatabase.query(`DROP TABLE ${connectionToTestDB.schema}.${referencedByTableTableName}`);
+  }
+
+  const testColumnName = `product_description`;
+  const query = `
+    CREATE TABLE ${connectionToTestDB.schema}.${referencedByTableTableName} (
+      id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+      ${referencedColumnName} INTEGER,
+      ${testColumnName} VARCHAR(255),
+      created_at TIMESTAMP DEFAULT CURRENT TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT TIMESTAMP,
+      PRIMARY KEY (id)
+  )`;
+
+  try {
+    await ibmDatabase.query(query);
+  } catch (error) {
+    console.error(`Error while creating table: ${error}`);
+    console.info(`Query: ${query}`);
+  }
+
+  for (let index = 0; index < 42; index++) {
+    const insertQuery = `INSERT INTO ${
+      connectionToTestDB.schema
+    }.${referencedByTableTableName} (${referencedColumnName}, ${testColumnName}, created_at, updated_at) VALUES (${faker.number.int({ min: 1, max: 42 })}, '${faker.lorem.words(1).replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
+
+    await ibmDatabase.query(insertQuery);
+  }
+
+  const foreignKeyWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+    widgets: [
+      {
+        widget_type: WidgetTypeEnum.Foreign_key,
+        widget_params: JSON.stringify({
+          referenced_column_name: 'ID',
+          referenced_table_name: firstTableData.testTableName,
+          constraint_name: 'manually_created_constraint',
+          column_name: referencedColumnName,
+        }),
+        field_name: referencedColumnName,
+        description: 'User ID as foreign key',
+        name: 'User ID',
+        widget_options: JSON.stringify({}),
+      },
+    ],
+  };
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const connectionId = createConnectionRO.id;
+
+  const findTablesResponse = await request(app.getHttpServer())
+    .get(`/connection/tables/${connectionId}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  const findTablesRO = JSON.parse(findTablesResponse.text);
+  t.is(findTablesResponse.status, 200);
+
+  const createTableWidgetResponse = await request(app.getHttpServer())
+    .post(`/widget/${connectionId}?tableName=${referencedByTableTableName}`)
+    .send(foreignKeyWidgetsDTO)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+
+  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  t.is(createTableWidgetResponse.status, 201);
+
+  const getTableWidgets = await request(app.getHttpServer())
+    .get(`/widgets/${connectionId}?tableName=${referencedByTableTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  t.is(getTableWidgets.status, 200);
+  const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+  t.is(typeof getTableWidgetsRO, 'object');
+  t.is(getTableWidgetsRO.length, 1);
+
+  t.is(getTableWidgetsRO[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+
+  const getTableStructureResponse = await request(app.getHttpServer())
+    .get(`/table/structure/${connectionId}?tableName=${referencedByTableTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+
+  const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
+  t.is(getTableStructureResponse.status, 200);
+  t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
+  t.is(getTableStructureRO.table_widgets.length, 1);
+  t.is(getTableStructureRO.table_widgets[0].field_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+  t.is(getTableStructureRO.table_widgets[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+  t.is(getTableStructureRO.hasOwnProperty('foreignKeys'), true);
+  t.is(getTableStructureRO.foreignKeys.length, 1);
+  t.is(getTableStructureRO.foreignKeys[0].column_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+  t.is(getTableStructureRO.foreignKeys[0].referenced_table_name, firstTableData.testTableName);
+  const widgetParams = JSON5.parse(getTableStructureRO.table_widgets[0].widget_params);
+  t.is(widgetParams.referenced_table_name, firstTableData.testTableName);
+  t.is(widgetParams.referenced_column_name, 'ID');
+  t.is(widgetParams.constraint_name, 'manually_created_constraint');
+  t.is(widgetParams.column_name, referencedColumnName);
+  t.is(getTableStructureRO.foreignKeys[0].hasOwnProperty('autocomplete_columns'), true);
+  t.is(getTableStructureRO.foreignKeys[0].autocomplete_columns.length, 5);
+
+  // check table rows received with foreign keys from widget
+
+  const getRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${connectionId}?tableName=${referencedByTableTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  const getRowsRO = JSON.parse(getRowsResponse.text);
+  t.is(getRowsResponse.status, 200);
+
+  t.is(typeof getRowsRO.rows[0], 'object');
+  for (const row of getRowsRO.rows) {
+    t.is(row.hasOwnProperty('ID'), true);
+  }
+});
 
 // Table widgets for mongodb database
 test.serial(
