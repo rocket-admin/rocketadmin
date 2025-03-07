@@ -23,7 +23,7 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@ne
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('table logs')
+@ApiTags('Table logs')
 @Injectable()
 export class TableLogsController {
   constructor(
@@ -34,21 +34,22 @@ export class TableLogsController {
   ) {}
 
   @ApiOperation({
-    summary: `Get all connection logs.
-  In query you can pass:
-  tableName=value |
-  order=ASC (sorting by time when  record was created at) |
-  page=value &
-  perPage=value |
-  dateFrom=value &
-  dateTo=value (to get logs between two dates) |
-  email=value |
-  limit=value (if you do not want use pagination. default limit is 500) 
-  `,
+    summary: 'Find all connection logs.',
+    description: `
+      You can provide the following query parameters:
+      - \`tableName=value\`: Specify the table name.
+      - \`order=ASC|DESC\`: Sorting order by creation time.
+      - \`page=value\`: Page number for pagination.
+      - \`perPage=value\`: Number of records per page.
+      - \`dateFrom=value\`: Start date to filter logs.
+      - \`dateTo=value\`: End date to filter logs.
+      - \`email=value\`: Filter logs by email.
+      - \`limit=value\`: Max number of logs to return (default: 500).
+    `,
   })
   @ApiResponse({
     status: 200,
-    description: 'Return all table logs.',
+    description: 'Logs found.',
     type: FoundLogsDs,
   })
   @ApiQuery({ name: 'tableName', required: false })
@@ -87,21 +88,22 @@ export class TableLogsController {
   }
 
   @ApiOperation({
-    summary: `Export connection logs as csv file.
-  In query you can pass:
-  tableName=value |
-  order=ASC (sorting by time when  record was created at) |
-  page=value &
-  perPage=value |
-  dateFrom=value &
-  dateTo=value (to get logs between two dates) |
-  email=value |
-  limit=value (if you do not want use pagination. default limit is 500) 
-  `,
+    summary: 'Export connection logs as a CSV file.',
+    description: `
+      You can provide the following query parameters:
+      - \`tableName=value\`: Specify the table name.
+      - \`order=ASC|DESC\`: Sorting order by creation time.
+      - \`page=value\`: Page number for pagination.
+      - \`perPage=value\`: Number of records per page.
+      - \`dateFrom=value\`: Start date to filter logs.
+      - \`dateTo=value\`: End date to filter logs.
+      - \`email=value\`: Filter logs by email.
+      - \`limit=value\`: Max number of logs to return (default: 500).
+    `,
   })
   @ApiResponse({
     status: 200,
-    description: 'Export table logs as CSV.',
+    description: 'Logs exported.',
   })
   @ApiQuery({ name: 'tableName', required: false })
   @ApiQuery({ name: 'order', required: false })

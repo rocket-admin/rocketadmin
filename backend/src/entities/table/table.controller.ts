@@ -7,24 +7,30 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  ParseFilePipeBuilder,
   Post,
   Put,
   Query,
   StreamableFile,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  ParseFilePipeBuilder,
-  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
 import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards/index.js';
+import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
+import { Constants } from '../../helpers/constants/constants.js';
 import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers/index.js';
+import { isObjectPropertyExists } from '../../helpers/validators/is-object-property-exists-validator.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
 import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds.js';
 import { DeleteRowFromTableDs, DeleteRowsFromTableDs } from './application/data-structures/delete-row-from-table.ds.js';
@@ -35,8 +41,12 @@ import { FoundTableDs } from './application/data-structures/found-table.ds.js';
 import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds.js';
 import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds.js';
 import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds.js';
+import { ImportCSVInTableDs } from './application/data-structures/import-scv-in-table.ds.js';
 import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds.js';
-import { TableStructureDs, TableRowRODs } from './table-datastructures.js';
+import { UpdateRowsInTableDs } from './application/data-structures/update-rows-in-table.ds.js';
+import { FindAllRowsWithBodyFiltersDto } from './dto/find-rows-with-body-filters.dto.js';
+import { UpdateRowsDto } from './dto/update-rows.dto.js';
+import { TableRowRODs, TableStructureDs } from './table-datastructures.js';
 import {
   IAddRowInTable,
   IBulkUpdateRowsInTable,
@@ -50,21 +60,11 @@ import {
   IImportCSVFinTable,
   IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UpdateRowsDto } from './dto/update-rows.dto.js';
-import { UpdateRowsInTableDs } from './application/data-structures/update-rows-in-table.ds.js';
-import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { FindAllRowsWithBodyFiltersDto } from './dto/find-rows-with-body-filters.dto.js';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Constants } from '../../helpers/constants/constants.js';
-import { ImportCSVInTableDs } from './application/data-structures/import-scv-in-table.ds.js';
-import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
-import { isObjectPropertyExists } from '../../helpers/validators/is-object-property-exists-validator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('table')
+@ApiTags('Table')
 @Injectable()
 export class TableController {
   constructor(
@@ -95,10 +95,13 @@ export class TableController {
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
-  @ApiOperation({ summary: 'Get tables from connection. API+' })
+  @ApiOperation({
+    summary: 'Find tables in connection. API+',
+    description: 'Return all found tables in connection. Support access with api key.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Returns all tables from connection.',
+    description: 'Tables found.',
     type: FoundTableDs,
     isArray: true,
   })
@@ -129,7 +132,7 @@ export class TableController {
     return await this.findTablesInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all table rows. API+' })
+  @ApiOperation({ summary: 'Get all table rows. API+', deprecated: true, description: 'Deprecated' })
   @ApiResponse({
     status: 200,
     description: 'Returns all table rows.',
@@ -184,10 +187,13 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all table rows with filter parameters in body. API+' })
+  @ApiOperation({
+    summary: 'Get all table rows with filter parameters in body. API+',
+    description: 'Return all found table rows. Support access with api key. Support search, filtering and pagination.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Returns all table rows.',
+    description: 'Table rows found.',
     type: FoundTableRowsDs,
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
@@ -242,10 +248,13 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get table structure. API+' })
+  @ApiOperation({
+    summary: 'Get table structure. API+',
+    description: 'Return table structure. Support access with api key.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Returns table structure.',
+    description: 'Table structure found.',
     type: TableStructureDs,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -274,11 +283,14 @@ export class TableController {
     return await this.getTableStructureUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Add row in table. API+' })
+  @ApiOperation({
+    summary: 'Add new row in table. API+',
+    description: 'Add new row in table. Support access with api key.',
+  })
   @ApiBody({ type: Object })
   @ApiResponse({
     status: 201,
-    description: 'Add row in table.',
+    description: 'New row added.',
     type: TableRowRODs,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -308,11 +320,14 @@ export class TableController {
     };
     return await this.addRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
-  @ApiOperation({ summary: 'Update row in table by primary key. API+' })
+  @ApiOperation({
+    summary: 'Update row in table by primary key. API+',
+    description: 'Update row in table by primary key (if table has primary key). Support access with api key.',
+  })
   @ApiBody({ type: Object })
   @ApiResponse({
     status: 200,
-    description: 'Update row in table.',
+    description: 'Row updated.',
     type: TableRowRODs,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -351,10 +366,13 @@ export class TableController {
     return await this.updateRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete row from table by primary key. API+' })
+  @ApiOperation({
+    summary: 'Delete row from table by primary key. API+',
+    description: 'Delete row from table by primary key (if table has primary key). Support access with api key.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Delete row from table.',
+    description: 'Row deleted.',
     type: DeletedRowFromTableDs,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -391,10 +409,13 @@ export class TableController {
     return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Multiple delete rows from table by primary key. API+' })
+  @ApiOperation({
+    summary: 'Multiple delete rows from table by primary key. API+',
+    description: 'Remove multiple rows from table. Support access with api key.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Delete rows from table.',
+    description: 'Rows deleted.',
     type: Object,
     isArray: true,
   })
@@ -434,10 +455,13 @@ export class TableController {
     return await this.deleteRowsFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Multiple update rows in table by primary key. API+' })
+  @ApiOperation({
+    summary: 'Multiple update rows in table by primary key. API+',
+    description: 'Set new values to several rows. Support access with api key.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Update rows in table.',
+    description: 'Rows updated.',
     type: SuccessResponse,
   })
   @ApiBody({ type: UpdateRowsDto })
@@ -471,10 +495,13 @@ export class TableController {
     return await this.bulkUpdateRowsInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get row from table by primary key. API+' })
+  @ApiOperation({
+    summary: 'Find row in table by primary key. API+',
+    description: 'Return row by primary key. Support access with api key.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Get row from table.',
+    description: 'Row found.',
     type: TableRowRODs,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -521,10 +548,14 @@ export class TableController {
     }
   }
 
-  @ApiOperation({ summary: 'Export table as csv file. API+' })
+  @ApiOperation({
+    summary: 'Export table as csv file. API+',
+    description:
+      'Export data from table as csv file. Support search, filtering and pagination. Support access with api key.',
+  })
   @ApiResponse({
     status: 201,
-    description: 'Export table as csv file.',
+    description: 'Data exported.',
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @ApiQuery({ name: 'tableName', required: true })
@@ -578,7 +609,10 @@ export class TableController {
     return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Import csv file in table. API+' })
+  @ApiOperation({
+    summary: 'Import csv file in table. API+',
+    description: 'Import data from csv file in table. Support access with api key.',
+  })
   @ApiResponse({
     status: 201,
     description: 'Import csv file in table.',
