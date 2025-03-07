@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -21,12 +23,11 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { compareTableWidgetsArrays } from '../../utils/compare-table-widgets-arrays.js';
 import { createTestTable } from '../../utils/create-test-table.js';
+import { getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { getTestKnex } from '../../utils/get-test-knex.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { nanoid } from 'nanoid';
-import { getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -800,6 +801,8 @@ test.serial(
     t.is(typeof getRowsRO.rows[0], 'object');
     for (const row of getRowsRO.rows) {
       t.is(row.hasOwnProperty('id'), true);
+      t.is(row.hasOwnProperty(referencedColumnName), true);
+      t.is(row[referencedColumnName].hasOwnProperty('id'), true);
     }
   },
 );
@@ -1170,46 +1173,48 @@ test.serial(
   },
 );
 
-test.serial(`${currentTest} should return created table widgets for IBMDB2 database and return rows with attached foreign entities info`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const firstTableData = await createTestTable(connectionToTestDB);
-  const connectionParamsCopy = {
-    ...connectionToTestDB,
-  };
-  if (connectionToTestDB.type === 'mysql') {
-    connectionParamsCopy.type = 'mysql2';
-  }
-
-  const connStr = `DATABASE=${connectionToTestDB.database};HOSTNAME=${connectionToTestDB.host};UID=${connectionToTestDB.username};PWD=${connectionToTestDB.password};PORT=${connectionToTestDB.port};PROTOCOL=TCPIP`;
-  const ibmDatabase = ibmdb();
-  await ibmDatabase.open(connStr);
-
-  const referencedByTableTableName = getRandomTestTableName().toUpperCase();
-  const referencedColumnName = 'REFERENCED_ON_ID';
-
-  const queryCheckSchemaExists = `SELECT COUNT(*) FROM SYSCAT.SCHEMATA WHERE SCHEMANAME = '${connectionToTestDB.schema}'`;
-  const schemaExists = await ibmDatabase.query(queryCheckSchemaExists);
-
-  if (!schemaExists.length || !schemaExists[0]['1']) {
-    const queryCreateSchema = `CREATE SCHEMA ${connectionToTestDB.schema}`;
-    try {
-      await ibmDatabase.query(queryCreateSchema);
-    } catch (error) {
-      console.error(`Error while creating schema: ${error}`);
-      console.info(`Query: ${queryCreateSchema}`);
+test.serial(
+  `${currentTest} should return created table widgets for IBMDB2 database and return rows with attached foreign entities info`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
+    const { token } = await registerUserAndReturnUserInfo(app);
+    const firstTableData = await createTestTable(connectionToTestDB);
+    const connectionParamsCopy = {
+      ...connectionToTestDB,
+    };
+    if (connectionToTestDB.type === 'mysql') {
+      connectionParamsCopy.type = 'mysql2';
     }
-  }
 
-  const queryCheckTableExists = `SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABNAME = '${referencedByTableTableName}' AND TABSCHEMA = '${connectionToTestDB.schema}'`;
-  const tableExists = await ibmDatabase.query(queryCheckTableExists);
+    const connStr = `DATABASE=${connectionToTestDB.database};HOSTNAME=${connectionToTestDB.host};UID=${connectionToTestDB.username};PWD=${connectionToTestDB.password};PORT=${connectionToTestDB.port};PROTOCOL=TCPIP`;
+    const ibmDatabase = ibmdb();
+    await ibmDatabase.open(connStr);
 
-  if (tableExists.length && tableExists[0]['1']) {
-    await ibmDatabase.query(`DROP TABLE ${connectionToTestDB.schema}.${referencedByTableTableName}`);
-  }
+    const referencedByTableTableName = getRandomTestTableName().toUpperCase();
+    const referencedColumnName = 'REFERENCED_ON_ID';
 
-  const testColumnName = `product_description`;
-  const query = `
+    const queryCheckSchemaExists = `SELECT COUNT(*) FROM SYSCAT.SCHEMATA WHERE SCHEMANAME = '${connectionToTestDB.schema}'`;
+    const schemaExists = await ibmDatabase.query(queryCheckSchemaExists);
+
+    if (!schemaExists.length || !schemaExists[0]['1']) {
+      const queryCreateSchema = `CREATE SCHEMA ${connectionToTestDB.schema}`;
+      try {
+        await ibmDatabase.query(queryCreateSchema);
+      } catch (error) {
+        console.error(`Error while creating schema: ${error}`);
+        console.info(`Query: ${queryCreateSchema}`);
+      }
+    }
+
+    const queryCheckTableExists = `SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABNAME = '${referencedByTableTableName}' AND TABSCHEMA = '${connectionToTestDB.schema}'`;
+    const tableExists = await ibmDatabase.query(queryCheckTableExists);
+
+    if (tableExists.length && tableExists[0]['1']) {
+      await ibmDatabase.query(`DROP TABLE ${connectionToTestDB.schema}.${referencedByTableTableName}`);
+    }
+
+    const testColumnName = `product_description`;
+    const query = `
     CREATE TABLE ${connectionToTestDB.schema}.${referencedByTableTableName} (
       id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
       ${referencedColumnName} INTEGER,
@@ -1219,118 +1224,121 @@ test.serial(`${currentTest} should return created table widgets for IBMDB2 datab
       PRIMARY KEY (id)
   )`;
 
-  try {
-    await ibmDatabase.query(query);
-  } catch (error) {
-    console.error(`Error while creating table: ${error}`);
-    console.info(`Query: ${query}`);
-  }
+    try {
+      await ibmDatabase.query(query);
+    } catch (error) {
+      console.error(`Error while creating table: ${error}`);
+      console.info(`Query: ${query}`);
+    }
 
-  for (let index = 0; index < 42; index++) {
-    const insertQuery = `INSERT INTO ${
-      connectionToTestDB.schema
-    }.${referencedByTableTableName} (${referencedColumnName}, ${testColumnName}, created_at, updated_at) VALUES (${faker.number.int({ min: 1, max: 42 })}, '${faker.lorem.words(1).replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
+    for (let index = 0; index < 42; index++) {
+      const insertQuery = `INSERT INTO ${
+        connectionToTestDB.schema
+      }.${referencedByTableTableName} (${referencedColumnName}, ${testColumnName}, created_at, updated_at) VALUES (${faker.number.int({ min: 1, max: 42 })}, '${faker.lorem.words(1).replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
 
-    await ibmDatabase.query(insertQuery);
-  }
+      await ibmDatabase.query(insertQuery);
+    }
 
-  const foreignKeyWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
-    widgets: [
-      {
-        widget_type: WidgetTypeEnum.Foreign_key,
-        widget_params: JSON.stringify({
-          referenced_column_name: 'ID',
-          referenced_table_name: firstTableData.testTableName,
-          constraint_name: 'manually_created_constraint',
-          column_name: referencedColumnName,
-        }),
-        field_name: referencedColumnName,
-        description: 'User ID as foreign key',
-        name: 'User ID',
-        widget_options: JSON.stringify({}),
-      },
-    ],
-  };
+    const foreignKeyWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+      widgets: [
+        {
+          widget_type: WidgetTypeEnum.Foreign_key,
+          widget_params: JSON.stringify({
+            referenced_column_name: 'ID',
+            referenced_table_name: firstTableData.testTableName,
+            constraint_name: 'manually_created_constraint',
+            column_name: referencedColumnName,
+          }),
+          field_name: referencedColumnName,
+          description: 'User ID as foreign key',
+          name: 'User ID',
+          widget_options: JSON.stringify({}),
+        },
+      ],
+    };
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestDB)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
-  const connectionId = createConnectionRO.id;
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+    const connectionId = createConnectionRO.id;
 
-  const findTablesResponse = await request(app.getHttpServer())
-    .get(`/connection/tables/${connectionId}`)
-    .set('Content-Type', 'application/json')
-    .set('Cookie', token)
-    .set('Accept', 'application/json');
-  const findTablesRO = JSON.parse(findTablesResponse.text);
-  t.is(findTablesResponse.status, 200);
+    const findTablesResponse = await request(app.getHttpServer())
+      .get(`/connection/tables/${connectionId}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const findTablesRO = JSON.parse(findTablesResponse.text);
+    t.is(findTablesResponse.status, 200);
 
-  const createTableWidgetResponse = await request(app.getHttpServer())
-    .post(`/widget/${connectionId}?tableName=${referencedByTableTableName}`)
-    .send(foreignKeyWidgetsDTO)
-    .set('Content-Type', 'application/json')
-    .set('Cookie', token)
-    .set('Accept', 'application/json');
+    const createTableWidgetResponse = await request(app.getHttpServer())
+      .post(`/widget/${connectionId}?tableName=${referencedByTableTableName}`)
+      .send(foreignKeyWidgetsDTO)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
 
-  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-  t.is(createTableWidgetResponse.status, 201);
+    const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+    t.is(createTableWidgetResponse.status, 201);
 
-  const getTableWidgets = await request(app.getHttpServer())
-    .get(`/widgets/${connectionId}?tableName=${referencedByTableTableName}`)
-    .set('Content-Type', 'application/json')
-    .set('Cookie', token)
-    .set('Accept', 'application/json');
-  t.is(getTableWidgets.status, 200);
-  const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-  t.is(typeof getTableWidgetsRO, 'object');
-  t.is(getTableWidgetsRO.length, 1);
+    const getTableWidgets = await request(app.getHttpServer())
+      .get(`/widgets/${connectionId}?tableName=${referencedByTableTableName}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    t.is(getTableWidgets.status, 200);
+    const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+    t.is(typeof getTableWidgetsRO, 'object');
+    t.is(getTableWidgetsRO.length, 1);
 
-  t.is(getTableWidgetsRO[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+    t.is(getTableWidgetsRO[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
 
-  const getTableStructureResponse = await request(app.getHttpServer())
-    .get(`/table/structure/${connectionId}?tableName=${referencedByTableTableName}`)
-    .set('Content-Type', 'application/json')
-    .set('Cookie', token)
-    .set('Accept', 'application/json');
+    const getTableStructureResponse = await request(app.getHttpServer())
+      .get(`/table/structure/${connectionId}?tableName=${referencedByTableTableName}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
 
-  const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
-  t.is(getTableStructureResponse.status, 200);
-  t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
-  t.is(getTableStructureRO.table_widgets.length, 1);
-  t.is(getTableStructureRO.table_widgets[0].field_name, foreignKeyWidgetsDTO.widgets[0].field_name);
-  t.is(getTableStructureRO.table_widgets[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
-  t.is(getTableStructureRO.hasOwnProperty('foreignKeys'), true);
-  t.is(getTableStructureRO.foreignKeys.length, 1);
-  t.is(getTableStructureRO.foreignKeys[0].column_name, foreignKeyWidgetsDTO.widgets[0].field_name);
-  t.is(getTableStructureRO.foreignKeys[0].referenced_table_name, firstTableData.testTableName);
-  const widgetParams = JSON5.parse(getTableStructureRO.table_widgets[0].widget_params);
-  t.is(widgetParams.referenced_table_name, firstTableData.testTableName);
-  t.is(widgetParams.referenced_column_name, 'ID');
-  t.is(widgetParams.constraint_name, 'manually_created_constraint');
-  t.is(widgetParams.column_name, referencedColumnName);
-  t.is(getTableStructureRO.foreignKeys[0].hasOwnProperty('autocomplete_columns'), true);
-  t.is(getTableStructureRO.foreignKeys[0].autocomplete_columns.length, 5);
+    const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
+    t.is(getTableStructureResponse.status, 200);
+    t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
+    t.is(getTableStructureRO.table_widgets.length, 1);
+    t.is(getTableStructureRO.table_widgets[0].field_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+    t.is(getTableStructureRO.table_widgets[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+    t.is(getTableStructureRO.hasOwnProperty('foreignKeys'), true);
+    t.is(getTableStructureRO.foreignKeys.length, 1);
+    t.is(getTableStructureRO.foreignKeys[0].column_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+    t.is(getTableStructureRO.foreignKeys[0].referenced_table_name, firstTableData.testTableName);
+    const widgetParams = JSON5.parse(getTableStructureRO.table_widgets[0].widget_params);
+    t.is(widgetParams.referenced_table_name, firstTableData.testTableName);
+    t.is(widgetParams.referenced_column_name, 'ID');
+    t.is(widgetParams.constraint_name, 'manually_created_constraint');
+    t.is(widgetParams.column_name, referencedColumnName);
+    t.is(getTableStructureRO.foreignKeys[0].hasOwnProperty('autocomplete_columns'), true);
+    t.is(getTableStructureRO.foreignKeys[0].autocomplete_columns.length, 5);
 
-  // check table rows received with foreign keys from widget
+    // check table rows received with foreign keys from widget
 
-  const getRowsResponse = await request(app.getHttpServer())
-    .get(`/table/rows/${connectionId}?tableName=${referencedByTableTableName}`)
-    .set('Content-Type', 'application/json')
-    .set('Cookie', token)
-    .set('Accept', 'application/json');
-  const getRowsRO = JSON.parse(getRowsResponse.text);
-  t.is(getRowsResponse.status, 200);
+    const getRowsResponse = await request(app.getHttpServer())
+      .get(`/table/rows/${connectionId}?tableName=${referencedByTableTableName}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const getRowsRO = JSON.parse(getRowsResponse.text);
+    t.is(getRowsResponse.status, 200);
 
-  t.is(typeof getRowsRO.rows[0], 'object');
-  for (const row of getRowsRO.rows) {
-    t.is(row.hasOwnProperty('ID'), true);
-  }
-});
+    t.is(typeof getRowsRO.rows[0], 'object');
+    for (const row of getRowsRO.rows) {
+      t.is(row.hasOwnProperty('ID'), true);
+      t.is(row.hasOwnProperty(referencedColumnName), true);
+      t.is(row[referencedColumnName].hasOwnProperty('ID'), true);
+    }
+  },
+);
 
 // Table widgets for mongodb database
 test.serial(
@@ -1459,7 +1467,182 @@ test.serial(
     const getRowsRO = JSON.parse(getRowsResponse.text);
     t.is(typeof getRowsRO.rows[0], 'object');
     for (const row of getRowsRO.rows) {
-      t.is(row.hasOwnProperty('_id'), true);
+      t.is(row.hasOwnProperty(referencedByColumnName), true);
+      t.is(row[referencedByColumnName].hasOwnProperty('_id'), true);
     }
   },
 );
+
+// Table widgets for dynamodb database
+test.serial(`${currentTest} should return created table widgets as foreign keys, when database is dynamodb`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const { token } = await registerUserAndReturnUserInfo(app);
+
+  const referencedOnTableTableName = `users`;
+  const referencedByTableName = `orders`;
+  const testTableColumnName = `user_name`;
+  const testReferencedColumnsName = `product_description`;
+  const referencedByColumnName = 'user_id';
+  const referencedOnColumnName = 'id';
+
+  const dynamoDb = new DynamoDB({
+    endpoint: connectionToTestDB.host,
+    credentials: {
+      accessKeyId: connectionToTestDB.username,
+      secretAccessKey: connectionToTestDB.password,
+    },
+    region: 'localhost',
+  });
+
+  const referencedOnTableTableNameTableParams = {
+    TableName: referencedOnTableTableName,
+    KeySchema: [
+      { AttributeName: 'id', KeyType: 'HASH' }, // Primary key
+    ],
+    AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'N' }],
+    ProvisionedThroughput: {
+      ReadCapacityUnits: 5,
+      WriteCapacityUnits: 5,
+    },
+  } as any;
+
+  const referencedByTableTableNameTableParams = {
+    TableName: referencedByTableName,
+    KeySchema: [
+      { AttributeName: 'id', KeyType: 'HASH' }, // Primary key
+    ],
+    AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'N' }],
+    ProvisionedThroughput: {
+      ReadCapacityUnits: 5,
+      WriteCapacityUnits: 5,
+    },
+  } as any;
+
+  try {
+    await dynamoDb.createTable(referencedOnTableTableNameTableParams);
+    await dynamoDb.createTable(referencedByTableTableNameTableParams);
+  } catch (error) {
+    console.error(`Error creating dynamodb table: ${error.message}`);
+  }
+
+  const documentClient = DynamoDBDocumentClient.from(dynamoDb);
+
+  for (let index = 0; index < 42; index++) {
+    const item = {
+      id: { N: index + 1 },
+      [testTableColumnName]: { S: faker.person.firstName() },
+      email: { S: faker.internet.email() },
+      age: {
+        N: faker.number.int({ min: 16, max: 80 }),
+      },
+      created_at: { S: new Date().toISOString() },
+      updated_at: { S: new Date().toISOString() },
+    };
+
+    const params: PutItemCommandInput = {
+      TableName: referencedOnTableTableName,
+      Item: item as any,
+    };
+    await documentClient.send(new PutItemCommand(params));
+  }
+
+  for (let index = 0; index < 42; index++) {
+    const item = {
+      id: { N: index + 1 },
+      [testReferencedColumnsName]: { S: faker.lorem.lines() },
+      [referencedByColumnName]: { N: faker.number.int({ min: 1, max: 42 }) },
+      created_at: { S: new Date().toISOString() },
+      updated_at: { S: new Date().toISOString() },
+    };
+
+    const params: PutItemCommandInput = {
+      TableName: referencedByTableName,
+      Item: item as any,
+    };
+    await documentClient.send(new PutItemCommand(params));
+  }
+
+  const foreignKeyWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+    widgets: [
+      {
+        widget_type: WidgetTypeEnum.Foreign_key,
+        widget_params: JSON.stringify({
+          referenced_column_name: referencedOnColumnName,
+          referenced_table_name: referencedOnTableTableName,
+          constraint_name: 'manually_created_constraint',
+          column_name: referencedByColumnName,
+        }),
+        field_name: referencedByColumnName,
+        description: 'User ID as foreign key',
+        name: 'User ID',
+        widget_options: JSON.stringify({}),
+      },
+    ],
+  };
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const connectionId = createConnectionRO.id;
+
+  const createTableWidgetResponse = await request(app.getHttpServer())
+    .post(`/widget/${connectionId}?tableName=${referencedByTableName}`)
+    .send(foreignKeyWidgetsDTO)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  t.is(createTableWidgetResponse.status, 201);
+
+  const getTableWidgets = await request(app.getHttpServer())
+    .get(`/widgets/${connectionId}?tableName=${referencedByTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  t.is(getTableWidgets.status, 200);
+  const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+  t.is(typeof getTableWidgetsRO, 'object');
+  t.is(getTableWidgetsRO.length, 1);
+
+  t.is(getTableWidgetsRO[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+
+  const getTableStructureResponse = await request(app.getHttpServer())
+    .get(`/table/structure/${connectionId}?tableName=${referencedByTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+
+  const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
+
+  t.is(getTableStructureResponse.status, 200);
+  t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
+  t.is(getTableStructureRO.table_widgets.length, 1);
+  t.is(getTableStructureRO.table_widgets[0].field_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+  t.is(getTableStructureRO.table_widgets[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+  t.is(getTableStructureRO.hasOwnProperty('foreignKeys'), true);
+  t.is(getTableStructureRO.foreignKeys.length, 1);
+  t.is(getTableStructureRO.foreignKeys[0].column_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+  t.is(getTableStructureRO.foreignKeys[0].referenced_table_name, referencedOnTableTableName);
+
+  // check table rows received with foreign keys from widget
+
+  const getRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${connectionId}?tableName=${referencedByTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  const getRowsRO = JSON.parse(getRowsResponse.text);
+
+  t.is(getRowsResponse.status, 200);
+
+  t.is(typeof getRowsRO.rows[0], 'object');
+  for (const row of getRowsRO.rows) {
+    t.is(row.hasOwnProperty(referencedByColumnName), true);
+    t.is(row[referencedByColumnName].hasOwnProperty('id'), true);
+  }
+});
