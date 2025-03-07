@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid, UserId } from '../../decorators/index.js';
 import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
@@ -25,6 +26,9 @@ import { AddedUserInGroupDs } from './application/data-sctructures/added-user-in
 import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds.js';
 import { FoundGroupDataInfoDs, FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds.js';
 import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds.js';
+import { AddUserInGroupDto } from './dto/add-user-ingroup-dto.js';
+import { DeleteUserFromGroupDTO } from './dto/delete-user-from-group-dto.js';
+import { UpdateGroupTitleDto } from './dto/update-group-title.dto.js';
 import {
   IAddUserInGroup,
   IDeleteGroup,
@@ -33,15 +37,11 @@ import {
   IRemoveUserFromGroup,
   IUpdateGroupTitle,
 } from './use-cases/use-cases.interfaces.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AddUserInGroupDto } from './dto/add-user-ingroup-dto.js';
-import { DeleteUserFromGroupDTO } from './dto/delete-user-from-group-dto.js';
-import { UpdateGroupTitleDto } from './dto/update-group-title.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('groups')
+@ApiTags('Group')
 @Injectable()
 export class GroupController {
   constructor(
@@ -60,10 +60,10 @@ export class GroupController {
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
-  @ApiOperation({ summary: 'Get all user groups' })
+  @ApiOperation({ summary: 'Find all user groups' })
   @ApiResponse({
     status: 200,
-    description: 'Get all user groups.',
+    description: 'User groups found.',
     type: FoundUserGroupsDs,
   })
   @Get('groups')
@@ -77,10 +77,10 @@ export class GroupController {
     }
   }
 
-  @ApiOperation({ summary: 'Get all users in group' })
+  @ApiOperation({ summary: 'Find all users in group' })
   @ApiResponse({
     status: 200,
-    description: 'Get all users in group.',
+    description: 'Users in group found.',
     type: Array<FoundUserInGroupDs>,
   })
   @UseGuards(GroupReadGuard)
@@ -102,7 +102,7 @@ export class GroupController {
   @ApiBody({ type: AddUserInGroupDto })
   @ApiResponse({
     status: 200,
-    description: 'Add user in company and group in company.',
+    description: 'User added to group.',
     type: AddedUserInGroupDs,
   })
   @UseGuards(GroupEditGuard)
@@ -138,7 +138,7 @@ export class GroupController {
   @ApiOperation({ summary: 'Delete group' })
   @ApiResponse({
     status: 200,
-    description: 'Delete group.',
+    description: 'Group deleted.',
     type: DeletedGroupResultDs,
   })
   @UseGuards(GroupEditGuard)
@@ -153,11 +153,11 @@ export class GroupController {
     }
   }
 
-  @ApiOperation({ summary: 'Delete user from group' })
+  @ApiOperation({ summary: 'Remove user from group' })
   @ApiBody({ type: DeleteUserFromGroupDTO })
   @ApiResponse({
     status: 200,
-    description: 'Delete user from group.',
+    description: 'User removed from group.',
     type: RemoveUserFromGroupResultDs,
   })
   @UseGuards(GroupEditGuard)
@@ -184,7 +184,7 @@ export class GroupController {
   @ApiBody({ type: UpdateGroupTitleDto })
   @ApiResponse({
     status: 200,
-    description: 'Update group title.',
+    description: 'Group title updated.',
     type: FoundGroupDataInfoDs,
   })
   @UseGuards(GroupEditGuard)

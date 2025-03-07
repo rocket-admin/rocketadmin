@@ -25,7 +25,10 @@ import { Constants } from '../../helpers/constants/constants.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
-import { ChangeUsualUserPasswordDs, ChangeUsualUserPasswordDto } from './application/data-structures/change-usual-user-password.ds.js';
+import {
+  ChangeUsualUserPasswordDs,
+  ChangeUsualUserPasswordDto,
+} from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
 import { FoundUserDto } from './dto/found-user.dto.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
@@ -71,7 +74,7 @@ import { SuccessResponse } from '../../microservices/saas-microservice/data-stru
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('user')
+@ApiTags('User')
 @Injectable()
 export class UserController {
   constructor(
@@ -115,10 +118,10 @@ export class UserController {
     private readonly toggleTestConnectionsDisplayModeUseCase: IToggleTestConnectionsMode,
   ) {}
 
-  @ApiOperation({ summary: 'Get user' })
+  @ApiOperation({ summary: 'Find user' })
   @ApiResponse({
     status: 200,
-    description: 'Returns found user.',
+    description: 'User found.',
     type: FoundUserDto,
   })
   @Get('user')
@@ -135,7 +138,7 @@ export class UserController {
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({
     status: 201,
-    description: 'Login with email and password.',
+    description: 'Login successful.',
     type: TokenExpDs,
   })
   @Post('user/login/')
@@ -172,7 +175,7 @@ export class UserController {
   @ApiOperation({ summary: 'Log out' })
   @ApiResponse({
     status: 201,
-    description: 'Log out.',
+    description: 'Logged out.',
   })
   @Post('user/logout/')
   async logOut(@Req() request: any, @Res({ passthrough: true }) response: Response): Promise<any> {
@@ -201,7 +204,7 @@ export class UserController {
   @ApiBody({ type: ChangeUsualUserPasswordDto })
   @ApiResponse({
     status: 201,
-    description: 'Change user password.',
+    description: 'Password changed.',
     type: TokenExpDs,
   })
   @Post('user/password/change/')
@@ -235,7 +238,7 @@ export class UserController {
   @ApiOperation({ summary: 'Request user email verification' })
   @ApiResponse({
     status: 200,
-    description: 'Request user email verification.',
+    description: 'Email verification requested.',
     type: OperationResultMessageDs,
   })
   @Get('user/email/verify/request')
@@ -246,7 +249,7 @@ export class UserController {
   @ApiOperation({ summary: 'Verify user email' })
   @ApiResponse({
     status: 200,
-    description: 'Verify user email.',
+    description: 'Email verified.',
     type: OperationResultMessageDs,
   })
   @Get('user/email/verify/:verificationString')
@@ -261,7 +264,7 @@ export class UserController {
   @ApiBody({ type: PasswordDto })
   @ApiResponse({
     status: 201,
-    description: 'Verify user password reset.',
+    description: 'Password reset verified.',
     type: RegisteredUserDs,
   })
   @Post('user/password/reset/verify/:verificationString')
@@ -280,7 +283,7 @@ export class UserController {
   @ApiBody({ type: RequestRestUserPasswordDto })
   @ApiResponse({
     status: 201,
-    description: 'Request user password reset.',
+    description: 'Password reset requested.',
     type: OperationResultMessageDs,
   })
   @Post('user/password/reset/request/')
@@ -291,7 +294,7 @@ export class UserController {
   @ApiOperation({ summary: 'Request user email change' })
   @ApiResponse({
     status: 200,
-    description: 'Request user email change.',
+    description: 'Email change requested.',
     type: OperationResultMessageDs,
   })
   @Get('user/email/change/request/')
@@ -303,7 +306,7 @@ export class UserController {
   @ApiBody({ type: EmailDto })
   @ApiResponse({
     status: 201,
-    description: 'Verify user email change.',
+    description: 'Email change verified.',
     type: OperationResultMessageDs,
   })
   @Post('user/email/change/verify/:verificationString')
@@ -330,7 +333,7 @@ export class UserController {
   @ApiBody({ type: UserNameDto })
   @ApiResponse({
     status: 200,
-    description: 'Change user name.',
+    description: 'User name changed.',
     type: FoundUserDto,
   })
   @Put('user/name/')
@@ -346,7 +349,7 @@ export class UserController {
   @ApiBody({ type: DeleteUserAccountDTO })
   @ApiResponse({
     status: 200,
-    description: 'Delete user account.',
+    description: 'Account deleted.',
     type: RegisteredUserDs,
   })
   @Put('user/delete/')
@@ -373,10 +376,10 @@ export class UserController {
     return deleteResult;
   }
 
-  @ApiOperation({ summary: 'Generate one time token and qr' })
+  @ApiOperation({ summary: 'Generate one time token and QR Code' })
   @ApiResponse({
     status: 201,
-    description: 'Generate one time token and qr.',
+    description: 'Token and QR generated.',
     type: OtpSecretDS,
   })
   @Post('user/otp/generate/')
@@ -388,7 +391,7 @@ export class UserController {
   @ApiBody({ type: OtpTokenDto })
   @ApiResponse({
     status: 201,
-    description: 'Verify one time token.',
+    description: 'Token verified.',
     type: OtpValidationResultDS,
   })
   @Post('user/otp/verify/')
@@ -397,11 +400,11 @@ export class UserController {
     return await this.verifyOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Disable user 2fa authentication' })
+  @ApiOperation({ summary: 'Disable user two-factor authentication' })
   @ApiBody({ type: OtpTokenDto })
   @ApiResponse({
     status: 201,
-    description: 'Disable user 2fa authentication.',
+    description: 'Two-factor authentication disabled.',
     type: OtpDisablingResultDS,
   })
   @Post('user/otp/disable/')
@@ -410,11 +413,11 @@ export class UserController {
     return await this.disableOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Validate 2fa token for login with second factor' })
+  @ApiOperation({ summary: 'Validate two-factor authentication token for login with second factor' })
   @ApiBody({ type: OtpTokenDto })
   @ApiResponse({
     status: 201,
-    description: 'Validate 2fa token for login with second factor.',
+    description: 'Two-factor authentication token validated.',
     type: TokenExpDs,
   })
   @Post('user/otp/login/')
@@ -460,10 +463,10 @@ export class UserController {
     );
   }
 
-  @ApiOperation({ summary: 'Get user session settings' })
+  @ApiOperation({ summary: 'Find user session settings' })
   @ApiResponse({
     status: 201,
-    description: 'User session settings saved.',
+    description: 'User session settings found.',
     type: UserSettingsDataRequestDto,
   })
   @Get('user/settings/')

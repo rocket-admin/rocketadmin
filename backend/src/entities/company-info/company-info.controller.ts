@@ -71,7 +71,7 @@ import {
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
 @ApiBearerAuth()
-@ApiTags('company')
+@ApiTags('Company')
 @Injectable()
 export class CompanyInfoController {
   constructor(
@@ -147,7 +147,7 @@ export class CompanyInfoController {
     return await this.getUsersInCompanyUseCase.execute(companyId);
   }
 
-  @ApiOperation({ summary: 'Get companies where user with this email registered (for login in company)' })
+  @ApiOperation({ summary: 'Get companies where user with this email registered' })
   @ApiResponse({
     status: 200,
     description: 'Get companies where user with this email registered.',
