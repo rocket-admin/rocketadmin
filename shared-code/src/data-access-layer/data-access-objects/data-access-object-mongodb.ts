@@ -59,12 +59,36 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   }
 
   public async getIdentityColumns(
-    _tableName: string,
-    _referencedFieldName: string,
-    _identityColumnName: string,
-    _fieldValues: (string | number)[],
+    tableName: string,
+    referencedFieldName: string,
+    identityColumnName: string,
+    fieldValues: (string | number)[],
   ): Promise<Record<string, unknown>[]> {
-    return [];
+    if (!referencedFieldName || !fieldValues.length) {
+      return [];
+    }
+
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+
+    if (referencedFieldName === '_id') {
+      fieldValues = fieldValues.map((value) => this.createObjectIdFromSting(String(value))) as any;
+    }
+
+    const query = {
+      [referencedFieldName]: { $in: fieldValues },
+    };
+
+    const projection = identityColumnName
+      ? { [identityColumnName]: 1, [referencedFieldName]: 1 }
+      : { [referencedFieldName]: 1 };
+
+    const results = await collection.find(query).project(projection).toArray();
+
+    return results.map((doc) => ({
+      ...doc,
+      _id: this.processMongoIdField(doc._id),
+    }));
   }
 
   public async getRowByPrimaryKey(
@@ -375,7 +399,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const aggregationPipeline = JSON.parse(query);
     const result = await collection.aggregate(aggregationPipeline).toArray();
     return result;
-}
+  }
 
   private async getConnectionToDatabase(): Promise<Db> {
     if (this.connection.ssh) {

@@ -67,8 +67,11 @@ describe('PasswordChangeComponent', () => {
       portal_link: 'http://lsdkjfl.dhj',
       subscriptionLevel: SubscriptionPlans.free,
       "is_2fa_enabled": false,
-      role: CompanyMemberRole.Member,
-      externalRegistrationProvider: null
+      role: CompanyMemberRole.Specialist,
+      externalRegistrationProvider: null,
+      company: {
+        id: 'company_123',
+      }
 
     };
     const fakeChangePassword = spyOn(userService, 'changePassword').and.returnValue(of());

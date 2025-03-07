@@ -1,6 +1,6 @@
-import { GroupEntity } from '../group.entity.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
+import { GroupEntity } from '../group.entity.js';
 
 export interface IGroupRepository {
   saveNewOrUpdatedGroup(groupData: GroupEntity): Promise<GroupEntity>;
@@ -24,4 +24,6 @@ export interface IGroupRepository {
   findGroupWithPermissionsById(groupId: string): Promise<GroupEntity>;
 
   findAllUsersInGroupsWhereUserIsAdmin(userId: string, connectionId: string): Promise<Array<UserEntity>>;
+
+  countAllUserGroups(userId: string): Promise<number>;
 }

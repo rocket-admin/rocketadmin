@@ -822,7 +822,7 @@ export class MockFactory {
       tables_audit: tables_audit,
       human_readable_table_names: faker.datatype.boolean(),
       allow_ai_requests: faker.datatype.boolean(),
-      default_showing_table: tableName,
+      default_showing_table: null,
     };
   }
 

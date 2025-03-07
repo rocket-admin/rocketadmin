@@ -13,6 +13,7 @@ import * as csv from 'csv';
 import { Stream } from 'stream';
 import { binaryToHex, hexToBinary } from '../../helpers/binary-hex-string-convertion.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
@@ -30,7 +31,6 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 
 export type DdAndClient = {
   dynamoDb: DynamoDB;
@@ -99,12 +99,49 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async getIdentityColumns(
-    _tableName: string,
-    _referencedFieldName: string,
-    _identityColumnName: string,
-    _fieldValues: Array<string | number>,
-  ): Promise<Array<Record<string, unknown>>> {
-    return [];
+    tableName: string,
+    referencedFieldName: string,
+    identityColumnName: string,
+    fieldValues: (string | number)[],
+  ): Promise<Record<string, unknown>[]> {
+    if (!referencedFieldName || !fieldValues.length) {
+      return [];
+    }
+    const { dynamoDb } = this.getDynamoDb();
+    const expressionAttributeValues: { [key: string]: any } = {};
+    const expressionAttributeNames: { [key: string]: string } = {};
+
+    fieldValues.forEach((value, index) => {
+      const valueKey = `:value${index}`;
+      expressionAttributeValues[valueKey] = typeof value === 'string' ? { S: value } : { N: value.toString() };
+    });
+
+    expressionAttributeNames[`#referencedField`] = referencedFieldName;
+
+    const filterExpression = `#referencedField IN (${Object.keys(expressionAttributeValues).join(', ')})`;
+
+    let projectionExpression = `#referencedField`;
+
+    if (identityColumnName) {
+      expressionAttributeNames[`#identityField`] = identityColumnName;
+      projectionExpression += `, #identityField`;
+    }
+
+    const params = {
+      TableName: tableName,
+      FilterExpression: filterExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ExpressionAttributeNames: expressionAttributeNames,
+      ProjectionExpression: projectionExpression,
+    };
+
+    const result = await dynamoDb.scan(params);
+    const items = result.Items || [];
+
+    const transformedResult = items.map((item) =>
+      this.transformAndFilterRow(item, [identityColumnName, referencedFieldName].filter(Boolean), []),
+    );
+    return transformedResult;
   }
 
   public async getRowByPrimaryKey(
@@ -628,22 +665,22 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const attributeType = Object.keys(attribute)[0];
       transformedRow[key] = attribute[attributeType];
       const fieldInfo = tableStructure.find((el) => el.column_name === key);
-      if (fieldInfo?.data_type === 'number') {
+      if (fieldInfo?.data_type === 'number' || attributeType === 'N') {
         const valueToNumber = Number(transformedRow[key]);
         if (!isNaN(valueToNumber)) {
           transformedRow[key] = valueToNumber;
         }
       }
-      if (fieldInfo?.dynamo_db_type === 'BS') {
+      if (fieldInfo?.dynamo_db_type === 'BS' || attributeType === 'BS') {
         const valuesArray = transformedRow[key];
-        if (valuesArray) {
+        if (valuesArray && Array.isArray(valuesArray)) {
           transformedRow[key] = valuesArray.map((value) => binaryToHex(value));
         }
       }
 
-      if (fieldInfo?.dynamo_db_type === 'L') {
+      if (fieldInfo?.dynamo_db_type === 'L' || attributeType === 'L') {
         const valuesArray = transformedRow[key];
-        if (valuesArray) {
+        if (valuesArray && Array.isArray(valuesArray)) {
           transformedRow[key] = valuesArray.map((value) => Object.values(value)[0]);
         }
       }

@@ -4,11 +4,16 @@ import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
+import path, { join } from 'path';
 import request from 'supertest';
+import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { Constants } from '../../../src/helpers/constants/constants.js';
@@ -20,14 +25,6 @@ import { dropTestTables } from '../../utils/drop-test-tables.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import knex, { Knex } from 'knex';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { join } from 'path';
-import oracledb from 'oracledb';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -1348,6 +1345,81 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     }
   },
 );
+
+test.serial(`${currentTest} with pagination, with sorting and with filtering by date fields
+should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName } = await createTestOracleTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      createConnectionRO.id,
+      testTableName,
+      [testTableColumnName],
+      undefined,
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    const firstFieldName = 'created_at';
+    const secondFieldName = 'updated_at';
+    const firstFieldValue = "2011-11-03";
+
+    const filters = {
+      [firstFieldName]: { lt: firstFieldValue },
+    };
+
+    const getTableRowsResponse = await request(app.getHttpServer())
+      .post(`/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
+      .send({ filters })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    t.is(getTableRowsResponse.status, 201);
+    t.is(typeof getTableRowsRO, 'object');
+    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+    t.is(getTableRowsRO.rows.length, 2);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+    t.is(getTableRowsRO.rows[0].id, 1);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
+    t.is(getTableRowsRO.rows[1].id, 22);
+
+    t.is(getTableRowsRO.pagination.currentPage, 1);
+    t.is(getTableRowsRO.pagination.perPage, 2);
+    t.is(typeof getTableRowsRO.primaryColumns, 'object');
+    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+
+    // t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});
 
 test.serial(
   `${currentTest} with search, with pagination, with sorting and with filtering

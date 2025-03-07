@@ -201,4 +201,30 @@ export class CompanyService {
         })
       );
   }
+
+  updateShowTestConnections(displayMode: 'on' | 'off') {
+    return this._http.put<any>(`/company/connections/display`, undefined, { params: { displayMode }})
+      .pipe(
+        map(res => {
+          if (displayMode === 'on') {
+            this._notifications.showSuccessSnackbar('Test connections now are displayed to your company members.');
+          } else {
+            this._notifications.showSuccessSnackbar('Test connections now are hidden from your company members.');
+          }
+          this.company.next('');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
 }

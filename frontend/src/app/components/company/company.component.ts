@@ -24,6 +24,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-company',
@@ -40,6 +41,7 @@ import { NgIf } from '@angular/common';
     MatSlideToggleModule,
     MatTooltipModule,
     MatTableModule,
+    RouterModule,
     Angulartics2OnModule,
     AlertComponent,
     PlaceholderCompanyComponent,
@@ -110,9 +112,9 @@ export class CompanyComponent {
           this.currentUser = res.find(member => member.email === user.email);
 
           if (this.currentUser.role === 'ADMIN') {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'actions'];
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'access', 'actions'];
           } else {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA'];
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'access'];
           }
 
           const currentMembers = orderBy(res, ['role', 'email']);
@@ -204,5 +206,17 @@ export class CompanyComponent {
         });
       });
     }
+  }
+
+  changeShowTestConnections(checked: boolean) {
+    const displayMode = checked ? 'on' : 'off';
+    this.submitting = true;
+    this._company.updateShowTestConnections(displayMode).subscribe(() => {
+      this.submitting = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: show test connections is updated successfully',
+      });
+    });
+
   }
 }

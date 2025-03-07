@@ -1,28 +1,28 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import { nanoid } from 'nanoid';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { Constants } from '../../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
-import { TestUtils } from '../../utils/test.utils.js';
-import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
-import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { faker } from '@faker-js/faker';
-import { nanoid } from 'nanoid';
-import { Messages } from '../../../src/exceptions/text/messages.js';
-import { Constants } from '../../../src/helpers/constants/constants.js';
 import {
   inviteUserInCompanyAndAcceptInvitation,
   inviteUserInCompanyAndGroupAndAcceptInvitation,
 } from '../../utils/register-user-and-return-user-info.js';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { TestUtils } from '../../utils/test.utils.js';
+import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -81,7 +81,7 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    t.is(Object.keys(foundCompanyInfoRO).length, 7);
+    t.is(Object.keys(foundCompanyInfoRO).length, 8);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
@@ -174,7 +174,7 @@ test.serial(`${currentTest} should return found company info for non-admin user`
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(Object.keys(foundCompanyInfoRO).length, 7);
+    t.is(Object.keys(foundCompanyInfoRO).length, 8);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
@@ -558,6 +558,40 @@ test.serial(`${currentTest} should return company name`, async (t) => {
   t.pass();
 });
 
+currentTest = `GET company/users/:companyId`;
+
+test.serial(`${currentTest} should return users in company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const usersInCompany = await request(app.getHttpServer())
+    .get(`/company/users/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(usersInCompany.status, 200);
+  const usersInCompanyRO = JSON.parse(usersInCompany.text);
+  t.is(usersInCompanyRO.length, 2);
+});
+
 currentTest = `PUT company/users/roles/:companyId`;
 
 test.serial(`${currentTest} should update user roles in company`, async (t) => {
@@ -806,7 +840,7 @@ test.serial(
     });
 
     const subscriptionUpgradeResult = await fetch(
-      `http://rocketadmin-private-microservice:3001/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
+      `http://rocketadmin-private-microservice:3001/saas/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
       {
         method: 'POST',
         headers: {

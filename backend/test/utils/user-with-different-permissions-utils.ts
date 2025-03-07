@@ -401,9 +401,27 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
   };
 }
 
+export type TablePermissions = {
+  visibility: boolean;
+  readonly: boolean;
+  add: boolean;
+  delete: boolean;
+  edit: boolean;
+};
 export async function createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
   app: INestApplication,
+  tablePermissions: TablePermissions | null = null,
 ): Promise<IUserDifferentTableOnlyPermissionsFooData> {
+  if (!tablePermissions) {
+    tablePermissions = {
+      visibility: true,
+      readonly: false,
+      add: true,
+      delete: true,
+      edit: false,
+    };
+  }
+
   const connectionsId = {
     firstId: null,
     secondId: null,
@@ -425,14 +443,6 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
   const newGroup1 = mockFactory.generateCreateGroupDto1();
   const firstTable = await createTestTable(newConnection);
   const secondTable = await createTestTable(newConnection2);
-
-  const tablePermissions = {
-    visibility: true,
-    readonly: false,
-    add: true,
-    delete: true,
-    edit: false,
-  };
 
   const createFirstConnectionResponse = await request(app.getHttpServer())
     .post('/connection')

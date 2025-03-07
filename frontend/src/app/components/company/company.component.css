@@ -97,6 +97,36 @@
     }
 }
 
+.company-member-cell_accessed {
+    color: #1B5E20;
+}
+
+@media (prefers-color-scheme: dark) {
+    .company-member-cell_accessed {
+        color: #4CAF50;
+    }
+}
+
+.company-member-cell_not-accessed {
+    color: #B71C1C;
+}
+
+@media (prefers-color-scheme: dark) {
+    .company-member-cell_not-accessed {
+        color: #E53935;
+    }
+}
+
+.company-member-cell_content-center {
+    text-align: center;
+}
+
+@media (width <= 600px) {
+    .company-member-cell_content-center {
+        text-align: initial;
+    }
+}
+
 @media (width <= 600px) {
     .company-members-table {
         display: grid;
@@ -158,14 +188,4 @@
 
 .role-select {
     width: 148px;
-}
-
-.active-status-cell {
-    text-align: center;
-}
-
-@media (width <= 600px) {
-    .active-status-cell {
-        text-align: initial;
-    }
 }

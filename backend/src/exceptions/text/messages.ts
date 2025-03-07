@@ -37,6 +37,8 @@ export const Messages = {
   CANNOT_CHANGE_ADMIN_GROUP: 'You can not change admin group permissions',
   CANNOT_CREATE_CONNECTION_TO_THIS_HOST: 'You cannot create a connection to this host',
   CANNOT_SET_THIS_EMAIL: 'You cannot set this email',
+  CANT_CREATE_CONNECTION_USER_NON_COMPANY_ADMIN: `Only users with company administrator or database administrator roles can add new connections`,
+  CANT_CREATE_CONNECTION_USER_NOT_INVITED_AT_ANY_GROUP: `You cannot create a connection because you are not invited to any group. Please ask your administrator to add you to a group first.`,
   CANT_CREATE_PERMISSION_TYPE_CONNECTION:
     'You can not create more than one permission of type "Connection" for the same group',
   CANT_CREATE_PERMISSION_TYPE_GROUP: 'You can not create more than one permission of type "Group" for the same group',
@@ -49,6 +51,8 @@ export const Messages = {
     'It seems like the value you entered for the unique field already exists in database. Please check your input and try again with a different value',
   CANT_LIST_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to list and exclude`,
+  CANT_SHOW_TABLE_AND_EXCLUDE: (tableName: string) =>
+    `You cannot select the same table "${tableName}" to show by default and exclude`,
   CANT_VIEW_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to view and exclude`,
   CANT_ORDER_AND_EXCLUDE: `You cannot select the same field names to order and exclude`,
@@ -165,6 +169,7 @@ export const Messages = {
   INCORRECT_TABLE_LOG_ACTION_TYPE: `Incorrect log operation type, supported types are ${enumToString(
     LogOperationTypeEnum,
   )}`,
+  INVALID_DISPLAY_MODE: `Invalid display mode. Supported values are "on" and "off"`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
   INVALID_USER_COMPANY_ROLE: `Invalid user role in company. Only supported is ${enumToString(UserRoleEnum)}`,
   INVALID_JWT_TOKEN: `JWT token syntax is invalid`,

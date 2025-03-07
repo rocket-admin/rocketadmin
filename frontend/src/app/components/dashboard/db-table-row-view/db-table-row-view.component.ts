@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-db-table-row-view',
@@ -17,6 +18,7 @@ import { TableStateService } from 'src/app/services/table-state.service';
     MatIconModule,
     MatButtonModule,
     ClipboardModule,
+    MatTooltipModule,
     RouterModule,
     CommonModule
   ]

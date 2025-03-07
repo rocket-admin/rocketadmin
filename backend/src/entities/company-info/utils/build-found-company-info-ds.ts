@@ -14,6 +14,11 @@ export function buildFoundCompanyFullInfoDs(
   companyInfoFromSaas: FoundSassCompanyInfoDS | null,
   userRole: UserRoleEnum,
 ): FoundUserFullCompanyInfoDs {
+  if (!companyInfoFromCore.show_test_connections) {
+    companyInfoFromCore.connections = companyInfoFromCore.connections.filter(
+      (connection) => !connection.isTestConnection,
+    );
+  }
   const responseObject = buildFoundCompanyInfoDs(companyInfoFromCore, companyInfoFromSaas, userRole) as any;
   const connectionsRO: Array<FoundSipleConnectionInfoDS> = companyInfoFromCore.connections.map((connection) => {
     return {
@@ -68,7 +73,7 @@ export function buildFoundCompanyInfoDs(
     name: companyInfoFromSaas.name,
     additional_info: companyInfoFromSaas.additional_info,
     portal_link: isUserAdmin ? companyInfoFromSaas.portal_link : undefined,
-    subscriptionLevel: isUserAdmin ? companyInfoFromSaas.subscriptionLevel : undefined,
+    subscriptionLevel: companyInfoFromSaas.subscriptionLevel,
     is_payment_method_added: isUserAdmin ? companyInfoFromSaas.is_payment_method_added : undefined,
     is2faEnabled: isUserAdmin ? companyInfoFromCore.is2faEnabled : undefined,
     show_test_connections: companyInfoFromCore.show_test_connections,

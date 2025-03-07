@@ -258,7 +258,7 @@ describe('ConnectionsService', () => {
 
   it('should get visible tabs dashboard, audit, edit-db and connection-settings if connectionAccessLevel is edit', () => {
     service.connectionAccessLevel = AccessLevel.Edit;
-    expect(service.visibleTabs).toEqual(['dashboard', 'audit', 'edit-db', 'connection-settings']);
+    expect(service.visibleTabs).toEqual(['dashboard', 'audit', 'connection-settings', 'edit-db']);
   })
 
   it('should call fetchConnections', () => {

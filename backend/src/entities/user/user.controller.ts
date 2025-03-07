@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -24,7 +25,7 @@ import { Constants } from '../../helpers/constants/constants.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
-import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds.js';
+import { ChangeUsualUserPasswordDs, ChangeUsualUserPasswordDto } from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
 import { FoundUserDto } from './dto/found-user.dto.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
@@ -197,7 +198,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Change user password' })
-  @ApiBody({ type: ChangeUsualUserPasswordDs })
+  @ApiBody({ type: ChangeUsualUserPasswordDto })
   @ApiResponse({
     status: 201,
     description: 'Change user password.',
@@ -206,13 +207,15 @@ export class UserController {
   @Post('user/password/change/')
   async changeUsualPassword(
     @Res({ passthrough: true }) response: Response,
-    @Body() changePasswordData: ChangeUsualUserPasswordDs,
+    @Body() changePasswordData: ChangeUsualUserPasswordDto,
+    @UserId() userId: string,
   ): Promise<ITokenExp> {
     const { email, newPassword, oldPassword } = changePasswordData;
     const inputData: ChangeUsualUserPasswordDs = {
       email: email,
       newPassword: newPassword,
       oldPassword: oldPassword,
+      userId: userId,
     };
     const tokenInfo = await this.changeUsualPasswordUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
@@ -480,6 +483,9 @@ export class UserController {
     @UserId() userId: string,
     @Query('displayMode') displayMode: string,
   ): Promise<SuccessResponse> {
+    if (displayMode !== 'on' && displayMode !== 'off') {
+      throw new BadRequestException(Messages.INVALID_DISPLAY_MODE);
+    }
     const newDisplayMode = displayMode === 'on';
     const toggleConnectionDisplayModeDs = {
       userId: userId,

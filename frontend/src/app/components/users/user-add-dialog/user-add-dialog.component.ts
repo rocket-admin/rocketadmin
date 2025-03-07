@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { PlaceholderAddUserDialogComponent } from '../../skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
 import { NgForOf, NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-user-add-dialog',
@@ -25,6 +26,7 @@ import { NgForOf, NgIf } from '@angular/common';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    RouterModule,
     PlaceholderAddUserDialogComponent
   ]
 })
@@ -35,7 +37,7 @@ export class UserAddDialogComponent implements OnInit {
   public availableMembers = null;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public group: UserGroup,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private _usersService: UsersService,
     private _userService: UserService,
     private _company: CompanyService,
@@ -44,22 +46,12 @@ export class UserAddDialogComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // this._usersService.cast.subscribe();
 
-    this._userService.cast
-        .subscribe(user => {
-          this._company.fetchCompanyMembers(user.company.id).subscribe(members => {
-            this._usersService.fetcGroupUsers(this.group.id)
-            .subscribe(users => {
-              this.availableMembers = differenceBy(members, users, 'email');
-            })
-        })
-    });
   }
 
   joinGroupUser() {
     this.submitting = true;
-    this._usersService.addGroupUser(this.group.id, this.groupUserEmail)
+    this._usersService.addGroupUser(this.data.group.id, this.groupUserEmail)
       .subscribe((res) => {
           this.dialogRef.close();
           this.submitting = false;
