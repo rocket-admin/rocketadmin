@@ -1968,6 +1968,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
     id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
+    binary_set_column: null,
   };
 
   const addRowInTableResponse = await request(app.getHttpServer())
