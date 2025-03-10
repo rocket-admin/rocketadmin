@@ -5,12 +5,18 @@ import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
+import path, { join } from 'path';
 import request from 'supertest';
+import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { Constants } from '../../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
@@ -19,13 +25,6 @@ import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { join } from 'path';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -3593,6 +3592,23 @@ test.serial(`${currentTest} should test connection and return result`, async (t)
   t.is(testConnectionResponse.status, 201);
   const { message } = JSON.parse(testConnectionResponse.text);
   t.is(message, 'Successfully connected');
+});
+
+test.serial(`${currentTest} should test connection and return negative result when connection password is incorrect result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  connectionToTestDB.password = '8764323452888';
+  const testConnectionResponse = await request(app.getHttpServer())
+    .post('/connection/test/')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(testConnectionResponse.status, 201);
+  const { result } = JSON.parse(testConnectionResponse.text);
+  t.is(result, false);
 });
 
 currentTest = 'GET table/csv/:slug';

@@ -2787,6 +2787,7 @@ __metadata:
     lru-cache: ^11.0.2
     mongodb: ^6.12.0
     mysql2: ^3.12.0
+    nanoid: ^5.1.3
     oracledb: ^6.7.1
     p-queue: ^8.1.0
     pg: ^8.13.1
@@ -10407,6 +10408,15 @@ __metadata:
   bin:
     nanoid: bin/nanoid.js
   checksum: 8a3f9104f81095e3e4785f58caae47a05755599824b8611b9730cbf73db706b664f100e6189f8303f08764f144d499613d8e4a39e83125c53f4b4986d6576621
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:^5.1.3":
+  version: 5.1.3
+  resolution: "nanoid@npm:5.1.3"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: e294f3e6c39d75f3eb85b74fb2edfd8375c02bda5ddb97cb7af010b07bf39f314fcbc7765235ef432c856e435cd6bb67d4ef73e1867367231b1f92bcb63830b9
   languageName: node
   linkType: hard
 

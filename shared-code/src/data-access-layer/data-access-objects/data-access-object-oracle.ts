@@ -1,6 +1,7 @@
 /* eslint-disable security/detect-object-injection */
 import * as csv from 'csv';
 import { Knex } from 'knex';
+import { nanoid } from 'nanoid';
 import { Readable, Stream } from 'node:stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
@@ -504,6 +505,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex.transaction((trx) => {
@@ -518,6 +522,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 
