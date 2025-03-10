@@ -684,6 +684,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           transformedRow[key] = valuesArray.map((value) => Object.values(value)[0]);
         }
       }
+
+      if (fieldInfo?.dynamo_db_type === 'NULL' || attributeType === 'NULL') {
+        transformedRow[key] = null;
+      }
     });
 
     if (availableFields.length > 0) {
