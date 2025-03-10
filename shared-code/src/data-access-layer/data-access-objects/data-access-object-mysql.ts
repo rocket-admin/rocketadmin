@@ -28,6 +28,7 @@ import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
 import { isMySqlDateOrTimeType, isMySQLDateStringByRegexp } from '../../helpers/is-database-date.js';
+import { nanoid } from 'nanoid';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -391,6 +392,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex().select(1);
@@ -403,6 +407,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 

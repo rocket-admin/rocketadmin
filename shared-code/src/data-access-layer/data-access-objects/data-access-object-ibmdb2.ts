@@ -1,6 +1,7 @@
 import * as csv from 'csv';
 import getPort from 'get-port';
 import { Database, Pool } from 'ibm_db';
+import { nanoid } from 'nanoid';
 import { Readable, Stream } from 'node:stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
@@ -376,6 +377,9 @@ WHERE
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const connectionToDb = await this.getConnectionToDatabase();
     const query = `
     SELECT 1 FROM sysibm.sysdummy1 
@@ -393,6 +397,8 @@ WHERE
         result: false,
         message: error.message,
       };
+    } finally {
+      LRUStorage.delImdbDb2Cache(this.connection);
     }
     return {
       result: false,

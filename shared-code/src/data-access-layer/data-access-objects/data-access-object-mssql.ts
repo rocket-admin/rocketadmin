@@ -1,8 +1,12 @@
 /* eslint-disable security/detect-object-injection */
+import * as csv from 'csv';
 import { Knex } from 'knex';
+import { nanoid } from 'nanoid';
+import { Readable, Stream } from 'node:stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { isMSSQLDateOrTimeType, isMSSQLDateStringByRegexp } from '../../helpers/is-database-date.js';
 import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
@@ -22,9 +26,6 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { Stream, Readable } from 'node:stream';
-import * as csv from 'csv';
-import { isMSSQLDateOrTimeType, isMSSQLDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -340,6 +341,9 @@ WHERE TABLE_TYPE = 'VIEW'
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex().select(1);
@@ -352,6 +356,8 @@ WHERE TABLE_TYPE = 'VIEW'
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 

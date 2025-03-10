@@ -28,9 +28,17 @@ export class LRUStorage {
     return cachedDb ? cachedDb : null;
   }
 
+  public static delMongoDbCache(connection: ConnectionParams): void {
+    mongoDbCache.delete(this.getConnectionIdentifier(connection));
+  }
+
   public static getImdbDb2Cache(connection: ConnectionParams): Database | null {
     const cachedDb = imdbDb2Cache.get(this.getConnectionIdentifier(connection)) as Database;
     return cachedDb ? cachedDb : null;
+  }
+
+  public static delImdbDb2Cache(connection: ConnectionParams): void {
+    imdbDb2Cache.delete(this.getConnectionIdentifier(connection));
   }
 
   public static setImdbDb2Cache(connection: ConnectionParams, newDb: Database): void {
