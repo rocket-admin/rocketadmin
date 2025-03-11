@@ -8,21 +8,24 @@
     </h1>
 
     <form *ngIf="currentUser && currentUser.role === 'ADMIN'"
-        class="company-name-settings"
+        class="text-filed-edit"
         (ngSubmit)="changeCompanyName()">
-        <mat-form-field appearance="outline" class="company-name-settings__name">
-            <mat-label>Name</mat-label>
+        <mat-form-field appearance="outline" class="text-filed-edit__input">
+            <mat-label>Company name</mat-label>
             <input matInput name="company-name" #nameField="ngModel"
                 data-testid="company-name-input"
                 angulartics2On="change"
                 angularticsAction="Company: company name is edited"
                 [(ngModel)]="company.name">
         </mat-form-field>
-        <button type="submit"
-            mat-button color="primary" class="company-name-settings__save-button"
-            [disabled]="!nameField.dirty || submittingChangedName">
-            Save
-        </button>
+        <div class="text-filed-edit__buttons">
+            <button type="submit"
+                mat-button color="primary"
+                [disabled]="!nameField.dirty || submittingChangedName">
+                Save
+            </button>
+        </div>
+
     </form>
 
     <div *ngIf="isSaas" class="company-plan">
@@ -50,6 +53,32 @@
             </a>
         </div>
     </div>
+
+    <form *ngIf="currentUser && currentUser.role === 'ADMIN'"
+        class="text-filed-edit"
+        (ngSubmit)="handleChangeCompanyDomain()">
+        <mat-form-field appearance="outline" class="text-filed-edit__input">
+            <mat-label>White label custom domains</mat-label>
+            <input matInput name="company-custom-domain" #nameField="ngModel"
+                data-testid="custom-domain-input"
+                angulartics2On="change"
+                angularticsAction="Company: custom domain is edited"
+                [(ngModel)]="companyCustomDomainHostname">
+        </mat-form-field>
+        <div class="text-filed-edit__buttons">
+            <button type="submit"
+                mat-button color="primary" class="company-name-settings__save-button"
+                [disabled]="!nameField.dirty || submittingChangedName">
+                Save
+            </button>
+            <button type="button" *ngIf="companyCustomDomain.hostname"
+                mat-button color="warn" class="company-name-delete-button"
+                [disabled]="submittingChangedName"
+                (click)="deleteCompanyDomain()">
+                Delete
+            </button>
+        </div>
+    </form>
 
     <div class="tableHeader">
         <h2 class="heading-2 tableHeader__heading">Members <span *ngIf="currentPlan === 'free' && isSaas" data-testid="company-members-max-string">(max 3)</span></h2>
@@ -205,7 +234,7 @@
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
 
-    <mat-slide-toggle style="margin-top: 20px;" *ngIf="currentUser && currentUser.role === 'ADMIN'"
+    <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"
         name="showTestConnections"
         data-testid="company-test-connections-switch"
         [(ngModel)]="company.show_test_connections"

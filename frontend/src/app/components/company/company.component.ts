@@ -64,6 +64,17 @@ export class CompanyComponent {
   public submittingChangedName: boolean =false;
   public currentUser;
   public submittingUsersChange: boolean = false;
+  public companyCustomDomain: {
+    id: string,
+    companyId: string,
+    hostname: string
+  } = {
+    id: null,
+    companyId: '',
+    hostname: ''
+  };
+
+  public companyCustomDomainHostname: string;
 
   constructor(
     public _company: CompanyService,
@@ -79,6 +90,7 @@ export class CompanyComponent {
       this.company = res;
       this.setCompanyPlan(res.subscriptionLevel);
       this.getCompanyMembers(res.id);
+      this.getCompanyCustomDomain(res.id);
     });
 
     this._company.cast.subscribe( arg =>  {
@@ -89,10 +101,11 @@ export class CompanyComponent {
           this.getCompanyMembers(res.id);
           this.submittingUsersChange = false;
         });
-      }
-      else if (arg === 'deleted') {
+      } else if (arg === 'deleted') {
         this.submittingUsersChange = true;
         this.getCompanyMembers(this.company.id);
+      } else if (arg === 'domain') {
+        this.getCompanyCustomDomain(this.company.id);
       };
     });
   }
@@ -133,6 +146,15 @@ export class CompanyComponent {
       this.unsuspendedAdminsCount = res.filter(user => user.role === 'ADMIN' && !user.suspended).length;
       this.usersCount = this.company.invitations.length + res.length;
       this.submittingUsersChange = false;
+    });
+  }
+
+  getCompanyCustomDomain(companyId: string) {
+    this._company.getCustomDomain(companyId).subscribe(res => {
+      if (res) {
+        this.companyCustomDomain = res;
+        this.companyCustomDomainHostname = res.hostname;
+      }
     });
   }
 
@@ -217,6 +239,32 @@ export class CompanyComponent {
         action: 'Company: show test connections is updated successfully',
       });
     });
+  }
 
+  handleChangeCompanyDomain() {
+    this.submitting = true;
+    if (this.companyCustomDomain.id) {
+      this._company.updateCustomDomain(this.company.id, this.companyCustomDomain.id, this.companyCustomDomainHostname).subscribe(() => {
+        this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Company: domain is updated successfully',
+        });
+      });
+    } else {
+      this._company.createCustomDomain(this.company.id, this.companyCustomDomainHostname).subscribe(() => {
+        this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Company: domain is created successfully',
+        });
+      });
+    }
+  }
+
+  deleteCompanyDomain() {
+    this._company.deleteCustomDomain(this.company.id, this.companyCustomDomain.id).subscribe(() => {
+      this.angulartics2.eventTrack.next({
+        action: 'Company: domain is deleted successfully',
+      });
+    });
   }
 }

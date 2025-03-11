@@ -13,18 +13,28 @@
     margin-bottom: 40px;
 }
 
-.company-name-settings__name {
+.text-filed-edit {
+    position: relative;
+}
+
+.text-filed-edit__input {
     width: 100%;
 }
 
-.company-name-settings__save-button {
-    margin-left: -64px;
+.text-filed-edit__buttons {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(calc(-50% - 10px));
+    display: flex;
+    gap: 4px;
 }
 
 .company-plan {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 32px;
 }
 
 .company-plan-name {
@@ -188,4 +198,8 @@
 
 .role-select {
     width: 148px;
+}
+
+.test-connections-toggle {
+    margin-top: 32px;
 }
