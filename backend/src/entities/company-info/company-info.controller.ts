@@ -12,12 +12,13 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
@@ -250,6 +251,7 @@ export class CompanyInfoController {
   })
   @Post('/invite/verify/:verificationString')
   async verifyCompanyInvitation(
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @Param('verificationString') verificationString: string,
     @Body() verificationData: VerifyCompanyInvitationRequestDto,
@@ -276,12 +278,12 @@ export class CompanyInfoController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return {
       expires: tokenInfo.exp,
@@ -374,19 +376,20 @@ export class CompanyInfoController {
   @UseGuards(CompanyAdminGuard)
   @Delete('/my')
   async deleteCompany(
+    @Req() request: Request,
     @UserId() userId: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<SuccessResponse> {
     const deleteResult = await this.deleteCompanyUseCase.execute(userId, InTransactionEnum.OFF);
 
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
       expires: new Date(0),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
       httpOnly: false,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return deleteResult;
   }
