@@ -190,12 +190,16 @@ test.serial(`${currentTest} - should return found custom domain`, async (t) => {
     );
     t.is(foundDomainResponse.status, 200);
     const foundDomainResponseRO = await foundDomainResponse.json();
+    t.is(foundDomainResponseRO.hasOwnProperty('success'), true);
+    t.is(foundDomainResponseRO.hasOwnProperty('domain_info'), true);
 
-    t.is(foundDomainResponseRO.hostname, customDomain);
-    t.is(foundDomainResponseRO.companyId, companyId);
-    t.is(foundDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(foundDomainResponseRO.hasOwnProperty('createdAt'), true);
-    t.is(Object.keys(foundDomainResponseRO).length, 5);
+    const domainInfo = foundDomainResponseRO.domain_info;
+
+    t.is(domainInfo.hostname, customDomain);
+    t.is(domainInfo.companyId, companyId);
+    t.is(domainInfo.hasOwnProperty('id'), true);
+    t.is(domainInfo.hasOwnProperty('createdAt'), true);
+    t.is(Object.keys(domainInfo).length, 5);
   } catch (error) {
     t.fail(error.message);
   }
