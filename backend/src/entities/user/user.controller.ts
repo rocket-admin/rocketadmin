@@ -162,12 +162,12 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
@@ -178,7 +178,7 @@ export class UserController {
     description: 'Logged out.',
   })
   @Post('user/logout/')
-  async logOut(@Req() request: any, @Res({ passthrough: true }) response: Response): Promise<any> {
+  async logOut(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<any> {
     const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
     if (!token) {
       throw new HttpException(
@@ -190,12 +190,12 @@ export class UserController {
     }
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
       expires: new Date(0),
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
       httpOnly: false,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
@@ -209,6 +209,7 @@ export class UserController {
   })
   @Post('user/password/change/')
   async changeUsualPassword(
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @Body() changePasswordData: ChangeUsualUserPasswordDto,
     @UserId() userId: string,
@@ -225,12 +226,12 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
@@ -354,6 +355,7 @@ export class UserController {
   })
   @Put('user/delete/')
   async deleteUser(
+    @Req() request: Request,
     @UserId() userId: string,
     @Body() deletingAccountReasonData: DeleteUserAccountDTO,
     @Res({ passthrough: true }) response: Response,
@@ -363,13 +365,13 @@ export class UserController {
     const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
 
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
       expires: new Date(0),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
       httpOnly: false,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
 
     await slackPostMessage(slackMessage);
@@ -422,6 +424,7 @@ export class UserController {
   })
   @Post('user/otp/login/')
   async validateOtp(
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @UserId() userId: string,
     @Body() otpTokenData: OtpTokenDto,
@@ -432,12 +435,12 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return {
       expires: tokenInfo.exp,
