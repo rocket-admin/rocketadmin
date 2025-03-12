@@ -281,14 +281,18 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     datesColumnsNames: Array<string>,
   ) {
     const offset = (page - 1) * perPage;
-
+    const fastCount = await this.getFastRowsCount(knex, tableName, tableSchema);
     const applySearchFields = (builder: Knex.QueryBuilder) => {
       if (searchedFieldValue && searchedFields.length > 0) {
         for (const field of searchedFields) {
           if (Buffer.isBuffer(searchedFieldValue)) {
             builder.orWhere(field, '=', searchedFieldValue);
           } else {
-            builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+            if (fastCount <= 1000) {
+              builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `%${searchedFieldValue.toLowerCase()}%`]);
+            } else {
+              builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+            }
           }
         }
       }

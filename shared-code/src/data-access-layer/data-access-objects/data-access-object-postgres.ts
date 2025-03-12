@@ -151,7 +151,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         large_dataset: large_dataset,
       };
     }
-
+    const fastRowsCount = await this.getFastRowsCount(knex, tableName, tableSchema);
     const countRowsQB = knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
       .modify((builder) => {
@@ -164,6 +164,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
+              if (fastRowsCount <= 1000) {
+                builder.orWhereRaw(`LOWER(CAST(?? AS TEXT)) LIKE ?`, [field, `%${searchedFieldValue.toLowerCase()}%`]);
+              }
               builder.orWhereRaw(`LOWER(CAST(?? AS VARCHAR(255))) LIKE ?`, [
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,

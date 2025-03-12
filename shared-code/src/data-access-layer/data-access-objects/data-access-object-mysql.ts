@@ -187,7 +187,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
       return rowsRO;
     }
-
+    const fastRowsCount = await this.getFastRowsCount(knex, tableName, this.connection.database);
     const countRowsQB = knex(tableName)
       .modify((builder) => {
         let { search_fields } = settings;
@@ -199,7 +199,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+              if (fastRowsCount <= 1000) {
+                builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `%${searchedFieldValue.toLowerCase()}%`]);
+              } else {
+                builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+              }
             }
           }
         }

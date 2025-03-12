@@ -189,7 +189,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
           const parsedSearchedFieldValue = Buffer.from(searchedFieldValue, 'binary').toString('hex');
           condition = { [field]: this.createObjectIdFromSting(parsedSearchedFieldValue) };
         } else {
-          condition = { [field]: new RegExp('^' + String(searchedFieldValue), 'i') };
+          condition = { [field]: new RegExp(String(searchedFieldValue), 'i') };
         }
         acc.push(condition);
         return acc;

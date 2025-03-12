@@ -192,10 +192,17 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     let searchQuery = '';
     if (searchedFieldValue) {
       const searchFields = settings.search_fields?.length > 0 ? settings.search_fields : availableFields;
-      const searchConditions = searchFields
-        .map((field) => `LOWER(CAST(${field} AS VARCHAR(255))) LIKE '${searchedFieldValue.toLowerCase()}%'`)
-        .join(' OR ');
-      searchQuery = ` WHERE (${searchConditions})`;
+      if (rowsCount <= 1000) {
+        const searchConditions = searchFields
+          .map((field) => `LOWER(CAST(${field} AS VARCHAR(255))) LIKE '%${searchedFieldValue.toLowerCase()}%'`)
+          .join(' OR ');
+        searchQuery = ` WHERE (${searchConditions})`;
+      } else {
+        const searchConditions = searchFields
+          .map((field) => `LOWER(CAST(${field} AS VARCHAR(255))) LIKE '${searchedFieldValue.toLowerCase()}%'`)
+          .join(' OR ');
+        searchQuery = ` WHERE (${searchConditions})`;
+      }
     }
 
     let filterQuery = '';
@@ -550,15 +557,7 @@ WHERE
     tableSchema: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
     const connectionToDb = await this.getConnectionToDatabase();
-    const fastCountQuery = `
-    SELECT CARD 
-    FROM SYSIBM.SYSTABLES 
-    WHERE NAME = ? 
-    AND CREATOR = ?
-  `;
-    const fastCountParams = [tableName, tableSchema];
-    const fastCountQueryResult = await connectionToDb.query(fastCountQuery, fastCountParams);
-    const fastCount = fastCountQueryResult[0]['CARD'];
+    const fastCount = await this.getFastRowsCount(tableName, tableSchema);
     if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
       return { rowsCount: fastCount, large_dataset: true };
     }
@@ -569,6 +568,20 @@ WHERE
     const countResult = await connectionToDb.query(countQuery);
     const rowsCount = parseInt(countResult[0]['1']);
     return { rowsCount: rowsCount, large_dataset: false };
+  }
+
+  public async getFastRowsCount(tableName: string, tableSchema: string): Promise<number> {
+    const connectionToDb = await this.getConnectionToDatabase();
+    const fastCountQuery = `
+    SELECT CARD 
+    FROM SYSIBM.SYSTABLES 
+    WHERE NAME = ? 
+    AND CREATOR = ?
+  `;
+    const fastCountParams = [tableName, tableSchema];
+    const fastCountQueryResult = await connectionToDb.query(fastCountQuery, fastCountParams);
+    const fastCount = fastCountQueryResult[0]['CARD'];
+    return fastCount;
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
