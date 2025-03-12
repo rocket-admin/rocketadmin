@@ -137,6 +137,10 @@
     }
 }
 
+.company-members-table {
+    margin-bottom: 32px;
+}
+
 @media (width <= 600px) {
     .company-members-table {
         display: grid;

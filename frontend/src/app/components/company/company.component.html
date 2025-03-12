@@ -54,32 +54,6 @@
         </div>
     </div>
 
-    <form *ngIf="currentUser && currentUser.role === 'ADMIN'"
-        class="text-filed-edit"
-        (ngSubmit)="handleChangeCompanyDomain()">
-        <mat-form-field appearance="outline" class="text-filed-edit__input">
-            <mat-label>White label custom domains</mat-label>
-            <input matInput name="company-custom-domain" #nameField="ngModel"
-                data-testid="custom-domain-input"
-                angulartics2On="change"
-                angularticsAction="Company: custom domain is edited"
-                [(ngModel)]="companyCustomDomainHostname">
-        </mat-form-field>
-        <div class="text-filed-edit__buttons">
-            <button type="submit"
-                mat-button color="primary" class="company-name-settings__save-button"
-                [disabled]="!nameField.dirty || submittingChangedName">
-                Save
-            </button>
-            <button type="button" *ngIf="companyCustomDomain.hostname"
-                mat-button color="warn" class="company-name-delete-button"
-                [disabled]="submittingChangedName"
-                (click)="deleteCompanyDomain()">
-                Delete
-            </button>
-        </div>
-    </form>
-
     <div class="tableHeader">
         <h2 class="heading-2 tableHeader__heading">Members <span *ngIf="currentPlan === 'free' && isSaas" data-testid="company-members-max-string">(max 3)</span></h2>
         <div data-testid="company-invitation-button-wrapper"
@@ -101,7 +75,7 @@
     </div>
 
     <app-placeholder-table-data *ngIf="submittingUsersChange"></app-placeholder-table-data>
-    <table *ngIf="currentUser && members.length && !submittingUsersChange" mat-table [dataSource]="members" class="mat-elevation-z4 company-members-table">
+    <table *ngIf="currentUser && members.length && !submittingUsersChange" mat-table [dataSource]="members" class="mat-elevation-z2 company-members-table">
         <!-- Email Column -->
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>Email</th>
@@ -233,6 +207,43 @@
         <tr mat-header-row *matHeaderRowDef="membersTableDisplayedColumns" class="company-members-table-heading"></tr>
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
+
+    <div *ngIf="currentUser && currentUser.role !== 'ADMIN' && currentPlan !== 'free'">
+        <strong>Your admin panel address: </strong>
+        <span data-testid="company-custom-domain">{{companyCustomDomainHostname}}</span>
+    </div>
+
+    <form *ngIf="currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN')"
+        class="text-filed-edit"
+        (ngSubmit)="handleChangeCompanyDomain()">
+        <mat-form-field appearance="outline" class="text-filed-edit__input">
+            <mat-label>White label custom domains</mat-label>
+            <input matInput name="company-custom-domain" #nameField="ngModel"
+                data-testid="custom-domain-input"
+                angulartics2On="change"
+                angularticsAction="Company: custom domain is edited"
+                [placeholder]="company.name + '.example.com'"
+                [disabled]="currentPlan === 'free'"
+                [matTooltip]="currentPlan === 'free' && isSaas ? 'To white your domain please upgrade your plan (at least to team).' : null"
+                [(ngModel)]="companyCustomDomainHostname">
+            <mat-hint *ngIf="currentPlan === 'free' && isSaas" style="color: rgba(0,0,0,0.54)">
+                Use your own domain for a professional look and stronger brand recognition.
+            </mat-hint>
+        </mat-form-field>
+        <div class="text-filed-edit__buttons">
+            <button type="submit"
+                mat-button color="primary" class="company-name-settings__save-button"
+                [disabled]="!nameField.dirty || submittingChangedName">
+                Save
+            </button>
+            <button type="button" *ngIf="companyCustomDomain.hostname"
+                mat-button color="warn" class="company-name-delete-button"
+                [disabled]="submittingChangedName"
+                (click)="deleteCompanyDomain()">
+                Delete
+            </button>
+        </div>
+    </form>
 
     <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"
         name="showTestConnections"

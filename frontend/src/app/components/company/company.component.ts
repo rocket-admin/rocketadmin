@@ -151,9 +151,16 @@ export class CompanyComponent {
 
   getCompanyCustomDomain(companyId: string) {
     this._company.getCustomDomain(companyId).subscribe(res => {
-      if (res) {
-        this.companyCustomDomain = res;
-        this.companyCustomDomainHostname = res.hostname;
+      if (res.success) {
+        this.companyCustomDomain = res.domain_info;
+        this.companyCustomDomainHostname = res.domain_info.hostname;
+      } else {
+        this.companyCustomDomain = {
+          id: null,
+          companyId: companyId,
+          hostname: ''
+        };
+        this.companyCustomDomainHostname = '';
       }
     });
   }
