@@ -200,6 +200,17 @@ test.serial(`${currentTest} - should return found custom domain`, async (t) => {
     t.is(domainInfo.hasOwnProperty('id'), true);
     t.is(domainInfo.hasOwnProperty('createdAt'), true);
     t.is(Object.keys(domainInfo).length, 5);
+
+    const foundCompanyFullInfoResponse = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', simpleUserToken)
+      .set('Accept', 'application/json');
+
+    t.is(foundCompanyFullInfoResponse.status, 200);
+    const foundCompanyFullInfoResponseRO = JSON.parse(foundCompanyFullInfoResponse.text);
+    t.is(foundCompanyFullInfoResponseRO.hasOwnProperty('custom_domain'), true);
+    t.is(foundCompanyFullInfoResponseRO.custom_domain, requestDomainData.hostname);
   } catch (error) {
     t.fail(error.message);
   }
