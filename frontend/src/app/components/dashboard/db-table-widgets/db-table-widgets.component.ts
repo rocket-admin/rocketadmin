@@ -142,6 +142,13 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
   URL: `// No settings required`,
+  Foreign_key: `// Provide settings for foreign key widget
+{
+  "column_name": "", // copy the name of the column you selected
+  "referenced_column_name": "",
+  "referenced_table_name": ""
+}
+`,
   }
 
   constructor(

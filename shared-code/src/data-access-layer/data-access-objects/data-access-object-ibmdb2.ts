@@ -1,3 +1,13 @@
+import * as csv from 'csv';
+import getPort from 'get-port';
+import { Database, Pool } from 'ibm_db';
+import { nanoid } from 'nanoid';
+import { Readable, Stream } from 'node:stream';
+import { LRUStorage } from '../../caching/lru-storage.js';
+import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -10,18 +20,9 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { Database, Pool } from 'ibm_db';
-import { LRUStorage } from '../../caching/lru-storage.js';
-import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import getPort from 'get-port';
-import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
-import { Stream, Readable } from 'node:stream';
-import * as csv from 'csv';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -101,10 +102,14 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     fieldValues: (string | number)[],
   ): Promise<Array<Record<string, unknown>>> {
     const schemaName = this.connection.schema.toUpperCase();
-    this.validateNamesAndThrowError([tableName, referencedFieldName, identityColumnName, schemaName]);
+    const namesToValidate = [tableName, referencedFieldName, schemaName];
+    if (identityColumnName) {
+      namesToValidate.push(identityColumnName);
+    }
+    this.validateNamesAndThrowError(namesToValidate);
     const connectionToDb = await this.getConnectionToDatabase();
     const columnsToSelect = identityColumnName ? `${referencedFieldName}, ${identityColumnName}` : referencedFieldName;
-    const placeholders = fieldValues.map(() => '?').join(',');
+    const placeholders = fieldValues.map(() => '?').join(', ');
     const query = `
       SELECT ${columnsToSelect} 
       FROM ${schemaName}.${tableName.toUpperCase()}
@@ -187,10 +192,17 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     let searchQuery = '';
     if (searchedFieldValue) {
       const searchFields = settings.search_fields?.length > 0 ? settings.search_fields : availableFields;
-      const searchConditions = searchFields
-        .map((field) => `LOWER(CAST(${field} AS VARCHAR(255))) LIKE '${searchedFieldValue.toLowerCase()}%'`)
-        .join(' OR ');
-      searchQuery = ` WHERE (${searchConditions})`;
+      if (rowsCount <= 1000) {
+        const searchConditions = searchFields
+          .map((field) => `LOWER(CAST(${field} AS VARCHAR(255))) LIKE '%${searchedFieldValue.toLowerCase()}%'`)
+          .join(' OR ');
+        searchQuery = ` WHERE (${searchConditions})`;
+      } else {
+        const searchConditions = searchFields
+          .map((field) => `LOWER(CAST(${field} AS VARCHAR(255))) LIKE '${searchedFieldValue.toLowerCase()}%'`)
+          .join(' OR ');
+        searchQuery = ` WHERE (${searchConditions})`;
+      }
     }
 
     let filterQuery = '';
@@ -372,6 +384,9 @@ WHERE
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const connectionToDb = await this.getConnectionToDatabase();
     const query = `
     SELECT 1 FROM sysibm.sysdummy1 
@@ -389,6 +404,8 @@ WHERE
         result: false,
         message: error.message,
       };
+    } finally {
+      LRUStorage.delImdbDb2Cache(this.connection);
     }
     return {
       result: false,
@@ -540,15 +557,7 @@ WHERE
     tableSchema: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
     const connectionToDb = await this.getConnectionToDatabase();
-    const fastCountQuery = `
-    SELECT CARD 
-    FROM SYSIBM.SYSTABLES 
-    WHERE NAME = ? 
-    AND CREATOR = ?
-  `;
-    const fastCountParams = [tableName, tableSchema];
-    const fastCountQueryResult = await connectionToDb.query(fastCountQuery, fastCountParams);
-    const fastCount = fastCountQueryResult[0]['CARD'];
+    const fastCount = await this.getFastRowsCount(tableName, tableSchema);
     if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
       return { rowsCount: fastCount, large_dataset: true };
     }
@@ -559,6 +568,20 @@ WHERE
     const countResult = await connectionToDb.query(countQuery);
     const rowsCount = parseInt(countResult[0]['1']);
     return { rowsCount: rowsCount, large_dataset: false };
+  }
+
+  public async getFastRowsCount(tableName: string, tableSchema: string): Promise<number> {
+    const connectionToDb = await this.getConnectionToDatabase();
+    const fastCountQuery = `
+    SELECT CARD 
+    FROM SYSIBM.SYSTABLES 
+    WHERE NAME = ? 
+    AND CREATOR = ?
+  `;
+    const fastCountParams = [tableName, tableSchema];
+    const fastCountQueryResult = await connectionToDb.query(fastCountQuery, fastCountParams);
+    const fastCount = fastCountQueryResult[0]['CARD'];
+    return fastCount;
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {

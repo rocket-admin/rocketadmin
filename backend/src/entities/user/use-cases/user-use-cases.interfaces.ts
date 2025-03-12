@@ -1,7 +1,7 @@
 import { InTransactionEnum } from '../../../enums/index.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
-import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds.js';
+import { ChangeUsualUserPasswordDto } from '../application/data-structures/change-usual-user-password.ds.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { CreatedUserDs } from '../application/data-structures/created-user.ds.js';
 import { FindUserDs } from '../application/data-structures/find-user.ds.js';
@@ -56,7 +56,7 @@ export interface IFacebookLogin {
 }
 
 export interface IUsualPasswordChange {
-  execute(inputData: ChangeUsualUserPasswordDs, inTransaction: InTransactionEnum): Promise<IToken>;
+  execute(inputData: ChangeUsualUserPasswordDto, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IVerifyEmail {

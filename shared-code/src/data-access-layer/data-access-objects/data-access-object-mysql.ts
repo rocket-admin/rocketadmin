@@ -28,6 +28,7 @@ import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
 import { isMySqlDateOrTimeType, isMySQLDateStringByRegexp } from '../../helpers/is-database-date.js';
+import { nanoid } from 'nanoid';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -186,7 +187,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
       return rowsRO;
     }
-
+    const fastRowsCount = await this.getFastRowsCount(knex, tableName, this.connection.database);
     const countRowsQB = knex(tableName)
       .modify((builder) => {
         let { search_fields } = settings;
@@ -198,7 +199,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+              if (fastRowsCount <= 1000) {
+                builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `%${searchedFieldValue.toLowerCase()}%`]);
+              } else {
+                builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+              }
             }
           }
         }
@@ -391,6 +396,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex().select(1);
@@ -403,6 +411,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 

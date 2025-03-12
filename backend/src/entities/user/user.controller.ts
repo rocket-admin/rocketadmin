@@ -25,7 +25,10 @@ import { Constants } from '../../helpers/constants/constants.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
-import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds.js';
+import {
+  ChangeUsualUserPasswordDs,
+  ChangeUsualUserPasswordDto,
+} from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
 import { FoundUserDto } from './dto/found-user.dto.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
@@ -71,7 +74,7 @@ import { SuccessResponse } from '../../microservices/saas-microservice/data-stru
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('user')
+@ApiTags('User')
 @Injectable()
 export class UserController {
   constructor(
@@ -115,10 +118,10 @@ export class UserController {
     private readonly toggleTestConnectionsDisplayModeUseCase: IToggleTestConnectionsMode,
   ) {}
 
-  @ApiOperation({ summary: 'Get user' })
+  @ApiOperation({ summary: 'Find user' })
   @ApiResponse({
     status: 200,
-    description: 'Returns found user.',
+    description: 'User found.',
     type: FoundUserDto,
   })
   @Get('user')
@@ -135,7 +138,7 @@ export class UserController {
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({
     status: 201,
-    description: 'Login with email and password.',
+    description: 'Login successful.',
     type: TokenExpDs,
   })
   @Post('user/login/')
@@ -159,12 +162,12 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
@@ -172,10 +175,10 @@ export class UserController {
   @ApiOperation({ summary: 'Log out' })
   @ApiResponse({
     status: 201,
-    description: 'Log out.',
+    description: 'Logged out.',
   })
   @Post('user/logout/')
-  async logOut(@Req() request: any, @Res({ passthrough: true }) response: Response): Promise<any> {
+  async logOut(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<any> {
     const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
     if (!token) {
       throw new HttpException(
@@ -187,45 +190,48 @@ export class UserController {
     }
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
       expires: new Date(0),
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
       httpOnly: false,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Change user password' })
-  @ApiBody({ type: ChangeUsualUserPasswordDs })
+  @ApiBody({ type: ChangeUsualUserPasswordDto })
   @ApiResponse({
     status: 201,
-    description: 'Change user password.',
+    description: 'Password changed.',
     type: TokenExpDs,
   })
   @Post('user/password/change/')
   async changeUsualPassword(
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
-    @Body() changePasswordData: ChangeUsualUserPasswordDs,
+    @Body() changePasswordData: ChangeUsualUserPasswordDto,
+    @UserId() userId: string,
   ): Promise<ITokenExp> {
     const { email, newPassword, oldPassword } = changePasswordData;
     const inputData: ChangeUsualUserPasswordDs = {
       email: email,
       newPassword: newPassword,
       oldPassword: oldPassword,
+      userId: userId,
     };
     const tokenInfo = await this.changeUsualPasswordUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
@@ -233,7 +239,7 @@ export class UserController {
   @ApiOperation({ summary: 'Request user email verification' })
   @ApiResponse({
     status: 200,
-    description: 'Request user email verification.',
+    description: 'Email verification requested.',
     type: OperationResultMessageDs,
   })
   @Get('user/email/verify/request')
@@ -244,7 +250,7 @@ export class UserController {
   @ApiOperation({ summary: 'Verify user email' })
   @ApiResponse({
     status: 200,
-    description: 'Verify user email.',
+    description: 'Email verified.',
     type: OperationResultMessageDs,
   })
   @Get('user/email/verify/:verificationString')
@@ -259,7 +265,7 @@ export class UserController {
   @ApiBody({ type: PasswordDto })
   @ApiResponse({
     status: 201,
-    description: 'Verify user password reset.',
+    description: 'Password reset verified.',
     type: RegisteredUserDs,
   })
   @Post('user/password/reset/verify/:verificationString')
@@ -278,7 +284,7 @@ export class UserController {
   @ApiBody({ type: RequestRestUserPasswordDto })
   @ApiResponse({
     status: 201,
-    description: 'Request user password reset.',
+    description: 'Password reset requested.',
     type: OperationResultMessageDs,
   })
   @Post('user/password/reset/request/')
@@ -289,7 +295,7 @@ export class UserController {
   @ApiOperation({ summary: 'Request user email change' })
   @ApiResponse({
     status: 200,
-    description: 'Request user email change.',
+    description: 'Email change requested.',
     type: OperationResultMessageDs,
   })
   @Get('user/email/change/request/')
@@ -301,7 +307,7 @@ export class UserController {
   @ApiBody({ type: EmailDto })
   @ApiResponse({
     status: 201,
-    description: 'Verify user email change.',
+    description: 'Email change verified.',
     type: OperationResultMessageDs,
   })
   @Post('user/email/change/verify/:verificationString')
@@ -328,7 +334,7 @@ export class UserController {
   @ApiBody({ type: UserNameDto })
   @ApiResponse({
     status: 200,
-    description: 'Change user name.',
+    description: 'User name changed.',
     type: FoundUserDto,
   })
   @Put('user/name/')
@@ -344,11 +350,12 @@ export class UserController {
   @ApiBody({ type: DeleteUserAccountDTO })
   @ApiResponse({
     status: 200,
-    description: 'Delete user account.',
+    description: 'Account deleted.',
     type: RegisteredUserDs,
   })
   @Put('user/delete/')
   async deleteUser(
+    @Req() request: Request,
     @UserId() userId: string,
     @Body() deletingAccountReasonData: DeleteUserAccountDTO,
     @Res({ passthrough: true }) response: Response,
@@ -358,23 +365,23 @@ export class UserController {
     const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
 
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
       expires: new Date(0),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
       httpOnly: false,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
 
     await slackPostMessage(slackMessage);
     return deleteResult;
   }
 
-  @ApiOperation({ summary: 'Generate one time token and qr' })
+  @ApiOperation({ summary: 'Generate one time token and QR Code' })
   @ApiResponse({
     status: 201,
-    description: 'Generate one time token and qr.',
+    description: 'Token and QR generated.',
     type: OtpSecretDS,
   })
   @Post('user/otp/generate/')
@@ -386,7 +393,7 @@ export class UserController {
   @ApiBody({ type: OtpTokenDto })
   @ApiResponse({
     status: 201,
-    description: 'Verify one time token.',
+    description: 'Token verified.',
     type: OtpValidationResultDS,
   })
   @Post('user/otp/verify/')
@@ -395,11 +402,11 @@ export class UserController {
     return await this.verifyOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Disable user 2fa authentication' })
+  @ApiOperation({ summary: 'Disable user two-factor authentication' })
   @ApiBody({ type: OtpTokenDto })
   @ApiResponse({
     status: 201,
-    description: 'Disable user 2fa authentication.',
+    description: 'Two-factor authentication disabled.',
     type: OtpDisablingResultDS,
   })
   @Post('user/otp/disable/')
@@ -408,15 +415,16 @@ export class UserController {
     return await this.disableOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Validate 2fa token for login with second factor' })
+  @ApiOperation({ summary: 'Validate two-factor authentication token for login with second factor' })
   @ApiBody({ type: OtpTokenDto })
   @ApiResponse({
     status: 201,
-    description: 'Validate 2fa token for login with second factor.',
+    description: 'Two-factor authentication token validated.',
     type: TokenExpDs,
   })
   @Post('user/otp/login/')
   async validateOtp(
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @UserId() userId: string,
     @Body() otpTokenData: OtpTokenDto,
@@ -427,12 +435,12 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return {
       expires: tokenInfo.exp,
@@ -458,10 +466,10 @@ export class UserController {
     );
   }
 
-  @ApiOperation({ summary: 'Get user session settings' })
+  @ApiOperation({ summary: 'Find user session settings' })
   @ApiResponse({
     status: 201,
-    description: 'User session settings saved.',
+    description: 'User session settings found.',
     type: UserSettingsDataRequestDto,
   })
   @Get('user/settings/')
