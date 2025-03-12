@@ -122,6 +122,7 @@
                             angulartics2On="click"
                             angularticsAction="Connection settings: default display table is selected"
                             [(ngModel)]="connectionSettings.default_showing_table">
+                            <mat-option [value]="null"></mat-option>
                             <mat-option *ngFor="let table of tablesList" [value]="table.table">
                                 <div class="table-name">
                                     <span class="table-name__title">{{table.display_name || table.normalizedTableName}}</span>
