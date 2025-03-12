@@ -139,6 +139,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     tableSettings.ordering_field = tableSettings?.ordering_field || availableFields[0];
     tableSettings.ordering = tableSettings?.ordering || QueryOrderingEnum.ASC;
 
+    const fastRowsCount = await this.getFastRowsCount(receivedTableName);
     const rowsCountQuery = knex(tableNameWithSchema)
       .modify((builder) => {
         let search_fields = tableSettings?.search_fields || [];
@@ -152,6 +153,12 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
+              if (fastRowsCount <= 1000) {
+                builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
+                  field,
+                  `%${searchedFieldValue.toLowerCase()}%`,
+                ]);
+              }
               builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,
