@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum } from '../../enums/index.js';
@@ -23,12 +24,11 @@ import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-
 import { CreateOrUpdateTableWidgetsDto } from './dto/index.js';
 import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('table widgets')
+@ApiTags('Table widget')
 @Injectable()
 export class TableWidgetController {
   constructor(
@@ -39,10 +39,10 @@ export class TableWidgetController {
   ) {}
 
   @UseGuards(ConnectionReadGuard)
-  @ApiOperation({ summary: 'Get all table widgets' })
+  @ApiOperation({ summary: 'Find all table widgets' })
   @ApiResponse({
     status: 200,
-    description: 'Return all table widgets',
+    description: 'Table widgets found.',
     type: Array<TableWidgetRO>,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -76,7 +76,7 @@ export class TableWidgetController {
   @ApiOperation({ summary: 'Create new table widget' })
   @ApiResponse({
     status: 201,
-    description: 'Return table settings with created table widget',
+    description: 'Table widget created.',
     type: Array<TableWidgetRO>,
   })
   @ApiBody({ type: CreateOrUpdateTableWidgetsDto })

@@ -4,14 +4,17 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds.js';
+import {
+  ChangeUsualUserPasswordDs,
+  ChangeUsualUserPasswordDto,
+} from '../application/data-structures/change-usual-user-password.ds.js';
 import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
 import { IUsualPasswordChange } from './user-use-cases.interfaces.js';
 import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
 
 @Injectable()
 export class ChangeUsualPasswordUseCase
-  extends AbstractUseCase<ChangeUsualUserPasswordDs, IToken>
+  extends AbstractUseCase<ChangeUsualUserPasswordDto, IToken>
   implements IUsualPasswordChange
 {
   constructor(
@@ -22,7 +25,7 @@ export class ChangeUsualPasswordUseCase
   }
 
   protected async implementation(userData: ChangeUsualUserPasswordDs): Promise<IToken> {
-    const user = await this._dbContext.userRepository.findOneUserByEmail(userData.email);
+    const user = await this._dbContext.userRepository.findOneUserById(userData.email);
     if (!user) {
       throw new NotFoundException(Messages.USER_NOT_FOUND);
     }

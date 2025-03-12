@@ -325,7 +325,7 @@ export async function createTestOracleTable(
           [pColumnName]: ++counter,
           [testTableColumnName]: testSearchedUserName,
           [testTableSecondColumnName]: faker.internet.email(),
-          created_at: new Date(),
+          created_at: new Date("2010-11-03"),
           updated_at: new Date(),
         });
       } else {

@@ -59,6 +59,14 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return userQb.getOne();
   },
 
+  async findOneUserByEmailAndGroupId(email: string, groupId: string): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.groups', 'group')
+      .where('user.email = :userEmail', { userEmail: email?.toLowerCase() })
+      .andWhere('group.id = :groupId', { groupId: groupId });
+    return await userQb.getOne();
+  },
+
   async findOneUserWithEmailVerification(userId: string): Promise<UserEntity> {
     const usersQb = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.email_verification', 'email_verification')

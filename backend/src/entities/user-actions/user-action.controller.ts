@@ -13,15 +13,15 @@ import { CreateUserActionDto } from './dto/create-user-action.dto.js';
 @Injectable()
 @Controller()
 @ApiBearerAuth()
-@ApiTags('user actions')
+@ApiTags('User actions')
 export class UserActionController {
   constructor(
     @Inject(UseCaseType.CREATE_USER_ACTION)
     private readonly createUserActionUseCase: ICreateUserAction,
   ) {}
 
-  @ApiOperation({ summary: 'Create user action' })
-  @ApiResponse({ status: 201, description: 'Created user action' })
+  @ApiOperation({ summary: 'Create new user action' })
+  @ApiResponse({ status: 201, description: 'User action created.' })
   @ApiBody({ type: CreateUserActionDto })
   @Post('action')
   async createUserAction(

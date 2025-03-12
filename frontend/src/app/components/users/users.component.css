@@ -57,3 +57,7 @@ header {
     padding-right: 1.5em;
     width: calc(100% + 1em);
 }
+
+.no-access {
+    margin-top: 32px !important;
+}

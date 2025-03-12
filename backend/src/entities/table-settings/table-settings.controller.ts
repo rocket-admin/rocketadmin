@@ -13,6 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum, QueryOrderingEnum } from '../../enums/index.js';
@@ -32,12 +33,11 @@ import {
   IFindTableSettings,
   IUpdateTableSettings,
 } from './use-cases/use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('table settings')
+@ApiTags('Table settings')
 @Injectable()
 export class TableSettingsController {
   constructor(
@@ -51,10 +51,10 @@ export class TableSettingsController {
     private readonly deleteTableSettingsUseCase: IDeleteTableSettings,
   ) {}
 
-  @ApiOperation({ summary: 'Get all table settings in this connection' })
+  @ApiOperation({ summary: 'Find all table settings in this connection' })
   @ApiResponse({
     status: 200,
-    description: 'Return all table settings.',
+    description: 'Table settings found.',
     type: FoundTableSettingsDs,
   })
   @ApiQuery({ name: 'connectionId', required: true })
@@ -82,11 +82,11 @@ export class TableSettingsController {
     return await this.findTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create table settings' })
+  @ApiOperation({ summary: 'Create new table settings' })
   @ApiBody({ type: CreateTableSettingsDs })
   @ApiResponse({
     status: 201,
-    description: 'The settings was successfully created.',
+    description: 'Table settings created.',
     type: FoundTableSettingsDs,
   })
   @ApiQuery({ name: 'connectionId', required: true })
@@ -96,7 +96,7 @@ export class TableSettingsController {
   async createSettings(
     @QueryUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-     
+
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
@@ -149,7 +149,7 @@ export class TableSettingsController {
       allow_csv_export: allow_csv_export,
       allow_csv_import: allow_csv_import,
     };
-     
+
     const errors = this.validateParameters(inputData);
     if (errors.length > 0) {
       throw new HttpException(
@@ -166,7 +166,7 @@ export class TableSettingsController {
   @ApiBody({ type: CreateTableSettingsDs })
   @ApiResponse({
     status: 200,
-    description: 'The settings was successfully updated.',
+    description: 'Table settings updated.',
     type: FoundTableSettingsDs,
   })
   @ApiQuery({ name: 'connectionId', required: true })
@@ -176,7 +176,7 @@ export class TableSettingsController {
   async updateSettings(
     @QueryUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-     
+
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
@@ -228,7 +228,7 @@ export class TableSettingsController {
       allow_csv_export: allow_csv_export,
       allow_csv_import: allow_csv_import,
     };
-     
+
     const errors = this.validateParameters(inputData);
     if (errors.length > 0) {
       throw new HttpException(
@@ -245,7 +245,7 @@ export class TableSettingsController {
   @ApiBody({ type: CreateTableSettingsDs })
   @ApiResponse({
     status: 200,
-    description: 'The settings was successfully deleted.',
+    description: 'Table settings deleted.',
     type: FoundTableSettingsDs,
   })
   @ApiQuery({ name: 'connectionId', required: true })

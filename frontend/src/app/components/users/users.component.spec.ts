@@ -125,7 +125,7 @@ describe('UsersComponent', () => {
     component.openAddUserDialog(fakeGroup);
     expect(fakeAddUserDialogOpen).toHaveBeenCalledOnceWith(UserAddDialogComponent, {
       width: '25em',
-      data: fakeGroup
+      data: { group: fakeGroup, availableMembers: []}
     });
   });
 
@@ -158,65 +158,7 @@ describe('UsersComponent', () => {
     });
   });
 
-  it('should fetch users list if it is not in users object still', () => {
-    component.users = {
-      '87654321': [
-        {
-          "id": "user-12345678",
-          "createdAt": "2021-11-17T16:07:13.955Z",
-          "gclid": null,
-          "isActive": true,
-          "stripeId": "cus_87654321",
-          "email": "user1@test.com"
-        },
-        {
-          "id": "user-87654321",
-          "createdAt": "2021-10-01T13:43:02.034Z",
-          "gclid": null,
-          "isActive": true,
-          "stripeId": "cus_12345678",
-          "email": "user2@test.com"
-        }
-      ]
-    }
-
-    const fakeFetcGroupUsers = spyOn(component, 'fetchGroupUsers');
-
-    component.openUsersList('12345678');
-    expect(component.users['12345678']).toBeNull();
-    expect(fakeFetcGroupUsers).toHaveBeenCalledOnceWith('12345678');
-  });
-
-  it('should fetch users list if it is not in users object still', () => {
-    component.users = {
-      '87654321': [
-        {
-          "id": "user-12345678",
-          "createdAt": "2021-11-17T16:07:13.955Z",
-          "gclid": null,
-          "isActive": true,
-          "stripeId": "cus_87654321",
-          "email": "user1@test.com"
-        },
-        {
-          "id": "user-87654321",
-          "createdAt": "2021-10-01T13:43:02.034Z",
-          "gclid": null,
-          "isActive": true,
-          "stripeId": "cus_12345678",
-          "email": "user2@test.com"
-        }
-      ]
-    }
-
-    const fakeFetcGroupUsers = spyOn(component, 'fetchGroupUsers');
-
-    component.openUsersList('87654321');
-    expect(component.users['87654321']).not.toBeNull();
-    expect(fakeFetcGroupUsers).not.toHaveBeenCalled();
-  });
-
-  it('should set users list of group in users object', () => {
+  it('should set users list of group in users object', (done) => {
     const mockGroupUsersList = [
       {
         "id": "user-12345678",
@@ -238,16 +180,20 @@ describe('UsersComponent', () => {
 
     spyOn(usersService, 'fetcGroupUsers').and.returnValue(of(mockGroupUsersList));
 
-    component.fetchGroupUsers('12345678');
-    expect(component.users['12345678']).toEqual(mockGroupUsersList);
+    component.fetchAndPopulateGroupUsers('12345678').subscribe(() => {
+      expect(component.users['12345678']).toEqual(mockGroupUsersList);
+      done();
+    });
   });
 
-  it('should set \'empty\' value in users object', () => {
+  it('should set \'empty\' value in users object', (done) => {
     const mockGroupUsersList = []
 
     spyOn(usersService, 'fetcGroupUsers').and.returnValue(of(mockGroupUsersList));
 
-    component.fetchGroupUsers('12345678');
-    expect(component.users['12345678']).toEqual('empty');
+    component.fetchAndPopulateGroupUsers('12345678').subscribe(() => {
+      expect(component.users['12345678']).toEqual('empty');
+      done();
+    });
   });
 });

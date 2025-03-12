@@ -266,7 +266,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
 
     t.is(createTableSettingsResponse.status, 201);
 
-    const searchedDescription = '5';
+    const searchedDescription = '25';
 
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
