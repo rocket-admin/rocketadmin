@@ -434,7 +434,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     if (this.connection.ssl) {
       options = {
         ssl: true,
-        cert: this.connection.cert ? [this.connection.cert] : undefined,
+        ca: this.connection.cert ? [this.connection.cert] : undefined,
       };
     }
 
