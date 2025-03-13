@@ -248,7 +248,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
             return null;
           } else {
             expressionAttributeValues[`:${field}_value`] = { S: searchedFieldValue };
-            return `begins_with(#${field}, :${field}_value)`;
+            return `contains(#${field}, :${field}_value)`;
           }
         })
         .filter((expression) => expression !== null)

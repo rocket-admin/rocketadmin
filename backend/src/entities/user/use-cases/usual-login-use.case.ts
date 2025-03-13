@@ -13,6 +13,7 @@ import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-
 import { isTest } from '../../../helpers/app/is-test.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 
 @Injectable()
 export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualLogin {
@@ -35,6 +36,18 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       if (!user) {
         throw new NotFoundException(Messages.USER_NOT_FOUND);
       }
+    } else if (!Constants.APP_REQUEST_DOMAINS().includes(request_domain)) {
+      const foundUserCompanyIdByDomain =
+        await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(request_domain);
+      const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(
+        email,
+        foundUserCompanyIdByDomain,
+      );
+      if (!foundUser) {
+        throw new BadRequestException(Messages.USER_NOT_FOUND_FOR_THIS_DOMAIN);
+      }
+      user = foundUser;
+      companyId = foundUser.company.id;
     } else {
       const foundUsers = await this._dbContext.userRepository.findAllUsersWithEmail(email);
       if (foundUsers.length > 1) {
@@ -51,7 +64,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       throw new BadRequestException(Messages.PASSWORD_MISSING);
     }
 
-    await this.validateRequestDomain(request_domain, companyId, user.id);
+    await this.validateRequestDomain(request_domain, companyId);
 
     const passwordValidationResult = await Encryptor.verifyUserPassword(userData.password, user.password);
     if (!passwordValidationResult) {
@@ -64,7 +77,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     return generateGwtToken(user, get2FaScope(user, foundUserCompany));
   }
 
-  private async validateRequestDomain(requestDomain: string, companyId: string, userId: string): Promise<void> {
+  private async validateRequestDomain(requestDomain: string, companyId: string): Promise<void> {
     if (!isSaaS()) {
       return;
     }
@@ -85,10 +98,8 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
         return;
       }
     }
-    const companyIdByDomain: string | null = await this.saasCompanyGatewayService.getCompanyIdByCustomDomainAndUserId(
-      requestDomain,
-      userId,
-    );
+    const companyIdByDomain: string | null =
+      await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(requestDomain);
 
     if (companyIdByDomain && companyIdByDomain === companyId) {
       return;
