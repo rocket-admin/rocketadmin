@@ -101,7 +101,9 @@ export class PaymentFormComponent implements OnInit {
     ]
 
     this._userService.cast.subscribe(user => {
-      if (user) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
+      console.log('user');
+      console.log(user);
+      if (user && user.company.id) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
         this.companyId = user.company.id;
         this.paymentElementForm = this.fb.group({
           name: [user.name, [Validators.required]],
