@@ -3,7 +3,7 @@
 import * as BSON from 'bson';
 import * as csv from 'csv';
 import getPort from 'get-port';
-import { Db, MongoClient, ObjectId } from 'mongodb';
+import { Db, MongoClient, MongoClientOptions, ObjectId } from 'mongodb';
 import { nanoid } from 'nanoid';
 import { Readable, Stream } from 'stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
@@ -430,11 +430,11 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       mongoConnectionString = `mongodb://${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${this.connection.host}:${this.connection.port}/${this.connection.database || ''}`;
     }
 
-    let options: any = {};
+    let options: MongoClientOptions = {};
     if (this.connection.ssl) {
       options = {
         ssl: true,
-        sslCA: this.connection.cert ? [this.connection.cert] : undefined,
+        cert: this.connection.cert ? [this.connection.cert] : undefined,
       };
     }
 
