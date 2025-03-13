@@ -325,6 +325,7 @@ export const Messages = {
   USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,
   USER_ALREADY_REGISTERED: (email: string) => `User with email ${email} is already registered`,
   USER_NOT_FOUND: 'User with specified parameters not found',
+  USER_NOT_FOUND_FOR_THIS_DOMAIN: 'User not found for this company domain. Please provide company id.',
   USER_NOT_INVITED_IN_COMPANY: (email: string) =>
     `User ${email} is not invited in company. Invite user in company first`,
   USER_ID_MISSING: 'User id is missing',
