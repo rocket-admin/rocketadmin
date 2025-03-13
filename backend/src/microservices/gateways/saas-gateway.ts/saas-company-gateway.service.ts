@@ -307,15 +307,8 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     return null;
   }
 
-  public async getCompanyIdByCustomDomainAndUserId(
-    customCompanyDomain: string,
-    userId: string,
-  ): Promise<string | null> {
-    const result = await this.sendRequestToSaaS(
-      `/webhook/company/domain/${customCompanyDomain}/${userId}`,
-      'GET',
-      null,
-    );
+  public async getCompanyIdByCustomDomain(customCompanyDomain: string): Promise<string | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/domain/${customCompanyDomain}/`, 'GET', null);
     if (result.status > 299) {
       throw new HttpException(
         {
