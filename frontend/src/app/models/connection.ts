@@ -18,6 +18,7 @@ export enum ConnectionType {
 export interface Connection {
     id: string | null,
     database: string,
+    authSource?: string,
 ​​    title: string,
     host: string,
     port: string,
