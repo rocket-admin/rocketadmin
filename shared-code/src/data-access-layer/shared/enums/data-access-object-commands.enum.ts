@@ -10,6 +10,7 @@ export enum DataAccessObjectCommandsEnum {
   testConnect = 'testConnect',
   updateRowInTable = 'updateRowInTable',
   bulkUpdateRowsInTable = 'bulkUpdateRowsInTable',
+  bulkDeleteRowsInTable = 'bulkDeleteRowsInTable',
   validateSettings = 'validateSettings',
   getIdentityColumns = 'getIdentityColumns',
   getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',

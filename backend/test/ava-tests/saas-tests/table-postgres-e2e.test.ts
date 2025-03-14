@@ -3576,6 +3576,17 @@ test.serial(`${currentTest} should delete row in table and return result`, async
       -1,
     );
   }
+
+  // check that deletion of rows was logged
+
+  const getTableLogs = await request(app.getHttpServer())
+    .get(`/logs/${createConnectionRO.id}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const getRowInTableRO = JSON.parse(getTableLogs.text);
+  const deleteRowsLogs = getRowInTableRO.logs.filter((log) => log.operationType === LogOperationTypeEnum.deleteRow);
+  t.is(deleteRowsLogs.length, primaryKeysForDeletion.length);
 });
 
 test.serial(`${currentTest} should test connection and return result`, async (t) => {
@@ -3594,22 +3605,25 @@ test.serial(`${currentTest} should test connection and return result`, async (t)
   t.is(message, 'Successfully connected');
 });
 
-test.serial(`${currentTest} should test connection and return negative result when connection password is incorrect result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+test.serial(
+  `${currentTest} should test connection and return negative result when connection password is incorrect result`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
-  connectionToTestDB.password = '8764323452888';
-  const testConnectionResponse = await request(app.getHttpServer())
-    .post('/connection/test/')
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    connectionToTestDB.password = '8764323452888';
+    const testConnectionResponse = await request(app.getHttpServer())
+      .post('/connection/test/')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(testConnectionResponse.status, 201);
-  const { result } = JSON.parse(testConnectionResponse.text);
-  t.is(result, false);
-});
+    t.is(testConnectionResponse.status, 201);
+    const { result } = JSON.parse(testConnectionResponse.text);
+    t.is(result, false);
+  },
+);
 
 currentTest = 'GET table/csv/:slug';
 

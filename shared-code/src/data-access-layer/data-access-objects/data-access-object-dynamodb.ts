@@ -513,6 +513,41 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     return primaryKeys as any;
   }
 
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const { documentClient } = this.getDynamoDb();
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const deletePromises = primaryKeys.map(async (primaryKey) => {
+      for (const key in primaryKey) {
+        const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+        if (foundKeySchema?.data_type === 'number') {
+          const numericValue = Number(primaryKey[key]);
+          if (!isNaN(numericValue)) {
+            primaryKey[key] = numericValue;
+          }
+        }
+      }
+
+      try {
+        const params = {
+          TableName: tableName,
+          Key: marshall(primaryKey),
+        };
+        await documentClient.send(new DeleteItemCommand(params));
+      } catch (e) {
+        console.error(`Failed to delete item with key ${JSON.stringify(primaryKey)}: ${e.message}`);
+      }
+    });
+
+    await Promise.all(deletePromises);
+    return primaryKeys.length;
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),

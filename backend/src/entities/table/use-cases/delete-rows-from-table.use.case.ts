@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
@@ -13,9 +13,6 @@ import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
 import { IDeleteRowsFromTable } from './table-use-cases.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import PQueue from 'p-queue';
 
 type DeleteRowsFromTableResult = {
   operationStatusResult: OperationResultStatusEnum;
@@ -113,7 +110,7 @@ export class DeleteRowsFromTableUseCase
         );
       }
     });
-
+    // todo need improve
     let oldRowsData: Array<Record<string, unknown>>;
     try {
       oldRowsData = await Promise.all(
@@ -130,34 +127,28 @@ export class DeleteRowsFromTableUseCase
 
     const deleteOperationsResults: Array<DeleteRowsFromTableResult> = [];
 
-    const queue = new PQueue({ concurrency: 5 });
-    const deleteRowsResults: Array<DeleteRowsFromTableResult | void> = await Promise.all(
-      primaryKeys.map((primaryKey) =>
-        queue.add(() => this.deleteRowFromTable(dao, tableName, primaryKey, oldRowsData, userEmail)),
-      ),
-    );
-
-    const deletionErrors: Array<string> = [];
-    deleteRowsResults.forEach((result) => {
-      if (result) {
-        deleteOperationsResults.push(result);
-        if (result.error) {
-          deletionErrors.push(result.error);
-        }
-      }
-    });
-
     try {
-      if (deletionErrors.length > 0) {
-        throw new HttpException(
-          {
-            message: Messages.BULK_DELETE_FAILED_DELETE_ROWS(deletionErrors),
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+      await dao.bulkDeleteRowsInTable(tableName, primaryKeys, userEmail);
+      primaryKeys.forEach((primaryKey) => {
+        deleteOperationsResults.push({
+          operationStatusResult: OperationResultStatusEnum.successfully,
+          row: primaryKey,
+          old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
+          error: null,
+          affected_primary_key: primaryKey as unknown as string,
+        });
+      });
       return true;
     } catch (error) {
+      primaryKeys.forEach((primaryKey) => {
+        deleteOperationsResults.push({
+          operationStatusResult: OperationResultStatusEnum.unsuccessfully,
+          row: primaryKey,
+          old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
+          error: error.message,
+          affected_primary_key: primaryKey as unknown as string,
+        });
+      });
       throw error;
     } finally {
       const createdLogs = await this.tableLogsService.createAndSaveNewLogsUtil(
@@ -173,36 +164,6 @@ export class DeleteRowsFromTableUseCase
         userId,
         { operationCount: createdLogs.length },
       );
-    }
-  }
-
-  private async deleteRowFromTable(
-    dataAccessObject: IDataAccessObject | IDataAccessObjectAgent,
-    tableName: string,
-    primaryKey: Record<string, unknown>,
-    oldRowsData: Array<Record<string, unknown>>,
-    userEmail: string,
-  ): Promise<DeleteRowsFromTableResult> {
-    let operationResult = OperationResultStatusEnum.unknown;
-    try {
-      await dataAccessObject.deleteRowInTable(tableName, primaryKey, userEmail);
-      operationResult = OperationResultStatusEnum.successfully;
-      return {
-        operationStatusResult: operationResult,
-        row: primaryKey,
-        old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
-        error: null,
-        affected_primary_key: primaryKey as unknown as string,
-      };
-    } catch (error) {
-      operationResult = OperationResultStatusEnum.unsuccessfully;
-      return {
-        operationStatusResult: operationResult,
-        row: primaryKey,
-        old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
-        error: error.message,
-        affected_primary_key: primaryKey as unknown as string,
-      };
     }
   }
 }

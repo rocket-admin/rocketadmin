@@ -74,6 +74,12 @@ export interface IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>>;
 
+  bulkDeleteRowsInTable(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    userEmail: string,
+  ): Promise<number>;
+
   validateSettings(settings: ValidateTableSettingsDS, tableName: string, userEmail: string): Promise<Array<string>>;
 
   getReferencedTableNamesAndColumns(

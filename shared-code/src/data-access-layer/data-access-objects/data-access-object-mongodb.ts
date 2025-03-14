@@ -345,6 +345,14 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     return { _id: objectIds.map((objectId) => this.processMongoIdField(objectId)) };
   }
 
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+    const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
+    await collection.deleteMany({ _id: { $in: objectIds } });
+    return primaryKeys.length;
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),

@@ -459,6 +459,11 @@ WHERE
     return newValues;
   }
 
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    await Promise.allSettled(primaryKeys.map((key) => this.deleteRowInTable(tableName, key)));
+    return primaryKeys.length;
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),
