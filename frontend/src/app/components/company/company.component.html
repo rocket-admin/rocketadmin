@@ -13,6 +13,7 @@
         <mat-form-field appearance="outline" class="text-filed-edit__input">
             <mat-label>Company name</mat-label>
             <input matInput name="company-name" #nameField="ngModel"
+                [disabled]="submittingChangedName"
                 data-testid="company-name-input"
                 angulartics2On="change"
                 angularticsAction="Company: company name is edited"
@@ -22,7 +23,7 @@
             <button type="submit"
                 mat-button color="primary"
                 [disabled]="!nameField.dirty || submittingChangedName">
-                Save
+                {{submittingChangedName ? 'Saving' : 'Save'}}
             </button>
         </div>
 
@@ -218,13 +219,13 @@
         (ngSubmit)="handleChangeCompanyDomain()">
         <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
             <mat-label>White label custom domain</mat-label>
-            <input matInput name="company-custom-domain" #nameField="ngModel"
+            <input matInput name="company-custom-domain" #domainField="ngModel"
                 data-testid="custom-domain-input"
                 angulartics2On="change"
                 angularticsAction="Company: custom domain is edited"
                 [placeholder]="companyCustomDomainPlaceholder"
                 [readonly]="currentUser.role === 'DB_ADMIN'"
-                [disabled]="currentPlan === 'free'"
+                [disabled]="currentPlan === 'free' || submittingCustomDomain"
                 [matTooltip]="currentPlan === 'free' && isSaas ? 'To white‑label your domain, please upgrade to the Team plan or higher.' : null"
                 [(ngModel)]="companyCustomDomainHostname">
             <mat-hint *ngIf="currentPlan === 'free' && isSaas" style="color: rgba(0,0,0,0.54)">
@@ -241,12 +242,12 @@
         <div class="text-filed-edit__buttons">
             <button type="submit" *ngIf="currentUser.role === 'ADMIN'"
                 mat-button color="primary"
-                [disabled]="!nameField.dirty || submittingChangedName">
-                Save
+                [disabled]="!domainField.dirty || submittingCustomDomain">
+                {{submittingCustomDomain ? 'Saving' : 'Save'}}
             </button>
             <button type="button" *ngIf="companyCustomDomain.hostname && currentUser.role === 'ADMIN'"
                 mat-button color="warn"
-                [disabled]="submittingChangedName"
+                [disabled]="submittingCustomDomain"
                 (click)="deleteCompanyDomain()">
                 Delete
             </button>

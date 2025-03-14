@@ -77,6 +77,7 @@ export class CompanyComponent {
   public companyCustomDomainHostname: string;
   public companyCustomDomainPlaceholder: string;
   public companyCustomDomainThirdLevel: string;
+  public submittingCustomDomain: boolean = false;
 
   constructor(
     public _company: CompanyService,
@@ -254,17 +255,17 @@ export class CompanyComponent {
   }
 
   handleChangeCompanyDomain() {
-    this.submitting = true;
+    this.submittingCustomDomain = true;
     if (this.companyCustomDomain.id) {
       this._company.updateCustomDomain(this.company.id, this.companyCustomDomain.id, this.companyCustomDomainHostname).subscribe(() => {
-        this.submitting = false;
+        this.submittingCustomDomain = false;
         this.angulartics2.eventTrack.next({
           action: 'Company: domain is updated successfully',
         });
       });
     } else {
       this._company.createCustomDomain(this.company.id, this.companyCustomDomainHostname).subscribe(() => {
-        this.submitting = false;
+        this.submittingCustomDomain = false;
         this.angulartics2.eventTrack.next({
           action: 'Company: domain is created successfully',
         });
