@@ -207,3 +207,27 @@
 .test-connections-toggle {
     margin-top: 32px;
 }
+
+.cname-hint {
+    margin-top: 2px;
+}
+
+.cname-value {
+    position: relative;
+    padding: 0 4px;
+}
+
+.cname-value::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--color-accentedPalette-200);
+    border-radius: 4px;
+    height: 100%;
+    opacity: 0.5;
+    width: 100%;
+    z-index: -1;
+}

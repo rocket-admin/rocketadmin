@@ -250,7 +250,25 @@ export class CompanyService {
     return this._http.post<any>(config.saasURL + `/saas/custom-domain/register/${companyId}`, { hostname })
       .pipe(
         map(res => {
-          this._notifications.showSuccessSnackbar('Custom domain has been added.');
+          // this._notifications.showAlert('Custom domain has been added.');
+          this._notifications.showAlert(AlertType.Success,
+            {
+              abstract: `Now your admin panel is live on your own domain: ${hostname}`,
+              details: 'Check it out! If you have any issues or need help setting up your domain or CNAME record, please reach out to our support team.'
+            },
+            [
+              {
+                type: AlertActionType.Anchor,
+                caption: 'Open',
+                to: `https://${hostname}`
+              },
+              {
+                type: AlertActionType.Button,
+                caption: 'Dismiss',
+                action: (id: number) => this._notifications.dismissAlert()
+              }
+            ]
+          );
           this.company.next('domain');
           return res
         }),
@@ -265,7 +283,7 @@ export class CompanyService {
   updateCustomDomain(companyId: string, domainId: string, hostname: string) {
     const config = this._configuration.getConfig();
 
-    return this._http.put<any>(config.saasURL + `/saas/custom-domain/update/${domainId}/${companyId}`, { hostname })
+    return this._http.put<any>(config.saasURL + `/saas/custom-domain/update/${companyId}`, { hostname })
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar('Custom domain has been updated.');
@@ -283,7 +301,7 @@ export class CompanyService {
   deleteCustomDomain(companyId: string, domainId: string) {
     const config = this._configuration.getConfig();
 
-    return this._http.delete<any>(config.saasURL + `/saas/custom-domain/delete/${domainId}/${companyId}`)
+    return this._http.delete<any>(config.saasURL + `/saas/custom-domain/delete/${companyId}`)
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar('Custom domain has been removed.');

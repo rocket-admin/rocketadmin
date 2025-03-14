@@ -75,6 +75,8 @@ export class CompanyComponent {
   };
 
   public companyCustomDomainHostname: string;
+  public companyCustomDomainPlaceholder: string;
+  public companyCustomDomainThirdLevel: string;
 
   constructor(
     public _company: CompanyService,
@@ -154,6 +156,7 @@ export class CompanyComponent {
       if (res.success) {
         this.companyCustomDomain = res.domain_info;
         this.companyCustomDomainHostname = res.domain_info.hostname;
+        this.companyCustomDomainThirdLevel = this.companyCustomDomainHostname.split('.')[0];
       } else {
         this.companyCustomDomain = {
           id: null,
@@ -161,6 +164,8 @@ export class CompanyComponent {
           hostname: ''
         };
         this.companyCustomDomainHostname = '';
+        this.companyCustomDomainPlaceholder = `${this.company.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.example.com`;
+        this.companyCustomDomainThirdLevel = this.companyCustomDomainPlaceholder.split('.')[0];
       }
     });
   }
