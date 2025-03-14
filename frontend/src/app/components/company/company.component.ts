@@ -25,6 +25,7 @@ import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/pl
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { NgIf } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { DeleteDomainDialogComponent } from './delete-domain-dialog/delete-domain-dialog.component';
 
 @Component({
   selector: 'app-company',
@@ -257,7 +258,7 @@ export class CompanyComponent {
   handleChangeCompanyDomain() {
     this.submittingCustomDomain = true;
     if (this.companyCustomDomain.id) {
-      this._company.updateCustomDomain(this.company.id, this.companyCustomDomain.id, this.companyCustomDomainHostname).subscribe(() => {
+      this._company.updateCustomDomain(this.company.id, this.companyCustomDomain.id).subscribe(() => {
         this.submittingCustomDomain = false;
         this.angulartics2.eventTrack.next({
           action: 'Company: domain is updated successfully',
@@ -273,11 +274,10 @@ export class CompanyComponent {
     }
   }
 
-  deleteCompanyDomain() {
-    this._company.deleteCustomDomain(this.company.id, this.companyCustomDomain.id).subscribe(() => {
-      this.angulartics2.eventTrack.next({
-        action: 'Company: domain is deleted successfully',
-      });
+  handleDeleteDomainDialogOpen() {
+    this.dialog.open(DeleteDomainDialogComponent, {
+      width: '25em',
+      data: { companyId: this.company.id, domain: this.companyCustomDomainHostname }
     });
   }
 }

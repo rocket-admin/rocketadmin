@@ -280,7 +280,7 @@ export class CompanyService {
       );
   }
 
-  updateCustomDomain(companyId: string, domainId: string, hostname: string) {
+  updateCustomDomain(companyId: string, hostname: string) {
     const config = this._configuration.getConfig();
 
     return this._http.put<any>(config.saasURL + `/saas/custom-domain/update/${companyId}`, { hostname })
@@ -298,7 +298,7 @@ export class CompanyService {
       );
   }
 
-  deleteCustomDomain(companyId: string, domainId: string) {
+  deleteCustomDomain(companyId: string) {
     const config = this._configuration.getConfig();
 
     return this._http.delete<any>(config.saasURL + `/saas/custom-domain/delete/${companyId}`)

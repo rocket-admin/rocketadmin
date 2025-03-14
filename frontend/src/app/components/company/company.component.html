@@ -209,7 +209,7 @@
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
 
-    <div *ngIf="currentUser && currentUser.role === 'USER' && currentPlan !== 'free'">
+    <div *ngIf="currentUser && currentUser.role === 'USER' && currentPlan !== 'free' && companyCustomDomainHostname">
         <strong>Your admin panel address: </strong>
         <span data-testid="company-custom-domain">{{companyCustomDomainHostname}}</span>
     </div>
@@ -223,7 +223,7 @@
                 data-testid="custom-domain-input"
                 angulartics2On="change"
                 angularticsAction="Company: custom domain is edited"
-                [placeholder]="companyCustomDomainPlaceholder"
+                placeholder="e.g. {{companyCustomDomainPlaceholder}}"
                 [readonly]="currentUser.role === 'DB_ADMIN'"
                 [disabled]="currentPlan === 'free' || submittingCustomDomain"
                 [matTooltip]="currentPlan === 'free' && isSaas ? 'To white‑label your domain, please upgrade to the Team plan or higher.' : null"
@@ -248,7 +248,7 @@
             <button type="button" *ngIf="companyCustomDomain.hostname && currentUser.role === 'ADMIN'"
                 mat-button color="warn"
                 [disabled]="submittingCustomDomain"
-                (click)="deleteCompanyDomain()">
+                (click)="handleDeleteDomainDialogOpen()">
                 Delete
             </button>
             <a *ngIf="currentUser.role === 'DB_ADMIN'"
