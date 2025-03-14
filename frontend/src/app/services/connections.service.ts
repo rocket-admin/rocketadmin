@@ -36,6 +36,7 @@ export class ConnectionsService {
     username: '',
     password: '',
     database: '',
+    authSource: '',
     title: '',
     ssh: false,
     privateSSHKey: '',
