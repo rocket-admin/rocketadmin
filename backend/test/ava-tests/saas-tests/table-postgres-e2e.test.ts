@@ -3515,7 +3515,7 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 
 currentTest = 'DELETE /table/rows/:slug';
 
-test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
+test.serial(`${currentTest} should delete rows in table and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =

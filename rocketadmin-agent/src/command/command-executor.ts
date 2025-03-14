@@ -83,6 +83,25 @@ export class CommandExecutor {
           );
         }
         break;
+      case OperationTypeEnum.bulkGetRowsFromTableByPrimaryKeys:
+        try {
+          operationStatusResult = OperationResultStatusEnum.successfully;
+          return await dao.bulkGetRowsFromTableByPrimaryKeys(tableName, primaryKey, tableSettings);
+        } catch (e) {
+          operationStatusResult = OperationResultStatusEnum.unsuccessfully;
+          console.log(Messages.FAIL_MESSAGE(e.message));
+          return new Error(Messages.FAILED_GET_ROWS_FROM_TABLE);
+        } finally {
+          Logger.createLogRecord(
+            primaryKey,
+            tableName,
+            email,
+            LogOperationTypeEnum.rowsReceived,
+            operationStatusResult,
+            null,
+          );
+        }
+        break;
       case OperationTypeEnum.getRowsFromTable:
         try {
           operationStatusResult = OperationResultStatusEnum.successfully;

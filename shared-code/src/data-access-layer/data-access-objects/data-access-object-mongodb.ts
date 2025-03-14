@@ -126,6 +126,44 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     };
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+
+    const objectIds = primaryKeys.map((primaryKey) => {
+      if (primaryKey._id) {
+        return this.createObjectIdFromSting(primaryKey._id as string);
+      }
+      throw new Error('Missing _id in primary key');
+    });
+
+    let availableFields: string[] = [];
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = { _id: { $in: objectIds } };
+
+    const rows = await collection.find(query).toArray();
+
+    return rows.map((row) => {
+      const processedRow = { ...row, _id: this.processMongoIdField(row._id) };
+      if (availableFields.length > 0) {
+        Object.keys(processedRow).forEach((key) => {
+          if (!availableFields.includes(key)) {
+            delete processedRow[key];
+          }
+        });
+      }
+      return processedRow;
+    });
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,

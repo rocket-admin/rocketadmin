@@ -113,9 +113,7 @@ export class DeleteRowsFromTableUseCase
     // todo need improve
     let oldRowsData: Array<Record<string, unknown>>;
     try {
-      oldRowsData = await Promise.all(
-        primaryKeys.map((primaryKey) => dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail)),
-      );
+      oldRowsData = await dao.bulkGetRowsFromTableByPrimaryKeys(tableName, primaryKeys, tableSettings, userEmail);
     } catch (error) {
       throw new HttpException(
         {
