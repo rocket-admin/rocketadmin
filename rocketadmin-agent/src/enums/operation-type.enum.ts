@@ -10,6 +10,7 @@ export enum OperationTypeEnum {
   testConnect = 'testConnect',
   updateRowInTable = 'updateRowInTable',
   bulkUpdateRowsInTable = 'bulkUpdateRowsInTable',
+  bulkDeleteRowsInTable = 'bulkDeleteRowsInTable',
   validateSettings = 'validateSettings',
   initialConnection = 'initialConnection',
   dataFromAgent = 'dataFromAgent',

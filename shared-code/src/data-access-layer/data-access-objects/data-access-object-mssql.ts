@@ -394,6 +394,31 @@ WHERE TABLE_TYPE = 'VIEW'
       .update(newValues);
   }
 
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    await knex.transaction(async (trx) => {
+      await trx(tableWithSchema)
+        .delete()
+        .modify((queryBuilder) => {
+          primaryKeys.forEach((key) => {
+            queryBuilder.orWhere((builder) => {
+              Object.entries(key).forEach(([column, value]) => {
+                builder.andWhere(column, value);
+              });
+            });
+          });
+        });
+    });
+
+    return primaryKeys.length;
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),

@@ -234,6 +234,25 @@ export class CommandExecutor {
           Logger.createLogRecord(row, tableName, email, LogOperationTypeEnum.updateRow, operationStatusResult, null);
         }
         break;
+      case OperationTypeEnum.bulkDeleteRowsInTable:
+        try {
+          operationStatusResult = OperationResultStatusEnum.successfully;
+          return await dao.bulkDeleteRowsInTable(tableName, primaryKey);
+        } catch (e) {
+          operationStatusResult = OperationResultStatusEnum.unsuccessfully;
+          console.log(Messages.FAIL_MESSAGE(e.message));
+          return new Error(Messages.FAILED_TO_UPDATE_ROWS);
+        } finally {
+          Logger.createLogRecord(
+            primaryKey,
+            tableName,
+            email,
+            LogOperationTypeEnum.deleteRow,
+            operationStatusResult,
+            null,
+          );
+        }
+        break;
       case OperationTypeEnum.executeRawQuery:
         try {
           return await dao.executeRawQuery(row, tableName);
