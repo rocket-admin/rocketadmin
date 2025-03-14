@@ -145,6 +145,45 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     return result[0];
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    this.validateNamesAndThrowError([tableName, this.connection.schema, ...primaryKeys.flatMap(Object.keys)]);
+
+    const connectionToDb = await this.getConnectionToDatabase();
+    const schemaName = this.connection.schema.toUpperCase();
+    tableName = tableName.toUpperCase();
+
+    let selectFields = '*';
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      const availableFields = this.findAvailableFields(settings, tableStructure);
+      selectFields = availableFields.join(', ');
+    }
+
+    const whereClauses = primaryKeys
+      .map((primaryKey) => {
+        const conditions = Object.entries(primaryKey)
+          .map(([key, _value]) => `${key} = ?`)
+          .join(' AND ');
+        return `(${conditions})`;
+      })
+      .join(' OR ');
+
+    const flatPrimaryKeysValues = primaryKeys.flatMap(Object.values);
+
+    const query = `
+      SELECT ${selectFields}
+      FROM ${schemaName}.${tableName}
+      WHERE ${whereClauses}
+    `;
+
+    const results = await connectionToDb.query(query, flatPrimaryKeysValues);
+    return results;
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,

@@ -29,6 +29,12 @@ export interface IDataAccessObject {
     settings: TableSettingsDS,
   ): Promise<Record<string, unknown>>;
 
+  bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>>;
+
   getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,

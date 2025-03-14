@@ -6,6 +6,7 @@ import {
   PutItemCommand,
   ScanCommand,
   UpdateItemCommand,
+  BatchGetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
@@ -178,6 +179,46 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       return null;
     }
     return foundRow;
+  }
+
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const { documentClient } = this.getDynamoDb();
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const keys = primaryKeys.map((primaryKey) => {
+      const marshalledKey = {};
+      for (const key in primaryKey) {
+        const schema = tableStructure.find((element) => element.column_name === key);
+        const value = schema?.data_type === 'number' ? Number(primaryKey[key]) : primaryKey[key];
+        if (schema?.data_type === 'number' && isNaN(value as number)) {
+          throw new Error(`Invalid number value for key: ${key}`);
+        }
+        marshalledKey[key] = value;
+      }
+      return marshall(marshalledKey);
+    });
+
+    let availableFields: string[] = [];
+    if (settings) {
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const params = {
+      RequestItems: {
+        [tableName]: {
+          Keys: keys,
+        },
+      },
+    };
+
+    const result = await documentClient.send(new BatchGetItemCommand(params));
+
+    const items = result.Responses?.[tableName] || [];
+    return items.map((item) => this.transformAndFilterRow(item, availableFields, tableStructure));
   }
 
   public async getRowsFromTable(

@@ -39,6 +39,13 @@ export interface IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>>;
 
+  bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+    userEmail: string,
+  ): Promise<Array<Record<string, unknown>>>;
+
   getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,

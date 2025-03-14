@@ -2,6 +2,7 @@ export enum OperationTypeEnum {
   addRowInTable = 'addRowInTable',
   deleteRowInTable = 'deleteRowInTable',
   getRowByPrimaryKey = 'getRowByPrimaryKey',
+  bulkGetRowsFromTableByPrimaryKeys = 'bulkGetRowsFromTableByPrimaryKeys',
   getRowsFromTable = 'getRowsFromTable',
   getTableForeignKeys = 'getTableForeignKeys',
   getTablePrimaryColumns = 'getTablePrimaryColumns',
