@@ -8,21 +8,25 @@
     </h1>
 
     <form *ngIf="currentUser && currentUser.role === 'ADMIN'"
-        class="company-name-settings"
+        class="text-filed-edit"
         (ngSubmit)="changeCompanyName()">
-        <mat-form-field appearance="outline" class="company-name-settings__name">
-            <mat-label>Name</mat-label>
+        <mat-form-field appearance="outline" class="text-filed-edit__input">
+            <mat-label>Company name</mat-label>
             <input matInput name="company-name" #nameField="ngModel"
+                [disabled]="submittingChangedName"
                 data-testid="company-name-input"
                 angulartics2On="change"
                 angularticsAction="Company: company name is edited"
                 [(ngModel)]="company.name">
         </mat-form-field>
-        <button type="submit"
-            mat-button color="primary" class="company-name-settings__save-button"
-            [disabled]="!nameField.dirty || submittingChangedName">
-            Save
-        </button>
+        <div class="text-filed-edit__buttons">
+            <button type="submit"
+                mat-button color="primary"
+                [disabled]="!nameField.dirty || submittingChangedName">
+                {{submittingChangedName ? 'Saving' : 'Save'}}
+            </button>
+        </div>
+
     </form>
 
     <div *ngIf="isSaas" class="company-plan">
@@ -72,7 +76,7 @@
     </div>
 
     <app-placeholder-table-data *ngIf="submittingUsersChange"></app-placeholder-table-data>
-    <table *ngIf="currentUser && members.length && !submittingUsersChange" mat-table [dataSource]="members" class="mat-elevation-z4 company-members-table">
+    <table *ngIf="currentUser && members.length && !submittingUsersChange" mat-table [dataSource]="members" class="mat-elevation-z2 company-members-table">
         <!-- Email Column -->
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>Email</th>
@@ -205,7 +209,58 @@
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
 
-    <mat-slide-toggle style="margin-top: 20px;" *ngIf="currentUser && currentUser.role === 'ADMIN'"
+    <div *ngIf="currentUser && currentUser.role === 'USER' && currentPlan !== 'free' && companyCustomDomainHostname">
+        <strong>Your admin panel address: </strong>
+        <span data-testid="company-custom-domain">{{companyCustomDomainHostname}}</span>
+    </div>
+
+    <form *ngIf="currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN')"
+        class="text-filed-edit"
+        (ngSubmit)="handleChangeCompanyDomain()">
+        <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
+            <mat-label>White label custom domain</mat-label>
+            <input matInput name="company-custom-domain" #domainField="ngModel"
+                data-testid="custom-domain-input"
+                angulartics2On="change"
+                angularticsAction="Company: custom domain is edited"
+                placeholder="e.g. {{companyCustomDomainPlaceholder}}"
+                [readonly]="currentUser.role === 'DB_ADMIN'"
+                [disabled]="currentPlan === 'free' || submittingCustomDomain"
+                [matTooltip]="currentPlan === 'free' && isSaas ? 'To white‑label your domain, please upgrade to the Team plan or higher.' : null"
+                [(ngModel)]="companyCustomDomainHostname">
+            <mat-hint *ngIf="currentPlan === 'free' && isSaas" style="color: rgba(0,0,0,0.54)">
+                Use a custom domain to make your admin panel accessible at your own address. <span *ngIf="currentUser.role === 'DB_ADMIN'">Contact your <i>Account Owner</i> to get it set up.</span>
+            </mat-hint>
+            <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'ADMIN' && isSaas" class="cname-hint">
+                A CNAME record must exist for the subdomain you want to use, pointing to <span class="cname-value">cname.rocketadmin.com</span>.
+            </mat-hint>
+            <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'DB_ADMIN' && isSaas" class="cname-hint">
+                A new type CNAME record named <span class="cname-value">{{companyCustomDomainThirdLevel}}</span> with the value <span class="cname-value">cname.rocketadmin.com</span> is required.
+                Contact your <i>Account Owner</i> to set up a domain.
+            </mat-hint>
+        </mat-form-field>
+        <div class="text-filed-edit__buttons">
+            <button type="submit" *ngIf="currentUser.role === 'ADMIN'"
+                mat-button color="primary"
+                [disabled]="!domainField.dirty || submittingCustomDomain">
+                {{submittingCustomDomain ? 'Saving' : 'Save'}}
+            </button>
+            <button type="button" *ngIf="companyCustomDomain.hostname && currentUser.role === 'ADMIN'"
+                mat-button color="warn"
+                [disabled]="submittingCustomDomain"
+                (click)="handleDeleteDomainDialogOpen()">
+                Delete
+            </button>
+            <a *ngIf="currentUser.role === 'DB_ADMIN'"
+                href="https://{{companyCustomDomainHostname}}"
+                target="_blank"
+                mat-button color="primary">
+                Open
+            </a>
+        </div>
+    </form>
+
+    <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"
         name="showTestConnections"
         data-testid="company-test-connections-switch"
         [(ngModel)]="company.show_test_connections"

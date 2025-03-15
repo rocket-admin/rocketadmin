@@ -43,6 +43,7 @@ declare var google: any;
 export class LoginComponent implements OnInit, AfterViewInit {
 
   public isSaas = (environment as any).saas;
+  public isCustomDomain: boolean = false;
   public user: ExistingAuthUser = {
     email: '',
     password: '',
@@ -68,6 +69,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    const domain = window.location.hostname;
+
+    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost') {
+      this.isCustomDomain = true;
+    }
+
     const error = new URLSearchParams(location.search).get('error');
     if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
       {
