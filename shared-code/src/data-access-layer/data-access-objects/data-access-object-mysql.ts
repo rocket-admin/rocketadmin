@@ -140,6 +140,33 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     return result[0] as unknown as Record<string, unknown>;
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    let availableFields: string[] = [];
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = knex(tableName).select(availableFields.length ? availableFields : '*');
+
+    primaryKeys.forEach((primaryKey) => {
+      query.orWhere((builder) => {
+        Object.entries(primaryKey).forEach(([column, value]) => {
+          builder.andWhere(column, value);
+        });
+      });
+    });
+
+    const results = await query;
+    return results as Array<Record<string, unknown>>;
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,
@@ -465,6 +492,30 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       .returning(primaryKeysNames)
       .whereIn(primaryKeysNames, primaryKeys.map(Object.values))
       .update(newValues);
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const knex = await this.configureKnex();
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    await knex.transaction(async (trx) => {
+      await trx(tableName)
+        .delete()
+        .modify((queryBuilder) => {
+          primaryKeys.forEach((key) => {
+            queryBuilder.orWhere((builder) => {
+              Object.entries(key).forEach(([column, value]) => {
+                builder.andWhere(column, value);
+              });
+            });
+          });
+        });
+    });
+
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {

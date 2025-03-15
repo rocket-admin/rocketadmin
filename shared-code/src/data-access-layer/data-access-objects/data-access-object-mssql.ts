@@ -88,6 +88,35 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     return (await knex(tableName).select(fieldsToSelect).where(primaryKey))[0] as unknown as Record<string, unknown>;
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    const schemaName = await this.getSchemaName(tableName);
+    tableName = `${schemaName}.[${tableName}]`;
+    let availableFields: string[] = [];
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = knex(tableName).select(availableFields.length ? availableFields : '*');
+
+    primaryKeys.forEach((primaryKey) => {
+      query.orWhere((builder) => {
+        Object.entries(primaryKey).forEach(([column, value]) => {
+          builder.andWhere(column, value);
+        });
+      });
+    });
+
+    const results = await query;
+    return results as Array<Record<string, unknown>>;
+  }
+
   public async getRowsFromTable(
     receivedTableName: string,
     tableSettings: TableSettingsDS,
@@ -392,6 +421,31 @@ WHERE TABLE_TYPE = 'VIEW'
       .returning(primaryKeysNames)
       .whereIn(primaryKeysNames, primaryKeysValues)
       .update(newValues);
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    await knex.transaction(async (trx) => {
+      await trx(tableWithSchema)
+        .delete()
+        .modify((queryBuilder) => {
+          primaryKeys.forEach((key) => {
+            queryBuilder.orWhere((builder) => {
+              Object.entries(key).forEach(([column, value]) => {
+                builder.andWhere(column, value);
+              });
+            });
+          });
+        });
+    });
+
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
