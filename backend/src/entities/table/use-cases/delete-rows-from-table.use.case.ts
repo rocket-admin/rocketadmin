@@ -110,7 +110,6 @@ export class DeleteRowsFromTableUseCase
         );
       }
     });
-    // todo need improve
     let oldRowsData: Array<Record<string, unknown>>;
     try {
       oldRowsData = await dao.bulkGetRowsFromTableByPrimaryKeys(tableName, primaryKeys, tableSettings, userEmail);

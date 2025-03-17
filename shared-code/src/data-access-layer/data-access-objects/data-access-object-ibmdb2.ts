@@ -492,10 +492,10 @@ WHERE
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Array<Record<string, unknown>>> {
     await Promise.allSettled(primaryKeys.map((key) => this.updateRowInTable(tableName, newValues, key)));
-    return newValues;
+    return primaryKeys;
   }
 
   public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {

@@ -410,17 +410,22 @@ WHERE TABLE_TYPE = 'VIEW'
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Array<Record<string, unknown>>> {
     const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
     const tableWithSchema = `${schemaName}.[${tableName}]`;
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map(Object.values);
 
-    return knex(tableWithSchema)
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeysValues)
-      .update(newValues);
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableWithSchema)
+          .returning(Object.keys(primaryKey))
+          .where(primaryKey)
+          .update(newValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
   }
 
   public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
