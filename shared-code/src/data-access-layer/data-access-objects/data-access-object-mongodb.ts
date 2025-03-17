@@ -375,12 +375,12 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
     const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
     await collection.updateMany({ _id: { $in: objectIds } }, { $set: newValues });
-    return { _id: objectIds.map((objectId) => this.processMongoIdField(objectId)) };
+    return primaryKeys;
   }
 
   public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {

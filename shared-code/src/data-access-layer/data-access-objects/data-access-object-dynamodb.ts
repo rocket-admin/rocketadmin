@@ -519,7 +519,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const { documentClient } = this.getDynamoDb();
     const structure = await this.getTableStructure(tableName);
     newValues = this.convertHexDataToBinaryInBinarySets(newValues, structure);

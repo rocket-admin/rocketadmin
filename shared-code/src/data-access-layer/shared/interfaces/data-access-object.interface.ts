@@ -65,7 +65,7 @@ export interface IDataAccessObject {
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Record<string, unknown>>;
+  ): Promise<Array<Record<string, unknown>>>;
 
   bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number>;
 

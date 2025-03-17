@@ -79,7 +79,7 @@ export interface IDataAccessObjectAgent {
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
     userEmail: string,
-  ): Promise<Record<string, unknown>>;
+  ): Promise<Array<Record<string, unknown>>>;
 
   bulkDeleteRowsInTable(
     tableName: string,

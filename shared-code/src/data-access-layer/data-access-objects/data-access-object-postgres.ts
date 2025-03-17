@@ -460,7 +460,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Record<string, unknown>[]> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
       .filter(({ data_type }) => data_type.toLowerCase() === 'json')
@@ -473,15 +473,20 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       }
     });
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map(Object.values);
-
     const knex = await this.configureKnex();
-    return await knex(tableName)
-      .withSchema(this.connection.schema ?? 'public')
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeysValues)
-      .update(updatedValues);
+
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableName)
+          .withSchema(this.connection.schema ?? 'public')
+          .returning(Object.keys(primaryKey))
+          .where(primaryKey)
+          .update(updatedValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
   }
 
   public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {

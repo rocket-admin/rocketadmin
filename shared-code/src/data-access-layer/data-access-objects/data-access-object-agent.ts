@@ -461,9 +461,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
+    primaryKeys: Array<Record<string, unknown>>,
     userEmail: string,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 

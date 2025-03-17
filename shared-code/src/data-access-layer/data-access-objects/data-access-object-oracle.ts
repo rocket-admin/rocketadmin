@@ -575,19 +575,23 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map(Object.values);
-
-    return await knex(tableName)
-      .withSchema(schema)
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeysValues)
-      .update(newValues);
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableName)
+          .withSchema(schema)
+          .returning(Object.keys(primaryKey))
+          .where(primaryKey)
+          .update(newValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
   }
 
   public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
