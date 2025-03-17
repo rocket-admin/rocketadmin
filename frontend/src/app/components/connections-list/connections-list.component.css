@@ -240,7 +240,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--mat-sidenav-content-background-color);
     border-radius: 4px;
     box-shadow:
         0px 1px 3px 0px rgba(0, 0, 0, 0.2),
@@ -251,7 +250,7 @@
     height: 48px;
     padding: 0 16px;
     text-decoration: none;
-    transition: box-shadow 200ms, background 200ms;
+    transition: box-shadow 200ms, background 200ms, border 200ms;
 }
 
 @media (width <= 600px) {
@@ -260,8 +259,13 @@
     }
 }
 
-/* @media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: light) {
     .testConnectionLink {
+        background: var(--mat-sidenav-content-background-color);
+        border: 1px solid var(--mat-sidenav-content-background-color);
+    }
+
+    .testConnectionLink:hover {
         box-shadow:
             0px 1px 3px 0px rgba(0, 0, 0, 0.2),
             0px 2px 2px 0px rgba(0, 0, 0, 0.12),
@@ -271,12 +275,23 @@
 
 @media (prefers-color-scheme: dark) {
     .testConnectionLink {
+        background: #404040;
+        border: 1px solid #404040;
+    }
+
+    .testConnectionLink:hover {
+        background: #212121;
+        border: 1px solid rgba(255, 255, 255, 0.75);
         box-shadow:
             0px 1px 3px 0px rgba(255, 255, 255, 0.1),
             0px 2px 2px 0px rgba(255, 255, 255, 0.08),
             0px 0px 2px 0px rgba(255, 255, 255, 0.12);
     }
-} */
+
+    .testConnectionLink:hover .connection__goIcon {
+        color: var(--color-accentedPalette-500);
+    }
+}
 
 .testConnectionLink:hover {
     box-shadow:
@@ -294,25 +309,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: radial-gradient(#fff 1em, var(--icon-box-color) 1em);
+    background-image: radial-gradient(#fff 1em, var(--color-accentedDarkPalette-500) 1em);
     border-radius: 4px;
     height: 36px;
     margin-right: 12px;
     width: 36px;
-}
-
-@media (prefers-color-scheme: light) {
-    .testConnectionLink__iconBox {
-        --icon-box-color: var(--color-accentedDarkPalette-700);
-
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .testConnectionLink__iconBox {
-        --icon-box-color: var(--color-accentedDarkPalette-500);
-
-    }
 }
 
 .testConnectionLink__icon {
@@ -326,7 +327,7 @@
     grid-column: 2;
     margin-left: auto;
     opacity: 0.65;
-    transition: opacity 200ms;
+    transition: opacity 200ms, color 200ms;
 }
 
 @media (width <= 600px) {
