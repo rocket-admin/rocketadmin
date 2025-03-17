@@ -100,12 +100,30 @@
                     <mat-form-field appearance="outline">
                         <mat-label>Hidden tables</mat-label>
                         <mat-select multiple
-                            name="columns_view"
+                            name="hidden_tables"
+                            [disabled]="submitting"
                             angulartics2On="click"
                             angularticsAction="Connection settings: hidden tables is selected"
-                            [(ngModel)]="connectionSettings.hidden_tables"
-                            (optionSelectionChanges)="onColumnsViewChange($event)">
-                            <mat-option *ngFor="let table of tablesList" [value]="table.table" >
+                            [(ngModel)]="connectionSettings.hidden_tables">
+                            <mat-option *ngFor="let table of tablesList" [value]="table.table">
+                                <div class="table-name">
+                                    <span class="table-name__title">{{table.display_name || table.normalizedTableName}}</span>
+                                    <span class="table-name__line"> ({{table.table}})</span>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Table displayed by default</mat-label>
+                        <mat-select
+                            name="default_showing_table"
+                            [disabled]="submitting"
+                            angulartics2On="click"
+                            angularticsAction="Connection settings: default display table is selected"
+                            [(ngModel)]="connectionSettings.default_showing_table">
+                            <mat-option [value]="null"></mat-option>
+                            <mat-option *ngFor="let table of tablesList" [value]="table.table">
                                 <div class="table-name">
                                     <span class="table-name__title">{{table.display_name || table.normalizedTableName}}</span>
                                     <span class="table-name__line"> ({{table.table}})</span>
@@ -116,6 +134,7 @@
 
                     <mat-slide-toggle name="audit"
                         class="audit-toggle" color="primary"
+                        [disabled]="submitting"
                         angulartics2On="click"
                         angularticsAction="Connection settings: log recording is toggled"
                         [angularticsProperties]="{'enable': connectionSettings.tables_audit}"

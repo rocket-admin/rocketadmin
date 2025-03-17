@@ -1,5 +1,5 @@
 .payment-page {
-    margin: 0 auto;
+    margin: 3em auto;
     width: clamp(18.75em, 96%, 45em);
 }
 
@@ -23,6 +23,6 @@
 }
 
 .note {
-    margin-top: 20px;
-    margin-bottom: 52px;
+    margin-top: 20px !important;
+    margin-bottom: 52px !important;
 }

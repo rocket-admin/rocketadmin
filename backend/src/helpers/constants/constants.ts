@@ -292,5 +292,13 @@ export const Constants = {
     return `app.rocketadmin.com`;
   },
 
+  APP_REQUEST_DOMAINS(): Array<string> {
+    const allowedDomains = ['app.rocketadmin.com', 'saas.rocketadmin.com'];
+    if (isTest()) {
+      allowedDomains.push('127.0.0.1', Constants.APP_DOMAIN_ADDRESS);
+    }
+    return allowedDomains;
+  },
+
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
 };

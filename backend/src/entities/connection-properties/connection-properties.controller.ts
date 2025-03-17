@@ -33,7 +33,7 @@ import {
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('connection properties')
+@ApiTags('Connection properties')
 @Injectable()
 export class ConnectionPropertiesController {
   constructor(
@@ -47,7 +47,7 @@ export class ConnectionPropertiesController {
     private readonly deleteConnectionPropertiesUseCase: IDeleteConnectionProperties,
   ) {}
 
-  @ApiOperation({ summary: 'Get connection properties' })
+  @ApiOperation({ summary: 'Find connection properties' })
   @ApiResponse({
     status: 200,
     description: 'Receive connection properties.',
@@ -69,7 +69,7 @@ export class ConnectionPropertiesController {
     return await this.findConnectionPropertiesUseCase.execute(connectionId, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create connection properties' })
+  @ApiOperation({ summary: 'Create new connection properties' })
   @ApiBody({
     type: CreateConnectionPropertiesDto,
   })

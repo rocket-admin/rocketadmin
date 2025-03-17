@@ -185,6 +185,42 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+    userEmail: string,
+  ): Promise<Array<Record<string, unknown>>> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
+    try {
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.bulkGetRowsFromTableByPrimaryKeys,
+        tableName,
+        primaryKey: primaryKeys,
+        tableSettings: settings,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
+      }
+
+      if (!commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
+
+      return commandResult;
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
+    }
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,
@@ -425,9 +461,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
+    primaryKeys: Array<Record<string, unknown>>,
     userEmail: string,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
@@ -436,6 +472,40 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
         operationType: DataAccessObjectCommandsEnum.bulkUpdateRowsInTable,
         tableName,
         row: newValues,
+        primaryKey: primaryKeys,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
+      }
+
+      if (!commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
+
+      return commandResult;
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
+    }
+  }
+
+  public async bulkDeleteRowsInTable(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    userEmail: string,
+  ): Promise<number> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
+    try {
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.bulkDeleteRowsInTable,
+        tableName,
         primaryKey: primaryKeys,
         email: userEmail,
       });
@@ -623,7 +693,11 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
-  public async executeRawQuery(query: string, tableName: string, userEmail: string): Promise<Array<Record<string, unknown>>> {
+  public async executeRawQuery(
+    query: string,
+    tableName: string,
+    userEmail: string,
+  ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 

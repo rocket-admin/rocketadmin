@@ -6,6 +6,7 @@ import {
   PutItemCommand,
   ScanCommand,
   UpdateItemCommand,
+  BatchGetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
@@ -180,6 +181,46 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     return foundRow;
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const { documentClient } = this.getDynamoDb();
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const keys = primaryKeys.map((primaryKey) => {
+      const marshalledKey = {};
+      for (const key in primaryKey) {
+        const schema = tableStructure.find((element) => element.column_name === key);
+        const value = schema?.data_type === 'number' ? Number(primaryKey[key]) : primaryKey[key];
+        if (schema?.data_type === 'number' && isNaN(value as number)) {
+          throw new Error(`Invalid number value for key: ${key}`);
+        }
+        marshalledKey[key] = value;
+      }
+      return marshall(marshalledKey);
+    });
+
+    let availableFields: string[] = [];
+    if (settings) {
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const params = {
+      RequestItems: {
+        [tableName]: {
+          Keys: keys,
+        },
+      },
+    };
+
+    const result = await documentClient.send(new BatchGetItemCommand(params));
+
+    const items = result.Responses?.[tableName] || [];
+    return items.map((item) => this.transformAndFilterRow(item, availableFields, tableStructure));
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,
@@ -248,7 +289,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
             return null;
           } else {
             expressionAttributeValues[`:${field}_value`] = { S: searchedFieldValue };
-            return `begins_with(#${field}, :${field}_value)`;
+            return `contains(#${field}, :${field}_value)`;
           }
         })
         .filter((expression) => expression !== null)
@@ -478,7 +519,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const { documentClient } = this.getDynamoDb();
     const structure = await this.getTableStructure(tableName);
     newValues = this.convertHexDataToBinaryInBinarySets(newValues, structure);
@@ -511,6 +552,41 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     await Promise.all(updatePromises);
     return primaryKeys as any;
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const { documentClient } = this.getDynamoDb();
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const deletePromises = primaryKeys.map(async (primaryKey) => {
+      for (const key in primaryKey) {
+        const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+        if (foundKeySchema?.data_type === 'number') {
+          const numericValue = Number(primaryKey[key]);
+          if (!isNaN(numericValue)) {
+            primaryKey[key] = numericValue;
+          }
+        }
+      }
+
+      try {
+        const params = {
+          TableName: tableName,
+          Key: marshall(primaryKey),
+        };
+        await documentClient.send(new DeleteItemCommand(params));
+      } catch (e) {
+        console.error(`Failed to delete item with key ${JSON.stringify(primaryKey)}: ${e.message}`);
+      }
+    });
+
+    await Promise.all(deletePromises);
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>> {
@@ -683,6 +759,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         if (valuesArray && Array.isArray(valuesArray)) {
           transformedRow[key] = valuesArray.map((value) => Object.values(value)[0]);
         }
+      }
+
+      if (fieldInfo?.dynamo_db_type === 'NULL' || attributeType === 'NULL') {
+        transformedRow[key] = null;
       }
     });
 

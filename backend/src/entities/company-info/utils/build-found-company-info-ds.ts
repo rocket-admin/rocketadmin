@@ -13,13 +13,19 @@ export function buildFoundCompanyFullInfoDs(
   companyInfoFromCore: CompanyInfoEntity,
   companyInfoFromSaas: FoundSassCompanyInfoDS | null,
   userRole: UserRoleEnum,
+  companyCustomDomain: string | null,
 ): FoundUserFullCompanyInfoDs {
   if (!companyInfoFromCore.show_test_connections) {
     companyInfoFromCore.connections = companyInfoFromCore.connections.filter(
       (connection) => !connection.isTestConnection,
     );
   }
-  const responseObject = buildFoundCompanyInfoDs(companyInfoFromCore, companyInfoFromSaas, userRole) as any;
+  const responseObject = buildFoundCompanyInfoDs(
+    companyInfoFromCore,
+    companyInfoFromSaas,
+    companyCustomDomain,
+    userRole,
+  ) as any;
   const connectionsRO: Array<FoundSipleConnectionInfoDS> = companyInfoFromCore.connections.map((connection) => {
     return {
       id: connection.id,
@@ -57,6 +63,7 @@ export function buildFoundCompanyFullInfoDs(
 export function buildFoundCompanyInfoDs(
   companyInfoFromCore: CompanyInfoEntity,
   companyInfoFromSaas: FoundSassCompanyInfoDS | null,
+  companyCustomDomain: string,
   userRole?: UserRoleEnum,
 ): FoundUserCompanyInfoDs {
   if (!companyInfoFromSaas) {
@@ -65,6 +72,7 @@ export function buildFoundCompanyInfoDs(
       name: companyInfoFromCore.name,
       is2faEnabled: companyInfoFromCore.is2faEnabled,
       show_test_connections: companyInfoFromCore.show_test_connections,
+      custom_domain: companyCustomDomain ? companyCustomDomain : null,
     };
   }
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;
@@ -77,6 +85,7 @@ export function buildFoundCompanyInfoDs(
     is_payment_method_added: isUserAdmin ? companyInfoFromSaas.is_payment_method_added : undefined,
     is2faEnabled: isUserAdmin ? companyInfoFromCore.is2faEnabled : undefined,
     show_test_connections: companyInfoFromCore.show_test_connections,
+    custom_domain: companyCustomDomain ? companyCustomDomain : null,
     address: {
       id: companyInfoFromSaas.address?.id,
       city: companyInfoFromSaas.address?.city,

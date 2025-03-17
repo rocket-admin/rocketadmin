@@ -1,29 +1,43 @@
 import {
-  UseInterceptors,
-  Controller,
-  Injectable,
-  UseGuards,
-  Inject,
-  Post,
-  Body,
-  Get,
-  Delete,
-  Put,
   BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Injectable,
+  Post,
+  Put,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
-import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
+import { MasterPassword } from '../../../decorators/master-password.decorator.js';
+import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
+import { UserId } from '../../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
+import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
+import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
+import { ActivateEventActionsDS } from './application/data-structures/activate-rule-actions.ds.js';
+import { CreateActionRuleDS } from './application/data-structures/create-action-rules.ds.js';
+import { UpdateActionRuleDS } from './application/data-structures/update-action-rule.ds.js';
+import { ActivatedTableActionsDTO } from './application/dto/activated-table-actions.dto.js';
 import {
   CreateActionEventDTO,
   CreateTableActionRuleBodyDTO,
 } from './application/dto/create-action-rules-with-actions-and-events-body.dto.js';
-import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
-import { CreateActionRuleDS } from './application/data-structures/create-action-rules.ds.js';
-import { UserId } from '../../../decorators/user-id.decorator.js';
-import { MasterPassword } from '../../../decorators/master-password.decorator.js';
+import {
+  FoundActionEventDTO,
+  FoundActionRulesWithActionsAndEventsDTO,
+} from './application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { FoundTableActionRulesRoDTO } from './application/dto/found-table-action-rules.ro.dto.js';
+import { UpdateTableActionRuleBodyDTO } from './application/dto/update-action-rule-with-actions-and-events.dto.js';
 import {
   IActivateTableActionsInRule,
   ICreateActionRule,
@@ -33,25 +47,11 @@ import {
   IFindCustomEvents,
   IUpdateActionRule,
 } from './use-cases/action-rules-use-cases.interface.js';
-import {
-  FoundActionEventDTO,
-  FoundActionRulesWithActionsAndEventsDTO,
-} from './application/dto/found-action-rules-with-actions-and-events.dto.js';
-import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
-import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
-import { UpdateTableActionRuleBodyDTO } from './application/dto/update-action-rule-with-actions-and-events.dto.js';
-import { UpdateActionRuleDS } from './application/data-structures/update-action-rule.ds.js';
-import { ActivatedTableActionsDTO } from './application/dto/activated-table-actions.dto.js';
-import { ActivateEventActionsDS } from './application/data-structures/activate-rule-actions.ds.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { FoundTableActionRulesRoDTO } from './application/dto/found-table-action-rules.ro.dto.js';
-import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
-import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('action rules')
+@ApiTags('Table actions and rules')
 @Injectable()
 export class ActionRulesController {
   constructor(
@@ -71,10 +71,10 @@ export class ActionRulesController {
     private readonly activateTableActionsInRuleUseCase: IActivateTableActionsInRule,
   ) {}
 
-  @ApiOperation({ summary: 'Create rules for table' })
+  @ApiOperation({ summary: 'Create new rule and actions for table' })
   @ApiResponse({
     status: 200,
-    description: 'Return created rules for table.',
+    description: 'Rule created.',
     type: FoundActionRulesWithActionsAndEventsDTO,
     isArray: false,
   })
@@ -115,10 +115,10 @@ export class ActionRulesController {
     return await this.createTableActionRuleUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Get rules for table' })
+  @ApiOperation({ summary: 'Find rules for table' })
   @ApiResponse({
     status: 200,
-    description: 'Return found rules for table with action and events.',
+    description: 'Rules and actions found.',
     type: FoundTableActionRulesRoDTO,
     isArray: true,
   })
@@ -132,10 +132,10 @@ export class ActionRulesController {
     return await this.findActionRulesForTableUseCase.execute({ connectionId, tableName });
   }
 
-  @ApiOperation({ summary: 'Get custom rules for table' })
+  @ApiOperation({ summary: 'Find custom rules for table' })
   @ApiResponse({
     status: 200,
-    description: 'Return found rules for table with action and events.',
+    description: 'Rules found.',
     type: FoundActionEventDTO,
     isArray: true,
   })
@@ -149,10 +149,10 @@ export class ActionRulesController {
     return await this.findCustomEventsUseCase.execute({ connectionId, tableName });
   }
 
-  @ApiOperation({ summary: 'Delete rule in table' })
+  @ApiOperation({ summary: 'Delete rule for table' })
   @ApiResponse({
     status: 200,
-    description: 'Delete rule in table with actions and events. Return deleted.',
+    description: 'Rule deleted.',
     type: FoundActionRulesWithActionsAndEventsDTO,
     isArray: false,
   })
@@ -168,7 +168,7 @@ export class ActionRulesController {
   @ApiOperation({ summary: 'Find rule by id' })
   @ApiResponse({
     status: 200,
-    description: 'Find rule by id.',
+    description: 'Rule found.',
     type: FoundActionRulesWithActionsAndEventsDTO,
     isArray: false,
   })
@@ -181,10 +181,10 @@ export class ActionRulesController {
     return await this.findActionRuleByIdUseCase.execute({ connectionId, ruleId });
   }
 
-  @ApiOperation({ summary: 'Update rule' })
+  @ApiOperation({ summary: 'Update rule by id' })
   @ApiResponse({
     status: 200,
-    description: 'Return update rule for table.',
+    description: 'Rule updated.',
     type: FoundActionRulesWithActionsAndEventsDTO,
     isArray: false,
   })
@@ -232,7 +232,7 @@ export class ActionRulesController {
   @ApiOperation({ summary: 'Activate all actions with custom event in this rule' })
   @ApiResponse({
     status: 200,
-    description: 'Return action activation result.',
+    description: 'Actions activated.',
     type: ActivatedTableActionsDTO,
     isArray: true,
   })

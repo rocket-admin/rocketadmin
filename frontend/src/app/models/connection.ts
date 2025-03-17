@@ -18,6 +18,7 @@ export enum ConnectionType {
 export interface Connection {
     id: string | null,
     database: string,
+    authSource?: string,
 ​​    title: string,
     host: string,
     port: string,
@@ -54,6 +55,7 @@ export interface TestConnection {
 
 export interface ConnectionSettings {
     hidden_tables?: string[],
+    default_showing_table: string,
     primary_color?: string,
     secondary_color?: string,
     logo_url?: string,

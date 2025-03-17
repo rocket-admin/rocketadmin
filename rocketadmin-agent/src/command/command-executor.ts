@@ -83,6 +83,25 @@ export class CommandExecutor {
           );
         }
         break;
+      case OperationTypeEnum.bulkGetRowsFromTableByPrimaryKeys:
+        try {
+          operationStatusResult = OperationResultStatusEnum.successfully;
+          return await dao.bulkGetRowsFromTableByPrimaryKeys(tableName, primaryKey, tableSettings);
+        } catch (e) {
+          operationStatusResult = OperationResultStatusEnum.unsuccessfully;
+          console.log(Messages.FAIL_MESSAGE(e.message));
+          return new Error(Messages.FAILED_GET_ROWS_FROM_TABLE);
+        } finally {
+          Logger.createLogRecord(
+            primaryKey,
+            tableName,
+            email,
+            LogOperationTypeEnum.rowsReceived,
+            operationStatusResult,
+            null,
+          );
+        }
+        break;
       case OperationTypeEnum.getRowsFromTable:
         try {
           operationStatusResult = OperationResultStatusEnum.successfully;
@@ -232,6 +251,25 @@ export class CommandExecutor {
           return new Error(Messages.FAILED_TO_UPDATE_ROWS);
         } finally {
           Logger.createLogRecord(row, tableName, email, LogOperationTypeEnum.updateRow, operationStatusResult, null);
+        }
+        break;
+      case OperationTypeEnum.bulkDeleteRowsInTable:
+        try {
+          operationStatusResult = OperationResultStatusEnum.successfully;
+          return await dao.bulkDeleteRowsInTable(tableName, primaryKey);
+        } catch (e) {
+          operationStatusResult = OperationResultStatusEnum.unsuccessfully;
+          console.log(Messages.FAIL_MESSAGE(e.message));
+          return new Error(Messages.FAILED_TO_UPDATE_ROWS);
+        } finally {
+          Logger.createLogRecord(
+            primaryKey,
+            tableName,
+            email,
+            LogOperationTypeEnum.deleteRow,
+            operationStatusResult,
+            null,
+          );
         }
         break;
       case OperationTypeEnum.executeRawQuery:

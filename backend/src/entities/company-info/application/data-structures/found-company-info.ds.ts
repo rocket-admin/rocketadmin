@@ -69,6 +69,9 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty()
   show_test_connections: boolean;
+
+  @ApiProperty({ required: false })
+  custom_domain: string | null;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {
