@@ -469,8 +469,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
 
@@ -486,12 +486,14 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       }
     });
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-
-    return await knex(tableName)
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeys.map(Object.values))
-      .update(newValues);
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(newValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
   }
 
   public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
