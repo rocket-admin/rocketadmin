@@ -12,6 +12,12 @@ import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { isHostTest } from '../utils/is-test-connection-util.js';
 import { updateConnectionEntityForRestoration } from '../utils/update-connection-entity-for-restoration.js';
 import { IRestoreConnection } from './use-cases.interfaces.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 
 @Injectable()
 export class RestoreConnectionUseCase
@@ -21,6 +27,7 @@ export class RestoreConnectionUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -28,7 +35,7 @@ export class RestoreConnectionUseCase
   protected async implementation(connectionData: UpdateConnectionDs): Promise<RestoredConnectionDs> {
     const {
       connection_parameters,
-      update_info: { connectionId },
+      update_info: { connectionId, authorId },
     } = connectionData;
 
     if (connection_parameters.masterEncryption && !connectionData.update_info.masterPwd) {
@@ -58,6 +65,19 @@ export class RestoreConnectionUseCase
         HttpStatus.FORBIDDEN,
       );
     }
+
+    if (isSaaS() && !isTest()) {
+      const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
+      const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
+      if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
+        if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(connection_parameters.type)) {
+          throw new NonAvailableInFreePlanException(
+            Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(connection_parameters.type),
+          );
+        }
+      }
+    }
+
     const isTestConnection = isHostTest(connectionData.connection_parameters.host);
     const updatedConnection = await updateConnectionEntityForRestoration(
       foundConnection,

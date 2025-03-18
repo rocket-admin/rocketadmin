@@ -1,4 +1,3 @@
- 
 import { Expose } from 'class-transformer';
 import {
   AfterLoad,
@@ -95,6 +94,9 @@ export class ConnectionEntity {
 
   @Column({ default: false })
   azure_encryption: boolean;
+
+  @Column({ default: false })
+  is_frozen: boolean;
 
   @Column({ default: 0 })
   saved_table_info: number;

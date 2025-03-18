@@ -15,6 +15,12 @@ import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { ICreateConnection } from './use-cases.interfaces.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionUseCase
@@ -24,6 +30,7 @@ export class CreateConnectionUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -33,6 +40,18 @@ export class CreateConnectionUseCase
     } = createConnectionData;
     const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
 
+    if (isSaaS() && !isTest()) {
+      const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
+      const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
+      if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
+        if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(createConnectionData.connection_parameters.type)) {
+          throw new NonAvailableInFreePlanException(
+            Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(createConnectionData.connection_parameters.type),
+          );
+        }
+      }
+    }
+
     if (!connectionAuthor) {
       throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
     }
@@ -41,7 +60,9 @@ export class CreateConnectionUseCase
       throw new BadRequestException(Messages.CANT_CREATE_CONNECTION_USER_NON_COMPANY_ADMIN);
     }
 
-    await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email));
+    await slackPostMessage(
+      Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),
+    );
     await validateCreateConnectionData(createConnectionData);
 
     createConnectionData = await processAWSConnection(createConnectionData);
@@ -91,7 +112,9 @@ export class CreateConnectionUseCase
       connection.company = foundUserCompany;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     }
-    await slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email));
+    await slackPostMessage(
+      Messages.USER_CREATED_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),
+    );
     return buildCreatedConnectionDs(savedConnection, token, masterPwd);
   }
 }
