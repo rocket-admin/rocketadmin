@@ -60,7 +60,9 @@ export class CreateConnectionUseCase
       throw new BadRequestException(Messages.CANT_CREATE_CONNECTION_USER_NON_COMPANY_ADMIN);
     }
 
-    await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email));
+    await slackPostMessage(
+      Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),
+    );
     await validateCreateConnectionData(createConnectionData);
 
     createConnectionData = await processAWSConnection(createConnectionData);
@@ -110,7 +112,9 @@ export class CreateConnectionUseCase
       connection.company = foundUserCompany;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     }
-    await slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email));
+    await slackPostMessage(
+      Messages.USER_CREATED_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),
+    );
     return buildCreatedConnectionDs(savedConnection, token, masterPwd);
   }
 }
