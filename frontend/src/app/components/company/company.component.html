@@ -113,12 +113,15 @@
                     (ngModelChange)="updateRole(element.id, element.role)">
                     <mat-option value="ADMIN" attr.data-testid="company-member-superadmin-role-{{i}}-select-option">
                         Account Owner
+                        <div class="role-description">Full access to all company settings, billing, and user management</div>
                     </mat-option>
                     <mat-option value="DB_ADMIN" attr.data-testid="company-member-dbadmin-role-{{i}}-select-option">
                         System Admin
+                        <div class="role-description">Can manage database connections and user access to databases</div>
                     </mat-option>
                     <mat-option value="USER" attr.data-testid="company-member-user-role-{{i}}-select-option">
                         Member
+                        <div class="role-description">Basic access to assigned databases and features</div>
                     </mat-option>
                 </mat-select>
                 <ng-template #noSelect>
