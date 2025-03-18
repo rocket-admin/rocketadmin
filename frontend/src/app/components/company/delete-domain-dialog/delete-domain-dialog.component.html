@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Confirm domain deletion</h1>
+<mat-dialog-content>
+    <p class="mat-body">You are about to remove {{ data.domain }} from your company</p>
+    <br>
+    <p class="mat-body">Once deleted, users will no longer be able to access the admin panel via this domain — please notify them in advance.</p>
+    <br>
+    <p class="mat-body">Are you sure you want to proceed?</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-flat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button color="warn"
+    [disabled]="submitting"
+    (click)="deleteCompanyDomain()">
+    Delete
+  </button>
+</mat-dialog-actions>

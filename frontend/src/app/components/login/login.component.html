@@ -5,7 +5,7 @@
         <form class="login-form"
             [hidden]="is2FAShown"
             #loginForm="ngForm"
-            (ngSubmit)="user.companyId && user.password ? loginUser() : requestUserCompanies()">
+            (ngSubmit)="(user.companyId || isCustomDomain) && user.password ? loginUser() : requestUserCompanies()">
 
             <div class="login-header">
                 <svg class="login-header__logo" width="56" height="54" viewBox="0 0 56 54" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +45,7 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field *ngIf="isPasswordFieldShown || user.companyId" appearance="fill" class="login-form__password">
+            <mat-form-field *ngIf="isPasswordFieldShown || user.companyId || isCustomDomain" appearance="fill" class="login-form__password">
                 <mat-label>Password</mat-label>
                 <input matInput type="password" name="password" data-testid="login-password-input"
                     #password="ngModel" required
@@ -86,7 +86,7 @@
                 </button>
             </div>
 
-            <button *ngIf="!user.companyId"
+            <button *ngIf="!user.companyId && !isCustomDomain"
                 type="submit" mat-stroked-button
                 data-testid="login-next-button"
                 class="login-form__login-button"
@@ -94,7 +94,7 @@
                 {{ submitting ? 'Submitting' : 'Next'}}
             </button>
 
-            <button *ngIf="isPasswordFieldShown || user.companyId"
+            <button *ngIf="isPasswordFieldShown || user.companyId || isCustomDomain"
                 type="submit" mat-flat-button color="accent"
                 data-testid="login-button"
                 class="login-form__login-button"

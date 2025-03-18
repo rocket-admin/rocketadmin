@@ -3,7 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AmplitudeEventTypeEnum } from '../../../enums/index.js';
+import { AmplitudeEventTypeEnum, SubscriptionLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { Constants } from '../../../helpers/constants/constants.js';
@@ -16,6 +16,10 @@ import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.j
 import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { IUpdateConnection } from './use-cases.interfaces.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 
 @Injectable()
 export class UpdateConnectionUseCase
@@ -26,6 +30,7 @@ export class UpdateConnectionUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly amplitudeService: AmplitudeService,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -38,6 +43,19 @@ export class UpdateConnectionUseCase
     } = updateConnectionData;
     let { connection_parameters } = updateConnectionData;
     await validateCreateConnectionData(updateConnectionData);
+
+    if (isSaaS() && !isTest()) {
+      const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
+      const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
+      if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
+        if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(updateConnectionData.connection_parameters.type)) {
+          throw new NonAvailableInFreePlanException(
+            Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(updateConnectionData.connection_parameters.type),
+          );
+        }
+      }
+    }
+
     const foundConnectionToUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
       masterPwd,
@@ -54,7 +72,7 @@ export class UpdateConnectionUseCase
     }
 
     this.checkPasswordRequired(foundConnectionToUpdate, updateConnectionData.connection_parameters);
-    
+
     const booleanKeys = Object.entries(connection_parameters)
       .filter(([_, value]) => typeof value === 'boolean')
       .map(([key, _]) => key);
@@ -82,9 +100,9 @@ export class UpdateConnectionUseCase
       updatedConnection.master_hash = await Encryptor.hashUserPassword(masterPwd);
     }
     const savedConnection = await this._dbContext.connectionRepository.saveNewConnection(updatedConnection);
-    const isTest = isTestConnectionUtil(savedConnection);
+    const isTestConnection = isTestConnectionUtil(savedConnection);
     await this.amplitudeService.formAndSendLogRecord(
-      isTest ? AmplitudeEventTypeEnum.connectionUpdatedTest : AmplitudeEventTypeEnum.connectionUpdated,
+      isTestConnection ? AmplitudeEventTypeEnum.connectionUpdatedTest : AmplitudeEventTypeEnum.connectionUpdated,
       authorId,
     );
     return buildCreatedConnectionDs(savedConnection, connectionToken, masterPwd);

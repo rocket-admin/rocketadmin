@@ -22,7 +22,7 @@ describe('CompanyComponent', () => {
   let fixture: ComponentFixture<CompanyComponent>;
   let dialog: MatDialog;
 
-  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'updateCompanyName', 'updateCompanyMemberRole', 'cast']);
+  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'getCustomDomain', 'updateCompanyName', 'updateCompanyMemberRole', 'cast']);
   let fakeUserService = jasmine.createSpyObj('UserService', ['cast']);
 
   const mockCompany: Company = {
@@ -102,9 +102,15 @@ describe('CompanyComponent', () => {
     }
   ]
 
+  const mockCompanyDomain = {
+    "success": false,
+    "domain_info": null
+  }
+
   fakeCompanyService.cast = of('');
   fakeCompanyService.fetchCompany.and.returnValue(of(mockCompany));
   fakeCompanyService.fetchCompanyMembers.and.returnValue(of(mockMembers));
+  fakeCompanyService.getCustomDomain.and.returnValue(of(mockCompanyDomain));
   fakeCompanyService.updateCompanyName.and.returnValue(of({}));
   fakeCompanyService.updateCompanyMemberRole.and.returnValue(of({}));
   fakeUserService.cast = of(mockMembers[1]);
