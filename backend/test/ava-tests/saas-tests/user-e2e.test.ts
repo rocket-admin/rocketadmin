@@ -457,6 +457,7 @@ test.serial(
       t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
       t.is(Object.keys(registerDomainResponseRO).length, 5);
 
+      delete loginBodyRequest.companyId;
       const loginUserResult = await request(app.getHttpServer())
         .post('/user/login/')
         .send(loginBodyRequest)
