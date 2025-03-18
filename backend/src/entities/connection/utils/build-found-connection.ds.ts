@@ -33,5 +33,6 @@ export function buildFoundConnectionDs(
     signing_key: connection.signing_key,
     isTestConnection: connection.isTestConnection,
     connection_properties: connection.connection_properties,
+    isFrozen: connection.is_frozen,
   };
 }
