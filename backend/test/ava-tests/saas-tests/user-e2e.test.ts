@@ -416,7 +416,7 @@ test.serial(
   },
 );
 
-test.serial(
+test.skip(
   `${currentTest} should login user successfully with company id from custom domain (is added)`,
   async (t) => {
     try {

@@ -38,6 +38,7 @@ import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IUpdateRowInTable } from './table-use-cases.interface.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -71,6 +72,10 @@ export class UpdateRowInTableUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     const dao = getDataAccessObject(connection);
