@@ -13,6 +13,7 @@ import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
 import { IDeleteRowsFromTable } from './table-use-cases.interface.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 type DeleteRowsFromTableResult = {
   operationStatusResult: OperationResultStatusEnum;
@@ -55,6 +56,10 @@ export class DeleteRowsFromTableUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     const dao = getDataAccessObject(connection);
