@@ -72,6 +72,7 @@ export const Messages = {
   COMPANY_ID_MISSING: `Company id is missing`,
   COMPANIES_USER_EMAIL_NOT_FOUND: (email: string) => `No companies found for user ${email}`,
   CONNECTION_ID_MISSING: 'Connection id is missing',
+  CONNECTION_IS_FROZEN: `Connection is frozen. (Not available in free plan)`,
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
   CONNECTION_NOT_FOUND: 'Connection with specified parameters not found',
   CONNECTION_NOT_ENCRYPTED: 'Connection is not encrypted',
