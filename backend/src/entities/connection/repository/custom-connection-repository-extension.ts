@@ -95,9 +95,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     if (!connection) {
       return null;
     }
-    if (connection.is_frozen) {
-      throw new Error(Messages.CONNECTION_IS_FROZEN);
-    }
     if (!connection.signing_key) {
       connection.signing_key = Encryptor.generateRandomString(40);
       await this.save(connection);
