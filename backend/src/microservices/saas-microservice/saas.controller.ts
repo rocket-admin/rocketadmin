@@ -1,9 +1,25 @@
-import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param, Put, Query } from '@nestjs/common';
-import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { Body, Controller, Get, Inject, Injectable, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
+import {
+  RegisterInvitedUserDS,
+  SaasUsualUserRegisterDS,
+} from '../../entities/user/application/data-structures/usual-register-user.ds.js';
+import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
+import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
+import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
+import { UserEntity } from '../../entities/user/user.entity.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { SuccessResponse } from './data-structures/common-responce.ds.js';
+import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
+import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
+import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
+import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
 import {
   IAddOrRemoveCompanyIdToUser,
   ICompanyRegistration,
+  IFreezeConnectionsInCompany,
   IGetUserGithubIdInfo,
   IGetUserInfo,
   IGetUserInfoByEmail,
@@ -16,21 +32,6 @@ import {
   ISaasRegisterUser,
   ISuspendUsers,
 } from './use-cases/saas-use-cases.interface.js';
-import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
-import { UserEntity } from '../../entities/user/user.entity.js';
-import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
-import {
-  RegisterInvitedUserDS,
-  SaasUsualUserRegisterDS,
-} from '../../entities/user/application/data-structures/usual-register-user.ds.js';
-import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
-import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
-import { SuccessResponse } from './data-structures/common-responce.ds.js';
-import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
-import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
-import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('saas')
@@ -67,6 +68,8 @@ export class SaasController {
     private readonly getCompanyInfoByUserIdUseCase: ISaaSGetCompanyInfoByUserId,
     @Inject(UseCaseType.SAAS_GET_USERS_IN_COMPANY_BY_ID)
     private readonly getUsersInCompanyByIdUseCase: ISaaSGetUsersInCompany,
+    @Inject(UseCaseType.FREEZE_CONNECTIONS_IN_COMPANY)
+    private readonly freezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Company registered webhook' })
@@ -255,5 +258,11 @@ export class SaasController {
   @Get('/company/:companyId/users')
   async getUsersInCompany(@Param('companyId') companyId: string): Promise<Array<UserEntity>> {
     return await this.getUsersInCompanyByIdUseCase.execute(companyId);
+  }
+
+  @ApiOperation({ summary: 'Freeze paid connections in companies webhook' })
+  @Put('/company/freeze-connections')
+  async freezeConnectionsInCompany(@Body('companyIds') companyIds: Array<string>) {
+    return await this.freezeConnectionsInCompanyUseCase.execute({ companyIds });
   }
 }

@@ -1,3 +1,4 @@
+import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 
 export interface ICompanyInfoRepository {
@@ -22,4 +23,6 @@ export interface ICompanyInfoRepository {
   findAllCompanyWithConnectionsUsersJoining(companyId: string): Promise<CompanyInfoEntity>;
 
   findFullCompanyInfoByCompanyId(companyId: string): Promise<CompanyInfoEntity>;
+
+  findCompaniesPaidConnections(companyIds: Array<string>): Promise<ConnectionEntity[]>;
 }

@@ -1,3 +1,5 @@
+import { Constants } from '../../../helpers/constants/constants.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 import { ICompanyInfoRepository } from './company-info-repository.interface.js';
 
@@ -102,5 +104,19 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .where('users.email = :userEmail', { userEmail: userEmail?.toLowerCase() })
       .andWhere('users."externalRegistrationProvider" IS NULL')
       .getMany();
+  },
+
+  async findCompaniesPaidConnections(companyIds: Array<string>): Promise<ConnectionEntity[]> {
+    const paidConnectionTypes = Constants.PAID_CONNECTIONS_TYPES;
+    const foundCompaniesWithPaidConnections = await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.connections', 'connections')
+      .where('company_info.id IN (:...companyIds)', { companyIds })
+      .andWhere('connections.type IN (:...paidConnectionTypes)', { paidConnectionTypes })
+      .andWhere('connections.isTestConnection IS FALSE')
+      .andWhere('connections.is_frozen IS FALSE')
+      .getMany();
+    return foundCompaniesWithPaidConnections.map((companyInfo: CompanyInfoEntity) => {
+      return companyInfo.connections;
+    });
   },
 };
