@@ -25,4 +25,6 @@ export interface ICompanyInfoRepository {
   findFullCompanyInfoByCompanyId(companyId: string): Promise<CompanyInfoEntity>;
 
   findCompaniesPaidConnections(companyIds: Array<string>): Promise<ConnectionEntity[]>;
+
+  findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>>;
 }

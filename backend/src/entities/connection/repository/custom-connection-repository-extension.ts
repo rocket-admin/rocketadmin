@@ -233,6 +233,14 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       .execute();
   },
 
+  async unFreezeConnections(connectionsIds: Array<string>): Promise<void> {
+    await this.createQueryBuilder()
+      .update(ConnectionEntity)
+      .set({ is_frozen: false })
+      .where('id IN (:...connectionsIds)', { connectionsIds })
+      .execute();
+  },
+
   decryptConnectionField(field: string): string {
     try {
       return Encryptor.decryptData(field);

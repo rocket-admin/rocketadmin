@@ -70,6 +70,8 @@ export class SaasController {
     private readonly getUsersInCompanyByIdUseCase: ISaaSGetUsersInCompany,
     @Inject(UseCaseType.FREEZE_CONNECTIONS_IN_COMPANY)
     private readonly freezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
+    @Inject(UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY)
+    private readonly unfreezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Company registered webhook' })
@@ -264,5 +266,11 @@ export class SaasController {
   @Put('/company/freeze-connections')
   async freezeConnectionsInCompany(@Body('companyIds') companyIds: Array<string>) {
     return await this.freezeConnectionsInCompanyUseCase.execute({ companyIds });
+  }
+
+  @ApiOperation({ summary: 'Unfreeze paid connections in companies webhook' })
+  @Put('/company/unfreeze-connections')
+  async unfreezeConnectionsInCompany(@Body('companyIds') companyIds: Array<string>) {
+    return await this.unfreezeConnectionsInCompanyUseCase.execute({ companyIds });
   }
 }

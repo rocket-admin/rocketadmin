@@ -18,6 +18,7 @@ import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { GetUserCompanyFullInfoUseCase } from '../../entities/company-info/use-cases/get-full-user-company-info.use.case.js';
 import { GetUsersInCompanyByIdUseCase } from './use-cases/get-users-in-company-by-id.use.case.js';
 import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
+import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 
 @Module({
   imports: [],
@@ -86,6 +87,10 @@ import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connection
       provide: UseCaseType.FREEZE_CONNECTIONS_IN_COMPANY,
       useClass: FreezeConnectionsInCompanyUseCase,
     },
+    {
+      provide: UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY,
+      useClass: UnFreezeConnectionsInCompanyUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -108,6 +113,7 @@ export class SaasModule {
         { path: 'saas/user/:userId/company', method: RequestMethod.GET },
         { path: 'saas/company/:companyId/users', method: RequestMethod.GET },
         { path: 'saas/company/freeze-connections', method: RequestMethod.PUT },
+        { path: 'saas/company/unfreeze-connections', method: RequestMethod.PUT },
       );
   }
 }

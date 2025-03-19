@@ -119,4 +119,18 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       return companyInfo.connections;
     });
   },
+
+  async findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>> {
+    const paidConnectionTypes = Constants.PAID_CONNECTIONS_TYPES;
+    const foundCompaniesWithPaidConnections = await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.connections', 'connections')
+      .where('company_info.id IN (:...companyIds)', { companyIds })
+      .andWhere('connections.type IN (:...paidConnectionTypes)', { paidConnectionTypes })
+      .andWhere('connections.isTestConnection IS FALSE')
+      .andWhere('connections.is_frozen IS TRUE')
+      .getMany();
+    return foundCompaniesWithPaidConnections.map((companyInfo: CompanyInfoEntity) => {
+      return companyInfo.connections;
+    });
+  },
 };
