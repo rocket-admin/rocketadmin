@@ -231,19 +231,3 @@
     width: 100%;
     z-index: -1;
 }
-
-.role-description {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.6);
-    margin-top: 4px;
-    line-height: 1.2;
-}
-
-::ng-deep .mat-option {
-    padding: 8px 16px;
-    height: auto !important;
-}
-
-::ng-deep .mat-option-text {
-    white-space: normal;
-}
