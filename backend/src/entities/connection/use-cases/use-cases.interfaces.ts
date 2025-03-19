@@ -23,6 +23,7 @@ import { SuccessResponse } from '../../../microservices/saas-microservice/data-s
 import { TokenValidationResult } from './validate-connection-token.use.case.js';
 import { ValidateConnectionMasterPasswordDs } from '../application/data-structures/validate-connection-master-password.ds.js';
 import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
+import { UnfreezeConnectionDs } from '../application/data-structures/unfreeze-connection.ds.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
@@ -95,4 +96,8 @@ export interface IRefreshConnectionAgentToken {
 
 export interface IValidateConnectionMasterPassword {
   execute(inputData: ValidateConnectionMasterPasswordDs, inTransaction: InTransactionEnum): Promise<ValidationResultRo>;
+}
+
+export interface IUnfreezeConnection {
+  execute(inputData: UnfreezeConnectionDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
