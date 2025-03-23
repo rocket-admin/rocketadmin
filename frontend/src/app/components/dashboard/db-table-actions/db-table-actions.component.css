@@ -238,6 +238,51 @@
     gap: 16px;
 }
 
+.rule-action__label {
+    display: inline-block;
+    margin-top: -16px !important;
+}
+
 .rule-action__param {
     width: 50%;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 80px;
+    margin: 32px auto 0;
+    width: clamp(300px, 80vw, 1020px);
+}
+
+.rules-examples {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(300px, 1fr));
+    grid-gap: 20px;
+    width: 100%;
+}
+
+.rule-example {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 4px;
+    padding: 16px;
+}
+
+.rule-example__row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.rule-example__value {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 4px;
+    padding: 8px 16px;
 }

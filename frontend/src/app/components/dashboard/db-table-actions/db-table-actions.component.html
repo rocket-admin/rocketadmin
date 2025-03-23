@@ -58,13 +58,13 @@
                     <input matInput [(ngModel)]="selectedRuleTitle" name="rule-title" required>
                 </mat-form-field>
                 <div class="event">
-                    <span class="mat-body-1 text_highlighted">When</span>
+                    <span class="mat-body-1 text_highlighted">Trigger(s)</span>
                     <br/>
                     <div *ngFor="let event of selectedRule.events; let i = index">
                         <div class="event">
                             <span *ngIf="i > 0" class="mat-body-1 event__or text_highlighted">or</span>
                             <mat-form-field appearance="outline">
-                                <mat-label>Events</mat-label>
+                                <mat-label>Event</mat-label>
                                 <mat-select name="{{event.event}}-event-type"
                                     [required]="selectedRule.events.length === 1"
                                     [(ngModel)]="event.event"
@@ -124,9 +124,9 @@
                     </div>
                 </div>
 
-                <span class="mat-body-1"><span class="text_highlighted">then</span> perform action(s)</span>
-                <div *ngFor="let action of selectedRule.table_actions" >
+                <div *ngFor="let action of selectedRule.table_actions">
                     <div class="rule-action">
+                        <span class="mat-body-1 text_highlighted rule-action__label">Action</span>
                         <mat-form-field appearance="outline">
                             <mat-label>Actions type</mat-label>
                             <mat-select name="action-column" [(ngModel)]="action.method">
@@ -192,6 +192,57 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+        <div *ngIf="!selectedRule" class="empty-state">
+            <p>Configure custom triggers and actions for database records — react to standard operations like create, update, delete, or define your own.</p>
+            <div class="rules-examples">
+                <div class="rule-example">
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Trigger</span>
+                        <span class="rule-example__value">Add row</span>
+                        <span class="rule-example__value" style="margin-left: -16px;">Update row</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Action</span>
+                        <span class="rule-example__value">send&nbsp;<strong>email</strong>&nbsp;notification</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">to</span>
+                        <span class="rule-example__value">admin&#64;example.com, user&#64;example.com</span>
+                    </div>
+                </div>
+
+                <div class="rule-example">
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Trigger</span>
+                        <span class="rule-example__value">Delete row</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Action</span>
+                        <span class="rule-example__value">send&nbsp;<strong>Slack</strong>&nbsp;notification</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">to</span>
+                        <span class="rule-example__value">https://hooks.slack.com/services/...</span>
+                    </div>
+                </div>
+
+                <div class="rule-example">
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Trigger</span>
+                        <span class="rule-example__value"><mat-icon>block</mat-icon>&nbsp;Block user</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Action</span>
+                        <span class="rule-example__value">send&nbsp;<strong>webhook</strong></span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">to</span>
+                        <span class="rule-example__value">https://example.com/webhook</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </mat-drawer-content>
