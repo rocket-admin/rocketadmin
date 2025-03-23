@@ -74,6 +74,7 @@ import {
   IRefreshConnectionAgentToken,
   IRestoreConnection,
   ITestConnection,
+  IUnfreezeConnection,
   IUpdateConnection,
   IUpdateMasterPassword,
   IValidateConnectionMasterPassword,
@@ -123,6 +124,8 @@ export class ConnectionController {
     private readonly refreshConnectionAgentTokenUseCase: IRefreshConnectionAgentToken,
     @Inject(UseCaseType.VALIDATE_CONNECTION_MASTER_PASSWORD)
     private readonly validateConnectionMasterPasswordUseCase: IValidateConnectionMasterPassword,
+    @Inject(UseCaseType.UNFREEZE_CONNECTION)
+    private readonly unfreezeConnectionUseCase: IUnfreezeConnection,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly amplitudeService: AmplitudeService,
@@ -665,6 +668,24 @@ export class ConnectionController {
       throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
     }
     return await this.refreshConnectionAgentTokenUseCase.execute(connectionId, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Unfreeze connection' })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponse,
+    description: 'The connection was unfrozen.',
+  })
+  @UseGuards(ConnectionEditGuard)
+  @Put('/connection/unfreeze/:connectionId')
+  async unfreezeConnection(
+    @UserId() userId: string,
+    @SlugUuid('connectionId') connectionId: string,
+  ): Promise<SuccessResponse> {
+    if (!connectionId) {
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
+    }
+    return await this.unfreezeConnectionUseCase.execute({ connectionId, userId }, InTransactionEnum.ON);
   }
 
   private validateParameters = (connectionData: CreateConnectionDto): Array<string> => {

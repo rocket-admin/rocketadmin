@@ -3,8 +3,14 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
@@ -14,13 +20,6 @@ import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.j
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { ICreateConnection } from './use-cases.interfaces.js';
-import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
-import { Constants } from '../../../helpers/constants/constants.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
-import { isTest } from '../../../helpers/app/is-test.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionUseCase
@@ -40,7 +39,7 @@ export class CreateConnectionUseCase
     } = createConnectionData;
     const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
 
-    if (isSaaS() && !isTest()) {
+    if (isSaaS()) {
       const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
       const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
       if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
