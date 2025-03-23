@@ -22,6 +22,10 @@ export class CodeRowComponent extends BaseRowFieldComponent {
   };
 
   ngOnInit(): void {
+
+    console.log('CodeRowComponent');
+    console.log(this.value);
+
     super.ngOnInit();
     this.mutableCodeModel = {
       language: `${this.widgetStructure.widget_params.language}`,
