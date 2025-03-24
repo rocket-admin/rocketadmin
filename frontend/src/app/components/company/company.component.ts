@@ -79,6 +79,7 @@ export class CompanyComponent {
   public companyCustomDomainPlaceholder: string;
   public companyCustomDomainThirdLevel: string;
   public submittingCustomDomain: boolean = false;
+  public isCustomDomain: boolean = false;
 
   constructor(
     public _company: CompanyService,
@@ -90,11 +91,20 @@ export class CompanyComponent {
   ) { }
 
   ngOnInit() {
+    const domain = window.location.hostname;
+    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost') {
+      this.isCustomDomain = true;
+    }
+
     this._company.fetchCompany().subscribe(res => {
       this.company = res;
       this.setCompanyPlan(res.subscriptionLevel);
       this.getCompanyMembers(res.id);
-      this.getCompanyCustomDomain(res.id);
+      if (this.isCustomDomain) {
+        this.companyCustomDomainHostname = res.custom_domain;
+      } else {
+        this.getCompanyCustomDomain(res.id);
+      }
     });
 
     this._company.cast.subscribe( arg =>  {

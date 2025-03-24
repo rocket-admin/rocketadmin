@@ -31,6 +31,13 @@
     justify-items: center;
 }
 
+.login-form--native-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: clamp(360px, 30%, 600px);
+}
+
 @media (width <= 600px) {
     .login-form {
         display: flex;
