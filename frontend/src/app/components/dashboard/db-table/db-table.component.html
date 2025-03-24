@@ -139,18 +139,12 @@
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #settingsMenu="matMenu">
-                    <a mat-menu-item *ngIf="accessLevel === 'edit'"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: settings is clicked">
-                        Settings
-                    </a>
                     <a mat-menu-item *ngIf="tableData"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
                         [ngClass]="{'action_active': tableData.widgetsCount}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: widgets is clicked">
-                        Widgets
+                        Fields display
                     </a>
                     <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
@@ -162,6 +156,12 @@
                         <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
                             Primary keys are required.
                         </span>
+                    </a>
+                    <a mat-menu-item *ngIf="accessLevel === 'edit'"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: settings is clicked">
+                        Settings
                     </a>
                 </mat-menu>
             </div>

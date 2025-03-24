@@ -1957,3 +1957,46 @@ test.serial(`${currentTest} negative result if passed connection master password
     throw e;
   }
 });
+
+currentTest = `PUT /connection/unfreeze/:connectionId`;
+test.serial(`${currentTest} should unfreeze connection`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+    const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newPgConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createConnectionResult.status, 201);
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    const { id } = createConnectionRO;
+
+    const unfreezeConnectionResponse = await request(app.getHttpServer())
+      .put(`/connection/unfreeze/${id}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(unfreezeConnectionResponse.status, 200);
+    const unfreezeConnectionRO = JSON.parse(unfreezeConnectionResponse.text);
+    t.is(unfreezeConnectionRO.success, true);
+
+    const findOneResponce = await request(app.getHttpServer())
+      .get(`/connection/one/${id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(findOneResponce.status, 200);
+    const result = findOneResponce.body.connection;
+    t.is(result.isFrozen, false);
+  } catch (error) {
+    throw error;
+  }
+});

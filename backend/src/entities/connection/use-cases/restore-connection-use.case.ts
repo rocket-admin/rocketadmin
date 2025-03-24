@@ -3,8 +3,13 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionEntityAgent } from '../../../helpers/index.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
@@ -12,12 +17,6 @@ import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { isHostTest } from '../utils/is-test-connection-util.js';
 import { updateConnectionEntityForRestoration } from '../utils/update-connection-entity-for-restoration.js';
 import { IRestoreConnection } from './use-cases.interfaces.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
-import { Constants } from '../../../helpers/constants/constants.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { isTest } from '../../../helpers/app/is-test.js';
 
 @Injectable()
 export class RestoreConnectionUseCase
@@ -66,7 +65,7 @@ export class RestoreConnectionUseCase
       );
     }
 
-    if (isSaaS() && !isTest()) {
+    if (isSaaS()) {
       const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
       const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
       if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {

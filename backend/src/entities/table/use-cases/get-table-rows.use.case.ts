@@ -37,6 +37,7 @@ import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -62,6 +63,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     try {

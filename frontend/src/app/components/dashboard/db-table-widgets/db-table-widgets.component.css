@@ -20,13 +20,51 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 3em;
 }
 
-.empty-state__text {
-    color: rgba(0,0,0,0.5);
-    padding: 1rem 0;
+.widgets-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px !important;
     text-align: center;
+    width: clamp(300px, 75vw, 800px);
+}
+
+.widgets-hint__title {
+    display: inline-block;
+    font-size: 1.25em;
+    margin-bottom: 4px;
+}
+
+.widget-examples {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(300px, 1fr));
+    grid-template-rows: repeat(2, auto);
+    gap: 20px;
+    margin-top: 32px !important;
+    width: clamp(300px, 80vw, 1200px);
+}
+
+.widget-example {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 4px;
+    padding: 16px 16px 0;
+}
+
+.widget-example_row-2 {
+    grid-row: 2;
+}
+
+.widget-example_row-1-2 {
+    grid-row: span 2;
+}
+
+.examples-arrow {
+    color: var(--color-accentedPalette-500);
+    margin: 0 auto 12px;
 }
 
 .widget-settings {
