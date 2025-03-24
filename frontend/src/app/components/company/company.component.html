@@ -224,7 +224,7 @@
                 angulartics2On="change"
                 angularticsAction="Company: custom domain is edited"
                 placeholder="e.g. {{companyCustomDomainPlaceholder}}"
-                [readonly]="currentUser.role === 'DB_ADMIN'"
+                [readonly]="currentUser.role === 'DB_ADMIN' || isCustomDomain"
                 [disabled]="currentPlan === 'free' || submittingCustomDomain"
                 [matTooltip]="currentPlan === 'free' && isSaas ? 'To white‑label your domain, please upgrade to the Team plan or higher.' : null"
                 [(ngModel)]="companyCustomDomainHostname">
@@ -233,6 +233,7 @@
             </mat-hint>
             <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'ADMIN' && isSaas" class="cname-hint">
                 A CNAME record must exist for the subdomain you want to use, pointing to <span class="cname-value">cname.rocketadmin.com</span>.
+                <span *ngIf="isCustomDomain">To change the domain, visit <a href="https://app.rocketadmin.com/company" target="_blank">app.rocketadmin.com/company</a></span>
             </mat-hint>
             <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'DB_ADMIN' && isSaas" class="cname-hint">
                 A new type CNAME record named <span class="cname-value">{{companyCustomDomainThirdLevel}}</span> with the value <span class="cname-value">cname.rocketadmin.com</span> is required.
