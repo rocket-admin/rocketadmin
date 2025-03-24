@@ -23,9 +23,18 @@
 }
 
 .widgets-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 20px !important;
     text-align: center;
     width: clamp(300px, 75vw, 800px);
+}
+
+.widgets-hint__title {
+    display: inline-block;
+    font-size: 1.25em;
+    margin-bottom: 4px;
 }
 
 .widget-examples {
