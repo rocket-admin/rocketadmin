@@ -251,9 +251,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 80px;
+    gap: 32px;
     margin: 32px auto 0;
     width: clamp(300px, 80vw, 1020px);
+}
+
+.actions-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px !important;
+}
+
+.actions-hint__title {
+    display: inline-block;
+    font-size: 1.25em;
+    margin-bottom: 4px;
 }
 
 .rules-examples {
@@ -282,7 +295,9 @@
 .rule-example__value {
     display: flex;
     align-items: center;
-    border: 1px solid rgba(0,0,0,0.12);
-    border-radius: 4px;
+    /* border: 1px solid rgba(0,0,0,0.12); */
+    /* border-radius: 4px; */
+    background-color: rgba(0,0,0,0.04);
+    color: rgba(0,0,0,0.87);
     padding: 8px 16px;
 }
