@@ -231,3 +231,9 @@
     width: 100%;
     z-index: -1;
 }
+
+@media (prefers-color-scheme: dark) {
+    .cname-value::after {
+        background-color: var(--color-accentedPalette-700);
+    }
+}

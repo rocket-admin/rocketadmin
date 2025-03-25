@@ -24,7 +24,7 @@
 <div class="code-editor-box">
     <ngs-code-editor
         name="{{widget.field_name}}-params-editor"
-        theme="vs"
+        [theme]="codeEditorTheme"
         [codeModel]="mutableWidgetParams"
         [options]="paramsEditorOptions"
         [readOnly]="isReadonlyParams"

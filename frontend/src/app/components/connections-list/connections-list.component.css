@@ -81,7 +81,6 @@
     margin-bottom: 0 !important;
     text-align: center;
     text-transform: uppercase;
-
 }
 
 .showAllButton {
@@ -172,6 +171,12 @@
         0px 4px 5px 0px rgba(0, 0, 0, 0.2),
         0px 3px 14px 0px rgba(0, 0, 0, 0.12),
         0px 8px 10px 0px rgba(0, 0, 0, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+    .connection:hover {
+        border: 1px solid #636363;
+    }
 }
 
 .connectionLogoPreview {

@@ -255,11 +255,6 @@
     }
 }
 
-.link {
-    color: var(--color-primaryPalette-500);
-    text-decoration: none;
-}
-
 .divider {
     grid-column: 2;
     grid-row: 2 / span 3;

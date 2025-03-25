@@ -132,6 +132,12 @@
     margin-bottom: 8px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .suggestions {
+        background-color: #171717;
+    }
+}
+
 .suggestions-title {
     display: block;
     color: rgba(0,0,0, 0.54);
@@ -215,6 +221,12 @@
 .footer p {
     color: rgba(0, 0, 0, 0.36) !important;
     text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+    .footer p {
+        color: rgba(255, 255, 255, 0.36) !important;
+    }
 }
 
 .link {

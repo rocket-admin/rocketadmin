@@ -48,6 +48,6 @@
 
 @media (prefers-color-scheme: dark) {
     .link {
-        color: #fff;
+        color: var(--color-whitePalette-500);
     }
 }

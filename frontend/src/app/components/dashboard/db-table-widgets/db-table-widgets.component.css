@@ -54,6 +54,13 @@
     padding: 16px 16px 0;
 }
 
+@media (prefers-color-scheme: dark) {
+    .widget-example {
+        border-color: rgba(255,255,255,0.12);
+        background-color: #171717;
+    }
+}
+
 .widget-example_row-2 {
     grid-row: 2;
 }

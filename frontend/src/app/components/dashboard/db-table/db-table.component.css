@@ -253,7 +253,7 @@
 
 @media (prefers-color-scheme: dark) {
     .db-table ::ng-deep .db-table-row:hover {
-        --hover-color: var(--color-primaryPalette-800);
+        --hover-color: var(--color-primaryPalette-500);
     }
 }
 
