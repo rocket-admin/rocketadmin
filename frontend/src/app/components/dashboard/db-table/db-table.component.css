@@ -494,12 +494,6 @@ tr.mat-row:hover {
     color: var(--color-accentedPalette-500);
 }
 
-@media (prefers-color-scheme: dark) {
-    .foreign-key-link {
-        color: var(--color-accentedDarkPalette-500);
-    }
-}
-
 .empty-table {
     display: flex;
     flex-direction: column;

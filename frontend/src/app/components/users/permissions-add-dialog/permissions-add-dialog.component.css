@@ -131,9 +131,3 @@
 .visibilityIcon_visible {
     color: var(--color-accentedPalette-500);
 }
-
-@media (prefers-color-scheme: dark) {
-    .visibilityIcon_visible {
-        color: var(--color-accentedDarkPalette-500)
-    }
-}

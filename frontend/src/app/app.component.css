@@ -101,12 +101,6 @@
     font-weight: 500 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-    .nav-bar__button_active {
-        --mdc-text-button-label-text-color: var(--color-accentedDarkPalette-500) !important;
-    }
-}
-
 @media screen and (max-width: 600px) {
     .nav-bar__button_active {
         color: inherit;
@@ -116,7 +110,7 @@
 
 .nav-bar__upgrade-button {
     /* --mdc-filled-button-label-text-color: #424242; */
-    --mdc-filled-button-label-text-color: #fff !important;
+    /* --mdc-filled-button-label-text-color: #fff !important; */
     --mdc-filled-button-container-height: 28px;
 
     margin-right: -8px;

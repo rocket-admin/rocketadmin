@@ -181,12 +181,6 @@
     text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-    .instruction-step__link {
-        color: var(--color-accentedDarkPalette-500);
-    }
-}
-
 .instruction-step__link:hover {
     color: #FE5E85;
     text-decoration: underline;

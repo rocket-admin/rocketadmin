@@ -62,22 +62,9 @@
     color: var(--color-accentedPalette-500);
 }
 
-@media (prefers-color-scheme: dark) {
-    .list-item_active ::ng-deep .mdc-list-item__primary-text {
-        color: var(--color-accentedDarkPalette-500);
-    }
-}
-
 .list-item_active ::ng-deep .table-list-initials {
     background-color: var(--color-accentedPalette-500);
     color: var(--color-accentedPalette-500-contrast);
-}
-
-@media (prefers-color-scheme: dark) {
-    .list-item_active ::ng-deep .table-list-initials {
-        background-color: var(--color-accentedDarkPalette-500);
-        color: var(--color-accentedDarkPalette-500-contrast);
-    }
 }
 
 .empty-message {

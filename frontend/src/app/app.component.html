@@ -1,4 +1,4 @@
-<mat-sidenav-container class="main-menu-container" autosize>
+<mat-sidenav-container class="main-menu-container" [ngClass]="{'main-menu-container_native': !isCustomAccentedColor}" autosize>
     <mat-sidenav #drawer
         fixedInViewport="true"
         mode="over"

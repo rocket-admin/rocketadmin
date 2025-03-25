@@ -214,6 +214,10 @@ export class AppComponent {
     return this._connections.name;
   }
 
+  get isCustomAccentedColor() {
+    return this._connections.isCustomAccentedColor;
+  }
+
   get connectionID() {
     return this._connections.connectionID;
   }

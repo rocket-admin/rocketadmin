@@ -26,6 +26,10 @@ html {
   --mdc-outlined-text-field-container-shape: 0px !important;
 }
 
+.main-menu-container_native .mat-mdc-unelevated-button.mat-accent {
+  --mdc-filled-button-label-text-color: #fff !important;
+}
+
 @media (prefered-color-scheme: light) {
   body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
     --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
