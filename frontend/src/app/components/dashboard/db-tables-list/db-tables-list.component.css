@@ -44,8 +44,21 @@
     color: var(--color-primaryPalette-50-contrast);
 }
 
+@media (prefers-color-scheme: dark) {
+    .table-list-initials {
+        background-color: var(--color-whitePalette-900);
+        color: var(--color-whitePalette-900-contrast);
+    }
+}
+
 .table-list-initials:hover {
     background-color: var(--color-primaryPalette-100);
+}
+
+@media (prefers-color-scheme: dark) {
+    .table-list-initials:hover {
+        background-color: var(--color-whitePalette-900);
+    }
 }
 
 .table-list-icon {
