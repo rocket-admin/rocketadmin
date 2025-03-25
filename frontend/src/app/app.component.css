@@ -165,6 +165,7 @@
 
 .actions .action {
     --mdc-outlined-button-outline-color: #fff;
+    --mat-toolbar-container-text-color: #fff;
     width: 96px;
 }
 
