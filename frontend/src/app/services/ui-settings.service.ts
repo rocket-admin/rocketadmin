@@ -16,14 +16,22 @@ export class UiSettingsService {
   }
 
   private uiSettings = null;
+  private codeEditorTheme: 'vs' | 'vs-dark';
 
   constructor(
     private _http: HttpClient,
     private _notifications: NotificationsService,
-  ) { }
+  ) {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.codeEditorTheme = prefersDark ? 'vs-dark' : 'vs';
+  }
 
   get uiSettings$(){
     return this.uiSettings.asObservable();
+  }
+
+  get editorTheme(): 'vs' | 'vs-dark' {
+    return this.codeEditorTheme;
   }
 
   updateGlobalSetting(key: string, value: any) {

@@ -112,9 +112,21 @@
     margin-bottom: -6px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .table-name__title {
+        color: var(--color-whitePalette-500);
+    }
+}
+
 .table-name__line {
     color: rgba(0, 0, 0, 0.6);
     font-size: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .table-name__line {
+        color: rgba(255, 255, 255, 0.6);
+    }
 }
 
 .actions {

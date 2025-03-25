@@ -56,6 +56,7 @@ export class ConnectionsService {
   public currentPage: string;
   public connectionLogo: string;
   public companyName: string;
+  public isCustomAccentedColor: boolean;
   public defaultDisplayTable: string;
 
   private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
@@ -156,10 +157,12 @@ export class ConnectionsService {
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
           this.defaultDisplayTable = res.connectionProperties.default_showing_table;
+          this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
           this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
           this.connectionLogo = null;
           this.companyName = null;
+          this.isCustomAccentedColor = false;
           this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
         }
       });
@@ -167,6 +170,7 @@ export class ConnectionsService {
       this.connection = {...this.connectionInitialState};
       this.connectionLogo = null;
       this.companyName = null;
+      this.isCustomAccentedColor = false;
       this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
     }
   }

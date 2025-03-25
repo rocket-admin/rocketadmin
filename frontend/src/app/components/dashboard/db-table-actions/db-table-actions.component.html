@@ -161,12 +161,12 @@
                                     class="copy-button"
                                     matTooltip="Copy code"
                                     [cdkCopyToClipboard]="lang.value.snippet"
-                                    (cdkCopyToClipboardCopied)="showCopyNotification(codeSnippets[codeLangSelected].langName + 'code snippet was copied to clipboard.')">
+                                    (cdkCopyToClipboardCopied)="showCopyNotification(lang.value.langName + ' code snippet was copied to clipboard.')">
                                     <mat-icon>content_copy</mat-icon>
                                 </button>
 
                                 <ngs-code-editor
-                                    theme="vs"
+                                    [theme]="codeEditorTheme"
                                     [codeModel]="{
                                         language: lang.value.mode,
                                         uri: 'snippet.' + (lang.value.mode || 'txt'),

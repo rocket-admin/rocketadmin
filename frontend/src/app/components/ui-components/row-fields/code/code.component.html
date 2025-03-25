@@ -2,7 +2,7 @@
 
 <div class="code-editor-box">
     <ngs-code-editor
-        theme="vs"
+        [theme]="codeEditorTheme"
         [codeModel]="mutableCodeModel"
         [options]="codeEditorOptions"
         [readOnly]="readonly"

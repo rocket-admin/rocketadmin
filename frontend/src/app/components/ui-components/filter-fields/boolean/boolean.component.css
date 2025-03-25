@@ -9,10 +9,3 @@
     --mat-standard-button-toggle-selected-state-text-color: var(--color-accentedPalette-500-contrast);
     --mat-standard-button-toggle-selected-state-background-color: var(--color-accentedPalette-500);
 }
-
-@media (prefers-color-scheme: dark) {
-    .radio-line ::ng-deep .mat-button-toggle-appearance-standard.mat-button-toggle-checked {
-        --mat-standard-button-toggle-selected-state-text-color: var(--color-accentedDarkPalette-500-contrast);
-        --mat-standard-button-toggle-selected-state-background-color: var(--color-accentedDarkPalette-500);
-    }
-}

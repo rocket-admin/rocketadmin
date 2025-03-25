@@ -132,6 +132,12 @@
     margin-bottom: 8px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .suggestions {
+        background-color: #171717;
+    }
+}
+
 .suggestions-title {
     display: block;
     color: rgba(0,0,0, 0.54);
@@ -217,12 +223,12 @@
     text-align: center;
 }
 
-.link {
-    color: var(--color-accentedPalette-500);
+@media (prefers-color-scheme: dark) {
+    .footer p {
+        color: rgba(255, 255, 255, 0.36) !important;
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-    .link {
-        color: var(--color-accentedDarkPalette-500);
-    }
+.link {
+    color: var(--color-accentedPalette-500);
 }

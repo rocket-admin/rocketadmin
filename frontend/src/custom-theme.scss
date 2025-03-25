@@ -26,7 +26,23 @@ html {
   --mdc-outlined-text-field-container-shape: 0px !important;
 }
 
-@media (prefered-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
+  html {
+    --mat-expansion-container-background-color: #171717 !important;
+    --mat-table-background-color: #171717 !important;
+    --mat-paginator-container-background-color: #171717 !important;
+  }
+}
+
+// .main-menu-container_native .mat-mdc-unelevated-button.mat-accent {
+//   --mdc-filled-button-label-text-color: #fff !important;
+// }
+
+@media (prefers-color-scheme: light) {
+  .main-menu-container_native .mat-mdc-unelevated-button.mat-accent {
+    --mdc-filled-button-label-text-color: #fff !important;
+  }
+
   body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
     --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
     --mdc-protected-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;

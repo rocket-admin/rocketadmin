@@ -49,6 +49,12 @@
     padding: 8px 0;
 }
 
+@media (prefers-color-scheme: dark) {
+    .tables-list__header {
+        background-color: var(--color-accentedPalette-800);
+    }
+}
+
 .tables-list__item {
     display: contents;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
@@ -130,10 +136,4 @@
 
 .visibilityIcon_visible {
     color: var(--color-accentedPalette-500);
-}
-
-@media (prefers-color-scheme: dark) {
-    .visibilityIcon_visible {
-        color: var(--color-accentedDarkPalette-500)
-    }
 }

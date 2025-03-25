@@ -31,6 +31,7 @@ import { CodeRowComponent } from '../../ui-components/row-fields/code/code.compo
 import { TextRowComponent } from '../../ui-components/row-fields/text/text.component';
 import { LongTextRowComponent } from '../../ui-components/row-fields/long-text/long-text.component';
 import { SelectRowComponent } from '../../ui-components/row-fields/select/select.component';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 @Component({
   selector: 'app-db-table-widgets',
@@ -69,6 +70,7 @@ export class DbTableWidgetsComponent implements OnInit {
   public widgetTypes = Object.keys(UIwidgets);
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
+  public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
   public paramsEditorOptions = {
     minimap: { enabled: false },
     lineNumbersMinChars:  3,
@@ -172,6 +174,7 @@ export class DbTableWidgetsComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _location: Location,
+    private _uiSettings: UiSettingsService,
     public dialog: MatDialog,
     public router: Router,
     private title: Title,
@@ -194,6 +197,7 @@ export class DbTableWidgetsComponent implements OnInit {
         this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
         this.getWidgets();
       })
+    this.codeEditorTheme = this._uiSettings.editorTheme;
   }
 
   get currentConnection() {

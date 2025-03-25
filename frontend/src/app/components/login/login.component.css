@@ -90,12 +90,6 @@
     color: var(--color-accentedPalette-500);
 }
 
-@media (prefers-color-scheme: dark) {
-    .loginTitle__emphasis {
-        color: var(--color-accentedDarkPalette-500);
-    }
-}
-
 @media (width <= 600px) {
     .login-header__directions {
         display: none;
@@ -255,21 +249,10 @@
     text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-    .login-form__link {
-        color: var(--color-accentedDarkPalette-500);
-    }
-}
-
 @media (width <= 600px) {
     .login-form__link {
         order: 9;
     }
-}
-
-.link {
-    color: var(--color-primaryPalette-500);
-    text-decoration: none;
 }
 
 .divider {

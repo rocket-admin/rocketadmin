@@ -33,6 +33,7 @@ export class WidgetComponent implements OnInit, OnChanges {
   @Input() fields: string[];
   @Input() widgetTypes: string[];
   @Input() isReadonlyParams: boolean;
+  @Input() codeEditorTheme: 'vs' | 'vs-dark';
 
   @Output() onSelectWidgetField = new EventEmitter<string>();
   @Output() onWidgetTypeChange = new EventEmitter<string>();

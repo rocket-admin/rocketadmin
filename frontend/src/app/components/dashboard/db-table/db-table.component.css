@@ -253,7 +253,7 @@
 
 @media (prefers-color-scheme: dark) {
     .db-table ::ng-deep .db-table-row:hover {
-        --hover-color: var(--color-primaryPalette-800);
+        --hover-color: var(--color-primaryPalette-500);
     }
 }
 
@@ -492,12 +492,6 @@ tr.mat-row:hover {
 
 .foreign-key-link {
     color: var(--color-accentedPalette-500);
-}
-
-@media (prefers-color-scheme: dark) {
-    .foreign-key-link {
-        color: var(--color-accentedDarkPalette-500);
-    }
 }
 
 .empty-table {
