@@ -144,6 +144,12 @@ export class UpgradeComponent implements OnInit {
       enterprise: true
     },
     {
+      title: 'White label domain',
+      free: '',
+      team: true,
+      enterprise: true
+    },
+    {
       title: 'Log audit',
       free: '',
       team: true,
