@@ -57,9 +57,26 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const primaryKeyStructure =
       primaryColumns?.length > 0 ? tableStructure.find((e) => e.column_name === primaryKey.column_name) : undefined;
 
+    const timestampColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleTimeType(data_type))
+      .map(({ column_name }) => column_name);
+
+    const dateColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleDateType(data_type))
+      .map(({ column_name }) => column_name);
+
     const knex = await this.configureKnex();
     const keys = Object.keys(row);
-    const values = Object.values(row).map((val) => `${val}`);
+
+    const values = keys.map((key) => {
+      if (timestampColumnNames.includes(key) && row[key]) {
+        return this.formatTimestamp(row[key] as string);
+      }
+      if (dateColumnNames.includes(key) && row[key]) {
+        return this.formatDate(new Date(row[key] as string));
+      }
+      return `${row[key]}`;
+    });
 
     const primaryKeysInStructure = tableStructure.filter((el) =>
       tableStructure.some((structureEl) => structureEl.column_name === el.column_name),
@@ -568,6 +585,24 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const timestampColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleTimeType(data_type))
+      .map(({ column_name }) => column_name);
+
+    const dateColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleDateType(data_type))
+      .map(({ column_name }) => column_name);
+
+    Object.keys(row).forEach((key) => {
+      if (timestampColumnNames.includes(key) && row[key]) {
+        row[key] = this.formatTimestamp(row[key] as string);
+      }
+      if (dateColumnNames.includes(key) && row[key]) {
+        row[key] = this.formatDate(new Date(row[key] as string));
+      }
+    });
 
     return await knex(tableName).withSchema(schema).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
@@ -579,6 +614,25 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const timestampColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleTimeType(data_type))
+      .map(({ column_name }) => column_name);
+
+    const dateColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleDateType(data_type))
+      .map(({ column_name }) => column_name);
+
+    // Format date and timestamp fields in newValues
+    Object.keys(newValues).forEach((key) => {
+      if (timestampColumnNames.includes(key) && newValues[key]) {
+        newValues[key] = this.formatTimestamp(newValues[key] as string);
+      }
+      if (dateColumnNames.includes(key) && newValues[key]) {
+        newValues[key] = this.formatDate(new Date(newValues[key] as string));
+      }
+    });
 
     return await knex.transaction(async (trx) => {
       const results = [];
