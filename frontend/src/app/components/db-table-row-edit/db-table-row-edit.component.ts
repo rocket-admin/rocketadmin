@@ -37,6 +37,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
+import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -53,6 +54,7 @@ import { normalizeTableName } from '../../lib/normalize';
     MatSelectModule,
     MatTooltipModule,
     MatListModule,
+    MatProgressSpinnerModule,
     RouterModule,
     MatExpansionModule,
     MatChipsModule,
