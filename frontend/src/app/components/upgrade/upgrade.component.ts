@@ -56,13 +56,13 @@ export class UpgradeComponent implements OnInit {
     {
       title: 'Oracle',
       free: '',
-      team: true,
+      team: '',
       enterprise: true
     },
     {
       title: 'Microsoft SQL',
       free: '',
-      team: true,
+      team: '',
       enterprise: true
     }
   ]
