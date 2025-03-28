@@ -27,6 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
+import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -48,6 +49,7 @@ amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
     MatBadgeModule,
     MatMenuModule,
     MatTooltipModule,
+    FeatureNotificationComponent
   ],
 })
 
@@ -56,7 +58,8 @@ export class AppComponent {
   public isSaas = (environment as any).saas;
   userActivity;
   userInactive: Subject<any> = new Subject();
-  chatHasBeenShownOnce: boolean = false;
+  currentFeatureNotificationId: string = 'white-label-custom-domain-3';
+  isFeatureNotificationShown: boolean = false;
 
   userLoggedIn = null;
   redirect_uri = `${location.origin}/loader`;
@@ -141,20 +144,20 @@ export class AppComponent {
         if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
         this._user.fetchUser()
           .subscribe((res: User) => {
-              this.currentUser = res;
-              this.setUserLoggedIn(true);
+            this.currentUser = res;
+            this.setUserLoggedIn(true);
 
+            // @ts-ignore
+            if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
               // @ts-ignore
-              if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
-                // @ts-ignore
-                ...window.intercomSettings,
-                user_hash: res.intercom_hash,
-                user_id: res.id,
-                email: res.email
-              });
-              this.router.navigate(['/connections-list']);
-              this._uiSettings.getUiSettings().subscribe();
-            }
+              ...window.intercomSettings,
+              user_hash: res.intercom_hash,
+              user_id: res.id,
+              email: res.email
+            });
+            this.router.navigate(['/connections-list']);
+            this._uiSettings.getUiSettings().subscribe();
+          }
         )
 
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
