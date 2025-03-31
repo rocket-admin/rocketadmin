@@ -19,6 +19,7 @@
 @media (prefers-color-scheme: dark) {
     .row-preview-sidebar_open {
         border-left: 1px solid var(--mat-sidenav-container-divider-color);
+        background-color: #202020;
     }
 }
 
@@ -62,6 +63,18 @@
 @media (prefers-color-scheme: dark) {
     .row-preview-sidebar__field:not(:last-child) {
         border-bottom: solid 1px rgba(255, 255, 255, 0.04);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .row-preview-sidebar__field-value {
+        color: rgba(0, 0, 0, 0.64);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .row-preview-sidebar__field-value {
+        color: rgba(255, 255, 255, 0.64);
     }
 }
 

@@ -12,8 +12,8 @@
 
 @media (prefers-color-scheme: dark) {
     .main-menu-container {
-        --mat-sidenav-content-background-color: #212121;
-        --mat-sidenav-container-background-color: #212121;
+        --mat-sidenav-content-background-color: #191919;
+        --mat-sidenav-container-background-color: #191919;
         --mat-sidenav-container-divider-color: #303030;
     }
 }
