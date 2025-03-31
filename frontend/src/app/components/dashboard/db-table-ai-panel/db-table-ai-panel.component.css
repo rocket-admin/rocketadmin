@@ -21,6 +21,12 @@
     width: clamp(200px, 22vw, 400px);
 }
 
+@media (prefers-color-scheme: dark) {
+    .ai-panel-sidebar_open {
+        background-color: #202020;
+    }
+}
+
 @media (width <= 600px) {
     .ai-panel-sidebar_open {
         width: 0;
@@ -62,6 +68,12 @@
     padding-top: 20px;
     padding-left: 16px;
     padding-right: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-icon ::ng-deep svg path {
+        fill: #fff;
+    }
 }
 
 .ai-panel-sidebar__title {
@@ -134,7 +146,7 @@
 
 @media (prefers-color-scheme: dark) {
     .suggestions {
-        background-color: #171717;
+        background-color: #202020;
     }
 }
 
@@ -216,6 +228,18 @@
     padding-left: 16px;
     padding-right: 16px;
     text-align: center;
+}
+
+@media (prefers-color-scheme: light) {
+    .ai-placeholder {
+        color: rgba(0, 0, 0, 0.64);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-placeholder {
+        color: rgba(255, 255, 255, 0.64);
+    }
 }
 
 .footer p {

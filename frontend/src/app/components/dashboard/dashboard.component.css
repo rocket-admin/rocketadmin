@@ -8,6 +8,12 @@
     max-width: 240px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .table-list-sidenav {
+        background-color: #202020;
+    }
+}
+
 @media (width <= 600px) {
     .table-list-sidenav {
         display: none;
