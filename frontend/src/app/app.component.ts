@@ -4,9 +4,21 @@ import { catchError, filter, map } from 'rxjs/operators';
 
 import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatIconRegistry } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { TablesService } from './services/tables.service';
 import { UiSettingsService } from './services/ui-settings.service';
@@ -16,18 +28,6 @@ import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { normalizeTableName } from './lib/normalize';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatTabsModule } from '@angular/material/tabs';
-import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -58,7 +58,7 @@ export class AppComponent {
   public isSaas = (environment as any).saas;
   userActivity;
   userInactive: Subject<any> = new Subject();
-  currentFeatureNotificationId: string = 'white-label-custom-domain-3';
+  currentFeatureNotificationId: string = 'white-label-custom-domain-6';
   isFeatureNotificationShown: boolean = false;
 
   userLoggedIn = null;
@@ -156,7 +156,10 @@ export class AppComponent {
               email: res.email
             });
             this.router.navigate(['/connections-list']);
-            this._uiSettings.getUiSettings().subscribe();
+            this._uiSettings.getUiSettings().subscribe(settings => {
+              console.log(settings);
+              this.isFeatureNotificationShown = (settings.globalSettings.lastFeatureNotificationId !== this.currentFeatureNotificationId)
+            });
           }
         )
 
@@ -186,7 +189,10 @@ export class AppComponent {
                     user_id: res.id,
                     email: res.email
                   });
-                this._uiSettings.getUiSettings().subscribe();
+                  this._uiSettings.getUiSettings().subscribe(settings => {
+                    console.log(settings);
+                    this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
+                  });
                 }
             );
 
@@ -240,6 +246,12 @@ export class AppComponent {
   get tableName() {
     this.normalizedTableName = normalizeTableName(this._tables.currentTableName);
     return this._tables.currentTableName;
+  }
+
+  dismissFeatureNotification() {
+    this._uiSettings.updateGlobalSetting('lastFeatureNotificationId', this.currentFeatureNotificationId)
+    this.isFeatureNotificationShown = false;
+    // this.changeDetector.detectChanges();
   }
 
   setUserLoggedIn(state) {

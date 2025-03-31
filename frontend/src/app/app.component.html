@@ -189,7 +189,7 @@
         <div *ngIf="!authBarTheme" class="footer">
             <span class="footer__text">&copy; 2025 Rocketadmin</span>
         </div>
-        <app-feature-notification *ngIf="isFeatureNotificationShown"></app-feature-notification>
+        <app-feature-notification *ngIf="isFeatureNotificationShown" (dismiss)="dismissFeatureNotification()"></app-feature-notification>
     </mat-sidenav-content>
 </mat-sidenav-container>
 

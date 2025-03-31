@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
@@ -13,7 +14,7 @@ import { UiSettingsService } from 'src/app/services/ui-settings.service';
   styleUrl: './feature-notification.component.css'
 })
 export class FeatureNotificationComponent implements OnInit {
-  public isDismissed: boolean = false;
+  @Output() dismiss = new EventEmitter<void>();
 
   constructor(
     private _uiSettings: UiSettingsService,
@@ -21,8 +22,5 @@ export class FeatureNotificationComponent implements OnInit {
 
   ngOnInit() {
 
-  }
-
-  dismissNotification() {
   }
 }
