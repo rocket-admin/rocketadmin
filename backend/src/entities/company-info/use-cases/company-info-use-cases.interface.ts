@@ -92,3 +92,7 @@ export interface IUploadCompanyLogo {
 export interface IFindCompanyLogo {
   execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyLogoRO>;
 }
+
+export interface IDeleteCompanyLogo {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
