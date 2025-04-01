@@ -22,9 +22,22 @@ export class UploadCompanyLogoUseCase
 
   protected async implementation(inputData: UploadCompanyLogoDs): Promise<SuccessResponse> {
     const { companyId, file } = inputData;
-    const company = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
+    const company = await this._dbContext.companyInfoRepository.findCompanyWithLogo(companyId);
     if (!company) {
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+    }
+
+    if (company.logo) {
+      const logoForDeletion = await this._dbContext.companyLogoRepository.findOne({
+        where: {
+          company: {
+            id: companyId,
+          },
+        },
+      });
+      if (logoForDeletion) {
+        await this._dbContext.companyLogoRepository.remove(logoForDeletion);
+      }
     }
 
     const newLogo = new CompanyLogoEntity();
