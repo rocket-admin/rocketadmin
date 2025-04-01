@@ -6,8 +6,11 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
 import { nanoid } from 'nanoid';
+import path, { join } from 'path';
 import request from 'supertest';
+import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
@@ -23,6 +26,8 @@ import {
 } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -81,7 +86,7 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    t.is(Object.keys(foundCompanyInfoRO).length, 9);
+    t.is(Object.keys(foundCompanyInfoRO).length, 10);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
@@ -122,7 +127,7 @@ test.serial(`${currentTest} should return full found company info for company ad
     t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 14);
+    t.is(Object.keys(foundCompanyInfoRO).length, 15);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -174,7 +179,7 @@ test.serial(`${currentTest} should return found company info for non-admin user`
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(Object.keys(foundCompanyInfoRO).length, 9);
+    t.is(Object.keys(foundCompanyInfoRO).length, 10);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
@@ -1144,3 +1149,57 @@ test.serial(
     t.is(resultAfterToggleOnRO.connections.length, 5);
   },
 );
+
+currentTest = 'POST & GET /company/logo/:companyId';
+test.serial(`${currentTest} should create and return found company logo after creation`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
+  const downloadedLogoPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_logo.png`);
+
+  const createLogoResponse = await request(app.getHttpServer())
+    .post(`/company/logo/${foundCompanyInfoRO.id}`)
+    .attach('file', testLogoPatch)
+    .set('Content-Type', 'image/png')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'image/png');
+
+  const createLogoRO = JSON.parse(createLogoResponse.text);
+  t.is(createLogoResponse.status, 201);
+
+  const foundCompanyLogo = await request(app.getHttpServer())
+    .get(`/company/logo/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyLogo.status, 200);
+  const foundCompanyLogoRO = JSON.parse(foundCompanyLogo.text);
+  fs.writeFileSync(downloadedLogoPatch, foundCompanyLogoRO.logo);
+  const isFileExists = fs.existsSync(downloadedLogoPatch);
+
+  t.is(isFileExists, true);
+});

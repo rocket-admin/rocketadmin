@@ -72,6 +72,9 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty({ required: false })
   custom_domain: string | null;
+
+  @ApiProperty({ required: false, type: 'string', format: 'base64' })
+  logo: string | null;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {
