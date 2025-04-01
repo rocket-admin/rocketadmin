@@ -34,6 +34,7 @@ import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/togg
 import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
 import { UploadCompanyLogoUseCase } from './use-cases/upload-company-logo-use-case.js';
 import { FindCompanyLogoUseCase } from './use-cases/find-company-logo.use.case.js';
+import { DeleteCompanyLogoUseCase } from './use-cases/delete-company-logo.use.case.js';
 
 @Module({
   imports: [
@@ -132,6 +133,10 @@ import { FindCompanyLogoUseCase } from './use-cases/find-company-logo.use.case.j
       provide: UseCaseType.FIND_COMPANY_LOGO,
       useClass: FindCompanyLogoUseCase,
     },
+    {
+      provide: UseCaseType.DELETE_COMPANY_LOGO,
+      useClass: DeleteCompanyLogoUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -155,6 +160,7 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/connections/display/', method: RequestMethod.PUT },
         { path: '/company/logo/:companyId', method: RequestMethod.POST },
         { path: '/company/logo/:companyId', method: RequestMethod.GET },
+        { path: '/company/logo/:companyId', method: RequestMethod.DELETE },
       );
   }
 }

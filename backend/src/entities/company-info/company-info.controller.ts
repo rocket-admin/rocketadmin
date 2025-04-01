@@ -56,6 +56,7 @@ import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-comp
 import {
   ICheckVerificationLinkAvailable,
   IDeleteCompany,
+  IDeleteCompanyLogo,
   IFindCompanyLogo,
   IGetCompanyName,
   IGetUserCompany,
@@ -120,6 +121,8 @@ export class CompanyInfoController {
     private readonly uploadCompanyLogoUseCase: IUploadCompanyLogo,
     @Inject(UseCaseType.FIND_COMPANY_LOGO)
     private readonly findCompanyLogoUseCase: IFindCompanyLogo,
+    @Inject(UseCaseType.DELETE_COMPANY_LOGO)
+    private readonly deleteCompanyLogoUseCase: IDeleteCompanyLogo,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -500,5 +503,18 @@ export class CompanyInfoController {
   @Get('/logo/:companyId')
   async findCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyLogoRO> {
     return await this.findCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Delete company logo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company logo deleted.',
+    type: SuccessResponse,
+  })
+  @ApiQuery({ name: 'companyId', required: true })
+  @UseGuards(CompanyAdminGuard)
+  @Delete('/logo/:companyId')
+  async deleteCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
+    return await this.deleteCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
   }
 }
