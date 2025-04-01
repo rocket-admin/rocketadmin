@@ -1,8 +1,9 @@
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryColumn, Relation } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryColumn, Relation } from 'typeorm';
 import { UserEntity } from '../user/user.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { InvitationInCompanyEntity } from './invitation-in-company/invitation-in-company.entity.js';
 import { generateCompanyName } from './utils/get-company-name.js';
+import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
 
 @Entity('company_info')
 export class CompanyInfoEntity {
@@ -23,6 +24,9 @@ export class CompanyInfoEntity {
   @Column({ type: 'boolean', default: true })
   show_test_connections: boolean;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
   @BeforeInsert()
   getRandomName(): void {
     if (!this.name) {
@@ -39,4 +43,9 @@ export class CompanyInfoEntity {
     onDelete: 'NO ACTION',
   })
   invitations: Relation<InvitationInCompanyEntity>[];
+
+  @OneToOne((_) => CompanyLogoEntity, (logo) => logo.company, {
+    onDelete: 'NO ACTION',
+  })
+  logo: Relation<CompanyLogoEntity>;
 }

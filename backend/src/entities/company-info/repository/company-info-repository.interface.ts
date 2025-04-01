@@ -27,4 +27,6 @@ export interface ICompanyInfoRepository {
   findCompaniesPaidConnections(companyIds: Array<string>): Promise<ConnectionEntity[]>;
 
   findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>>;
+
+  findCompanyWithLogo(companyId: string): Promise<CompanyInfoEntity>;
 }

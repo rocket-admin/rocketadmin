@@ -116,6 +116,7 @@ export const Messages = {
   ERROR_MESSAGE_ORIGINAL: 'Error message from database: ',
   EXCLUDED_OR_NOT_EXISTS: (fieldName: string) =>
     `The field "${fieldName}" does not exists in this table or is excluded.`,
+  FILE_MISSING: 'File is missing',
   FAILED_ADD_GROUP_IN_CONNECTION: 'Connection failed to add group in connection.',
   FAILED_ADD_PERMISSION_IN_GROUP: 'Failed to add permission in group.',
   FAILED_TO_ADD_SETUP_INTENT_AND_SUBSCRIPTION: `Failed to add setup intent and create subscription`,

@@ -9,14 +9,17 @@ import {
   Inject,
   Injectable,
   Param,
+  ParseFilePipeBuilder,
   Post,
   Put,
   Query,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
@@ -53,6 +56,7 @@ import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-comp
 import {
   ICheckVerificationLinkAvailable,
   IDeleteCompany,
+  IFindCompanyLogo,
   IGetCompanyName,
   IGetUserCompany,
   IGetUserEmailCompanies,
@@ -66,8 +70,10 @@ import {
   IUpdateCompanyName,
   IUpdateUsers2faStatusInCompany,
   IUpdateUsersCompanyRoles,
+  IUploadCompanyLogo,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
+import { FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -110,6 +116,10 @@ export class CompanyInfoController {
     private readonly unSuspendUsersInCompanyUseCase: ISuspendUsersInCompany,
     @Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY)
     private readonly toggleTestConnectionsCompanyDisplayModeUseCase: IToggleCompanyTestConnectionsMode,
+    @Inject(UseCaseType.UPLOAD_COMPANY_LOGO)
+    private readonly uploadCompanyLogoUseCase: IUploadCompanyLogo,
+    @Inject(UseCaseType.FIND_COMPANY_LOGO)
+    private readonly findCompanyLogoUseCase: IFindCompanyLogo,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -453,5 +463,42 @@ export class CompanyInfoController {
     @Body() { usersEmails }: SuspendUsersInCompanyDto,
   ): Promise<SuccessResponse> {
     return await this.unSuspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Upload company logo' })
+  @ApiResponse({
+    status: 201,
+    description: 'Company logo was uploaded.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Post('/logo/:companyId')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCompanyLogo(
+    @SlugUuid('companyId') companyId: string,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: 'image/png' })
+        .addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_LOGO_SIZE })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+    )
+    file: Express.Multer.File,
+  ): Promise<SuccessResponse> {
+    if (!file) {
+      throw new BadRequestException(Messages.FILE_MISSING);
+    }
+    return await this.uploadCompanyLogoUseCase.execute({ companyId, file }, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Find company logo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company logo found.',
+    type: FoundCompanyLogoRO,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Get('/logo/:companyId')
+  async findCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyLogoRO> {
+    return await this.findCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
   }
 }
