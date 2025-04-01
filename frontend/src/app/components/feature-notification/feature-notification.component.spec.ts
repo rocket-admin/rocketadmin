@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FeatureNotificationComponent } from './feature-notification.component';
+import { ActivatedRoute } from '@angular/router';
 
 describe('FeatureNotificationComponent', () => {
   let component: FeatureNotificationComponent;
@@ -8,7 +9,10 @@ describe('FeatureNotificationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FeatureNotificationComponent]
+      imports: [FeatureNotificationComponent],
+      providers: [
+        { provide: ActivatedRoute, useValue: {} }
+      ]
     })
     .compileComponents();
 

@@ -58,7 +58,7 @@ export class AppComponent {
   public isSaas = (environment as any).saas;
   userActivity;
   userInactive: Subject<any> = new Subject();
-  currentFeatureNotificationId: string = 'white-label-custom-domain-7';
+  currentFeatureNotificationId: string = 'white-label-custom-domain';
   isFeatureNotificationShown: boolean = false;
 
   userLoggedIn = null;
