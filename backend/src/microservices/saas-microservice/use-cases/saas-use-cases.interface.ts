@@ -68,6 +68,10 @@ export interface ISaaSGetUsersInCompany {
   execute(companyId: string): Promise<UserEntity[]>;
 }
 
+export interface ISaaSGetUsersCountInCompany {
+  execute(companyId: string): Promise<number>;
+}
+
 export interface IFreezeConnectionsInCompany {
   execute(inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse>;
 }

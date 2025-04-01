@@ -26,6 +26,7 @@ import {
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
   ISaaSGetCompanyInfoByUserId,
+  ISaaSGetUsersCountInCompany,
   ISaaSGetUsersInCompany,
   ISaaSRegisterInvitedUser,
   ISaasGetUsersInfosByEmail,
@@ -68,6 +69,8 @@ export class SaasController {
     private readonly getCompanyInfoByUserIdUseCase: ISaaSGetCompanyInfoByUserId,
     @Inject(UseCaseType.SAAS_GET_USERS_IN_COMPANY_BY_ID)
     private readonly getUsersInCompanyByIdUseCase: ISaaSGetUsersInCompany,
+    @Inject(UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY)
+    private readonly getUsersCountInCompanyByIdUseCase: ISaaSGetUsersCountInCompany,
     @Inject(UseCaseType.FREEZE_CONNECTIONS_IN_COMPANY)
     private readonly freezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
     @Inject(UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY)
@@ -260,6 +263,13 @@ export class SaasController {
   @Get('/company/:companyId/users')
   async getUsersInCompany(@Param('companyId') companyId: string): Promise<Array<UserEntity>> {
     return await this.getUsersInCompanyByIdUseCase.execute(companyId);
+  }
+
+  @ApiOperation({ summary: 'Users count in company by company id' })
+  @Get('/company/:companyId/users/count')
+  async getUsersCountInCompany(@Param('companyId') companyId: string): Promise<{ count: number }> {
+    const usersCount = await this.getUsersCountInCompanyByIdUseCase.execute(companyId);
+    return { count: usersCount };
   }
 
   @ApiOperation({ summary: 'Freeze paid connections in companies webhook' })
