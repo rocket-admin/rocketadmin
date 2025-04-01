@@ -84,6 +84,7 @@ import { IAiUserFilesRepository } from '../../entities/ai/ai-data-entities/ai-us
 import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files.entity.js';
 import { aiUserThreadRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.extension.js';
 import { aiUserFileRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-file-repository.extension.js';
+import { CompanyLogoEntity } from '../../entities/company-logo/company-logo.entity.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -118,6 +119,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
   private _aiUserThreadsRepository: Repository<AiUserThreadEntity> & IAiUserThreadsRepository;
   private _aiUserFilesRepository: Repository<AiUserFileEntity> & IAiUserFilesRepository;
+  private _companyLogoRepository: Repository<CompanyLogoEntity>;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -200,6 +202,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._aiUserFilesRepository = this.appDataSource
       .getRepository(AiUserFileEntity)
       .extend(aiUserFileRepositoryExtension);
+    this._companyLogoRepository = this.appDataSource.getRepository(CompanyLogoEntity);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -316,6 +319,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get aiUserFilesRepository(): Repository<AiUserFileEntity> & IAiUserFilesRepository {
     return this._aiUserFilesRepository;
+  }
+
+  public get companyLogoRepository(): Repository<CompanyLogoEntity> {
+    return this._companyLogoRepository;
   }
 
   public startTransaction(): Promise<void> {
