@@ -104,7 +104,7 @@
             <td mat-cell *matCellDef="let element; let i = index"
                 data-label="Role"
                 class="company-member-cell">
-                <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role === 'USER') && !element.invitedUserEmail; else noSelect"
+                <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role !== 'ADMIN') && !element.invitedUserEmail; else noSelect"
                     attr.data-testid="company-member-role-{{i}}-select"
                     class="role-select"
                     angulartics2On="click"
