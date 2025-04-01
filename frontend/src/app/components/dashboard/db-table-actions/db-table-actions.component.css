@@ -193,11 +193,11 @@
 @media (prefers-color-scheme: dark) {
     .code-snippet-box {
         border-color: rgba(255,255,255,0.12);
-        background-color: #171717;
+        background-color: #202020;
     }
 
     .copy-button {
-        background-color: #171717;
+        background-color: #202020;
     }
 }
 
@@ -264,6 +264,16 @@
     margin-bottom: 4px;
 }
 
+.actions-hint__text {
+    color: rgba(0, 0, 0, 0.64);
+}
+
+@media (prefers-color-scheme: dark) {
+    .actions-hint__text {
+        color: rgba(255, 255, 255, 0.64);
+    }
+}
+
 .rules-examples {
     display: grid;
     grid-template-columns: repeat(3, minmax(300px, 1fr));
@@ -284,7 +294,7 @@
 @media (prefers-color-scheme: dark) {
     .rule-example {
         border-color: rgba(255,255,255,0.12);
-        background-color: #171717;
+        background-color: #202020;
     }
 }
 

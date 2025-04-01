@@ -26,9 +26,9 @@ export class UiSettingsService {
     this.codeEditorTheme = prefersDark ? 'vs-dark' : 'vs';
   }
 
-  get uiSettings$(){
-    return this.uiSettings.asObservable();
-  }
+  // get uiSettings$(){
+  //   return this.uiSettings.asObservable();
+  // }
 
   get editorTheme(): 'vs' | 'vs-dark' {
     return this.codeEditorTheme;
@@ -67,6 +67,7 @@ export class UiSettingsService {
             const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
             console.log('getUiSettings settings')
             console.log(settings)
+            if (settings) this.settings = settings;
             this.uiSettings = settings;
             return settings
           }),

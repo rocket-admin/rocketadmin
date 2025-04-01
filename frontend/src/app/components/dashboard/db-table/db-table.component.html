@@ -32,7 +32,7 @@
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
             <ng-container *ngIf="tableData.tableBulkActions && tableData.tableBulkActions.length">
-                <button type="button" mat-button *ngFor="let action of tableData.tableBulkActions"
+                <button type="button" mat-button class="actions__action" *ngFor="let action of tableData.tableBulkActions"
                 (click)="handleActions(action)">
                     {{action.title}}
                 </button>
