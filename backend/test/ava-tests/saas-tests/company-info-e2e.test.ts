@@ -1198,7 +1198,9 @@ test.serial(`${currentTest} should create and return found company logo after cr
 
   t.is(foundCompanyLogo.status, 200);
   const foundCompanyLogoRO = JSON.parse(foundCompanyLogo.text);
-  fs.writeFileSync(downloadedLogoPatch, foundCompanyLogoRO.logo);
+  t.is(foundCompanyLogoRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyLogoRO.logo.image.length > 0, true);
+  fs.writeFileSync(downloadedLogoPatch, foundCompanyLogoRO.logo.image);
   const isFileExists = fs.existsSync(downloadedLogoPatch);
 
   t.is(isFileExists, true);

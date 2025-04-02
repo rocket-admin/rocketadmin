@@ -20,8 +20,16 @@ export class FindCompanyLogoUseCase extends AbstractUseCase<string, FoundCompany
     if (!company) {
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
     }
+    if (!company.logo) {
+      return {
+        logo: null,
+      };
+    }
     return {
-      logo: company.logo?.logo.toString('base64') || null,
+      logo: {
+        image: company.logo.image.toString('base64'),
+        mimeType: company.logo.mimeType,
+      },
     };
   }
 }
