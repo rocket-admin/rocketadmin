@@ -81,6 +81,14 @@ export class CompanyComponent {
   public submittingCustomDomain: boolean = false;
   public isCustomDomain: boolean = false;
 
+  public companyLogoFile: File;
+  companyLogoPreview: string | null = null;
+  public submittingLogo: boolean = false;
+
+  get logo(): string {
+    return this._company.logo;
+  }
+
   constructor(
     public _company: CompanyService,
     public _user: UserService,
@@ -288,6 +296,36 @@ export class CompanyComponent {
     this.dialog.open(DeleteDomainDialogComponent, {
       width: '25em',
       data: { companyId: this.company.id, domain: this.companyCustomDomainHostname }
+    });
+  }
+
+  onCompanyLogoSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (file) {
+      this.companyLogoFile = file;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.companyLogoPreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.companyLogoFile = null;
+      this.companyLogoPreview = null;
+    }
+  }
+
+  uploadLogo() {
+    this.submittingLogo = true;
+    this._company.uploadLogo(this.company.id, this.companyLogoFile).subscribe(res => {
+      this.submittingLogo = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: logo is uploaded successfully',
+      });
+    }, err => {
+      this.submittingLogo = false;
     });
   }
 }

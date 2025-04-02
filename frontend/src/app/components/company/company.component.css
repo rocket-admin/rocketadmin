@@ -247,3 +247,8 @@
         background-color: var(--color-accentedPalette-700);
     }
 }
+
+.white-label-preview {
+    height: 100%;
+    width: 500px;
+}

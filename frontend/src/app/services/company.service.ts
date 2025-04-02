@@ -16,11 +16,17 @@ export class CompanyService {
   private company = new BehaviorSubject<string>('');
   public cast = this.company.asObservable();
 
+  private companyLogo: string;
+
   constructor(
     private _http: HttpClient,
     private _notifications: NotificationsService,
     private _configuration: ConfigurationService
   ) { }
+
+  get logo() {
+    return this.companyLogo;
+  }
 
   fetchCompany() {
     return this._http.get<any>(`/company/my/full`)
@@ -307,6 +313,40 @@ export class CompanyService {
           this._notifications.showSuccessSnackbar('Custom domain has been removed.');
           this.company.next('domain');
           return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  uploadLogo(companyId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post<any>(`/company/logo/${companyId}`, formData)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Logo has been updated.');
+          this.company.next('logo');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  getCompanyLogo(companyId: string) {
+    return this._http.get<any>(`/company/logo/${companyId}`)
+      .pipe(
+        map(res => {
+          this.companyLogo = `data:image/svg+xml;base64,${res.logo}`;
+          return `data:image/svg+xml;base64,${res.logo}`;
         }),
         catchError((err) => {
           console.log(err);

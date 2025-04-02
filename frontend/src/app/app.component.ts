@@ -28,6 +28,7 @@ import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { normalizeTableName } from './lib/normalize';
+import { CompanyService } from './services/company.service';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -72,6 +73,7 @@ export class AppComponent {
   currentUser: User;
   normalizedTableName;
   page: string;
+  logo: any;
   // upgradeButtonShown: boolean = true;
 
   // connectionID: string;
@@ -82,6 +84,7 @@ export class AppComponent {
     public route: ActivatedRoute,
     public router: Router,
     public _connections: ConnectionsService,
+    public _company: CompanyService,
     public _user: UserService,
     public _auth: AuthService,
     private _tables: TablesService,
@@ -189,6 +192,10 @@ export class AppComponent {
                     user_id: res.id,
                     email: res.email
                   });
+                  this._company.getCompanyLogo(res.company.id).subscribe( logo => {
+                    this.logo = logo;
+                    console.log(logo);
+                  })
                   this._uiSettings.getUiSettings().subscribe(settings => {
                     console.log(settings);
                     this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
@@ -213,10 +220,6 @@ export class AppComponent {
         this.logOut(true);
       }
     })
-  }
-
-  get logo() {
-    return this._connections.connectionLogo;
   }
 
   get name() {
