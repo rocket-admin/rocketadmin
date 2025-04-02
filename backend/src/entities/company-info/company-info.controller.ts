@@ -481,7 +481,7 @@ export class CompanyInfoController {
     @SlugUuid('companyId') companyId: string,
     @UploadedFile(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: 'image/png' })
+        .addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
         .addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_LOGO_SIZE })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )

@@ -7,7 +7,10 @@ export class CompanyLogoEntity {
   id: string;
 
   @Column({ type: 'bytea', nullable: true })
-  logo: Buffer;
+  image: Buffer;
+
+  @Column({ type: 'varchar', length: 24, nullable: false, default: 'image/png' })
+  mimeType: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
