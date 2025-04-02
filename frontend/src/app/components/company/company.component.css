@@ -260,6 +260,12 @@
     margin-bottom: 32px;
 }
 
+.upload-logo-form {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .white-label-preview {
     height: auto;
     margin-top: 20px;

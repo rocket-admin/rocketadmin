@@ -332,12 +332,12 @@ export class CompanyComponent {
     });
   }
 
-  uploadLogo() {
+  removeLogo() {
     this.submittingLogo = true;
-    this._company.uploadLogo(this.company.id, this.companyLogoFile).subscribe(res => {
+    this._company.removeLogo(this.company.id).subscribe(res => {
       this.submittingLogo = false;
       this.angulartics2.eventTrack.next({
-        action: 'Company: logo is uploaded successfully',
+        action: 'Company: logo is removed successfully',
       });
     }, err => {
       this.submittingLogo = false;

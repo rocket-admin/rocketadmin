@@ -217,7 +217,7 @@
                 class="text-filed-edit"
                 (ngSubmit)="handleChangeCompanyDomain()">
                 <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
-                    <mat-label>White label custom domain</mat-label>
+                    <mat-label>Custom domain</mat-label>
                     <input matInput name="company-custom-domain" #domainField="ngModel"
                         data-testid="custom-domain-input"
                         angulartics2On="change"
@@ -249,7 +249,7 @@
                 </div>
             </form>
 
-            <form #uploadLogoForm="ngForm" (ngSubmit)="uploadLogo()" class="upload-logo-form">
+            <form #uploadLogoForm="ngForm" class="upload-logo-form">
                 <div class="file-uploader-appearance">
                     <button mat-stroked-button type="button" (click)="fileInput.click()">
                         <mat-icon fontSet="material-icons-outlined">upload</mat-icon>
@@ -257,6 +257,10 @@
                     </button>
                     <input #fileInput type="file" class="file-input" name="db-table-file" (change)="onCompanyLogoSelected($event)" hidden>
                 </div>
+
+                <button mat-icon-button *ngIf="logo" (click)="removeLogo()">
+                    <mat-icon>close</mat-icon>
+                </button>
             </form>
 
             <svg class="white-label-preview" width="4539" height="2082" viewBox="0 0 4539 2082" fill="none" xmlns="http://www.w3.org/2000/svg">

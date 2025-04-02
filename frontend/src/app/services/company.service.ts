@@ -346,8 +346,29 @@ export class CompanyService {
     return this._http.get<any>(`/company/logo/${companyId}`)
       .pipe(
         map(res => {
-          this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
-          return `data:${res.logo.mimeType};base64,${res.logo.image}`;
+          if (res.logo && res.logo.image && res.logo.mimeType) {
+            this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
+            return `data:${res.logo.mimeType};base64,${res.logo.image}`;
+          } else {
+            this.companyLogo = null;
+            return null;
+          }
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  removeLogo(companyId: string) {
+    return this._http.delete<any>(`/company/logo/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Logo has been removed.');
+          this.company.next('logo');
+          return res
         }),
         catchError((err) => {
           console.log(err);
