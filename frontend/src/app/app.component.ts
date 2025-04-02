@@ -158,7 +158,7 @@ export class AppComponent {
             this.router.navigate(['/connections-list']);
             this._uiSettings.getUiSettings().subscribe(settings => {
               console.log(settings);
-              this.isFeatureNotificationShown = (settings.globalSettings.lastFeatureNotificationId !== this.currentFeatureNotificationId)
+              this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
             });
           }
         )
