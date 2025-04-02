@@ -263,22 +263,15 @@
 
     <form #uploadLogoForm="ngForm" (ngSubmit)="uploadLogo()" class="upload-logo-form">
         <div class="file-uploader-appearance">
-            <button mat-stroked-button type="button" (click)="fileInput.click()">Browse File</button>
-            <span>{{ companyLogoFile && companyLogoFile.name ? companyLogoFile.name : 'No file selected.' }}</span>
+            <button mat-stroked-button type="button" (click)="fileInput.click()">
+                <mat-icon fontSet="material-icons-outlined">upload</mat-icon>
+                Company logo
+            </button>
             <input #fileInput type="file" class="file-input" name="db-table-file" (change)="onCompanyLogoSelected($event)" hidden>
-        </div>
-        <button mat-flat-button type="submit" color="primary" [disabled]="submittingLogo">
-            Upload
-        </button>
-        <div *ngIf="companyLogoPreview" class="image-preview">
-            <img [src]="companyLogoPreview" alt="Logo preview" style="max-width: 200px; max-height: 200px; margin-top: 10px;" />
-        </div>
-        <div *ngIf="logo">
-            <img [src]="logo" alt="Logo" style="max-width: 200px; max-height: 200px; margin-top: 10px;" />
         </div>
     </form>
 
-    <svg class="white-label-preview" width="4539" height="1982" viewBox="0 0 4539 1982" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg class="white-label-preview" width="4539" height="2082" viewBox="0 0 4539 2082" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g clip-path="url(#clip0_474_332)">
         <rect width="4538.62" height="1482" fill="white"/>
         <g filter="url(#filter0_d_474_332)">
@@ -332,12 +325,13 @@
         <path d="M1490.41 415.663H1458.31C1453.55 415.663 1451.18 411.963 1452.96 407.647L1464.85 379.283C1467.23 373.117 1463.66 366.951 1457.12 366.951H1427.4C1423.83 366.951 1420.86 369.418 1419.67 372.501L1404.81 406.414C1402.43 412.58 1405.4 416.896 1411.34 416.896H1442.26C1445.83 416.896 1448.8 418.746 1449.99 421.829L1464.26 455.742C1466.04 460.058 1463.66 463.758 1458.31 463.758H1386.97C1384 463.758 1381.03 466.224 1379.24 468.691L1366.76 501.987C1363.79 508.153 1366.76 514.319 1373.89 514.319H1444.04C1447.01 514.319 1449.99 511.236 1451.18 508.153L1467.23 471.157C1468.42 467.458 1471.39 465.608 1474.36 465.608H1505.87C1511.82 465.608 1514.79 460.675 1511.82 455.125L1498.74 421.212C1497.55 418.746 1493.98 416.279 1491.01 416.279L1490.41 415.663Z" fill="white"/>
         </g>
 
-        <rect x="0" y="1482" width="100%" height="500" fill="#212121" />
-        <image
+        <rect x="0" y="1482" width="100%" height="600" fill="#212121" />
+
+        <image *ngIf="logo"
             x="100"
             y="1570"
-            width="300"
-            height="300"
+            width="400"
+            height="400"
             [attr.href]="logo" />
 
         <defs>
@@ -355,7 +349,7 @@
         <rect width="4538.62" height="1482" fill="white"/>
         </clipPath>
         </defs>
-        </svg>
+    </svg>
 
 
     <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"

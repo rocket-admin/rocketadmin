@@ -194,7 +194,6 @@ export class AppComponent {
                   });
                   this._company.getCompanyLogo(res.company.id).subscribe( logo => {
                     this.logo = logo;
-                    console.log(logo);
                   })
                   this._uiSettings.getUiSettings().subscribe(settings => {
                     console.log(settings);

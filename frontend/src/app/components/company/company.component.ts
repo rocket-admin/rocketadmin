@@ -128,6 +128,10 @@ export class CompanyComponent {
         this.getCompanyMembers(this.company.id);
       } else if (arg === 'domain') {
         this.getCompanyCustomDomain(this.company.id);
+      }
+      else if (arg === 'logo') {
+        // this.submittingLogo = true;
+        this._company.getCompanyLogo(this.company.id).subscribe();
       };
     });
   }
@@ -300,21 +304,32 @@ export class CompanyComponent {
   }
 
   onCompanyLogoSelected(event: any) {
+    this.submittingLogo = true;
+
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
     if (file) {
       this.companyLogoFile = file;
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.companyLogoPreview = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      // const reader = new FileReader();
+      // reader.onload = () => {
+      //   this.companyLogoPreview = reader.result as string;
+      // };
+      // reader.readAsDataURL(file);
     } else {
       this.companyLogoFile = null;
-      this.companyLogoPreview = null;
+      // this.companyLogoPreview = null;
     }
+
+    this._company.uploadLogo(this.company.id, this.companyLogoFile).subscribe(res => {
+      this.submittingLogo = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: logo is uploaded successfully',
+      });
+    }, err => {
+      this.submittingLogo = false;
+    });
   }
 
   uploadLogo() {

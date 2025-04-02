@@ -331,6 +331,7 @@ export class CompanyService {
         map(res => {
           this._notifications.showSuccessSnackbar('Logo has been updated.');
           this.company.next('logo');
+          // this.getCompanyLogo(companyId);
           return res
         }),
         catchError((err) => {
@@ -345,8 +346,8 @@ export class CompanyService {
     return this._http.get<any>(`/company/logo/${companyId}`)
       .pipe(
         map(res => {
-          this.companyLogo = `data:image/svg+xml;base64,${res.logo}`;
-          return `data:image/svg+xml;base64,${res.logo}`;
+          this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
+          return `data:${res.logo.mimeType};base64,${res.logo.image}`;
         }),
         catchError((err) => {
           console.log(err);
