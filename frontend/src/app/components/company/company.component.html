@@ -193,7 +193,7 @@
                     Revoke
                 </button>
                 <ng-template #deleteUserButton>
-                    <button mat-button *ngIf="(adminsCount > 1 && currentUser.role === 'ADMIN') || element.role === 'USER'"
+                    <button mat-button *ngIf="(adminsCount > 1 && currentUser.role === 'ADMIN') || element.role === 'USER' || element.role === 'DB_ADMIN'"
                         type="button" color="warn"
                         attr.data-testid="company-member-delete-{{i}}-button"
                         angulartics2On="click"
