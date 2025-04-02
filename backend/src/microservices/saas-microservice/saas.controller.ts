@@ -100,8 +100,8 @@ export class SaasController {
     status: 200,
   })
   @Get('/user/:userId')
-  async getUserInfo(@Param('userId') userId: string): Promise<UserEntity> {
-    return await this.getUserInfoUseCase.execute(userId);
+  async getUserInfo(@Param('userId') userId: string, @Query('companyId') companyId: string): Promise<UserEntity> {
+    return await this.getUserInfoUseCase.execute({ userId, companyId });
   }
 
   @ApiOperation({ summary: 'Get user info by github id webhook' })

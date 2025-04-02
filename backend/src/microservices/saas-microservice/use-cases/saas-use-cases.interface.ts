@@ -8,7 +8,7 @@ import { UserEntity } from '../../../entities/user/user.entity.js';
 import { AddRemoveCompanyIdToUserDS } from '../data-structures/add-company-id-to-user.ds.js';
 import { SuccessResponse } from '../data-structures/common-responce.ds.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
-import { GetUserInfoByEmailDS } from '../data-structures/get-user-info.ds.js';
+import { GetUserInfoByEmailDS, GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js';
@@ -21,7 +21,7 @@ export interface ICompanyRegistration {
 }
 
 export interface IGetUserInfo {
-  execute(userId: string): Promise<UserEntity>;
+  execute(userData: GetUserInfoByIdDS): Promise<UserEntity>;
 }
 
 export interface IGetUserInfoByEmail {
