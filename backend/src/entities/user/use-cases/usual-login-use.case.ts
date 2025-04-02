@@ -36,7 +36,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       if (!user) {
         throw new NotFoundException(Messages.USER_NOT_FOUND);
       }
-    } else if (!Constants.APP_REQUEST_DOMAINS().includes(request_domain) && !isSaaS()) {
+    } else if (!Constants.APP_REQUEST_DOMAINS().includes(request_domain) && isSaaS()) {
       const foundUserCompanyIdByDomain =
         await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(request_domain);
       const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(
