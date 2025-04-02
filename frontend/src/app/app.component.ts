@@ -221,9 +221,9 @@ export class AppComponent {
     })
   }
 
-  get name() {
-    return this._connections.name;
-  }
+  // get name() {
+  //   return this._connections.name;
+  // }
 
   get isCustomAccentedColor() {
     return this._connections.isCustomAccentedColor;
