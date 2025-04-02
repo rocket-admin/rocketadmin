@@ -42,7 +42,8 @@ export class UploadCompanyLogoUseCase
 
     const newLogo = new CompanyLogoEntity();
     newLogo.company = company;
-    newLogo.logo = file.buffer;
+    newLogo.image = file.buffer;
+    newLogo.mimeType = file.mimetype;
     await this._dbContext.companyLogoRepository.save(newLogo);
     return { success: true };
   }

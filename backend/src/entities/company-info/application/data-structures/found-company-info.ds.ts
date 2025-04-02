@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FoundInvitationInCompanyDs } from './found-invitation-in-company.ds.js';
 import { FoundSipleConnectionInfoDS } from '../../../connection/application/data-structures/found-connections.ds.js';
+import { FoundCompanyLogoInfo } from '../dto/found-company-logo.ro.js';
+import { FoundInvitationInCompanyDs } from './found-invitation-in-company.ds.js';
 
 export class FoundCompanyAddressDs {
   id: string;
@@ -73,8 +74,8 @@ export class FoundUserCompanyInfoDs {
   @ApiProperty({ required: false })
   custom_domain: string | null;
 
-  @ApiProperty({ required: false, type: 'string', format: 'base64' })
-  logo: string | null;
+  @ApiProperty({ required: false, type: FoundCompanyLogoInfo })
+  logo: FoundCompanyLogoInfo;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {
