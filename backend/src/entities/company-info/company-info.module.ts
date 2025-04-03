@@ -31,6 +31,7 @@ import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa
 import { SuspendUsersInCompanyUseCase } from './use-cases/suspend-users-in-company.use.case.js';
 import { UnsuspendUsersInCompanyUseCase } from './use-cases/unsuspend-users-in-company.use.case.js';
 import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test-connections-company-display-mode.use.case.js';
+import { CompanyInfoHelperService } from './company-info-helper.service.js';
 
 @Module({
   imports: [
@@ -120,6 +121,7 @@ import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/togg
       provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY,
       useClass: ToggleCompanyTestConnectionsDisplayModeUseCase,
     },
+    CompanyInfoHelperService,
   ],
   controllers: [CompanyInfoController],
 })

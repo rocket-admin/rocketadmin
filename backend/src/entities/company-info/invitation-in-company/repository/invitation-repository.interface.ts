@@ -16,4 +16,6 @@ export interface IInvitationInCompanyRepository {
   findNonExpiredInvitationInCompanyWithUsersByVerificationString(
     verificationString: string,
   ): Promise<InvitationInCompanyEntity>;
+
+  countNonExpiredInvitationsInCompany(companyId: string): Promise<number>;
 }

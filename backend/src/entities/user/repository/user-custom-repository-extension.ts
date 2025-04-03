@@ -118,6 +118,13 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await usersQB.getMany();
   },
 
+  async countUsersInCompany(companyId: string): Promise<number> {
+    const usersQB = this.createQueryBuilder('user')
+      .leftJoin('user.company', 'company')
+      .where('company.id = :companyId', { companyId: companyId });
+    return await usersQB.getCount();
+  },
+
   async getUserEmailOrReturnNull(userId: string): Promise<string> {
     const userQB = this.createQueryBuilder('user').where('user.id = :userId', { userId: userId });
     const user = await userQB.getOne();
