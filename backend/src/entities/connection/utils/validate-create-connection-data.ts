@@ -25,17 +25,17 @@ export async function validateCreateConnectionData(
     if (!host) {
       errors.push(Messages.HOST_MISSING);
     }
-    if (ssh) {
-      if (!validator.isFQDN(host) && !validator.isIP(host)) {
-        errors.push(Messages.HOST_NAME_INVALID);
-        throw new HttpException(
-          {
-            message: toPrettyErrorsMsg(errors),
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
+    // if (ssh) {
+    //   if (!validator.isFQDN(host) && !validator.isIP(host) && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+    //     errors.push(Messages.HOST_NAME_INVALID);
+    //     throw new HttpException(
+    //       {
+    //         message: toPrettyErrorsMsg(errors),
+    //       },
+    //       HttpStatus.BAD_REQUEST,
+    //     );
+    //   }
+    // }
     if (!username) errors.push(Messages.USERNAME_MISSING);
 
     if (type !== ConnectionTypesEnum.dynamodb) {
