@@ -1,14 +1,12 @@
-import { Injectable, Inject, HttpException, HttpStatus, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { IToken, generateGwtToken } from '../../user/utils/generate-gwt-token.js';
-import { IVerifyInviteUserInCompanyAndConnectionGroup } from './company-info-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { IToken, generateGwtToken } from '../../user/utils/generate-gwt-token.js';
 import { get2FaScope } from '../../user/utils/is-jwt-scope-need.util.js';
+import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
+import { IVerifyInviteUserInCompanyAndConnectionGroup } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
@@ -18,7 +16,6 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -87,22 +84,6 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
       }
     }
     await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
-    if (isSaaS()) {
-      const saasResult = await this.saasCompanyGatewayService.invitationAcceptedWebhook(
-        savedUser.id,
-        foundInvitation.company.id,
-        foundInvitation.role,
-        savedUser.email.toLowerCase(),
-      );
-      if (!saasResult) {
-        throw new HttpException(
-          {
-            message: Messages.FAILED_ACCEPT_INVITATION_SAAS_UNHANDLED_ERROR,
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
     return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company));
   }
 }
