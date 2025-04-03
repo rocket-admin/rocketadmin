@@ -1,16 +1,15 @@
 import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
-import validator from 'validator';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
-import { ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
 
 export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,
