@@ -71,7 +71,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     const domain = window.location.hostname;
 
-    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost') {
+    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost' && this.isSaas) {
       this.isCustomDomain = true;
     }
 
