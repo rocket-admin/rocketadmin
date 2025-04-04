@@ -1,10 +1,13 @@
 name: backend
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "!frontend/**"
   pull_request:
     paths: 
-      - "backend/**"
-      - "shared-code/**"
-      - "rocketadmin-agent/**"
+      - "!frontend/**"
 jobs:
   test:
     runs-on:
