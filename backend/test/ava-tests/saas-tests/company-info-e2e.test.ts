@@ -1204,4 +1204,70 @@ test.serial(`${currentTest} should create and return found company logo after cr
   const isFileExists = fs.existsSync(downloadedLogoPatch);
 
   t.is(isFileExists, true);
+
+  // should return company logo for simple user
+
+  const foundCompanyLogoForSimpleUser = await request(app.getHttpServer())
+    .get(`/company/logo/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyLogoForSimpleUser.status, 200);
+  const foundCompanyLogoForSimpleUserRO = JSON.parse(foundCompanyLogoForSimpleUser.text);
+  t.is(foundCompanyLogoForSimpleUserRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyLogoForSimpleUserRO.logo.image.length > 0, true);
+
+  const downloadedLogoPatchForSimpleUser = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoRO.id}_simple_user_logo.png`,
+  );
+  fs.writeFileSync(downloadedLogoPatchForSimpleUser, foundCompanyLogoForSimpleUserRO.logo.image);
+  const isFileExistsForSimpleUser = fs.existsSync(downloadedLogoPatchForSimpleUser);
+  t.is(isFileExistsForSimpleUser, true);
+
+  //should return logo in full company info for admin
+  const foundCompanyInfoWithLogo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithLogo.status, 200);
+  const foundCompanyInfoWithLogoRO = JSON.parse(foundCompanyInfoWithLogo.text);
+  t.is(foundCompanyInfoWithLogoRO.hasOwnProperty('logo'), true);
+  t.is(foundCompanyInfoWithLogoRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithLogoRO.logo.image.length > 0, true);
+
+  const downloadedLogoPatchWithLogo = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithLogoRO.id}_admin_user_logo.png`,
+  );
+  fs.writeFileSync(downloadedLogoPatchWithLogo, foundCompanyInfoWithLogoRO.logo.image);
+  const isFileExistsWithLogo = fs.existsSync(downloadedLogoPatchWithLogo);
+  t.is(isFileExistsWithLogo, true);
+
+  //should return logo in full company info for simple user
+  const foundCompanyInfoWithLogoForSimpleUser = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithLogoForSimpleUser.status, 200);
+  const foundCompanyInfoWithLogoForSimpleUserRO = JSON.parse(foundCompanyInfoWithLogoForSimpleUser.text);
+  t.is(foundCompanyInfoWithLogoForSimpleUserRO.hasOwnProperty('logo'), true);
+  t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.image.length > 0, true);
+
+  const downloadedLogoPatchForSimpleUserWithLogo = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithLogoForSimpleUserRO.id}_simple_user_logo.png`,
+  );
+  fs.writeFileSync(downloadedLogoPatchForSimpleUserWithLogo, foundCompanyInfoWithLogoForSimpleUserRO.logo.image);
+  const isFileExistsForSimpleUserWithLogo = fs.existsSync(downloadedLogoPatchForSimpleUserWithLogo);
+  t.is(isFileExistsForSimpleUserWithLogo, true);
 });
