@@ -9,7 +9,6 @@
         </a>
     </div>
 
-
     <ng-container *ngIf="connections; else loader">
         <div *ngIf="!connections.length && connections !== null" class="empty-state">
             <svg width="197" height="151" viewBox="0 0 197 151" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -132,7 +131,7 @@
                 </clipPath>
                 </defs>
             </svg>
-            <p class="mat-body-1 empty-state__text">Create your first connection</p>
+            <p *ngIf="currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN'" class="mat-body-1 empty-state__text">Create your first connection</p>
         </div>
 
         <ul class="connections">
@@ -186,7 +185,8 @@
             Show less
         </button>
 
-        <a mat-flat-button data-testid="add-connection-button"
+        <a mat-flat-button *ngIf="currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN'"
+            data-testid="add-connection-button"
             color="primary"
             [ngClass]="connections.length ? 'fabAddButton' : 'addButton'"
             routerLink="/connect-db"
@@ -196,12 +196,12 @@
             Add database
         </a>
 
-        <div *ngIf="!connections.length && connections !== null && !(testConnections && testConnections.length)" class="empty-state_bottom">
+        <div *ngIf="!connections.length && connections !== null" class="empty-state_bottom">
             <p class="mat-body-1 empty-state__text">
-                Invited to the company?
+                Invited to the company and don't see admin panel?
             </p>
             <p class="mat-body-1">
-                Request access to admin panel from your admin.
+                Request access to admin panel from your Acount owner.
             </p>
         </div>
 

@@ -18,6 +18,7 @@ import { PermissionEntity } from '../../permission/permission.entity.js';
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 
 export type RequiredConnectionKeys = Pick<ConnectionEntity, 'id' | 'database' | 'isTestConnection'>;
 export type OptionalConnectionKeys = Partial<Omit<ConnectionEntity, keyof RequiredConnectionKeys>>;
@@ -37,11 +38,20 @@ export class FindAllConnectionsUseCase
   }
 
   protected async implementation(userData: CreateUserDs | FindUserDs): Promise<FoundConnectionsDs> {
-    const user = await this._dbContext.userRepository.findOneUserById(userData.id);
+    const user = await this._dbContext.userRepository.findOneUserByIdWithCompany(userData.id);
     if (!user) {
       throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
     }
-    const allFoundUserConnections = await this._dbContext.connectionRepository.findAllUserConnections(user.id, false);
+    let allFoundUserConnections: Array<ConnectionEntity> = [];
+
+    if (user.role === UserRoleEnum.ADMIN) {
+      const allCompanyConnections = await this._dbContext.connectionRepository.findAllCompanyUsersNonTestsConnections(
+        user.company.id,
+      );
+      allFoundUserConnections = allCompanyConnections;
+    } else {
+      allFoundUserConnections = await this._dbContext.connectionRepository.findAllUserConnections(user.id, false);
+    }
 
     if (user.showTestConnections && isSaaS() && user.company.show_test_connections) {
       let allFoundUserTestConnections = await this._dbContext.connectionRepository.findAllUserTestConnections(user.id);

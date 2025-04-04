@@ -12,7 +12,7 @@
 </ng-template>
 
 <mat-form-field appearance="outline">
-    <mat-label>Widget type</mat-label>
+    <mat-label>Display type</mat-label>
     <mat-select name="{{widget.field_name}}-field-type"
         [(ngModel)]="widget.widget_type"
         (ngModelChange)="onWidgetTypeChange.emit(widget.field_name)">
@@ -24,7 +24,7 @@
 <div class="code-editor-box">
     <ngs-code-editor
         name="{{widget.field_name}}-params-editor"
-        theme="vs"
+        [theme]="codeEditorTheme"
         [codeModel]="mutableWidgetParams"
         [options]="paramsEditorOptions"
         [readOnly]="isReadonlyParams"
@@ -34,12 +34,12 @@
 </div>
 
 <mat-form-field appearance="outline">
-    <mat-label>Field name</mat-label>
+    <mat-label>Display field name</mat-label>
     <input matInput [(ngModel)]="widget.name" name="{{widget.field_name}}-field-new-name">
 </mat-form-field>
 
 <mat-form-field appearance="outline">
-    <mat-label>Description</mat-label>
+    <mat-label>Display description</mat-label>
     <textarea matInput [(ngModel)]="widget.description" name="{{widget.field_name}}-field-description"></textarea>
 </mat-form-field>
 

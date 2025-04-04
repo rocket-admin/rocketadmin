@@ -35,6 +35,14 @@ body {
     min-height: calc(100vh - 56px);
 }
 
+@media (prefers-color-scheme: dark) {
+    .background-decoration {
+        background-image:
+        url('./assets/bg/decor-left_dark.svg'),
+        url('./assets/bg/decor-right_dark.svg');
+    }
+}
+
 .skeleton {
     position: relative;
     overflow: hidden;

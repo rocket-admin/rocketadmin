@@ -61,6 +61,13 @@ export const groupCustomRepositoryExtension: IGroupRepository = {
     return await qb.getMany();
   },
 
+  async countAllUserGroups(userId: string): Promise<number> {
+    const qb = this.createQueryBuilder('group')
+      .leftJoin('group.users', 'user')
+      .andWhere('user.id = :userId', { userId: userId });
+    return await qb.getCount();
+  },
+
   async findAllUsersInGroup(groupId: string): Promise<Array<UserEntity>> {
     const qb = this.manager
       .getRepository(UserEntity)

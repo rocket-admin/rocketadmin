@@ -28,6 +28,7 @@ import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
 import { isMySqlDateOrTimeType, isMySQLDateStringByRegexp } from '../../helpers/is-database-date.js';
+import { nanoid } from 'nanoid';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -139,6 +140,33 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     return result[0] as unknown as Record<string, unknown>;
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    let availableFields: string[] = [];
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = knex(tableName).select(availableFields.length ? availableFields : '*');
+
+    primaryKeys.forEach((primaryKey) => {
+      query.orWhere((builder) => {
+        Object.entries(primaryKey).forEach(([column, value]) => {
+          builder.andWhere(column, value);
+        });
+      });
+    });
+
+    const results = await query;
+    return results as Array<Record<string, unknown>>;
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,
@@ -186,7 +214,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
       return rowsRO;
     }
-
+    const fastRowsCount = await this.getFastRowsCount(knex, tableName, this.connection.database);
     const countRowsQB = knex(tableName)
       .modify((builder) => {
         let { search_fields } = settings;
@@ -198,7 +226,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+              if (fastRowsCount <= 1000) {
+                builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `%${searchedFieldValue.toLowerCase()}%`]);
+              } else {
+                builder.orWhereRaw(` CAST(?? AS CHAR) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+              }
             }
           }
         }
@@ -391,6 +423,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex().select(1);
@@ -403,6 +438,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 
@@ -432,8 +469,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
 
@@ -449,12 +486,38 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       }
     });
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(newValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
+  }
 
-    return await knex(tableName)
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeys.map(Object.values))
-      .update(newValues);
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const knex = await this.configureKnex();
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    await knex.transaction(async (trx) => {
+      await trx(tableName)
+        .delete()
+        .modify((queryBuilder) => {
+          primaryKeys.forEach((key) => {
+            queryBuilder.orWhere((builder) => {
+              Object.entries(key).forEach(([column, value]) => {
+                builder.andWhere(column, value);
+              });
+            });
+          });
+        });
+    });
+
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {

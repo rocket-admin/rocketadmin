@@ -1,18 +1,24 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
   OperationResultStatusEnum,
   WidgetTypeEnum,
 } from '../../../enums/index.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent, isObjectEmpty, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
+import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
 import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
@@ -23,12 +29,7 @@ import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
 import { IAddRowInTable } from './table-use-cases.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
-import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
-import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, TableRowRODs> implements IAddRowInTable {
@@ -53,6 +54,9 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
     let operationResult = OperationResultStatusEnum.unknown;
 

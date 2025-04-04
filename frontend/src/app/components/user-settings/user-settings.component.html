@@ -85,6 +85,15 @@
             </form>
         </div>
 
+        <mat-slide-toggle style="margin-top: 20px;"
+            name="showTestConnections"
+            data-testid="user-settings-test-connections-switch"
+            [disabled]="submittingChangedShowTestConnections"
+            [(ngModel)]="showTestConnections"
+            (change)="changeShowTestConnections($event.checked)">
+            Show demo connections
+        </mat-slide-toggle>
+
         <div>
             <div class="user-settings__section-heading">
                 <strong>API keys</strong>

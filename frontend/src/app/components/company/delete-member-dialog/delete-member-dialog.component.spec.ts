@@ -22,13 +22,13 @@ describe('DeleteMemberDialogComponent', () => {
     providers: [
       provideHttpClient(),
       { provide: MAT_DIALOG_DATA, useValue: {
-              companyId: '',
-              user: {
-                  id: '',
-                  email: '',
-                  name: ''
-              }
-          } },
+        companyId: '',
+        user: {
+            id: '',
+            email: '',
+            name: ''
+        }
+      }},
       { provide: MatDialogRef, useValue: MatDialogRef }
     ],
 })

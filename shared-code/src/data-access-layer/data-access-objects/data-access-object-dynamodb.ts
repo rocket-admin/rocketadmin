@@ -1,28 +1,37 @@
 /* eslint-disable security/detect-object-injection */
+import {
+  DeleteItemCommand,
+  DynamoDB,
+  GetItemCommand,
+  PutItemCommand,
+  ScanCommand,
+  UpdateItemCommand,
+  BatchGetItemCommand,
+} from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
+import * as csv from 'csv';
 import { Stream } from 'stream';
+import { binaryToHex, hexToBinary } from '../../helpers/binary-hex-string-convertion.js';
+import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
+import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
-import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { DynamoDBType, TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
-import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { DeleteItemCommand, DynamoDB, GetItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import * as csv from 'csv';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 
 export type DdAndClient = {
   dynamoDb: DynamoDB;
@@ -38,6 +47,8 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     row: Record<string, unknown>,
   ): Promise<Record<string, unknown> | number> {
     try {
+      const tableStructure = await this.getTableStructure(tableName);
+      row = this.convertHexDataToBinaryInBinarySets(row, tableStructure);
       const { documentClient } = this.getDynamoDb();
       const params = {
         TableName: tableName,
@@ -62,6 +73,18 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     try {
+      const tableStructure = await this.getTableStructure(tableName);
+      for (const key in primaryKey) {
+        const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+        if (foundKeySchema?.data_type === 'number') {
+          const numericValue = Number(primaryKey[key]);
+          if (!isNaN(numericValue)) {
+            primaryKey[key] = numericValue;
+          } else {
+            continue;
+          }
+        }
+      }
       const { documentClient } = this.getDynamoDb();
       const params = {
         TableName: tableName,
@@ -77,12 +100,49 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async getIdentityColumns(
-    _tableName: string,
-    _referencedFieldName: string,
-    _identityColumnName: string,
-    _fieldValues: Array<string | number>,
-  ): Promise<Array<Record<string, unknown>>> {
-    return [];
+    tableName: string,
+    referencedFieldName: string,
+    identityColumnName: string,
+    fieldValues: (string | number)[],
+  ): Promise<Record<string, unknown>[]> {
+    if (!referencedFieldName || !fieldValues.length) {
+      return [];
+    }
+    const { dynamoDb } = this.getDynamoDb();
+    const expressionAttributeValues: { [key: string]: any } = {};
+    const expressionAttributeNames: { [key: string]: string } = {};
+
+    fieldValues.forEach((value, index) => {
+      const valueKey = `:value${index}`;
+      expressionAttributeValues[valueKey] = typeof value === 'string' ? { S: value } : { N: value.toString() };
+    });
+
+    expressionAttributeNames[`#referencedField`] = referencedFieldName;
+
+    const filterExpression = `#referencedField IN (${Object.keys(expressionAttributeValues).join(', ')})`;
+
+    let projectionExpression = `#referencedField`;
+
+    if (identityColumnName) {
+      expressionAttributeNames[`#identityField`] = identityColumnName;
+      projectionExpression += `, #identityField`;
+    }
+
+    const params = {
+      TableName: tableName,
+      FilterExpression: filterExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ExpressionAttributeNames: expressionAttributeNames,
+      ProjectionExpression: projectionExpression,
+    };
+
+    const result = await dynamoDb.scan(params);
+    const items = result.Items || [];
+
+    const transformedResult = items.map((item) =>
+      this.transformAndFilterRow(item, [identityColumnName, referencedFieldName].filter(Boolean), []),
+    );
+    return transformedResult;
   }
 
   public async getRowByPrimaryKey(
@@ -90,9 +150,20 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
     settings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
+    const tableStructure = await this.getTableStructure(tableName);
+    for (const key in primaryKey) {
+      const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+      if (foundKeySchema?.data_type === 'number') {
+        const numericValue = Number(primaryKey[key]);
+        if (!isNaN(numericValue)) {
+          primaryKey[key] = numericValue;
+        } else {
+          continue;
+        }
+      }
+    }
     let availableFields: string[] = [];
     if (settings) {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = this.findAvailableFields(settings, tableStructure);
     }
 
@@ -102,19 +173,52 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       Key: marshall(primaryKey),
     };
     const result = await documentClient.send(new GetItemCommand(params));
-    const foundRow = result.Item ? unmarshall(result.Item) : null;
+
+    const foundRow = result.Item ? this.transformAndFilterRow(result.Item, availableFields, tableStructure) : null;
     if (!foundRow) {
       return null;
     }
-    const rowKeys = Object.keys(foundRow);
-    if (availableFields.length > 0) {
-      for (const key of rowKeys) {
-        if (!availableFields.includes(key)) {
-          delete foundRow[key];
-        }
-      }
-    }
     return foundRow;
+  }
+
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const { documentClient } = this.getDynamoDb();
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const keys = primaryKeys.map((primaryKey) => {
+      const marshalledKey = {};
+      for (const key in primaryKey) {
+        const schema = tableStructure.find((element) => element.column_name === key);
+        const value = schema?.data_type === 'number' ? Number(primaryKey[key]) : primaryKey[key];
+        if (schema?.data_type === 'number' && isNaN(value as number)) {
+          throw new Error(`Invalid number value for key: ${key}`);
+        }
+        marshalledKey[key] = value;
+      }
+      return marshall(marshalledKey);
+    });
+
+    let availableFields: string[] = [];
+    if (settings) {
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const params = {
+      RequestItems: {
+        [tableName]: {
+          Keys: keys,
+        },
+      },
+    };
+
+    const result = await documentClient.send(new BatchGetItemCommand(params));
+
+    const items = result.Responses?.[tableName] || [];
+    return items.map((item) => this.transformAndFilterRow(item, availableFields, tableStructure));
   }
 
   public async getRowsFromTable(
@@ -164,7 +268,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const large_dataset = rows.length >= DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT;
 
       return {
-        data: rows.map((row) => this.transformAndFilterRow(row, availableFields)),
+        data: rows.map((row) => this.transformAndFilterRow(row, availableFields, tableStructure)),
         large_dataset,
         pagination: {} as any,
       };
@@ -172,8 +276,25 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     if (searchedFieldValue && settings.search_fields?.length > 0) {
       const searchFields = settings.search_fields.length > 0 ? settings.search_fields : availableFields;
-      filterExpression = searchFields.map((field) => `begins_with(#${field}, :searchedFieldValue)`).join(' OR ');
-      expressionAttributeValues = { ':searchedFieldValue': { S: searchedFieldValue } };
+      filterExpression = searchFields
+        .map((field) => {
+          const fieldInfo = tableStructure.find((el) => el.column_name === field);
+          const isNumberField = fieldInfo?.data_type === 'number';
+          if (isNumberField) {
+            const numericValue = Number(searchedFieldValue);
+            if (!isNaN(numericValue)) {
+              expressionAttributeValues[`:${field}_value`] = { N: String(numericValue) };
+              return `#${field} = :${field}_value`;
+            }
+            return null;
+          } else {
+            expressionAttributeValues[`:${field}_value`] = { S: searchedFieldValue };
+            return `contains(#${field}, :${field}_value)`;
+          }
+        })
+        .filter((expression) => expression !== null)
+        .join(' OR ');
+
       searchFields.forEach((field) => {
         expressionAttributeNames[`#${field}`] = field;
       });
@@ -283,7 +404,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
 
     return {
-      data: rows.map((row) => this.transformAndFilterRow(row, availableFields)),
+      data: rows.map((row) => this.transformAndFilterRow(row, availableFields, tableStructure)),
       pagination,
       large_dataset,
     };
@@ -300,10 +421,13 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
     const tableDescription = await dynamoDb.describeTable(params);
     const keySchema = tableDescription.Table.KeySchema;
+    const attributeDefinitions = tableDescription.Table.AttributeDefinitions;
+
     const primaryKeys = keySchema.map((key) => {
+      const attributeDefinition = attributeDefinitions.find((attr) => attr.AttributeName === key.AttributeName);
       return {
         column_name: key.AttributeName,
-        data_type: this.convertTypeName(key.KeyType),
+        data_type: this.convertTypeName(attributeDefinition.AttributeType),
       };
     });
     return primaryKeys;
@@ -348,6 +472,19 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     try {
+      const tableStructure = await this.getTableStructure(tableName);
+      row = this.convertHexDataToBinaryInBinarySets(row, tableStructure);
+      for (const key in primaryKey) {
+        const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+        if (foundKeySchema?.data_type === 'number') {
+          const numericValue = Number(primaryKey[key]);
+          if (!isNaN(numericValue)) {
+            primaryKey[key] = numericValue;
+          } else {
+            continue;
+          }
+        }
+      }
       const { documentClient } = this.getDynamoDb();
       const params = {
         TableName: tableName,
@@ -367,6 +504,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       primaryKeyColumns.forEach((key) => {
         responseObject[key.column_name] = row[key.column_name];
       });
+
+      if (isObjectEmpty(responseObject)) {
+        return primaryKey;
+      }
       return responseObject;
     } catch (e) {
       e.message += '.';
@@ -378,9 +519,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const { documentClient } = this.getDynamoDb();
-
+    const structure = await this.getTableStructure(tableName);
+    newValues = this.convertHexDataToBinaryInBinarySets(newValues, structure);
     const updatePromises = primaryKeys.map((primaryKey) => {
       const updateExpression =
         'SET ' +
@@ -410,6 +552,41 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     await Promise.all(updatePromises);
     return primaryKeys as any;
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const { documentClient } = this.getDynamoDb();
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const deletePromises = primaryKeys.map(async (primaryKey) => {
+      for (const key in primaryKey) {
+        const foundKeySchema = tableStructure.find((el) => el.column_name === key);
+        if (foundKeySchema?.data_type === 'number') {
+          const numericValue = Number(primaryKey[key]);
+          if (!isNaN(numericValue)) {
+            primaryKey[key] = numericValue;
+          }
+        }
+      }
+
+      try {
+        const params = {
+          TableName: tableName,
+          Key: marshall(primaryKey),
+        };
+        await documentClient.send(new DeleteItemCommand(params));
+      } catch (e) {
+        console.error(`Failed to delete item with key ${JSON.stringify(primaryKey)}: ${e.message}`);
+      }
+    });
+
+    await Promise.all(deletePromises);
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>> {
@@ -475,6 +652,36 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     throw new Error('Method not implemented.');
   }
 
+  private convertHexDataToBinaryInBinarySets(
+    row: Record<string, unknown>,
+    tableStructure: Array<TableStructureDS>,
+  ): Record<string, unknown> {
+    const binarySetColumns = tableStructure
+      .map((el) => {
+        return {
+          column_name: el.column_name,
+          data_type: el.data_type,
+          dynamo_db_type: el.dynamo_db_type,
+        };
+      })
+      .filter((el) => {
+        return el?.dynamo_db_type === 'BS';
+      });
+
+    if (binarySetColumns.length) {
+      for (const column of binarySetColumns) {
+        if (row[column.column_name] && Array.isArray(row[column.column_name])) {
+          try {
+            row[column.column_name] = (row[column.column_name] as string[]).map((value) => hexToBinary(value));
+          } catch (_e) {
+            continue;
+          }
+        }
+      }
+    }
+    return row;
+  }
+
   private getDynamoDb(): DdAndClient {
     const endpoint = this.connection.host;
     const accessKeyId = this.connection.username;
@@ -525,6 +732,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   private transformAndFilterRow(
     row: { [key: string]: { [type: string]: any } },
     availableFields: string[],
+    tableStructure: Array<TableStructureDS>,
   ): { [key: string]: any } {
     const transformedRow: { [key: string]: any } = {};
 
@@ -532,13 +740,39 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const attribute = row[key];
       const attributeType = Object.keys(attribute)[0];
       transformedRow[key] = attribute[attributeType];
-    });
+      const fieldInfo = tableStructure.find((el) => el.column_name === key);
+      if (fieldInfo?.data_type === 'number' || attributeType === 'N') {
+        const valueToNumber = Number(transformedRow[key]);
+        if (!isNaN(valueToNumber)) {
+          transformedRow[key] = valueToNumber;
+        }
+      }
+      if (fieldInfo?.dynamo_db_type === 'BS' || attributeType === 'BS') {
+        const valuesArray = transformedRow[key];
+        if (valuesArray && Array.isArray(valuesArray)) {
+          transformedRow[key] = valuesArray.map((value) => binaryToHex(value));
+        }
+      }
 
-    Object.keys(transformedRow).forEach((key) => {
-      if (!availableFields.includes(key)) {
-        delete transformedRow[key];
+      if (fieldInfo?.dynamo_db_type === 'L' || attributeType === 'L') {
+        const valuesArray = transformedRow[key];
+        if (valuesArray && Array.isArray(valuesArray)) {
+          transformedRow[key] = valuesArray.map((value) => Object.values(value)[0]);
+        }
+      }
+
+      if (fieldInfo?.dynamo_db_type === 'NULL' || attributeType === 'NULL') {
+        transformedRow[key] = null;
       }
     });
+
+    if (availableFields.length > 0) {
+      Object.keys(transformedRow).forEach((key) => {
+        if (!availableFields.includes(key)) {
+          delete transformedRow[key];
+        }
+      });
+    }
 
     return transformedRow;
   }
@@ -595,7 +829,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     });
   }
 
-  private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName: string): Promise<TableStructureDS[]> {
+  private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(
+    tableName: string,
+  ): Promise<Array<TableStructureDS>> {
     try {
       const { dynamoDb } = this.getDynamoDb();
       const documentClient = DynamoDBDocumentClient.from(dynamoDb);
@@ -620,7 +856,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         });
       });
 
-      const tableStructure = Object.keys(attributeTypes).map((attributeName) => {
+      const tableStructure: Array<TableStructureDS> = Object.keys(attributeTypes).map((attributeName) => {
         return {
           allow_null: true,
           character_maximum_length: null,
@@ -630,6 +866,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           data_type_params: null,
           udt_name: null,
           extra: null,
+          dynamo_db_type: (attributeTypes[attributeName] as DynamoDBType) ?? null,
         };
       });
 

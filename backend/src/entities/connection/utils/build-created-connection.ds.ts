@@ -35,6 +35,7 @@ export function buildCreatedConnectionDs(
     username: connection.username,
     authSource: connection.authSource,
     master_hash: connection.master_hash,
+    isFrozen: connection.is_frozen,
     groups: connection.groups?.map((group) => {
       return {
         id: group.id,
@@ -51,6 +52,7 @@ export function buildCreatedConnectionDs(
             is_2fa_enabled: user.isOTPEnabled,
             role: user.role,
             externalRegistrationProvider: user.externalRegistrationProvider,
+            show_test_connections: user.showTestConnections,
           };
         }),
       };

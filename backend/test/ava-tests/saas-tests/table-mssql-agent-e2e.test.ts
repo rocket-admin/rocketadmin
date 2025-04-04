@@ -309,7 +309,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
 
     t.is(createTableSettingsResponse.status, 201);
 
-    const searchedDescription = '5';
+    const searchedDescription = '25';
 
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
@@ -1463,7 +1463,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
+    t.is(getTableRowsRO.rows.length, 2);
     t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
     t.is(getTableRowsRO.rows[0].id, 38);

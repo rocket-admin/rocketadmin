@@ -1,8 +1,12 @@
 /* eslint-disable security/detect-object-injection */
+import * as csv from 'csv';
 import { Knex } from 'knex';
+import { nanoid } from 'nanoid';
+import { Readable, Stream } from 'node:stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { isMSSQLDateOrTimeType, isMSSQLDateStringByRegexp } from '../../helpers/is-database-date.js';
 import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
@@ -22,9 +26,6 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { Stream, Readable } from 'node:stream';
-import * as csv from 'csv';
-import { isMSSQLDateOrTimeType, isMSSQLDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -87,6 +88,35 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     return (await knex(tableName).select(fieldsToSelect).where(primaryKey))[0] as unknown as Record<string, unknown>;
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    const schemaName = await this.getSchemaName(tableName);
+    tableName = `${schemaName}.[${tableName}]`;
+    let availableFields: string[] = [];
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = knex(tableName).select(availableFields.length ? availableFields : '*');
+
+    primaryKeys.forEach((primaryKey) => {
+      query.orWhere((builder) => {
+        Object.entries(primaryKey).forEach(([column, value]) => {
+          builder.andWhere(column, value);
+        });
+      });
+    });
+
+    const results = await query;
+    return results as Array<Record<string, unknown>>;
+  }
+
   public async getRowsFromTable(
     receivedTableName: string,
     tableSettings: TableSettingsDS,
@@ -138,6 +168,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     tableSettings.ordering_field = tableSettings?.ordering_field || availableFields[0];
     tableSettings.ordering = tableSettings?.ordering || QueryOrderingEnum.ASC;
 
+    const fastRowsCount = await this.getFastRowsCount(receivedTableName);
     const rowsCountQuery = knex(tableNameWithSchema)
       .modify((builder) => {
         let search_fields = tableSettings?.search_fields || [];
@@ -151,6 +182,12 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
+              if (fastRowsCount <= 1000) {
+                builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
+                  field,
+                  `%${searchedFieldValue.toLowerCase()}%`,
+                ]);
+              }
               builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,
@@ -340,6 +377,9 @@ WHERE TABLE_TYPE = 'VIEW'
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex().select(1);
@@ -352,6 +392,8 @@ WHERE TABLE_TYPE = 'VIEW'
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 
@@ -368,17 +410,47 @@ WHERE TABLE_TYPE = 'VIEW'
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Array<Record<string, unknown>>> {
     const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
     const tableWithSchema = `${schemaName}.[${tableName}]`;
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map(Object.values);
 
-    return knex(tableWithSchema)
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeysValues)
-      .update(newValues);
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableWithSchema)
+          .returning(Object.keys(primaryKey))
+          .where(primaryKey)
+          .update(newValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    await knex.transaction(async (trx) => {
+      await trx(tableWithSchema)
+        .delete()
+        .modify((queryBuilder) => {
+          primaryKeys.forEach((key) => {
+            queryBuilder.orWhere((builder) => {
+              Object.entries(key).forEach(([column, value]) => {
+                builder.andWhere(column, value);
+              });
+            });
+          });
+        });
+    });
+
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {

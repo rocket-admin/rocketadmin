@@ -37,6 +37,13 @@ th {
     background-color: var(--color-primaryPalette-100);
 }
 
+@media (prefers-color-scheme: dark) {
+    .changed {
+        background-color: var(--color-primaryPalette-200);
+        color: rgba(0, 0, 0, 0.78);
+    }
+}
+
 .sensitive {
     font-style: italic;
     font-family: monospace;

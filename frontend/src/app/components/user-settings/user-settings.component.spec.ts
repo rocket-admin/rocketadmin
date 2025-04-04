@@ -76,8 +76,11 @@ describe('UserSettingsComponent', () => {
       "portal_link": "stripe.link",
       "subscriptionLevel": SubscriptionPlans.free,
       "is_2fa_enabled": false,
-      role: CompanyMemberRole.Member,
-      externalRegistrationProvider: null
+      role: CompanyMemberRole.Specialist,
+      externalRegistrationProvider: null,
+      company: {
+        id: 'company_123',
+      }
     }
 
     component.confirmDeleteAccount();
@@ -91,7 +94,7 @@ describe('UserSettingsComponent', () => {
         "portal_link": "stripe.link",
         "subscriptionLevel": SubscriptionPlans.free,
         "is_2fa_enabled": false,
-        role: CompanyMemberRole.Member,
+        role: CompanyMemberRole.Specialist,
         externalRegistrationProvider: null
       }
     });

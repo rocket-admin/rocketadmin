@@ -32,7 +32,6 @@ import { FindUserDs } from '../user/application/data-structures/find-user.ds.js'
 import { FoundUserDto } from '../user/dto/found-user.dto.js';
 import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
 import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds.js';
-import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
 import { DeleteConnectionDs } from './application/data-structures/delete-connection.ds.js';
 import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds.js';
 import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds.js';
@@ -42,7 +41,26 @@ import { GetPermissionsInConnectionDs } from './application/data-structures/get-
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
+import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
 
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
+import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
+import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
+import { ValidateConnectionMasterPasswordDs } from './application/data-structures/validate-connection-master-password.ds.js';
+import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
+import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
+import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
+import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
+import { CreateConnectionDto } from './application/dto/index.js';
+import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
+import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
+import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
+import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
+import { ValidationResultRo } from './application/dto/validation-result.ro.js';
 import {
   ICreateConnection,
   ICreateGroupInConnection,
@@ -56,36 +74,19 @@ import {
   IRefreshConnectionAgentToken,
   IRestoreConnection,
   ITestConnection,
+  IUnfreezeConnection,
   IUpdateConnection,
   IUpdateMasterPassword,
   IValidateConnectionMasterPassword,
   IValidateConnectionToken,
 } from './use-cases/use-cases.interfaces.js';
-import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
-import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateConnectionDto } from './application/dto/index.js';
-import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
-import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
-import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
-import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
-import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
-import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
-import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
-import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
-import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
-import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
-import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
-import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
-import { ValidationResultRo } from './application/dto/validation-result.ro.js';
-import { ValidateConnectionMasterPasswordDs } from './application/data-structures/validate-connection-master-password.ds.js';
+import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('connection')
+@ApiTags('Connection')
 @Injectable()
 export class ConnectionController {
   constructor(
@@ -123,6 +124,8 @@ export class ConnectionController {
     private readonly refreshConnectionAgentTokenUseCase: IRefreshConnectionAgentToken,
     @Inject(UseCaseType.VALIDATE_CONNECTION_MASTER_PASSWORD)
     private readonly validateConnectionMasterPasswordUseCase: IValidateConnectionMasterPassword,
+    @Inject(UseCaseType.UNFREEZE_CONNECTION)
+    private readonly unfreezeConnectionUseCase: IUnfreezeConnection,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly amplitudeService: AmplitudeService,
@@ -193,8 +196,7 @@ export class ConnectionController {
     return await this.validateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-
-  @ApiOperation({ summary: 'One connection by id' })
+  @ApiOperation({ summary: 'Find one connection by id' })
   @ApiResponse({
     status: 200,
     type: FoundOneConnectionDs,
@@ -227,7 +229,7 @@ export class ConnectionController {
     }
   }
 
-  @ApiOperation({ summary: 'Create connection' })
+  @ApiOperation({ summary: 'Create new connection' })
   @ApiBody({ type: CreateConnectionDto })
   @ApiResponse({
     status: 201,
@@ -279,7 +281,7 @@ export class ConnectionController {
     return await this.createConnectionUseCase.execute(createConnectionDs, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Updated connection' })
+  @ApiOperation({ summary: 'Update connection' })
   @ApiBody({ type: CreateConnectionDto })
   @ApiResponse({
     status: 200,
@@ -397,7 +399,7 @@ export class ConnectionController {
     return await this.deleteGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Create group in connection' })
+  @ApiOperation({ summary: 'Create new group in connection' })
   @ApiBody({ type: CreateGroupInConnectionDTO })
   @ApiResponse({
     status: 201,
@@ -427,7 +429,7 @@ export class ConnectionController {
     return await this.createGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Get all groups in connection' })
+  @ApiOperation({ summary: 'Find all groups in connection' })
   @ApiResponse({
     status: 200,
     type: FoundUserGroupsInConnectionDTO,
@@ -495,7 +497,7 @@ export class ConnectionController {
     };
     return await this.getUserPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
-  @ApiOperation({ summary: 'Create connection' })
+  @ApiOperation({ summary: 'Test connection' })
   @ApiBody({ type: CreateConnectionDto })
   @ApiResponse({
     status: 201,
@@ -638,12 +640,13 @@ export class ConnectionController {
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Check if connection agent token is valid' })
+  @ApiOperation({ summary: 'Check connection agent token validity' })
   @ApiResponse({
     status: 200,
     description: 'Connection token is valid.',
     type: Boolean,
   })
+  @ApiQuery({ name: 'token', required: true })
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<TokenValidationResult> {
     if (!token || typeof token !== 'string' || token.length === 0) {
@@ -665,6 +668,24 @@ export class ConnectionController {
       throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
     }
     return await this.refreshConnectionAgentTokenUseCase.execute(connectionId, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Unfreeze connection' })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponse,
+    description: 'The connection was unfrozen.',
+  })
+  @UseGuards(ConnectionEditGuard)
+  @Put('/connection/unfreeze/:connectionId')
+  async unfreezeConnection(
+    @UserId() userId: string,
+    @SlugUuid('connectionId') connectionId: string,
+  ): Promise<SuccessResponse> {
+    if (!connectionId) {
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
+    }
+    return await this.unfreezeConnectionUseCase.execute({ connectionId, userId }, InTransactionEnum.ON);
   }
 
   private validateParameters = (connectionData: CreateConnectionDto): Array<string> => {

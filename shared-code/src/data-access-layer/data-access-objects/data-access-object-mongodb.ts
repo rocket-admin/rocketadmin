@@ -1,6 +1,16 @@
 /* eslint-disable security/detect-object-injection */
 /* eslint-disable security/detect-non-literal-regexp */
-import { Stream, Readable } from 'stream';
+import * as BSON from 'bson';
+import * as csv from 'csv';
+import getPort from 'get-port';
+import { Db, MongoClient, MongoClientOptions, ObjectId } from 'mongodb';
+import { nanoid } from 'nanoid';
+import { Readable, Stream } from 'stream';
+import { LRUStorage } from '../../caching/lru-storage.js';
+import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -13,18 +23,9 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { MongoClient, Db, ObjectId } from 'mongodb';
-import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { LRUStorage } from '../../caching/lru-storage.js';
-import getPort from 'get-port';
-import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
-import * as BSON from 'bson';
-import * as csv from 'csv';
 
 export type MongoClientDB = {
   db: Db;
@@ -59,12 +60,36 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   }
 
   public async getIdentityColumns(
-    _tableName: string,
-    _referencedFieldName: string,
-    _identityColumnName: string,
-    _fieldValues: (string | number)[],
+    tableName: string,
+    referencedFieldName: string,
+    identityColumnName: string,
+    fieldValues: (string | number)[],
   ): Promise<Record<string, unknown>[]> {
-    return [];
+    if (!referencedFieldName || !fieldValues.length) {
+      return [];
+    }
+
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+
+    if (referencedFieldName === '_id') {
+      fieldValues = fieldValues.map((value) => this.createObjectIdFromSting(String(value))) as any;
+    }
+
+    const query = {
+      [referencedFieldName]: { $in: fieldValues },
+    };
+
+    const projection = identityColumnName
+      ? { [identityColumnName]: 1, [referencedFieldName]: 1 }
+      : { [referencedFieldName]: 1 };
+
+    const results = await collection.find(query).project(projection).toArray();
+
+    return results.map((doc) => ({
+      ...doc,
+      _id: this.processMongoIdField(doc._id),
+    }));
   }
 
   public async getRowByPrimaryKey(
@@ -99,6 +124,44 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       ...foundRow,
       _id: this.processMongoIdField(objectId),
     };
+  }
+
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+
+    const objectIds = primaryKeys.map((primaryKey) => {
+      if (primaryKey._id) {
+        return this.createObjectIdFromSting(primaryKey._id as string);
+      }
+      throw new Error('Missing _id in primary key');
+    });
+
+    let availableFields: string[] = [];
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = { _id: { $in: objectIds } };
+
+    const rows = await collection.find(query).toArray();
+
+    return rows.map((row) => {
+      const processedRow = { ...row, _id: this.processMongoIdField(row._id) };
+      if (availableFields.length > 0) {
+        Object.keys(processedRow).forEach((key) => {
+          if (!availableFields.includes(key)) {
+            delete processedRow[key];
+          }
+        });
+      }
+      return processedRow;
+    });
   }
 
   public async getRowsFromTable(
@@ -164,7 +227,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
           const parsedSearchedFieldValue = Buffer.from(searchedFieldValue, 'binary').toString('hex');
           condition = { [field]: this.createObjectIdFromSting(parsedSearchedFieldValue) };
         } else {
-          condition = { [field]: new RegExp('^' + String(searchedFieldValue), 'i') };
+          condition = { [field]: new RegExp(String(searchedFieldValue), 'i') };
         }
         acc.push(condition);
         return acc;
@@ -276,6 +339,9 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     try {
       await this.getConnectionToDatabase();
       return {
@@ -287,6 +353,8 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
         result: false,
         message: error.message,
       };
+    } finally {
+      LRUStorage.delMongoDbCache(this.connection);
     }
   }
 
@@ -307,12 +375,20 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
     const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
     await collection.updateMany({ _id: { $in: objectIds } }, { $set: newValues });
-    return { _id: objectIds.map((objectId) => this.processMongoIdField(objectId)) };
+    return primaryKeys;
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+    const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
+    await collection.deleteMany({ _id: { $in: objectIds } });
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
@@ -375,7 +451,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const aggregationPipeline = JSON.parse(query);
     const result = await collection.aggregate(aggregationPipeline).toArray();
     return result;
-}
+  }
 
   private async getConnectionToDatabase(): Promise<Db> {
     if (this.connection.ssh) {
@@ -400,11 +476,11 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       mongoConnectionString = `mongodb://${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${this.connection.host}:${this.connection.port}/${this.connection.database || ''}`;
     }
 
-    let options: any = {};
+    let options: MongoClientOptions = {};
     if (this.connection.ssl) {
       options = {
         ssl: true,
-        sslCA: this.connection.cert ? [this.connection.cert] : undefined,
+        ca: this.connection.cert ? [this.connection.cert] : undefined,
       };
     }
 

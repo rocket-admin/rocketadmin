@@ -24,6 +24,14 @@ import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { PasswordRowComponent } from '../../ui-components/row-fields/password/password.component';
+import { UrlRowComponent } from '../../ui-components/row-fields/url/url.component';
+import { ImageRowComponent } from '../../ui-components/row-fields/image/image.component';
+import { CodeRowComponent } from '../../ui-components/row-fields/code/code.component';
+import { TextRowComponent } from '../../ui-components/row-fields/text/text.component';
+import { LongTextRowComponent } from '../../ui-components/row-fields/long-text/long-text.component';
+import { SelectRowComponent } from '../../ui-components/row-fields/select/select.component';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 @Component({
   selector: 'app-db-table-widgets',
@@ -41,7 +49,13 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     AlertComponent,
     PlaceholderTableWidgetsComponent,
     BreadcrumbsComponent,
+    PasswordRowComponent,
+    ImageRowComponent,
+    CodeRowComponent,
     WidgetComponent,
+    TextRowComponent,
+    LongTextRowComponent,
+    SelectRowComponent,
     Angulartics2OnModule
   ],
 })
@@ -56,6 +70,7 @@ export class DbTableWidgetsComponent implements OnInit {
   public widgetTypes = Object.keys(UIwidgets);
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
+  public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
   public paramsEditorOptions = {
     minimap: { enabled: false },
     lineNumbersMinChars:  3,
@@ -64,6 +79,10 @@ export class DbTableWidgetsComponent implements OnInit {
     scrollBeyondLastLine: false,
     wordWrap: 'on',
   };
+  public widgetCodeEample = `<h1 class="post-title">Why UI Customization Matters in Admin Panels</h1>
+<p class="post-paragraph">
+  A well-designed <strong>admin panel</strong> isn’t just about managing data — it’s about making that data easier to understand and interact with. By customizing how each field is displayed, you can turn raw database values into meaningful, user-friendly interfaces that save time and reduce errors.
+</p>`;
   public defaultParams = {
     Boolean:
 `// Specify allow_null in field structure
@@ -142,12 +161,20 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
   URL: `// No settings required`,
+  Foreign_key: `// Provide settings for foreign key widget
+{
+  "column_name": "", // copy the name of the column you selected
+  "referenced_column_name": "",
+  "referenced_table_name": ""
+}
+`,
   }
 
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _location: Location,
+    private _uiSettings: UiSettingsService,
     public dialog: MatDialog,
     public router: Router,
     private title: Title,
@@ -170,6 +197,7 @@ export class DbTableWidgetsComponent implements OnInit {
         this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
         this.getWidgets();
       })
+    this.codeEditorTheme = this._uiSettings.editorTheme;
   }
 
   get currentConnection() {
@@ -187,7 +215,7 @@ export class DbTableWidgetsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: 'Widgets',
+        label: 'Fields display',
         link: null
       }
     ]

@@ -325,7 +325,7 @@ export class TablesDataSource implements DataSource<Object> {
                 },
                 {
                   type: AlertActionType.Link,
-                  caption: 'Widgets',
+                  caption: 'Fields display',
                   to: 'widgets'
                 }
               ]

@@ -76,6 +76,7 @@ async function resetPostgresTestDB() {
       port: port,
     },
   });
+  await Knex.schema.dropTableIfExists('transactions');
   await Knex.schema.dropTableIfExists(testTableName);
   await Knex.schema.createTableIfNotExists(testTableName, function (table) {
     table.increments();

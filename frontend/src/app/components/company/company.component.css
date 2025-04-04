@@ -13,18 +13,28 @@
     margin-bottom: 40px;
 }
 
-.company-name-settings__name {
+.text-filed-edit {
+    position: relative;
+}
+
+.text-filed-edit__input {
     width: 100%;
 }
 
-.company-name-settings__save-button {
-    margin-left: -64px;
+.text-filed-edit__buttons {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(calc(-50% - 10px));
+    display: flex;
+    gap: 4px;
 }
 
 .company-plan {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 32px;
 }
 
 .company-plan-name {
@@ -97,6 +107,40 @@
     }
 }
 
+.company-member-cell_accessed {
+    color: #1B5E20;
+}
+
+@media (prefers-color-scheme: dark) {
+    .company-member-cell_accessed {
+        color: #4CAF50;
+    }
+}
+
+.company-member-cell_not-accessed {
+    color: #B71C1C;
+}
+
+@media (prefers-color-scheme: dark) {
+    .company-member-cell_not-accessed {
+        color: #E53935;
+    }
+}
+
+.company-member-cell_content-center {
+    text-align: center;
+}
+
+@media (width <= 600px) {
+    .company-member-cell_content-center {
+        text-align: initial;
+    }
+}
+
+.company-members-table {
+    margin-bottom: 32px;
+}
+
 @media (width <= 600px) {
     .company-members-table {
         display: grid;
@@ -160,12 +204,46 @@
     width: 148px;
 }
 
-.active-status-cell {
-    text-align: center;
+.test-connections-toggle {
+    margin-top: 32px;
 }
 
-@media (width <= 600px) {
-    .active-status-cell {
-        text-align: initial;
+.cname-hint {
+    margin-top: 2px;
+}
+
+.cname-hint_dimmed {
+    color: rgba(0,0,0,0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+    .cname-hint_dimmed {
+        color: rgba(255,255,255,0.7);
+    }
+}
+
+.cname-value {
+    position: relative;
+    padding: 0 4px;
+}
+
+.cname-value::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--color-accentedPalette-200);
+    border-radius: 4px;
+    height: 100%;
+    opacity: 0.5;
+    width: 100%;
+    z-index: -1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .cname-value::after {
+        background-color: var(--color-accentedPalette-700);
     }
 }

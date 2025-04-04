@@ -34,7 +34,10 @@ export const Constants = {
   MORNING_CRON_KEY: 2,
   CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type', 'connection_properties', 'isTestConnection'],
   FREE_PLAN_USERS_COUNT: 3,
+  NON_FREE_PLAN_CONNECTION_TYPES: [ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql, ConnectionTypesEnum.oracledb],
   MAX_FILE_SIZE_IN_BYTES: 10485760,
+  MAX_COMPANY_LOGO_SIZE: 5242880,
+  PAID_CONNECTIONS_TYPES: [ConnectionTypesEnum.oracledb, ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql],
 
   VERIFICATION_STRING_WHITELIST: () => {
     const numbers = [...Array(10).keys()].map((num) => num.toString());
@@ -290,6 +293,14 @@ export const Constants = {
       return Constants.APP_DOMAIN_ADDRESS;
     }
     return `app.rocketadmin.com`;
+  },
+
+  APP_REQUEST_DOMAINS(): Array<string> {
+    const allowedDomains = ['app.rocketadmin.com', 'saas.rocketadmin.com'];
+    if (isTest()) {
+      allowedDomains.push('127.0.0.1', Constants.APP_DOMAIN_ADDRESS);
+    }
+    return allowedDomains;
   },
 
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',

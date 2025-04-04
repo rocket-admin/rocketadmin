@@ -31,6 +31,10 @@ import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa
 import { SuspendUsersInCompanyUseCase } from './use-cases/suspend-users-in-company.use.case.js';
 import { UnsuspendUsersInCompanyUseCase } from './use-cases/unsuspend-users-in-company.use.case.js';
 import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test-connections-company-display-mode.use.case.js';
+import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
+import { UploadCompanyLogoUseCase } from './use-cases/upload-company-logo-use-case.js';
+import { FindCompanyLogoUseCase } from './use-cases/find-company-logo.use.case.js';
+import { DeleteCompanyLogoUseCase } from './use-cases/delete-company-logo.use.case.js';
 
 @Module({
   imports: [
@@ -44,6 +48,7 @@ import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/togg
       CustomFieldsEntity,
       TableWidgetEntity,
       ConnectionPropertiesEntity,
+      CompanyLogoEntity,
       LogOutEntity,
     ]),
   ],
@@ -120,6 +125,18 @@ import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/togg
       provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY,
       useClass: ToggleCompanyTestConnectionsDisplayModeUseCase,
     },
+    {
+      provide: UseCaseType.UPLOAD_COMPANY_LOGO,
+      useClass: UploadCompanyLogoUseCase,
+    },
+    {
+      provide: UseCaseType.FIND_COMPANY_LOGO,
+      useClass: FindCompanyLogoUseCase,
+    },
+    {
+      provide: UseCaseType.DELETE_COMPANY_LOGO,
+      useClass: DeleteCompanyLogoUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -141,6 +158,9 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
         { path: '/company/users/unsuspend/:companyId', method: RequestMethod.PUT },
         { path: '/company/connections/display/', method: RequestMethod.PUT },
+        { path: '/company/logo/:companyId', method: RequestMethod.POST },
+        { path: '/company/logo/:companyId', method: RequestMethod.GET },
+        { path: '/company/logo/:companyId', method: RequestMethod.DELETE },
       );
   }
 }

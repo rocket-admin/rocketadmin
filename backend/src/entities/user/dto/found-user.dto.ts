@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRoleEnum } from '../enums/user-role.enum.js';
 import { ExternalRegistrationProviderEnum } from '../enums/external-registration-provider.enum.js';
+import { UserRoleEnum } from '../enums/user-role.enum.js';
 
 export class CompanyIdDS {
   @ApiProperty()
@@ -40,6 +40,9 @@ export class FoundUserDto {
 
   @ApiProperty({ enum: ExternalRegistrationProviderEnum })
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
+
+  @ApiProperty({ default: true })
+  show_test_connections: boolean;
 }
 
 export class SimpleFoundUserInfoDs {
@@ -69,4 +72,9 @@ export class SimpleFoundUserInfoDs {
 
   @ApiProperty({ enum: ExternalRegistrationProviderEnum })
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
+}
+
+export class SimpleFoundUserInCompanyInfoDs extends SimpleFoundUserInfoDs {
+  @ApiProperty()
+  has_groups: boolean;
 }

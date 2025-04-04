@@ -36,6 +36,7 @@ export class ConnectionsService {
     username: '',
     password: '',
     database: '',
+    authSource: '',
     title: '',
     ssh: false,
     privateSSHKey: '',
@@ -55,6 +56,8 @@ export class ConnectionsService {
   public currentPage: string;
   public connectionLogo: string;
   public companyName: string;
+  public isCustomAccentedColor: boolean;
+  public defaultDisplayTable: string;
 
   private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
   private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -100,6 +103,10 @@ export class ConnectionsService {
     return this.companyName;
   }
 
+  get defaultTableToOpen() {
+    return this.defaultDisplayTable;
+  }
+
   get currentConnection() {
     return this.connection;
   }
@@ -119,7 +126,7 @@ export class ConnectionsService {
   get visibleTabs() {
     let tabs = ['dashboard', 'audit'];
     if (this.groupsAccessLevel) tabs.push('permissions');
-    if (this.isPermitted(this.connectionAccessLevel)) tabs.push('edit-db', 'connection-settings');
+    if (this.isPermitted(this.connectionAccessLevel)) tabs.push('connection-settings', 'edit-db');
     return tabs;
   }
 
@@ -149,18 +156,22 @@ export class ConnectionsService {
           console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
+          this.defaultDisplayTable = res.connectionProperties.default_showing_table;
+          this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
           this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
           this.connectionLogo = null;
           this.companyName = null;
-          this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB' }});
+          this.isCustomAccentedColor = false;
+          this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
         }
       });
     } else {
       this.connection = {...this.connectionInitialState};
       this.connectionLogo = null;
       this.companyName = null;
-      this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB' }});
+      this.isCustomAccentedColor = false;
+      this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
     }
   }
 

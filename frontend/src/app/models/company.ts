@@ -31,6 +31,7 @@ export interface Company {
     connections: CompanyConnection[],
     invitations: CompanyMemberInvitation[],
     is_payment_method_added: boolean,
+    show_test_connections: boolean
 }
 
 export interface CompanyMember {
@@ -39,12 +40,14 @@ export interface CompanyMember {
     name: string,
     email: string,
     is_2fa_enabled: boolean,
-    role: CompanyMemberRole
+    role: CompanyMemberRole,
+    has_groups: boolean
 }
 
 export enum CompanyMemberRole {
-    SuperAdmin = 'ADMIN',
-    Member = 'USER',
+    CAO = 'ADMIN',
+    SystemAdmin = 'DB_ADMIN',
+    Specialist = 'USER',
 }
 
 export interface CompanyMemberInvitation {

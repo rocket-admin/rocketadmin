@@ -1,4 +1,4 @@
-<mat-sidenav-container class="main-menu-container" autosize>
+<mat-sidenav-container class="main-menu-container" [ngClass]="{'main-menu-container_native': !isCustomAccentedColor}" autosize>
     <mat-sidenav #drawer
         fixedInViewport="true"
         mode="over"
@@ -92,7 +92,11 @@
                     routerLink="{{tab}}/{{connectionID}}"
                     routerLinkActive="nav-bar__button_active"
                     class="nav-bar__button">
-                    {{navigationTabs[tab].caption}}
+                    <span *ngIf="tab !== 'edit-db' ">{{navigationTabs[tab].caption}}</span>
+                    <mat-icon *ngIf="tab === 'edit-db' "
+                        matTooltip="Database credentials">
+                        key_vertical
+                    </mat-icon>
                 </a>
             </div>
 
@@ -104,7 +108,7 @@
                 <a routerLink="/upgrade" *ngIf="isSaas && currentUser && currentUser.role === 'ADMIN'"
                     mat-flat-button color="accent"
                     data-testid="upgrade-header-link"
-                    routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
+                    class="nav-bar__upgrade-button">
                     Upgrade
                 </a>
 
@@ -185,6 +189,7 @@
         <div *ngIf="!authBarTheme" class="footer">
             <span class="footer__text">&copy; 2025 Rocketadmin</span>
         </div>
+        <app-feature-notification *ngIf="isFeatureNotificationShown" (dismiss)="dismissFeatureNotification()"></app-feature-notification>
     </mat-sidenav-content>
 </mat-sidenav-container>
 

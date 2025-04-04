@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum } from '../../enums/index.js';
@@ -17,12 +18,11 @@ import { ConnectionEditGuard } from '../../guards/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { ComplexPermissionDs, CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('permissions')
+@ApiTags('Permissions')
 @Injectable()
 export class PermissionController {
   constructor(

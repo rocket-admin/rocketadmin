@@ -34,6 +34,7 @@ import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -85,7 +86,6 @@ export class DbTableActionsComponent implements OnInit {
 
   public defaultIcons = ['favorite_outline', 'star_outline', 'done', 'arrow_forward', 'key_outline', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
-  public codeLangSelected: string = 'cs';
   public signingKey: string;
 
   public codeViewerOptions = {
@@ -102,6 +102,7 @@ export class DbTableActionsComponent implements OnInit {
     { value: EventType.Custom, label: 'Custom' }
   ];
   public selectedEvents: string[] = [];
+  public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
 
   constructor(
     private _connections: ConnectionsService,
@@ -109,6 +110,7 @@ export class DbTableActionsComponent implements OnInit {
     private _notifications: NotificationsService,
     private _company: CompanyService,
     private _userService: UserService,
+    private _uiSettings: UiSettingsService,
     public dialog: MatDialog,
     private title: Title,
     private angulartics2: Angulartics2,
@@ -119,6 +121,7 @@ export class DbTableActionsComponent implements OnInit {
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
     this._connections.getCurrentConnectionSigningKey().subscribe(signingKey => this.codeSnippets = codeSnippets(signingKey));
+    this.codeEditorTheme = this._uiSettings.editorTheme;
 
     try {
       this.rulesData = await this.getRules();

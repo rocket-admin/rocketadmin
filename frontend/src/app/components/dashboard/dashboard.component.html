@@ -9,7 +9,10 @@
         <p class="mat-body-1">{{serverError.abstract}}</p>
     </ng-template>
     <div class="error-actions">
-            <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+            <a mat-stroked-button *ngIf="currentConnectionAccessLevel === 'edit'"
+                routerLink="/edit-db/{{connectionID}}">
+                Check database credentials
+            </a>
             <button *ngIf="isSaas" mat-flat-button color="warn" (click)="openIntercome()">Chat with support</button>
             <a *ngIf="!isSaas" mat-flat-button color="warn"
                 href="https://github.com/rocket-admin/rocketadmin/issues" target="_blank">
@@ -95,6 +98,7 @@
                 [foreignKeysList]="dataSource.foreignKeysList"
                 [widgets]="dataSource.widgets"
                 [widgetsList]="dataSource.widgetsList"
+                [activeFilters]="filters"
             ></app-db-table-row-view>
             <app-db-table-ai-panel *ngIf="isAIpanelOpened"
                 [displayName]="selectedTableDisplayName"

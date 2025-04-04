@@ -1,5 +1,6 @@
 export interface GlobalSettingsUI {
     connectionsListCollapsed: boolean;
+    lastFeatureNotificationId: string;
 }
 
 export interface TableSettingsUI {

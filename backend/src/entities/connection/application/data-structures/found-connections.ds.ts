@@ -77,6 +77,9 @@ export class FoundDirectConnectionsDs {
 
   @ApiProperty({ required: false })
   connection_properties?: any;
+
+  @ApiProperty()
+  isFrozen: boolean;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {
@@ -97,6 +100,9 @@ export class FoundDirectConnectionsNonePermissionDs {
 
   @ApiProperty()
   connection_properties: any;
+
+  @ApiProperty()
+  isFrozen: boolean;
 }
 
 export class FoundAgentConnectionsDs {

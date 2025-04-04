@@ -61,7 +61,8 @@ describe('ConnectionSettingsComponent', () => {
     logo_url: "https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg",
     company_name: "Such.Ukr.Lit",
     hidden_tables: [ "writer_info", "address" ],
-    tables_audit: false
+    tables_audit: false,
+    default_showing_table: "customer"
   };
 
   const mockConnectionSettingsResponse = {
@@ -179,6 +180,7 @@ describe('ConnectionSettingsComponent', () => {
     expect(fakeGetSettings).toHaveBeenCalledOnceWith('12345678');
     expect(component.connectionSettings).toEqual({
       hidden_tables:[],
+      default_showing_table: null,
       primary_color: '',
       secondary_color: '',
       logo_url: '',
@@ -200,6 +202,7 @@ describe('ConnectionSettingsComponent', () => {
       logo_url: 'https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg',
       company_name: 'Such.Ukr.Lit',
       hidden_tables: [ "writer_info", "address" ],
+      default_showing_table: "customer",
       tables_audit: false
     });
     expect(component.submitting).toBeFalse();
@@ -217,6 +220,7 @@ describe('ConnectionSettingsComponent', () => {
       logo_url: 'https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg',
       company_name: 'Such.Ukr.Lit',
       hidden_tables: [ "writer_info", "address" ],
+      default_showing_table: "customer",
       tables_audit: false
      });
     expect(component.submitting).toBeFalse();

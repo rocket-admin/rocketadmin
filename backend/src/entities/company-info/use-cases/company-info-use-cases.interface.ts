@@ -1,6 +1,6 @@
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { SimpleFoundUserInfoDs } from '../../user/dto/found-user.dto.js';
+import { SimpleFoundUserInCompanyInfoDs } from '../../user/dto/found-user.dto.js';
 import { IToken } from '../../user/utils/generate-gwt-token.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import {
@@ -18,6 +18,8 @@ import { ToggleTestConnectionDisplayModeDs } from '../application/data-structure
 import { UpdateCompanyNameDS } from '../application/data-structures/update-company-name.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/update-users-2fa-status-in-company.ds.js';
 import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
+import { UploadCompanyLogoDs } from '../application/data-structures/upload-company-logo.ds.js';
+import { FoundCompanyLogoRO } from '../application/dto/found-company-logo.ro.js';
 
 export interface IInviteUserInCompanyAndConnectionGroup {
   execute(inputData: InviteUserInCompanyAndConnectionGroupDs): Promise<InvitedUserInCompanyAndConnectionGroupDs>;
@@ -40,7 +42,7 @@ export interface IGetUserFullCompanyInfo {
 }
 
 export interface IGetUsersInCompany {
-  execute(companyId: string): Promise<Array<SimpleFoundUserInfoDs>>;
+  execute(companyId: string): Promise<Array<SimpleFoundUserInCompanyInfoDs>>;
 }
 
 export interface IGetUserEmailCompanies {
@@ -81,4 +83,16 @@ export interface ISuspendUsersInCompany {
 
 export interface IToggleCompanyTestConnectionsMode {
   execute(inputData: ToggleTestConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IUploadCompanyLogo {
+  execute(inputData: UploadCompanyLogoDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IFindCompanyLogo {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyLogoRO>;
+}
+
+export interface IDeleteCompanyLogo {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

@@ -1,7 +1,21 @@
 /* eslint-disable security/detect-object-injection */
+import * as csv from 'csv';
 import { Knex } from 'knex';
+import { nanoid } from 'nanoid';
+import { Readable, Stream } from 'node:stream';
+import { LRUStorage } from '../../caching/lru-storage.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import {
+  isOracleDateOrTimeType,
+  isOracleDateStringByRegexp,
+  isOracleDateType,
+  isOracleTimeType,
+} from '../../helpers/is-database-date.js';
+import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -11,20 +25,12 @@ import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { LRUStorage } from '../../caching/lru-storage.js';
-import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
-import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
-import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
-import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { Stream, Readable } from 'node:stream';
-import * as csv from 'csv';
-import { isOracleDateOrTimeType, isOracleDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;
@@ -51,9 +57,26 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const primaryKeyStructure =
       primaryColumns?.length > 0 ? tableStructure.find((e) => e.column_name === primaryKey.column_name) : undefined;
 
+    const timestampColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleTimeType(data_type))
+      .map(({ column_name }) => column_name);
+
+    const dateColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleDateType(data_type))
+      .map(({ column_name }) => column_name);
+
     const knex = await this.configureKnex();
     const keys = Object.keys(row);
-    const values = Object.values(row).map((val) => `${val}`);
+
+    const values = keys.map((key) => {
+      if (timestampColumnNames.includes(key) && row[key]) {
+        return this.formatTimestamp(row[key] as string);
+      }
+      if (dateColumnNames.includes(key) && row[key]) {
+        return this.formatDate(new Date(row[key] as string));
+      }
+      return `${row[key]}`;
+    });
 
     const primaryKeysInStructure = tableStructure.filter((el) =>
       tableStructure.some((structureEl) => structureEl.column_name === el.column_name),
@@ -180,6 +203,36 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     }
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+    let availableFields: string[] = [];
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = knex(tableName)
+      .withSchema(schema)
+      .select(availableFields.length ? availableFields : '*');
+
+    primaryKeys.forEach((primaryKey) => {
+      query.orWhere((builder) => {
+        Object.entries(primaryKey).forEach(([column, value]) => {
+          builder.andWhere(column, value);
+        });
+      });
+    });
+
+    const results = await query;
+    return results as Array<Record<string, unknown>>;
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,
@@ -232,6 +285,13 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
     const tableStructure = await this.getTableStructure(tableName);
     const availableFields = this.findAvailableFields(settings, tableStructure);
+    const timestampColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleTimeType(data_type))
+      .map(({ column_name }) => column_name);
+
+    const datesColumnsNames = tableStructure
+      .filter(({ data_type }) => isOracleDateType(data_type))
+      .map(({ column_name }) => column_name);
 
     const searchedFields =
       settings?.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : [];
@@ -248,6 +308,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       searchedFieldValue,
       filteringFields,
       settings,
+      timestampColumnNames,
+      datesColumnsNames,
     );
   }
 
@@ -260,26 +322,44 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     availableFields: Array<string>,
     searchedFields: Array<string>,
     searchedFieldValue: any,
-    filteringFields: any,
+    filteringFields: FilteringFieldsDS[],
     settings: TableSettingsDS,
+    timestampColumnNames: Array<string>,
+    datesColumnsNames: Array<string>,
   ) {
     const offset = (page - 1) * perPage;
-
+    const fastCount = await this.getFastRowsCount(knex, tableName, tableSchema);
     const applySearchFields = (builder: Knex.QueryBuilder) => {
       if (searchedFieldValue && searchedFields.length > 0) {
         for (const field of searchedFields) {
           if (Buffer.isBuffer(searchedFieldValue)) {
             builder.orWhere(field, '=', searchedFieldValue);
           } else {
-            builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+            if (fastCount <= 1000) {
+              builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `%${searchedFieldValue.toLowerCase()}%`]);
+            } else {
+              builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+            }
           }
         }
       }
     };
 
-    const applyFilteringFields = (builder: Knex.QueryBuilder) => {
+    const applyFilteringFields = (
+      builder: Knex.QueryBuilder,
+      timestampColumnNames: Array<string>,
+      datesColumnsNames: Array<string>,
+    ) => {
       if (filteringFields && filteringFields.length > 0) {
-        for (const { field, criteria, value } of filteringFields) {
+        // eslint-disable-next-line prefer-const
+        for (let { field, criteria, value } of filteringFields) {
+          if (datesColumnsNames.includes(field)) {
+            const valueToDate = new Date(String(value));
+            value = this.formatDate(valueToDate);
+          }
+          if (timestampColumnNames.includes(field)) {
+            value = this.formatTimestamp(String(value));
+          }
           const operators = {
             [FilterCriteriaEnum.eq]: '=',
             [FilterCriteriaEnum.startswith]: 'like',
@@ -314,7 +394,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       .withSchema(tableSchema)
       .select(availableFields)
       .modify(applySearchFields)
-      .modify(applyFilteringFields)
+      .modify((builder) => applyFilteringFields(builder, timestampColumnNames, datesColumnsNames))
       .modify(applyOrdering)
       .limit(perPage)
       .offset(offset);
@@ -476,6 +556,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex.transaction((trx) => {
@@ -490,6 +573,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 
@@ -500,6 +585,24 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const timestampColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleTimeType(data_type))
+      .map(({ column_name }) => column_name);
+
+    const dateColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleDateType(data_type))
+      .map(({ column_name }) => column_name);
+
+    Object.keys(row).forEach((key) => {
+      if (timestampColumnNames.includes(key) && row[key]) {
+        row[key] = this.formatTimestamp(row[key] as string);
+      }
+      if (dateColumnNames.includes(key) && row[key]) {
+        row[key] = this.formatDate(new Date(row[key] as string));
+      }
+    });
 
     return await knex(tableName).withSchema(schema).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
@@ -507,19 +610,67 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   public async bulkUpdateRowsInTable(
     tableName: string,
     newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Record<string, unknown>> {
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+    const tableStructure = await this.getTableStructure(tableName);
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map(Object.values);
+    const timestampColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleTimeType(data_type))
+      .map(({ column_name }) => column_name);
 
-    return await knex(tableName)
-      .withSchema(schema)
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeysValues)
-      .update(newValues);
+    const dateColumnNames = tableStructure
+      .filter(({ data_type }) => isOracleDateType(data_type))
+      .map(({ column_name }) => column_name);
+
+    // Format date and timestamp fields in newValues
+    Object.keys(newValues).forEach((key) => {
+      if (timestampColumnNames.includes(key) && newValues[key]) {
+        newValues[key] = this.formatTimestamp(newValues[key] as string);
+      }
+      if (dateColumnNames.includes(key) && newValues[key]) {
+        newValues[key] = this.formatDate(new Date(newValues[key] as string));
+      }
+    });
+
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableName)
+          .withSchema(schema)
+          .returning(Object.keys(primaryKey))
+          .where(primaryKey)
+          .update(newValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const knex = await this.configureKnex();
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    await knex.transaction(async (trx) => {
+      await trx(tableName)
+        .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
+        .delete()
+        .modify((queryBuilder) => {
+          primaryKeys.forEach((key) => {
+            queryBuilder.orWhere((builder) => {
+              Object.entries(key).forEach(([column, value]) => {
+                builder.andWhere(column, value);
+              });
+            });
+          });
+        });
+    });
+
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
@@ -769,5 +920,25 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const year = date.getFullYear().toString().slice(-2);
     const resultString = `${day}-${monthNames[monthIndex]}-${year}`;
     return resultString;
+  }
+
+  private formatTimestamp(timestamp: string | number | Date): string {
+    const date = new Date(timestamp);
+
+    const day = `0${date.getDate()}`.slice(-2);
+    const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear().toString().slice(-2);
+
+    let hours = date.getHours();
+    const period = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const hoursStr = `0${hours}`.slice(-2);
+
+    const minutes = `0${date.getMinutes()}`.slice(-2);
+    const seconds = `0${date.getSeconds()}`.slice(-2);
+
+    return `${day}-${month}-${year} ${hoursStr}:${minutes}:${seconds} ${period}`;
   }
 }

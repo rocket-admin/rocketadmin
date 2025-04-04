@@ -14,6 +14,7 @@ import { isHexString } from '../utils/is-hex-string.js';
 import * as csv from 'csv';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class ExportCSVFromTableUseCase
@@ -38,6 +39,10 @@ export class ExportCSVFromTableUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     try {

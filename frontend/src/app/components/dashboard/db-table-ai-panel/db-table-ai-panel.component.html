@@ -5,7 +5,7 @@
 <div class="ai-panel-sidebar-content">
     <div class="ai-panel-sidebar__header">
         <h2 class="mat-heading-2 ai-panel-sidebar__title">
-            <mat-icon svgIcon="ai_rocket"></mat-icon>
+            <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
             <span>AI insights</span>
         </h2>
         <button mat-icon-button (click)="handleClose()">
@@ -27,7 +27,7 @@
         </div>
 
         <ng-template #suggestions>
-            <div class="mat-elevation-z2">
+            <div class="mat-elevation-z2 suggestions">
                 <span class="suggestions-title">Suggested insights</span>
                 <mat-action-list role="list">
                     <button mat-list-item *ngFor="let suggestion of aiRequestSuggestions"

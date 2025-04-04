@@ -13,8 +13,9 @@
             <a mat-icon-button
                 [routerLink]="selectedRow.link"
                 [queryParams]="selectedRow.primaryKeys"
-                matTooltip="Open the record">
-                <mat-icon>open_in_new</mat-icon>
+                matTooltip="Open the record"
+                (click)="stashUrlParams()">
+                <mat-icon fontSet="material-icons-outlined">create</mat-icon>
             </a>
         </div>
         <button mat-icon-button (click)="handleClose()">
@@ -25,7 +26,7 @@
     <br />
     <div *ngFor="let column of columns" class="row-preview-sidebar__field">
         <strong>{{column.normalizedTitle}}</strong>
-        <span *ngIf="isForeignKey(column.title); else recordContent">
+        <span *ngIf="isForeignKey(column.title); else recordContent" class="row-preview-sidebar__field-value">
             {{getForeignKeyValue(column.title)}}
         </span>
         <ng-template #recordContent>
@@ -33,10 +34,10 @@
                 <div *ngIf="widgets[column.title].widget_type === 'Image'">
                     <img [src]="selectedRow.record[column.title]" alt="Image" class="row-preview-sidebar__image">
                 </div>
-                <span>{{selectedRow.record[column.title] || '—'}}</span>
+                <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
             </div>
             <ng-template #stringValue>
-                <span>{{selectedRow.record[column.title] || '—'}}</span>
+                <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
             </ng-template>
         </ng-template>
 

@@ -24,19 +24,20 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { PlaceholderRowEditComponent } from '../skeletons/placeholder-row-edit/placeholder-row-edit.component';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
-import { MatListModule } from '@angular/material/list';
-import { Subscription } from 'rxjs';
+import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -53,6 +54,7 @@ import { Subscription } from 'rxjs';
     MatSelectModule,
     MatTooltipModule,
     MatListModule,
+    MatProgressSpinnerModule,
     RouterModule,
     MatExpansionModule,
     MatChipsModule,
@@ -136,7 +138,10 @@ export class DbTableRowEditComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
     const navUrlParams = this._tableState.getBackUrlParams();
-    this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};
+    this.backUrlParams = {
+      ...navUrlParams,
+      ...(this.tableFiltersUrlString !== 'null' ? { filters: this.tableFiltersUrlString } : {})
+    };
 
     this.routeSub = this.route.queryParams.subscribe((params) => {
       this.tableName = this.route.snapshot.paramMap.get('table-name');
@@ -195,6 +200,9 @@ export class DbTableRowEditComponent implements OnInit {
 
             this.nonModifyingFields = res.structure.filter((field: TableField) => !this.getModifyingFields(res.structure).some(modifyingField => field.column_name === modifyingField.column_name)).map((field: TableField) => field.column_name);
             this.readonlyFields = [...res.readonly_fields, ...this.nonModifyingFields];
+            if (this.connectionType === DBtype.Dynamo) {
+              this.readonlyFields = [...this.readonlyFields, ...res.primaryColumns.map((field: TableField) => field.column_name)];
+            }
             this.tableForeignKeys = res.foreignKeys;
             // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
             this.tableRowValues = {...res.row};
@@ -327,7 +335,8 @@ export class DbTableRowEditComponent implements OnInit {
       },
       {
         label: this.dispalyTableName,
-        link: `/dashboard/${this.connectionID}/${this.tableName}`
+        link: `/dashboard/${this.connectionID}/${this.tableName}`,
+        queryParams: this.backUrlParams
       },
       {
         label: pageTitle,
@@ -386,7 +395,6 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
-    console.log(typeof(updatedValue));
     if (typeof(updatedValue) === 'object' && updatedValue !== null) {
       for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
         delete this.tableRowValues[field][prop];
@@ -430,6 +438,14 @@ export class DbTableRowEditComponent implements OnInit {
       };
     }
     //end crutch
+
+    // don't ovverride primary key fields for dynamoDB
+    if (this.connectionType === DBtype.Dynamo) {
+      const primaryKeyFields = Object.keys(this.keyAttributesFromURL);
+      primaryKeyFields.forEach((field) => {
+        delete updatedRow[field];
+      });
+    }
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)

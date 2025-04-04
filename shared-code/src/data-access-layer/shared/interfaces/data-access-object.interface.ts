@@ -29,6 +29,12 @@ export interface IDataAccessObject {
     settings: TableSettingsDS,
   ): Promise<Record<string, unknown>>;
 
+  bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>>;
+
   getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,
@@ -59,7 +65,9 @@ export interface IDataAccessObject {
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Record<string, unknown>>;
+  ): Promise<Array<Record<string, unknown>>>;
+
+  bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number>;
 
   validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>>;
 

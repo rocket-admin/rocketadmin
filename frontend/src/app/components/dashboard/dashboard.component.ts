@@ -83,6 +83,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public comparators: object;
   public pageIndex: number;
   public pageSize: number;
+  public sortColumn: string;
+  public sortOrder: 'ASC' | 'DESC';
 
   public loading: boolean = true;
   public isServerError: boolean = false;
@@ -122,6 +124,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   get currentConnectionIsTest () {
     return this._connections.currentConnection.isTestConnection
+  }
+
+  get defaultTableToOpen () {
+    return this._connections.defaultTableToOpen;
   }
 
   ngOnInit() {
@@ -173,15 +179,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.route.paramMap
         .pipe(
           map((params: ParamMap) => {
-            const tableName = params.get('table-name');
+            let tableName = params.get('table-name');
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
               this.title.setTitle(`${this.selectedTableDisplayName} table | Rocketadmin`);
               this.selection.clear();
             } else {
-              this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});
-              this.selectedTableName = this.tablesList[0].table;
+              if (this.defaultTableToOpen) {
+                tableName = this.defaultTableToOpen
+              } else {
+                tableName = this.tablesList[0].table;
+              };
+              this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], {replaceUrl: true});
+              this.selectedTableName = tableName;
             };
           })
         ).subscribe();
@@ -235,6 +246,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.comparators = getComparatorsFromUrl(this.filters);
       this.pageIndex = parseInt(queryParams.page_index) || 0;
       this.pageSize = parseInt(queryParams.page_size) || 30;
+      this.sortColumn = queryParams.sort_active;
+      this.sortOrder = queryParams.sort_direction;
+
       const search = queryParams.search;
       this.getRows(search);
     })
@@ -353,8 +367,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           tableName: this.selectedTableName,
           requstedPage: this.pageIndex,
           pageSize: this.pageSize,
-          sortColumn: undefined,
-          sortOrder: undefined,
+          sortColumn: this.sortColumn,
+          sortOrder: this.sortOrder,
           filters: this.filters,
           search,
           shownColumns
