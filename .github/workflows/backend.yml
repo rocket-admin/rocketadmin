@@ -1,5 +1,10 @@
 name: backend
-on: push
+on:
+  push:
+    paths: 
+      - "backend/**"
+      - "shared-code/**"
+      - "rocketadmin-agent/**"
 jobs:
   test:
     runs-on:
