@@ -499,7 +499,7 @@ export class CompanyInfoController {
     description: 'Company logo found.',
     type: FoundCompanyLogoRO,
   })
-  @UseGuards(CompanyAdminGuard)
+  @UseGuards(CompanyUserGuard)
   @Get('/logo/:companyId')
   async findCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyLogoRO> {
     return await this.findCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
