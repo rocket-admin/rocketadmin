@@ -41,7 +41,8 @@ export const UIwidgets = {
     File: FileRowComponent,
     Code: CodeRowComponent,
     Image: ImageRowComponent,
-    URL: UrlRowComponent
+    URL: UrlRowComponent,
+    Foreign_key: ForeignKeyRowComponent,
 }
 
 export const fieldTypes = {

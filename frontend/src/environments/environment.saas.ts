@@ -1,5 +1,6 @@
 export const environment = {
     saas: true,
     production: false,
-    apiRoot: "/api"
+    apiRoot: "/api",
+    saasURL: ""
 };

@@ -21,8 +21,11 @@ export class UserService {
     portal_link: '',
     subscriptionLevel: SubscriptionPlans.free,
     is_2fa_enabled: false,
-    role: CompanyMemberRole.Member,
+    role: CompanyMemberRole.Specialist,
     externalRegistrationProvider: null,
+    company: {
+      id: ''
+    }
   }
 
   private user = new BehaviorSubject<any>(this.initialUserState);
@@ -312,5 +315,30 @@ export class UserService {
         return EMPTY;
       })
     );
+  }
+
+  updateShowTestConnections(displayMode: 'on' | 'off') {
+    return this._http.put<any>(`/user/test/connections/display`, undefined, { params: { displayMode } })
+      .pipe(
+        map(res => {
+          if (displayMode === 'on') {
+            this._notifications.showSuccessSnackbar('Test connections now are displayed to you.');
+          } else {
+            this._notifications.showSuccessSnackbar('Test connections now are hidden from you.');
+          }
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
   }
 }

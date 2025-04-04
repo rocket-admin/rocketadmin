@@ -12,6 +12,15 @@
     padding: 72px max(calc(50vw - 535px), 10%) 24px;
 }
 
+
+@media (prefers-color-scheme: dark) {
+    .wrapper {
+        background-image:
+            url('../../../assets/bg/connections-list-left-decoration_dark.svg'),
+            url('../../../assets/bg/connections-list-right-decoration_dark.svg');
+    }
+}
+
 @media (width <= 600px) {
     .wrapper {
         padding: 48px 9vw;
@@ -72,7 +81,6 @@
     margin-bottom: 0 !important;
     text-align: center;
     text-transform: uppercase;
-
 }
 
 .showAllButton {
@@ -150,12 +158,25 @@
     transition: border 200ms, box-shadow 200ms;
 }
 
+@media (prefers-color-scheme: dark) {
+    .connection {
+        background-color: #000;
+        border: 1px solid #313131;
+    }
+}
+
 .connection:hover {
     border: 1px solid var(--color-primaryPalette-500);
     box-shadow:
         0px 4px 5px 0px rgba(0, 0, 0, 0.2),
         0px 3px 14px 0px rgba(0, 0, 0, 0.12),
         0px 8px 10px 0px rgba(0, 0, 0, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+    .connection:hover {
+        border: 1px solid #636363;
+    }
 }
 
 .connectionLogoPreview {
@@ -224,7 +245,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--mat-sidenav-content-background-color);
     border-radius: 4px;
     box-shadow:
         0px 1px 3px 0px rgba(0, 0, 0, 0.2),
@@ -235,7 +255,7 @@
     height: 48px;
     padding: 0 16px;
     text-decoration: none;
-    transition: box-shadow 200ms, background 200ms;
+    transition: box-shadow 200ms, background 200ms, border 200ms;
 }
 
 @media (width <= 600px) {
@@ -244,8 +264,13 @@
     }
 }
 
-/* @media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: light) {
     .testConnectionLink {
+        background: var(--mat-sidenav-content-background-color);
+        border: 1px solid var(--mat-sidenav-content-background-color);
+    }
+
+    .testConnectionLink:hover {
         box-shadow:
             0px 1px 3px 0px rgba(0, 0, 0, 0.2),
             0px 2px 2px 0px rgba(0, 0, 0, 0.12),
@@ -255,12 +280,23 @@
 
 @media (prefers-color-scheme: dark) {
     .testConnectionLink {
+        background: #404040;
+        border: 1px solid #404040;
+    }
+
+    .testConnectionLink:hover {
+        background: #212121;
+        border: 1px solid rgba(255, 255, 255, 0.75);
         box-shadow:
             0px 1px 3px 0px rgba(255, 255, 255, 0.1),
             0px 2px 2px 0px rgba(255, 255, 255, 0.08),
             0px 0px 2px 0px rgba(255, 255, 255, 0.12);
     }
-} */
+
+    .testConnectionLink:hover .connection__goIcon {
+        color: var(--color-accentedPalette-500);
+    }
+}
 
 .testConnectionLink:hover {
     box-shadow:
@@ -278,25 +314,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: radial-gradient(var(--mat-sidenav-content-background-color) 1em, var(--icon-box-color) 1em);
+    background-image: radial-gradient(#fff 1em, var(--color-accentedPalette-500) 1em);
     border-radius: 4px;
     height: 36px;
     margin-right: 12px;
     width: 36px;
-}
-
-@media (prefers-color-scheme: light) {
-    .testConnectionLink__iconBox {
-        --icon-box-color: #E8F1EA;
-
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .testConnectionLink__iconBox {
-        --icon-box-color: #292929;
-
-    }
 }
 
 .testConnectionLink__icon {
@@ -310,7 +332,7 @@
     grid-column: 2;
     margin-left: auto;
     opacity: 0.65;
-    transition: opacity 200ms;
+    transition: opacity 200ms, color 200ms;
 }
 
 @media (width <= 600px) {

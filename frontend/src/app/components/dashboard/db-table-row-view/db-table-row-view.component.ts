@@ -1,3 +1,4 @@
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Component, Input, OnInit } from '@angular/core';
 import { TableRow, Widget } from 'src/app/models/table';
 
@@ -6,8 +7,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { RouterModule } from '@angular/router';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-db-table-row-view',
@@ -17,6 +18,7 @@ import { TableStateService } from 'src/app/services/table-state.service';
     MatIconModule,
     MatButtonModule,
     ClipboardModule,
+    MatTooltipModule,
     RouterModule,
     CommonModule
   ]
@@ -27,12 +29,14 @@ export class DbTableRowViewComponent implements OnInit {
   @Input() foreignKeysList: string[];
   @Input() widgets: { string: Widget };
   @Input() widgetsList: string[];
+  @Input() activeFilters: object;
 
   public selectedRow: TableRow;
 
   constructor(
     private _tableState: TableStateService,
     private _notifications: NotificationsService,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
@@ -77,6 +81,15 @@ export class DbTableRowViewComponent implements OnInit {
 
   showCopyNotification(message: string) {
     this._notifications.showSuccessSnackbar(message);
+  }
+
+  stashUrlParams() {
+    this._tableState.setBackUrlParams(this.route.snapshot.queryParams.page_index, this.route.snapshot.queryParams.page_size, this.route.snapshot.queryParams.sort_active, this.route.snapshot.queryParams.sort_direction);
+    if (this.activeFilters && Object.keys(this.activeFilters).length > 0) {
+      this._tableState.setBackUrlFilters(this.activeFilters);
+    } else {
+      this._tableState.setBackUrlFilters(null);
+    }
   }
 
   handleClose() {

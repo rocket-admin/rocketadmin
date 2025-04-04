@@ -8,6 +8,8 @@ import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { group } from 'console';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('UserAddDialogComponent', () => {
   let component: UserAddDialogComponent;
@@ -21,6 +23,7 @@ describe('UserAddDialogComponent', () => {
   beforeEach(async() => {
     await TestBed.configureTestingModule({
       imports: [
+        RouterTestingModule,
         MatSnackBarModule,
         FormsModule,
         Angulartics2Module.forRoot(),
@@ -28,7 +31,13 @@ describe('UserAddDialogComponent', () => {
       ],
       providers: [
         provideHttpClient(),
-        { provide: MAT_DIALOG_DATA, useValue: { id: '12345678-123' } },
+        { provide: MAT_DIALOG_DATA, useValue: {
+          availableMembers: [],
+          group: {
+            id: '12345678-123',
+            title: 'Test Group'
+          }
+        }},
         { provide: MatDialogRef, useValue: mockDialogRef }
       ],
     }).compileComponents();

@@ -55,6 +55,7 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
   public tablesList: TableProperties[] = null;
   public connectionSettingsInitial: ConnectionSettings = {
     hidden_tables: [],
+    default_showing_table: null,
     primary_color: '',
     secondary_color: '',
     logo_url: '',
@@ -232,9 +233,5 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
   openIntercome() {
     // @ts-ignore
     Intercom('show');
-  }
-
-  onColumnsViewChange(event) {
-    console.log(event);
   }
 }

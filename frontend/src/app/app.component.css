@@ -10,6 +10,14 @@
     }
 }
 
+@media (prefers-color-scheme: dark) {
+    .main-menu-container {
+        --mat-sidenav-content-background-color: #191919;
+        --mat-sidenav-container-background-color: #191919;
+        --mat-sidenav-container-divider-color: #303030;
+    }
+}
+
 .main-menu-sidenav {
     width: 60vw;
 }
@@ -17,6 +25,12 @@
 .nav-bar {
     flex-shrink: 0;
     background-color: #212121;
+}
+
+@media (prefers-color-scheme: dark) {
+    .nav-bar {
+        border-bottom: 1px solid #303030;
+    }
 }
 
 .nav-bar_interior {
@@ -87,12 +101,6 @@
     font-weight: 500 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-    .nav-bar__button_active {
-        --mdc-text-button-label-text-color: var(--color-accentedDarkPalette-500) !important;
-    }
-}
-
 @media screen and (max-width: 600px) {
     .nav-bar__button_active {
         color: inherit;
@@ -101,8 +109,8 @@
 }
 
 .nav-bar__upgrade-button {
-    --mdc-filled-button-label-text-color: #424242;
-    --mdc-filled-button-container-color: #fff;
+    /* --mdc-filled-button-label-text-color: #424242; */
+    /* --mdc-filled-button-label-text-color: #fff !important; */
     --mdc-filled-button-container-height: 28px;
 
     margin-right: -8px;
@@ -151,6 +159,7 @@
 
 .actions .action {
     --mdc-outlined-button-outline-color: #fff;
+    --mat-toolbar-container-text-color: #fff;
     width: 96px;
 }
 
@@ -263,9 +272,22 @@
     height: 60px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .footer {
+        background: #212121;
+        border-top: 1px solid #303030;
+    }
+}
+
 .footer__text {
     color: rgba(0,0,0,0.5);
     font-size: 0.875em;
+}
+
+@media (prefers-color-scheme: dark) {
+    .footer__text {
+        color: #fff;
+    }
 }
 
 ::ng-deep .visually-hidden {

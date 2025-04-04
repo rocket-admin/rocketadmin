@@ -16,6 +16,7 @@ import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class BulkUpdateRowsInTableUseCase
@@ -51,6 +52,10 @@ export class BulkUpdateRowsInTableUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     const dao = getDataAccessObject(connection);

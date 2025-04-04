@@ -7,6 +7,7 @@ import { ImportCSVInTableDs } from '../application/data-structures/import-scv-in
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class ImportCSVInTableUseCase
@@ -30,6 +31,10 @@ export class ImportCSVInTableUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     if (connection.isTestConnection) {

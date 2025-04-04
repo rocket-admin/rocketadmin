@@ -1,6 +1,14 @@
 /* eslint-disable security/detect-object-injection */
+import * as csv from 'csv';
 import { Knex } from 'knex';
+import { Readable, Stream } from 'node:stream';
+import { LRUStorage } from '../../caching/lru-storage.js';
+import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { isPostgresDateOrTimeType, isPostgresDateStringByRegexp } from '../../helpers/is-database-date.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
+import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -8,20 +16,13 @@ import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { LRUStorage } from '../../caching/lru-storage.js';
-import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
-import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
-import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { Stream, Readable } from 'node:stream';
-import * as csv from 'csv';
-import { isPostgresDateOrTimeType, isPostgresDateStringByRegexp } from '../../helpers/is-database-date.js';
+import { nanoid } from 'nanoid';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -107,6 +108,34 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     return result[0] as unknown as Record<string, unknown>;
   }
 
+  public async bulkGetRowsFromTableByPrimaryKeys(
+    tableName: string,
+    primaryKeys: Array<Record<string, unknown>>,
+    settings: TableSettingsDS,
+  ): Promise<Array<Record<string, unknown>>> {
+    const knex: Knex<any, any[]> = await this.configureKnex();
+    let availableFields: string[] = [];
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
+    const query = knex(tableName)
+      .withSchema(this.connection.schema ?? 'public')
+      .select(availableFields.length ? availableFields : '*');
+
+    primaryKeys.forEach((primaryKey) => {
+      query.orWhere((builder) => {
+        Object.entries(primaryKey).forEach(([column, value]) => {
+          builder.andWhere(column, value);
+        });
+      });
+    });
+
+    const results = await query;
+    return results as Array<Record<string, unknown>>;
+  }
+
   public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsDS,
@@ -150,7 +179,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         large_dataset: large_dataset,
       };
     }
-
+    const fastRowsCount = await this.getFastRowsCount(knex, tableName, tableSchema);
     const countRowsQB = knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
       .modify((builder) => {
@@ -163,6 +192,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
+              if (fastRowsCount <= 1000) {
+                builder.orWhereRaw(`LOWER(CAST(?? AS TEXT)) LIKE ?`, [field, `%${searchedFieldValue.toLowerCase()}%`]);
+              }
               builder.orWhereRaw(`LOWER(CAST(?? AS VARCHAR(255))) LIKE ?`, [
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,
@@ -379,6 +411,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     const knex = await this.configureKnex();
     try {
       await knex().select(1);
@@ -391,6 +426,8 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         result: false,
         message: e.message || 'Connection failed',
       };
+    } finally {
+      LRUStorage.delKnexCache(this.connection);
     }
   }
 
@@ -423,7 +460,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     tableName: string,
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Record<string, unknown>[]> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
       .filter(({ data_type }) => data_type.toLowerCase() === 'json')
@@ -436,15 +473,45 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       }
     });
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map(Object.values);
-
     const knex = await this.configureKnex();
-    return await knex(tableName)
-      .withSchema(this.connection.schema ?? 'public')
-      .returning(primaryKeysNames)
-      .whereIn(primaryKeysNames, primaryKeysValues)
-      .update(updatedValues);
+
+    return await knex.transaction(async (trx) => {
+      const results = [];
+      for (const primaryKey of primaryKeys) {
+        const result = await trx(tableName)
+          .withSchema(this.connection.schema ?? 'public')
+          .returning(Object.keys(primaryKey))
+          .where(primaryKey)
+          .update(updatedValues);
+        results.push(result[0]);
+      }
+      return results;
+    });
+  }
+
+  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+    const knex = await this.configureKnex();
+
+    if (primaryKeys.length === 0) {
+      return 0;
+    }
+
+    await knex.transaction(async (trx) => {
+      await trx(tableName)
+        .withSchema(this.connection.schema ?? 'public')
+        .delete()
+        .modify((queryBuilder) => {
+          primaryKeys.forEach((key) => {
+            queryBuilder.orWhere((builder) => {
+              Object.entries(key).forEach(([column, value]) => {
+                builder.andWhere(column, value);
+              });
+            });
+          });
+        });
+    });
+
+    return primaryKeys.length;
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {

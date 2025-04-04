@@ -13,7 +13,8 @@
             <mat-select name="memberType" #memberType="ngModel"
                 [disabled]="submitting"
                 [(ngModel)]="companyMemberRole">
-                <mat-option value="ADMIN">Super admin</mat-option>
+                <mat-option value="ADMIN">Account Owner</mat-option>
+                <mat-option value="DB_ADMIN">System Admin</mat-option>
                 <mat-option value="USER">Member</mat-option>
             </mat-select>
         </mat-form-field>

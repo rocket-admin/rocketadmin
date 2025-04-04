@@ -108,6 +108,7 @@ export class SaasUsualRegisterUseCase
       is_2fa_enabled: false,
       suspended: false,
       externalRegistrationProvider: savedUser.externalRegistrationProvider,
+      show_test_connections: savedUser.showTestConnections,
     };
   }
 

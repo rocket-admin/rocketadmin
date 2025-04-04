@@ -27,6 +27,8 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
     google: 'Google Cloud Platform',
     mongoatlas: 'MongoDB Atlas',
     digitalocean: 'DigitalOcean',
+
+    amazonDynamoDB: 'Amazon DynamoDB',
   };
   public providerDocsLink = {
     amazon: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_mysql',
@@ -34,6 +36,8 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
     google: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_google_cloud',
     mongoatlas: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_mongo_atlas',
     digitalocean: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql',
+
+    amazonDynamoDB: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_dynamodb',
   }
 
   constructor(

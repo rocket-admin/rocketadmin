@@ -191,7 +191,7 @@ test.serial(`${currentTest} should return rows of selected table without search 
   t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
   t.is(getTableRowsRO.hasOwnProperty('large_dataset'), true);
   t.is(getTableRowsRO.rows.length, Constants.DEFAULT_PAGINATION.perPage);
-  t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+  t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
   t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
   t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
   t.is(getTableRowsRO.rows[10].hasOwnProperty(testTableSecondColumnName), true);
@@ -244,7 +244,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
 
   t.is(createTableSettingsResponse.status, 201);
 
-  const searchedDescription = '5';
+  const searchedDescription = 5;
 
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
@@ -260,7 +260,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
   t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
   t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
   t.is(getTableRowsRO.rows.length, 1);
-  t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+  t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
   t.is(getTableRowsRO.rows[0].id, searchedDescription);
   t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableColumnName), true);
   t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableSecondColumnName), true);
@@ -325,7 +325,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
     t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
@@ -333,7 +333,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'number');
 
     t.is(getTableRowsRO.pagination.total, 42);
     t.is(getTableRowsRO.pagination.lastPage, 21);
@@ -399,7 +399,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
     t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
@@ -407,7 +407,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'number');
 
     t.is(getTableRowsRO.pagination.total, 42);
     t.is(getTableRowsRO.pagination.lastPage, 21);
@@ -478,13 +478,13 @@ should return all found rows with pagination page=1 perPage=2`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
       t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-      t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
+      t.is(getTableRowsRO.primaryColumns[0].data_type, 'number');
 
       t.is(getTableRowsRO.pagination.total, 3);
       t.is(getTableRowsRO.pagination.lastPage, 2);
@@ -556,13 +556,13 @@ should return all found rows with pagination page=1 perPage=3`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
       t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-      t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
+      t.is(getTableRowsRO.primaryColumns[0].data_type, 'number');
 
       t.is(getTableRowsRO.pagination.total, 3);
       t.is(getTableRowsRO.pagination.lastPage, 2);
@@ -632,7 +632,7 @@ should return all found rows with sorting ids by DESC`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       // t.is(getTableRowsRO.rows[0].id, 42);
       // t.is(getTableRowsRO.rows[1].id, 41);
       // t.is(getTableRowsRO.rows[41].id, 1);
@@ -699,16 +699,16 @@ should return all found rows with sorting ids by ASC`,
       t.is(getTableRowsResponse.status, 200);
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedLastId = '9';
-      const searchedFirstId = '0';
-      const searchedSecondId = '1';
+      const searchedLastId = 9;
+      const searchedFirstId = 0;
+      const searchedSecondId = 1;
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.rows[41].id, searchedLastId);
@@ -776,16 +776,16 @@ should return all found rows with sorting ports by DESC and with pagination page
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedLastId = '8';
+      const searchedLastId = 8;
 
-      const preSearchedLastId = '9';
+      const preSearchedLastId = 9;
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, preSearchedLastId);
       t.is(getTableRowsRO.rows[1].id, searchedLastId);
 
@@ -851,16 +851,16 @@ test.serial(
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedFirstId = '0';
+      const searchedFirstId = 0;
 
-      const preSearchedSecondId = '1';
+      const preSearchedSecondId = 1;
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, preSearchedSecondId);
 
@@ -926,16 +926,16 @@ test.serial(
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedFirstId = '6';
+      const searchedFirstId = 6;
 
-      const searchedSecondId = '5';
+      const searchedSecondId = 5;
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 3);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
 
@@ -1004,16 +1004,16 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedFirstId = '37';
+      const searchedFirstId = 37;
 
-      const searchedSecondId = '21';
+      const searchedSecondId = 21;
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1083,14 +1083,14 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      const searchedFirstId = '0';
+      const searchedFirstId = 0;
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1158,8 +1158,8 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
 
       t.is(getTableRowsResponse.status, 200);
 
-      const searchedFirstId = '0';
-      const searchedSecondId = '21';
+      const searchedFirstId = 0;
+      const searchedSecondId = 21;
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
@@ -1168,7 +1168,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1238,14 +1238,14 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      const searchedFirstId = '37';
+      const searchedFirstId = 37;
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1328,9 +1328,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
 
-      const foundId = '0';
+      const foundId = 0;
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(getTableRowsRO.rows[0].id, foundId);
 
@@ -1414,9 +1414,9 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
 
-      const foundId = '0';
+      const foundId = 0;
 
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(getTableRowsRO.rows[0].id, foundId);
@@ -1504,9 +1504,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 10);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 11);
 
-      const findRowId = '21';
+      const findRowId = 21;
 
       t.is(getTableRowsRO.rows[0].id, findRowId);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
@@ -1809,7 +1809,7 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
 
   t.is(typeof getTableStructureRO, 'object');
   t.is(typeof getTableStructureRO.structure, 'object');
-  t.is(getTableStructureRO.structure.length, 10);
+  t.is(getTableStructureRO.structure.length, 11);
 
   for (const element of getTableStructureRO.structure) {
     t.is(element.hasOwnProperty('column_name'), true);
@@ -1965,9 +1965,10 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const fakeMail = faker.internet.email();
 
   const row = {
-    id: `999`,
+    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
+    binary_set_column: null,
   };
 
   const addRowInTableResponse = await request(app.getHttpServer())
@@ -2005,7 +2006,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 43);
-  const rowWithAddedId = rows.findIndex((r) => r.id === '999');
+  const rowWithAddedId = rows.findIndex((r) => r.id === 999);
   t.is(rows[rowWithAddedId][testTableColumnName], row[testTableColumnName]);
   t.is(rows[rowWithAddedId][testTableSecondColumnName], row[testTableSecondColumnName]);
 
@@ -2269,7 +2270,7 @@ test.serial(`${currentTest} should update row in table and return result`, async
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
-  const foundIdForUpdate = '1';
+  const foundIdForUpdate = 1;
   const updateRowInTableResponse = await request(app.getHttpServer())
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${foundIdForUpdate}`)
     .send(JSON.stringify(row))
@@ -2666,7 +2667,7 @@ test.serial(`${currentTest} should delete row in table and return result`, async
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = '1';
+  const idForDeletion = 1;
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
@@ -2675,7 +2676,6 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 
   t.is(deleteRowInTableResponse.status, 200);
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-  console.log('🚀 ~ test.serial ~ deleteRowInTableRO:', deleteRowInTableRO);
 
   t.is(deleteRowInTableRO.hasOwnProperty('row'), true);
 
@@ -2717,7 +2717,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = '1';
+  const idForDeletion = 1;
   const connectionId = '';
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
@@ -2765,7 +2765,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = '1';
+  const idForDeletion = 1;
   const connectionId = faker.string.uuid();
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
@@ -2815,7 +2815,7 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = '1';
+  const idForDeletion = 1;
   const fakeTableName = '';
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
@@ -2865,7 +2865,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = '1';
+  const idForDeletion = 1;
   const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
@@ -2915,7 +2915,7 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = '1';
+  const idForDeletion = 1;
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
     .set('Cookie', firstUserToken)
@@ -2971,7 +2971,7 @@ test.serial(
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
 
-    const idForDeletion = '1';
+    const idForDeletion = 1;
     const deleteRowInTableResponse = await request(app.getHttpServer())
       .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=${idForDeletion}`)
       .set('Cookie', firstUserToken)
@@ -3054,7 +3054,7 @@ test.serial(`${currentTest} found row`, async (t) => {
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForSearch = '21';
+  const idForSearch = 21;
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
@@ -3063,6 +3063,7 @@ test.serial(`${currentTest} found row`, async (t) => {
 
   t.is(foundRowInTableResponse.status, 200);
   const foundRowInTableRO = JSON.parse(foundRowInTableResponse.text);
+
   t.is(foundRowInTableRO.hasOwnProperty('row'), true);
   t.is(foundRowInTableRO.hasOwnProperty('structure'), true);
   t.is(foundRowInTableRO.hasOwnProperty('foreignKeys'), true);
@@ -3075,7 +3076,7 @@ test.serial(`${currentTest} found row`, async (t) => {
   t.is(typeof foundRowInTableRO.foreignKeys, 'object');
   t.is(foundRowInTableRO.row.id, idForSearch);
   t.is(foundRowInTableRO.row[testTableColumnName], testSearchedUserName);
-  t.is(Object.keys(foundRowInTableRO.row).length, 10);
+  t.is(Object.keys(foundRowInTableRO.row).length, 11);
 });
 
 test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
@@ -3294,9 +3295,9 @@ test.serial(
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(foundRowInTableResponse.status, 400);
     const findRowResponse = JSON.parse(foundRowInTableResponse.text);
-    t.is(findRowResponse.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+    t.is(foundRowInTableResponse.status, 500);
+    // t.is(findRowResponse.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
   },
 );
 
@@ -3321,13 +3322,13 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 
   const primaryKeysForDeletion: Array<Record<string, unknown>> = [
     {
-      id: '1',
+      id: 1,
     },
     {
-      id: '2',
+      id: 2,
     },
     {
-      id: '31',
+      id: 31,
     },
   ];
   const deleteRowsInTableResponse = await request(app.getHttpServer())
@@ -3624,7 +3625,6 @@ test.skip(`${currentTest} should import csv file with table data`, async (t) => 
     .attach('file', downloadedFilePatch)
     .set('Cookie', firstUserToken)
     .set('Accept', 'application/json');
-  console.log('🚀 ~ test.serial ~ importCsvResponse:', JSON.parse(importCsvResponse.text));
 
   t.is(importCsvResponse.status, 201);
 

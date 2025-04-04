@@ -325,7 +325,7 @@ export async function createTestOracleTable(
           [pColumnName]: ++counter,
           [testTableColumnName]: testSearchedUserName,
           [testTableSecondColumnName]: faker.internet.email(),
-          created_at: new Date(),
+          created_at: new Date("2010-11-03"),
           updated_at: new Date(),
         });
       } else {
@@ -421,7 +421,7 @@ export async function createTestDynamoDBTable(
     KeySchema: [
       { AttributeName: 'id', KeyType: 'HASH' }, // Primary key
     ],
-    AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+    AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'N' }],
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5,
@@ -439,7 +439,7 @@ export async function createTestDynamoDBTable(
     for (let i = 0; i < testEntitiesSeedsCount; i++) {
       const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
       const item = {
-        id: { S: `${i}` },
+        id: { N: i },
         name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
         email: { S: faker.internet.email() },
         age: {
@@ -457,6 +457,7 @@ export async function createTestDynamoDBTable(
         set_column: { SS: ['value1', 'value2'] },
         map_column: { M: { key1: { S: 'value1' }, key2: { S: 'value2' } } },
         binary_column: { B: Buffer.from('hello') },
+        binary_set_column: { BS: [Buffer.from('value1'), Buffer.from('value2')] },
       };
 
       const params: PutItemCommandInput = {

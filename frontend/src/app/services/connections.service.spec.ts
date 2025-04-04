@@ -258,7 +258,7 @@ describe('ConnectionsService', () => {
 
   it('should get visible tabs dashboard, audit, edit-db and connection-settings if connectionAccessLevel is edit', () => {
     service.connectionAccessLevel = AccessLevel.Edit;
-    expect(service.visibleTabs).toEqual(['dashboard', 'audit', 'edit-db', 'connection-settings']);
+    expect(service.visibleTabs).toEqual(['dashboard', 'audit', 'connection-settings', 'edit-db']);
   })
 
   it('should call fetchConnections', () => {
@@ -624,7 +624,7 @@ describe('ConnectionsService', () => {
   it('should call createConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders']}).subscribe(res => {
+    service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders'], default_showing_table: ''}).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been created successfully.');
       isSubscribeCalled = true;
     });
@@ -635,7 +635,8 @@ describe('ConnectionsService', () => {
       "hidden_tables": [
         "users",
         "orders"
-      ]
+      ],
+      "default_showing_table": ""
     });
     req.flush({
       "id": "dd58c614-866d-4293-8c65-351c667d29ca",
@@ -650,7 +651,7 @@ describe('ConnectionsService', () => {
   });
 
   it('should fall createConnectionSettings and show Error alert', async () => {
-    const createSettings = service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders']}).toPromise();
+    const createSettings = service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders'], default_showing_table: ''}).toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("POST");
@@ -658,7 +659,8 @@ describe('ConnectionsService', () => {
       "hidden_tables": [
         "users",
         "orders"
-      ]
+      ],
+      "default_showing_table": ""
     });
     req.flush(fakeError, {status: 400, statusText: ''});
     await createSettings;
@@ -669,7 +671,7 @@ describe('ConnectionsService', () => {
   it('should call updateConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products']}).subscribe(res => {
+    service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products'], default_showing_table: 'users'}).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been updated successfully.');
       isSubscribeCalled = true;
     });
@@ -681,7 +683,8 @@ describe('ConnectionsService', () => {
         "users",
         "orders",
         "products"
-      ]
+      ],
+      "default_showing_table": "users"
     });
     req.flush({
       "id": "dd58c614-866d-4293-8c65-351c667d29ca",
@@ -697,7 +700,7 @@ describe('ConnectionsService', () => {
   });
 
   it('should fall createConnectionSettings and show Error alert', async () => {
-    const updateSettings = service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products']}).toPromise();
+    const updateSettings = service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products'], default_showing_table: 'users'}).toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("PUT");
@@ -706,7 +709,8 @@ describe('ConnectionsService', () => {
         "users",
         "orders",
         "products"
-      ]
+      ],
+      "default_showing_table": "users"
     });
     req.flush(fakeError, {status: 400, statusText: ''});
     await updateSettings;

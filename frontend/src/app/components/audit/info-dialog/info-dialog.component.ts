@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { format } from 'date-fns'
 import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
@@ -11,7 +12,8 @@ import { Log } from 'src/app/models/logs';
   styleUrls: ['./info-dialog.component.css'],
   imports: [
     CommonModule,
-    MatDialogModule
+    MatDialogModule,
+    MatButtonModule
   ]
 })
 export class InfoDialogComponent implements OnInit {

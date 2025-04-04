@@ -13,7 +13,7 @@
     <app-placeholder-user-groups *ngIf="groups === null"></app-placeholder-user-groups>
 
     <mat-accordion multi="true" *ngIf="groups">
-        <mat-expansion-panel *ngFor="let groupItem of groups" (opened)="openUsersList(groupItem.group.id)"
+        <mat-expansion-panel *ngFor="let groupItem of groups" expanded="true"
             [ngClass]="{'expansion-panel_admin': groupItem.group.title === 'Admin'}">
             <mat-expansion-panel-header class="group-item">
                 <mat-panel-title>
@@ -73,6 +73,13 @@
             </mat-list>
         </mat-expansion-panel>
     </mat-accordion>
+
+    <div *ngIf="companyMembersWithoutAccess.length > 0" class="no-access mat-body-1">
+        Company members who do NOT have access to this connection:
+        <span *ngFor="let member of companyMembersWithoutAccess; let last = last">
+            <strong>{{member.name}}</strong> ({{member.email}}) {{!last ? ', ' : ''}}
+        </span>
+    </div>
 
     <!-- <table mat-table [dataSource]="users" class="mat-elevation-z8">
         <ng-container matColumnDef="superuser">

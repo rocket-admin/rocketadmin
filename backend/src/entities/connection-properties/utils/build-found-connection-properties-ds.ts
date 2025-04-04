@@ -16,5 +16,6 @@ export function buildFoundConnectionPropertiesDs(
     tables_audit: connectionProperties.tables_audit,
     human_readable_table_names: connectionProperties.human_readable_table_names,
     allow_ai_requests: connectionProperties.allow_ai_requests,
+    default_showing_table: connectionProperties.default_showing_table,
   };
 }

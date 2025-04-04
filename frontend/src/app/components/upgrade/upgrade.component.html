@@ -23,7 +23,7 @@
                     </h1>
                 </div>
                 <ng-template #planHeaderCard>
-                    <div class="plan-header mat-elevation-z2">
+                    <div class="plan-header mat-elevation-z2" [ngClass]="{'plan-header_current': plan.key === currentPlan.key}">
                         <div class="plan-header-name">
                             <span class="mat-h3">{{plan.name}} </span>
                             <mat-chip disabled *ngIf="plan.name === 'Team'" class="plan-badge">Recommended</mat-chip>

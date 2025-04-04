@@ -41,12 +41,6 @@
     color: var(--color-accentedPalette-500)
 }
 
-@media (prefers-color-scheme: dark) {
-    .registrationTitle__emphasis {
-        color: var(--color-accentedDarkPalette-500)
-    }
-}
-
 .register-form-box {
     display: flex;
     flex-direction: column;
@@ -127,11 +121,23 @@
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-    background-color: #E8F1EA;
+    background-color: var(--image-box-bg);
     border-radius: 12px;
     height: calc(100vh - 120px);
     overflow: hidden;
     padding-top: 3vw;
+}
+
+@media (prefers-color-scheme: light) {
+    .register-image-box {
+        --image-box-bg: #E8F1EA;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .register-image-box {
+        --image-box-bg: #636363;
+    }
 }
 
 @media screen and (max-width: 600px) {
@@ -145,10 +151,8 @@
 }
 
 .register-image {
-    /* margin: 0 -1.5vw;
-    transform: translateX(-70%);
-    height: 84.5vh; */
     height: 85vh;
+    margin-bottom: -5px;
 }
 
 .register-form .agreement {
@@ -157,12 +161,6 @@
 
 .link {
     color: var(--color-accentedPalette-500);
-}
-
-@media (prefers-color-scheme: dark) {
-    .link {
-        color: var(--color-accentedDarkPalette-500)
-    }
 }
 
 .register-form__github-button {

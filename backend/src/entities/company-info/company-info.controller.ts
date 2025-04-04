@@ -1,29 +1,63 @@
 import {
-  UseInterceptors,
-  Controller,
-  Injectable,
-  Put,
-  UseGuards,
+  BadRequestException,
   Body,
+  Controller,
+  Delete,
+  Get,
   HttpException,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
+  ParseFilePipeBuilder,
   Post,
-  Res,
-  Get,
-  Delete,
+  Put,
   Query,
+  Req,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
-import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
-import { UserId } from '../../decorators/user-id.decorator.js';
-import { Messages } from '../../exceptions/text/messages.js';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
+import { CompanyUserGuard } from '../../guards/company-user.guard.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { SimpleFoundUserInCompanyInfoDs } from '../user/dto/found-user.dto.js';
+import { ITokenExp } from '../user/utils/generate-gwt-token.js';
+import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
+import {
+  FoundUserCompanyInfoDs,
+  FoundUserEmailCompaniesInfoDs,
+  FoundUserFullCompanyInfoDs,
+} from './application/data-structures/found-company-info.ds.js';
+import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
+import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
+import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
+import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
+import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
+import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
+import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
+import { TokenExpirationResponseDto } from './application/dto/token-expiration-response.dto.js';
+import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
+import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users-2fa-status-in-company.dto.js';
+import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
+import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
 import {
   ICheckVerificationLinkAvailable,
   IDeleteCompany,
+  IDeleteCompanyLogo,
+  IFindCompanyLogo,
   IGetCompanyName,
   IGetUserCompany,
   IGetUserEmailCompanies,
@@ -37,40 +71,15 @@ import {
   IUpdateCompanyName,
   IUpdateUsers2faStatusInCompany,
   IUpdateUsersCompanyRoles,
+  IUploadCompanyLogo,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
-import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
-import { ITokenExp } from '../user/utils/generate-gwt-token.js';
-import { Response } from 'express';
-import { Constants } from '../../helpers/constants/constants.js';
-import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
-import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
-import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
-import { TokenExpirationResponseDto } from './application/dto/token-expiration-response.dto.js';
-import { CompanyUserGuard } from '../../guards/company-user.guard.js';
-import {
-  FoundUserCompanyInfoDs,
-  FoundUserEmailCompaniesInfoDs,
-  FoundUserFullCompanyInfoDs,
-} from './application/data-structures/found-company-info.ds.js';
-import { SimpleFoundUserInfoDs } from '../user/dto/found-user.dto.js';
-import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
-import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
-import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
-import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
-import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
-import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users-2fa-status-in-company.dto.js';
-import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
-import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
-import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
+import { FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
 @ApiBearerAuth()
-@ApiTags('company')
+@ApiTags('Company')
 @Injectable()
 export class CompanyInfoController {
   constructor(
@@ -108,6 +117,12 @@ export class CompanyInfoController {
     private readonly unSuspendUsersInCompanyUseCase: ISuspendUsersInCompany,
     @Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY)
     private readonly toggleTestConnectionsCompanyDisplayModeUseCase: IToggleCompanyTestConnectionsMode,
+    @Inject(UseCaseType.UPLOAD_COMPANY_LOGO)
+    private readonly uploadCompanyLogoUseCase: IUploadCompanyLogo,
+    @Inject(UseCaseType.FIND_COMPANY_LOGO)
+    private readonly findCompanyLogoUseCase: IFindCompanyLogo,
+    @Inject(UseCaseType.DELETE_COMPANY_LOGO)
+    private readonly deleteCompanyLogoUseCase: IDeleteCompanyLogo,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -137,16 +152,16 @@ export class CompanyInfoController {
   @ApiResponse({
     status: 200,
     description: 'Get users in company.',
-    type: SimpleFoundUserInfoDs,
+    type: SimpleFoundUserInCompanyInfoDs,
     isArray: true,
   })
   @UseGuards(CompanyUserGuard)
   @Get('users/:companyId')
-  async getUsersInCompany(@SlugUuid('companyId') companyId: string): Promise<Array<SimpleFoundUserInfoDs>> {
+  async getUsersInCompany(@SlugUuid('companyId') companyId: string): Promise<Array<SimpleFoundUserInCompanyInfoDs>> {
     return await this.getUsersInCompanyUseCase.execute(companyId);
   }
 
-  @ApiOperation({ summary: 'Get companies where user with this email registered (for login in company)' })
+  @ApiOperation({ summary: 'Get companies where user with this email registered' })
   @ApiResponse({
     status: 200,
     description: 'Get companies where user with this email registered.',
@@ -249,6 +264,7 @@ export class CompanyInfoController {
   })
   @Post('/invite/verify/:verificationString')
   async verifyCompanyInvitation(
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @Param('verificationString') verificationString: string,
     @Body() verificationData: VerifyCompanyInvitationRequestDto,
@@ -275,12 +291,12 @@ export class CompanyInfoController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
       expires: tokenInfo.exp,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return {
       expires: tokenInfo.exp,
@@ -336,6 +352,9 @@ export class CompanyInfoController {
     @UserId() userId: string,
     @Query('displayMode') displayMode: string,
   ): Promise<SuccessResponse> {
+    if (displayMode !== 'on' && displayMode !== 'off') {
+      throw new BadRequestException(Messages.INVALID_DISPLAY_MODE);
+    }
     const newDisplayMode = displayMode === 'on';
     const inputData: ToggleTestConnectionDisplayModeDs = {
       userId,
@@ -370,19 +389,20 @@ export class CompanyInfoController {
   @UseGuards(CompanyAdminGuard)
   @Delete('/my')
   async deleteCompany(
+    @Req() request: Request,
     @UserId() userId: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<SuccessResponse> {
     const deleteResult = await this.deleteCompanyUseCase.execute(userId, InTransactionEnum.OFF);
 
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
       expires: new Date(0),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
       httpOnly: false,
-      ...getCookieDomainOptions(),
+      ...getCookieDomainOptions(request.hostname),
     });
     return deleteResult;
   }
@@ -446,5 +466,55 @@ export class CompanyInfoController {
     @Body() { usersEmails }: SuspendUsersInCompanyDto,
   ): Promise<SuccessResponse> {
     return await this.unSuspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Upload company logo' })
+  @ApiResponse({
+    status: 201,
+    description: 'Company logo was uploaded.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Post('/logo/:companyId')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCompanyLogo(
+    @SlugUuid('companyId') companyId: string,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
+        .addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_LOGO_SIZE })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+    )
+    file: Express.Multer.File,
+  ): Promise<SuccessResponse> {
+    if (!file) {
+      throw new BadRequestException(Messages.FILE_MISSING);
+    }
+    return await this.uploadCompanyLogoUseCase.execute({ companyId, file }, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Find company logo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company logo found.',
+    type: FoundCompanyLogoRO,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Get('/logo/:companyId')
+  async findCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyLogoRO> {
+    return await this.findCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Delete company logo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company logo deleted.',
+    type: SuccessResponse,
+  })
+  @ApiQuery({ name: 'companyId', required: true })
+  @UseGuards(CompanyAdminGuard)
+  @Delete('/logo/:companyId')
+  async deleteCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
+    return await this.deleteCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
   }
 }

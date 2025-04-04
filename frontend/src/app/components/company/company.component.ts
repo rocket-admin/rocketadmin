@@ -24,6 +24,8 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { DeleteDomainDialogComponent } from './delete-domain-dialog/delete-domain-dialog.component';
 
 @Component({
   selector: 'app-company',
@@ -40,6 +42,7 @@ import { NgIf } from '@angular/common';
     MatSlideToggleModule,
     MatTooltipModule,
     MatTableModule,
+    RouterModule,
     Angulartics2OnModule,
     AlertComponent,
     PlaceholderCompanyComponent,
@@ -62,6 +65,21 @@ export class CompanyComponent {
   public submittingChangedName: boolean =false;
   public currentUser;
   public submittingUsersChange: boolean = false;
+  public companyCustomDomain: {
+    id: string,
+    companyId: string,
+    hostname: string
+  } = {
+    id: null,
+    companyId: '',
+    hostname: ''
+  };
+
+  public companyCustomDomainHostname: string;
+  public companyCustomDomainPlaceholder: string;
+  public companyCustomDomainThirdLevel: string;
+  public submittingCustomDomain: boolean = false;
+  public isCustomDomain: boolean = false;
 
   constructor(
     public _company: CompanyService,
@@ -73,10 +91,20 @@ export class CompanyComponent {
   ) { }
 
   ngOnInit() {
+    const domain = window.location.hostname;
+    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost') {
+      this.isCustomDomain = true;
+    }
+
     this._company.fetchCompany().subscribe(res => {
       this.company = res;
       this.setCompanyPlan(res.subscriptionLevel);
       this.getCompanyMembers(res.id);
+      if (this.isCustomDomain) {
+        this.companyCustomDomainHostname = res.custom_domain;
+      } else {
+        this.getCompanyCustomDomain(res.id);
+      }
     });
 
     this._company.cast.subscribe( arg =>  {
@@ -87,10 +115,11 @@ export class CompanyComponent {
           this.getCompanyMembers(res.id);
           this.submittingUsersChange = false;
         });
-      }
-      else if (arg === 'deleted') {
+      } else if (arg === 'deleted') {
         this.submittingUsersChange = true;
         this.getCompanyMembers(this.company.id);
+      } else if (arg === 'domain') {
+        this.getCompanyCustomDomain(this.company.id);
       };
     });
   }
@@ -110,9 +139,9 @@ export class CompanyComponent {
           this.currentUser = res.find(member => member.email === user.email);
 
           if (this.currentUser.role === 'ADMIN') {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'actions'];
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'access', 'actions'];
           } else {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA'];
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'access'];
           }
 
           const currentMembers = orderBy(res, ['role', 'email']);
@@ -131,6 +160,25 @@ export class CompanyComponent {
       this.unsuspendedAdminsCount = res.filter(user => user.role === 'ADMIN' && !user.suspended).length;
       this.usersCount = this.company.invitations.length + res.length;
       this.submittingUsersChange = false;
+    });
+  }
+
+  getCompanyCustomDomain(companyId: string) {
+    this._company.getCustomDomain(companyId).subscribe(res => {
+      if (res.success) {
+        this.companyCustomDomain = res.domain_info;
+        this.companyCustomDomainHostname = res.domain_info.hostname;
+        this.companyCustomDomainThirdLevel = this.companyCustomDomainHostname.split('.')[0];
+      } else {
+        this.companyCustomDomain = {
+          id: null,
+          companyId: companyId,
+          hostname: ''
+        };
+        this.companyCustomDomainHostname = '';
+        this.companyCustomDomainPlaceholder = `${this.company.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.example.com`;
+        this.companyCustomDomainThirdLevel = this.companyCustomDomainPlaceholder.split('.')[0];
+      }
     });
   }
 
@@ -204,5 +252,42 @@ export class CompanyComponent {
         });
       });
     }
+  }
+
+  changeShowTestConnections(checked: boolean) {
+    const displayMode = checked ? 'on' : 'off';
+    this.submitting = true;
+    this._company.updateShowTestConnections(displayMode).subscribe(() => {
+      this.submitting = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: show test connections is updated successfully',
+      });
+    });
+  }
+
+  handleChangeCompanyDomain() {
+    this.submittingCustomDomain = true;
+    if (this.companyCustomDomain.id) {
+      this._company.updateCustomDomain(this.company.id, this.companyCustomDomain.id).subscribe(() => {
+        this.submittingCustomDomain = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Company: domain is updated successfully',
+        });
+      });
+    } else {
+      this._company.createCustomDomain(this.company.id, this.companyCustomDomainHostname).subscribe(() => {
+        this.submittingCustomDomain = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Company: domain is created successfully',
+        });
+      });
+    }
+  }
+
+  handleDeleteDomainDialogOpen() {
+    this.dialog.open(DeleteDomainDialogComponent, {
+      width: '25em',
+      data: { companyId: this.company.id, domain: this.companyCustomDomainHostname }
+    });
   }
 }

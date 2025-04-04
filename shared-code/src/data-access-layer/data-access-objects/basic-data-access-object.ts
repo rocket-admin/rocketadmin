@@ -72,6 +72,44 @@ export class BasicDataAccessObject {
     }
   }
 
+  protected isDateTimeType(columnTypeName: string): boolean {
+    const dateTimeDataTypes = [
+      // PostgreSQL
+      'DATE',
+      'TIME',
+      'TIMETZ',
+      'TIMESTAMP',
+      'TIMESTAMPTZ',
+
+      // MySQL
+      'DATE',
+      'DATETIME',
+      'TIMESTAMP',
+      'TIME',
+      'YEAR',
+
+      // MS SQL Server
+      'DATE',
+      'DATETIME',
+      'DATETIME2',
+      'DATETIMEOFFSET',
+      'SMALLDATETIME',
+      'TIME',
+
+      // OracleDB
+      'DATE',
+      'TIMESTAMP',
+      'TIMESTAMP WITH TIME ZONE',
+      'TIMESTAMP WITH LOCAL TIME ZONE',
+
+      // IBM Db2
+      'DATE',
+      'TIME',
+      'TIMESTAMP',
+    ];
+    return dateTimeDataTypes.includes(columnTypeName.toUpperCase());
+  }
+
   private isValidName(name: string): boolean {
     return typeof name === 'string' && name.length > 0 && /^[a-zA-Z0-9_]+$/.test(name);
   }

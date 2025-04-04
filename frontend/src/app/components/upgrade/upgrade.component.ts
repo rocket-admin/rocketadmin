@@ -56,13 +56,13 @@ export class UpgradeComponent implements OnInit {
     {
       title: 'Oracle',
       free: '',
-      team: true,
+      team: '',
       enterprise: true
     },
     {
       title: 'Microsoft SQL',
       free: '',
-      team: true,
+      team: '',
       enterprise: true
     }
   ]
@@ -140,6 +140,12 @@ export class UpgradeComponent implements OnInit {
     {
       title: 'Color theme and logo',
       free: true,
+      team: true,
+      enterprise: true
+    },
+    {
+      title: 'White label domain',
+      free: '',
       team: true,
       enterprise: true
     },

@@ -81,6 +81,9 @@ export class CreatedConnectionDTO {
   isTestConnection: boolean;
 
   @ApiProperty()
+  isFrozen: boolean;
+
+  @ApiProperty()
   author: string;
 
   @ApiProperty()

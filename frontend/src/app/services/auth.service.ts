@@ -82,6 +82,9 @@ export class AuthService {
   }
 
   loginUser(userData: ExistingAuthUser) {
+    if (userData.companyId === '') {
+      delete userData.companyId;
+    }
     return this._http.post<any>('/user/login', userData)
     .pipe(
       map(res => {

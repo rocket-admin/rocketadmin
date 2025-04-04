@@ -44,8 +44,21 @@
     color: var(--color-primaryPalette-50-contrast);
 }
 
+@media (prefers-color-scheme: dark) {
+    .table-list-initials {
+        background-color: var(--color-whitePalette-900);
+        color: var(--color-whitePalette-900-contrast);
+    }
+}
+
 .table-list-initials:hover {
     background-color: var(--color-primaryPalette-100);
+}
+
+@media (prefers-color-scheme: dark) {
+    .table-list-initials:hover {
+        background-color: var(--color-whitePalette-900);
+    }
 }
 
 .table-list-icon {
@@ -62,22 +75,9 @@
     color: var(--color-accentedPalette-500);
 }
 
-@media (prefers-color-scheme: dark) {
-    .list-item_active ::ng-deep .mdc-list-item__primary-text {
-        color: var(--color-accentedDarkPalette-500);
-    }
-}
-
 .list-item_active ::ng-deep .table-list-initials {
     background-color: var(--color-accentedPalette-500);
     color: var(--color-accentedPalette-500-contrast);
-}
-
-@media (prefers-color-scheme: dark) {
-    .list-item_active ::ng-deep .table-list-initials {
-        background-color: var(--color-accentedDarkPalette-500);
-        color: var(--color-accentedDarkPalette-500-contrast);
-    }
 }
 
 .empty-message {

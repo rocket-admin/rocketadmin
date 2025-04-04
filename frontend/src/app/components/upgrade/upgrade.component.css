@@ -44,6 +44,12 @@
     background: linear-gradient(to right, transparent 12px, rgba(0, 0, 0, 0.04) 12px, rgba(0, 0, 0, 0.04));
 }
 
+@media (prefers-color-scheme: dark) {
+    .cell_current {
+        background: linear-gradient(to right, transparent 12px, var(--color-primaryPalette-800) 12px, var(--color-primaryPalette-800));;
+    }
+}
+
 .plan-header {
     display: flex;
     flex-direction: column;
@@ -51,6 +57,16 @@
     border-radius: 12px;
     color: var(--mat-sidenav-content-text-color);
     padding: 1.5em;
+}
+
+@media (prefers-color-scheme: dark) {
+    .plan-header {
+        background-color: #202020;
+    }
+
+    .plan-header_current {
+        background-color: var(--color-primaryPalette-800);
+    }
 }
 
 .plan-header-name {

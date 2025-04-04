@@ -6,6 +6,7 @@ import { BehaviorSubject, EMPTY } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
+import { ConfigurationService } from './configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,8 @@ export class CompanyService {
 
   constructor(
     private _http: HttpClient,
-    private _notifications: NotificationsService
+    private _notifications: NotificationsService,
+    private _configuration: ConfigurationService
   ) { }
 
   fetchCompany() {
@@ -201,4 +203,117 @@ export class CompanyService {
         })
       );
   }
+
+  updateShowTestConnections(displayMode: 'on' | 'off') {
+    return this._http.put<any>(`/company/connections/display`, undefined, { params: { displayMode }})
+      .pipe(
+        map(res => {
+          if (displayMode === 'on') {
+            this._notifications.showSuccessSnackbar('Test connections now are displayed to your company members.');
+          } else {
+            this._notifications.showSuccessSnackbar('Test connections now are hidden from your company members.');
+          }
+          this.company.next('');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  getCustomDomain(companyId: string) {
+    const config = this._configuration.getConfig();
+
+    return this._http.get<any>(config.saasURL + `/saas/custom-domain/${companyId}`)
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  createCustomDomain(companyId: string, hostname: string) {
+    const config = this._configuration.getConfig();
+
+    return this._http.post<any>(config.saasURL + `/saas/custom-domain/register/${companyId}`, { hostname })
+      .pipe(
+        map(res => {
+          // this._notifications.showAlert('Custom domain has been added.');
+          this._notifications.showAlert(AlertType.Success,
+            {
+              abstract: `Now your admin panel is live on your own domain: ${hostname}`,
+              details: 'Check it out! If you have any issues or need help setting up your domain or CNAME record, please reach out to our support team.'
+            },
+            [
+              {
+                type: AlertActionType.Anchor,
+                caption: 'Open',
+                to: `https://${hostname}`
+              },
+              {
+                type: AlertActionType.Button,
+                caption: 'Dismiss',
+                action: (id: number) => this._notifications.dismissAlert()
+              }
+            ]
+          );
+          this.company.next('domain');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  updateCustomDomain(companyId: string, hostname: string) {
+    const config = this._configuration.getConfig();
+
+    return this._http.put<any>(config.saasURL + `/saas/custom-domain/update/${companyId}`, { hostname })
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Custom domain has been updated.');
+          this.company.next('domain');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  deleteCustomDomain(companyId: string) {
+    const config = this._configuration.getConfig();
+
+    return this._http.delete<any>(config.saasURL + `/saas/custom-domain/delete/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Custom domain has been removed.');
+          this.company.next('domain');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
 }

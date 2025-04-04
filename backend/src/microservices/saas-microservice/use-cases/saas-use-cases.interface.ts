@@ -1,10 +1,13 @@
-import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
+import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import {
   RegisterInvitedUserDS,
   SaasUsualUserRegisterDS,
 } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
+import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { AddRemoveCompanyIdToUserDS } from '../data-structures/add-company-id-to-user.ds.js';
+import { SuccessResponse } from '../data-structures/common-responce.ds.js';
+import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
 import { GetUserInfoByEmailDS } from '../data-structures/get-user-info.ds.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
@@ -12,7 +15,6 @@ import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
-import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 
 export interface ICompanyRegistration {
   execute(inputData: RegisterCompanyWebhookDS): Promise<RegisteredCompanyDS>;
@@ -64,4 +66,8 @@ export interface ISaaSGetCompanyInfoByUserId {
 
 export interface ISaaSGetUsersInCompany {
   execute(companyId: string): Promise<UserEntity[]>;
+}
+
+export interface IFreezeConnectionsInCompany {
+  execute(inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse>;
 }

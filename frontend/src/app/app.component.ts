@@ -4,9 +4,21 @@ import { catchError, filter, map } from 'rxjs/operators';
 
 import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
+import { CommonModule } from '@angular/common';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatIconRegistry } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { TablesService } from './services/tables.service';
 import { UiSettingsService } from './services/ui-settings.service';
@@ -16,17 +28,6 @@ import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { normalizeTableName } from './lib/normalize';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatTabsModule } from '@angular/material/tabs';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -48,6 +49,7 @@ amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
     MatBadgeModule,
     MatMenuModule,
     MatTooltipModule,
+    FeatureNotificationComponent
   ],
 })
 
@@ -56,7 +58,8 @@ export class AppComponent {
   public isSaas = (environment as any).saas;
   userActivity;
   userInactive: Subject<any> = new Subject();
-  chatHasBeenShownOnce: boolean = false;
+  currentFeatureNotificationId: string = 'white-label-custom-domain';
+  isFeatureNotificationShown: boolean = false;
 
   userLoggedIn = null;
   redirect_uri = `${location.origin}/loader`;
@@ -126,12 +129,12 @@ export class AppComponent {
       'permissions': {
         caption: 'Permissions'
       },
+      'connection-settings': {
+        caption: 'Connection settings'
+      },
       'edit-db': {
         caption: 'Edit connection'
       },
-      'connection-settings': {
-        caption: 'Connection settings'
-      }
     }
 
     document.cookie = "G_AUTH2_MIGRATION=informational";
@@ -141,20 +144,23 @@ export class AppComponent {
         if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
         this._user.fetchUser()
           .subscribe((res: User) => {
-              this.currentUser = res;
-              this.setUserLoggedIn(true);
+            this.currentUser = res;
+            this.setUserLoggedIn(true);
 
+            // @ts-ignore
+            if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
               // @ts-ignore
-              if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
-                // @ts-ignore
-                ...window.intercomSettings,
-                user_hash: res.intercom_hash,
-                user_id: res.id,
-                email: res.email
-              });
-              this.router.navigate(['/connections-list']);
-              this._uiSettings.getUiSettings().subscribe();
-            }
+              ...window.intercomSettings,
+              user_hash: res.intercom_hash,
+              user_id: res.id,
+              email: res.email
+            });
+            this.router.navigate(['/connections-list']);
+            this._uiSettings.getUiSettings().subscribe(settings => {
+              console.log(settings);
+              this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
+            });
+          }
         )
 
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
@@ -183,7 +189,10 @@ export class AppComponent {
                     user_id: res.id,
                     email: res.email
                   });
-                this._uiSettings.getUiSettings().subscribe();
+                  this._uiSettings.getUiSettings().subscribe(settings => {
+                    console.log(settings);
+                    this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
+                  });
                 }
             );
 
@@ -214,6 +223,10 @@ export class AppComponent {
     return this._connections.name;
   }
 
+  get isCustomAccentedColor() {
+    return this._connections.isCustomAccentedColor;
+  }
+
   get connectionID() {
     return this._connections.connectionID;
   }
@@ -233,6 +246,12 @@ export class AppComponent {
   get tableName() {
     this.normalizedTableName = normalizeTableName(this._tables.currentTableName);
     return this._tables.currentTableName;
+  }
+
+  dismissFeatureNotification() {
+    this._uiSettings.updateGlobalSetting('lastFeatureNotificationId', this.currentFeatureNotificationId)
+    this.isFeatureNotificationShown = false;
+    // this.changeDetector.detectChanges();
   }
 
   setUserLoggedIn(state) {

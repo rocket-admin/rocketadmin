@@ -22,7 +22,7 @@ describe('CompanyComponent', () => {
   let fixture: ComponentFixture<CompanyComponent>;
   let dialog: MatDialog;
 
-  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'updateCompanyName', 'updateCompanyMemberRole', 'cast']);
+  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'getCustomDomain', 'updateCompanyName', 'updateCompanyMemberRole', 'cast']);
   let fakeUserService = jasmine.createSpyObj('UserService', ['cast']);
 
   const mockCompany: Company = {
@@ -61,7 +61,7 @@ describe('CompanyComponent', () => {
                 "createdAt": "2024-01-06T21:11:36.746Z",
                 "name": null,
                 "is_2fa_enabled": false,
-                "role": CompanyMemberRole.SuperAdmin
+                "role": CompanyMemberRole.CAO
               }
             ]
           },
@@ -75,9 +75,10 @@ describe('CompanyComponent', () => {
         "groupId": null,
         "inviterId": "user1",
         "invitedUserEmail": "admin1@test.com",
-        "role": CompanyMemberRole.SuperAdmin,
+        "role": CompanyMemberRole.CAO,
       }
-    ]
+    ],
+    show_test_connections: false
   }
 
   const mockMembers = [
@@ -101,9 +102,15 @@ describe('CompanyComponent', () => {
     }
   ]
 
+  const mockCompanyDomain = {
+    "success": false,
+    "domain_info": null
+  }
+
   fakeCompanyService.cast = of('');
   fakeCompanyService.fetchCompany.and.returnValue(of(mockCompany));
   fakeCompanyService.fetchCompanyMembers.and.returnValue(of(mockMembers));
+  fakeCompanyService.getCustomDomain.and.returnValue(of(mockCompanyDomain));
   fakeCompanyService.updateCompanyName.and.returnValue(of({}));
   fakeCompanyService.updateCompanyMemberRole.and.returnValue(of({}));
   fakeUserService.cast = of(mockMembers[1]);
@@ -199,7 +206,7 @@ describe('CompanyComponent', () => {
         "groupId": null,
         "inviterId": "user1",
         "invitedUserEmail": "admin1@test.com",
-        "role": CompanyMemberRole.SuperAdmin,
+        "role": CompanyMemberRole.CAO,
         "pending": true,
         email: "admin1@test.com"
       }
@@ -240,7 +247,8 @@ describe('CompanyComponent', () => {
       "email": "user1@test.com",
       "name": "User 3333",
       "is_2fa_enabled": false,
-      "role": CompanyMemberRole.Member
+      "role": CompanyMemberRole.Specialist,
+      "has_groups": false
     }
 
     component.handleDeleteMemberDialogOpen(fakeMember);
@@ -273,7 +281,7 @@ describe('CompanyComponent', () => {
     component.company.id = 'company-12345678';
     component.company.name = 'New company name';
 
-    component.updateRole('user-12345678', CompanyMemberRole.SuperAdmin);
+    component.updateRole('user-12345678', CompanyMemberRole.CAO);
     expect(fakeCompanyService.updateCompanyMemberRole).toHaveBeenCalledOnceWith('company-12345678', 'user-12345678', 'ADMIN');
     expect(fakeCompanyService.fetchCompanyMembers).toHaveBeenCalledWith('company-12345678');
   });

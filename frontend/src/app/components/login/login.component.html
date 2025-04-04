@@ -2,10 +2,14 @@
 
 <div class="wrapper background-decoration">
     <div class="login-page">
-        <form class="login-form"
+        <form
+            [ngClass]="{
+                'login-form': !isCustomDomain,
+                'login-form--native-login': isCustomDomain
+            }"
             [hidden]="is2FAShown"
             #loginForm="ngForm"
-            (ngSubmit)="user.companyId && user.password ? loginUser() : requestUserCompanies()">
+            (ngSubmit)="(user.companyId || isCustomDomain) && user.password ? loginUser() : requestUserCompanies()">
 
             <div class="login-header">
                 <svg class="login-header__logo" width="56" height="54" viewBox="0 0 56 54" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,17 +19,18 @@
                     Welcome back to <br>
                     <span class="loginTitle__emphasis">Rocketadmin</span>
                 </h1>
-                <div *ngIf="!userCompanies" class="mat-body-1 login-header__directions">
+                <div *ngIf="!userCompanies && !isCustomDomain" class="mat-body-1 login-header__directions">
                     To log in, please start by entering your email address and click next to continue.
                 </div>
-                <div *ngIf="userCompanies && userCompanies.length > 1" class="mat-body-1 login-header__directions">
+                <div *ngIf="userCompanies && userCompanies.length > 1 && !isCustomDomain" class="mat-body-1 login-header__directions">
                     Please select the company or organization you wish to log into and click next to continue.
                 </div>
             </div>
 
-            <mat-form-field appearance="fill" class="login-form__email">
+            <mat-form-field appearance="fill" floatLabel="always" class="login-form__email">
                 <mat-label>Email</mat-label>
                 <input matInput type="email" name="email" emailValidator
+                    placeholder="Email"
                     data-testid="login-email-input"
                     #email="ngModel" required
                     angulartics2On="change"
@@ -36,34 +41,38 @@
 
             <div *ngIf="isLoadingUserCompanies" class="login-form__field-loader"></div>
 
-            <mat-form-field appearance="fill" *ngIf="userCompanies && userCompanies.length > 1" class="login-form__companies">
+            <mat-form-field *ngIf="userCompanies && userCompanies.length > 1" appearance="fill" floatLabel="always" class="login-form__companies">
                 <mat-label>Company</mat-label>
-                <mat-select [(value)]="user.companyId">
+                <mat-select [(value)]="user.companyId" placeholder="Company">
                   <mat-option *ngFor="let company of userCompanies; let i = index" [value]="company.id">
                     {{company.name}}
                   </mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field *ngIf="isPasswordFieldShown || user.companyId" appearance="fill" class="login-form__password">
+            <mat-form-field *ngIf="isPasswordFieldShown || user.companyId || isCustomDomain"
+                appearance="fill"
+                floatLabel="always"
+                class="login-form__password">
                 <mat-label>Password</mat-label>
                 <input matInput type="password" name="password" data-testid="login-password-input"
                     #password="ngModel" required
+                    placeholder="Password"
                     angulartics2On="change"
                     angularticsAction="Login: password is changed"
                     [(ngModel)]="user.password">
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <div class="divider"><span class="divider__label">or</span></div>
+            <div *ngIf="!isCustomDomain" class="divider"><span class="divider__label">or</span></div>
 
-	        <div id="google_login_button"
+	        <div id="google_login_button" *ngIf="!isCustomDomain"
                 class="login-form__google-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with google is clicked">
             </div>
 
-            <button *ngIf="isSaas" type="button" mat-stroked-button color="primary" data-testid="login-github-button"
+            <button *ngIf="isSaas && !isCustomDomain" type="button" mat-stroked-button color="primary" data-testid="login-github-button"
                 class="login-form__github-button-box login-form__github-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with github is clicked"
@@ -72,7 +81,7 @@
                 <span class="login-form__github-caption">Continue with GitHub</span>
             </button>
 
-            <div class="login-form__sso-button-box"
+            <div *ngIf="!isCustomDomain" class="login-form__sso-button-box"
                 matTooltip="Coming soon"
                 matTooltipPosition="above">
                 <button disabled type="button" mat-stroked-button color="primary" data-testid="login-github-button"
@@ -86,7 +95,7 @@
                 </button>
             </div>
 
-            <button *ngIf="!user.companyId"
+            <button *ngIf="!user.companyId && !isCustomDomain"
                 type="submit" mat-stroked-button
                 data-testid="login-next-button"
                 class="login-form__login-button"
@@ -94,7 +103,7 @@
                 {{ submitting ? 'Submitting' : 'Next'}}
             </button>
 
-            <button *ngIf="isPasswordFieldShown || user.companyId"
+            <button *ngIf="isPasswordFieldShown || user.companyId || isCustomDomain"
                 type="submit" mat-flat-button color="accent"
                 data-testid="login-button"
                 class="login-form__login-button"
