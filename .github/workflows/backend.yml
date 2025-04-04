@@ -1,6 +1,6 @@
 name: backend
 on:
-  push:
+  pull_request:
     paths: 
       - "backend/**"
       - "shared-code/**"
