@@ -329,7 +329,7 @@ export class CompanyService {
     return this._http.post<any>(`/company/logo/${companyId}`, formData)
       .pipe(
         map(res => {
-          this._notifications.showSuccessSnackbar('Logo has been updated.');
+          this._notifications.showSuccessSnackbar('Logo has been updated. Please rerefresh the page to see the changes.');
           this.company.next('logo');
           // this.getCompanyLogo(companyId);
           return res

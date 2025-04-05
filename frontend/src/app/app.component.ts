@@ -158,6 +158,9 @@ export class AppComponent {
               user_id: res.id,
               email: res.email
             });
+            this._company.getCompanyLogo(res.company.id).subscribe( logo => {
+              this.logo = logo;
+            })
             this.router.navigate(['/connections-list']);
             this._uiSettings.getUiSettings().subscribe(settings => {
               console.log(settings);

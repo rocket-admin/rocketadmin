@@ -214,11 +214,11 @@
 
         <div class="white-label">
             <div class="white-label-settings">
-                <div *ngIf="currentPlan !== 'free' && currentUser.role === 'DB_ADMIN' && isSaas"
+                <div *ngIf="(currentPlan === 'free' || currentUser.role === 'DB_ADMIN') && isSaas"
                     class="white-label-settings__overlay"
-                    matTooltip="Contact your Account Owner to set up white label settings.">
+                    [matTooltip]="currentUser.role === 'DB_ADMIN' ? 'Contact your Account Owner to set up white label settings.' : 'To white‑label your domain, please upgrade to the Team plan or higher.'">
                 </div>
-                <form
+                <form *ngIf="isSaas"
                     class="text-filed-edit"
                     (ngSubmit)="handleChangeCompanyDomain()">
                     <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
@@ -229,9 +229,13 @@
                             angularticsAction="Company: custom domain is edited"
                             placeholder="e.g. {{companyCustomDomainPlaceholder}}"
                             [readonly]="currentUser.role === 'DB_ADMIN' || isCustomDomain"
-                            [disabled]="currentPlan === 'free' || submittingCustomDomain"
-                            [matTooltip]="currentPlan === 'free' && isSaas ? 'To white‑label your domain, please upgrade to the Team plan or higher.' : null"
                             [(ngModel)]="companyCustomDomainHostname">
+                        <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'ADMIN' && isCustomDomain" class="cname-hint">
+                            To change the domain, visit <a href="https://app.rocketadmin.com/company" target="_blank">app.rocketadmin.com/company</a>
+                        </mat-hint>
+                        <mat-hint *ngIf="currentPlan === 'free' || !companyCustomDomainHostname" class="cname-hint">
+                            Make your admin panel available at your domain.
+                        </mat-hint>
                     </mat-form-field>
                     <div class="text-filed-edit__buttons">
                         <button type="submit" *ngIf="currentUser.role === 'ADMIN'"
@@ -348,7 +352,7 @@
                     </defs>
                 </svg>
             </div>
-            <div class="white-label-how-to">
+            <div *ngIf="isSaas" class="white-label-how-to">
                 <h3>Configure DNS Records</h3>
                 <p>
                     These instructions will guide you in setting up domain to have your admin panel on it.
@@ -367,20 +371,6 @@
                 </ol>
                 <br/>
                 <p>Done! Now wait for the server's updates; it might take 1-2 hours.</p>
-
-                <!--
-                    <mat-hint *ngIf="currentPlan === 'free' && isSaas" class="cname-hint cname-hint_dimmed">
-                            Use a custom domain to make your admin panel accessible at your own address. <span *ngIf="currentUser.role === 'DB_ADMIN'">Contact your <i>Account Owner</i> to get it set up.</span>
-                        </mat-hint>
-                        <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'ADMIN' && isSaas" class="cname-hint">
-                            A CNAME record must exist for the subdomain you want to use, pointing to <span class="cname-value">cname.rocketadmin.com</span>.
-                            <span *ngIf="isCustomDomain">To change the domain, visit <a href="https://app.rocketadmin.com/company" target="_blank">app.rocketadmin.com/company</a></span>
-                        </mat-hint>
-                        <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'DB_ADMIN' && isSaas" class="cname-hint">
-                            A new type CNAME record named <span class="cname-value">{{companyCustomDomainThirdLevel}}</span> with the value <span class="cname-value">cname.rocketadmin.com</span> is required.
-                            Contact your <i>Account Owner</i> to set up a domain.
-                        </mat-hint>
-                -->
             </div>
         </div>
     </ng-container >

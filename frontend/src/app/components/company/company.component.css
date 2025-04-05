@@ -256,7 +256,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 32px;
-    margin-top: 32px;
     margin-bottom: 32px;
 }
 
@@ -268,6 +267,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: 8px;
 }
 
 .white-label-preview {

@@ -100,7 +100,7 @@ export class CompanyComponent {
 
   ngOnInit() {
     const domain = window.location.hostname;
-    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost') {
+    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost' && this.isSaas) {
       this.isCustomDomain = true;
     }
 
