@@ -53,11 +53,7 @@ const routes: Routes = [
   {path: 'connection-settings/:connection-id', component: ConnectionSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id', component: DashboardComponent, canActivate: [AuthGuard]},
   {path: 'audit/:connection-id', component: AuditComponent, canActivate: [AuthGuard]},
-  // {path: 'dashboard/:connection-id', component: DashboardComponent,
-  //   children: [
-  //     {path: ':id', component: DbTableComponent}
-  //   ]
-  // },
+
   {path: 'dashboard/:connection-id/:table-name', pathMatch: 'full', component: DashboardComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/entry', pathMatch: 'full', component: DbTableRowEditComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/widgets', pathMatch: 'full', component: DbTableWidgetsComponent, canActivate: [AuthGuard]},
