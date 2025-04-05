@@ -43,7 +43,7 @@ const routes: Routes = [
   {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard], title: 'Add new database | Rocketadmin'},
   {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard], title: 'Connections | Rocketadmin'},
   {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},
-  {path: 'company', pathMatch: 'full', component: CompanyComponent, canActivate: [AuthGuard], title: 'Company settings | Rocketadmin'},
+  {path: 'company', pathMatch: 'full', component: CompanyComponent, title: 'Company settings | Rocketadmin'},
   {path: 'company/:company-id/verify/:verification-token', pathMatch: 'full', component: CompanyMemberInvitationComponent, title: 'Invitation | Rocketadmin'},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
   {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard], title: 'Upgrade | Rocketadmin'},
