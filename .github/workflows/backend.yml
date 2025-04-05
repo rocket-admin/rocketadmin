@@ -1,5 +1,13 @@
 name: backend
-on: push
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "!frontend/**"
+  pull_request:
+    paths: 
+      - "!frontend/**"
 jobs:
   test:
     runs-on:
