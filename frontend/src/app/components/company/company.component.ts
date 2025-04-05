@@ -81,6 +81,14 @@ export class CompanyComponent {
   public submittingCustomDomain: boolean = false;
   public isCustomDomain: boolean = false;
 
+  public companyLogoFile: File;
+  companyLogoPreview: string | null = null;
+  public submittingLogo: boolean = false;
+
+  get logo(): string {
+    return this._company.logo;
+  }
+
   constructor(
     public _company: CompanyService,
     public _user: UserService,
@@ -92,7 +100,7 @@ export class CompanyComponent {
 
   ngOnInit() {
     const domain = window.location.hostname;
-    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost') {
+    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost' && this.isSaas) {
       this.isCustomDomain = true;
     }
 
@@ -120,6 +128,10 @@ export class CompanyComponent {
         this.getCompanyMembers(this.company.id);
       } else if (arg === 'domain') {
         this.getCompanyCustomDomain(this.company.id);
+      }
+      else if (arg === 'logo') {
+        // this.submittingLogo = true;
+        this._company.getCompanyLogo(this.company.id).subscribe();
       };
     });
   }
@@ -288,6 +300,47 @@ export class CompanyComponent {
     this.dialog.open(DeleteDomainDialogComponent, {
       width: '25em',
       data: { companyId: this.company.id, domain: this.companyCustomDomainHostname }
+    });
+  }
+
+  onCompanyLogoSelected(event: any) {
+    this.submittingLogo = true;
+
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (file) {
+      this.companyLogoFile = file;
+
+      // const reader = new FileReader();
+      // reader.onload = () => {
+      //   this.companyLogoPreview = reader.result as string;
+      // };
+      // reader.readAsDataURL(file);
+    } else {
+      this.companyLogoFile = null;
+      // this.companyLogoPreview = null;
+    }
+
+    this._company.uploadLogo(this.company.id, this.companyLogoFile).subscribe(res => {
+      this.submittingLogo = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: logo is uploaded successfully',
+      });
+    }, err => {
+      this.submittingLogo = false;
+    });
+  }
+
+  removeLogo() {
+    this.submittingLogo = true;
+    this._company.removeLogo(this.company.id).subscribe(res => {
+      this.submittingLogo = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: logo is removed successfully',
+      });
+    }, err => {
+      this.submittingLogo = false;
     });
   }
 }

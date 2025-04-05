@@ -16,11 +16,17 @@ export class CompanyService {
   private company = new BehaviorSubject<string>('');
   public cast = this.company.asObservable();
 
+  private companyLogo: string;
+
   constructor(
     private _http: HttpClient,
     private _notifications: NotificationsService,
     private _configuration: ConfigurationService
   ) { }
+
+  get logo() {
+    return this.companyLogo;
+  }
 
   fetchCompany() {
     return this._http.get<any>(`/company/my/full`)
@@ -306,6 +312,62 @@ export class CompanyService {
         map(res => {
           this._notifications.showSuccessSnackbar('Custom domain has been removed.');
           this.company.next('domain');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  uploadLogo(companyId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post<any>(`/company/logo/${companyId}`, formData)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Logo has been updated. Please rerefresh the page to see the changes.');
+          this.company.next('logo');
+          // this.getCompanyLogo(companyId);
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  getCompanyLogo(companyId: string) {
+    return this._http.get<any>(`/company/logo/${companyId}`)
+      .pipe(
+        map(res => {
+          if (res.logo && res.logo.image && res.logo.mimeType) {
+            this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
+            return `data:${res.logo.mimeType};base64,${res.logo.image}`;
+          } else {
+            this.companyLogo = null;
+            return null;
+          }
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  removeLogo(companyId: string) {
+    return this._http.delete<any>(`/company/logo/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Logo has been removed.');
+          this.company.next('logo');
           return res
         }),
         catchError((err) => {
