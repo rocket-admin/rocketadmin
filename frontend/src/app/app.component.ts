@@ -28,6 +28,7 @@ import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { normalizeTableName } from './lib/normalize';
+import { CompanyService } from './services/company.service';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -72,6 +73,7 @@ export class AppComponent {
   currentUser: User;
   normalizedTableName;
   page: string;
+  logo: any;
   // upgradeButtonShown: boolean = true;
 
   // connectionID: string;
@@ -82,6 +84,7 @@ export class AppComponent {
     public route: ActivatedRoute,
     public router: Router,
     public _connections: ConnectionsService,
+    public _company: CompanyService,
     public _user: UserService,
     public _auth: AuthService,
     private _tables: TablesService,
@@ -139,29 +142,14 @@ export class AppComponent {
 
     document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {
+      // app initialization after user logs in
       if (!res.isTemporary && res.expires) {
         const expirationTime = new Date(res.expires);
         if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
-        this._user.fetchUser()
-          .subscribe((res: User) => {
-            this.currentUser = res;
-            this.setUserLoggedIn(true);
 
-            // @ts-ignore
-            if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
-              // @ts-ignore
-              ...window.intercomSettings,
-              user_hash: res.intercom_hash,
-              user_id: res.id,
-              email: res.email
-            });
-            this.router.navigate(['/connections-list']);
-            this._uiSettings.getUiSettings().subscribe(settings => {
-              console.log(settings);
-              this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
-            });
-          }
-        )
+        this.router.navigate(['/connections-list']);
+
+        this.initializeUserSession();
 
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
         setTimeout(() => {
@@ -169,7 +157,9 @@ export class AppComponent {
           this.router.navigate(['/login']);
         }, expirationInterval);
 
-      } else if (res !== 'delete') {
+      }
+      // app initialization if user is logged in
+      else if (res !== 'delete') {
         const expirationToken = localStorage.getItem('token_expiration');
         const expirationTime = expirationToken ? new Date(expirationToken) : null;
         const currantTime = new Date();
@@ -177,24 +167,7 @@ export class AppComponent {
         if (expirationTime && currantTime) {
           const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
           if (expirationInterval > 0) {
-            this._user.fetchUser()
-              .subscribe((res: User) => {
-                  this.currentUser = res;
-                  this.setUserLoggedIn(true);
-                  // @ts-ignore
-                  if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
-                    // @ts-ignore
-                    ...window.intercomSettings,
-                    user_hash: res.intercom_hash,
-                    user_id: res.id,
-                    email: res.email
-                  });
-                  this._uiSettings.getUiSettings().subscribe(settings => {
-                    console.log(settings);
-                    this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
-                  });
-                }
-            );
+            this.initializeUserSession();
 
             setTimeout(() => {
               if (this.userLoggedIn) this.logOut(true);
@@ -215,13 +188,9 @@ export class AppComponent {
     })
   }
 
-  get logo() {
-    return this._connections.connectionLogo;
-  }
-
-  get name() {
-    return this._connections.name;
-  }
+  // get name() {
+  //   return this._connections.name;
+  // }
 
   get isCustomAccentedColor() {
     return this._connections.isCustomAccentedColor;
@@ -246,6 +215,29 @@ export class AppComponent {
   get tableName() {
     this.normalizedTableName = normalizeTableName(this._tables.currentTableName);
     return this._tables.currentTableName;
+  }
+
+  initializeUserSession() {
+    this._user.fetchUser()
+    .subscribe((res: User) => {
+        this.currentUser = res;
+        this.setUserLoggedIn(true);
+        // @ts-ignore
+        if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
+          // @ts-ignore
+          ...window.intercomSettings,
+          user_hash: res.intercom_hash,
+          user_id: res.id,
+          email: res.email
+        });
+        this._company.getCompanyLogo(res.company.id).subscribe( logo => {
+          this.logo = logo;
+        })
+        this._uiSettings.getUiSettings().subscribe(settings => {
+          this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
+        });
+      }
+  );
   }
 
   dismissFeatureNotification() {
