@@ -31,7 +31,7 @@ export class GetUserEmailCompaniesUseCase
         {
           message: Messages.COMPANIES_USER_EMAIL_NOT_FOUND(userEmail),
         },
-        HttpStatus.NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
