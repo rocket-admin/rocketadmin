@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { Angulartics2Module } from 'angulartics2';
@@ -10,20 +10,20 @@ import { MatMenuModule } from '@angular/material/menu';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { of, Subject } from 'rxjs';
+import { AuthService } from './services/auth.service';
+import { UserService } from './services/user.service';
 import { CompanyService } from './services/company.service';
-import { of } from 'rxjs';
+import { UiSettingsService } from './services/ui-settings.service';
+import { TablesService } from './services/tables.service';
+// import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
-describe('AppComponent', () => {
+fdescribe('AppComponent', () => {
   let app: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   let connectionsService: ConnectionsService;
   let companyService: CompanyService;
-
-  // const fakeConnectionsSevice = {
-  //   get logo(): string {
-  //     return ''
-  //   },
-  // };
 
   const fakeUser = {
     "id": "user-12345678",
@@ -41,6 +41,41 @@ describe('AppComponent', () => {
     "externalRegistrationProvider": null
   }
 
+  const authCast = new Subject<any>();
+  const userCast = new Subject<any>();
+
+  const mockAuthService = {
+    cast: authCast,
+    logOutUser: jasmine.createSpy('logOutUser').and.returnValue(of(true))
+  };
+
+  const mockUserService = {
+    cast: userCast,
+    fetchUser: jasmine.createSpy('fetchUser').and.returnValue(of(fakeUser))
+  };
+
+  const mockCompanyService = {
+    getCompanyLogo: jasmine.createSpy('getCompanyLogo')
+  };
+
+  const mockUiSettingsService = {
+    getUiSettings: jasmine.createSpy('getUiSettings').and.returnValue(of({
+      globalSettings: { lastFeatureNotificationId: 'old-id' }
+    })),
+    updateGlobalSetting: jasmine.createSpy('updateGlobalSetting')
+  };
+
+  const mockConnectionsService = {
+    isCustomAccentedColor: true,
+    connectionID: '123',
+    visibleTabs: ['dashboard'],
+    currentTab: 'dashboard'
+  };
+
+  const mockTablesService = {
+    currentTableName: 'users'
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -52,7 +87,22 @@ describe('AppComponent', () => {
         AppComponent,
         BrowserAnimationsModule
       ],
-      providers: [provideHttpClient()]
+      providers: [
+        provideHttpClient(),
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: UserService, useValue: mockUserService },
+        { provide: CompanyService, useValue: mockCompanyService },
+        { provide: UiSettingsService, useValue: mockUiSettingsService },
+        { provide: TablesService, useValue: mockTablesService },
+        { provide: ConnectionsService, useValue: mockConnectionsService },
+        // { provide: MatIconRegistry, useValue: {
+        //   addSvgIcon: () => {},
+        //   getDefaultFontSetClass: () => 'material-icons',
+        //   getFontSetName: () => 'material-icons',
+        //   getNamedSvgIcon: () => of(null), // only needed if you're testing SVG icons
+        // }},
+        { provide: DomSanitizer, useValue: { bypassSecurityTrustResourceUrl: (url: string) => url } },
+      ]
     }).compileComponents();
   });
 
@@ -73,6 +123,42 @@ describe('AppComponent', () => {
 
   //   expect(app.logo).toEqual('data:png;base64,some-base64-data');
   // });
+
+  it('should set userLoggedIn and logo on user session initialization', fakeAsync(() => {
+    mockCompanyService.getCompanyLogo.and.returnValue(of('data:png;base64,some-base64-data'));
+    app.initializeUserSession();
+    tick();
+
+    fixture.detectChanges();
+    const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
+    const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
+
+    expect(app.currentUser.email).toBe('test@email.com');
+    expect(app.logo).toBe('data:png;base64,some-base64-data');
+    expect(app.userLoggedIn).toBeTrue();
+    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
+
+    expect(logoElement.href).toContain('/connections-list');
+    expect(logoImageElement.src).toEqual('data:png;base64,some-base64-data');
+  }));
+
+  it('should set userLoggedIn and logo on user session initialization', fakeAsync(() => {
+    mockCompanyService.getCompanyLogo.and.returnValue(of('data:png;base64,some-base64-data'));
+    app.initializeUserSession();
+    tick();
+
+    fixture.detectChanges();
+    const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
+    const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
+
+    expect(app.currentUser.email).toBe('test@email.com');
+    expect(app.logo).toBe('data:png;base64,some-base64-data');
+    expect(app.userLoggedIn).toBeTrue();
+    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
+
+    expect(logoElement.href).toContain('/connections-list');
+    expect(logoImageElement.src).toEqual('data:png;base64,some-base64-data');
+  }));
 
   xit('should render the link to Connetions list that contains the custom logo in the navbar', () => {
     spyOnProperty(app, 'connectionID', 'get').and.returnValue('12345678');
