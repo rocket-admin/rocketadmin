@@ -18,6 +18,7 @@ import { UiSettingsService } from './services/ui-settings.service';
 import { TablesService } from './services/tables.service';
 // import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
+import { ChangeDetectorRef } from '@angular/core';
 
 fdescribe('AppComponent', () => {
   let app: AppComponent;
@@ -59,9 +60,7 @@ fdescribe('AppComponent', () => {
   };
 
   const mockUiSettingsService = {
-    getUiSettings: jasmine.createSpy('getUiSettings').and.returnValue(of({
-      globalSettings: { lastFeatureNotificationId: 'old-id' }
-    })),
+    getUiSettings: jasmine.createSpy('getUiSettings'),
     updateGlobalSetting: jasmine.createSpy('updateGlobalSetting')
   };
 
@@ -112,20 +111,34 @@ fdescribe('AppComponent', () => {
     connectionsService = TestBed.inject(ConnectionsService);
     companyService = TestBed.inject(CompanyService);
     fixture.detectChanges();
+
+    spyOn(app, 'logOut');
+    spyOn(app['router'], 'navigate');
+  });
+
+  afterEach(() => {
+    localStorage.removeItem('token_expiration');
   });
 
   it('should create the app', () => {
     expect(app).toBeTruthy();
   });
 
-  // it('should get logo url of current connection', () => {
-  //   spyOn(companyService, 'getCompanyLogo').and.returnValue(of('data:png;base64,some-base64-data'));
-
-  //   expect(app.logo).toEqual('data:png;base64,some-base64-data');
-  // });
-
   it('should set userLoggedIn and logo on user session initialization', fakeAsync(() => {
     mockCompanyService.getCompanyLogo.and.returnValue(of('data:png;base64,some-base64-data'));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
+    app.initializeUserSession();
+    tick();
+
+    expect(app.currentUser.email).toBe('test@email.com');
+    expect(app.logo).toBe('data:png;base64,some-base64-data');
+    expect(app.userLoggedIn).toBeTrue();
+    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
+  }));
+
+  it('should render custom logo in navbar if it is set', fakeAsync(() => {
+    mockCompanyService.getCompanyLogo.and.returnValue(of('data:png;base64,some-base64-data'));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
     app.initializeUserSession();
     tick();
 
@@ -133,49 +146,15 @@ fdescribe('AppComponent', () => {
     const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
     const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
 
-    expect(app.currentUser.email).toBe('test@email.com');
-    expect(app.logo).toBe('data:png;base64,some-base64-data');
-    expect(app.userLoggedIn).toBeTrue();
-    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
-
     expect(logoElement.href).toContain('/connections-list');
     expect(logoImageElement.src).toEqual('data:png;base64,some-base64-data');
   }));
 
-  it('should set userLoggedIn and logo on user session initialization', fakeAsync(() => {
-    mockCompanyService.getCompanyLogo.and.returnValue(of('data:png;base64,some-base64-data'));
+  it('should render the link to Connetions list that contains the custom logo in the navbar', fakeAsync(() => {
+    mockCompanyService.getCompanyLogo.and.returnValue(of(null));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
     app.initializeUserSession();
     tick();
-
-    fixture.detectChanges();
-    const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
-    const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
-
-    expect(app.currentUser.email).toBe('test@email.com');
-    expect(app.logo).toBe('data:png;base64,some-base64-data');
-    expect(app.userLoggedIn).toBeTrue();
-    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
-
-    expect(logoElement.href).toContain('/connections-list');
-    expect(logoImageElement.src).toEqual('data:png;base64,some-base64-data');
-  }));
-
-  xit('should render the link to Connetions list that contains the custom logo in the navbar', () => {
-    spyOnProperty(app, 'connectionID', 'get').and.returnValue('12345678');
-    app.currentUser = fakeUser;
-    app.userLoggedIn = true;
-
-    fixture.detectChanges();
-    const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
-    const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
-
-    expect(logoElement.href).toContain('/connections-list');
-    expect(logoImageElement.src).toEqual('https://example.com/logo.png');
-  });
-
-  xit('should render the link to Connections list that contains Rocketadmin logo in the navbar', () => {
-    app.currentUser = fakeUser;
-    app.userLoggedIn = true;
 
     fixture.detectChanges();
     const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
@@ -183,7 +162,7 @@ fdescribe('AppComponent', () => {
 
     expect(logoElement.href).toContain('/connections-list');
     expect(logoImageElement.src).toContain('/assets/rocketadmin_logo_white.svg');
-  });
+  }));
 
   it('should render the link to Home website page that contains Rocketadmin logo in the template', () => {
     app.userLoggedIn = false;
@@ -197,4 +176,129 @@ fdescribe('AppComponent', () => {
     expect(logoImageElement.src).toContain('/assets/rocketadmin_logo_white.svg');
     expect(nameElement).toBeFalsy();
   });
+
+  it('should render feature popup if isFeatureNotificationShown different on server and client', fakeAsync(() => {
+    app.currentFeatureNotificationId = 'new-id';
+    mockCompanyService.getCompanyLogo.and.returnValue(of(null));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    app.initializeUserSession();
+    tick();
+
+    fixture.detectChanges();
+    const featureNotificationElement = fixture.debugElement.query(By.css('app-feature-notification'));
+
+    expect(featureNotificationElement).toBeTruthy();
+  }));
+
+  it('should not render feature popup if isFeatureNotificationShown the same on server and client', fakeAsync(() => {
+    app.currentFeatureNotificationId = 'old-id';
+    mockCompanyService.getCompanyLogo.and.returnValue(of(null));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    app.initializeUserSession();
+    tick();
+
+    fixture.detectChanges();
+    const featureNotificationElement = fixture.debugElement.query(By.css('app-feature-notification'));
+
+    expect(featureNotificationElement).toBeFalsy();
+  }));
+
+  it('should dismiss feature notification thus call updateGlobalSetting and hide feature notification', () => {
+    app.currentFeatureNotificationId = 'some-id';
+    app.isFeatureNotificationShown = true;
+
+    app.dismissFeatureNotification();
+
+    expect(mockUiSettingsService.updateGlobalSetting).toHaveBeenCalledWith(
+      'lastFeatureNotificationId',
+      'some-id'
+    );
+
+    expect(app.isFeatureNotificationShown).toBeFalse();
+  });
+
+  it('should set userLoggedIn state and trigger change detection', () => {
+    const mockChangeDetectorRef = jasmine.createSpyObj<ChangeDetectorRef>(
+      'ChangeDetectorRef',
+      ['detectChanges', 'markForCheck', 'detach', 'checkNoChanges', 'reattach']
+    );
+
+    app['changeDetector'] = mockChangeDetectorRef; // inject mock manually if needed
+
+    app.setUserLoggedIn(true);
+
+    expect(app.userLoggedIn).toBeTrue();
+    expect(mockChangeDetectorRef.detectChanges).toHaveBeenCalled();
+  });
+
+  it('should handle user login flow when cast emits user with expires', fakeAsync(() => {
+    const expirationDate = new Date(Date.now() + 10_000); // 10s from now
+    // spyOn(app['router'], 'navigate');
+    app['currentFeatureNotificationId'] = 'some-id';
+
+    app.ngOnInit();
+
+    mockAuthService.cast.next({
+      isTemporary: false,
+      expires: expirationDate.toISOString()
+    });
+
+    tick();
+    fixture.detectChanges();
+
+    expect(app.userLoggedIn).toBeTrue();
+    expect(app.currentUser.email).toBe('test@email.com');
+    expect(mockUserService.fetchUser).toHaveBeenCalled();
+    expect(mockCompanyService.getCompanyLogo).toHaveBeenCalledWith('company-12345678');
+    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
+    expect(app.isFeatureNotificationShown).toBeTrue();
+  }));
+
+  it('should restore session and log out after token expiration', fakeAsync(() => {
+    const expiration = new Date(Date.now() + 5000); // 5s ahead
+    localStorage.setItem('token_expiration', expiration.toString());
+
+    // spyOn(app['router'], 'navigate');
+    // spyOn(app, 'logOut');
+
+    spyOn(app, 'initializeUserSession').and.callFake(() => {
+      app.userLoggedIn = true;
+    });
+
+    app.ngOnInit();
+    mockAuthService.cast.next({ some: 'session' }); // not 'delete'
+
+    tick();
+
+    expect(app.initializeUserSession).toHaveBeenCalled();
+
+    tick(5000);
+
+    expect(app.logOut).toHaveBeenCalledWith(true);
+    expect(app['router'].navigate).toHaveBeenCalledWith(['/login']);
+  }));
+
+  xit('should immediately log out and navigate to login if token is expired', fakeAsync(() => {
+    const expiration = new Date(Date.now() - 5000); // Expired 5s ago
+    localStorage.setItem('token_expiration', expiration.toString());
+
+    // spyOn(app['router'], 'navigate');
+    // spyOn(app, 'logOut');
+    spyOn(app, 'initializeUserSession');
+
+    app.userLoggedIn = true;
+
+    app.ngOnInit();
+
+    mockAuthService.cast.next({ some: 'session' });
+
+    tick();
+
+    expect(app.initializeUserSession).not.toHaveBeenCalled();
+    expect(app.logOut).toHaveBeenCalledWith(true);
+    expect(app['router'].navigate).toHaveBeenCalledWith(['/login']);
+  }));
+
+
+
 });
