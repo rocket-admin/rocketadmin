@@ -97,7 +97,6 @@ test.serial(`${currentTest} should return user deletion result`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const deleteUserRO = JSON.parse(deleteUserResult.text);
-    console.log('🚀 ~ test.only ~ deleteUserRO:', deleteUserRO);
     t.is(deleteUserRO.email, adminUserRegisterInfo.email.toLowerCase());
     getUserResult = await request(app.getHttpServer())
       .get('/user')

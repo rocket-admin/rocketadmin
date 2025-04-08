@@ -78,27 +78,13 @@ export function buildFoundCompanyInfoDs(
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;
   return {
     id: companyInfoFromCore.id,
-    name: companyInfoFromSaas.name,
-    additional_info: companyInfoFromSaas.additional_info,
+    name: companyInfoFromCore.name,
     portal_link: isUserAdmin ? companyInfoFromSaas.portal_link : undefined,
     subscriptionLevel: companyInfoFromSaas.subscriptionLevel,
     is_payment_method_added: isUserAdmin ? companyInfoFromSaas.is_payment_method_added : undefined,
     is2faEnabled: isUserAdmin ? companyInfoFromCore.is2faEnabled : undefined,
     show_test_connections: companyInfoFromCore.show_test_connections,
     custom_domain: companyCustomDomain ? companyCustomDomain : null,
-    address: {
-      id: companyInfoFromSaas.address?.id,
-      city: companyInfoFromSaas.address?.city,
-      complement: companyInfoFromSaas.address?.complement,
-      country: companyInfoFromSaas.address?.country,
-      createdAt: companyInfoFromSaas.address?.createdAt,
-      neighborhood: companyInfoFromSaas.address?.neighborhood,
-      number: companyInfoFromSaas.address?.number,
-      state: companyInfoFromSaas.address?.state,
-      street: companyInfoFromSaas.address?.street,
-      updatedAt: companyInfoFromSaas.address?.updatedAt,
-      zipCode: companyInfoFromSaas.address?.zipCode,
-    },
     createdAt: companyInfoFromSaas.createdAt,
     updatedAt: companyInfoFromSaas.updatedAt,
   };

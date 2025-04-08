@@ -61,4 +61,6 @@ export interface IUserRepository {
   findOneUserByEmailAndGroupId(email: string, groupId: string): Promise<UserEntity>;
 
   countUsersInCompany(companyId: string): Promise<number>;
+
+  suspendNewestUsersInCompany(companyId: string, unsuspendedUsersLeft: number): Promise<Array<UserEntity>>;
 }

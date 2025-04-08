@@ -223,6 +223,23 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await this.createQueryBuilder('user').whereInIds(userIds).getMany();
   },
 
+  async suspendNewestUsersInCompany(companyId: string, unsuspendedUsersLeft: number = 3): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user')
+      .where('user.companyId = :companyId', { companyId: companyId })
+      .orderBy('user.createdAt', 'ASC');
+    const users: Array<UserEntity> = await usersQb.getMany();
+    const usersToSuspend = users.slice(unsuspendedUsersLeft);
+
+    if (usersToSuspend.length > 0) {
+      await this.createQueryBuilder('user')
+        .update()
+        .set({ suspended: true })
+        .where('id IN (:...userIds)', { userIds: usersToSuspend.map((user) => user.id) })
+        .execute();
+    }
+    return usersToSuspend;
+  },
+
   async unSuspendUsers(userIds: Array<string>): Promise<Array<UserEntity>> {
     const usersQb = this.createQueryBuilder('user')
       .update()
