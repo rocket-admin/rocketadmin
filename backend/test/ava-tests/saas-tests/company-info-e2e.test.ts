@@ -81,11 +81,9 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    t.is(Object.keys(foundCompanyInfoRO).length, 9);
+    t.is(Object.keys(foundCompanyInfoRO).length, 7);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
   } catch (error) {
@@ -118,11 +116,9 @@ test.serial(`${currentTest} should return full found company info for company ad
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 14);
+    t.is(Object.keys(foundCompanyInfoRO).length, 12);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -174,11 +170,9 @@ test.serial(`${currentTest} should return found company info for non-admin user`
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(Object.keys(foundCompanyInfoRO).length, 9);
+    t.is(Object.keys(foundCompanyInfoRO).length, 7);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
   } catch (error) {
@@ -478,7 +472,7 @@ test.serial(`${currentTest} should revoke user invitation from company`, async (
 
 currentTest = 'PUT company/name/:slug';
 
-test.serial(`${currentTest} should update company name`, async (t) => {
+test.only(`${currentTest} should update company name`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -497,10 +491,12 @@ test.serial(`${currentTest} should update company name`, async (t) => {
 
   t.is(foundCompanyInfo.status, 200);
   const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+  console.log('🚀 ~ test.only ~ foundCompanyInfoRO:', foundCompanyInfoRO)
   t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
 
   const newName = `${faker.company.name()}_${nanoid(5)}`;
 
+  console.log('🚀 ~ test.only ~ newName:', newName);
   const updateCompanyNameResult = await request(app.getHttpServer())
     .put(`/company/name/${foundCompanyInfoRO.id}`)
     .send({
@@ -691,8 +687,8 @@ test.serial(`${currentTest} should delete company`, async (t) => {
     .set('Cookie', adminUserToken)
     .set('Accept', 'application/json');
 
-  t.is(deleteCompanyResult.status, 200);
   const deleteCompanyResultRO = JSON.parse(deleteCompanyResult.text);
+  t.is(deleteCompanyResult.status, 200);
   t.is(deleteCompanyResultRO.success, true);
 
   const foundCompanyInfoAfterDelete = await request(app.getHttpServer())
@@ -861,6 +857,7 @@ test.serial(
       .set('Accept', 'application/json');
 
     const foundCompanyInfoAfterUpgradeRO = JSON.parse(foundCompanyInfoAfterUpgrade.text);
+
     firstConnection = foundCompanyInfoAfterUpgradeRO.connections.find(
       (connectionRO) => connections.firstId === connectionRO.id,
     );

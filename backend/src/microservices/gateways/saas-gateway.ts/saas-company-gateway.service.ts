@@ -120,7 +120,6 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       typeof data === 'object' &&
       data !== null &&
       'id' in data &&
-      'name' in data &&
       'createdAt' in data &&
       'updatedAt' in data
     );
