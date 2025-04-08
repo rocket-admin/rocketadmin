@@ -11,10 +11,7 @@ export function findOrderingFieldUtil(
   tableStructure: Array<TableStructureDS>,
   tableSettings: TableSettingsEntity,
 ): OrderingFiledDs | undefined {
-  if (
-    !isObjectPropertyExists(query, 'sort_by') ||
-    !isObjectPropertyExists(query, 'sort_order')
-  ) {
+  if (!isObjectPropertyExists(query, 'sort_by') || !isObjectPropertyExists(query, 'sort_order')) {
     return undefined;
   }
 
@@ -32,7 +29,7 @@ export function findOrderingFieldUtil(
     );
   }
 
-  if (tableSettings?.sortable_by && !tableSettings.sortable_by.includes(sortByFieldName)) {
+  if (tableSettings?.sortable_by?.length && !tableSettings.sortable_by.includes(sortByFieldName)) {
     throw new HttpException(
       {
         message: Messages.FIELD_MUST_BE_SORTABLE(sortByFieldName),
