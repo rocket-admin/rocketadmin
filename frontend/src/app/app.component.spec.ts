@@ -23,8 +23,8 @@ import { ChangeDetectorRef } from '@angular/core';
 fdescribe('AppComponent', () => {
   let app: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
-  let connectionsService: ConnectionsService;
-  let companyService: CompanyService;
+  // let connectionsService: ConnectionsService;
+  // let companyService: CompanyService;
 
   const fakeUser = {
     "id": "user-12345678",
@@ -108,8 +108,8 @@ fdescribe('AppComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
     app = fixture.debugElement.componentInstance;
-    connectionsService = TestBed.inject(ConnectionsService);
-    companyService = TestBed.inject(CompanyService);
+    // connectionsService = TestBed.inject(ConnectionsService);
+    // companyService = TestBed.inject(CompanyService);
     fixture.detectChanges();
 
     spyOn(app, 'logOut');
@@ -118,6 +118,11 @@ fdescribe('AppComponent', () => {
 
   afterEach(() => {
     localStorage.removeItem('token_expiration');
+    (app.logOut as jasmine.Spy)?.calls.reset?.();
+    (app['router'].navigate as jasmine.Spy)?.calls.reset?.();
+    mockUiSettingsService.getUiSettings.calls.reset?.();
+    mockCompanyService.getCompanyLogo.calls.reset?.();
+    mockUserService.fetchUser.calls.reset?.();
   });
 
   it('should create the app', () => {
@@ -298,7 +303,4 @@ fdescribe('AppComponent', () => {
     expect(app.logOut).toHaveBeenCalledWith(true);
     expect(app['router'].navigate).toHaveBeenCalledWith(['/login']);
   }));
-
-
-
 });
