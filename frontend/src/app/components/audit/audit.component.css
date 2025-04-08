@@ -50,9 +50,29 @@ th.mat-header-cell, td.mat-cell {
     padding-right: 20px;
 }
 
-.table-cell-content_break-words {
-    padding: 16px 0;
-    word-break: break-all;
+.table-cell-content {
+    padding: 4px 0;
+}
+
+.date-cell {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.status-badge.success {
+    background-color: #e6f4ea;
+    color: #1e4620;
+}
+
+.status-badge.error {
+    background-color: #fdeded;
+    color: #5f2120;
 }
 
 .table-wrapper {
@@ -98,4 +118,17 @@ th.mat-header-cell, td.mat-cell {
 
 .hidden {
     display: none;
+}
+
+.action-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: rgba(0, 0, 0, 0.54);
 }

@@ -1,11 +1,11 @@
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
+import { format, isToday } from 'date-fns';
 
 import { CollectionViewer } from '@angular/cdk/collections';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { format } from 'date-fns'
 
 interface Column {
   title: string,
@@ -60,24 +60,40 @@ export class AuditDataSource implements DataSource<Object> {
             finalize(() => this.loadingSubject.next(false))
         )
         .subscribe((res: any) => {
-
           const actions = {
             addRow: 'added row',
             deleteRow: 'deleted row',
             updateRow: 'edit row',
             rowReceived: 'received row',
-            rowsReceived: 'received rows'
+            rowsReceived: 'received rows',
+            ruleAction: (actionName: string) => actionName
           }
           const formattedLogs = res.logs.map(log => {
             const date = new Date(log.createdAt);
-            const formattedDate = format(date, "P p")
+            const formattedDate = format(date, "d MMM yyyy, p");
+
+            // Handle action name
+            let actionName = log.operationType;
+            let actionIcon = null;
+
+            if (log.operationType === 'actionActivated' && log.actionName) {
+              actionName = log.actionName;
+              actionIcon = log.icon;
+            } else if (log.operationType === 'ruleAction' && log.actionName) {
+              actionName = actions.ruleAction(log.actionName);
+              actionIcon = log.icon || 'rule';
+            } else {
+              actionName = actions[log.operationType] || log.operationType;
+            }
+
             return {
               ['Table']: log.table_name,
               ['User']: log.email,
-              ['Action']: actions[log.operationType],
+              ['Action']: actionName,
               ['Date']: formattedDate,
               ['Status']: log.operationStatusResult,
               operationType: log.operationType,
+              actionIcon: actionIcon,
               createdAt: log.createdAt,
               prevValue: log.old_data,
               currentValue: log.received_data,

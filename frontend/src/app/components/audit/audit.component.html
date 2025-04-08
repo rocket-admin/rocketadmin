@@ -72,20 +72,40 @@
             <ng-container [matColumnDef]="column" *ngFor="let column of dataColumns">
                 <th mat-header-cell *matHeaderCellDef> {{ column }} </th>
                 <td mat-cell *matCellDef="let element">
-                    <div class="table-cell-content" >
-                        {{element[column] || '—'}}
+                    <div class="table-cell-content" [ngClass]="{'date-cell': column === 'Date'}" >
+                        <ng-container *ngIf="column === 'Status'; else actionOrRegularCell">
+                            <span class="status-badge" [ngClass]="{
+                                'success': element[column] === 'successfully',
+                                'error': element[column] === 'unsuccessfully'
+                            }">
+                                {{element[column] || '—'}}
+                            </span>
+                        </ng-container>
+                        <ng-template #actionOrRegularCell>
+                            <ng-container *ngIf="column === 'Action'; else regularCell">
+                                <div class="action-cell">
+                                    <mat-icon class="action-icon">
+                                        {{getActionIcon(element.operationType, element.actionIcon)}}
+                                    </mat-icon>
+                                    <span>{{element[column] || '—'}}</span>
+                                </div>
+                            </ng-container>
+                        </ng-template>
+                        <ng-template #regularCell>
+                            {{element[column] || '—'}}
+                        </ng-template>
                     </div>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="Details">
-                <th mat-header-cell *matHeaderCellDef> Details </th>
+                <th mat-header-cell *matHeaderCellDef> Changes </th>
                 <td mat-cell *matCellDef="let element">
                     <button mat-button color="primary"
                         angulartics2On="click"
                         angularticsAction="Audit: view changes is clicked"
                         (click)="openInfoLogDialog(element)">
-                        View changes
+                        Details
                     </button>
                 </td>
             </ng-container>

@@ -27,6 +27,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
 import { tap } from 'rxjs/operators';
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-audit',
@@ -41,6 +42,7 @@ import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-da
     MatButtonModule,
     MatTableModule,
     MatPaginatorModule,
+    MatIconModule,
     FormsModule,
     RouterModule,
     Angulartics2OnModule,
@@ -142,5 +144,30 @@ export class AuditComponent implements OnInit, OnDestroy {
   openIntercome() {
     // @ts-ignore
     Intercom('show');
+  }
+
+  getActionIcon(operationType: string, actionIcon?: string): string {
+    if ((operationType === 'ruleAction' || operationType === 'actionActivated') && actionIcon) {
+      return actionIcon;
+    }
+
+    switch (operationType) {
+      case 'addRow':
+        return 'add';
+      case 'deleteRow':
+        return 'delete';
+      case 'updateRow':
+        return 'edit';
+      case 'rowReceived':
+        return 'download';
+      case 'rowsReceived':
+        return 'download';
+      case 'ruleAction':
+        return 'rule';
+      case 'actionActivated':
+        return 'rule';
+      default:
+        return 'info';
+    }
   }
 }
