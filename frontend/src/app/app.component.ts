@@ -27,7 +27,6 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
-import { normalizeTableName } from './lib/normalize';
 import { CompanyService } from './services/company.service';
 
 //@ts-ignore
@@ -71,12 +70,9 @@ export class AppComponent {
   activeLink: string;
   navigationTabs: object;
   currentUser: User;
-  normalizedTableName;
   page: string;
   logo: any;
   // upgradeButtonShown: boolean = true;
-
-  // connectionID: string;
 
   constructor (
     private changeDetector: ChangeDetectorRef,
@@ -166,6 +162,7 @@ export class AppComponent {
 
         if (expirationTime && currantTime) {
           const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
+          console.log('expirationInterval', expirationInterval);
           if (expirationInterval > 0) {
             this.initializeUserSession();
 
@@ -188,10 +185,6 @@ export class AppComponent {
     })
   }
 
-  // get name() {
-  //   return this._connections.name;
-  // }
-
   get isCustomAccentedColor() {
     return this._connections.isCustomAccentedColor;
   }
@@ -200,21 +193,12 @@ export class AppComponent {
     return this._connections.connectionID;
   }
 
-  // get currantConnection() {
-  //   return this._connections.currentConnection;
-  // }
-
   get visibleTabs() {
     return this._connections.visibleTabs;
   }
 
   get currentTab() {
     return this._connections.currentTab;
-  }
-
-  get tableName() {
-    this.normalizedTableName = normalizeTableName(this._tables.currentTableName);
-    return this._tables.currentTableName;
   }
 
   initializeUserSession() {
@@ -243,7 +227,6 @@ export class AppComponent {
   dismissFeatureNotification() {
     this._uiSettings.updateGlobalSetting('lastFeatureNotificationId', this.currentFeatureNotificationId)
     this.isFeatureNotificationShown = false;
-    // this.changeDetector.detectChanges();
   }
 
   setUserLoggedIn(state) {
@@ -255,9 +238,9 @@ export class AppComponent {
     try {
       // @ts-ignore
       google.accounts.id.revoke(this.currentUser.email, done => {
-       console.log('consent revoked');
-       console.log(done);
-       console.log(this.currentUser.email);
+        console.log('consent revoked');
+        console.log(done);
+        console.log(this.currentUser.email);
       });
     } catch(error) {
       console.log('google error');
