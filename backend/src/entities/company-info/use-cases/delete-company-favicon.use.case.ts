@@ -7,7 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable()
-export class DeleteCompanyLogoUseCase
+export class DeleteCompanyFaviconUseCase
   extends AbstractUseCase<string, SuccessResponse>
   implements IDeleteCompanyWhiteLabelImages
 {
@@ -19,12 +19,12 @@ export class DeleteCompanyLogoUseCase
   }
 
   protected async implementation(companyId: string): Promise<SuccessResponse> {
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithLogo(companyId);
+    const company = await this._dbContext.companyInfoRepository.findCompanyWithFavicon(companyId);
     if (!company) {
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
     }
 
-    const logoForDeletion = await this._dbContext.companyLogoRepository.findOne({
+    const faviconForDeletion = await this._dbContext.companyFaviconRepository.findOne({
       where: {
         company: {
           id: companyId,
@@ -32,11 +32,11 @@ export class DeleteCompanyLogoUseCase
       },
     });
 
-    if (!logoForDeletion) {
-      throw new NotFoundException(Messages.COMPANY_LOGO_NOT_FOUND);
+    if (!faviconForDeletion) {
+      throw new NotFoundException(Messages.COMPANY_FAVICON_NOT_FOUND);
     }
 
-    await this._dbContext.companyLogoRepository.remove(logoForDeletion);
+    await this._dbContext.companyFaviconRepository.remove(faviconForDeletion);
     return { success: true };
   }
 }

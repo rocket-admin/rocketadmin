@@ -1,15 +1,15 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { IDeleteCompanyWhiteLabelImages } from './company-info-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { IDeleteCompanyTabTitle } from './company-info-use-cases.interface.js';
 
-@Injectable()
-export class DeleteCompanyLogoUseCase
+@Injectable({ scope: Scope.REQUEST })
+export class DeleteCompanyTabTitleUseCase
   extends AbstractUseCase<string, SuccessResponse>
-  implements IDeleteCompanyWhiteLabelImages
+  implements IDeleteCompanyTabTitle
 {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -19,12 +19,12 @@ export class DeleteCompanyLogoUseCase
   }
 
   protected async implementation(companyId: string): Promise<SuccessResponse> {
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithLogo(companyId);
+    const company = await this._dbContext.companyInfoRepository.findCompanyWithTabTitle(companyId);
     if (!company) {
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
     }
 
-    const logoForDeletion = await this._dbContext.companyLogoRepository.findOne({
+    const tabTitleForDeletion = await this._dbContext.companyTabTitleRepository.findOne({
       where: {
         company: {
           id: companyId,
@@ -32,11 +32,11 @@ export class DeleteCompanyLogoUseCase
       },
     });
 
-    if (!logoForDeletion) {
-      throw new NotFoundException(Messages.COMPANY_LOGO_NOT_FOUND);
+    if (!tabTitleForDeletion) {
+      throw new NotFoundException(Messages.COMPANY_TAB_TITLE_NOT_FOUND);
     }
 
-    await this._dbContext.companyLogoRepository.remove(logoForDeletion);
+    await this._dbContext.companyTabTitleRepository.remove(tabTitleForDeletion);
     return { success: true };
   }
 }
