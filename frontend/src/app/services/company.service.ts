@@ -17,6 +17,7 @@ export class CompanyService {
   public cast = this.company.asObservable();
 
   private companyLogo: string;
+  private companyFavicon: string;
 
   constructor(
     private _http: HttpClient,
@@ -24,8 +25,11 @@ export class CompanyService {
     private _configuration: ConfigurationService
   ) { }
 
-  get logo() {
-    return this.companyLogo;
+  get whiteLabelSettings() {
+    return {
+      logo: this.companyLogo,
+      favicon: this.companyFavicon
+    };
   }
 
   fetchCompany() {
@@ -330,29 +334,8 @@ export class CompanyService {
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar('Logo has been updated. Please rerefresh the page to see the changes.');
-          this.company.next('logo');
-          // this.getCompanyLogo(companyId);
+          this.company.next('updated-white-label-settings');
           return res
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message || err.message);
-          return EMPTY;
-        })
-      );
-  }
-
-  getCompanyLogo(companyId: string) {
-    return this._http.get<any>(`/company/logo/${companyId}`)
-      .pipe(
-        map(res => {
-          if (res.logo && res.logo.image && res.logo.mimeType) {
-            this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
-            return `data:${res.logo.mimeType};base64,${res.logo.image}`;
-          } else {
-            this.companyLogo = null;
-            return null;
-          }
         }),
         catchError((err) => {
           console.log(err);
@@ -366,9 +349,74 @@ export class CompanyService {
     return this._http.delete<any>(`/company/logo/${companyId}`)
       .pipe(
         map(res => {
-          this._notifications.showSuccessSnackbar('Logo has been removed.');
-          this.company.next('logo');
+          this._notifications.showSuccessSnackbar('Logo has been removed. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
           return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  uploadFavicon(companyId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post<any>(`/company/favicon/${companyId}`, formData)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Favicon has been updated. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  removeFavicon(companyId: string) {
+    return this._http.delete<any>(`/company/favicon/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Favicon has been removed. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+
+  getWhiteLabelProperties(companyId: string) {
+    return this._http.get<any>(`/company/white-label-properties/${companyId}`)
+      .pipe(
+        map(res => {
+          if (res.logo && res.logo.image && res.logo.mimeType) {
+            this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
+          } else {
+            this.companyLogo = null;
+          }
+
+          if (res.favicon && res.favicon.image && res.favicon.mimeType) {
+            this.companyFavicon = `data:${res.favicon.mimeType};base64,${res.favicon.image}`;
+          } else {
+            this.companyFavicon = null;
+          }
+
+          return {
+            logo: this.companyLogo,
+            favicon: this.companyFavicon,
+          }
         }),
         catchError((err) => {
           console.log(err);

@@ -71,8 +71,14 @@ export class AppComponent {
   navigationTabs: object;
   currentUser: User;
   page: string;
-  logo: any;
-  // upgradeButtonShown: boolean = true;
+  whiteLabelSettingsLoaded = false;
+  whiteLabelSettings: {
+    logo: string,
+    favicon: string,
+  } = {
+    logo: '',
+    favicon: ''
+  }
 
   constructor (
     private changeDetector: ChangeDetectorRef,
@@ -118,6 +124,12 @@ export class AppComponent {
       localStorage.setItem('token_expiration', expirationDateString.toString());
     };
 
+    const expirationToken = localStorage.getItem('token_expiration');
+
+    if (!expirationToken) {
+      this.setUserLoggedIn(false);
+    }
+
     this.navigationTabs = {
       'dashboard': {
         caption: 'Tables'
@@ -154,9 +166,8 @@ export class AppComponent {
         }, expirationInterval);
 
       }
-      // app initialization if user is logged in
-      else if (res !== 'delete') {
-        const expirationToken = localStorage.getItem('token_expiration');
+      // app initialization if user is logged in (session restoration)
+      if (expirationToken) {
         const expirationTime = expirationToken ? new Date(expirationToken) : null;
         const currantTime = new Date();
 
@@ -214,17 +225,18 @@ export class AppComponent {
           user_id: res.id,
           email: res.email
         });
-        this._company.getCompanyLogo(res.company.id).subscribe( logo => {
-          this.logo = logo;
+        this._company.getWhiteLabelProperties(res.company.id).subscribe( whiteLabelSettings => {
+          this.whiteLabelSettings.logo = whiteLabelSettings.logo;
+          this.whiteLabelSettingsLoaded = true;
 
-          if (logo) {
+          if (whiteLabelSettings.favicon) {
             const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
             if (link) {
-              link.href = logo;
+              link.href = whiteLabelSettings.favicon;
             } else {
               const newLink = document.createElement('link');
               newLink.rel = 'icon';
-              newLink.href = logo;
+              newLink.href = whiteLabelSettings.favicon;
               document.head.appendChild(newLink);
             }
           } else {
@@ -249,7 +261,7 @@ export class AppComponent {
             document.head.appendChild(favicon32);
           }
 
-
+          // this.whiteLabelSettingsLoaded = true;
         })
         this._uiSettings.getUiSettings().subscribe(settings => {
           this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
