@@ -86,7 +86,7 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    t.is(Object.keys(foundCompanyInfoRO).length, 10);
+    t.is(Object.keys(foundCompanyInfoRO).length, 12);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
@@ -127,7 +127,7 @@ test.serial(`${currentTest} should return full found company info for company ad
     t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 15);
+    t.is(Object.keys(foundCompanyInfoRO).length, 17);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -179,7 +179,7 @@ test.serial(`${currentTest} should return found company info for non-admin user`
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(Object.keys(foundCompanyInfoRO).length, 10);
+    t.is(Object.keys(foundCompanyInfoRO).length, 12);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
