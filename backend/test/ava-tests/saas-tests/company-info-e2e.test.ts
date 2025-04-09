@@ -595,6 +595,33 @@ test.serial(`${currentTest} should return users in company`, async (t) => {
   t.is(usersInCompany.status, 200);
   const usersInCompanyRO = JSON.parse(usersInCompany.text);
   t.is(usersInCompanyRO.length, 2);
+
+  usersInCompanyRO.forEach((user) => {
+    t.true('id' in user);
+    t.true('isActive' in user);
+    t.true('email' in user);
+    t.true('createdAt' in user);
+    t.true('suspended' in user);
+    t.true('name' in user);
+    t.true('is_2fa_enabled' in user);
+    t.true('role' in user);
+    t.true('externalRegistrationProvider' in user);
+    t.true('user_membership' in user);
+    t.true('has_groups' in user);
+
+    t.true(Array.isArray(user.user_membership));
+    user.user_membership.forEach((user_membership) => {
+      t.true('id' in user_membership);
+      t.true('title' in user_membership);
+      t.true('database' in user_membership);
+      t.true(Array.isArray(user_membership.groups));
+      user_membership.groups.forEach((group) => {
+        t.true('id' in group);
+        t.true('title' in group);
+        t.is(Object.keys(group).length, 2);
+      });
+    });
+  });
 });
 
 currentTest = `PUT company/users/roles/:companyId`;

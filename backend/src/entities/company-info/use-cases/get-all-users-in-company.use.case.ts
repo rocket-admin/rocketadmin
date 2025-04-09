@@ -30,24 +30,42 @@ export class GetAllUsersInCompanyUseCase
         HttpStatus.NOT_FOUND,
       );
     }
+    const foundUsers = foundCompany.users;
 
-    const foundUsers: SimpleFoundUserInCompanyInfoDs[] = foundCompany.users
-      .map((user) => {
-        const simpleUserInfoDs = buildSimpleUserInfoDs(user);
-        return { ...simpleUserInfoDs, has_groups: false };
-      })
-      .filter((user) => user !== null);
+    const responseObjects: Array<SimpleFoundUserInCompanyInfoDs> = [];
 
     const queue = new PQueue({ concurrency: 3 });
-
     await Promise.all(
       foundUsers.map(async (user) => {
         await queue.add(async () => {
-          const userGroupsCount = await this._dbContext.groupRepository.countAllUserGroups(user.id);
-          user.has_groups = userGroupsCount > 0;
+          if (!user) {
+            return;
+          }
+          const usersConnectionsWithGroups = await this._dbContext.connectionRepository.findAllUserNonTestsConnections(
+            user.id,
+          );
+          const userInfo = buildSimpleUserInfoDs(user);
+          const userRO: SimpleFoundUserInCompanyInfoDs = {
+            ...userInfo,
+            user_membership: usersConnectionsWithGroups.map((connection) => {
+              return {
+                id: connection.id,
+                title: connection.title,
+                database: connection.database,
+                groups: connection.groups.map((group) => {
+                  return {
+                    id: group.id,
+                    title: group.title,
+                  };
+                }),
+              };
+            }),
+            has_groups: usersConnectionsWithGroups.length > 0,
+          };
+          responseObjects.push(userRO);
         });
       }),
     );
-    return foundUsers;
+    return responseObjects;
   }
 }
