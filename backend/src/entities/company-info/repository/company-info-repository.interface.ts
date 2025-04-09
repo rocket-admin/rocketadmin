@@ -33,4 +33,6 @@ export interface ICompanyInfoRepository {
   findCompanyWithFavicon(companyId: string): Promise<CompanyInfoEntity>;
 
   findCompanyWithTabTitle(companyId: string): Promise<CompanyInfoEntity>;
+
+  findCompanyWithWhiteLabelProperties(companyId: string): Promise<CompanyInfoEntity>;
 }

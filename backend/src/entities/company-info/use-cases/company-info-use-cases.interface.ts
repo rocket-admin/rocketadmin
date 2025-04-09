@@ -22,6 +22,7 @@ import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/
 import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
 import { UploadCompanyWhiteLabelImages } from '../application/data-structures/upload-company-white-label-images.ds.js';
 import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from '../application/dto/found-company-logo.ro.js';
+import { FoundCompanyWhiteLabelPropertiesRO } from '../application/dto/found-company-white-label-properties.ro.js';
 
 export interface IInviteUserInCompanyAndConnectionGroup {
   execute(inputData: InviteUserInCompanyAndConnectionGroupDs): Promise<InvitedUserInCompanyAndConnectionGroupDs>;
@@ -113,4 +114,8 @@ export interface IFindCompanyTabTitle {
 
 export interface IDeleteCompanyTabTitle {
   execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IGetCompanyWhiteLabelProperties {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyWhiteLabelPropertiesRO>;
 }

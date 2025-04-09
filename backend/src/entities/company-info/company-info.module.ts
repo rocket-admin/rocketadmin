@@ -41,6 +41,7 @@ import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { AddCompanyTabTitleUseCase } from './use-cases/add-company-tab-title.use.case.js';
 import { FindCompanyTabTitleUseCase } from './use-cases/find-company-tab-title.use.case.js';
 import { DeleteCompanyTabTitleUseCase } from './use-cases/delete-company-tab-title.use.case.js';
+import { FindCompanyWhiteLabelPropertiesUseCase } from './use-cases/find-company-white-label-properties.use.case.js';
 
 @Module({
   imports: [
@@ -167,6 +168,10 @@ import { DeleteCompanyTabTitleUseCase } from './use-cases/delete-company-tab-tit
       provide: UseCaseType.DELETE_COMPANY_TAB_TITLE,
       useClass: DeleteCompanyTabTitleUseCase,
     },
+    {
+      provide: UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES,
+      useClass: FindCompanyWhiteLabelPropertiesUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -197,6 +202,7 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/tab-title/:companyId', method: RequestMethod.POST },
         { path: '/company/tab-title/:companyId', method: RequestMethod.GET },
         { path: '/company/tab-title/:companyId', method: RequestMethod.DELETE },
+        { path: '/company/white-label-properties/:companyId', method: RequestMethod.GET },
       );
   }
 }

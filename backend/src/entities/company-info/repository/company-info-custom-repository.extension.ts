@@ -163,4 +163,13 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .where('company_info.id = :companyId', { companyId })
       .getOne();
   },
+
+  async findCompanyWithWhiteLabelProperties(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.logo', 'logo')
+      .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
+      .where('company_info.id = :companyId', { companyId })
+      .getOne();
+  },
 };

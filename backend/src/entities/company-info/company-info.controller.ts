@@ -64,6 +64,7 @@ import {
   IFindCompanyLogo,
   IFindCompanyTabTitle,
   IGetCompanyName,
+  IGetCompanyWhiteLabelProperties,
   IGetUserCompany,
   IGetUserEmailCompanies,
   IGetUserFullCompanyInfo,
@@ -81,6 +82,7 @@ import {
 } from './use-cases/company-info-use-cases.interface.js';
 import { AddCompanyTabTitleDto } from './application/data-structures/add-company-tab-title.dto.js';
 import { FoundCompanyTabTitleRO } from './application/data-structures/found-company-tab-title.ro.js';
+import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-company-white-label-properties.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -141,6 +143,8 @@ export class CompanyInfoController {
     private readonly findCompanyTabTitleUseCase: IFindCompanyTabTitle,
     @Inject(UseCaseType.DELETE_COMPANY_TAB_TITLE)
     private readonly deleteCompanyTabTitleUseCase: IDeleteCompanyTabTitle,
+    @Inject(UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES)
+    private readonly findCompanyWhiteLabelPropertiesUseCase: IGetCompanyWhiteLabelProperties,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -632,5 +636,20 @@ export class CompanyInfoController {
   @Delete('/tab-title/:companyId')
   async deleteCompanyTabTitle(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
     return await this.deleteCompanyTabTitleUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Get company white label properties' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company white label properties found.',
+    type: FoundCompanyWhiteLabelPropertiesRO,
+  })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyUserGuard)
+  @Get('/white-label-properties/:companyId')
+  async getCompanyWhiteLabelProperties(
+    @SlugUuid('companyId') companyId: string,
+  ): Promise<FoundCompanyWhiteLabelPropertiesRO> {
+    return await this.findCompanyWhiteLabelPropertiesUseCase.execute(companyId, InTransactionEnum.OFF);
   }
 }
