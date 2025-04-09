@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-export class FoundCompanyLogoInfo {
+export class FoundCompanyImageInfo {
   @ApiProperty({ type: 'string', format: 'base64' })
   image: string;
 
@@ -8,6 +8,11 @@ export class FoundCompanyLogoInfo {
 }
 
 export class FoundCompanyLogoRO {
-  @ApiProperty({ type: FoundCompanyLogoInfo })
-  logo: FoundCompanyLogoInfo;
+  @ApiProperty({ type: FoundCompanyImageInfo })
+  logo: FoundCompanyImageInfo;
+}
+
+export class FoundCompanyFaviconRO {
+  @ApiProperty({ type: FoundCompanyImageInfo })
+  favicon: FoundCompanyImageInfo;
 }

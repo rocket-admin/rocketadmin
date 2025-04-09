@@ -4,6 +4,7 @@ import { ConnectionEntity } from '../connection/connection.entity.js';
 import { InvitationInCompanyEntity } from './invitation-in-company/invitation-in-company.entity.js';
 import { generateCompanyName } from './utils/get-company-name.js';
 import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
+import { CompanyFaviconEntity } from '../company-favicon/company-favicon.entity.js';
 
 @Entity('company_info')
 export class CompanyInfoEntity {
@@ -48,4 +49,9 @@ export class CompanyInfoEntity {
     onDelete: 'NO ACTION',
   })
   logo: Relation<CompanyLogoEntity>;
+
+  @OneToOne((_) => CompanyFaviconEntity, (favicon) => favicon.company, {
+    onDelete: 'NO ACTION',
+  })
+  favicon: Relation<CompanyFaviconEntity>;
 }

@@ -45,6 +45,7 @@ import { FoundCompanyNameDs } from './application/data-structures/found-company-
 import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
+import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
 import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
@@ -56,7 +57,8 @@ import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-comp
 import {
   ICheckVerificationLinkAvailable,
   IDeleteCompany,
-  IDeleteCompanyLogo,
+  IDeleteCompanyWhiteLabelImages,
+  IFindCompanyFavicon,
   IFindCompanyLogo,
   IGetCompanyName,
   IGetUserCompany,
@@ -71,10 +73,9 @@ import {
   IUpdateCompanyName,
   IUpdateUsers2faStatusInCompany,
   IUpdateUsersCompanyRoles,
-  IUploadCompanyLogo,
+  IUploadCompanyWhiteLabelImages,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
-import { FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -118,11 +119,17 @@ export class CompanyInfoController {
     @Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY)
     private readonly toggleTestConnectionsCompanyDisplayModeUseCase: IToggleCompanyTestConnectionsMode,
     @Inject(UseCaseType.UPLOAD_COMPANY_LOGO)
-    private readonly uploadCompanyLogoUseCase: IUploadCompanyLogo,
+    private readonly uploadCompanyLogoUseCase: IUploadCompanyWhiteLabelImages,
     @Inject(UseCaseType.FIND_COMPANY_LOGO)
     private readonly findCompanyLogoUseCase: IFindCompanyLogo,
     @Inject(UseCaseType.DELETE_COMPANY_LOGO)
-    private readonly deleteCompanyLogoUseCase: IDeleteCompanyLogo,
+    private readonly deleteCompanyLogoUseCase: IDeleteCompanyWhiteLabelImages,
+    @Inject(UseCaseType.UPLOAD_COMPANY_FAVICON)
+    private readonly uploadCompanyFaviconUseCase: IUploadCompanyWhiteLabelImages,
+    @Inject(UseCaseType.FIND_COMPANY_FAVICON)
+    private readonly findCompanyFaviconUseCase: IFindCompanyFavicon,
+    @Inject(UseCaseType.DELETE_COMPANY_FAVICON)
+    private readonly deleteCompanyFaviconUseCase: IDeleteCompanyWhiteLabelImages,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -516,5 +523,55 @@ export class CompanyInfoController {
   @Delete('/logo/:companyId')
   async deleteCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
     return await this.deleteCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Upload company favicon' })
+  @ApiResponse({
+    status: 201,
+    description: 'Company favicon was uploaded.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Post('/favicon/:companyId')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCompanyFavicon(
+    @SlugUuid('companyId') companyId: string,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
+        .addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_FAVICON_SIZE })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+    )
+    file: Express.Multer.File,
+  ): Promise<SuccessResponse> {
+    if (!file) {
+      throw new BadRequestException(Messages.FILE_MISSING);
+    }
+    return await this.uploadCompanyFaviconUseCase.execute({ companyId, file }, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Find company favicon' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company favicon found.',
+    type: FoundCompanyFaviconRO,
+  })
+  @UseGuards(CompanyUserGuard)
+  @Get('/favicon/:companyId')
+  async findCompanyFavicon(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyFaviconRO> {
+    return await this.findCompanyFaviconUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Delete company favicon' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company favicon deleted.',
+    type: SuccessResponse,
+  })
+  @ApiQuery({ name: 'companyId', required: true })
+  @UseGuards(CompanyAdminGuard)
+  @Delete('/favicon/:companyId')
+  async deleteCompanyFavicon(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
+    return await this.deleteCompanyFaviconUseCase.execute(companyId, InTransactionEnum.OFF);
   }
 }

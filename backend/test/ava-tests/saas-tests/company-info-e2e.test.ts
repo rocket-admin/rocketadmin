@@ -1271,3 +1271,128 @@ test.serial(`${currentTest} should create and return found company logo after cr
   const isFileExistsForSimpleUserWithLogo = fs.existsSync(downloadedLogoPatchForSimpleUserWithLogo);
   t.is(isFileExistsForSimpleUserWithLogo, true);
 });
+
+currentTest = 'POST & GET /company/favicon/:companyId';
+test.serial(`${currentTest} should create and return found company favicon after creation`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
+  const downloadedFaviconPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_favicon.png`);
+
+  const createFaviconResponse = await request(app.getHttpServer())
+    .post(`/company/favicon/${foundCompanyInfoRO.id}`)
+    .attach('file', testFaviconPatch)
+    .set('Content-Type', 'image/png')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'image/png');
+
+  const createFaviconRO = JSON.parse(createFaviconResponse.text);
+  t.is(createFaviconResponse.status, 201);
+
+  const foundCompanyFavicon = await request(app.getHttpServer())
+    .get(`/company/favicon/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyFavicon.status, 200);
+  const foundCompanyFaviconRO = JSON.parse(foundCompanyFavicon.text);
+  t.is(foundCompanyFaviconRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyFaviconRO.favicon.image.length > 0, true);
+  fs.writeFileSync(downloadedFaviconPatch, foundCompanyFaviconRO.favicon.image);
+  const isFileExists = fs.existsSync(downloadedFaviconPatch);
+
+  t.is(isFileExists, true);
+
+  // should return company favicon for simple user
+
+  const foundCompanyFaviconForSimpleUser = await request(app.getHttpServer())
+    .get(`/company/favicon/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyFaviconForSimpleUser.status, 200);
+  const foundCompanyFaviconForSimpleUserRO = JSON.parse(foundCompanyFaviconForSimpleUser.text);
+  t.is(foundCompanyFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyFaviconForSimpleUserRO.favicon.image.length > 0, true);
+
+  const downloadedFaviconPatchForSimpleUser = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoRO.id}_simple_user_favicon.png`,
+  );
+  fs.writeFileSync(downloadedFaviconPatchForSimpleUser, foundCompanyFaviconForSimpleUserRO.favicon.image);
+  const isFileExistsForSimpleUser = fs.existsSync(downloadedFaviconPatchForSimpleUser);
+  t.is(isFileExistsForSimpleUser, true);
+
+  //should return favicon in full company info for admin
+  const foundCompanyInfoWithFavicon = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithFavicon.status, 200);
+  const foundCompanyInfoWithFaviconRO = JSON.parse(foundCompanyInfoWithFavicon.text);
+  t.is(foundCompanyInfoWithFaviconRO.hasOwnProperty('favicon'), true);
+  t.is(foundCompanyInfoWithFaviconRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithFaviconRO.favicon.image.length > 0, true);
+
+  const downloadedFaviconPatchWithFavicon = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithFaviconRO.id}_admin_user_favicon.png`,
+  );
+  fs.writeFileSync(downloadedFaviconPatchWithFavicon, foundCompanyInfoWithFaviconRO.favicon.image);
+  const isFileExistsWithFavicon = fs.existsSync(downloadedFaviconPatchWithFavicon);
+  t.is(isFileExistsWithFavicon, true);
+
+  //should return favicon in full company info for simple user
+  const foundCompanyInfoWithFaviconForSimpleUser = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithFaviconForSimpleUser.status, 200);
+  const foundCompanyInfoWithFaviconForSimpleUserRO = JSON.parse(foundCompanyInfoWithFaviconForSimpleUser.text);
+  t.is(foundCompanyInfoWithFaviconForSimpleUserRO.hasOwnProperty('favicon'), true);
+  t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image.length > 0, true);
+
+  const downloadedFaviconPatchForSimpleUserWithFavicon = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithFaviconForSimpleUserRO.id}_simple_user_favicon.png`,
+  );
+  fs.writeFileSync(
+    downloadedFaviconPatchForSimpleUserWithFavicon,
+    foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image,
+  );
+  const isFileExistsForSimpleUserWithFavicon = fs.existsSync(downloadedFaviconPatchForSimpleUserWithFavicon);
+  t.is(isFileExistsForSimpleUserWithFavicon, true);
+});

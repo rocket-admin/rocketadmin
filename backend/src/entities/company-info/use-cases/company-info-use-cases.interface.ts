@@ -18,8 +18,8 @@ import { ToggleTestConnectionDisplayModeDs } from '../application/data-structure
 import { UpdateCompanyNameDS } from '../application/data-structures/update-company-name.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/update-users-2fa-status-in-company.ds.js';
 import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
-import { UploadCompanyLogoDs } from '../application/data-structures/upload-company-logo.ds.js';
-import { FoundCompanyLogoRO } from '../application/dto/found-company-logo.ro.js';
+import { UploadCompanyWhiteLabelImages } from '../application/data-structures/upload-company-white-label-images.ds.js';
+import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from '../application/dto/found-company-logo.ro.js';
 
 export interface IInviteUserInCompanyAndConnectionGroup {
   execute(inputData: InviteUserInCompanyAndConnectionGroupDs): Promise<InvitedUserInCompanyAndConnectionGroupDs>;
@@ -85,14 +85,18 @@ export interface IToggleCompanyTestConnectionsMode {
   execute(inputData: ToggleTestConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
-export interface IUploadCompanyLogo {
-  execute(inputData: UploadCompanyLogoDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+export interface IUploadCompanyWhiteLabelImages {
+  execute(inputData: UploadCompanyWhiteLabelImages, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IFindCompanyLogo {
   execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyLogoRO>;
 }
 
-export interface IDeleteCompanyLogo {
+export interface IFindCompanyFavicon {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyFaviconRO>;
+}
+
+export interface IDeleteCompanyWhiteLabelImages {
   execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

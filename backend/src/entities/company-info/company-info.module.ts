@@ -1,10 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { AuthMiddleware } from '../../authorization/auth.middleware.js';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { InviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/invite-user-in-company.use.case.js';
-import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/verify-invite-user-in-company.use.case.js';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
@@ -16,25 +14,30 @@ import { TableSettingsEntity } from '../table-settings/table-settings.entity.js'
 import { UserEntity } from '../user/user.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { CompanyInfoController } from './company-info.controller.js';
-import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js';
-import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
-import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-companies.use.case.js';
+import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification-link.available.use.case.js';
+import { DeleteCompanyFaviconUseCase } from './use-cases/delete-company-favicon.use.case.js';
+import { DeleteCompanyLogoUseCase } from './use-cases/delete-company-logo.use.case.js';
+import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
+import { FindCompanyFaviconUseCase } from './use-cases/find-company-favicon.use.case.js';
+import { FindCompanyLogoUseCase } from './use-cases/find-company-logo.use.case.js';
 import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-company.use.case.js';
+import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
+import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
+import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js';
+import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-companies.use.case.js';
+import { InviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/invite-user-in-company.use.case.js';
 import { RemoveUserFromCompanyUseCase } from './use-cases/remove-user-from-company.use.case.js';
 import { RevokeUserInvitationInCompanyUseCase } from './use-cases/revoke-invitation-in-company.use.case.js';
-import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.case.js';
-import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
-import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company-roles.use.case.js';
-import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
-import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification-link.available.use.case.js';
-import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa-status-in-company.use.case.js';
 import { SuspendUsersInCompanyUseCase } from './use-cases/suspend-users-in-company.use.case.js';
-import { UnsuspendUsersInCompanyUseCase } from './use-cases/unsuspend-users-in-company.use.case.js';
 import { ToggleCompanyTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test-connections-company-display-mode.use.case.js';
-import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
+import { UnsuspendUsersInCompanyUseCase } from './use-cases/unsuspend-users-in-company.use.case.js';
+import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.case.js';
+import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company-roles.use.case.js';
+import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa-status-in-company.use.case.js';
+import { UploadCompanyFaviconUseCase } from './use-cases/upload-company-favicon.use.case.js';
 import { UploadCompanyLogoUseCase } from './use-cases/upload-company-logo-use-case.js';
-import { FindCompanyLogoUseCase } from './use-cases/find-company-logo.use.case.js';
-import { DeleteCompanyLogoUseCase } from './use-cases/delete-company-logo.use.case.js';
+import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/verify-invite-user-in-company.use.case.js';
+import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 
 @Module({
   imports: [
@@ -137,6 +140,18 @@ import { DeleteCompanyLogoUseCase } from './use-cases/delete-company-logo.use.ca
       provide: UseCaseType.DELETE_COMPANY_LOGO,
       useClass: DeleteCompanyLogoUseCase,
     },
+    {
+      provide: UseCaseType.DELETE_COMPANY_FAVICON,
+      useClass: DeleteCompanyFaviconUseCase,
+    },
+    {
+      provide: UseCaseType.FIND_COMPANY_FAVICON,
+      useClass: FindCompanyFaviconUseCase,
+    },
+    {
+      provide: UseCaseType.UPLOAD_COMPANY_FAVICON,
+      useClass: UploadCompanyFaviconUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -161,6 +176,9 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/logo/:companyId', method: RequestMethod.POST },
         { path: '/company/logo/:companyId', method: RequestMethod.GET },
         { path: '/company/logo/:companyId', method: RequestMethod.DELETE },
+        { path: '/company/favicon/:companyId', method: RequestMethod.POST },
+        { path: '/company/favicon/:companyId', method: RequestMethod.GET },
+        { path: '/company/favicon/:companyId', method: RequestMethod.DELETE },
       );
   }
 }
