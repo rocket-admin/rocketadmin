@@ -53,6 +53,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.logo', 'logo')
       .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
       .leftJoinAndSelect('company_info.users', 'current_user')
       .leftJoinAndSelect('company_info.users', 'users')
       .leftJoinAndSelect('company_info.connections', 'connections')
@@ -84,6 +85,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .leftJoinAndSelect('company_info.invitations', 'invitations')
       .leftJoinAndSelect('company_info.logo', 'logo')
       .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
       .where('company_info.id = :companyId', { companyId })
       .getOne();
   },
@@ -95,6 +97,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .leftJoinAndSelect('company_info.users', 'users')
       .leftJoinAndSelect('company_info.logo', 'logo')
       .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
       .leftJoinAndSelect('users.groups', 'groups')
       .leftJoinAndSelect('groups.connection', 'connections')
       .leftJoinAndSelect('connections.author', 'connection_author')
@@ -150,6 +153,13 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
   async findCompanyWithFavicon(companyId: string): Promise<CompanyInfoEntity> {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .where('company_info.id = :companyId', { companyId })
+      .getOne();
+  },
+
+  async findCompanyWithTabTitle(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
       .where('company_info.id = :companyId', { companyId })
       .getOne();
   },

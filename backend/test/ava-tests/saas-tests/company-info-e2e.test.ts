@@ -1396,3 +1396,73 @@ test.serial(`${currentTest} should create and return found company favicon after
   const isFileExistsForSimpleUserWithFavicon = fs.existsSync(downloadedFaviconPatchForSimpleUserWithFavicon);
   t.is(isFileExistsForSimpleUserWithFavicon, true);
 });
+
+currentTest = 'POST & GET /company/tab-title/:companyId';
+test.serial(`${currentTest} should create and return found company tab title after creation`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const newTabTitle = `${faker.company.name()}_${faker.word.noun()}`;
+  const addCompanyTabTitleResponse = await request(app.getHttpServer())
+    .post(`/company/tab-title/${foundCompanyInfoRO.id}`)
+    .send({
+      tab_title: newTabTitle,
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(addCompanyTabTitleResponse.status, 201);
+
+  const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoAfterUpdate.status, 200);
+  const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
+  t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyInfoROAfterUpdate.tab_title, newTabTitle);
+
+  const foundCompanyTabTitle = await request(app.getHttpServer())
+    .get(`/company/tab-title/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyTabTitle.status, 200);
+  const foundCompanyTabTitleRO = JSON.parse(foundCompanyTabTitle.text);
+  t.is(foundCompanyTabTitleRO.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyTabTitleRO.tab_title, newTabTitle);
+
+  //should return tab title in full company info for simple user
+
+  const foundCompanyTabTitleForSimpleUser = await request(app.getHttpServer())
+    .get(`/company/tab-title/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyTabTitleForSimpleUser.status, 200);
+  const foundCompanyTabTitleForSimpleUserRO = JSON.parse(foundCompanyTabTitleForSimpleUser.text);
+  t.is(foundCompanyTabTitleForSimpleUserRO.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyTabTitleForSimpleUserRO.tab_title, newTabTitle);
+});

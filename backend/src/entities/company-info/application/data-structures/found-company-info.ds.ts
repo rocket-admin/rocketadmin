@@ -79,6 +79,9 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty({ required: false, type: FoundCompanyImageInfo })
   favicon: FoundCompanyImageInfo;
+
+  @ApiProperty({ required: false })
+  tab_title: string;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {

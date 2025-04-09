@@ -3,12 +3,14 @@ import { SuccessResponse } from '../../../microservices/saas-microservice/data-s
 import { SimpleFoundUserInCompanyInfoDs } from '../../user/dto/found-user.dto.js';
 import { IToken } from '../../user/utils/generate-gwt-token.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
+import { AddCompanyTabTitleDs } from '../application/data-structures/add-company-tab-title.ds.js';
 import {
   FoundUserCompanyInfoDs,
   FoundUserEmailCompaniesInfoDs,
   FoundUserFullCompanyInfoDs,
 } from '../application/data-structures/found-company-info.ds.js';
 import { FoundCompanyNameDs } from '../application/data-structures/found-company-name.ds.js';
+import { FoundCompanyTabTitleRO } from '../application/data-structures/found-company-tab-title.ro.js';
 import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invite-user-in-company-and-connection-group.ds.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
@@ -98,5 +100,17 @@ export interface IFindCompanyFavicon {
 }
 
 export interface IDeleteCompanyWhiteLabelImages {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IAddCompanyTabTitle {
+  execute(inputData: AddCompanyTabTitleDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IFindCompanyTabTitle {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyTabTitleRO>;
+}
+
+export interface IDeleteCompanyTabTitle {
   execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

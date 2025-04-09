@@ -85,6 +85,7 @@ export function buildFoundCompanyInfoDs(
             mimeType: companyInfoFromCore.favicon.mimeType,
           }
         : null,
+      tab_title: companyInfoFromCore.tab_title?.text ?? null,
     };
   }
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;
@@ -104,6 +105,7 @@ export function buildFoundCompanyInfoDs(
     favicon: companyInfoFromCore.favicon
       ? { image: companyInfoFromCore.favicon.image.toString('base64'), mimeType: companyInfoFromCore.favicon.mimeType }
       : null,
+    tab_title: companyInfoFromCore.tab_title?.text ?? null,
     address: {
       id: companyInfoFromSaas.address?.id,
       city: companyInfoFromSaas.address?.city,

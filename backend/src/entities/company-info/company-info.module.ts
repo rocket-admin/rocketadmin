@@ -38,6 +38,9 @@ import { UploadCompanyFaviconUseCase } from './use-cases/upload-company-favicon.
 import { UploadCompanyLogoUseCase } from './use-cases/upload-company-logo-use-case.js';
 import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/verify-invite-user-in-company.use.case.js';
 import { AuthMiddleware } from '../../authorization/auth.middleware.js';
+import { AddCompanyTabTitleUseCase } from './use-cases/add-company-tab-title.use.case.js';
+import { FindCompanyTabTitleUseCase } from './use-cases/find-company-tab-title.use.case.js';
+import { DeleteCompanyTabTitleUseCase } from './use-cases/delete-company-tab-title.use.case.js';
 
 @Module({
   imports: [
@@ -152,6 +155,18 @@ import { AuthMiddleware } from '../../authorization/auth.middleware.js';
       provide: UseCaseType.UPLOAD_COMPANY_FAVICON,
       useClass: UploadCompanyFaviconUseCase,
     },
+    {
+      provide: UseCaseType.ADD_COMPANY_TAB_TITLE,
+      useClass: AddCompanyTabTitleUseCase,
+    },
+    {
+      provide: UseCaseType.FIND_COMPANY_TAB_TITLE,
+      useClass: FindCompanyTabTitleUseCase,
+    },
+    {
+      provide: UseCaseType.DELETE_COMPANY_TAB_TITLE,
+      useClass: DeleteCompanyTabTitleUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -179,6 +194,9 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/favicon/:companyId', method: RequestMethod.POST },
         { path: '/company/favicon/:companyId', method: RequestMethod.GET },
         { path: '/company/favicon/:companyId', method: RequestMethod.DELETE },
+        { path: '/company/tab-title/:companyId', method: RequestMethod.POST },
+        { path: '/company/tab-title/:companyId', method: RequestMethod.GET },
+        { path: '/company/tab-title/:companyId', method: RequestMethod.DELETE },
       );
   }
 }
