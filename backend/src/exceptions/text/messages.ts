@@ -69,6 +69,8 @@ export const Messages = {
   COMPANY_NOT_EXISTS_IN_CONNECTION: `Connection does not attached to company. Please contact our support team`,
   COMPANY_NOT_FOUND: 'Company not found. Please contact our support team',
   COMPANY_LOGO_NOT_FOUND: 'Company logo not found',
+  COMPANY_FAVICON_NOT_FOUND: 'Company favicon not found',
+  COMPANY_TAB_TITLE_NOT_FOUND: 'Company tab title not found',
   COMPANY_NAME_UPDATE_FAILED_UNHANDLED_ERROR: `Failed to update company name. Please contact our support team.`,
   COMPANY_ID_MISSING: `Company id is missing`,
   COMPANIES_USER_EMAIL_NOT_FOUND: (email: string) => `No companies found for user ${email}`,
@@ -76,6 +78,7 @@ export const Messages = {
   CONNECTION_IS_FROZEN: `Connection is frozen. (This connection type is not available in free plan)`,
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
   CONNECTION_NOT_FOUND: 'Connection with specified parameters not found',
+  CONNECTION_NOT_FOUND_OR_USER_NOT_ADDED_IN_ANY_CONNECTION_GROUP: 'Connection not found or user not added in any group of this',
   CONNECTION_NOT_ENCRYPTED: 'Connection is not encrypted',
   CONNECTION_MASTER_PASSWORD_NOT_SET:
     'Connection master password is not set (or connection created before this feature)',

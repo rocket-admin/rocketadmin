@@ -74,7 +74,32 @@ export class SimpleFoundUserInfoDs {
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
 }
 
+export class UserGroupMembershipDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  title: string;
+}
+
+export class UserConnectionMembershipDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  title: string;
+
+  @ApiProperty()
+  database: string;
+
+  @ApiProperty({ type: UserConnectionMembershipDto, isArray: true })
+  groups: Array<UserGroupMembershipDto>;
+}
+
 export class SimpleFoundUserInCompanyInfoDs extends SimpleFoundUserInfoDs {
   @ApiProperty()
   has_groups: boolean;
+
+  @ApiProperty({ type: UserConnectionMembershipDto, isArray: true })
+  user_membership: Array<UserConnectionMembershipDto>;
 }

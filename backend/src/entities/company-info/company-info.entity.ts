@@ -4,6 +4,8 @@ import { ConnectionEntity } from '../connection/connection.entity.js';
 import { InvitationInCompanyEntity } from './invitation-in-company/invitation-in-company.entity.js';
 import { generateCompanyName } from './utils/get-company-name.js';
 import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
+import { CompanyFaviconEntity } from '../company-favicon/company-favicon.entity.js';
+import { CompanyTabTitleEntity } from '../company-tab-title/company-tab-title.entity.js';
 
 @Entity('company_info')
 export class CompanyInfoEntity {
@@ -48,4 +50,14 @@ export class CompanyInfoEntity {
     onDelete: 'NO ACTION',
   })
   logo: Relation<CompanyLogoEntity>;
+
+  @OneToOne((_) => CompanyFaviconEntity, (favicon) => favicon.company, {
+    onDelete: 'NO ACTION',
+  })
+  favicon: Relation<CompanyFaviconEntity>;
+
+  @OneToOne((_) => CompanyTabTitleEntity, (tab_title) => tab_title.company, {
+    onDelete: 'NO ACTION',
+  })
+  tab_title: Relation<CompanyTabTitleEntity>;
 }

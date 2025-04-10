@@ -37,6 +37,7 @@ export const Constants = {
   NON_FREE_PLAN_CONNECTION_TYPES: [ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql, ConnectionTypesEnum.oracledb],
   MAX_FILE_SIZE_IN_BYTES: 10485760,
   MAX_COMPANY_LOGO_SIZE: 5242880,
+  MAX_COMPANY_FAVICON_SIZE: 5242880,
   PAID_CONNECTIONS_TYPES: [ConnectionTypesEnum.oracledb, ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql],
 
   VERIFICATION_STRING_WHITELIST: () => {

@@ -20,7 +20,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
@@ -45,6 +45,7 @@ import { FoundCompanyNameDs } from './application/data-structures/found-company-
 import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
+import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
 import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
@@ -54,11 +55,16 @@ import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users
 import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
 import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
 import {
+  IAddCompanyTabTitle,
   ICheckVerificationLinkAvailable,
   IDeleteCompany,
-  IDeleteCompanyLogo,
+  IDeleteCompanyTabTitle,
+  IDeleteCompanyWhiteLabelImages,
+  IFindCompanyFavicon,
   IFindCompanyLogo,
+  IFindCompanyTabTitle,
   IGetCompanyName,
+  IGetCompanyWhiteLabelProperties,
   IGetUserCompany,
   IGetUserEmailCompanies,
   IGetUserFullCompanyInfo,
@@ -71,10 +77,12 @@ import {
   IUpdateCompanyName,
   IUpdateUsers2faStatusInCompany,
   IUpdateUsersCompanyRoles,
-  IUploadCompanyLogo,
+  IUploadCompanyWhiteLabelImages,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
-import { FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
+import { AddCompanyTabTitleDto } from './application/data-structures/add-company-tab-title.dto.js';
+import { FoundCompanyTabTitleRO } from './application/data-structures/found-company-tab-title.ro.js';
+import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-company-white-label-properties.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -118,11 +126,25 @@ export class CompanyInfoController {
     @Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY)
     private readonly toggleTestConnectionsCompanyDisplayModeUseCase: IToggleCompanyTestConnectionsMode,
     @Inject(UseCaseType.UPLOAD_COMPANY_LOGO)
-    private readonly uploadCompanyLogoUseCase: IUploadCompanyLogo,
+    private readonly uploadCompanyLogoUseCase: IUploadCompanyWhiteLabelImages,
     @Inject(UseCaseType.FIND_COMPANY_LOGO)
     private readonly findCompanyLogoUseCase: IFindCompanyLogo,
     @Inject(UseCaseType.DELETE_COMPANY_LOGO)
-    private readonly deleteCompanyLogoUseCase: IDeleteCompanyLogo,
+    private readonly deleteCompanyLogoUseCase: IDeleteCompanyWhiteLabelImages,
+    @Inject(UseCaseType.UPLOAD_COMPANY_FAVICON)
+    private readonly uploadCompanyFaviconUseCase: IUploadCompanyWhiteLabelImages,
+    @Inject(UseCaseType.FIND_COMPANY_FAVICON)
+    private readonly findCompanyFaviconUseCase: IFindCompanyFavicon,
+    @Inject(UseCaseType.DELETE_COMPANY_FAVICON)
+    private readonly deleteCompanyFaviconUseCase: IDeleteCompanyWhiteLabelImages,
+    @Inject(UseCaseType.ADD_COMPANY_TAB_TITLE)
+    private readonly addCompanyTabTitleUseCase: IAddCompanyTabTitle,
+    @Inject(UseCaseType.FIND_COMPANY_TAB_TITLE)
+    private readonly findCompanyTabTitleUseCase: IFindCompanyTabTitle,
+    @Inject(UseCaseType.DELETE_COMPANY_TAB_TITLE)
+    private readonly deleteCompanyTabTitleUseCase: IDeleteCompanyTabTitle,
+    @Inject(UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES)
+    private readonly findCompanyWhiteLabelPropertiesUseCase: IGetCompanyWhiteLabelProperties,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -474,6 +496,7 @@ export class CompanyInfoController {
     description: 'Company logo was uploaded.',
     type: SuccessResponse,
   })
+  @ApiParam({ name: 'companyId', required: true })
   @UseGuards(CompanyAdminGuard)
   @Post('/logo/:companyId')
   @UseInterceptors(FileInterceptor('file'))
@@ -499,6 +522,7 @@ export class CompanyInfoController {
     description: 'Company logo found.',
     type: FoundCompanyLogoRO,
   })
+  @ApiParam({ name: 'companyId', required: true })
   @UseGuards(CompanyUserGuard)
   @Get('/logo/:companyId')
   async findCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyLogoRO> {
@@ -511,10 +535,121 @@ export class CompanyInfoController {
     description: 'Company logo deleted.',
     type: SuccessResponse,
   })
-  @ApiQuery({ name: 'companyId', required: true })
+  @ApiParam({ name: 'companyId', required: true })
   @UseGuards(CompanyAdminGuard)
   @Delete('/logo/:companyId')
   async deleteCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
     return await this.deleteCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Upload company favicon' })
+  @ApiResponse({
+    status: 201,
+    description: 'Company favicon was uploaded.',
+    type: SuccessResponse,
+  })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyAdminGuard)
+  @Post('/favicon/:companyId')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCompanyFavicon(
+    @SlugUuid('companyId') companyId: string,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
+        .addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_FAVICON_SIZE })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+    )
+    file: Express.Multer.File,
+  ): Promise<SuccessResponse> {
+    if (!file) {
+      throw new BadRequestException(Messages.FILE_MISSING);
+    }
+    return await this.uploadCompanyFaviconUseCase.execute({ companyId, file }, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Find company favicon' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company favicon found.',
+    type: FoundCompanyFaviconRO,
+  })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyUserGuard)
+  @Get('/favicon/:companyId')
+  async findCompanyFavicon(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyFaviconRO> {
+    return await this.findCompanyFaviconUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Delete company favicon' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company favicon deleted.',
+    type: SuccessResponse,
+  })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyAdminGuard)
+  @Delete('/favicon/:companyId')
+  async deleteCompanyFavicon(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
+    return await this.deleteCompanyFaviconUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Add company tab title' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company tab title added.',
+    type: SuccessResponse,
+  })
+  @ApiBody({ type: AddCompanyTabTitleDto })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyAdminGuard)
+  @Post('/tab-title/:companyId')
+  async addCompanyTabTitle(
+    @SlugUuid('companyId') companyId: string,
+    @Body() addCompanyTabTitleDto: AddCompanyTabTitleDto,
+  ): Promise<SuccessResponse> {
+    const { tab_title } = addCompanyTabTitleDto;
+    return await this.addCompanyTabTitleUseCase.execute({ companyId, tab_title }, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Find company tab title' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company tab title found.',
+    type: FoundCompanyTabTitleRO,
+  })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyUserGuard)
+  @Get('/tab-title/:companyId')
+  async findCompanyTabTitle(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyTabTitleRO> {
+    return await this.findCompanyTabTitleUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Delete company tab title' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company tab title deleted.',
+    type: SuccessResponse,
+  })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyAdminGuard)
+  @Delete('/tab-title/:companyId')
+  async deleteCompanyTabTitle(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
+    return await this.deleteCompanyTabTitleUseCase.execute(companyId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Get company white label properties' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company white label properties found.',
+    type: FoundCompanyWhiteLabelPropertiesRO,
+  })
+  @ApiParam({ name: 'companyId', required: true })
+  @UseGuards(CompanyUserGuard)
+  @Get('/white-label-properties/:companyId')
+  async getCompanyWhiteLabelProperties(
+    @SlugUuid('companyId') companyId: string,
+  ): Promise<FoundCompanyWhiteLabelPropertiesRO> {
+    return await this.findCompanyWhiteLabelPropertiesUseCase.execute(companyId, InTransactionEnum.OFF);
   }
 }

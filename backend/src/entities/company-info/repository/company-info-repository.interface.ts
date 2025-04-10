@@ -29,4 +29,10 @@ export interface ICompanyInfoRepository {
   findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>>;
 
   findCompanyWithLogo(companyId: string): Promise<CompanyInfoEntity>;
+
+  findCompanyWithFavicon(companyId: string): Promise<CompanyInfoEntity>;
+
+  findCompanyWithTabTitle(companyId: string): Promise<CompanyInfoEntity>;
+
+  findCompanyWithWhiteLabelProperties(companyId: string): Promise<CompanyInfoEntity>;
 }
