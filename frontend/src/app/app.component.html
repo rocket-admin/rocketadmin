@@ -63,22 +63,24 @@
                 <img src="../assets/rocketadmin_logo_white.svg" *ngIf="whiteLabelSettings.logo !== '' && !whiteLabelSettings.logo" class="logo__image">
             </a>-->
 
-            <a routerLink="/connections-list"
-                *ngIf="userLoggedIn"
-                class="logo">
-                <img *ngIf="whiteLabelSettingsLoaded"
-                    [src]="whiteLabelSettings.logo || '../assets/rocketadmin_logo_white.svg'"
-                    alt="Logo"
-                    class="logo__image"
-                >
-            </a>
+            <div>
+                <a routerLink="/connections-list"
+                    *ngIf="userLoggedIn"
+                    class="logo">
+                    <img *ngIf="whiteLabelSettingsLoaded"
+                        [src]="whiteLabelSettings.logo || '../assets/rocketadmin_logo_white.svg'"
+                        alt="Logo"
+                        class="logo__image"
+                    >
+                </a>
 
-            <a href="https://rocketadmin.com/" class="logo">
-                <picture *ngIf="userLoggedIn === false">
-                    <source media="(max-width: 767px)" srcset="../assets/rocketadmin_logo_white-short.svg">
-                    <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
-                </picture>
-            </a>
+                <a *ngIf="userLoggedIn === false" href="https://rocketadmin.com/" class="logo">
+                    <picture>
+                        <source media="(max-width: 767px)" srcset="../assets/rocketadmin_logo_white-short.svg">
+                        <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
+                    </picture>
+                </a>
+            </div>
 
             <div *ngIf="connectionID" class="menu">
                 <a mat-button data-testid="connections-list-header-link"
