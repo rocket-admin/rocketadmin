@@ -85,7 +85,7 @@ export class CompanyComponent {
   public submittingFavicon: boolean = false;
 
   get whiteLabelSettings(): {logo: string, favicon: string} {
-    return this._company.whiteLabelSettings;
+    return this._company.whiteLabelSettings || { logo: '', favicon: '' };
   }
 
   constructor(
