@@ -298,7 +298,6 @@ test.serial(`${currentTest} should throw an exception, when connection id is inc
   }
 });
 
-currentTest = 'GET /connection/one/:slug';
 test(`${currentTest} should return a found connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
@@ -343,6 +342,66 @@ test(`${currentTest} should return a found connection`, async (t) => {
     throw e;
   }
 });
+
+test.serial(
+  `${currentTest} should return a found connection when user not added into any connection group`,
+  async (t) => {
+    try {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+        getTestConnectionData();
+      const { token } = await registerUserAndReturnUserInfo(app);
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newConnection)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createConnectionResponse.status, 201);
+      const connectionRO = JSON.parse(createConnectionResponse.text);
+
+      const createGroupResponse = await request(app.getHttpServer())
+        .post(`/connection/group/${connectionRO.id}`)
+        .send(newGroup1)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createGroupResponse.status, 201);
+      const createGroupRO = JSON.parse(createGroupResponse.text);
+
+      const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app, undefined);
+
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+      const findOneResponse = await request(app.getHttpServer())
+        .get(`/connection/one/${createConnectionRO.id}`)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', secondUserRegisterInfo.token)
+        .set('Accept', 'application/json');
+
+      const findOneConnectionRO = JSON.parse(findOneResponse.text);
+      t.is(findOneResponse.status, 200);
+
+      t.is(findOneConnectionRO.connection.hasOwnProperty('id'), true);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('title'), true);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('type'), true);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('host'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('port'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('username'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('database'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('sid'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('password'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('groups'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('author'), false);
+      t.is(findOneConnectionRO.accessLevel, AccessLevelEnum.none);
+      t.is(findOneConnectionRO.groupManagement, false);
+      t.is(findOneConnectionRO.connectionProperties, null);
+      t.pass();
+    } catch (e) {
+      throw e;
+    }
+  },
+);
 
 test.serial(
   `${currentTest} should throw an exception "id is missing" when connection id not passed in the request`,

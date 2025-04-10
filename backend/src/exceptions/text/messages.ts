@@ -78,6 +78,7 @@ export const Messages = {
   CONNECTION_IS_FROZEN: `Connection is frozen. (This connection type is not available in free plan)`,
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
   CONNECTION_NOT_FOUND: 'Connection with specified parameters not found',
+  CONNECTION_NOT_FOUND_OR_USER_NOT_ADDED_IN_ANY_CONNECTION_GROUP: 'Connection not found or user not added in any group of this',
   CONNECTION_NOT_ENCRYPTED: 'Connection is not encrypted',
   CONNECTION_MASTER_PASSWORD_NOT_SET:
     'Connection master password is not set (or connection created before this feature)',
