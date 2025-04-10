@@ -54,21 +54,33 @@
     <mat-sidenav-content class="main-menu-content">
         <mat-toolbar color="primary" class="nav-bar"
             [ngClass]="{'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID,
-                'nav-bar_exterior': !userLoggedIn, 'nav-bar_interior': userLoggedIn}">
-            <a routerLink="/connections-list" *ngIf="userLoggedIn && logo" class="logo">
-                <img [src]="logo" alt="Logo" class="logo__image">
+                'nav-bar_exterior': userLoggedIn === false, 'nav-bar_interior': userLoggedIn === true}">
+            <!--<a routerLink="/connections-list" *ngIf="userLoggedIn && whiteLabelSettings.logo" class="logo">
+                <img [src]="whiteLabelSettings.logo" alt="Logo" class="logo__image">
             </a>
 
-            <a routerLink="/connections-list" *ngIf="userLoggedIn && !logo" class="logo">
-                <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin" class="logo__image">
-            </a>
+            <a routerLink="/connections-list" *ngIf="userLoggedIn && !whiteLabelSettings.logo" class="logo">
+                <img src="../assets/rocketadmin_logo_white.svg" *ngIf="whiteLabelSettings.logo !== '' && !whiteLabelSettings.logo" class="logo__image">
+            </a>-->
 
-            <a *ngIf="!userLoggedIn" href="https://rocketadmin.com/" class="logo">
-                <picture>
-                    <source media="(max-width: 767px)" srcset="../assets/rocketadmin_logo_white-short.svg">
-                    <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
-                </picture>
-            </a>
+            <div>
+                <a routerLink="/connections-list"
+                    *ngIf="userLoggedIn"
+                    class="logo">
+                    <img *ngIf="whiteLabelSettingsLoaded"
+                        [src]="whiteLabelSettings.logo || '../assets/rocketadmin_logo_white.svg'"
+                        alt="Logo"
+                        class="logo__image"
+                    >
+                </a>
+
+                <a *ngIf="userLoggedIn === false" href="https://rocketadmin.com/" class="logo">
+                    <picture>
+                        <source media="(max-width: 767px)" srcset="../assets/rocketadmin_logo_white-short.svg">
+                        <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
+                    </picture>
+                </a>
+            </div>
 
             <div *ngIf="connectionID" class="menu">
                 <a mat-button data-testid="connections-list-header-link"
@@ -138,7 +150,7 @@
                 </mat-menu>
             </div>
 
-            <div *ngIf="userLoggedIn === null" class="actions">
+            <div *ngIf="!currentUser" class="actions">
                 <ng-container *ngIf="page === '/login'">
                     <a mat-stroked-button routerLink="/login"
                         data-testid="login-header-link"

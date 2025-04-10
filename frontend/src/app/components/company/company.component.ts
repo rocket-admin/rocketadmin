@@ -81,12 +81,11 @@ export class CompanyComponent {
   public submittingCustomDomain: boolean = false;
   public isCustomDomain: boolean = false;
 
-  public companyLogoFile: File;
-  companyLogoPreview: string | null = null;
   public submittingLogo: boolean = false;
+  public submittingFavicon: boolean = false;
 
-  get logo(): string {
-    return this._company.logo;
+  get whiteLabelSettings(): {logo: string, favicon: string} {
+    return this._company.whiteLabelSettings || { logo: '', favicon: '' };
   }
 
   constructor(
@@ -129,9 +128,9 @@ export class CompanyComponent {
       } else if (arg === 'domain') {
         this.getCompanyCustomDomain(this.company.id);
       }
-      else if (arg === 'logo') {
+      else if (arg === 'updated-white-label-settings') {
         // this.submittingLogo = true;
-        this._company.getCompanyLogo(this.company.id).subscribe();
+        this._company.getWhiteLabelProperties(this.company.id).subscribe();
       };
     });
   }
@@ -308,21 +307,15 @@ export class CompanyComponent {
 
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+    let companyLogoFile: File | null = null;
 
     if (file) {
-      this.companyLogoFile = file;
-
-      // const reader = new FileReader();
-      // reader.onload = () => {
-      //   this.companyLogoPreview = reader.result as string;
-      // };
-      // reader.readAsDataURL(file);
+      companyLogoFile = file;
     } else {
-      this.companyLogoFile = null;
-      // this.companyLogoPreview = null;
+      companyLogoFile = null;
     }
 
-    this._company.uploadLogo(this.company.id, this.companyLogoFile).subscribe(res => {
+    this._company.uploadLogo(this.company.id, companyLogoFile).subscribe(res => {
       this.submittingLogo = false;
       this.angulartics2.eventTrack.next({
         action: 'Company: logo is uploaded successfully',
@@ -341,6 +334,42 @@ export class CompanyComponent {
       });
     }, err => {
       this.submittingLogo = false;
+    });
+  }
+
+  onFaviconSelected(event: any) {
+    console.log('favicon selected');
+    this.submittingFavicon = true;
+
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    let faviconFile: File | null = null;
+
+    if (file) {
+      faviconFile = file;
+    } else {
+      faviconFile = null;
+    }
+
+    this._company.uploadFavicon(this.company.id, faviconFile).subscribe(res => {
+      this.submittingFavicon = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: favicon is uploaded successfully',
+      });
+    }, err => {
+      this.submittingFavicon = false;
+    });
+  }
+
+  removeFavicon() {
+    this.submittingFavicon = true;
+    this._company.removeFavicon(this.company.id).subscribe(res => {
+      this.submittingFavicon = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: favicon is removed successfully',
+      });
+    }, err => {
+      this.submittingFavicon = false;
     });
   }
 }

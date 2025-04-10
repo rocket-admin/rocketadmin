@@ -71,8 +71,14 @@ export class AppComponent {
   navigationTabs: object;
   currentUser: User;
   page: string;
-  logo: any;
-  // upgradeButtonShown: boolean = true;
+  whiteLabelSettingsLoaded = false;
+  whiteLabelSettings: {
+    logo: string,
+    favicon: string,
+  } = {
+    logo: '',
+    favicon: ''
+  }
 
   constructor (
     private changeDetector: ChangeDetectorRef,
@@ -118,6 +124,12 @@ export class AppComponent {
       localStorage.setItem('token_expiration', expirationDateString.toString());
     };
 
+    const expirationToken = localStorage.getItem('token_expiration');
+
+    if (!expirationToken) {
+      this.setUserLoggedIn(false);
+    }
+
     this.navigationTabs = {
       'dashboard': {
         caption: 'Tables'
@@ -154,9 +166,8 @@ export class AppComponent {
         }, expirationInterval);
 
       }
-      // app initialization if user is logged in
-      else if (res !== 'delete') {
-        const expirationToken = localStorage.getItem('token_expiration');
+      // app initialization if user is logged in (session restoration)
+      if (expirationToken) {
         const expirationTime = expirationToken ? new Date(expirationToken) : null;
         const currantTime = new Date();
 
@@ -214,8 +225,43 @@ export class AppComponent {
           user_id: res.id,
           email: res.email
         });
-        this._company.getCompanyLogo(res.company.id).subscribe( logo => {
-          this.logo = logo;
+        this._company.getWhiteLabelProperties(res.company.id).subscribe( whiteLabelSettings => {
+          this.whiteLabelSettings.logo = whiteLabelSettings.logo;
+          this.whiteLabelSettingsLoaded = true;
+
+          if (whiteLabelSettings.favicon) {
+            const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+            if (link) {
+              link.href = whiteLabelSettings.favicon;
+            } else {
+              const newLink = document.createElement('link');
+              newLink.rel = 'icon';
+              newLink.href = whiteLabelSettings.favicon;
+              document.head.appendChild(newLink);
+            }
+          } else {
+            const faviconIco = document.createElement('link');
+            faviconIco.rel = 'icon';
+            faviconIco.type = 'image/x-icon';
+            faviconIco.href = 'assets/favicon.ico';
+
+            const favicon16 = document.createElement('link');
+            favicon16.rel = 'icon';
+            favicon16.type = 'image/png';
+            favicon16.setAttribute('sizes', '16x16');
+            favicon16.href = 'assets/favicon-16x16.png';
+
+            const favicon32 = document.createElement('link');
+            favicon32.rel = 'icon';
+            favicon32.type = 'image/png';
+            favicon32.setAttribute('sizes', '32x32');
+            favicon32.href = 'assets/favicon-32x32.png';
+
+            document.head.appendChild(favicon16);
+            document.head.appendChild(favicon32);
+          }
+
+          // this.whiteLabelSettingsLoaded = true;
         })
         this._uiSettings.getUiSettings().subscribe(settings => {
           this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)
