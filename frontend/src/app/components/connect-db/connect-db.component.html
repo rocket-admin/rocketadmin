@@ -295,7 +295,7 @@
             </button>
 
             <!-- right button -->
-            <button type="submit" *ngIf="db.id"
+            <button type="submit" *ngIf="db.id && (db.connectionType === 'direct' || (!connectionToken && db.connectionType === 'agent'))"
                 mat-flat-button color="primary"
                 data-testid="edit-connection-actions-edit-button"
                 angulartics2On="click"
@@ -304,7 +304,7 @@
                 {{ submitting ? 'Checking' : 'Edit'}}
             </button>
 
-            <a *ngIf="connectionToken && connectionID" mat-flat-button color="primary"
+            <a *ngIf="connectionToken && connectionID && db.connectionType === 'agent'" mat-flat-button color="primary"
                 routerLink="/dashboard/{{connectionID}}"
                 data-testid="edit-connection-actions-open-dashboard-link">
                 Open dashboard

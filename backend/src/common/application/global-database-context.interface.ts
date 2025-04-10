@@ -40,6 +40,9 @@ import { IAiUserThreadsRepository } from '../../entities/ai/ai-data-entities/ai-
 import { AiUserThreadEntity } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads.entity.js';
 import { IAiUserFilesRepository } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files-repository.interface.js';
 import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files.entity.js';
+import { CompanyLogoEntity } from '../../entities/company-logo/company-logo.entity.js';
+import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
+import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-tab-title.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -71,4 +74,7 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
   aiUserThreadsRepository: Repository<AiUserThreadEntity> & IAiUserThreadsRepository;
   aiUserFilesRepository: Repository<AiUserFileEntity> & IAiUserFilesRepository;
+  companyLogoRepository: Repository<CompanyLogoEntity>;
+  companyFaviconRepository: Repository<CompanyFaviconEntity>;
+  companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
 }

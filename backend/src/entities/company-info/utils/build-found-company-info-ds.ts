@@ -73,6 +73,19 @@ export function buildFoundCompanyInfoDs(
       is2faEnabled: companyInfoFromCore.is2faEnabled,
       show_test_connections: companyInfoFromCore.show_test_connections,
       custom_domain: companyCustomDomain ? companyCustomDomain : null,
+      logo: companyInfoFromCore.logo
+        ? {
+            image: companyInfoFromCore.logo.image.toString('base64'),
+            mimeType: companyInfoFromCore.logo.mimeType,
+          }
+        : null,
+      favicon: companyInfoFromCore.favicon
+        ? {
+            image: companyInfoFromCore.favicon.image.toString('base64'),
+            mimeType: companyInfoFromCore.favicon.mimeType,
+          }
+        : null,
+      tab_title: companyInfoFromCore.tab_title?.text ?? null,
     };
   }
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;
@@ -85,6 +98,13 @@ export function buildFoundCompanyInfoDs(
     is2faEnabled: isUserAdmin ? companyInfoFromCore.is2faEnabled : undefined,
     show_test_connections: companyInfoFromCore.show_test_connections,
     custom_domain: companyCustomDomain ? companyCustomDomain : null,
+    logo: companyInfoFromCore.logo
+      ? { image: companyInfoFromCore.logo.image.toString('base64'), mimeType: companyInfoFromCore.logo.mimeType }
+      : null,
+    favicon: companyInfoFromCore.favicon
+      ? { image: companyInfoFromCore.favicon.image.toString('base64'), mimeType: companyInfoFromCore.favicon.mimeType }
+      : null,
+    tab_title: companyInfoFromCore.tab_title?.text ?? null,
     createdAt: companyInfoFromSaas.createdAt,
     updatedAt: companyInfoFromSaas.updatedAt,
   };

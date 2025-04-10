@@ -55,22 +55,12 @@
         <mat-toolbar color="primary" class="nav-bar"
             [ngClass]="{'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID,
                 'nav-bar_exterior': !userLoggedIn, 'nav-bar_interior': userLoggedIn}">
-            <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && logo && name" class="logo">
-                <img [src]="logo || '../assets/rocketadmin_logo_white.svg'" alt="Logo" class="logo__image">
-                <span data-id="connection-custom-name">{{name}}</span>
+            <a routerLink="/connections-list" *ngIf="userLoggedIn && logo" class="logo">
+                <img [src]="logo" alt="Logo" class="logo__image">
             </a>
 
-            <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && logo && !name" class="logo">
-                <img [src]="logo || '../assets/rocketadmin_logo_white.svg'" alt="Logo" class="logo__image">
-            </a>
-
-            <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && !logo && name" class="logo">
-                <img src="../assets/rocketadmin_logo_white-short.svg" alt="Logo" class="logo__image">
-                <span data-id="connection-custom-name">{{name}}</span>
-            </a>
-
-            <a routerLink="/connections-list" *ngIf="userLoggedIn && !logo && !name" class="logo">
-                <img *ngIf="!logo && !name" src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
+            <a routerLink="/connections-list" *ngIf="userLoggedIn && !logo" class="logo">
+                <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin" class="logo__image">
             </a>
 
             <a *ngIf="!userLoggedIn" href="https://rocketadmin.com/" class="logo">
@@ -189,6 +179,7 @@
         <div *ngIf="!authBarTheme" class="footer">
             <span class="footer__text">&copy; 2025 Rocketadmin</span>
         </div>
+        <app-feature-notification *ngIf="isFeatureNotificationShown" (dismiss)="dismissFeatureNotification()"></app-feature-notification>
     </mat-sidenav-content>
 </mat-sidenav-container>
 
