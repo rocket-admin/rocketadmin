@@ -7,7 +7,6 @@ import { SaasController } from './saas.controller.js';
 import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
 import { GetUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
 import { GetUsersCountInCompanyByIdUseCase } from './use-cases/get-users-count-in-company.use.case.js';
-import { GetUsersInCompanyByIdUseCase } from './use-cases/get-users-in-company-by-id.use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
 import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
@@ -56,10 +55,6 @@ import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connec
       useClass: GetUserCompanyFullInfoUseCase,
     },
     {
-      provide: UseCaseType.SAAS_GET_USERS_IN_COMPANY_BY_ID,
-      useClass: GetUsersInCompanyByIdUseCase,
-    },
-    {
       provide: UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY,
       useClass: GetUsersCountInCompanyByIdUseCase,
     },
@@ -88,7 +83,6 @@ export class SaasModule {
         { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
         { path: 'saas/user/:userId/company', method: RequestMethod.GET },
         { path: 'saas/company/:companyId/users/count', method: RequestMethod.GET },
-        { path: 'saas/company/:companyId/users', method: RequestMethod.GET },
         { path: 'saas/company/freeze-connections', method: RequestMethod.PUT },
         { path: 'saas/company/unfreeze-connections', method: RequestMethod.PUT },
       );

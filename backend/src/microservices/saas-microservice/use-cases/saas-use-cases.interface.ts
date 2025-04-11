@@ -44,10 +44,6 @@ export interface ISaaSGetCompanyInfoByUserId {
   execute(userId: string): Promise<CompanyInfoEntity>;
 }
 
-export interface ISaaSGetUsersInCompany {
-  execute(companyId: string): Promise<UserEntity[]>;
-}
-
 export interface ISaaSGetUsersCountInCompany {
   execute(companyId: string): Promise<number>;
 }

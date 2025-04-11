@@ -20,10 +20,9 @@ import {
   ILoginUserWithGoogle,
   ISaaSGetCompanyInfoByUserId,
   ISaaSGetUsersCountInCompany,
-  ISaaSGetUsersInCompany,
   ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
-  ISuspendUsers,
+  ISuspendUsers
 } from './use-cases/saas-use-cases.interface.js';
 
 @UseInterceptors(SentryInterceptor)
@@ -49,8 +48,6 @@ export class SaasController {
     private readonly suspendUsersUseCase: ISuspendUsers,
     @Inject(UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID)
     private readonly getCompanyInfoByUserIdUseCase: ISaaSGetCompanyInfoByUserId,
-    @Inject(UseCaseType.SAAS_GET_USERS_IN_COMPANY_BY_ID)
-    private readonly getUsersInCompanyByIdUseCase: ISaaSGetUsersInCompany,
     @Inject(UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY)
     private readonly getUsersCountInCompanyByIdUseCase: ISaaSGetUsersCountInCompany,
     @Inject(UseCaseType.FREEZE_CONNECTIONS_IN_COMPANY)
@@ -165,12 +162,6 @@ export class SaasController {
   @Get('/user/:userId/company')
   async getCompanyInfoByUserId(@Param('userId') userId: string): Promise<CompanyInfoEntity> {
     return await this.getCompanyInfoByUserIdUseCase.execute(userId);
-  }
-
-  @ApiOperation({ summary: 'Users in company by company id' })
-  @Get('/company/:companyId/users')
-  async getUsersInCompany(@Param('companyId') companyId: string): Promise<Array<UserEntity>> {
-    return await this.getUsersInCompanyByIdUseCase.execute(companyId);
   }
 
   @ApiOperation({ summary: 'Users count in company by company id' })
