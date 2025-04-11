@@ -36,30 +36,6 @@ export class ValidationHelper {
     throw new BadRequestException(Messages.EMAIL_INVALID);
   }
 
-  public static validateOrThrowHttpExceptionUUID(uuid: string): boolean {
-    const isValidUUID = ValidationHelper.isValidUUID(uuid);
-    if (isValidUUID) {
-      return true;
-    }
-    throw new BadRequestException(Messages.UUID_INVALID);
-  }
-
-  public static validateOrThrowHttpExceptionVerificationString(verificationString: string): boolean {
-    const isVerificationStringValid = ValidationHelper.isValidVerificationString(verificationString);
-    if (isVerificationStringValid) {
-      return true;
-    }
-    throw new BadRequestException(Messages.VERIFICATION_STRING_INCORRECT);
-  }
-
-  public static validateOrThrowHttpExceptionJWT(token: string): boolean {
-    const isJWTValid = ValidationHelper.isValidJWT(token);
-    if (isJWTValid) {
-      return true;
-    }
-    throw new BadRequestException(Messages.INVALID_JWT_TOKEN);
-  }
-
   public static isValidNanoId(id: string): boolean {
     if (typeof id !== 'string') {
       return false;

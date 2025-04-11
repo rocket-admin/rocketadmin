@@ -131,11 +131,6 @@ export class FoundAgentConnectionsDs {
   connection_properties: any;
 }
 
-export class FoundDirectConnectionsWithGroupAndUsersDs extends FoundDirectConnectionsDs {
-  @ApiProperty({ isArray: true })
-  groups: Array<FoundGroupDataWithUsersDs>;
-}
-
 export class FoundSipleConnectionInfoDS {
   @ApiProperty()
   id: string;

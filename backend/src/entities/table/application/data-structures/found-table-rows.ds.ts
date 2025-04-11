@@ -61,51 +61,6 @@ export class FoundTableRowsDs {
   allow_csv_import: boolean;
 }
 
-export class TableStructureDs {
-  @ApiProperty()
-  allow_null: boolean;
-
-  @ApiProperty()
-  auto_increment: boolean;
-
-  @ApiProperty()
-  column_default: any;
-
-  @ApiProperty()
-  column_name: string;
-
-  @ApiProperty()
-  data_type: string;
-
-  @ApiProperty()
-  isExcluded: boolean;
-
-  @ApiProperty()
-  isSearched: boolean;
-}
-
-export class ForeignKeysDs {
-  @ApiProperty()
-  autocomplete_columns: Array<string>;
-
-  @ApiProperty()
-  column_name: string;
-
-  @ApiProperty()
-  constraint_name: string;
-
-  @ApiProperty()
-  referenced_column_name: string;
-
-  @ApiProperty()
-  referenced_table_name: string;
-}
-
-export class PrimaryColumnNameDs {
-  @ApiProperty()
-  column_name: string;
-}
-
 export class OrderingFiledDs {
   @ApiProperty()
   field: string;

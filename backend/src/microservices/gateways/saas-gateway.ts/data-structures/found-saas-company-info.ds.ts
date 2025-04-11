@@ -1,11 +1,4 @@
 import { SubscriptionLevelEnum } from '../../../../enums/subscription-level.enum.js';
-export class UserInfoRO {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  role: string;
-  email: string;
-}
 
 export class FoundSassCompanyInfoDS {
   id: string;
