@@ -6,6 +6,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
 import { IRemoveUserFromCompany } from './company-info-use-cases.interface.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class RemoveUserFromCompanyUseCase
@@ -15,6 +16,7 @@ export class RemoveUserFromCompanyUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -50,6 +52,7 @@ export class RemoveUserFromCompanyUseCase
     foundCompanyWithUsers.users = foundCompanyWithUsers.users.filter((user) => user.id !== userId);
     await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
     await this._dbContext.userRepository.remove(foundUser);
+    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(foundCompanyWithUsers.id);
     return {
       success: true,
     };

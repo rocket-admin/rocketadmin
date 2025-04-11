@@ -76,6 +76,28 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     return null;
   }
 
+  public async recountUsersInCompanyRequest(companyId: string): Promise<SuccessResponse | null> {
+    if (!isSaaS()) {
+      return null;
+    }
+    const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/recount`, 'POST', null);
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_RECOUNT_USERS_IN_COMPANY_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
+    }
+    return null;
+  }
+
   private isDataFoundSassCompanyInfoDS(data: unknown): data is FoundSassCompanyInfoDS {
     return typeof data === 'object' && data !== null && 'id' in data && 'createdAt' in data && 'updatedAt' in data;
   }
