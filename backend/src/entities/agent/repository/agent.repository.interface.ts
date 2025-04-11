@@ -2,7 +2,6 @@ import { AgentEntity } from '../agent.entity.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 
 export interface IAgentRepository {
-  saveNewAgent(agent: AgentEntity): Promise<AgentEntity>;
 
   createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity>;
 

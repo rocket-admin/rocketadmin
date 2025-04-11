@@ -24,22 +24,8 @@ export interface IConnectionData {
   azure_encryption?: boolean;
 }
 
-export interface IConnectionRO {
-  connection: IConnectionData;
-}
-
 export interface IConnectionAccessRO {
   connection: IConnectionData;
   accessLevel: AccessLevelEnum;
 }
 
-export interface IOneConnectionAccessRO {
-  connection: IConnectionData;
-  accessLevel: AccessLevelEnum;
-  groupManagement: boolean;
-}
-
-export interface IAllConnectionsRO {
-  connections: Array<IConnectionAccessRO>;
-  connectionsCount: number;
-}
