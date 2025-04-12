@@ -59,6 +59,9 @@ export class FoundTableRowsDs {
 
   @ApiProperty()
   allow_csv_import: boolean;
+
+  @ApiProperty({ type: Object })
+  saved_filters: Record<string, any>;
 }
 
 export class TableStructureDs {
