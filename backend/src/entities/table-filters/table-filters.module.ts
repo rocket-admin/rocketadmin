@@ -9,6 +9,7 @@ import { CreateTableFiltersUseCase } from './use-cases/create-table-filters.use.
 import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { FindTableFiltersUseCase } from './use-cases/find-table-filters.use.case.js';
+import { DeleteTableFiltersUseCase } from './use-cases/delete-table-filters.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableFiltersEntity, UserEntity, LogOutEntity])],
@@ -24,6 +25,10 @@ import { FindTableFiltersUseCase } from './use-cases/find-table-filters.use.case
     {
       provide: UseCaseType.FIND_TABLE_FILTERS,
       useClass: FindTableFiltersUseCase,
+    },
+    {
+      provide: UseCaseType.DELETE_TABLE_FILTERS,
+      useClass: DeleteTableFiltersUseCase,
     },
   ],
   controllers: [TableFiltersController],

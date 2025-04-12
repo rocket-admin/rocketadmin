@@ -186,3 +186,71 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
     t.fail();
   }
 });
+
+currentTest = `DELETE /table-filters/:slug`;
+test.serial(`${currentTest} should delete table filters`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const fieldname = 'id';
+    const fieldvalue = '45';
+
+    const filters = {
+      [fieldname]: { lt: fieldvalue },
+    };
+
+    const createTableFiltersResponse = await request(app.getHttpServer())
+      .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .send({ filters })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
+    t.is(createTableFiltersResponse.status, 201);
+    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('tableName'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('connectionId'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
+    t.deepEqual(createTableFiltersRO.filters, filters);
+
+    const deleteTableFiltersResponse = await request(app.getHttpServer())
+      .delete(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const deleteTableFiltersRO = JSON.parse(deleteTableFiltersResponse.text);
+    t.is(deleteTableFiltersResponse.status, 200);
+    t.is(deleteTableFiltersRO.hasOwnProperty('id'), true);
+    t.is(deleteTableFiltersRO.hasOwnProperty('tableName'), true);
+    t.is(deleteTableFiltersRO.hasOwnProperty('connectionId'), true);
+    t.is(deleteTableFiltersRO.connectionId, createConnectionRO.id);
+    t.is(deleteTableFiltersRO.hasOwnProperty('filters'), true);
+    t.deepEqual(deleteTableFiltersRO.filters, filters);
+
+    // should throw an error when try to get deleted table filters
+    const getTableFiltersResponse = await request(app.getHttpServer())
+      .get(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(getTableFiltersResponse.status, 404);
+  } catch (e) {
+    console.error(e);
+    t.fail();
+  }
+});
