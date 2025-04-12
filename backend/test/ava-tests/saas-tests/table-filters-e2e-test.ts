@@ -249,7 +249,8 @@ test.serial(`${currentTest} should delete table filters`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(getTableFiltersResponse.status, 404);
+    t.is(getTableFiltersResponse.status, 200);
+    t.is(getTableFiltersResponse.body.filters, null);
   } catch (e) {
     console.error(e);
     t.fail();

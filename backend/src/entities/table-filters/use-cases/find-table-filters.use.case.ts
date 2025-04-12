@@ -1,8 +1,8 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+
 import { FindTableFiltersDs } from '../application/data-structures/find-table-filters.ds.js';
 import { CreatedTableFiltersRO } from '../application/response-objects/created-table-filters.ro.js';
 import { IFindTableFilters } from './table-filters-use-cases.interface.js';
@@ -26,7 +26,9 @@ export class FindTableFiltersUseCase
       connection_id,
     );
     if (!foundTableFilters) {
-      throw new NotFoundException(Messages.TABLE_FILTERS_NOT_FOUND);
+      return {
+        filters: null,
+      } as CreatedTableFiltersRO;
     }
     return {
       id: foundTableFilters.id,
