@@ -326,6 +326,7 @@ export const Messages = {
   EMAIL_CHANGED: 'Email changed',
   EMAIL_SEND_FAILED: (email: string) => `Email sending to ${email} failed`,
   EMAIL_VERIFICATION_REQUESTED: 'Email verification requested',
+  FILTERS_MISSING: 'Filters are missing',
   USER_EMAIL_NOT_FOUND: (email: string) =>
     `User ${email} is not found in our system, please ask the user to create an account first`,
   USER_EMAIL_NOT_FOUND_AND_INVITED: (email: string) =>

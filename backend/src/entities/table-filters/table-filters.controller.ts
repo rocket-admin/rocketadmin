@@ -65,6 +65,9 @@ export class TableFiltersController {
     if (!tableName) {
       throw new BadRequestException(Messages.TABLE_NAME_MISSING);
     }
+    if (!body.filters) {
+      throw new BadRequestException(Messages.FILTERS_MISSING);
+    }
     const inputData: CreateTableFiltersDto = {
       table_name: tableName,
       connection_id: connectionId,
@@ -121,6 +124,6 @@ export class TableFiltersController {
       table_name: tableName,
       connection_id: connectionId,
     };
-    return await this.deleteTableFiltersUseCase.execute(inputData, InTransactionEnum.ON);
+    return await this.deleteTableFiltersUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 }
