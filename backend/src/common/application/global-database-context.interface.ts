@@ -43,6 +43,8 @@ import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-fil
 import { CompanyLogoEntity } from '../../entities/company-logo/company-logo.entity.js';
 import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
 import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-tab-title.entity.js';
+import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
+import { ITableFiltersCustomRepository } from '../../entities/table-filters/repository/table-filters-custom-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -77,4 +79,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   companyLogoRepository: Repository<CompanyLogoEntity>;
   companyFaviconRepository: Repository<CompanyFaviconEntity>;
   companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
+  tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
 }

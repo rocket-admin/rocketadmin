@@ -87,6 +87,9 @@ import { aiUserFileRepositoryExtension } from '../../entities/ai/ai-data-entitie
 import { CompanyLogoEntity } from '../../entities/company-logo/company-logo.entity.js';
 import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
 import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-tab-title.entity.js';
+import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
+import { ITableFiltersCustomRepository } from '../../entities/table-filters/repository/table-filters-custom-repository.interface.js';
+import { tableFiltersCustomRepositoryExtension } from '../../entities/table-filters/repository/table-filters-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -124,6 +127,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _companyLogoRepository: Repository<CompanyLogoEntity>;
   private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
   private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
+  private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -209,6 +213,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._companyLogoRepository = this.appDataSource.getRepository(CompanyLogoEntity);
     this._companyFaviconRepository = this.appDataSource.getRepository(CompanyFaviconEntity);
     this._companyTabTitleRepository = this.appDataSource.getRepository(CompanyTabTitleEntity);
+    this._tableFiltersRepository = this.appDataSource
+      .getRepository(TableFiltersEntity)
+      .extend(tableFiltersCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -337,6 +344,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get companyTabTitleRepository(): Repository<CompanyTabTitleEntity> {
     return this._companyTabTitleRepository;
+  }
+
+  public get tableFiltersRepository(): Repository<TableFiltersEntity> & ITableFiltersCustomRepository {
+    return this._tableFiltersRepository;
   }
 
   public startTransaction(): Promise<void> {
