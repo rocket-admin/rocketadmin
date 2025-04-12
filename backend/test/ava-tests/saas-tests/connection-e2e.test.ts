@@ -388,7 +388,7 @@ test.serial(
       t.is(findOneConnectionRO.connection.hasOwnProperty('host'), false);
       t.is(findOneConnectionRO.connection.hasOwnProperty('port'), false);
       t.is(findOneConnectionRO.connection.hasOwnProperty('username'), false);
-      t.is(findOneConnectionRO.connection.hasOwnProperty('database'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('database'), true);
       t.is(findOneConnectionRO.connection.hasOwnProperty('sid'), false);
       t.is(findOneConnectionRO.connection.hasOwnProperty('password'), false);
       t.is(findOneConnectionRO.connection.hasOwnProperty('groups'), false);

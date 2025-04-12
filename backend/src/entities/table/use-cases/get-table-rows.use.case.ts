@@ -110,10 +110,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         ? findFilteringFieldsUtil(query, tableStructure)
         : parseFilteringFieldsFromBodyData(filters, tableStructure);
 
-      if (!filteringFields.length && savedTableFilters) {
-        const parsedSavedTableFilters = parseFilteringFieldsFromBodyData(savedTableFilters.filters, tableStructure);
-        filteringFields.push(...parsedSavedTableFilters);
-      }
+      // if (!filteringFields.length && savedTableFilters) {
+      //   const parsedSavedTableFilters = parseFilteringFieldsFromBodyData(savedTableFilters.filters, tableStructure);
+      //   filteringFields.push(...parsedSavedTableFilters);
+      // }
 
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
@@ -239,7 +239,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         large_dataset: largeDataset,
         allow_csv_export: allowCsvExport,
         allow_csv_import: allowCsvImport,
-        saved_filters: savedTableFilters.filters,
+        saved_filters: savedTableFilters?.filters ? savedTableFilters.filters : null,
       };
 
       const identitiesMap = new Map<string, any[]>();

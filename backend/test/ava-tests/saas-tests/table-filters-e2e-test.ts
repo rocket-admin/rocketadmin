@@ -333,13 +333,12 @@ test.serial(
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      console.log('🚀 ~ withsearch,pagination:page=1,perPage=2andDESCsorting`, ~ getTableRowsRO:', getTableRowsRO);
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-      t.is(getTableRowsRO.rows.length, 2);
+      t.is(getTableRowsRO.rows.length, 3);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
@@ -353,6 +352,8 @@ test.serial(
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+      t.is(getTableRowsRO.hasOwnProperty('saved_filters'), true);
+      t.deepEqual(getTableRowsRO.saved_filters, filters);
     } catch (error) {
       console.error(error);
       t.fail();
