@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Inject,
   Injectable,
   Post,
@@ -14,13 +15,14 @@ import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { FindAllRowsWithBodyFiltersDto } from '../table/dto/find-rows-with-body-filters.dto.js';
 import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { ICreateTableFilters } from './use-cases/table-filters-use-cases.interface.js';
+import { ICreateTableFilters, IFindTableFilters } from './use-cases/table-filters-use-cases.interface.js';
 import { CreatedTableFiltersRO } from './application/response-objects/created-table-filters.ro.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { CreateTableFiltersDto } from './application/data-structures/create-table-filters.ds.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { FindTableFiltersDs } from './application/data-structures/find-table-filters.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('table-filters')
@@ -31,13 +33,15 @@ export class TableFiltersController {
   constructor(
     @Inject(UseCaseType.CREATE_TABLE_FILTERS)
     private readonly createTableFiltersUseCase: ICreateTableFilters,
+    @Inject(UseCaseType.FIND_TABLE_FILTERS)
+    private readonly findTableFiltersUseCase: IFindTableFilters,
   ) {}
 
   @ApiOperation({ summary: 'Add new table filters' })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @ApiResponse({
     status: 201,
-    description: 'Table settings created.',
+    description: 'Table filters created.',
     type: CreatedTableFiltersRO,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -60,5 +64,30 @@ export class TableFiltersController {
       masterPwd: masterPwd,
     };
     return await this.createTableFiltersUseCase.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Find table filters' })
+  @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Table filters found.',
+    type: CreatedTableFiltersRO,
+  })
+  @ApiQuery({ name: 'tableName', required: true })
+  @ApiParam({ name: 'connectionId', required: true })
+  @UseGuards(ConnectionEditGuard)
+  @Get('/:connectionId')
+  async findTableFilters(
+    @QueryTableName() tableName: string,
+    @SlugUuid('connectionId') connectionId: string,
+  ): Promise<CreatedTableFiltersRO> {
+    if (!tableName) {
+      throw new BadRequestException(Messages.TABLE_NAME_MISSING);
+    }
+    const inputData: FindTableFiltersDs = {
+      table_name: tableName,
+      connection_id: connectionId,
+    };
+    return await this.findTableFiltersUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 }
