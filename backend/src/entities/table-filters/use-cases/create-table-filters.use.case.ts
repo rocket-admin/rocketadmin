@@ -66,7 +66,6 @@ export class CreateTableFiltersUseCase
     foundConnection: ConnectionEntity,
   ): Promise<Array<string>> {
     const { table_name, filters } = inputData;
-    console.log('🚀 ~ filters:', filters)
     const errors: Array<string> = [];
     try {
       const dao = getDataAccessObject(foundConnection);
