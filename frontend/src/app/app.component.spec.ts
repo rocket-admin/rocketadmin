@@ -244,6 +244,8 @@ describe('AppComponent', () => {
   });
 
   it('should handle user login flow when cast emits user with expires', fakeAsync(() => {
+    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: '', favicon: ''}));
+
     const expirationDate = new Date(Date.now() + 10_000); // 10s from now
     app['currentFeatureNotificationId'] = 'some-id';
 
