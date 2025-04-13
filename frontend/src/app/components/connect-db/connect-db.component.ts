@@ -4,11 +4,13 @@ import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
+import { Subscription, take } from 'rxjs';
 
 import { AccessLevel } from 'src/app/models/user';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Db2CredentialsFormComponent } from './db-credentials-forms/db2-credentials-form/db2-credentials-form.component';
 import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
@@ -36,13 +38,11 @@ import { OracledbCredentialsFormComponent } from './db-credentials-forms/oracled
 import { PostgresCredentialsFormComponent } from './db-credentials-forms/postgres-credentials-form/postgres-credentials-form.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
-import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-connect-db',
@@ -115,15 +115,15 @@ export class ConnectDBComponent implements OnInit {
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
 
-    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      if (this.connectionID) {
-        this.title.setTitle(`Credentials — ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-      } else {
-        this.title.setTitle(`Add new database | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-      }
-
-      this.getTitleSubscription.unsubscribe();
-    });
+    this._connections.getCurrentConnectionTitle()
+      .pipe(take(1))
+      .subscribe(connectionTitle => {
+        if (this.connectionID) {
+          this.title.setTitle(`Credentials — ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+        } else {
+          this.title.setTitle(`Add new database | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+        }
+      });
 
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();

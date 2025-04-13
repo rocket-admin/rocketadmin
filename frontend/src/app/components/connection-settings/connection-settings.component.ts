@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 
 import { AccessLevel } from 'src/app/models/user';
 import { Angulartics2Module, Angulartics2 } from 'angulartics2';
@@ -14,7 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
@@ -49,7 +49,7 @@ import { CompanyService } from 'src/app/services/company.service';
     ZapierComponent
   ]
 })
-export class ConnectionSettingsComponent implements OnInit, OnDestroy {
+export class ConnectionSettingsComponent implements OnInit {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
@@ -83,9 +83,11 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Settings - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-    });
+    this._connections.getCurrentConnectionTitle()
+      .pipe(take(1))
+      .subscribe(connectionTitle => {
+        this.title.setTitle(`Settings - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+      });
 
     this.connectionID = this._connections.currentConnectionID;
 
@@ -111,10 +113,6 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
           this.serverError = {abstract: err.error.message, details: err.error.originalMessage};
         }
       )
-  }
-
-  ngOnDestroy() {
-    this.getTitleSubscription.unsubscribe();
   }
 
   get connectionName() {
