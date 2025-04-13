@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Subscription, merge } from 'rxjs';
 
@@ -27,6 +27,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
 import { tap } from 'rxjs/operators';
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-audit',
@@ -50,7 +51,7 @@ import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-da
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.css']
 })
-export class AuditComponent implements OnInit, OnDestroy {
+export class AuditComponent implements OnInit {
   public isSaas = (environment as any).saas;
   public connectionID: string;
   public accesLevel: string;
@@ -73,6 +74,7 @@ export class AuditComponent implements OnInit, OnDestroy {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _users: UsersService,
+    private _companyService: CompanyService,
     public dialog: MatDialog,
     private title: Title
   ) { }
@@ -89,7 +91,9 @@ export class AuditComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Audit - ${connectionTitle} | Rocketadmin`);
+      this.title.setTitle(`Audit - ${connectionTitle} | ${this._companyService.companyTabTitle || 'Rocketadmin'}`);
+
+      this.getTitleSubscription.unsubscribe();
     });
     this.connectionID = this._connections.currentConnectionID;
     this.accesLevel = this._connections.currentConnectionAccessLevel;
@@ -118,10 +122,6 @@ export class AuditComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         this.usersList = res;
       })
-  }
-
-  ngOnDestroy() {
-    this.getTitleSubscription.unsubscribe();
   }
 
   loadLogsPage() {

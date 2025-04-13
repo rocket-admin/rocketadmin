@@ -2,7 +2,7 @@ import * as ipaddr from 'ipaddr.js';
 
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -42,6 +42,7 @@ import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
+import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-connect-db',
@@ -73,7 +74,7 @@ import isIP from 'validator/lib/isIP';
     Angulartics2Module
   ]
 })
-export class ConnectDBComponent implements OnInit, OnDestroy {
+export class ConnectDBComponent implements OnInit {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
@@ -103,6 +104,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     private _connections: ConnectionsService,
     private _notifications: NotificationsService,
     public _user: UserService,
+    private _company: CompanyService,
     private ngZone: NgZone,
     public router: Router,
     public dialog: MatDialog,
@@ -113,8 +115,14 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
 
-    if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
+    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
+      if (this.connectionID) {
+        this.title.setTitle(`Credentials — ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+      } else {
+        this.title.setTitle(`Add new database | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+      }
+
+      this.getTitleSubscription.unsubscribe();
     });
 
     if (!this.connectionID) {
@@ -124,10 +132,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
         fbq('trackCustom', 'Add_connection');
       }
     };
-  }
-
-  ngOnDestroy() {
-    if (this.connectionID && !this.connectionToken) this.getTitleSubscription.unsubscribe();
   }
 
   get db():Connection {

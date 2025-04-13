@@ -38,6 +38,7 @@ import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
 import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
+import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -118,6 +119,7 @@ export class DbTableRowEditComponent implements OnInit {
     private _tableRow: TableRowService,
     private _notifications: NotificationsService,
     private _tableState: TableStateService,
+    private _company: CompanyService,
     private route: ActivatedRoute,
     private ngZone: NgZone,
     public router: Router,
@@ -149,7 +151,7 @@ export class DbTableRowEditComponent implements OnInit {
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
-            this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
+            this.title.setTitle(`${this.dispalyTableName} - Add new record | ${this._company.companyTabTitle || 'Rocketadmin'}`);
             this.permissions = {
               visibility: true,
               readonly: false,

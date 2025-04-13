@@ -16,6 +16,8 @@ import { UiSettings } from 'src/app/models/ui-settings';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
+import { Title } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-connections-list',
@@ -42,15 +44,24 @@ export class ConnectionsListComponent implements OnInit {
   public companyName: string;
   public currentUser: User;
 
+  private getTitleSubscription: Subscription;
+
   constructor(
     private _connectionsServise: ConnectionsService,
     public deleteDialog: MatDialog,
     private _userService: UserService,
     private _companyService: CompanyService,
     private _uiSettings: UiSettingsService,
+    private title: Title
   ) { }
 
   ngOnInit(): void {
+    this.getTitleSubscription = this._companyService.getCurrentTabTitle().subscribe(tabTitle => {
+      this.title.setTitle(`Connections | ${tabTitle || 'Rocketadmin'}`);
+
+      this.getTitleSubscription.unsubscribe();
+    });
+
     this._userService.cast.subscribe(user => {
       this.currentUser = user;
       user.id && this._companyService.fetchCompanyName(user.company.id)

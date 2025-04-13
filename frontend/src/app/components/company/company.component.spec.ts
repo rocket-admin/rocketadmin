@@ -113,6 +113,7 @@ describe('CompanyComponent', () => {
   fakeCompanyService.getCustomDomain.and.returnValue(of(mockCompanyDomain));
   fakeCompanyService.updateCompanyName.and.returnValue(of({}));
   fakeCompanyService.updateCompanyMemberRole.and.returnValue(of({}));
+  fakeCompanyService.getCurrentTabTitle = jasmine.createSpy().and.returnValue(of('Rocketadmin'));
   fakeUserService.cast = of(mockMembers[1]);
 
   beforeEach(async () => {
