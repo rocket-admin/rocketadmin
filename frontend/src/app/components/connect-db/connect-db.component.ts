@@ -42,6 +42,7 @@ import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
+import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-connect-db',
@@ -103,6 +104,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     private _connections: ConnectionsService,
     private _notifications: NotificationsService,
     public _user: UserService,
+    private _company: CompanyService,
     private ngZone: NgZone,
     public router: Router,
     public dialog: MatDialog,
@@ -114,7 +116,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     this.connectionID = this._connections.currentConnectionID;
 
     if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
+      this.title.setTitle(`Edit connection ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
     });
 
     if (!this.connectionID) {

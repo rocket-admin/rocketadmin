@@ -194,7 +194,7 @@ export class DbTableWidgetsComponent implements OnInit {
         this.fieldsCount = res.structure.length;
         this.fields = res.structure.map((field: TableField) => field.column_name);
         this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
-        this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
+        this.title.setTitle(`${this.dispalyTableName} - Field display | Rocketadmin`);
         this.getWidgets();
       })
     this.codeEditorTheme = this._uiSettings.editorTheme;

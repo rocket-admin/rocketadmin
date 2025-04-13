@@ -260,8 +260,6 @@ export class AppComponent {
             document.head.appendChild(favicon16);
             document.head.appendChild(favicon32);
           }
-
-          // this.whiteLabelSettingsLoaded = true;
         })
         this._uiSettings.getUiSettings().subscribe(settings => {
           this.isFeatureNotificationShown = (settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId)

@@ -45,7 +45,7 @@ const routes: Routes = [
   {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},
   // company routes have to be in this specific order
   {path: 'company/:company-id/verify/:verification-token', pathMatch: 'full', component: CompanyMemberInvitationComponent, title: 'Invitation | Rocketadmin'},
-  {path: 'company', pathMatch: 'full', component: CompanyComponent, title: 'Company settings | Rocketadmin', canActivate: [AuthGuard]},
+  {path: 'company', pathMatch: 'full', component: CompanyComponent, canActivate: [AuthGuard]},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
   {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard], title: 'Upgrade | Rocketadmin'},
   {path: 'upgrade/payment', component: PaymentFormComponent, canActivate: [AuthGuard], title: 'Payment | Rocketadmin'},
