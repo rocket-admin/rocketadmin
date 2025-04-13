@@ -169,15 +169,38 @@
     </ng-template>
 </div>
 
-<div *ngIf="getFiltersCount(activeFilters) !== 0" class="active-filters">
-    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
-        (removed)="removeFilter.emit(activeFilter.key)">
-        {{ getFilter(activeFilter) }}
-        <button matChipRemove>
-            <mat-icon>cancel</mat-icon>
+<div>
+    <div class="saved-filters-panel">
+        <button mat-button type="button" *ngIf="tableData && !tableData.savedFilters" (click)="handleOpenSavedFilters()">
+            <mat-icon>tune</mat-icon>
+            Setup custom filters
         </button>
-    </mat-chip-row>
+        <button mat-icon-button type="button" *ngIf="tableData && tableData.savedFilters" (click)="handleOpenSavedFilters()">
+            <mat-icon>tune</mat-icon>
+        </button>
+        <div class="saved-filters">
+            <mat-chip-row *ngFor="let savedFilter of tableData.savedFilters | keyvalue"
+                (removed)="switchSavedFilter.emit(savedFilter)">
+                {{ getFilter(savedFilter) }}
+                <button matChipRemove>
+                    <mat-icon>filter_alt_off</mat-icon>
+                </button>
+            </mat-chip-row>
+        </div>
+    </div>
+
+    <div *ngIf="getFiltersCount(activeFilters) !== 0" class="active-filters">
+        <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
+            (removed)="removeFilter.emit(activeFilter.key)">
+            {{ getFilter(activeFilter) }}
+            <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </mat-chip-row>
+    </div>
 </div>
+
+
 
 <div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">
     <app-placeholder-table-data></app-placeholder-table-data>

@@ -16,6 +16,7 @@ import { DbTableAiPanelComponent } from './db-table-ai-panel/db-table-ai-panel.c
 import { DbTableComponent } from './db-table/db-table.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { DbTableRowViewComponent } from './db-table-row-view/db-table-row-view.component';
+import { DbTableSavedFiltersDialogComponent } from './db-table-saved-filters-dialog/db-table-saved-filters-dialog.component';
 import { DbTablesListComponent } from './db-tables-list/db-tables-list.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import JsonURL from "@jsonurl/jsonurl";
@@ -341,6 +342,97 @@ export class DashboardComponent implements OnInit, OnDestroy {
         page_size: this.pageSize
       }
     });
+  }
+
+  openTableSavedFilters(structure) {
+    let filterDialodRef = this.dialog.open(DbTableSavedFiltersDialogComponent, {
+      width: '56em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.selectedTableName,
+        displayTableName: this.selectedTableDisplayName,
+        savedFilters: this.dataSource.savedFilters,
+        structure
+      }
+    });
+
+    filterDialodRef.afterClosed().subscribe(action => {
+      if (action === 'filter') {
+        const filtersFromDialog = {...filterDialodRef.componentInstance.tableRowFieldsShown};
+
+        const nonEmptyFilters = omitBy(filtersFromDialog, (value) => value === undefined);
+        this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
+
+        if (Object.keys(nonEmptyFilters).length) {
+          this.filters = {};
+          for (const key in nonEmptyFilters) {
+              if (this.comparators[key] !== undefined) {
+                this.filters[key] = {
+                      [this.comparators[key]]: nonEmptyFilters[key]
+                  };
+              }
+          }
+
+          // const filters = JsonURL.stringify( this.filters );
+
+          this._tables.updateSavedFilters(this.connectionID, this.selectedTableName, this.filters).subscribe();
+
+          // this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+          //   queryParams: {
+          //     filters,
+          //     page_index: 0,
+          //     page_size: this.pageSize
+          //   }
+          // });
+          // this.getRows();
+
+          this.angulartics2.eventTrack.next({
+            action: 'Dashboard: saved filters are updated',
+          });
+        }
+      } else if (action === 'reset') {
+        this.filters = {};
+        this.getRows();
+        this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`]);
+      }
+    })
+  }
+
+  switchTableSavedFilter(savedFilter: {key: string, value: object}) {
+    if (Object.keys(this.filters).includes(savedFilter.key)) {
+      this.filters[savedFilter.key] = undefined;
+      this.filters = omitBy(this.filters, (value) => value === undefined);
+
+      const filters = JsonURL.stringify( this.filters );
+
+      this.selection.clear();
+
+      this.getRows();
+      this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+        queryParams: {
+          filters,
+          page_index: 0,
+          page_size: this.pageSize
+        }
+      });
+    } else {
+      this.filters[savedFilter.key] = savedFilter.value;
+      // this.filters = omitBy(this.filters, (value) => value === undefined);
+
+      const filters = JsonURL.stringify( this.filters );
+
+      this.selection.clear();
+
+      this.getRows();
+      this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+        queryParams: {
+          filters,
+          page_index: 0,
+          page_size: this.pageSize
+        }
+      });
+    }
+
   }
 
   search(value: string) {

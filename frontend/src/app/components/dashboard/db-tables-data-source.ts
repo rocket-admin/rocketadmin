@@ -62,6 +62,7 @@ export class TablesDataSource implements DataSource<Object> {
   public widgets: Widget[];
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
+  public savedFilters: {};
   public permissions;
   public isExportAllowed: boolean;
   public isImportAllowed: boolean;
@@ -192,6 +193,7 @@ export class TablesDataSource implements DataSource<Object> {
           this.identityColumn = res.identity_column;
           this.tableActions = res.action_events;
           this.tableBulkActions = res.action_events.filter((action: CustomEvent) => action.type === CustomActionType.Multiple);
+          this.savedFilters = res.saved_filters;
 
           let orderedColumns: TableField[];
           if (res.list_fields.length) {

@@ -84,10 +84,12 @@ export class DbTableComponent implements OnInit {
   @Input() tables: TableProperties[];
 
   @Output() openFilters = new EventEmitter();
+  @Output() openSavedFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
+  @Output() switchSavedFilter = new EventEmitter();
   // @Output() viewRow = new EventEmitter();
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();
@@ -249,6 +251,15 @@ export class DbTableComponent implements OnInit {
       widgets: this.tableData.widgets
     });
     this.searchString = '';
+  }
+
+  handleOpenSavedFilters() {
+    this.openSavedFilters.emit({
+      structure: this.tableData.structure,
+      foreignKeysList: this.tableData.foreignKeysList,
+      foreignKeys: this.tableData.foreignKeys,
+      widgets: this.tableData.widgets
+    });
   }
 
   handleSearch() {

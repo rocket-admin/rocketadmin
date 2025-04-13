@@ -1,0 +1,158 @@
+<form #tableFiltersForm="ngForm" class="filters-form">
+    <h1 mat-dialog-title class="filters-header">
+        <span>Filters for <strong>{{ data.displayTableName }}</strong> table</span>
+        <a mat-icon-button mat-dialog-close
+            routerLink="/dashboard/{{data.connectionID}}/{{data.tableName}}/settings"
+            matTooltip="Advanced settings">
+            <mat-icon>settings</mat-icon>
+        </a>
+    </h1>
+    <app-content-loader *ngIf="!tableFilters || !tableTypes; else filterControls"></app-content-loader>
+    <ng-template #filterControls>
+        <mat-dialog-content class="filters-content">
+            <mat-form-field class="filters-select" appearance="outline">
+                <mat-label>Add filter by...</mat-label>
+                <input type="text" matInput name="filter_columns"
+                    [matAutocomplete]="auto"
+                    [formControl]="fieldSearchControl">
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
+                    <mat-option *ngFor="let field of foundFields | async"
+                        [ngClass]="{'disabled': field === 'No matches'}"
+                        [value]="field">
+                        {{field}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+
+            <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; trackBy:trackByFn">
+                <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
+
+                    <div *ngIf="isWidget(value.key); else defaultTableField">
+                        <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
+                            [ndcDynamicInputs]="{
+                                key: value.key,
+                                label: tableWidgets[value.key].name || value.key,
+                                value: tableRowFieldsShown[value.key],
+                                widgetStructure: tableWidgets[value.key],
+                                relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined
+                            }"
+                            [ndcDynamicOutputs]="{
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                            }"
+                        ></ndc-dynamic>
+                    </div>
+
+                    <ng-template #defaultTableField>
+                        <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
+                            [ndcDynamicInputs]="{
+                                key: value.key,
+                                label: value.key,
+                                value: tableRowFieldsShown[value.key],
+                                structure: tableRowStructure[value.key],
+                                relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined
+                            }"
+                            [ndcDynamicOutputs]="{
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                            }"
+                        ></ndc-dynamic>
+                    </ng-template>
+                </div>
+
+                <ng-template #comparableFilter>
+                    <span class='mat-body-1 column-name'>{{value.key}}</span>
+
+                    <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'text'"
+                        appearance="outline">
+                        <mat-select name="textComparator-{{value.key}}"
+                            [(ngModel)]="tableRowFieldsComparator[value.key]"
+                            (ngModelChange)="updateComparator($event, value.key)">
+                            <mat-option value="startswith">
+                                starts with
+                            </mat-option>
+                            <mat-option value="endswith">
+                                ends with
+                            </mat-option>
+                            <mat-option value="eq">
+                                equal
+                            </mat-option>
+                            <mat-option value="contains">
+                                contains
+                            </mat-option>
+                            <mat-option value="icontains">
+                                not contains
+                            </mat-option>
+                            <mat-option value="empty">
+                                is empty
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'number'"
+                        appearance="outline">
+                        <mat-select name="numberComparator-{{value.key}}"
+                            [(ngModel)]="tableRowFieldsComparator[value.key]"
+                            (ngModelChange)="updateComparator($event, value.key)">
+                            <mat-option value="eq">
+                                equal
+                            </mat-option>
+                            <mat-option value="gt">
+                                greater than
+                            </mat-option>
+                            <mat-option value="lt">
+                                less than
+                            </mat-option>
+                            <mat-option value="gte">
+                                greater than or equal
+                            </mat-option>
+                            <mat-option value="lte">
+                                less than or equal
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
+                        [ndcDynamicInputs]="{
+                            key: value.key,
+                            label: value.key,
+                            value: tableRowFieldsShown[value.key],
+                            readonly: tableRowFieldsComparator[value.key] === 'empty',
+                            structure: tableRowStructure[value.key],
+                            relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined
+                        }"
+                        [ndcDynamicOutputs]="{
+                            onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                        }"
+                    ></ndc-dynamic>
+                </ng-template>
+                <button mat-icon-button type="button" class="filter-delete-button"
+                    matTooltip="Remove"
+                    (click)="removeFilter(value.key)">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </ng-container>
+        </mat-dialog-content>
+    </ng-template>
+
+    <mat-dialog-actions align="end">
+        <button mat-flat-button color="warn"
+            mat-dialog-close="reset"
+            type="button"
+            class="settings-form__reset-button"
+            [disabled]="tableFilters?.length === 0"
+            (click)="resetFilters()">
+            Reset
+        </button>
+        <button mat-flat-button mat-dialog-close
+            angulartics2On="click"
+            angularticsAction="Filters: cancel is clicked">
+            Cancel
+        </button>
+        <button mat-flat-button mat-dialog-close="filter"
+            color="primary" type="submit"
+            [disabled]="tableFiltersCount === 0"
+            angulartics2On="click"
+            angularticsAction="Filters: filter is clicked">
+            Filter
+        </button>
+    </mat-dialog-actions>
+</form>

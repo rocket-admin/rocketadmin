@@ -173,6 +173,18 @@
     display: inline-block;
 }
 
+.saved-filters-panel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.saved-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .active-filters {
     display: flex;
     align-items: center;
