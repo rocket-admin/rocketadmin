@@ -24,6 +24,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { RouterModule } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
+import { CompanyService } from 'src/app/services/company.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-user-settings',
@@ -83,11 +85,14 @@ export class UserSettingsComponent implements OnInit {
     private _userService: UserService,
     private _authService: AuthService,
     private _notifications: NotificationsService,
+    private _company: CompanyService,
     public dialog: MatDialog,
+    private title: Title,
     private angulartics2: Angulartics2,
   ) {}
 
   ngOnInit(): void {
+    this.title.setTitle(`Account settings | ${this._company.companyTabTitle || 'Rocketadmin'}`);
     this.currentUser = null;
     this._userService.cast
       .subscribe(user => {

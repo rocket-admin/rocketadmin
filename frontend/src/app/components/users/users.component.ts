@@ -72,7 +72,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`User permissions - ${connectionTitle} | Rocketadmin`);
+      this.title.setTitle(`User permissions - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
     });
     this.connectionID = this._connections.currentConnectionID;
     this.getUsersGroups();

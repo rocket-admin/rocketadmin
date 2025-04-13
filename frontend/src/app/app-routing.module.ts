@@ -40,9 +40,9 @@ const routes: Routes = [
   {path: 'external/user/email/verify/:verification-token', component: EmailVerificationComponent, title: 'Email verification | Rocketadmin'},
   {path: 'external/user/email/change/verify/:change-token', component: EmailChangeComponent, title: 'Email updating | Rocketadmin'},
   {path: 'deleted', component: UserDeletedSuccessComponent, title: 'User deleted | Rocketadmin'},
-  {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard], title: 'Add new database | Rocketadmin'},
-  {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard], title: 'Connections | Rocketadmin'},
-  {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},
+  {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard]},
+  {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard]},
+  {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard]},
   // company routes have to be in this specific order
   {path: 'company/:company-id/verify/:verification-token', pathMatch: 'full', component: CompanyMemberInvitationComponent, title: 'Invitation | Rocketadmin'},
   {path: 'company', pathMatch: 'full', component: CompanyComponent, canActivate: [AuthGuard]},

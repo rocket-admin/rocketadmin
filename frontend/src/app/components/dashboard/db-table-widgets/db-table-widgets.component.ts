@@ -32,6 +32,7 @@ import { TextRowComponent } from '../../ui-components/row-fields/text/text.compo
 import { LongTextRowComponent } from '../../ui-components/row-fields/long-text/long-text.component';
 import { SelectRowComponent } from '../../ui-components/row-fields/select/select.component';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-db-table-widgets',
@@ -175,6 +176,7 @@ export class DbTableWidgetsComponent implements OnInit {
     private _tables: TablesService,
     private _location: Location,
     private _uiSettings: UiSettingsService,
+    private _company: CompanyService,
     public dialog: MatDialog,
     public router: Router,
     private title: Title,
@@ -194,7 +196,7 @@ export class DbTableWidgetsComponent implements OnInit {
         this.fieldsCount = res.structure.length;
         this.fields = res.structure.map((field: TableField) => field.column_name);
         this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
-        this.title.setTitle(`${this.dispalyTableName} - Field display | Rocketadmin`);
+        this.title.setTitle(`${this.dispalyTableName} - Field display | ${this._company.companyTabTitle || 'Rocketadmin'}`);
         this.getWidgets();
       })
     this.codeEditorTheme = this._uiSettings.editorTheme;
