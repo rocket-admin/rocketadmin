@@ -12,12 +12,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { PlaceholderConnectionsComponent } from '../skeletons/placeholder-connections/placeholder-connections.component';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 import { UiSettings } from 'src/app/models/ui-settings';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
-import { Title } from '@angular/platform-browser';
-import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-connections-list',
@@ -56,11 +57,11 @@ export class ConnectionsListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.getTitleSubscription = this._companyService.getCurrentTabTitle().subscribe(tabTitle => {
-      this.title.setTitle(`Connections | ${tabTitle || 'Rocketadmin'}`);
-
-      this.getTitleSubscription.unsubscribe();
-    });
+    this._companyService.getCurrentTabTitle()
+      .pipe(take(1))
+      .subscribe(tabTitle => {
+        this.title.setTitle(`Connections | ${tabTitle || 'Rocketadmin'}`);
+      });
 
     this._userService.cast.subscribe(user => {
       this.currentUser = user;

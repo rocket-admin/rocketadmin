@@ -1,9 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Subscription, merge } from 'rxjs';
+import { take, tap } from 'rxjs/operators';
 
 import { Angulartics2OnModule } from 'angulartics2';
 import { AuditDataSource } from './audit-data-source';
+import { BannerComponent } from '../ui-components/banner/banner.component';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
@@ -15,6 +18,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
 import { TableProperties } from 'src/app/models/table';
@@ -24,10 +28,6 @@ import { User } from '@sentry/angular-ivy';
 import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { tap } from 'rxjs/operators';
-import { BannerComponent } from '../ui-components/banner/banner.component';
-import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
-import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-audit',
@@ -90,11 +90,11 @@ export class AuditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Audit - ${connectionTitle} | ${this._companyService.companyTabTitle || 'Rocketadmin'}`);
-
-      this.getTitleSubscription.unsubscribe();
-    });
+    this._companyService.getCurrentTabTitle()
+      .pipe(take(1))
+      .subscribe(tabTitle => {
+        this.title.setTitle(`Connections | ${tabTitle || 'Rocketadmin'}`);
+      });
     this.connectionID = this._connections.currentConnectionID;
     this.accesLevel = this._connections.currentConnectionAccessLevel;
     this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
