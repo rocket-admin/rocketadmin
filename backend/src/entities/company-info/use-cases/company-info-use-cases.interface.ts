@@ -3,12 +3,14 @@ import { SuccessResponse } from '../../../microservices/saas-microservice/data-s
 import { SimpleFoundUserInCompanyInfoDs } from '../../user/dto/found-user.dto.js';
 import { IToken } from '../../user/utils/generate-gwt-token.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
+import { AddCompanyTabTitleDs } from '../application/data-structures/add-company-tab-title.ds.js';
 import {
   FoundUserCompanyInfoDs,
   FoundUserEmailCompaniesInfoDs,
   FoundUserFullCompanyInfoDs,
 } from '../application/data-structures/found-company-info.ds.js';
 import { FoundCompanyNameDs } from '../application/data-structures/found-company-name.ds.js';
+import { FoundCompanyTabTitleRO } from '../application/data-structures/found-company-tab-title.ro.js';
 import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invite-user-in-company-and-connection-group.ds.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
@@ -18,8 +20,9 @@ import { ToggleTestConnectionDisplayModeDs } from '../application/data-structure
 import { UpdateCompanyNameDS } from '../application/data-structures/update-company-name.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/update-users-2fa-status-in-company.ds.js';
 import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
-import { UploadCompanyLogoDs } from '../application/data-structures/upload-company-logo.ds.js';
-import { FoundCompanyLogoRO } from '../application/dto/found-company-logo.ro.js';
+import { UploadCompanyWhiteLabelImages } from '../application/data-structures/upload-company-white-label-images.ds.js';
+import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from '../application/dto/found-company-logo.ro.js';
+import { FoundCompanyWhiteLabelPropertiesRO } from '../application/dto/found-company-white-label-properties.ro.js';
 
 export interface IInviteUserInCompanyAndConnectionGroup {
   execute(inputData: InviteUserInCompanyAndConnectionGroupDs): Promise<InvitedUserInCompanyAndConnectionGroupDs>;
@@ -85,14 +88,34 @@ export interface IToggleCompanyTestConnectionsMode {
   execute(inputData: ToggleTestConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
-export interface IUploadCompanyLogo {
-  execute(inputData: UploadCompanyLogoDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+export interface IUploadCompanyWhiteLabelImages {
+  execute(inputData: UploadCompanyWhiteLabelImages, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IFindCompanyLogo {
   execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyLogoRO>;
 }
 
-export interface IDeleteCompanyLogo {
+export interface IFindCompanyFavicon {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyFaviconRO>;
+}
+
+export interface IDeleteCompanyWhiteLabelImages {
   execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IAddCompanyTabTitle {
+  execute(inputData: AddCompanyTabTitleDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IFindCompanyTabTitle {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyTabTitleRO>;
+}
+
+export interface IDeleteCompanyTabTitle {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IGetCompanyWhiteLabelProperties {
+  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyWhiteLabelPropertiesRO>;
 }

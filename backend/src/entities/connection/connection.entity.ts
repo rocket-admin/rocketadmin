@@ -25,6 +25,7 @@ import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';
 import { nanoid } from 'nanoid';
 import { Constants } from '../../helpers/constants/constants.js';
+import { TableFiltersEntity } from '../table-filters/table-filters.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -234,4 +235,7 @@ export class ConnectionEntity {
   @ManyToOne((_) => CompanyInfoEntity, (company) => company.connections)
   @JoinTable()
   company: Relation<CompanyInfoEntity>;
+
+  @OneToMany((_) => TableFiltersEntity, (table_filters) => table_filters.connection)
+  table_filters: Relation<TableFiltersEntity>[];
 }

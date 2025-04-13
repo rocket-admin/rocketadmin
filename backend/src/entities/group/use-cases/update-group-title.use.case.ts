@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -30,6 +30,14 @@ export class UpdateGroupTitleUseCase
         HttpStatus.NOT_FOUND,
       );
     }
+    const connectionWithGroups = await this._dbContext.connectionRepository.findConnectionWithGroups(
+      groupToUpdate.connection.id,
+    );
+
+    if (connectionWithGroups.groups.find((group) => group.title === title)) {
+      throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);
+    }
+
     groupToUpdate.title = title;
     const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
     return {

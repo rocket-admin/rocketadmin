@@ -79,6 +79,13 @@ export function buildFoundCompanyInfoDs(
             mimeType: companyInfoFromCore.logo.mimeType,
           }
         : null,
+      favicon: companyInfoFromCore.favicon
+        ? {
+            image: companyInfoFromCore.favicon.image.toString('base64'),
+            mimeType: companyInfoFromCore.favicon.mimeType,
+          }
+        : null,
+      tab_title: companyInfoFromCore.tab_title?.text ?? null,
     };
   }
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;
@@ -95,6 +102,10 @@ export function buildFoundCompanyInfoDs(
     logo: companyInfoFromCore.logo
       ? { image: companyInfoFromCore.logo.image.toString('base64'), mimeType: companyInfoFromCore.logo.mimeType }
       : null,
+    favicon: companyInfoFromCore.favicon
+      ? { image: companyInfoFromCore.favicon.image.toString('base64'), mimeType: companyInfoFromCore.favicon.mimeType }
+      : null,
+    tab_title: companyInfoFromCore.tab_title?.text ?? null,
     address: {
       id: companyInfoFromSaas.address?.id,
       city: companyInfoFromSaas.address?.city,

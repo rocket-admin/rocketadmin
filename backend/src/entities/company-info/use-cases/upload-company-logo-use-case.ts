@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
-import { IUploadCompanyLogo } from './company-info-use-cases.interface.js';
-import { UploadCompanyLogoDs } from '../application/data-structures/upload-company-logo.ds.js';
+import { IUploadCompanyWhiteLabelImages } from './company-info-use-cases.interface.js';
+import { UploadCompanyWhiteLabelImages } from '../application/data-structures/upload-company-white-label-images.ds.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -10,8 +10,8 @@ import { CompanyLogoEntity } from '../../company-logo/company-logo.entity.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UploadCompanyLogoUseCase
-  extends AbstractUseCase<UploadCompanyLogoDs, SuccessResponse>
-  implements IUploadCompanyLogo
+  extends AbstractUseCase<UploadCompanyWhiteLabelImages, SuccessResponse>
+  implements IUploadCompanyWhiteLabelImages
 {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -20,7 +20,7 @@ export class UploadCompanyLogoUseCase
     super();
   }
 
-  protected async implementation(inputData: UploadCompanyLogoDs): Promise<SuccessResponse> {
+  protected async implementation(inputData: UploadCompanyWhiteLabelImages): Promise<SuccessResponse> {
     const { companyId, file } = inputData;
     const company = await this._dbContext.companyInfoRepository.findCompanyWithLogo(companyId);
     if (!company) {

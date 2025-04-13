@@ -31,6 +31,9 @@ import { ApiKeyModule } from './entities/api-key/api-key.module.js';
 import { AIModule } from './entities/ai/ai.module.js';
 import { EmailModule } from './entities/email/email/email.module.js';
 import { CompanyLogoModule } from './entities/company-logo/company-logo.module.js';
+import { CompanyFaviconModule } from './entities/company-favicon/company-favicon.module.js';
+import { CompanyTabTitleModule } from './entities/company-tab-title/company-tab-title.module.js';
+import { TableFiltersModule } from './entities/table-filters/table-filters.module.js';
 
 @Module({
   imports: [
@@ -58,6 +61,9 @@ import { CompanyLogoModule } from './entities/company-logo/company-logo.module.j
     AIModule,
     EmailModule,
     CompanyLogoModule,
+    CompanyFaviconModule,
+    CompanyTabTitleModule,
+    TableFiltersModule,
   ],
   controllers: [AppController],
   providers: [

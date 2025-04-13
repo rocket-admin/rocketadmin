@@ -1,13 +1,16 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { IDeleteCompanyLogo } from './company-info-use-cases.interface.js';
+import { IDeleteCompanyWhiteLabelImages } from './company-info-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable()
-export class DeleteCompanyLogoUseCase extends AbstractUseCase<string, SuccessResponse> implements IDeleteCompanyLogo {
+export class DeleteCompanyLogoUseCase
+  extends AbstractUseCase<string, SuccessResponse>
+  implements IDeleteCompanyWhiteLabelImages
+{
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
