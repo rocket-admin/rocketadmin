@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ZapierComponent } from './zapier.component';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('ZapierComponent', () => {
   let component: ZapierComponent;
@@ -8,7 +9,8 @@ describe('ZapierComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZapierComponent]
+      imports: [ZapierComponent],
+      providers: [provideHttpClient()]
     })
     .compileComponents();
 
