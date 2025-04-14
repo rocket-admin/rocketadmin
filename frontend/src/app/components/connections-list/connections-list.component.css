@@ -30,8 +30,9 @@
 
 .pageTitleHeader {
     position: relative;
-    align-self: center;
+    text-align: center;
     margin-bottom: 54px;
+    width: 100%;
 }
 
 @media (width <= 600px) {
@@ -41,6 +42,11 @@
 }
 
 .pageTitleHeader .pageTitle {
+    position: relative;
+    display: inline-block;
+}
+
+.pageTitleHeader .pageTitle__name {
     font-weight: 600;
     margin-bottom: 0;
 }
@@ -60,7 +66,7 @@
     }
 }
 
-.pageTitleHeader:hover .companyEditLink {
+.pageTitle:hover .companyEditLink {
     opacity: 1;
 }
 
@@ -99,15 +105,56 @@
     height: 40px;
 }
 
-.fabAddButton {
+.fabActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     align-self: flex-end;
+    margin-top: 20px;
+}
+
+.zapier-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 24px;
+    box-shadow:
+        0px 1px 10px 0px rgba(0, 0, 0, 0.08),
+        0px 4px 5px 0px rgba(0, 0, 0, 0.05),
+        0px 2px 4px 0px rgba(0, 0, 0, 0.06);
+    color: var(--color-accentedPalette-500);
+    text-decoration: none;
+    height: 48px;
+    padding: 8px;
+    width: 140px;
+}
+
+.zapier-link__caption {
+    font-size: 12px;
+}
+
+.zapier-link__logo {
+    border-radius: 8px;
+    height: 32px;
+    width: 32px;
+}
+
+.zapier-link__icon {
+    color: var(--mat-sidenav-content-text-color);
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+}
+
+.fabAddButton {
     border-radius: 24px;
     box-shadow:
         0px 1px 10px 0px rgba(0, 0, 0, 0.2),
         0px 4px 5px 0px rgba(0, 0, 0, 0.12),
         0px 2px 4px 0px rgba(0, 0, 0, 0.14);
     height: 48px !important;
-    margin-top: 20px;
     width: 178px;
 }
 
