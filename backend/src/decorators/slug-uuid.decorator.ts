@@ -13,7 +13,8 @@ export type SlugUuidParameter =
   | 'eventId'
   | 'apiKeyId'
   | 'companyId'
-  | 'threadId';
+  | 'threadId'
+  | 'filterId';
 export const SlugUuid = createParamDecorator(
   (parameterName: SlugUuidParameter = 'slug', ctx: ExecutionContext): string => {
     const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
@@ -28,6 +29,7 @@ export const SlugUuid = createParamDecorator(
       'eventId',
       'companyId',
       'threadId',
+      'filterId'
     ];
     if (!availableSlagParameters.includes(parameterName)) {
       throw new BadRequestException(Messages.UUID_INVALID);
