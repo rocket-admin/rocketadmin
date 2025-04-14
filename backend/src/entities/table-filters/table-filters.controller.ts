@@ -78,7 +78,6 @@ export class TableFiltersController {
   }
 
   @ApiOperation({ summary: 'Find table filters' })
-  @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @ApiResponse({
     status: 200,
     description: 'Table filters found.',
