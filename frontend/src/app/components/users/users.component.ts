@@ -1,9 +1,12 @@
+import { CommonModule, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
-import { Observable, Subscription, first, forkJoin, tap } from 'rxjs';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { Observable, Subscription, first, forkJoin, take, tap } from 'rxjs';
 
 import { Angulartics2 } from 'angulartics2';
 import { Angulartics2OnModule } from 'angulartics2';
+import { CompanyService } from 'src/app/services/company.service';
 import { Connection } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
@@ -11,11 +14,9 @@ import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-d
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CommonModule, NgClass, NgForOf, NgIf } from '@angular/common';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
 import { PlaceholderUserGroupComponent } from '../skeletons/placeholder-user-group/placeholder-user-group.component';
 import { PlaceholderUserGroupsComponent } from '../skeletons/placeholder-user-groups/placeholder-user-groups.component';
@@ -24,7 +25,6 @@ import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.compon
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 import { UserService } from 'src/app/services/user.service';
 import { UsersService } from '../../services/users.service';
-import { CompanyService } from 'src/app/services/company.service';
 import { differenceBy } from "lodash";
 
 @Component({
@@ -71,9 +71,11 @@ export class UsersComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`User permissions - ${connectionTitle} | Rocketadmin`);
-    });
+    this._connections.getCurrentConnectionTitle()
+      .pipe(take(1))
+      .subscribe(connectionTitle => {
+        this.title.setTitle(`User permissions - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+      });
     this.connectionID = this._connections.currentConnectionID;
     this.getUsersGroups();
 
@@ -108,7 +110,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.getTitleSubscription.unsubscribe();
     this.usersSubscription.unsubscribe();
   }
 

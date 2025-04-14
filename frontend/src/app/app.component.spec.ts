@@ -20,7 +20,7 @@ import { TablesService } from './services/tables.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ChangeDetectorRef } from '@angular/core';
 
-fdescribe('AppComponent', () => {
+describe('AppComponent', () => {
   let app: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   // let connectionsService: ConnectionsService;
@@ -56,7 +56,7 @@ fdescribe('AppComponent', () => {
   };
 
   const mockCompanyService = {
-    getCompanyLogo: jasmine.createSpy('getCompanyLogo')
+    getWhiteLabelProperties: jasmine.createSpy('getWhiteLabelProperties')
   };
 
   const mockUiSettingsService = {
@@ -108,8 +108,15 @@ fdescribe('AppComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
     app = fixture.debugElement.componentInstance;
-    // connectionsService = TestBed.inject(ConnectionsService);
-    // companyService = TestBed.inject(CompanyService);
+
+    app.navigationTabs = {
+      'dashboard': { caption: 'Tables' },
+      'audit': { caption: 'Audit' },
+      'permissions': { caption: 'Permissions' },
+      'connection-settings': { caption: 'Connection settings' },
+      'edit-db': { caption: 'Edit connection' },
+    };
+
     fixture.detectChanges();
 
     spyOn(app, 'logOut');
@@ -121,7 +128,7 @@ fdescribe('AppComponent', () => {
     (app.logOut as jasmine.Spy)?.calls.reset?.();
     (app['router'].navigate as jasmine.Spy)?.calls.reset?.();
     mockUiSettingsService.getUiSettings.calls.reset?.();
-    mockCompanyService.getCompanyLogo.calls.reset?.();
+    mockCompanyService.getWhiteLabelProperties.calls.reset?.();
     mockUserService.fetchUser.calls.reset?.();
   });
 
@@ -130,19 +137,19 @@ fdescribe('AppComponent', () => {
   });
 
   it('should set userLoggedIn and logo on user session initialization', fakeAsync(() => {
-    mockCompanyService.getCompanyLogo.and.returnValue(of('data:png;base64,some-base64-data'));
+    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: 'data:png;base64,some-base64-data'}));
     mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
     app.initializeUserSession();
     tick();
 
     expect(app.currentUser.email).toBe('test@email.com');
-    expect(app.logo).toBe('data:png;base64,some-base64-data');
+    expect(app.whiteLabelSettings.logo).toBe('data:png;base64,some-base64-data');
     expect(app.userLoggedIn).toBeTrue();
     expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
   }));
 
   it('should render custom logo in navbar if it is set', fakeAsync(() => {
-    mockCompanyService.getCompanyLogo.and.returnValue(of('data:png;base64,some-base64-data'));
+    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: 'data:png;base64,some-base64-data'}));
     mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
     app.initializeUserSession();
     tick();
@@ -156,7 +163,7 @@ fdescribe('AppComponent', () => {
   }));
 
   it('should render the link to Connetions list that contains the custom logo in the navbar', fakeAsync(() => {
-    mockCompanyService.getCompanyLogo.and.returnValue(of(null));
+    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: null}));
     mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
     app.initializeUserSession();
     tick();
@@ -184,7 +191,7 @@ fdescribe('AppComponent', () => {
 
   it('should render feature popup if isFeatureNotificationShown different on server and client', fakeAsync(() => {
     app.currentFeatureNotificationId = 'new-id';
-    mockCompanyService.getCompanyLogo.and.returnValue(of(null));
+    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: null}));
     mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
@@ -197,7 +204,7 @@ fdescribe('AppComponent', () => {
 
   it('should not render feature popup if isFeatureNotificationShown the same on server and client', fakeAsync(() => {
     app.currentFeatureNotificationId = 'old-id';
-    mockCompanyService.getCompanyLogo.and.returnValue(of(null));
+    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: null}));
     mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
@@ -237,8 +244,9 @@ fdescribe('AppComponent', () => {
   });
 
   it('should handle user login flow when cast emits user with expires', fakeAsync(() => {
+    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: '', favicon: ''}));
+
     const expirationDate = new Date(Date.now() + 10_000); // 10s from now
-    // spyOn(app['router'], 'navigate');
     app['currentFeatureNotificationId'] = 'some-id';
 
     app.ngOnInit();
@@ -254,7 +262,7 @@ fdescribe('AppComponent', () => {
     expect(app.userLoggedIn).toBeTrue();
     expect(app.currentUser.email).toBe('test@email.com');
     expect(mockUserService.fetchUser).toHaveBeenCalled();
-    expect(mockCompanyService.getCompanyLogo).toHaveBeenCalledWith('company-12345678');
+    expect(mockCompanyService.getWhiteLabelProperties).toHaveBeenCalledWith('company-12345678');
     expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
     expect(app.isFeatureNotificationShown).toBeTrue();
   }));
@@ -262,9 +270,6 @@ fdescribe('AppComponent', () => {
   it('should restore session and log out after token expiration', fakeAsync(() => {
     const expiration = new Date(Date.now() + 5000); // 5s ahead
     localStorage.setItem('token_expiration', expiration.toString());
-
-    // spyOn(app['router'], 'navigate');
-    // spyOn(app, 'logOut');
 
     spyOn(app, 'initializeUserSession').and.callFake(() => {
       app.userLoggedIn = true;
@@ -283,12 +288,10 @@ fdescribe('AppComponent', () => {
     expect(app['router'].navigate).toHaveBeenCalledWith(['/login']);
   }));
 
-  xit('should immediately log out and navigate to login if token is expired', fakeAsync(() => {
+  it('should immediately log out and navigate to login if token is expired', fakeAsync(() => {
     const expiration = new Date(Date.now() - 5000); // Expired 5s ago
     localStorage.setItem('token_expiration', expiration.toString());
 
-    // spyOn(app['router'], 'navigate');
-    // spyOn(app, 'logOut');
     spyOn(app, 'initializeUserSession');
 
     app.userLoggedIn = true;

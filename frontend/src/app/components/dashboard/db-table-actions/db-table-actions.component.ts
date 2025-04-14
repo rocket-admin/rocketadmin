@@ -128,7 +128,7 @@ export class DbTableActionsComponent implements OnInit {
       console.log(this.rulesData);
       this.rules = this.rulesData.action_rules;
       if (this.rules.length) this.setSelectedRule(this.rules[0]);
-      this.title.setTitle(`${this.rulesData.display_name || this.normalizedTableName} - Actions | Rocketadmin`);
+      this.title.setTitle(`${this.rulesData.display_name || this.normalizedTableName} - Actions | ${this._company.companyTabTitle || 'Rocketadmin'}`);
     } catch(error) {
       if (error instanceof HttpErrorResponse) {
         this.rulesData = null;

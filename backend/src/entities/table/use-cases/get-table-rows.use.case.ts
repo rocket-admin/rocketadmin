@@ -93,6 +93,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         tableCustomFields,
         userTablePermissions,
         customActionEvents,
+        savedTableFilters,
         /* eslint-enable */
       ] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, tableName),
@@ -103,10 +104,16 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
         this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
+        this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(tableName, connectionId),
       ]);
       const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
         ? findFilteringFieldsUtil(query, tableStructure)
         : parseFilteringFieldsFromBodyData(filters, tableStructure);
+
+      // if (!filteringFields.length && savedTableFilters) {
+      //   const parsedSavedTableFilters = parseFilteringFieldsFromBodyData(savedTableFilters.filters, tableStructure);
+      //   filteringFields.push(...parsedSavedTableFilters);
+      // }
 
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
@@ -232,6 +239,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         large_dataset: largeDataset,
         allow_csv_export: allowCsvExport,
         allow_csv_import: allowCsvImport,
+        saved_filters: savedTableFilters?.filters ? savedTableFilters.filters : null,
       };
 
       const identitiesMap = new Map<string, any[]>();
