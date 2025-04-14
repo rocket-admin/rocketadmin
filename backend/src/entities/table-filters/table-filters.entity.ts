@@ -1,8 +1,17 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 
 @Entity('table_filters')
-@Unique(['connectionId', 'table_name'])
 export class TableFiltersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -13,6 +22,19 @@ export class TableFiltersEntity {
   @Column({ default: null })
   table_name: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  name: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  dynamic_filter_column_name: string | null;
+
+  @Column('enum', {
+    nullable: true,
+    enum: FilterCriteriaEnum,
+    default: null,
+  })
+  dynamic_filter_comparator: FilterCriteriaEnum | null;
+
   @ManyToOne((_) => ConnectionEntity, (connection) => connection.table_filters, {
     onDelete: 'CASCADE',
   })
@@ -21,4 +43,22 @@ export class TableFiltersEntity {
 
   @Column()
   connectionId: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ type: 'timestamp', default: null })
+  updatedAt: Date;
+
+  @BeforeInsert()
+  setDefaultName(): void {
+    if (!this.name) {
+      this.name = 'New filter';
+    }
+  }
+
+  @BeforeUpdate()
+  updateTimestamp(): void {
+    this.updatedAt = new Date();
+  }
 }

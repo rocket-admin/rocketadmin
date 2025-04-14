@@ -4,12 +4,13 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 
 import { FindTableFiltersDs } from '../application/data-structures/find-table-filters.ds.js';
-import { CreatedTableFiltersRO } from '../application/response-objects/created-table-filters.ro.js';
+import { CreatedTableFilterRO } from '../application/response-objects/created-table-filters.ro.js';
 import { IFindTableFilters } from './table-filters-use-cases.interface.js';
+import { buildCreatedTableFilterRO } from '../utils/build-created-table-filters-response-object.util.js';
 
 @Injectable()
 export class FindTableFiltersUseCase
-  extends AbstractUseCase<FindTableFiltersDs, CreatedTableFiltersRO>
+  extends AbstractUseCase<FindTableFiltersDs, Array<CreatedTableFilterRO>>
   implements IFindTableFilters
 {
   constructor(
@@ -19,22 +20,13 @@ export class FindTableFiltersUseCase
     super();
   }
 
-  protected async implementation(inputData: FindTableFiltersDs): Promise<CreatedTableFiltersRO> {
+  protected async implementation(inputData: FindTableFiltersDs): Promise<Array<CreatedTableFilterRO>> {
     const { table_name, connection_id } = inputData;
     const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(
       table_name,
       connection_id,
     );
-    if (!foundTableFilters) {
-      return {
-        filters: null,
-      } as CreatedTableFiltersRO;
-    }
-    return {
-      id: foundTableFilters.id,
-      tableName: table_name,
-      connectionId: foundTableFilters.connectionId,
-      filters: foundTableFilters.filters,
-    };
+
+    return foundTableFilters.map((tableFilters) => buildCreatedTableFilterRO(tableFilters));
   }
 }

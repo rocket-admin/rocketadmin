@@ -1,16 +1,25 @@
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
-import { CreateTableFiltersDto } from '../application/data-structures/create-table-filters.ds.js';
-import { FindTableFiltersDs } from '../application/data-structures/find-table-filters.ds.js';
-import { CreatedTableFiltersRO } from '../application/response-objects/created-table-filters.ro.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { CreateTableFilterDs } from '../application/data-structures/create-table-filters.ds.js';
+import { FindTableFilterByIdDs, FindTableFiltersDs } from '../application/data-structures/find-table-filters.ds.js';
+import { CreatedTableFilterRO } from '../application/response-objects/created-table-filters.ro.js';
 
 export interface ICreateTableFilters {
-  execute(inputData: CreateTableFiltersDto, inTransaction: InTransactionEnum): Promise<CreatedTableFiltersRO>;
+  execute(inputData: CreateTableFilterDs, inTransaction: InTransactionEnum): Promise<CreatedTableFilterRO>;
 }
 
 export interface IFindTableFilters {
-  execute(inputData: FindTableFiltersDs, inTransaction: InTransactionEnum): Promise<CreatedTableFiltersRO>;
+  execute(inputData: FindTableFiltersDs, inTransaction: InTransactionEnum): Promise<Array<CreatedTableFilterRO>>;
+}
+
+export interface IFindTableFilterById {
+  execute(inputData: FindTableFilterByIdDs, inTransaction: InTransactionEnum): Promise<CreatedTableFilterRO>;
 }
 
 export interface IDeleteTableFilters {
-  execute(inputData: FindTableFiltersDs, inTransaction: InTransactionEnum): Promise<CreatedTableFiltersRO>;
+  execute(inputData: FindTableFiltersDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IDeleteTableFilterById {
+  execute(inputData: FindTableFilterByIdDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
