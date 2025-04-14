@@ -64,6 +64,14 @@
     opacity: 1;
 }
 
+.zapier-link {
+    position: absolute;
+    top: 50%;
+    right: -48px;
+    transform: translateY(-50%);
+    height: 2em;
+}
+
 .empty-state {
     display: flex;
     flex-direction: column;

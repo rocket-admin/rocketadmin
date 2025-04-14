@@ -29,6 +29,7 @@ import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-su
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
+import { ZapierComponent } from './components/zapier/zapier.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -60,6 +61,7 @@ const routes: Routes = [
   {path: 'dashboard/:connection-id/:table-name/settings', pathMatch: 'full', component: DbTableSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/actions', pathMatch: 'full', component: DbTableActionsComponent, canActivate: [AuthGuard]},
   {path: 'permissions/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
+  {path: 'zapier', component: ZapierComponent, canActivate: [AuthGuard]},
   {path: '**', component: PageNotFoundComponent},
 ];
 
