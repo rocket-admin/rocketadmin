@@ -1,12 +1,12 @@
 import { AlertActionType, AlertType } from '../models/alert';
+import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { CompanyMemberRole } from '../models/company';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { ConfigurationService } from './configuration.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
-import { ConfigurationService } from './configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -458,8 +458,10 @@ export class CompanyService {
           } else {
             this.companyTabTitle = null;
           }
-          
+
           this.companyTabTitleSubject.next(res.tab_title);
+
+          this.company.next('');
 
           return {
             logo: this.companyLogo,

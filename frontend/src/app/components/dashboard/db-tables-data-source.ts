@@ -236,7 +236,7 @@ export class TablesDataSource implements DataSource<Object> {
             .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
           this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
           this.permissions = res.table_permissions.accessLevel;
-          if (this.keyAttributes.length && this.permissions.edit || this.permissions.delete) {
+          if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
             this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
             this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
           } else {
