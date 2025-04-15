@@ -60,8 +60,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
   ) {
     super();
     this.autocmpleteUpdate.pipe(
-      debounceTime(500),
-      distinctUntilChanged())
+      debounceTime(500))
       .subscribe(value => {
         if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
         this.fetchSuggestions();
