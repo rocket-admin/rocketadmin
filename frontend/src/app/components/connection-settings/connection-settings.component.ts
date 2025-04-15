@@ -23,8 +23,7 @@ import { normalizeTableName } from '../../lib/normalize'
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { PlaceholderConnectionSettingsComponent } from '../skeletons/placeholder-connection-settings/placeholder-connection-settings.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
-import { ZapierComponent } from './zapier/zapier.component';
-import { MatTabsModule } from '@angular/material/tabs';
+
 import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
@@ -33,7 +32,6 @@ import { CompanyService } from 'src/app/services/company.service';
   styleUrls: ['./connection-settings.component.css'],
   imports: [
     CommonModule,
-    MatTabsModule,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -45,8 +43,7 @@ import { CompanyService } from 'src/app/services/company.service';
     BannerComponent,
     PlaceholderConnectionSettingsComponent,
     AlertComponent,
-    Angulartics2Module,
-    ZapierComponent
+    Angulartics2Module
   ]
 })
 export class ConnectionSettingsComponent implements OnInit {

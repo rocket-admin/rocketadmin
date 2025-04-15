@@ -1,16 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
+
 import { User } from '@sentry/angular-ivy';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-zapier',
+  imports: [],
   templateUrl: './zapier.component.html',
   styleUrl: './zapier.component.css',
-  imports: [CommonModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ZapierComponent implements OnInit {
+export class ZapierComponent {
   public currentUser: User;
 
   constructor(

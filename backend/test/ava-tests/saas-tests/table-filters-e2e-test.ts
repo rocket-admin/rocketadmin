@@ -1,23 +1,19 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable security/detect-object-injection */
-import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
-import fs from 'fs';
-import path, { join } from 'path';
+import path from 'path';
 import request from 'supertest';
 import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
+import { QueryOrderingEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
-import { Constants } from '../../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
@@ -66,7 +62,7 @@ test.after(async () => {
 });
 
 currentTest = `POST /table-filters/:connectionId`;
-test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
+test.serial(`${currentTest} create table filters`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -88,48 +84,36 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
       [fieldname]: { lt: fieldvalue },
     };
 
+    const filtersDTO = {
+      name: 'Test filter',
+      filters: filters,
+    };
+
     const createTableFiltersResponse = await request(app.getHttpServer())
       .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
-      .send({ filters })
+      .send({ ...filtersDTO })
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
+
     t.is(createTableFiltersResponse.status, 201);
     t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('tableName'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('connectionId'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
     t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.deepEqual(createTableFiltersRO.filters, filters);
-
-    // should rewrite filters when pass new one
-
-    const newFieldValue = '18';
-    const newFilters = {
-      [fieldname]: { gt: newFieldValue },
-    };
-    const updateTableFiltersResponse = await request(app.getHttpServer())
-      .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
-      .send({ filters: newFilters })
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    const updateTableFiltersRO = JSON.parse(updateTableFiltersResponse.text);
-    t.is(updateTableFiltersResponse.status, 201);
-    t.is(updateTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('tableName'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('connectionId'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('filters'), true);
-    t.deepEqual(updateTableFiltersRO.filters, newFilters);
+    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(createTableFiltersRO.name, filtersDTO.name);
+    t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
   } catch (e) {
     console.error(e);
     t.fail();
   }
 });
 
-currentTest = `GET /table-filters/:slug`;
+currentTest = `GET /table-filters/:connectionId/all`;
 test.serial(`${currentTest} should return table filters`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
@@ -153,9 +137,14 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
       [fieldname]: { lt: fieldvalue },
     };
 
+    const filtersDTO = {
+      name: 'Test filter',
+      filters: filters,
+    };
+
     const createTableFiltersResponse = await request(app.getHttpServer())
       .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
-      .send({ filters })
+      .send({ ...filtersDTO })
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -163,31 +152,114 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
     t.is(createTableFiltersResponse.status, 201);
     t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('tableName'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('connectionId'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
     t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.deepEqual(createTableFiltersRO.filters, filters);
+    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(createTableFiltersRO.name, filtersDTO.name);
+    t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
 
     const getTableFiltersResponse = await request(app.getHttpServer())
-      .get(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .get(`/table-filters/${createConnectionRO.id}/all/?tableName=${testTableName}`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
     const getTableFiltersRO = JSON.parse(getTableFiltersResponse.text);
-    t.is(getTableFiltersResponse.status, 200);
-    t.is(getTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('tableName'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('connectionId'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('filters'), true);
-    t.deepEqual(getTableFiltersRO.filters, filters);
+    t.is(Array.isArray(getTableFiltersRO), true);
+    t.is(getTableFiltersRO.length, 1);
+    getTableFiltersRO.forEach((el) => {
+      t.is(el.hasOwnProperty('id'), true);
+      t.is(el.hasOwnProperty('name'), true);
+      t.is(el.hasOwnProperty('filters'), true);
+      t.is(el.hasOwnProperty('dynamic_column'), true);
+      t.is(el.hasOwnProperty('createdAt'), true);
+      t.is(el.hasOwnProperty('updatedAt'), true);
+      t.is(el.name, filtersDTO.name);
+      t.deepEqual(el.filters, filtersDTO.filters);
+    });
   } catch (e) {
     console.error(e);
     t.fail();
   }
 });
 
-currentTest = `DELETE /table-filters/:slug`;
+currentTest = `GET /table-filters/:connectionId/:filterId`;
+test.serial(`${currentTest} should return table filters`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const fieldname = 'id';
+    const fieldvalue = '45';
+
+    const filters = {
+      [fieldname]: { lt: fieldvalue },
+    };
+
+    const filtersDTO = {
+      name: 'Test filter',
+      filters: filters,
+      dynamic_column: {
+        column_name: 'id',
+        comparator: 'gt',
+      },
+    };
+
+    const createTableFiltersResponse = await request(app.getHttpServer())
+      .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .send({ ...filtersDTO })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
+    t.is(createTableFiltersResponse.status, 201);
+    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(createTableFiltersRO.name, filtersDTO.name);
+    t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
+
+    const getTableFiltersResponse = await request(app.getHttpServer())
+      .get(`/table-filters/${createConnectionRO.id}/${createTableFiltersRO.id}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getTableFiltersRO = JSON.parse(getTableFiltersResponse.text);
+    t.is(getTableFiltersRO.hasOwnProperty('id'), true);
+    t.is(getTableFiltersRO.hasOwnProperty('name'), true);
+    t.is(getTableFiltersRO.hasOwnProperty('filters'), true);
+    t.is(getTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(getTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(getTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(getTableFiltersRO.name, filtersDTO.name);
+    t.deepEqual(getTableFiltersRO.filters, filtersDTO.filters);
+    t.is(getTableFiltersRO.dynamic_column.column_name, filtersDTO.dynamic_column.column_name);
+    t.is(getTableFiltersRO.dynamic_column.comparator, filtersDTO.dynamic_column.comparator);
+  } catch (e) {
+    console.error(e);
+    t.fail();
+  }
+});
+
+currentTest = `DELETE /table-filters/:connectionId/all`;
 
 test.serial(`${currentTest} should delete table filters`, async (t) => {
   try {
@@ -212,9 +284,18 @@ test.serial(`${currentTest} should delete table filters`, async (t) => {
       [fieldname]: { lt: fieldvalue },
     };
 
+    const filtersDTO = {
+      name: 'Test filter',
+      filters: filters,
+      dynamic_column: {
+        column_name: 'id',
+        comparator: 'gt',
+      },
+    };
+
     const createTableFiltersResponse = await request(app.getHttpServer())
       .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
-      .send({ filters })
+      .send({ ...filtersDTO })
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -222,35 +303,108 @@ test.serial(`${currentTest} should delete table filters`, async (t) => {
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
     t.is(createTableFiltersResponse.status, 201);
     t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('tableName'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('connectionId'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
     t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.deepEqual(createTableFiltersRO.filters, filters);
+    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(createTableFiltersRO.name, filtersDTO.name);
+    t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
 
     const deleteTableFiltersResponse = await request(app.getHttpServer())
-      .delete(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .delete(`/table-filters/${createConnectionRO.id}/all/?tableName=${testTableName}`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
     const deleteTableFiltersRO = JSON.parse(deleteTableFiltersResponse.text);
     t.is(deleteTableFiltersResponse.status, 200);
-    t.is(deleteTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(deleteTableFiltersRO.hasOwnProperty('tableName'), true);
-    t.is(deleteTableFiltersRO.hasOwnProperty('connectionId'), true);
-    t.is(deleteTableFiltersRO.connectionId, createConnectionRO.id);
-    t.is(deleteTableFiltersRO.hasOwnProperty('filters'), true);
-    t.deepEqual(deleteTableFiltersRO.filters, filters);
 
-    // should throw an error when try to get deleted table filters
+    // should return an empty array, when try to get deleted table filters
     const getTableFiltersResponse = await request(app.getHttpServer())
-      .get(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .get(`/table-filters/${createConnectionRO.id}/all/?tableName=${testTableName}`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
     t.is(getTableFiltersResponse.status, 200);
-    t.is(getTableFiltersResponse.body.filters, null);
+    t.deepEqual(getTableFiltersResponse.body, []);
+  } catch (e) {
+    console.error(e);
+    t.fail();
+  }
+});
+
+currentTest = `DELETE /table-filters/:connectionId/:filterId`;
+
+test.serial(`${currentTest} should delete table filters`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const fieldname = 'id';
+    const fieldvalue = '45';
+
+    const filters = {
+      [fieldname]: { lt: fieldvalue },
+    };
+
+    const filtersDTO = {
+      name: 'Test filter',
+      filters: filters,
+      dynamic_column: {
+        column_name: 'id',
+        comparator: 'gt',
+      },
+    };
+
+    const createTableFiltersResponse = await request(app.getHttpServer())
+      .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .send({ ...filtersDTO })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
+    t.is(createTableFiltersResponse.status, 201);
+    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(createTableFiltersRO.name, filtersDTO.name);
+    t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
+
+    const deleteTableFiltersResponse = await request(app.getHttpServer())
+      .delete(`/table-filters/${createConnectionRO.id}/${createTableFiltersRO.id}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const deleteTableFiltersRO = JSON.parse(deleteTableFiltersResponse.text);
+    t.is(deleteTableFiltersResponse.status, 200);
+
+    // should return an empty array, when try to get deleted table filters
+    const getTableFiltersResponse = await request(app.getHttpServer())
+      .get(`/table-filters/${createConnectionRO.id}/all/?tableName=${testTableName}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(getTableFiltersResponse.status, 200);
+    t.deepEqual(getTableFiltersResponse.body, []);
   } catch (e) {
     console.error(e);
     t.fail();
@@ -303,26 +457,48 @@ test.serial(
       t.is(createTableSettingsResponse.status, 201);
 
       const fieldname = 'id';
-      const fieldvalue = '2';
+      const fieldvalue = '45';
 
       const filters = {
-        [fieldname]: { gt: fieldvalue },
+        [fieldname]: { lt: fieldvalue },
       };
+
+      const filterDTOs = [];
+      const filtersDTO = {
+        name: 'Test filter',
+        filters: filters,
+        dynamic_column: {
+          column_name: 'id',
+          comparator: 'gt',
+        },
+      };
+
+      const secondFiltersDTO = {
+        name: 'Test filter2',
+        filters: filters,
+        dynamic_column: {
+          column_name: 'id',
+          comparator: 'lt',
+        },
+      };
+      filterDTOs.push(filtersDTO);
+      filterDTOs.push(secondFiltersDTO);
 
       const createTableFiltersResponse = await request(app.getHttpServer())
         .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
-        .send({ filters })
+        .send({ ...filtersDTO })
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
-
-      const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
       t.is(createTableFiltersResponse.status, 201);
-      t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-      t.is(createTableFiltersRO.hasOwnProperty('tableName'), true);
-      t.is(createTableFiltersRO.hasOwnProperty('connectionId'), true);
-      t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-      t.deepEqual(createTableFiltersRO.filters, filters);
+
+      const createTableFiltersResponse2 = await request(app.getHttpServer())
+        .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+        .send({ ...secondFiltersDTO })
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableFiltersResponse2.status, 201);
 
       const getTableRowsResponse = await request(app.getHttpServer())
         .get(
@@ -354,7 +530,19 @@ test.serial(
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
       t.is(getTableRowsRO.hasOwnProperty('saved_filters'), true);
-      t.deepEqual(getTableRowsRO.saved_filters, filters);
+      t.is(Array.isArray(getTableRowsRO.saved_filters), true);
+      t.is(getTableRowsRO.saved_filters.length, 2);
+      getTableRowsRO.saved_filters.forEach((el) => {
+        t.is(el.hasOwnProperty('id'), true);
+        t.is(el.hasOwnProperty('name'), true);
+        t.is(el.hasOwnProperty('filters'), true);
+        t.is(el.hasOwnProperty('dynamic_column'), true);
+        t.is(el.hasOwnProperty('createdAt'), true);
+        t.is(el.hasOwnProperty('updatedAt'), true);
+        const foundFilterDTO = filterDTOs.find((filterDTO) => filterDTO.name === el.name);
+        t.is(el.name, foundFilterDTO.name);
+        t.deepEqual(el.filters, foundFilterDTO.filters);
+      });
     } catch (error) {
       console.error(error);
       t.fail();
