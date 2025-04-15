@@ -38,6 +38,7 @@ import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { buildCreatedTableFilterRO } from '../../table-filters/utils/build-created-table-filters-response-object.util.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -239,7 +240,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         large_dataset: largeDataset,
         allow_csv_export: allowCsvExport,
         allow_csv_import: allowCsvImport,
-        saved_filters: savedTableFilters?.filters ? savedTableFilters.filters : null,
+        saved_filters: savedTableFilters.map((el) => buildCreatedTableFilterRO(el)),
       };
 
       const identitiesMap = new Map<string, any[]>();

@@ -588,14 +588,16 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     const offset = (page - 1) * perPage;
     const knex = await this.configureKnex();
 
-    const [{ large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, null, tableName, this.connection.database),
-      this.getTableStructure(tableName),
-    ]);
+    // const [{ large_dataset }, tableStructure] = await Promise.all([
+    //   this.getRowsCount(knex, null, tableName, this.connection.database),
+    //   this.getTableStructure(tableName),
+    // ]);
 
-    if (large_dataset) {
-      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
-    }
+    const tableStructure = await this.getTableStructure(tableName);
+
+    // if (large_dataset) {
+    //   throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    // }
 
     const availableFields = this.findAvailableFields(settings, tableStructure);
 

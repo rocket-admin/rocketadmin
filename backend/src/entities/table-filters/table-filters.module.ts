@@ -10,6 +10,8 @@ import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { FindTableFiltersUseCase } from './use-cases/find-table-filters.use.case.js';
 import { DeleteTableFiltersUseCase } from './use-cases/delete-table-filters.use.case.js';
+import { FindTableFilterByIdUseCase } from './use-cases/find-filter-by-id-use.case.js';
+import { DeleteTableFilterByIdUseCase } from './use-cases/delete-table-filter-by-id.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableFiltersEntity, UserEntity, LogOutEntity])],
@@ -30,6 +32,14 @@ import { DeleteTableFiltersUseCase } from './use-cases/delete-table-filters.use.
       provide: UseCaseType.DELETE_TABLE_FILTERS,
       useClass: DeleteTableFiltersUseCase,
     },
+    {
+      provide: UseCaseType.FIND_TABLE_FILTER_BY_ID,
+      useClass: FindTableFilterByIdUseCase,
+    },
+    {
+      provide: UseCaseType.DELETE_TABLE_FILTER_BY_ID,
+      useClass: DeleteTableFilterByIdUseCase,
+    },
   ],
   controllers: [TableFiltersController],
 })
@@ -39,8 +49,10 @@ export class TableFiltersModule {
       .apply(AuthMiddleware)
       .forRoutes(
         { path: '/table-filters/:connectionId', method: RequestMethod.POST },
-        { path: '/table-filters/:connectionId', method: RequestMethod.GET },
-        { path: '/table-filters/:connectionId', method: RequestMethod.DELETE },
+        { path: '/table-filters/:connectionId/all', method: RequestMethod.GET },
+        { path: '/table-filters/:connectionId/:filterId', method: RequestMethod.GET },
+        { path: '/table-filters/:connectionId/all', method: RequestMethod.DELETE },
+        { path: '/table-filters/:connectionId/:filterId', method: RequestMethod.DELETE },
       );
   }
 }

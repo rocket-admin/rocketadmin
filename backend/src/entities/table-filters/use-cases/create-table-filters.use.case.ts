@@ -8,14 +8,15 @@ import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exce
 import { Messages } from '../../../exceptions/text/messages.js';
 import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { CreateTableFiltersDto } from '../application/data-structures/create-table-filters.ds.js';
-import { CreatedTableFiltersRO } from '../application/response-objects/created-table-filters.ro.js';
-import { TableFiltersEntity } from '../table-filters.entity.js';
+import { CreateTableFilterDs } from '../application/data-structures/create-table-filters.ds.js';
+import { CreatedTableFilterRO } from '../application/response-objects/created-table-filters.ro.js';
+import { buildCreatedTableFilterRO } from '../utils/build-created-table-filters-response-object.util.js';
+import { buildNewTableFiltersEntity } from '../utils/build-new-table-filters-entity.util.js';
 import { ICreateTableFilters } from './table-filters-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateTableFiltersUseCase
-  extends AbstractUseCase<CreateTableFiltersDto, CreatedTableFiltersRO>
+  extends AbstractUseCase<CreateTableFilterDs, CreatedTableFilterRO>
   implements ICreateTableFilters
 {
   constructor(
@@ -25,8 +26,8 @@ export class CreateTableFiltersUseCase
     super();
   }
 
-  protected async implementation(inputData: CreateTableFiltersDto): Promise<CreatedTableFiltersRO> {
-    const { table_name, connection_id, filters, masterPwd } = inputData;
+  protected async implementation(inputData: CreateTableFilterDs): Promise<CreatedTableFilterRO> {
+    const { connection_id, masterPwd } = inputData;
 
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connection_id,
@@ -36,36 +37,22 @@ export class CreateTableFiltersUseCase
       throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
-    const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(
-      table_name,
-      connection_id,
-    );
-    if (foundTableFilters) {
-      await this._dbContext.tableFiltersRepository.remove(foundTableFilters);
-    }
-
     const errors = await this.validateFiltersData(inputData, foundConnection);
     if (errors.length > 0) {
       throw new BadRequestException(errors.join(',\n'));
     }
-    const newTableFilters = new TableFiltersEntity();
-    newTableFilters.table_name = table_name;
-    newTableFilters.connection = foundConnection;
-    newTableFilters.filters = filters;
+
+    const newTableFilters = buildNewTableFiltersEntity(inputData);
+
     const savedTableFilters = await this._dbContext.tableFiltersRepository.save(newTableFilters);
-    return {
-      id: savedTableFilters.id,
-      tableName: table_name,
-      connectionId: foundConnection.id,
-      filters: newTableFilters.filters,
-    };
+    return buildCreatedTableFilterRO(savedTableFilters);
   }
 
   private async validateFiltersData(
-    inputData: CreateTableFiltersDto,
+    inputData: CreateTableFilterDs,
     foundConnection: ConnectionEntity,
   ): Promise<Array<string>> {
-    const { table_name, filters } = inputData;
+    const { table_name, filters, dynamic_filtered_column } = inputData;
     const errors: Array<string> = [];
     try {
       const dao = getDataAccessObject(foundConnection);
@@ -89,6 +76,14 @@ export class CreateTableFiltersUseCase
           if (!validateStringWithEnum(filterCriteria, FilterCriteriaEnum)) {
             errors.push(`Invalid filter criteria: "${filterCriteria}".`);
           }
+        }
+      }
+      if (dynamic_filtered_column) {
+        if (!tableColumnNames.includes(dynamic_filtered_column.column_name)) {
+          errors.push(Messages.NO_SUCH_FIELD_IN_TABLE(dynamic_filtered_column.column_name, table_name));
+        }
+        if (!validateStringWithEnum(dynamic_filtered_column.comparator, FilterCriteriaEnum)) {
+          errors.push(`Invalid filter criteria: "${dynamic_filtered_column.comparator}".`);
         }
       }
       return errors;

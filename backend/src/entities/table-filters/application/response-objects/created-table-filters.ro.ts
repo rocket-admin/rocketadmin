@@ -1,15 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateTableFilterDto } from './create-table-filters.dto.js';
 
-export class CreatedTableFiltersRO {
-  @ApiProperty()
+export class CreatedTableFilterRO extends CreateTableFilterDto {
+  @ApiProperty({ type: 'string' })
   id: string;
 
-  @ApiProperty()
-  tableName: string;
+  @ApiProperty({ type: 'string' })
+  table_name: string;
 
-  @ApiProperty()
-  connectionId: string;
+  @ApiProperty({ type: Date })
+  createdAt: Date;
 
-  @ApiProperty({ type: Object })
-  filters: Record<string, any>;
+  @ApiProperty({ type: Date })
+  updatedAt: Date;
 }
