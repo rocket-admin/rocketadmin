@@ -110,7 +110,7 @@
                     </mat-menu>
                 </div>
                 <button mat-icon-button type="button"
-                    *ngIf="accessLevel === 'edit'"
+                    *ngIf="accessLevel === 'edit' && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"
                     matTooltip="Emport / Export"
                     [matMenuTriggerFor]="transferDataMenu"
                     angulartics2On="click"
