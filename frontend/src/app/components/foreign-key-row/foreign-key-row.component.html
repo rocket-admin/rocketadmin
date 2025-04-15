@@ -1,0 +1,168 @@
+<app-alert></app-alert>
+<app-placeholder-table-widgets *ngIf="!widgets"></app-placeholder-table-widgets>
+
+<div *ngIf="widgets" class="wrapper">
+    <header class="header">
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
+
+        <div *ngIf="widgets.length" class="header-actions">
+            <button  mat-stroked-button
+                type="button"
+                (click)="openClearAllConfirmation()"
+                [disabled]="fields.length === 0 && widgets.length === 0">
+                Clear All
+            </button>
+            <button mat-stroked-button color="accent"
+                type="button"
+                angulartics2On="click"
+                angularticsAction="Widgets: add widget is clicked"
+                (click)="addNewWidget()"
+                [disabled]="fields.length === 0 || widgets.length === fieldsCount">
+                <mat-icon>add</mat-icon>
+                Add field UI config
+            </button>
+        </div>
+
+    </header>
+
+    <form *ngIf="widgets && widgets.length; else emptyState" (ngSubmit)="updateWidgets()" class="widget-settings">
+        <app-widget *ngFor="let widget of widgets; let i = index"
+            class="widget-item"
+            [index]="i"
+            [widgetType]="widget.widget_type"
+            [widget]="widget"
+            [fields]="fields"
+            [widgetTypes]="widgetTypes"
+            [isReadonlyParams]="isReadOnly(widget.widget_type)"
+            [codeEditorTheme]="codeEditorTheme"
+            (onSelectWidgetField)="selectWidgetField($event)"
+            (onWidgetTypeChange)="widgetTypeChange($event)"
+            (onWidgetParamsChange)="widgetParamsChange($event)"
+            (onWidgetDelete)="openDeleteWidgetDialog($event)">
+        </app-widget>
+
+
+        <div class="actions">
+            <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                Back
+            </a>
+
+            <button mat-flat-button color="primary"
+                type="submit" [disabled]="submitting">
+                Save
+            </button>
+        </div>
+    </form>
+
+    <ng-template #emptyState>
+        <div class="empty-state">
+            <!--<p class="empty-state__text">No fields configured</p>-->
+            <p class="widgets-hint">
+                <strong class="widgets-hint__title">Customize how fields look in forms and tables</strong>
+                <span class="widgets-hint__text">Nothing will be changed in your data types, just better reflecting the nature of the data.</span>
+            </p>
+
+            <button mat-flat-button color="accent"
+                angulartics2On="click"
+                angularticsAction="Widgets: add first widget is clicked"
+                (click)="addNewWidget()">
+                Configure fields
+            </button>
+
+            <div class="widget-examples">
+                <div class="widget-example">
+                    <app-row-text
+                        key="password-original-example"
+                        label="Password"
+                        value="MySuper-Secret-Password_12345678"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-row-text>
+                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
+                    <app-row-password
+                        key="password-example"
+                        label="Password"
+                        value="MySuper-Secret-Password_12345678"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-row-password>
+                </div>
+
+                <div class="widget-example widget-example_row-2">
+                    <app-row-text
+                        key="select-original-example"
+                        label="Color"
+                        value="💜 Purple"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-row-text>
+                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
+                    <app-row-select
+                        key="select-example"
+                        label="Color"
+                        value="purple"
+                        [widgetStructure]="{widget_params: {options: [{value: 'red', label: '❤️ Red'}, {value: 'green', label: '💚 Green'}, {value: 'blue', label: '💙 Blue'}, {value: 'purple', label: '💜 Purple'}]}}"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-row-select>
+                </div>
+
+                <div class="widget-example widget-example_row-1-2">
+                    <app-row-text
+                        key="image-original-example"
+                        label="Image"
+                        value="https://app.rocketadmin.com/assets/main-table-reg-image.svg"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-row-text>
+                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
+                    <app-image
+                        key="image-example"
+                        label="Image"
+                        value="https://app.rocketadmin.com/assets/main-table-reg-image.svg"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-image>
+                </div>
+
+                <div class="widget-example widget-example_row-1-2">
+                    <app-row-long-text
+                        key="long-text-original-example"
+                        label="code"
+                        [value]="widgetCodeEample"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-row-long-text>
+                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
+                    <app-code
+                        key="code-example"
+                        label="Code"
+                        [value]="widgetCodeEample"
+                        [widgetStructure]="{widget_params: {language: 'html'}}"
+                        [required]="false"
+                        [readonly]="false"
+                        [disabled]="false">
+                    </app-code>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button mat-stroked-button type="button" (click)="goBack()">
+                    Back
+                </button>
+
+                <button mat-flat-button color="primary"
+                    type="submit" disabled>
+                    Save
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</div>
