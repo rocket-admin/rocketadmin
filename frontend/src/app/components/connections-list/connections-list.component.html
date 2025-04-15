@@ -2,7 +2,7 @@
 <div class="wrapper">
     <div *ngIf="companyName; else companyNameLoader" class="pageTitleHeader">
         <div class="pageTitle">
-            <h1 class="mat-headline-4 pageTitle__name">{{companyName}}</h1>
+            <h1 class="mat-headline-4 pageTitle__name" data-testid="company-name">{{companyName}}</h1>
             <a mat-icon-button *ngIf="currentUser.role === 'ADMIN'"
                 routerLink="/company"
                 class="companyEditLink">
