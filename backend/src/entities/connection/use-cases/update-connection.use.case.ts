@@ -93,6 +93,7 @@ export class UpdateConnectionUseCase
     let connectionToken = null;
     if (isConnectionTypeAgent(updatedConnection.type)) {
       connectionToken = await this.renewOrCreateConnectionToken(updatedConnection.id);
+      updatedConnection = this.clearNonRequiredConnectionAgentProperties(updatedConnection);
     }
     if (updatedConnection.masterEncryption && masterPwd) {
       updatedConnection = Encryptor.encryptConnectionCredentials(updatedConnection, masterPwd);
@@ -136,5 +137,25 @@ export class UpdateConnectionUseCase
 
   private async renewOrCreateConnectionToken(connectionId: string): Promise<string> {
     return await this._dbContext.agentRepository.renewOrCreateConnectionToken(connectionId);
+  }
+
+  private clearNonRequiredConnectionAgentProperties(connection: ConnectionEntity): ConnectionEntity {
+    delete connection.masterEncryption;
+    delete connection.authSource;
+    delete connection.schema;
+    delete connection.sid;
+    delete connection.ssh;
+    delete connection.privateSSHKey;
+    delete connection.sshHost;
+    delete connection.sshPort;
+    delete connection.sshUsername;
+    delete connection.cert;
+    delete connection.azure_encryption;
+    delete connection.host;
+    delete connection.port;
+    delete connection.username;
+    delete connection.password;
+    delete connection.database;
+    return connection;
   }
 }
