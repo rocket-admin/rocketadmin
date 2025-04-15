@@ -590,16 +590,19 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const offset = (page - 1) * perPage;
     const knex = await this.configureKnex();
 
-    const tableSchema = this.connection.schema ?? 'public';
-    const [{ large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, null, tableName, tableSchema),
-      this.getTableStructure(tableName),
-    ]);
+    // const tableSchema = this.connection.schema ?? 'public';
+
+    // const [{ large_dataset }, tableStructure] = await Promise.all([
+    //   this.getRowsCount(knex, null, tableName, tableSchema),
+    //   this.getTableStructure(tableName),
+    // ]);
+
+    const tableStructure = await this.getTableStructure(tableName);
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
-    if (large_dataset) {
-      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
-    }
+    // if (large_dataset) {
+    //   throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    // }
     const rowsAsStream = knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
       .select(availableFields)
