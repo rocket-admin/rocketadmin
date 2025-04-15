@@ -104,6 +104,8 @@ export class ConnectionsService {
   }
 
   get defaultTableToOpen() {
+    console.log('connections service get defaultTableToOpen');
+    console.log(this.defaultDisplayTable);
     return this.defaultDisplayTable;
   }
 
@@ -156,6 +158,8 @@ export class ConnectionsService {
           console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
+          console.log('connections service setConnectionInfo res.connectionProperties.default_showing_table;');
+          console.log(res.connectionProperties.default_showing_table);
           this.defaultDisplayTable = res.connectionProperties.default_showing_table;
           this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
           this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
