@@ -145,8 +145,6 @@ export class ConnectionsService {
   }
 
   setConnectionInfo(id: string) {
-    console.log('setConnectionInfo');
-    console.log(id);
     if (id) {
       this.fetchConnection(id).subscribe(res => {
         this.connection = res.connection;
@@ -155,17 +153,15 @@ export class ConnectionsService {
         this.connectionNameSubject.next(res.connection.title || res.connection.database);
         this.connectionSigningKeySubject.next(res.connection.signing_key);
         if (res.connectionProperties) {
-          console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
-          console.log('connections service setConnectionInfo res.connectionProperties.default_showing_table;');
-          console.log(res.connectionProperties.default_showing_table);
           this.defaultDisplayTable = res.connectionProperties.default_showing_table;
           this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
           this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
           this.connectionLogo = null;
           this.companyName = null;
+          this.defaultDisplayTable = null;
           this.isCustomAccentedColor = false;
           this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
         }
