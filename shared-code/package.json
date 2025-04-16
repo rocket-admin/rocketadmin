@@ -9,6 +9,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.734.0",
     "@aws-sdk/lib-dynamodb": "^3.734.0",
+    "@elastic/elasticsearch": "^9.0.0",
     "@types/multer": "^1.4.12",
     "axios": "^1.7.9",
     "csv": "^6.3.11",
