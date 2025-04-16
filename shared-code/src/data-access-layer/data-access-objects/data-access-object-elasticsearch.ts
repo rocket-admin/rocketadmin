@@ -13,6 +13,7 @@ import { TestConnectionResultDS } from '../shared/data-structures/test-result-co
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { Client } from '@elastic/elasticsearch';
 
 export class DataAccessObjectElasticsearch extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -137,5 +138,28 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
 
   public async executeRawQuery(query: string, tableName: string): Promise<Array<Record<string, unknown>>> {
     throw new Error('Method not implemented.');
+  }
+
+  private getElasticClient(): Client {
+    const { host, port, username, password, ssl, cert } = this.connection;
+    const protocol = ssl ? 'https' : 'http';
+    const node = `${protocol}://${host}:${port}`;
+    const options: any = {
+      node,
+      auth: {
+        username,
+        password,
+      },
+    };
+    if (ssl) {
+      options.tls = {
+        rejectUnauthorized: !cert,
+      };
+
+      if (cert) {
+        options.tls.ca = cert;
+      }
+    }
+    return new Client(options);
   }
 }
