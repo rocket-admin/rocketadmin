@@ -1,12 +1,12 @@
 import { AlertActionType, AlertType } from '../models/alert';
+import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { CompanyMemberRole } from '../models/company';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { ConfigurationService } from './configuration.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
-import { ConfigurationService } from './configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +16,11 @@ export class CompanyService {
   private company = new BehaviorSubject<string>('');
   public cast = this.company.asObservable();
 
+  private companyTabTitleSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
+
   private companyLogo: string;
   private companyFavicon: string;
+  public companyTabTitle: string;
 
   constructor(
     private _http: HttpClient,
@@ -28,8 +31,13 @@ export class CompanyService {
   get whiteLabelSettings() {
     return {
       logo: this.companyLogo,
-      favicon: this.companyFavicon
+      favicon: this.companyFavicon,
+      tabTitle: this.companyTabTitle,
     };
+  }
+
+  getCurrentTabTitle() {
+    return this.companyTabTitleSubject.asObservable();
   }
 
   fetchCompany() {
@@ -396,6 +404,38 @@ export class CompanyService {
       );
   }
 
+  updateTabTitle(companyId: string, tab_title: string) {
+      return this._http.post<any>(`/company/tab-title/${companyId}`, {tab_title})
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Tab title has been saved. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  removeTabTitle(companyId: string) {
+    return this._http.delete<any>(`/company/tab-title/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Tab title has been removed. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
 
   getWhiteLabelProperties(companyId: string) {
     return this._http.get<any>(`/company/white-label-properties/${companyId}`)
@@ -413,9 +453,20 @@ export class CompanyService {
             this.companyFavicon = null;
           }
 
+          if (res.tab_title) {
+            this.companyTabTitle = res.tab_title;
+          } else {
+            this.companyTabTitle = null;
+          }
+
+          this.companyTabTitleSubject.next(res.tab_title);
+
+          this.company.next('');
+
           return {
             logo: this.companyLogo,
             favicon: this.companyFavicon,
+            tab_title: res.tab_title,
           }
         }),
         catchError((err) => {
@@ -425,5 +476,4 @@ export class CompanyService {
         })
       );
   }
-
 }

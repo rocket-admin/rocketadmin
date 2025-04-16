@@ -38,7 +38,7 @@
 
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 3;
 }
 
 .nav-bar_exterior {
@@ -54,7 +54,7 @@
 .nav-bar_connection {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    z-index: 2;
+    z-index: 3;
 }
 
 @media (width <= 600px) {

@@ -9,6 +9,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { ContentLoaderComponent } from '../ui-components/content-loader/content-loader.component';
 import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
@@ -108,6 +109,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private _tableRow: TableRowService,
     private _uiSettings: UiSettingsService,
     private _tableState: TableStateService,
+    private _company: CompanyService,
     public router: Router,
     private route: ActivatedRoute,
     public dialog: MatDialog,
@@ -128,6 +130,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get defaultTableToOpen () {
+    console.log('dashboard component get defaultTableToOpen');
+    console.log(this._connections.defaultTableToOpen);
     return this._connections.defaultTableToOpen;
   }
 
@@ -164,7 +168,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } catch(err) {
       this.loading = false;
       this.isServerError = true;
-      this.title.setTitle('Dashboard | Rocketadmin');
+      this.title.setTitle(`Dashboard | ${this._company.companyTabTitle || 'Rocketadmin'}`);
 
       if (err instanceof HttpErrorResponse) {
         this.serverError = {abstract: err.error.message || err.message, details: err.error.originalMessage};
@@ -174,7 +178,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (tables && tables.length === 0) {
       this.noTablesError = true;
       this.loading = false;
-      this.title.setTitle('No tables | Rocketadmin');
+      this.title.setTitle(`No tables | ${this._company.companyTabTitle || 'Rocketadmin'}`);
     } else if (tables) {
       this.formatTableNames(tables);
       this.route.paramMap
@@ -184,7 +188,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
-              this.title.setTitle(`${this.selectedTableDisplayName} table | Rocketadmin`);
+              this.title.setTitle(`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`);
               this.selection.clear();
             } else {
               if (this.defaultTableToOpen) {

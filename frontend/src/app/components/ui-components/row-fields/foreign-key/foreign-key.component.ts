@@ -12,10 +12,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subject } from 'rxjs';
-import { TablesService } from 'src/app/services/tables.service';
 import { RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
 import { TableForeignKey } from 'src/app/models/table';
+import { TablesService } from 'src/app/services/tables.service';
 
 interface Suggestion {
   displayString: string;
@@ -60,8 +60,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
   ) {
     super();
     this.autocmpleteUpdate.pipe(
-      debounceTime(500),
-      distinctUntilChanged())
+      debounceTime(500))
       .subscribe(value => {
         if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
         this.fetchSuggestions();
@@ -134,6 +133,8 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
     if (currentRow !== undefined) {
       this.currentFieldValue = currentRow.fieldValue;
       // this.currentFieldQueryParams = Object.assign({}, ...this.primaeyKeys.map((primaeyKey) => ({[primaeyKey.column_name]: currentRow[primaeyKey.column_name]})));
+      console.log(this.label + 'this.currentFieldValue');
+      console.log(this.currentFieldValue);
       this.onFieldChange.emit(this.currentFieldValue);
     } else {
       this.fetching = true;

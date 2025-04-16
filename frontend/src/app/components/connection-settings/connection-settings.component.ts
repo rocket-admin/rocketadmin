@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 
 import { AccessLevel } from 'src/app/models/user';
 import { Angulartics2Module, Angulartics2 } from 'angulartics2';
@@ -14,7 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
@@ -23,8 +23,8 @@ import { normalizeTableName } from '../../lib/normalize'
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { PlaceholderConnectionSettingsComponent } from '../skeletons/placeholder-connection-settings/placeholder-connection-settings.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
-import { ZapierComponent } from './zapier/zapier.component';
-import { MatTabsModule } from '@angular/material/tabs';
+
+import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-connection-settings',
@@ -32,7 +32,6 @@ import { MatTabsModule } from '@angular/material/tabs';
   styleUrls: ['./connection-settings.component.css'],
   imports: [
     CommonModule,
-    MatTabsModule,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -44,11 +43,10 @@ import { MatTabsModule } from '@angular/material/tabs';
     BannerComponent,
     PlaceholderConnectionSettingsComponent,
     AlertComponent,
-    Angulartics2Module,
-    ZapierComponent
+    Angulartics2Module
   ]
 })
-export class ConnectionSettingsComponent implements OnInit, OnDestroy {
+export class ConnectionSettingsComponent implements OnInit {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
@@ -76,14 +74,17 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
+    private _company: CompanyService,
     private title: Title,
     @Inject(Angulartics2) private angulartics2: Angulartics2
   ) { }
 
   ngOnInit(): void {
-    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Settings - ${connectionTitle} | Rocketadmin`);
-    });
+    this._connections.getCurrentConnectionTitle()
+      .pipe(take(1))
+      .subscribe(connectionTitle => {
+        this.title.setTitle(`Settings - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+      });
 
     this.connectionID = this._connections.currentConnectionID;
 
@@ -109,10 +110,6 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
           this.serverError = {abstract: err.error.message, details: err.error.originalMessage};
         }
       )
-  }
-
-  ngOnDestroy() {
-    this.getTitleSubscription.unsubscribe();
   }
 
   get connectionName() {

@@ -7,6 +7,7 @@ import { RowsPaginationDS } from '@rocketadmin/shared-code/dist/src/data-access-
 import { ApiProperty } from '@nestjs/swagger';
 import { TablePermissionDs } from '../../../permission/application/data-structures/create-permissions.ds.js';
 import { FoundActionEventDTO } from '../../../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { CreatedTableFilterRO } from '../../../table-filters/application/response-objects/created-table-filters.ro.js';
 
 export class FoundTableRowsDs {
   @ApiProperty({ isArray: true })
@@ -60,8 +61,8 @@ export class FoundTableRowsDs {
   @ApiProperty()
   allow_csv_import: boolean;
 
-  @ApiProperty({ type: Object })
-  saved_filters: Record<string, any>;
+  @ApiProperty({ type: CreatedTableFilterRO, isArray: true })
+  saved_filters: Array<CreatedTableFilterRO>;
 }
 
 export class TableStructureDs {

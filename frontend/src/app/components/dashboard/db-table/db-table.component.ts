@@ -402,7 +402,7 @@ export class DbTableComponent implements OnInit {
   }
 
   isRowSelected(primaryKeys) {
-    return this.selectedRow && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
+    return this.selectedRow && Object.keys(this.selectedRow.primaryKeys).length && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
   }
 
   showCopyNotification(message: string) {

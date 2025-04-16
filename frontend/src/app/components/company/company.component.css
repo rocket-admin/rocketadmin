@@ -263,16 +263,22 @@
     position: relative;
 }
 
+.white-label-settings-images {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+
 .upload-logo-form {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 8px;
 }
 
 .white-label-preview {
     height: auto;
-    margin-top: 20px;
+    margin-top: 8px;
     width: 100%;
 }
 
