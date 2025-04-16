@@ -12,6 +12,7 @@ import { FindTableFiltersUseCase } from './use-cases/find-table-filters.use.case
 import { DeleteTableFiltersUseCase } from './use-cases/delete-table-filters.use.case.js';
 import { FindTableFilterByIdUseCase } from './use-cases/find-filter-by-id-use.case.js';
 import { DeleteTableFilterByIdUseCase } from './use-cases/delete-table-filter-by-id.use.case.js';
+import { UpdateTableFiltersUseCase } from './use-cases/update-table-filters.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableFiltersEntity, UserEntity, LogOutEntity])],
@@ -40,6 +41,10 @@ import { DeleteTableFilterByIdUseCase } from './use-cases/delete-table-filter-by
       provide: UseCaseType.DELETE_TABLE_FILTER_BY_ID,
       useClass: DeleteTableFilterByIdUseCase,
     },
+    {
+      provide: UseCaseType.UPDATE_TABLE_FILTER_BY_ID,
+      useClass: UpdateTableFiltersUseCase,
+    },
   ],
   controllers: [TableFiltersController],
 })
@@ -53,6 +58,7 @@ export class TableFiltersModule {
         { path: '/table-filters/:connectionId/:filterId', method: RequestMethod.GET },
         { path: '/table-filters/:connectionId/all', method: RequestMethod.DELETE },
         { path: '/table-filters/:connectionId/:filterId', method: RequestMethod.DELETE },
+        { path: '/table-filters/:connectionId/:filterId', method: RequestMethod.PUT },
       );
   }
 }

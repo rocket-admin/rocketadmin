@@ -7,6 +7,7 @@ import {
   Inject,
   Injectable,
   Post,
+  Put,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,7 +32,9 @@ import {
   IDeleteTableFilters,
   IFindTableFilterById,
   IFindTableFilters,
+  IUpdateTableFilterById,
 } from './use-cases/table-filters-use-cases.interface.js';
+import { UpdateTableFilterDs } from './application/data-structures/update-table-filters.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('table-filters')
@@ -50,6 +53,8 @@ export class TableFiltersController {
     private readonly findTableFilterByIdUseCase: IFindTableFilterById,
     @Inject(UseCaseType.DELETE_TABLE_FILTER_BY_ID)
     private readonly deleteTableFilterByIdUseCase: IDeleteTableFilterById,
+    @Inject(UseCaseType.UPDATE_TABLE_FILTER_BY_ID)
+    private readonly updateTableFilterByIdUseCase: IUpdateTableFilterById,
   ) {}
 
   @ApiOperation({ summary: 'Add new table filters object' })
@@ -176,5 +181,35 @@ export class TableFiltersController {
       connection_id: connectionId,
     };
     return await this.deleteTableFilterByIdUseCase.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Update table filters object' })
+  @ApiResponse({
+    status: 200,
+    description: 'Table filters updated.',
+    type: CreatedTableFilterRO,
+  })
+  @ApiParam({ name: 'connectionId', required: true })
+  @ApiParam({ name: 'filterId', required: true })
+  @UseGuards(ConnectionEditGuard)
+  @Put('/:connectionId/:filterId')
+  async updateTableFiltersById(
+    @SlugUuid('connectionId') connectionId: string,
+    @SlugUuid('filterId') filterId: string,
+    @MasterPassword() masterPwd: string,
+    @Body() body: CreateTableFilterDto,
+  ): Promise<CreatedTableFilterRO> {
+    if (!body.filters) {
+      throw new BadRequestException(Messages.FILTERS_MISSING);
+    }
+    const inputData: UpdateTableFilterDs = {
+      filter_id: filterId,
+      connection_id: connectionId,
+      filters: body.filters,
+      masterPwd: masterPwd,
+      filter_name: body.name,
+      dynamic_filtered_column: body.dynamic_column ?? null,
+    };
+    return await this.updateTableFilterByIdUseCase.execute(inputData, InTransactionEnum.ON);
   }
 }
