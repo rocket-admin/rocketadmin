@@ -179,13 +179,20 @@
             <mat-icon>tune</mat-icon>
         </button>
         <div class="saved-filters">
-            <mat-chip-row *ngFor="let savedFilter of tableData.savedFilters | keyvalue"
-                (removed)="switchSavedFilter.emit(savedFilter)">
-                {{ getFilter(savedFilter) }}
-                <button matChipRemove>
-                    <mat-icon>filter_alt_off</mat-icon>
-                </button>
-            </mat-chip-row>
+            <div *ngFor="let savedFilter of tableData.savedFilters">
+                {{savedFilter.name}}
+                <button type="button" (click)="deleteSavedFilter(savedFilter.id)">Delete</button>
+                <br/>
+                <div>
+                    <mat-chip-row *ngFor="let filter of savedFilter.filters | keyvalue"
+                        (removed)="switchSavedFilter.emit(savedFilter)">
+                        {{ getFilter(filter) }}
+                        <button matChipRemove>
+                            <mat-icon>filter_alt_off</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -35,6 +35,7 @@ import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { normalizeTableName } from '../../../lib/normalize'
+import { TablesService } from 'src/app/services/tables.service';
 
 interface Column {
   title: string,
@@ -125,6 +126,7 @@ export class DbTableComponent implements OnInit {
   constructor(
     private _tableState: TableStateService,
     private _notifications: NotificationsService,
+    private _tables: TablesService,
     private route: ActivatedRoute,
     public router: Router,
     public dialog: MatDialog,
@@ -409,7 +411,12 @@ export class DbTableComponent implements OnInit {
     this._notifications.showSuccessSnackbar(message);
   }
 
-  switchTable(e) {
 
+
+
+
+
+  deleteSavedFilter(filterId: string) {
+    this._tables.deleteSavedFilter(this.connectionID, this.name, filterId).subscribe();
   }
 }

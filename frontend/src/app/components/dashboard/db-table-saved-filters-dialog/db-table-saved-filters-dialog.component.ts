@@ -49,6 +49,7 @@ import { Angulartics2OnModule } from 'angulartics2';
   styleUrl: './db-table-saved-filters-dialog.component.css'
 })
 export class DbTableSavedFiltersDialogComponent {
+  public filterName: string;
   public tableFilters = [];
   public fieldSearchControl = new FormControl('');
 

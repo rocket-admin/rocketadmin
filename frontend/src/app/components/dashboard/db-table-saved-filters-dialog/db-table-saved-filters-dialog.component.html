@@ -10,6 +10,10 @@
     <app-content-loader *ngIf="!tableFilters || !tableTypes; else filterControls"></app-content-loader>
     <ng-template #filterControls>
         <mat-dialog-content class="filters-content">
+            <mat-form-field>
+                <mat-label>Filter name</mat-label>
+                <input matInput [(ngModel)]="filterName" name="filterName" type="text" required>
+            </mat-form-field>
             <mat-form-field class="filters-select" appearance="outline">
                 <mat-label>Add filter by...</mat-label>
                 <input type="text" matInput name="filter_columns"
@@ -144,15 +148,15 @@
         </button>
         <button mat-flat-button mat-dialog-close
             angulartics2On="click"
-            angularticsAction="Filters: cancel is clicked">
+            angularticsAction="Saved filters dialog: cancel is clicked">
             Cancel
         </button>
         <button mat-flat-button mat-dialog-close="filter"
             color="primary" type="submit"
             [disabled]="tableFiltersCount === 0"
             angulartics2On="click"
-            angularticsAction="Filters: filter is clicked">
-            Filter
+            angularticsAction="Saved filters dialog: save is clicked">
+            Save
         </button>
     </mat-dialog-actions>
 </form>

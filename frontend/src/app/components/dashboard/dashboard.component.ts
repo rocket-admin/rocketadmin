@@ -379,7 +379,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
           // const filters = JsonURL.stringify( this.filters );
 
-          this._tables.updateSavedFilters(this.connectionID, this.selectedTableName, this.filters).subscribe();
+          this._tables.createSavedFilter(this.connectionID, this.selectedTableName, {name: filterDialodRef.componentInstance.filterName, filters: this.filters}).subscribe();
 
           // this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
           //   queryParams: {

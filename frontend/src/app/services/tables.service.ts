@@ -496,8 +496,8 @@ export class TablesService {
       );
   }
 
-  updateSavedFilters(connectionID: string, tableName: string, filters: object) {
-    return this._http.post<any>(`/table-filters/${connectionID}`, { filters }, {
+  createSavedFilter(connectionID: string, tableName: string, filters: object) {
+    return this._http.post<any>(`/table-filters/${connectionID}`, filters, {
       params: {
         tableName
       }
@@ -506,6 +506,32 @@ export class TablesService {
         map(res => {
           this.tables.next('saved filters');
           this._notifications.showSuccessSnackbar('Saved filters have been updated.')
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      )
+    }
+
+  deleteSavedFilter(connectionID: string, tableName: string, filterId: string) {
+    return this._http.delete<any>(`/table-filters/${connectionID}/${filterId}`, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('delete saved filters');
+          this._notifications.showSuccessSnackbar('Saved filter has been deleted.')
           return res
         }),
         catchError((err) => {
