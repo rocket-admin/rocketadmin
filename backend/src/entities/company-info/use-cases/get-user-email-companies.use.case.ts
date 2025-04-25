@@ -29,7 +29,7 @@ export class GetUserEmailCompaniesUseCase
     if (!useEmailCompaniesInfosFromCore.length) {
       throw new HttpException(
         {
-          message: Messages.COMPANIES_USER_EMAIL_NOT_FOUND(userEmail),
+          message: Messages.COMPANIES_USER_EMAIL_NOT_FOUND,
         },
         HttpStatus.BAD_REQUEST,
       );
