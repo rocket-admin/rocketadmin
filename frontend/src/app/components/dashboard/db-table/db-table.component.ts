@@ -11,6 +11,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table-import-dialog.component';
+import { DbTableSavedFiltersPanelComponent } from '../db-table-saved-filters-panel/db-table-saved-filters-panel.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import JsonURL from "@jsonurl/jsonurl";
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -34,8 +35,8 @@ import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table
 import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableStateService } from 'src/app/services/table-state.service';
-import { normalizeTableName } from '../../../lib/normalize'
 import { TablesService } from 'src/app/services/tables.service';
+import { normalizeTableName } from '../../../lib/normalize'
 
 interface Column {
   title: string,
@@ -67,6 +68,7 @@ interface Column {
     ClipboardModule,
     DragDropModule,
     Angulartics2OnModule,
+    DbTableSavedFiltersPanelComponent,
     PlaceholderTableDataComponent
   ]
 })
@@ -90,7 +92,6 @@ export class DbTableComponent implements OnInit {
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
-  @Output() switchSavedFilter = new EventEmitter();
   // @Output() viewRow = new EventEmitter();
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();
@@ -126,7 +127,6 @@ export class DbTableComponent implements OnInit {
   constructor(
     private _tableState: TableStateService,
     private _notifications: NotificationsService,
-    private _tables: TablesService,
     private route: ActivatedRoute,
     public router: Router,
     public dialog: MatDialog,
@@ -409,14 +409,5 @@ export class DbTableComponent implements OnInit {
 
   showCopyNotification(message: string) {
     this._notifications.showSuccessSnackbar(message);
-  }
-
-
-
-
-
-
-  deleteSavedFilter(filterId: string) {
-    this._tables.deleteSavedFilter(this.connectionID, this.name, filterId).subscribe();
   }
 }

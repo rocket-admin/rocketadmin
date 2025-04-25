@@ -170,32 +170,13 @@
 </div>
 
 <div>
-    <div class="saved-filters-panel">
-        <button mat-button type="button" *ngIf="tableData && !tableData.savedFilters" (click)="handleOpenSavedFilters()">
-            <mat-icon>tune</mat-icon>
-            Setup custom filters
-        </button>
-        <button mat-icon-button type="button" *ngIf="tableData && tableData.savedFilters" (click)="handleOpenSavedFilters()">
-            <mat-icon>tune</mat-icon>
-        </button>
-        <div class="saved-filters">
-            <div *ngFor="let savedFilter of tableData.savedFilters">
-                {{savedFilter.name}}
-                <button type="button" (click)="deleteSavedFilter(savedFilter.id)">Delete</button>
-                <br/>
-                <div>
-                    <mat-chip-row *ngFor="let filter of savedFilter.filters | keyvalue"
-                        (removed)="switchSavedFilter.emit(savedFilter)">
-                        {{ getFilter(filter) }}
-                        <button matChipRemove>
-                            <mat-icon>filter_alt_off</mat-icon>
-                        </button>
-                    </mat-chip-row>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <app-db-table-saved-filters-panel
+        [connectionID]="connectionID"
+        [name]="name"
+        [savedFilters]="tableData.savedFilters"
+        (handleOpenSavedFiltersDialog)="handleOpenSavedFilters"
+        (removeFilter)="removeFilter">
+    </app-db-table-saved-filters-panel>
     <div *ngIf="getFiltersCount(activeFilters) !== 0" class="active-filters">
         <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
             (removed)="removeFilter.emit(activeFilter.key)">
@@ -206,7 +187,6 @@
         </mat-chip-row>
     </div>
 </div>
-
 
 
 <div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">
