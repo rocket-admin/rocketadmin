@@ -79,19 +79,20 @@ export class DbTableSavedFiltersDialogComponent {
   }
 
   ngOnInit(): void {
+    this.filterName = this.data.savedFilterData.savedFilter.name;
     this._tables.cast.subscribe();
-    this.tableForeignKeys = {...this.data.structure.foreignKeys};
-    this.tableRowFields = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => ({[field.column_name]: undefined})));
-    this.tableTypes = getTableTypes(this.data.structure.structure, this.data.structure.foreignKeysList);
-    this.fields = this.data.structure.structure
+    this.tableForeignKeys = {...this.data.savedFilterData.foreignKeys};
+    this.tableRowFields = Object.assign({}, ...this.data.savedFilterData.structure.map((field: TableField) => ({[field.column_name]: undefined})));
+    this.tableTypes = getTableTypes(this.data.savedFilterData.structure, this.data.savedFilterData.foreignKeysList);
+    this.fields = this.data.savedFilterData.structure
       .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
       .map((field: TableField) => field.column_name);
     // this.foundFields = [...this.fields];
-    this.tableRowStructure = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => {
+    this.tableRowStructure = Object.assign({}, ...this.data.savedFilterData.structure.map((field: TableField) => {
       return {[field.column_name]: field};
     }));
 
-    const filters = this.data.savedFilters;
+    const filters = this.data.savedFilterData.savedFilter.filters;
     const filtersValues = getFiltersFromUrl(filters);
 
     if (Object.keys(filtersValues).length) {
@@ -99,7 +100,7 @@ export class DbTableSavedFiltersDialogComponent {
       this.tableRowFieldsShown = filtersValues;
       this.tableRowFieldsComparator = getComparatorsFromUrl(filters);
     } else {
-      const fieldsToSearch = this.data.structure.structure.filter((field: TableField) => field.isSearched);
+      const fieldsToSearch = this.data.savedFilterData.structure.filter((field: TableField) => field.isSearched);
       if (fieldsToSearch.length) {
         this.tableFilters = fieldsToSearch.map((field:TableField) => field.column_name);
         this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: undefined})));
@@ -107,7 +108,7 @@ export class DbTableSavedFiltersDialogComponent {
       }
     }
 
-    this.data.structure.widgets.length && this.setWidgets(this.data.structure.widgets);
+    this.data.savedFilterData.widgets.length && this.setWidgets(this.data.savedFilterData.widgets);
 
     this.foundFields = this.fieldSearchControl.valueChanges.pipe(
       startWith(''),

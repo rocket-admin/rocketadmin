@@ -348,15 +348,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  openTableSavedFilters(structure) {
+  openTableSavedFilters(savedFilterData) {
     let filterDialodRef = this.dialog.open(DbTableSavedFiltersDialogComponent, {
       width: '56em',
       data: {
         connectionID: this.connectionID,
         tableName: this.selectedTableName,
         displayTableName: this.selectedTableDisplayName,
-        savedFilters: this.dataSource.savedFilters,
-        structure
+        savedFilterData
       }
     });
 

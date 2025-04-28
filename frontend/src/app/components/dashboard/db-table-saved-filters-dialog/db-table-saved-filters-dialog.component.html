@@ -1,6 +1,6 @@
 <form #tableFiltersForm="ngForm" class="filters-form">
     <h1 mat-dialog-title class="filters-header">
-        <span>Filters for <strong>{{ data.displayTableName }}</strong> table</span>
+        <span>{{data.savedFilterData.savedFilter.name}} filters for <strong>{{ data.displayTableName }}</strong> table</span>
         <a mat-icon-button mat-dialog-close
             routerLink="/dashboard/{{data.connectionID}}/{{data.tableName}}/settings"
             matTooltip="Advanced settings">

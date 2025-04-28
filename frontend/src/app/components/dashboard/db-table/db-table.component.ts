@@ -255,8 +255,10 @@ export class DbTableComponent implements OnInit {
     this.searchString = '';
   }
 
-  handleOpenSavedFilters() {
+  handleOpenSavedFilters(savedFilter) {
+    console.log('savedFilter', savedFilter);
     this.openSavedFilters.emit({
+      savedFilter,
       structure: this.tableData.structure,
       foreignKeysList: this.tableData.foreignKeysList,
       foreignKeys: this.tableData.foreignKeys,

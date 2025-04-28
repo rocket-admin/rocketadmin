@@ -174,7 +174,7 @@
         [connectionID]="connectionID"
         [name]="name"
         [savedFilters]="tableData.savedFilters"
-        (handleOpenSavedFiltersDialog)="handleOpenSavedFilters"
+        (handleOpenSavedFiltersDialog)="handleOpenSavedFilters($event)"
         (removeFilter)="removeFilter">
     </app-db-table-saved-filters-panel>
     <div *ngIf="getFiltersCount(activeFilters) !== 0" class="active-filters">
