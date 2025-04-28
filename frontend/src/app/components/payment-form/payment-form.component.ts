@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   StripeCardElementOptions,
   StripeElementsOptions
@@ -76,7 +76,7 @@ export class PaymentFormComponent implements OnInit {
     public router: Router,
   ) { }
 
-  public paymentElementForm = null;
+  public paymentElementForm: FormGroup | null = null;
   public plan: 'team' | 'enterprise' | 'free';
   public price: number;
   public isAnnually: boolean;
@@ -106,7 +106,7 @@ export class PaymentFormComponent implements OnInit {
       if (user && user.company.id) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
         this.companyId = user.company.id;
         this.paymentElementForm = this.fb.group({
-          name: [user.name, [Validators.required]],
+          name: [user.name],
           email: [user.email, [Validators.required]],
           address: [''],
           zipcode: [''],
@@ -154,7 +154,7 @@ export class PaymentFormComponent implements OnInit {
           if (result.setupIntent.status === 'succeeded') {
             this._paymentService.createSubscription(this.companyId, result.setupIntent.payment_method, this.subscriptionLevel)
               .subscribe(res => {
-                this._notifications.showSuccessSnackbar('Payment successful');
+                this._notifications.showSuccessSnackbar('Subscription successfully started.');
                 this.router.navigate(['/upgrade']);
               })
           } else {
