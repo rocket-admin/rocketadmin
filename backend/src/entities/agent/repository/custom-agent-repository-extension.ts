@@ -59,22 +59,12 @@ export const customAgentRepositoryExtension = {
         return 'MYSQL-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_postgres:
         return 'POSTGRES-TEST-AGENT-TOKEN';
-      case ConnectionTypeTestEnum.cli_mssql:
-        return 'MSSQL-TEST-CLI-TOKEN';
-      case ConnectionTypeTestEnum.cli_mysql:
-        return 'MYSQL-TEST-CLI-TOKEN';
-      case ConnectionTypeTestEnum.cli_oracledb:
-        return 'ORACLE-TEST-CLI-TOKEN';
-      case ConnectionTypeTestEnum.cli_postgres:
-        return 'POSTGRES-TEST-CLI-TOKEN';
       case ConnectionTypeTestEnum.agent_ibmdb2:
         return 'IBMDB2-TEST-AGENT-TOKEN';
-      case ConnectionTypeTestEnum.cli_ibmdb2:
-        return 'IBMDB2-TEST-CLI-TOKEN';
       case ConnectionTypeTestEnum.agent_mongodb:
         return 'MONGODB-TEST-AGENT-TOKEN';
-      case ConnectionTypeTestEnum.cli_mongodb:
-        return 'MONGODB-TEST-CLI-TOKEN';
+      case ConnectionTypeTestEnum.elasticsearch:
+        return 'ELASTICSEARCH-TEST-AGENT-TOKEN';
     }
   },
 };

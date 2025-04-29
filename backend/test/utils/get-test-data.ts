@@ -22,16 +22,12 @@ export function getTestData(mockFactory: MockFactory) {
   const oracleAgentConnection = mockFactory.generateConnectionToTestDbOracleAgent();
   const mysqlAgentConnection = mockFactory.generateConnectionToTestDbMysqlAgent();
   const mssqlAgentConnection = mockFactory.generateConnectionToTestDbMssqlAgent();
-  const mssqlCliConnection = mockFactory.generateConnectionToTestDbMssqlCli();
-  const mysqlCliConnection = mockFactory.generateConnectionToTestDbMysqlCli();
-  const postgresCliConnection = mockFactory.generateConnectionToTestDbPostgresCli();
-  const oracleCliConnection = mockFactory.generateConnectionToTestDbOracleCli();
   const connectionToIbmDb2 = mockFactory.generateConnectionToTestDbIbmDb2();
   const connectionToAgentIbmDB2 = mockFactory.generateConnectionToTestDbIbmDb2Agent();
-  const ibmDb2CliConnection = mockFactory.generateConnectionToTestDbIbmDb2Cli();
   const mongoDbConnection = mockFactory.generateConnectionToTestMongoDBInDocker();
   const mongoDbAgentConnection = mockFactory.generateConnectionToTestMongoDBAgent();
   const dynamoDBConnection = mockFactory.generateConnectionToTestDynamoDBInDocker();
+  const elasticsearchTestConnection = mockFactory.generateConnectionToTestElasticsearchInDocker();
   return {
     newConnection,
     newEncryptedConnection,
@@ -54,15 +50,11 @@ export function getTestData(mockFactory: MockFactory) {
     oracleAgentConnection,
     mysqlAgentConnection,
     mssqlAgentConnection,
-    mssqlCliConnection,
-    mysqlCliConnection,
-    postgresCliConnection,
-    oracleCliConnection,
     connectionToIbmDb2,
     connectionToAgentIbmDB2,
-    ibmDb2CliConnection,
     mongoDbConnection,
     mongoDbAgentConnection,
     dynamoDBConnection,
+    elasticsearchTestConnection,
   };
 }

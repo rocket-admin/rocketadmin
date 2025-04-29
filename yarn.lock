@@ -1253,29 +1253,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@elastic/elasticsearch@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "@elastic/elasticsearch@npm:9.0.0"
+"@elastic/elasticsearch@npm:8.18.1":
+  version: 8.18.1
+  resolution: "@elastic/elasticsearch@npm:8.18.1"
   dependencies:
-    "@elastic/transport": ^9.0.0
+    "@elastic/transport": ^8.9.6
     apache-arrow: ^18.0.0
     tslib: ^2.4.0
-  checksum: 22cb6fc28ef78bc8ab3dd0fb60bddf2e2dc70c9e95a6e262630479a489b1aa286032c8a8db3b34f2108f3b333c21fdeafed3bbfa5306e48f7066b75f8442cf2c
+  checksum: 5c23254dea8b538e580a45fe3025c49d20871aeb90ce9c683affbb52ccbfc1d23bdf39e9c6b589bcd971e09503eaeb82ba1cd3f7c2752273a5d81e95ad3b3f18
   languageName: node
   linkType: hard
 
-"@elastic/transport@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "@elastic/transport@npm:9.0.0"
+"@elastic/transport@npm:^8.9.6":
+  version: 8.9.6
+  resolution: "@elastic/transport@npm:8.9.6"
   dependencies:
     "@opentelemetry/api": 1.x
     debug: ^4.4.0
     hpagent: ^1.2.0
     ms: ^2.1.3
-    secure-json-parse: ^3.0.2
+    secure-json-parse: ^3.0.1
     tslib: ^2.8.1
-    undici: ^7.2.3
-  checksum: 1c6159bc471ad0060c3fe0dccc57f0cacbe48431310ae076bbce8596a9284d2801a6c11a7057209cb9031680931d49939a714a748f175f0ccbc38f1e50ff4eb8
+    undici: ^6.21.1
+  checksum: bcb51820e5504787b44af97605e33032ff3ae14566ba7d4b13e2919d91e2742ffc45a5edc7342c6b2da52fa2dbd7b86140cccde6962137c787fa565ba48eb2ab
   languageName: node
   linkType: hard
 
@@ -2797,7 +2797,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-dynamodb": ^3.734.0
     "@aws-sdk/lib-dynamodb": ^3.734.0
-    "@elastic/elasticsearch": ^9.0.0
+    "@elastic/elasticsearch": 8.18.1
     "@types/multer": ^1.4.12
     "@types/oracledb": ^6.5.3
     "@types/pg-copy-streams": ^1.2.5
@@ -12300,7 +12300,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secure-json-parse@npm:3.0.2, secure-json-parse@npm:^3.0.2":
+"secure-json-parse@npm:3.0.2, secure-json-parse@npm:^3.0.1":
   version: 3.0.2
   resolution: "secure-json-parse@npm:3.0.2"
   checksum: c8466e58a44b0b51d11fe3d4bc160ef18b13c0d2fd0b1525c2469792ed4b2024bb69d74d1cfd7f083f4f18307d8b092921be7688675bf7b2147b071e45964944
@@ -13719,10 +13719,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^7.2.3":
-  version: 7.8.0
-  resolution: "undici@npm:7.8.0"
-  checksum: 76c757cce3ff5c8f4db39a0dc92245cf432c7773cd2f45c9fb99eb4ebd75abccd887f711e2c297aa0a106709e01a30079d194108a7ef2f8f2f1bdf8c6579ec3e
+"undici@npm:^6.21.1":
+  version: 6.21.2
+  resolution: "undici@npm:6.21.2"
+  checksum: 4d7227910bfee0703ea5c5c9d4343bcb2a80d2ce2eb64698b6fb8cc48852e29f7c7c623126161a5073fd594c9040ae7e7ecc8e093fe6e84a9394dd2595754ec5
   languageName: node
   linkType: hard
 
