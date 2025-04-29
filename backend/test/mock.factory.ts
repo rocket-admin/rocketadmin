@@ -251,6 +251,18 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestElasticsearchInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to Elasticsearch in Docker';
+    dto.type = 'elasticsearch';
+    dto.host = 'test-elasticsearch-e2e-testing';
+    dto.password = 'SuperSecretElasticPassword';
+    dto.port = 9200;
+    dto.username = 'elastic';
+    dto.ssh = false;
+    return dto;
+  }
+
   generateKnexConfigAgentTests(db_type = 'postgres') {
     switch (db_type) {
       case 'postgres':
@@ -298,41 +310,6 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypesEnum.agent_ibmdb2;
-    return dto;
-  }
-
-  generateConnectionToTestDbIbmDb2Cli() {
-    const dto = new CreateConnectionDto() as any;
-    dto.title = 'Test connection to cli db ibm db2';
-    dto.type = ConnectionTypeTestEnum.cli_ibmdb2;
-    return dto;
-  }
-
-  generateConnectionToTestDbMssqlCli() {
-    const dto = new CreateConnectionDto() as any;
-    dto.title = 'Test connection to cli db mssql';
-    dto.type = ConnectionTypeTestEnum.cli_mssql;
-    return dto;
-  }
-
-  generateConnectionToTestDbMysqlCli() {
-    const dto = new CreateConnectionDto() as any;
-    dto.title = 'Test connection to cli db mysql';
-    dto.type = ConnectionTypeTestEnum.cli_mysql;
-    return dto;
-  }
-
-  generateConnectionToTestDbPostgresCli() {
-    const dto = new CreateConnectionDto() as any;
-    dto.title = 'Test connection to cli db pg';
-    dto.type = ConnectionTypeTestEnum.cli_postgres;
-    return dto;
-  }
-
-  generateConnectionToTestDbOracleCli() {
-    const dto = new CreateConnectionDto() as any;
-    dto.title = 'Test connection to cli db oracle';
-    dto.type = ConnectionTypeTestEnum.cli_oracledb;
     return dto;
   }
 

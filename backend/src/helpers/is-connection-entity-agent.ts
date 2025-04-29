@@ -24,12 +24,6 @@ export function isConnectionTypeAgent(type: ConnectionTypesEnum | string): boole
     ConnectionTypeTestEnum.agent_mssql,
     ConnectionTypeTestEnum.agent_ibmdb2,
     ConnectionTypeTestEnum.agent_mongodb,
-    ConnectionTypeTestEnum.cli_mssql,
-    ConnectionTypeTestEnum.cli_mysql,
-    ConnectionTypeTestEnum.cli_postgres,
-    ConnectionTypeTestEnum.cli_oracledb,
-    ConnectionTypeTestEnum.cli_ibmdb2,
-    ConnectionTypeTestEnum.cli_mongodb
   ];
 
   return connectionTypes.includes(type as ConnectionTypeTestEnum);
