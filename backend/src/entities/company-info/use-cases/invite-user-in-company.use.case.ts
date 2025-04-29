@@ -69,18 +69,12 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 
     if (foundInvitedUser && !foundInvitedUser.isActive) {
       const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-      const renewedInvitation = await this._dbContext.invitationInCompanyRepository.createOrUpdateInvitationInCompany(
-        foundCompany,
-        groupId,
-        inviterId,
-        invitedUserEmail,
-        invitedUserCompanyRole,
-      );
-      const sendEmailResult = await this.emailService.sendInvitationToCompany(
-        invitedUserEmail,
-        renewedInvitation.verification_string,
-        foundCompany.id,
-        foundCompany.name,
+      const renewedEmailVerification =
+        await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
+
+      const sendEmailResult = await this.emailService.sendEmailConfirmation(
+        foundInvitedUser.email,
+        renewedEmailVerification.verification_string,
         companyCustomDomain,
       );
 
@@ -94,17 +88,8 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       }
 
       if (!isSaaS()) {
-        Logger.printTechString(`Invitation verification string: ${renewedInvitation.verification_string}`);
-      } else {
-        await this.saasCompanyGatewayService.invitationSentWebhook(
-          companyId,
-          invitedUserEmail,
-          invitedUserCompanyRole,
-          inviterId,
-          renewedInvitation.verification_string,
-        );
+        Logger.printTechString(`Invitation verification string: ${renewedEmailVerification.verification_string}`);
       }
-
       throw new HttpException(
         {
           message: Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE_IN_COMPANY,
