@@ -1,3 +1,38 @@
 .add-member-input {
     width: 100%;
+    margin-bottom: 8px;
 }
+
+.role-button {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.role-button .mdc-button__label {
+    color: rgba(0,0,0,0.55);
+    font-weight: 400;
+}
+
+.role-option {
+    padding-top: 4px;
+    padding-bottom: 4px
+}
+
+.role-option-header {
+    display: flex;
+    align-items: center;
+}
+
+.role-option-header__mark {
+    font-size: 14px;
+    margin-bottom: -10px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.role-option__description {
+    color: rgba(0,0,0,0.64);
+    font-size: 13px;
+    margin-top: 2px;
+}
+

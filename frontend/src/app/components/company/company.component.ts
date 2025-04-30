@@ -13,6 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
@@ -44,6 +45,7 @@ import { orderBy } from "lodash";
     MatSlideToggleModule,
     MatTooltipModule,
     MatTableModule,
+    MatMenuModule,
     RouterModule,
     Angulartics2OnModule,
     AlertComponent,
@@ -54,6 +56,7 @@ import { orderBy } from "lodash";
 })
 export class CompanyComponent {
 
+  CompanyMemberRole = CompanyMemberRole;
   public isSaas = (environment as any).saas;
   public company: Company = null;
   public members: any = null;
@@ -88,6 +91,12 @@ export class CompanyComponent {
 
   public companyTabTitle: string;
   public submittingTabTitle: boolean = false;
+
+  public companyRolesName = {
+    'ADMIN': 'Account Owner',
+    'DB_ADMIN': 'System Admin',
+    'USER': 'Member'
+  }
 
   get whiteLabelSettings(): {logo: string, favicon: string, tabTitle: string} {
     return this._company.whiteLabelSettings || { logo: '', favicon: '', tabTitle	: '' };

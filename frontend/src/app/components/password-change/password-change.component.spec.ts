@@ -1,7 +1,10 @@
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CompanyMemberRole } from 'src/app/models/company';
 import { FormsModule }   from '@angular/forms';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PasswordChangeComponent } from './password-change.component';
 import { Router } from '@angular/router';
@@ -9,9 +12,6 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
-import { CompanyMemberRole } from 'src/app/models/company';
-import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 
 describe('PasswordChangeComponent', () => {
@@ -67,7 +67,7 @@ describe('PasswordChangeComponent', () => {
       portal_link: 'http://lsdkjfl.dhj',
       subscriptionLevel: SubscriptionPlans.free,
       "is_2fa_enabled": false,
-      role: CompanyMemberRole.Specialist,
+      role: CompanyMemberRole.Member,
       externalRegistrationProvider: null,
       company: {
         id: 'company_123',
