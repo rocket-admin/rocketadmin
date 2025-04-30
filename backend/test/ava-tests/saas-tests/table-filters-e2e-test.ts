@@ -185,6 +185,113 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
   }
 });
 
+currentTest = `PUT /table-filters/:connectionId`;
+test.serial(`${currentTest} should return updated table filters`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const fieldname = 'id';
+    const fieldvalue = '45';
+
+    const filters = {
+      [fieldname]: { lt: fieldvalue },
+    };
+
+    const updatedFilters = {
+      [fieldname]: { lt: fieldvalue },
+    };
+
+    const filterDTOs = [];
+    const filtersDTO = {
+      name: 'Test filter',
+      filters: filters,
+      dynamic_column: {
+        column_name: 'id',
+        comparator: 'gt',
+      },
+    };
+
+    const updatedFiltersDTO = {
+      name: 'Test filter2',
+      filters: updatedFilters,
+    };
+    filterDTOs.push(filtersDTO);
+    filterDTOs.push(updatedFiltersDTO);
+
+    const createTableFiltersResponse = await request(app.getHttpServer())
+      .post(`/table-filters/${createConnectionRO.id}/?tableName=${testTableName}`)
+      .send({ ...filtersDTO })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
+    t.is(createTableFiltersResponse.status, 201);
+    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(createTableFiltersRO.name, filtersDTO.name);
+    t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
+
+    const getTableFiltersResponse = await request(app.getHttpServer())
+      .get(`/table-filters/${createConnectionRO.id}/all/?tableName=${testTableName}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getTableFiltersRO = JSON.parse(getTableFiltersResponse.text);
+    t.is(Array.isArray(getTableFiltersRO), true);
+    t.is(getTableFiltersRO.length, 1);
+    getTableFiltersRO.forEach((el) => {
+      t.is(el.hasOwnProperty('id'), true);
+      t.is(el.hasOwnProperty('name'), true);
+      t.is(el.hasOwnProperty('filters'), true);
+      t.is(el.hasOwnProperty('dynamic_column'), true);
+      t.is(el.hasOwnProperty('createdAt'), true);
+      t.is(el.hasOwnProperty('updatedAt'), true);
+      t.is(el.name, filtersDTO.name);
+      t.deepEqual(el.filters, filtersDTO.filters);
+    });
+
+    const updateTableFiltersResponse = await request(app.getHttpServer())
+      .put(`/table-filters/${createConnectionRO.id}/${createTableFiltersRO.id}`)
+      .send({ ...updatedFiltersDTO })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const updateTableFiltersRO = JSON.parse(updateTableFiltersResponse.text);
+
+    t.is(updateTableFiltersResponse.status, 200);
+    t.is(updateTableFiltersRO.hasOwnProperty('id'), true);
+    t.is(updateTableFiltersRO.hasOwnProperty('name'), true);
+    t.is(updateTableFiltersRO.hasOwnProperty('filters'), true);
+    t.is(updateTableFiltersRO.hasOwnProperty('dynamic_column'), true);
+    t.is(updateTableFiltersRO.hasOwnProperty('createdAt'), true);
+    t.is(updateTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(updateTableFiltersRO.name, updatedFiltersDTO.name);
+    t.deepEqual(updateTableFiltersRO.filters, updatedFiltersDTO.filters);
+  } catch (e) {
+    console.error(e);
+    t.fail();
+  }
+});
+
 currentTest = `GET /table-filters/:connectionId/:filterId`;
 test.serial(`${currentTest} should return table filters`, async (t) => {
   try {

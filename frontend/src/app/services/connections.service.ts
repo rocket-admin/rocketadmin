@@ -104,6 +104,8 @@ export class ConnectionsService {
   }
 
   get defaultTableToOpen() {
+    console.log('connections service get defaultTableToOpen');
+    console.log(this.defaultDisplayTable);
     return this.defaultDisplayTable;
   }
 
@@ -143,8 +145,6 @@ export class ConnectionsService {
   }
 
   setConnectionInfo(id: string) {
-    console.log('setConnectionInfo');
-    console.log(id);
     if (id) {
       this.fetchConnection(id).subscribe(res => {
         this.connection = res.connection;
@@ -153,7 +153,6 @@ export class ConnectionsService {
         this.connectionNameSubject.next(res.connection.title || res.connection.database);
         this.connectionSigningKeySubject.next(res.connection.signing_key);
         if (res.connectionProperties) {
-          console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
           this.defaultDisplayTable = res.connectionProperties.default_showing_table;
@@ -162,6 +161,7 @@ export class ConnectionsService {
         } else {
           this.connectionLogo = null;
           this.companyName = null;
+          this.defaultDisplayTable = null;
           this.isCustomAccentedColor = false;
           this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
         }

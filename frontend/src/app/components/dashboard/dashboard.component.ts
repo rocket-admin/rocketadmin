@@ -9,6 +9,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { ContentLoaderComponent } from '../ui-components/content-loader/content-loader.component';
 import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
@@ -39,7 +40,6 @@ import { environment } from 'src/environments/environment';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
-import { CompanyService } from 'src/app/services/company.service';
 
 interface DataToActivateActions {
   action: CustomEvent,
@@ -129,6 +129,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get defaultTableToOpen () {
+    console.log('dashboard component get defaultTableToOpen');
+    console.log(this._connections.defaultTableToOpen);
     return this._connections.defaultTableToOpen;
   }
 

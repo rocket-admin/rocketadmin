@@ -397,6 +397,9 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
+    console.log('updateField');
+    console.log(field);
+    console.log(updatedValue);
     if (typeof(updatedValue) === 'object' && updatedValue !== null) {
       for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
         delete this.tableRowValues[field][prop];
@@ -410,6 +413,9 @@ export class DbTableRowEditComponent implements OnInit {
     if (this.keyAttributesFromURL && Object.keys(this.keyAttributesFromURL).includes(field)) {
       this.isPrimaryKeyUpdated = true
     };
+    console.log('this.tableRowValues[field]');
+    console.log(this.tableRowValues[field]);
+    console.log(this.tableRowValues);
   }
 
   getFormattedUpdatedRow = () => {
