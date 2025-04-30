@@ -100,11 +100,48 @@
 
         <!-- Role Column -->
         <ng-container matColumnDef="role">
-            <th mat-header-cell *matHeaderCellDef>Role</th>
+            <th mat-header-cell *matHeaderCellDef style="padding-left: 24px">Role</th>
             <td mat-cell *matCellDef="let element; let i = index"
                 data-label="Role"
                 class="company-member-cell">
-                <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role !== 'ADMIN') && !element.invitedUserEmail; else noSelect"
+                <div *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role !== 'ADMIN') && !element.invitedUserEmail; else noSelect">
+                    <button mat-button type="button" [matMenuTriggerFor]="menu"
+                        style="width: 100%"
+                        angulartics2On="click"
+                        angularticsAction="Company: role is clicked">
+                        {{ companyRolesName[element.role] }}
+                        <mat-icon iconPositionEnd style="margin-left: auto">arrow_drop_down</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item class="role-option"
+                            (click)="updateRole(element.id, CompanyMemberRole.CAO)">
+                            <div class="role-option-header">
+                                <strong>Account Owner</strong>
+                                <mat-icon *ngIf="element.role === CompanyMemberRole.CAO" class="role-option-header__mark">check</mat-icon>
+                            </div>
+                            <div class="role-option__description">Can manage company information, <br> and has full control over databases</div>
+                        </button>
+                        <button mat-menu-item class="role-option"
+                            (click)="updateRole(element.id, CompanyMemberRole.SystemAdmin)">
+                            <div class="role-option-header">
+                                <strong>System Admin</strong>
+                                <mat-icon *ngIf="element.role === CompanyMemberRole.SystemAdmin" class="role-option-header__mark">check</mat-icon>
+                            </div>
+                            <div class="role-option__description">Can view company information, <br> and has full control over databases</div>
+                        </button>
+                        <button mat-menu-item class="role-option"
+                            (click)="updateRole(element.id, CompanyMemberRole.Member)">
+                            <div class="role-option-header">
+                                <strong>Member</strong>
+                                <mat-icon *ngIf="element.role === CompanyMemberRole.Member" class="role-option-header__mark">check</mat-icon>
+                            </div>
+                            <div class="role-option__description">Can view company information, <br> and can manage existing databases</div>
+                        </button>
+                    </mat-menu>
+                </div>
+
+
+                <!--<mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role !== 'ADMIN') && !element.invitedUserEmail; else noSelect"
                     attr.data-testid="company-member-role-{{i}}-select"
                     class="role-select"
                     angulartics2On="click"
@@ -120,9 +157,9 @@
                     <mat-option value="USER" attr.data-testid="company-member-user-role-{{i}}-select-option">
                         Member
                     </mat-option>
-                </mat-select>
+                </mat-select>-->
                 <ng-template #noSelect>
-                    <span attr.data-testid="company-member-user-role-{{i}}-cell">
+                    <span attr.data-testid="company-member-user-role-{{i}}-cell" style="padding: 0 8px">
                         {{element.role === "ADMIN" ? 'Account Owner' : null}}
                         {{element.role === "DB_ADMIN" ? 'System Admin' : null}}
                         {{element.role === "USER" ? 'Member' : null}}

@@ -3,7 +3,9 @@ import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
+import { Angulartics2Module } from 'angulartics2';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CompanyMemberRole } from 'src/app/models/company';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -13,8 +15,6 @@ import { UserService } from 'src/app/services/user.service';
 import { UserSettingsComponent } from './user-settings.component';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
-import { Angulartics2Module } from 'angulartics2';
-import { CompanyMemberRole } from 'src/app/models/company';
 import { provideHttpClient } from '@angular/common/http';
 
 describe('UserSettingsComponent', () => {
@@ -76,7 +76,7 @@ describe('UserSettingsComponent', () => {
       "portal_link": "stripe.link",
       "subscriptionLevel": SubscriptionPlans.free,
       "is_2fa_enabled": false,
-      role: CompanyMemberRole.Specialist,
+      role: CompanyMemberRole.Member,
       externalRegistrationProvider: null,
       company: {
         id: 'company_123',
@@ -94,7 +94,7 @@ describe('UserSettingsComponent', () => {
         "portal_link": "stripe.link",
         "subscriptionLevel": SubscriptionPlans.free,
         "is_2fa_enabled": false,
-        role: CompanyMemberRole.Specialist,
+        role: CompanyMemberRole.Member,
         externalRegistrationProvider: null
       }
     });

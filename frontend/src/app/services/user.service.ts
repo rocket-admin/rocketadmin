@@ -1,6 +1,6 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { ApiKey, SubscriptionPlans, User } from '../models/user';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { CompanyMemberRole } from '../models/company';
@@ -21,7 +21,7 @@ export class UserService {
     portal_link: '',
     subscriptionLevel: SubscriptionPlans.free,
     is_2fa_enabled: false,
-    role: CompanyMemberRole.Specialist,
+    role: CompanyMemberRole.Member,
     externalRegistrationProvider: null,
     company: {
       id: ''
