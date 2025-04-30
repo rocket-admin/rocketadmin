@@ -107,6 +107,7 @@ export class ExportCSVFromTableUseCase
         connection.type === 'ibmdb2' ||
         connection.type === 'mongodb' ||
         connection.type === 'dynamodb' ||
+        connection.type === 'elasticsearch' ||
         isConnectionTypeAgent(connection.type)
       ) {
         return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));

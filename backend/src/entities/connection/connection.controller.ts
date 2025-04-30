@@ -705,7 +705,10 @@ export class ConnectionController {
 
       if (!connectionData.username) errors.push(Messages.USERNAME_MISSING);
 
-      if (connectionData.type === ConnectionTypesEnum.dynamodb) {
+      if (
+        connectionData.type === ConnectionTypesEnum.dynamodb ||
+        connectionData.type === ConnectionTypesEnum.elasticsearch
+      ) {
         return errors;
       }
 

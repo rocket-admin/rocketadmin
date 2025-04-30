@@ -7,6 +7,7 @@ import ibmdb, { Database } from 'ibm_db';
 import { MongoClient, Db, ObjectId } from 'mongodb';
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { Client } from '@elastic/elasticsearch';
 
 export async function createTestTable(
   connectionParams: any,
@@ -19,6 +20,10 @@ export async function createTestTable(
 
   if (connectionParams.type === ConnectionTypesEnum.mongodb) {
     return createTestMongoTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
+  if (connectionParams.type === ConnectionTypesEnum.elasticsearch) {
+    return createTestElasticsearchTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
 
   if (connectionParams.type === ConnectionTypesEnum.dynamodb) {
@@ -68,7 +73,88 @@ export async function createTestTable(
   };
 }
 
-async function createTestTableIbmDb2(
+export async function createTestElasticsearchTable(
+  connectionParams,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName().toLowerCase();
+  const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+  const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+  const { host, port, username, password } = connectionParams;
+  const protocol = 'http';
+  const node = `${protocol}://${host}:${port}`;
+  const options: any = {
+    node,
+    auth: {
+      username,
+      password,
+    },
+  };
+  const client = new Client(options);
+  const response = await client.indices.create({
+    index: testTableName,
+  });
+  await client.indices.putMapping({
+    index: testTableName,
+    dynamic: 'runtime',
+    properties: {
+      [testTableColumnName]: {
+        type: 'text',
+      },
+      [testTableSecondColumnName]: {
+        type: 'text',
+      },
+    },
+  });
+  const insertedSearchedIds: Array<{
+    number: number;
+    _id: string;
+  }> = [];
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+      const insertResult = await client.index({
+        index: testTableName,
+        body: {
+          [testTableColumnName]: testSearchedUserName,
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+          age: i === 0 ? 14 : i === testEntitiesSeedsCount - 21 ? 90 : 95,
+        },
+      });
+      insertedSearchedIds.push({
+        number: i,
+        _id: insertResult._id,
+      });
+    } else {
+      const insertResult = await client.index({
+        index: testTableName,
+        body: {
+          [testTableColumnName]: faker.person.firstName(),
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+          age: faker.number.int({ min: 16, max: 80 }),
+        },
+      });
+      insertedSearchedIds.push({
+        number: i,
+        _id: insertResult._id,
+      });
+    }
+  }
+  await client.indices.refresh({ index: testTableName });
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+    insertedSearchedIds,
+  };
+}
+
+export async function createTestTableIbmDb2(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -325,7 +411,7 @@ export async function createTestOracleTable(
           [pColumnName]: ++counter,
           [testTableColumnName]: testSearchedUserName,
           [testTableSecondColumnName]: faker.internet.email(),
-          created_at: new Date("2010-11-03"),
+          created_at: new Date('2010-11-03'),
           updated_at: new Date(),
         });
       } else {
