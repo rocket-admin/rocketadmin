@@ -4,10 +4,6 @@ import { AgentEntity } from '../agent.entity.js';
 import { ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
 
 export const customAgentRepositoryExtension = {
-  async saveNewAgent(agent: AgentEntity): Promise<AgentEntity> {
-    return await this.save(agent);
-  },
-
   async createNewAgentForConnectionAndReturnToken(connection: ConnectionEntity): Promise<string> {
     const newAgent = await this.createNewAgentForConnection(connection);
     return newAgent.token;

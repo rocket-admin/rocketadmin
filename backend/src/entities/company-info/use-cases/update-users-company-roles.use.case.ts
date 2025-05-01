@@ -1,15 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
-import { IUpdateUsersCompanyRoles } from './company-info-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { UserEntity } from '../../user/user.entity.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
+import { IUpdateUsersCompanyRoles } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateUsersCompanyRolesUseCase
@@ -19,7 +17,6 @@ export class UpdateUsersCompanyRolesUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -59,21 +56,6 @@ export class UpdateUsersCompanyRolesUseCase
         };
       },
     );
-
-    if (isSaaS()) {
-      const saasUpdateResponse = await this.saasCompanyGatewayService.updateUsersRolesInCompany(
-        clearUsersWithNewRoles,
-        companyId,
-      );
-      if (!saasUpdateResponse.success) {
-        throw new HttpException(
-          {
-            message: Messages.SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR,
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
 
     const usersWithUpdatedRoles = companyUsersToUpdate.map((user) => {
       const newUserRole = clearUsersWithNewRoles.find((userWithNewRole) => userWithNewRole.userId === user.id).role;

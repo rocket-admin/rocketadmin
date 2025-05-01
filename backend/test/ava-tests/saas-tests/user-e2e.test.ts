@@ -416,59 +416,56 @@ test.serial(
   },
 );
 
-test.skip(
-  `${currentTest} should login user successfully with company id from custom domain (is added)`,
-  async (t) => {
-    try {
-      const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
-      const { email, password, token } = adminUserRegisterInfo;
+test.skip(`${currentTest} should login user successfully with company id from custom domain (is added)`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { email, password, token } = adminUserRegisterInfo;
 
-      const foundCompanyInfos = await request(app.getHttpServer())
-        .get(`/company/my/email/${email}`)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+    const foundCompanyInfos = await request(app.getHttpServer())
+      .get(`/company/my/email/${email}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-      const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
-      const companyId = foundCompanyInfosRO[0].id;
+    const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
+    const companyId = foundCompanyInfosRO[0].id;
 
-      const loginBodyRequest = {
-        email,
-        password,
-        companyId,
-      };
+    const loginBodyRequest = {
+      email,
+      password,
+      companyId,
+    };
 
-      const customDomain = faker.internet.domainName();
-      const requestDomainData = {
-        hostname: customDomain,
-      };
+    const customDomain = faker.internet.domainName();
+    const requestDomainData = {
+      hostname: customDomain,
+    };
 
-      const registerDomainResponse = await sendRequestToSaasPart(
-        `custom-domain/register/${companyId}`,
-        'POST',
-        requestDomainData,
-        token,
-      );
-      t.is(registerDomainResponse.status, 201);
-      const registerDomainResponseRO = await registerDomainResponse.json();
+    const registerDomainResponse = await sendRequestToSaasPart(
+      `custom-domain/register/${companyId}`,
+      'POST',
+      requestDomainData,
+      token,
+    );
+    t.is(registerDomainResponse.status, 201);
+    const registerDomainResponseRO = await registerDomainResponse.json();
 
-      t.is(registerDomainResponseRO.hostname, customDomain);
-      t.is(registerDomainResponseRO.companyId, companyId);
-      t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-      t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
-      t.is(Object.keys(registerDomainResponseRO).length, 5);
+    t.is(registerDomainResponseRO.hostname, customDomain);
+    t.is(registerDomainResponseRO.companyId, companyId);
+    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
+    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.keys(registerDomainResponseRO).length, 5);
 
-      delete loginBodyRequest.companyId;
-      const loginUserResult = await request(app.getHttpServer())
-        .post('/user/login/')
-        .send(loginBodyRequest)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json')
-        .set('Host', customDomain);
+    delete loginBodyRequest.companyId;
+    const loginUserResult = await request(app.getHttpServer())
+      .post('/user/login/')
+      .send(loginBodyRequest)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .set('Host', customDomain);
 
-      t.is(loginUserResult.status, 201);
-    } catch (err) {
-      throw err;
-    }
-    t.pass();
-  },
-);
+    t.is(loginUserResult.status, 201);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});

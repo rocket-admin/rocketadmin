@@ -1,12 +1,10 @@
 import argon2 from 'argon2';
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import base32Encode from 'base32-encode';
-import { createHmac, randomBytes, scrypt } from 'crypto';
+import crypto, { createHmac, randomBytes, scrypt } from 'crypto';
 import CryptoJS from 'crypto-js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { EncryptionAlgorithmEnum } from '../../enums/index.js';
 import { Constants } from '../constants/constants.js';
-import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 
 export class Encryptor {
   static getPrivateKey(): string {
@@ -243,12 +241,6 @@ export class Encryptor {
 
   static generateRandomString(size = 20): string {
     return crypto.randomBytes(size).toString('hex');
-  }
-
-  static generateOTPSecret(): string {
-    const secretBytes = crypto.randomBytes(32);
-    const secret = base32Encode(secretBytes, 'RFC4648', { padding: false });
-    return secret;
   }
 
   static generateUUID(): string {

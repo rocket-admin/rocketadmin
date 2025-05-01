@@ -118,8 +118,8 @@ test.serial(`${currentTest} - should return registered custom domain`, async (t)
       requestDomainData,
       adminUserToken,
     );
-    t.is(registerDomainResponse.status, 201);
     const registerDomainResponseRO = await registerDomainResponse.json();
+    t.is(registerDomainResponse.status, 201);
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
@@ -351,8 +351,9 @@ test.serial(`${currentTest} - should return updated custom domain`, async (t) =>
       updateDomainData,
       adminUserToken,
     );
-    t.is(updateDomainResponse.status, 200);
+
     const updateDomainResponseRO = await updateDomainResponse.json();
+    t.is(updateDomainResponse.status, 200);
     t.is(updateDomainResponseRO.hostname, updatedCustomDomain);
     t.is(updateDomainResponseRO.companyId, companyId);
     t.is(updateDomainResponseRO.hasOwnProperty('id'), true);
@@ -396,9 +397,9 @@ test.serial(`${currentTest} - should throw exception when hostname is invalid`, 
       requestDomainData,
       adminUserToken,
     );
-    t.is(registerDomainResponse.status, 201);
-    const registerDomainResponseRO = await registerDomainResponse.json();
 
+    const registerDomainResponseRO = await registerDomainResponse.json();
+    t.is(registerDomainResponse.status, 201);
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
     t.is(registerDomainResponseRO.hasOwnProperty('id'), true);

@@ -42,6 +42,7 @@ import { AddCompanyTabTitleUseCase } from './use-cases/add-company-tab-title.use
 import { FindCompanyTabTitleUseCase } from './use-cases/find-company-tab-title.use.case.js';
 import { DeleteCompanyTabTitleUseCase } from './use-cases/delete-company-tab-title.use.case.js';
 import { FindCompanyWhiteLabelPropertiesUseCase } from './use-cases/find-company-white-label-properties.use.case.js';
+import { CompanyInfoHelperService } from './company-info-helper.service.js';
 
 @Module({
   imports: [
@@ -172,6 +173,7 @@ import { FindCompanyWhiteLabelPropertiesUseCase } from './use-cases/find-company
       provide: UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES,
       useClass: FindCompanyWhiteLabelPropertiesUseCase,
     },
+    CompanyInfoHelperService,
   ],
   controllers: [CompanyInfoController],
 })

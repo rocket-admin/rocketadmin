@@ -11,6 +11,7 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { isTest } from '../../../helpers/app/is-test.js';
 import { EmailService } from '../../email/email/email.service.js';
+import { CompanyInfoHelperService } from '../company-info-helper.service.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class InviteUserInCompanyAndConnectionGroupUseCase
@@ -22,6 +23,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
     private readonly emailService: EmailService,
+    private readonly companyInfoHelperService: CompanyInfoHelperService,
   ) {
     super();
   }
@@ -42,7 +44,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
     }
 
     if (isSaaS()) {
-      const canInviteMoreUsers = await this.saasCompanyGatewayService.canInviteMoreUsers(companyId);
+      const canInviteMoreUsers = await this.companyInfoHelperService.canInviteMoreUsers(companyId);
       if (!canInviteMoreUsers) {
         throw new HttpException(
           {
@@ -113,15 +115,6 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       foundCompany.name,
       companyCustomDomain,
     );
-    if (isSaaS()) {
-      await this.saasCompanyGatewayService.invitationSentWebhook(
-        companyId,
-        invitedUserEmail,
-        invitedUserCompanyRole,
-        inviterId,
-        newInvitation.verification_string,
-      );
-    }
     const invitationRO: any = {
       companyId: companyId,
       groupId: groupId,

@@ -91,8 +91,7 @@ export function buildFoundCompanyInfoDs(
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;
   return {
     id: companyInfoFromCore.id,
-    name: companyInfoFromSaas.name,
-    additional_info: companyInfoFromSaas.additional_info,
+    name: companyInfoFromCore.name,
     portal_link: isUserAdmin ? companyInfoFromSaas.portal_link : undefined,
     subscriptionLevel: companyInfoFromSaas.subscriptionLevel,
     is_payment_method_added: isUserAdmin ? companyInfoFromSaas.is_payment_method_added : undefined,
@@ -106,19 +105,6 @@ export function buildFoundCompanyInfoDs(
       ? { image: companyInfoFromCore.favicon.image.toString('base64'), mimeType: companyInfoFromCore.favicon.mimeType }
       : null,
     tab_title: companyInfoFromCore.tab_title?.text ?? null,
-    address: {
-      id: companyInfoFromSaas.address?.id,
-      city: companyInfoFromSaas.address?.city,
-      complement: companyInfoFromSaas.address?.complement,
-      country: companyInfoFromSaas.address?.country,
-      createdAt: companyInfoFromSaas.address?.createdAt,
-      neighborhood: companyInfoFromSaas.address?.neighborhood,
-      number: companyInfoFromSaas.address?.number,
-      state: companyInfoFromSaas.address?.state,
-      street: companyInfoFromSaas.address?.street,
-      updatedAt: companyInfoFromSaas.address?.updatedAt,
-      zipCode: companyInfoFromSaas.address?.zipCode,
-    },
     createdAt: companyInfoFromSaas.createdAt,
     updatedAt: companyInfoFromSaas.updatedAt,
   };

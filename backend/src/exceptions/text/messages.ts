@@ -1,19 +1,17 @@
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import {
   EncryptionAlgorithmEnum,
   LogOperationTypeEnum,
-  ProviderTypeEnum,
   QueryOrderingEnum,
-  SubscriptionLevelEnum,
   TableActionTypeEnum,
   UserActionEnum,
-  WidgetTypeEnum,
+  WidgetTypeEnum
 } from '../../enums/index.js';
-import { toPrettyErrorsMsg } from '../../helpers/index.js';
-import { enumToString } from '../../helpers/enum-to-string.js';
-import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
+import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { enumToString } from '../../helpers/enum-to-string.js';
+import { toPrettyErrorsMsg } from '../../helpers/index.js';
 export const Messages = {
   AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',
   AI_THREAD_NOT_FOUND: 'Thread with specified parameters not found',
@@ -84,10 +82,6 @@ export const Messages = {
   CONNECTION_MASTER_PASSWORD_NOT_SET:
     'Connection master password is not set (or connection created before this feature)',
   CONNECTION_TEST_FILED: 'Connection test failed. ',
-  CONNECTION_TEST_FILED_WITH_ERROR: (message: string) =>
-    `Connection test failed with error: ${
-      message.toLowerCase().includes('timedout') ? '"Connection timed out"' : `"${message}"`
-    }`,
   CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
   CONNECTION_PROPERTIES_INVALID: 'Connection properties are invalid',
   CONNECTION_PROPERTIES_CANT_BE_EMPTY: `Connection properties cannot be empty`,
@@ -149,9 +143,6 @@ export const Messages = {
   FAILED_REMOVE_USER_FROM_COMPANY: 'Failed to remove user from company.',
   FAILED_REMOVE_USER_FROM_GROUP: 'Failed to remove user from group.',
   FAILED_TABLE_SETTINGS_DELETE: 'Failed to delete table settings. ',
-  FAILED_TO_GET_TABLE_SCHEMA: (tableName: string) => `Table schema of table ${tableName} not found.`,
-  FAILED_TO_SEND_INVITATION_EMAIL: (email: string) => `Failed to send invitation email on address ${email}`,
-  FAILED_TO_SEND_CONFIRMATION_EMAIL: (email: string) => `Failed to send confirmation email on address ${email}`,
   FAILED_LOGOUT: `Failed to log out`,
   FAILED_UPDATE_MASTER_PASSWORD: `Failed update master password`,
   FAILED_UPDATE_TABLE_SETTINGS: 'Failed to update table settings. ',
@@ -245,6 +236,7 @@ export const Messages = {
   SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
   SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR: `Failed to get company id by custom domain in. Please contact our support team.`,
   SAAS_GET_COMPANY_CUSTOM_DOMAIN_BY_ID_FAILED_UNHANDLED_ERROR: `Failed to get company custom domain by id. Please contact our support team.`,
+  SAAS_RECOUNT_USERS_IN_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to recount users in company. Please contact our support team.`,
   SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
   SLACK_URL_MISSING: 'Slack url is missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
@@ -266,8 +258,6 @@ export const Messages = {
   TABLE_NOT_EXISTS: 'A table with this name does not exist in the connection',
   TABLE_WITH_NAME_NOT_EXISTS: (tableName: string) => `A table ${tableName} does not exist in the connection`,
   TABLE_NOT_FOUND: 'Table not found',
-  TABLE_SCHEMA_NOT_FOUND: (tableName: string) =>
-    `Table schema for table ${tableName} not found or this table does not exists`,
   TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found',
   TABLE_WIDGET_NOT_FOUND: 'Table widget with this parameters not found',
   TABLE_ACTION_NOT_FOUND: 'Table action not found',
@@ -292,10 +282,6 @@ export const Messages = {
     'User already added in this group, but email is not confirmed. We sent new invitation on this users email.',
   USER_ALREADY_ADDED_BUT_NOT_ACTIVE_IN_COMPANY:
     'User already added in this company, but email is not confirmed. We sent new invitation on this users email.',
-  USER_CREATE_CONNECTION: (email: string, connectionType: any) =>
-    `Connection of type "${connectionType}" was added by user "${email}".`,
-  USER_CREATED: (email: string, provider: ProviderTypeEnum = null) =>
-    `User "${email}" was registered. ${provider ? `Provider: "${provider}".` : ''}`,
   USER_CREATION_FAILED: 'Creating a new user failed.',
   USER_DELETED_ACCOUNT: (email: string, reason: string, message: string) =>
     `User ${email ? email : 'unknowm'} deleted their account. Reason is: ${
@@ -326,12 +312,6 @@ export const Messages = {
   EMAIL_SEND_FAILED: (email: string) => `Email sending to ${email} failed`,
   EMAIL_VERIFICATION_REQUESTED: 'Email verification requested',
   FILTERS_MISSING: 'Filters are missing',
-  USER_EMAIL_NOT_FOUND: (email: string) =>
-    `User ${email} is not found in our system, please ask the user to create an account first`,
-  USER_EMAIL_NOT_FOUND_AND_INVITED: (email: string) =>
-    `User ${email} is not found in our system. We have sent an invitation to the user's email. Please ask the user to log in.`,
-  USER_INVITE_EXTERNAL_USER: (userAddEmail: string, userToAddEmail: string) =>
-    `User ${userAddEmail} send invite to external user ${userToAddEmail}.`,
   USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,
   USER_ALREADY_REGISTERED: (email: string) => `User with email ${email} is already registered`,
   USER_NOT_FOUND: 'User with specified parameters not found',
@@ -361,8 +341,6 @@ export const Messages = {
   HIDDEN_TABLES_MUST_BE_ARRAY: `Hidden tables must be array`,
   SUBSCRIPTION_SUCCESSFULLY_CREATED: `Subscription created successfully`,
   SUBSCRIPTION_CANCELLED: `Subscription cancelled`,
-  SUBSCRIPTION_TYPE_INCORRECT: () =>
-    `Subscription type is incorrect. Now we support subscriptions: ${enumToString(SubscriptionLevelEnum)}`,
   MAXIMUM_INVITATIONS_COUNT_REACHED: 'Sorry, the maximum number of invitations has been reached. Try again later.',
   MAXIMUM_FREE_INVITATION_REACHED: 'Sorry, reached maximum number of users for free plan',
   MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED:
