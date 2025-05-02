@@ -118,6 +118,13 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await usersQB.getMany();
   },
 
+  async countUsersInCompany(companyId: string): Promise<number> {
+    const usersQB = this.createQueryBuilder('user')
+      .leftJoin('user.company', 'company')
+      .where('company.id = :companyId', { companyId: companyId });
+    return await usersQB.getCount();
+  },
+
   async getUserEmailOrReturnNull(userId: string): Promise<string> {
     const userQB = this.createQueryBuilder('user').where('user.id = :userId', { userId: userId });
     const user = await userQB.getOne();
@@ -214,6 +221,23 @@ export const userCustomRepositoryExtension: IUserRepository = {
       .where('id IN (:...userIds)', { userIds: userIds });
     await usersQb.execute();
     return await this.createQueryBuilder('user').whereInIds(userIds).getMany();
+  },
+
+  async suspendNewestUsersInCompany(companyId: string, unsuspendedUsersLeft: number = 3): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user')
+      .where('user.companyId = :companyId', { companyId: companyId })
+      .orderBy('user.createdAt', 'ASC');
+    const users: Array<UserEntity> = await usersQb.getMany();
+    const usersToSuspend = users.slice(unsuspendedUsersLeft);
+
+    if (usersToSuspend.length > 0) {
+      await this.createQueryBuilder('user')
+        .update()
+        .set({ suspended: true })
+        .where('id IN (:...userIds)', { userIds: usersToSuspend.map((user) => user.id) })
+        .execute();
+    }
+    return usersToSuspend;
   },
 
   async unSuspendUsers(userIds: Array<string>): Promise<Array<UserEntity>> {

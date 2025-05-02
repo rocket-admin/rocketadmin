@@ -19,6 +19,7 @@ services:
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
+      - test-elasticsearch-e2e-testing
     links:
       - postgres
       - testMySQL-e2e-testing
@@ -28,6 +29,7 @@ services:
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
+      - test-elasticsearch-e2e-testing
     command: ["yarn", "start"]
 
   testMySQL-e2e-testing:
@@ -144,6 +146,21 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=SuperSecretAwsAccessKey
       - AWS_SECRET=SuperSecretAwsSecret
+
+  test-elasticsearch-e2e-testing:
+    image: elasticsearch:8.17.5
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=SuperSecretElasticPassword
+      - xpack.security.enabled=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   rocketadmin-agent_mongo:
     build:

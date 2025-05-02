@@ -11,6 +11,7 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { isTest } from '../../../helpers/app/is-test.js';
 import { EmailService } from '../../email/email/email.service.js';
+import { CompanyInfoHelperService } from '../company-info-helper.service.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class InviteUserInCompanyAndConnectionGroupUseCase
@@ -22,6 +23,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
     private readonly emailService: EmailService,
+    private readonly companyInfoHelperService: CompanyInfoHelperService,
   ) {
     super();
   }
@@ -42,7 +44,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
     }
 
     if (isSaaS()) {
-      const canInviteMoreUsers = await this.saasCompanyGatewayService.canInviteMoreUsers(companyId);
+      const canInviteMoreUsers = await this.companyInfoHelperService.canInviteMoreUsers(companyId);
       if (!canInviteMoreUsers) {
         throw new HttpException(
           {
@@ -69,18 +71,12 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 
     if (foundInvitedUser && !foundInvitedUser.isActive) {
       const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-      const renewedInvitation = await this._dbContext.invitationInCompanyRepository.createOrUpdateInvitationInCompany(
-        foundCompany,
-        groupId,
-        inviterId,
-        invitedUserEmail,
-        invitedUserCompanyRole,
-      );
-      const sendEmailResult = await this.emailService.sendInvitationToCompany(
-        invitedUserEmail,
-        renewedInvitation.verification_string,
-        foundCompany.id,
-        foundCompany.name,
+      const renewedEmailVerification =
+        await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
+
+      const sendEmailResult = await this.emailService.sendEmailConfirmation(
+        foundInvitedUser.email,
+        renewedEmailVerification.verification_string,
         companyCustomDomain,
       );
 
@@ -94,17 +90,8 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       }
 
       if (!isSaaS()) {
-        Logger.printTechString(`Invitation verification string: ${renewedInvitation.verification_string}`);
-      } else {
-        await this.saasCompanyGatewayService.invitationSentWebhook(
-          companyId,
-          invitedUserEmail,
-          invitedUserCompanyRole,
-          inviterId,
-          renewedInvitation.verification_string,
-        );
+        Logger.printTechString(`Invitation verification string: ${renewedEmailVerification.verification_string}`);
       }
-
       throw new HttpException(
         {
           message: Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE_IN_COMPANY,
@@ -128,15 +115,6 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       foundCompany.name,
       companyCustomDomain,
     );
-    if (isSaaS()) {
-      await this.saasCompanyGatewayService.invitationSentWebhook(
-        companyId,
-        invitedUserEmail,
-        invitedUserCompanyRole,
-        inviterId,
-        newInvitation.verification_string,
-      );
-    }
     const invitationRO: any = {
       companyId: companyId,
       groupId: groupId,

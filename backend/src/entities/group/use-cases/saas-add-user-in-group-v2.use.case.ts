@@ -2,15 +2,12 @@ import { HttpException, HttpStatus, Inject } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { EmailService } from '../../email/email/email.service.js';
 import { AddUserInGroupWithSaaSDs } from '../application/data-sctructures/add-user-in-group.ds.js';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds.js';
-import { IAddUserInGroup } from './use-cases.interfaces.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { buildFoundGroupResponseDto } from '../utils/biuld-found-group-response.dto.js';
-import { slackPostMessage } from '../../../helpers/index.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { EmailService } from '../../email/email/email.service.js';
+import { IAddUserInGroup } from './use-cases.interfaces.js';
 
 export class AddUserInGroupUseCase
   extends AbstractUseCase<AddUserInGroupWithSaaSDs, AddedUserInGroupDs>
@@ -19,7 +16,6 @@ export class AddUserInGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
     private readonly emailService: EmailService,
   ) {
     super();
@@ -72,16 +68,6 @@ export class AddUserInGroupUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
-    }
-    //todo remove in future
-    if (isSaaS()) {
-      const saasFoundCompany = await this.saasCompanyGatewayService.getCompanyInfo(foundConnection.company.id);
-      const saasFoundUserInCompany = saasFoundCompany?.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-
-      if (foundUser && !saasFoundUserInCompany && saasFoundCompany.users.length) {
-        await slackPostMessage(`probable desynchronization of users (adding a user to a group, user not found is saas, but found in core)
-          user: ${email}, company: ${foundConnection.company.id}`);
-      }
     }
 
     const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);

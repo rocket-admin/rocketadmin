@@ -1,25 +1,25 @@
 import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import assert from 'assert';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
-import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
-import assert from 'assert';
+import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
+import { EmailService } from '../../../entities/email/email/email.service.js';
 import { GroupEntity } from '../../../entities/group/group.entity.js';
 import { PermissionEntity } from '../../../entities/permission/permission.entity.js';
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
+import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
+import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
+import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
+import { UserEntity } from '../../../entities/user/user.entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../../entities/user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../../entities/user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build-default-admin-permissions.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { ISaasRegisterUser } from './saas-use-cases.interface.js';
-import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
-import { UserEntity } from '../../../entities/user/user.entity.js';
-import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { EmailService } from '../../../entities/email/email/email.service.js';
+import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 
 export class SaasUsualRegisterUseCase
   extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDto>
@@ -37,7 +37,7 @@ export class SaasUsualRegisterUseCase
   protected async implementation(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto> {
     const { email, password, gclidValue, name, companyId, companyName } = userData;
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
-    const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
+    const userCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
 
     if (foundUser) {
       throw new HttpException(
@@ -47,6 +47,7 @@ export class SaasUsualRegisterUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const registerUserData: RegisterUserDs = {
       email: email,
       password: password,
@@ -54,6 +55,7 @@ export class SaasUsualRegisterUseCase
       gclidValue: gclidValue,
       name: name,
     };
+
     const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
 
     const testConnections = Constants.getTestConnectionsArr();
@@ -77,25 +79,23 @@ export class SaasUsualRegisterUseCase
         await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
       }),
     );
-    // const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-    // for (const tableSettingsArray of testTableSettingsArrays) {
-    //   await Promise.all(
-    //     tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
-    //       await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-    //     }),
-    //   );
-    // }
-    const createdEmailVerification =
-      await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
-    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-    await this.emailService.sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string, companyCustomDomain);
 
-    if (foundCompany) {
-      foundCompany.users.push(savedUser);
-      await this._dbContext.companyInfoRepository.save(foundCompany);
+    if (userCompany) {
+      userCompany.users.push(savedUser);
+      await this._dbContext.companyInfoRepository.save(userCompany);
     } else {
       await this.registerEmptyCompany(savedUser, createdTestConnections, companyId, companyName);
     }
+
+    const createdEmailVerification =
+      await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
+    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+
+    await this.emailService.sendEmailConfirmation(
+      savedUser.email,
+      createdEmailVerification.verification_string,
+      companyCustomDomain,
+    );
 
     return {
       id: savedUser.id,
@@ -118,6 +118,9 @@ export class SaasUsualRegisterUseCase
     companyId: string,
     companyName: string,
   ): Promise<CompanyInfoEntity> {
+    if (!companyName) {
+      companyName = 'New Company';
+    }
     const newCompanyInfo = new CompanyInfoEntity();
     newCompanyInfo.id = companyId;
     newCompanyInfo.name = companyName;

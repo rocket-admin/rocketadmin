@@ -37,7 +37,7 @@ export async function validateCreateConnectionData(
     // }
     if (!username) errors.push(Messages.USERNAME_MISSING);
 
-    if (type !== ConnectionTypesEnum.dynamodb) {
+    if (type !== ConnectionTypesEnum.dynamodb && type !== ConnectionTypesEnum.elasticsearch) {
       if (!database) errors.push(Messages.DATABASE_MISSING);
       if (port < 0 || port > 65535 || !port) errors.push(Messages.PORT_MISSING);
       if (typeof port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);

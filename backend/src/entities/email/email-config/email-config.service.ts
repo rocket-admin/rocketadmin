@@ -12,10 +12,11 @@ export class EmailConfigService implements IEmailConfigService {
     const emailServicePort = parseInt(process.env.EMAIL_SERVICE_PORT) || 25;
     const emailServiceUserName = process.env.EMAIL_SERVICE_USERNAME;
     const emailServicePassword = process.env.EMAIL_SERVICE_PASSWORD;
+    const nonSecure = !process.env.NON_SSL_EMAIL;
     return {
       host: emailServiceHost,
       port: emailServicePort,
-      secure: true,
+      secure: nonSecure,
       auth: {
         user: emailServiceUserName,
         pass: emailServicePassword,

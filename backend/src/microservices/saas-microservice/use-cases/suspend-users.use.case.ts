@@ -16,11 +16,14 @@ export class SuspendUsersUseCase extends AbstractUseCase<SuspendUsersDS, void> i
 
   protected async implementation(inputData: SuspendUsersDS): Promise<void> {
     const { emailsToSuspend, companyId } = inputData;
-    const foundUsersToSuspend = await this._dbContext.userRepository.findUsersByEmailsAndCompanyId(
-      emailsToSuspend,
-      companyId,
-    );
-    const foundUsersToSuspendIds = foundUsersToSuspend.map((user) => user.id);
-    await this._dbContext.userRepository.suspendUsers(foundUsersToSuspendIds);
+    if (emailsToSuspend.length) {
+      const foundUsersToSuspend = await this._dbContext.userRepository.findUsersByEmailsAndCompanyId(
+        emailsToSuspend,
+        companyId,
+      );
+      const foundUsersToSuspendIds = foundUsersToSuspend.map((user) => user.id);
+      await this._dbContext.userRepository.suspendUsers(foundUsersToSuspendIds);
+    }
+    await this._dbContext.userRepository.suspendNewestUsersInCompany(companyId, 3);
   }
 }

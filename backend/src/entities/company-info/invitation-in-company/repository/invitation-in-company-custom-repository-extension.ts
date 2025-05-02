@@ -51,4 +51,12 @@ export const invitationInCompanyCustomRepositoryExtension: IInvitationInCompanyR
       .where('invitation_in_company.verification_string = :verificationString', { verificationString });
     return await qb.getOne();
   },
+
+  async countNonExpiredInvitationsInCompany(companyId: string): Promise<number> {
+    const qb = this.createQueryBuilder('invitation_in_company')
+      .leftJoin('invitation_in_company.company', 'company')
+      .where('company.id = :companyId', { companyId })
+      .andWhere("invitation_in_company.createdAt > NOW() - INTERVAL '1 day'");
+    return await qb.getCount();
+  },
 };
