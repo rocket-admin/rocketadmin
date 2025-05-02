@@ -297,7 +297,7 @@ export const Constants = {
   },
 
   APP_REQUEST_DOMAINS(): Array<string> {
-    const allowedDomains = ['app.rocketadmin.com', 'saas.rocketadmin.com'];
+    const allowedDomains = ['app.rocketadmin.com', 'saas.rocketadmin.com', Constants.APP_DOMAIN_ADDRESS];
     if (isTest()) {
       allowedDomains.push('127.0.0.1', Constants.APP_DOMAIN_ADDRESS);
     }
