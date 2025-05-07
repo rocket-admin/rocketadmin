@@ -52,7 +52,7 @@ export class RemoveUserFromCompanyUseCase
     foundCompanyWithUsers.users = foundCompanyWithUsers.users.filter((user) => user.id !== userId);
     await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
     await this._dbContext.userRepository.remove(foundUser);
-    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(foundCompanyWithUsers.id);
+    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
     return {
       success: true,
     };

@@ -37,7 +37,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
       );
     }
     const {
-      company: { users },
+      company: { users, id: companyId },
       groupId,
       role,
     } = foundInvitation;
@@ -86,7 +86,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
       }
     }
     await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
-    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(foundInvitation.company.id);
+    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
     return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company));
   }
 }
