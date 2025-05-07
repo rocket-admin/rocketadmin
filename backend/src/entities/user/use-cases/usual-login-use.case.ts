@@ -83,6 +83,14 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     }
 
     const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`, Constants.APP_DOMAIN_ADDRESS];
+
+    if (isTest()) {
+      allowedDomains.push(`127.0.0.1`);
+      if (allowedDomains.includes(requestDomain)) {
+        return;
+      }
+    }
+
     if (allowedDomains.includes(requestDomain)) {
       return;
     }
@@ -91,12 +99,6 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
     }
 
-    if (isTest()) {
-      allowedDomains.push(`127.0.0.1`);
-      if (allowedDomains.includes(requestDomain)) {
-        return;
-      }
-    }
     const companyIdByDomain: string | null =
       await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(requestDomain);
 
