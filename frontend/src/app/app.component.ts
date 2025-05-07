@@ -155,7 +155,7 @@ export class AppComponent {
         const expirationTime = new Date(res.expires);
         if (expirationTime) {
 		localStorage.setItem('token_expiration', expirationTime.toISOString());
-		expirationToken = expirationTime;
+		expirationToken = expirationTime.toISOString();
 	}
 
         this.router.navigate(['/connections-list']);
