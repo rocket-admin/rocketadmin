@@ -82,11 +82,11 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       return;
     }
 
+    const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`, Constants.APP_DOMAIN_ADDRESS];
+
     if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
       throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
     }
-
-    const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`];
 
     if (allowedDomains.includes(requestDomain)) {
       return;
