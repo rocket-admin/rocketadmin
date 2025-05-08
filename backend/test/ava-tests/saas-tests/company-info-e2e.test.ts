@@ -86,7 +86,7 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    t.is(Object.keys(foundCompanyInfoRO).length, 7);
+    t.is(Object.keys(foundCompanyInfoRO).length, 10);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
@@ -123,7 +123,7 @@ test.serial(`${currentTest} should return full found company info for company ad
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 12);
+    t.is(Object.keys(foundCompanyInfoRO).length, 15);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -175,7 +175,7 @@ test.serial(`${currentTest} should return found company info for non-admin user`
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(Object.keys(foundCompanyInfoRO).length, 7);
+    t.is(Object.keys(foundCompanyInfoRO).length, 10);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
@@ -477,7 +477,7 @@ test.serial(`${currentTest} should revoke user invitation from company`, async (
 
 currentTest = 'PUT company/name/:slug';
 
-test.only(`${currentTest} should update company name`, async (t) => {
+test.serial(`${currentTest} should update company name`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -496,12 +496,9 @@ test.only(`${currentTest} should update company name`, async (t) => {
 
   t.is(foundCompanyInfo.status, 200);
   const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-  console.log('🚀 ~ test.only ~ foundCompanyInfoRO:', foundCompanyInfoRO)
   t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
 
   const newName = `${faker.company.name()}_${nanoid(5)}`;
-
-  console.log('🚀 ~ test.only ~ newName:', newName);
   const updateCompanyNameResult = await request(app.getHttpServer())
     .put(`/company/name/${foundCompanyInfoRO.id}`)
     .send({
