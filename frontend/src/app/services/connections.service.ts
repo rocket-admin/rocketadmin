@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, of, throwError } from 'rxjs';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { NavigationEnd, ResolveEnd, Router, RouterEvent } from '@angular/router';
@@ -297,7 +297,7 @@ export class ConnectionsService {
         const errorMessage = err.error?.message || 'Unknown error';
         const errorDetails = err.error?.originalMessage || '';
         this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, []);
-        return throwError(() => new Error(errorMessage));
+        return throwError(() => errorMessage);
       })
     );
   }
