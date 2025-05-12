@@ -124,7 +124,7 @@ export class AppComponent {
       localStorage.setItem('token_expiration', expirationDateString.toString());
     };
 
-    const expirationToken = localStorage.getItem('token_expiration');
+    let expirationToken = localStorage.getItem('token_expiration');
 
     if (!expirationToken) {
       this.setUserLoggedIn(false);
@@ -153,7 +153,10 @@ export class AppComponent {
       // app initialization after user logs in
       if (!res.isTemporary && res.expires) {
         const expirationTime = new Date(res.expires);
-        if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
+        if (expirationTime) {
+		localStorage.setItem('token_expiration', expirationTime.toISOString());
+		expirationToken = expirationTime.toISOString();
+	}
 
         this.router.navigate(['/connections-list']);
 

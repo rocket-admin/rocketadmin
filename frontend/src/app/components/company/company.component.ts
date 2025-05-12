@@ -113,10 +113,7 @@ export class CompanyComponent {
   ) { }
 
   ngOnInit() {
-    const domain = window.location.hostname;
-    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost' && this.isSaas) {
-      this.isCustomDomain = true;
-    }
+    this.isCustomDomain = this._company.isCustomDomain() && this.isSaas;
 
     this.getTitleSubscription = this._company.getCurrentTabTitle().subscribe(title => {
       this.companyTabTitle = title;

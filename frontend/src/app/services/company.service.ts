@@ -7,11 +7,14 @@ import { ConfigurationService } from './configuration.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompanyService {
+
+  public saasHostnames = (environment as any).saasHostnames;
 
   private company = new BehaviorSubject<string>('');
   public cast = this.company.asObservable();
@@ -38,6 +41,11 @@ export class CompanyService {
 
   getCurrentTabTitle() {
     return this.companyTabTitleSubject.asObservable();
+  }
+
+  isCustomDomain() {
+    const domain = window.location.hostname;
+    return !this.saasHostnames.includes(domain);
   }
 
   fetchCompany() {

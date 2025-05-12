@@ -2,11 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Angulartics2Module } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CompanyService } from 'src/app/services/company.service';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
@@ -14,6 +15,7 @@ describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let authService: AuthService;
+  let companyService: CompanyService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -39,6 +41,8 @@ describe('LoginComponent', () => {
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
+    companyService = TestBed.inject(CompanyService);
+    spyOn(companyService, 'isCustomDomain').and.returnValue(false);
     fixture.detectChanges();
   });
 
