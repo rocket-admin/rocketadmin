@@ -567,4 +567,34 @@ export class DbTableRowEditComponent implements OnInit {
         })
     }
   }
+
+  handleDeleteRow() {
+    if (!this.hasKeyAttributesFromURL) return;
+
+    const dialogRef = this.dialog.open(BbBulkActionConfirmationDialogComponent, {
+      width: '25em',
+      data: {
+        title: 'Delete row',
+        primaryKeys: [this.keyAttributesFromURL],
+        tableDisplayName: this.dispalyTableName || this.tableName
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.submitting = true;
+        this._tableRow.deleteTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL)
+          .subscribe(() => {
+            this.submitting = false;
+            this.ngZone.run(() => {
+              this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], {
+                queryParams: this.backUrlParams
+              });
+            });
+          },
+          () => { this.submitting = false },
+          () => { this.submitting = false });
+      }
+    });
+  }
 }
