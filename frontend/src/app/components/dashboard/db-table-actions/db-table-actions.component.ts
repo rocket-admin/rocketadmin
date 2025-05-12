@@ -31,10 +31,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { UserService } from 'src/app/services/user.service';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -148,8 +148,7 @@ export class DbTableActionsComponent implements OnInit {
         try {
           this.rulesData = await this.getRules();
           this.rules = this.rulesData.action_rules;
-          this.selectedRule = this.rules[0];
-          this.selectedRuleTitle = this.selectedRule.title;
+          if (this.rules.length) this.setSelectedRule(this.rules[0]);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);

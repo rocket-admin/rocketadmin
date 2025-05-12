@@ -1,7 +1,6 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { ConnectionType, DBtype } from '../models/connection';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { of } from 'rxjs';
 
 import { AccessLevel } from '../models/user';
 import { ConnectionsService } from './connections.service';
@@ -10,6 +9,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from './notifications.service';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
@@ -435,7 +435,7 @@ describe('ConnectionsService', () => {
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
 
-    await expectAsync(createdConnection).toBeRejectedWith(new Error(fakeError.message));
+    await expectAsync(createdConnection).toBeRejectedWith(fakeError.message);
     expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, []);
   });
 
