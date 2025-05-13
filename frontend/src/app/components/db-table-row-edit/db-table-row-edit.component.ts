@@ -10,13 +10,13 @@ import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 's
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
-import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
+import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-table-view/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { BreadcrumbsComponent } from '../ui-components/breadcrumbs/breadcrumbs.component';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
-import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
+import { DbActionLinkDialogComponent } from '../dashboard/db-table-view/db-action-link-dialog/db-action-link-dialog.component';
 import { DynamicModule } from 'ng-dynamic-component';
 import JsonURL from "@jsonurl/jsonurl";
 import { MatButtonModule } from '@angular/material/button';

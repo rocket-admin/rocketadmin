@@ -24,7 +24,7 @@ import JsonURL from "@jsonurl/jsonurl";
 import { DynamicModule } from 'ng-dynamic-component';
 import { RouterModule } from '@angular/router';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
+import { ContentLoaderComponent } from '../../../ui-components/content-loader/content-loader.component';
 import { Angulartics2OnModule } from 'angulartics2';
 
 @Component({

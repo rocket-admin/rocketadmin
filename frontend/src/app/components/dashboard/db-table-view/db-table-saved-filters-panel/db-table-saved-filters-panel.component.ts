@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TablesService } from 'src/app/services/tables.service';
 import { Touchscreen } from 'puppeteer';
-import { normalizeTableName } from '../../../lib/normalize'
+import { normalizeTableName } from '../../../../lib/normalize'
 
 @Component({
   selector: 'app-db-table-saved-filters-panel',

@@ -74,7 +74,7 @@
                 </div>
 
                 <app-content-loader *ngIf="dataSource === null"></app-content-loader>
-                <app-db-table *ngIf="dataSource"
+                <app-db-table-view *ngIf="dataSource"
                     [displayName]="selectedTableDisplayName"
                     [activeFilters]="filters"
                     [filterComparators]="comparators"
@@ -92,7 +92,7 @@
                     (requestFilteredRows)="requestFilteredRows($event)"
                     (search)="search($event)"
                     (activateActions)="activateActions($event)">
-                </app-db-table>
+                </app-db-table-view>
             </div>
             <app-db-table-row-view *ngIf="selectedRow"
                 [columns]="dataSource.columns"

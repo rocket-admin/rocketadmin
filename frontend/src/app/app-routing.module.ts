@@ -8,11 +8,10 @@ import { ConnectDBComponent } from './components/connect-db/connect-db.component
 import { ConnectionSettingsComponent } from './components/connection-settings/connection-settings.component';
 import { ConnectionsListComponent } from './components/connections-list/connections-list.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component'
-import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
-import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
+import { DbTableActionsComponent } from './components/dashboard/db-table-view/db-table-actions/db-table-actions.component';
 import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table-row-edit.component';
-import { DbTableSettingsComponent } from './components/dashboard/db-table-settings/db-table-settings.component';
-import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets/db-table-widgets.component';
+import { DbTableSettingsComponent } from './components/dashboard/db-table-view/db-table-settings/db-table-settings.component';
+import { DbTableWidgetsComponent } from './components/dashboard/db-table-view/db-table-widgets/db-table-widgets.component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 import { LoginComponent } from './components/login/login.component';
