@@ -92,6 +92,7 @@ export class DbTableComponent implements OnInit {
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
+  @Output() requestFilteredRows = new EventEmitter();
   // @Output() viewRow = new EventEmitter();
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();

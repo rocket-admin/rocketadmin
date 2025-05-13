@@ -401,6 +401,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     })
   }
 
+  requestFilteredRows(filters: object) {
+    this.filters = filters;
+    this.getRows();
+  }
+
   switchTableSavedFilter(savedFilter: {key: string, value: object}) {
     if (Object.keys(this.filters).includes(savedFilter.key)) {
       this.filters[savedFilter.key] = undefined;

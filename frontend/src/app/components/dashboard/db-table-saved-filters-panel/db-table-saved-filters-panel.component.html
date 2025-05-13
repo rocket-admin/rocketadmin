@@ -22,18 +22,21 @@
     </div>
 
     <div class="saved-filters">
-        <div *ngFor="let savedFilter of savedFilters">
-            {{savedFilter.name}}
-            <button type="button" (click)="deleteSavedFilter(savedFilter.id)">Delete</button>
-            <br/>
-            <div>
-                <mat-chip-row *ngFor="let filter of savedFilter.filters | keyvalue">
-                    {{ getFilter(filter) }}
-                    <button matChipRemove>
-                        <mat-icon>filter_alt_off</mat-icon>
-                    </button>
-                </mat-chip-row>
-            </div>
+        <div>
+            <a mat-button *ngFor="let savedFilter of savedFilters"
+                routerLink="/dashboard/{{connectionID}}/{{name}}"
+                [queryParams]="{page_index: 0, page_size: 30, saved_filter_id: savedFilter.id}"
+                (click)="filterSwitch(savedFilter)">
+                {{savedFilter.name}}
+            </a>
+        </div>
+        <div *ngIf="selectedSavedFilterID">
+            <mat-chip-row *ngFor="let filter of savedFiltersMap[selectedSavedFilterID].filters | keyvalue">
+                {{ getFilter(filter) }}
+                <button matChipRemove>
+                    <mat-icon>filter_alt_off</mat-icon>
+                </button>
+            </mat-chip-row>
         </div>
     </div>
 </div>
