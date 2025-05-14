@@ -75,21 +75,6 @@ export class LoginWithGoogleUseCase
         await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
       }),
     );
-    const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-
-    for (const tableSettingsArray of testTableSettingsArrays) {
-      await Promise.all(
-        tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
-          try {
-            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-          } catch (error) {
-            Sentry.captureException(error);
-            console.error('Error saving table settings', error);
-          }
-        }),
-      );
-    }
-
     return savedUser;
   }
 }
