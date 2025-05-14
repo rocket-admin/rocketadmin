@@ -2,21 +2,18 @@ import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
 import { GroupEntity } from '../../../entities/group/group.entity.js';
 import { PermissionEntity } from '../../../entities/permission/permission.entity.js';
-import { TableSettingsEntity } from '../../../entities/table-settings/table-settings.entity.js';
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
+import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../../entities/user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../../entities/user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build-default-admin-permissions.js';
-import { buildTestTableSettings } from '../../../entities/user/utils/build-test-table-settings.js';
-import { ILoginUserWithGoogle } from './saas-use-cases.interface.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
-import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
-import * as Sentry from '@sentry/node';
+import { ILoginUserWithGoogle } from './saas-use-cases.interface.js';
 
 @Injectable()
 export class LoginWithGoogleUseCase
@@ -75,21 +72,6 @@ export class LoginWithGoogleUseCase
         await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
       }),
     );
-    const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-
-    for (const tableSettingsArray of testTableSettingsArrays) {
-      await Promise.all(
-        tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
-          try {
-            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-          } catch (error) {
-            Sentry.captureException(error);
-            console.error('Error saving table settings', error);
-          }
-        }),
-      );
-    }
-
     return savedUser;
   }
 }
