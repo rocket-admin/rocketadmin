@@ -2,9 +2,9 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { GetUserCompanyFullInfoUseCase } from '../../entities/company-info/use-cases/get-full-user-company-info.use.case.js';
 import { SaasController } from './saas.controller.js';
 import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
+import { GetFullCompanyInfoByUserIdUseCase } from './use-cases/get-full-company-info-by-user-id.use.case.js';
 import { GetUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
 import { GetUsersCountInCompanyByIdUseCase } from './use-cases/get-users-count-in-company.use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
@@ -52,7 +52,7 @@ import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connec
     },
     {
       provide: UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID,
-      useClass: GetUserCompanyFullInfoUseCase,
+      useClass: GetFullCompanyInfoByUserIdUseCase,
     },
     {
       provide: UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY,
