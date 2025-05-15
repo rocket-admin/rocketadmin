@@ -18,6 +18,7 @@ import {
   IGetUserInfo,
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
+  ISaasDemoRegisterUser,
   ISaaSGetCompanyInfoByUserId,
   ISaaSGetUsersCountInCompany,
   ISaasGetUsersInfosByEmail,
@@ -41,6 +42,8 @@ export class SaasController {
     private readonly getUsersInfosByEmailUseCase: ISaasGetUsersInfosByEmail,
     @Inject(UseCaseType.SAAS_USUAL_REGISTER_USER)
     private readonly usualRegisterUserUseCase: ISaasRegisterUser,
+    @Inject(UseCaseType.SAAS_DEMO_USER_REGISTRATION)
+    private readonly demoRegisterUserUseCase: ISaasDemoRegisterUser,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
     private readonly loginUserWithGoogleUseCase: ILoginUserWithGoogle,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB)
@@ -115,6 +118,23 @@ export class SaasController {
   ): Promise<FoundUserDto> {
     companyId = companyId ? companyId : null;
     return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
+  }
+
+  @ApiOperation({ summary: 'Register demo user register webhook' })
+  @ApiBody({ type: SaasUsualUserRegisterDS })
+  @ApiResponse({
+    status: 201,
+    description: 'Demo user account has been successfully registered.',
+    type: FoundUserDto,
+  })
+  @Post('user/demo/register')
+  async registerDemoUserAccount(
+    @Body('email') email: string,
+    @Body('gclidValue') gclidValue: string,
+    @Body('companyId') companyId: string,
+    @Body('companyName') companyName: string,
+  ): Promise<FoundUserDto> {
+    return await this.demoRegisterUserUseCase.execute({ email, gclidValue, companyId, companyName });
   }
 
   @ApiOperation({ summary: 'Login or create user with google webhook' })

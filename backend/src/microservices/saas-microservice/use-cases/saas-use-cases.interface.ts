@@ -1,4 +1,5 @@
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
+import { SaaSRegisterDemoUserAccountDS } from '../../../entities/user/application/data-structures/demo-user-account-register.ds.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
@@ -27,6 +28,10 @@ export interface ISaasGetUsersInfosByEmail {
 
 export interface ISaasRegisterUser {
   execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto>;
+}
+
+export interface ISaasDemoRegisterUser {
+  execute(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto>;
 }
 
 export interface ILoginUserWithGoogle {

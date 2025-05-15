@@ -14,6 +14,7 @@ import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-we
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
+import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 
 @Module({
   imports: [],
@@ -66,6 +67,10 @@ import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connec
       provide: UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY,
       useClass: UnFreezeConnectionsInCompanyUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_DEMO_USER_REGISTRATION,
+      useClass: SaasRegisterDemoUserAccountUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -78,6 +83,7 @@ export class SaasModule {
         { path: 'saas/company/registered', method: RequestMethod.POST },
         { path: 'saas/user/:userId', method: RequestMethod.GET },
         { path: 'saas/user/register', method: RequestMethod.POST },
+        { path: 'saas/user/demo/register', method: RequestMethod.POST },
         { path: 'saas/user/google/login', method: RequestMethod.POST },
         { path: 'saas/user/github/login', method: RequestMethod.POST },
         { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
