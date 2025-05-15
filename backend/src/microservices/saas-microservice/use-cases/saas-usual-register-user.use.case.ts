@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import assert from 'assert';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -21,6 +21,7 @@ import { Constants } from '../../../helpers/constants/constants.js';
 import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 
+@Injectable()
 export class SaasUsualRegisterUseCase
   extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDto>
   implements ISaasRegisterUser

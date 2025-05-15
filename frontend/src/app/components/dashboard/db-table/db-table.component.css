@@ -468,9 +468,24 @@ th.mat-header-cell, td.mat-cell {
     margin: 12px 0;
 }
 
+.field-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-primaryPalette-500);
+}
+
+.field-link__icon {
+    flex-shrink: 0;
+    margin-bottom: -2px;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+
 .field-value-copy-button {
     position: absolute;
-    right: 0;
+    right: -6px;
     top: 50%;
     display: none;
     transform: translate(0, -50%) scale(0.85);

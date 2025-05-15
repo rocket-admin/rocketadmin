@@ -2,23 +2,21 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { UserEntity } from '../../../entities/user/user.entity.js';
-import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
-import { ILoginUserWithGitHub } from './saas-use-cases.interface.js';
-import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
-import { buildUserGitHubIdentifierEntity } from '../../../entities/user/utils/build-github-identifier-entity.js';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
 import { GroupEntity } from '../../../entities/group/group.entity.js';
 import { PermissionEntity } from '../../../entities/permission/permission.entity.js';
-import { TableSettingsEntity } from '../../../entities/table-settings/table-settings.entity.js';
+import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
+import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
+import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
+import { UserEntity } from '../../../entities/user/user.entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../../entities/user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../../entities/user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build-default-admin-permissions.js';
-import { buildTestTableSettings } from '../../../entities/user/utils/build-test-table-settings.js';
-import { Constants } from '../../../helpers/constants/constants.js';
+import { buildUserGitHubIdentifierEntity } from '../../../entities/user/utils/build-github-identifier-entity.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
-import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
+import { ILoginUserWithGitHub } from './saas-use-cases.interface.js';
 
 @Injectable()
 export class LoginUserWithGithubUseCase
@@ -59,6 +57,7 @@ export class LoginUserWithGithubUseCase
         userData,
         ExternalRegistrationProviderEnum.GITHUB,
       );
+
       const newUserGitHubIdentifier = buildUserGitHubIdentifierEntity(savedUser, Number(githubId));
       await this._dbContext.userGitHubIdentifierRepository.saveGitHubIdentifierEntity(newUserGitHubIdentifier);
 
@@ -82,16 +81,7 @@ export class LoginUserWithGithubUseCase
           await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
         }),
       );
-      const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-
-      for (const tableSettingsArray of testTableSettingsArrays) {
-        await Promise.all(
-          tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
-            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-          }),
-        );
-      }
-
+      
       return savedUser;
     } catch (_e) {
       throw new InternalServerErrorException(Messages.GITHUB_REGISTRATION_FAILED);

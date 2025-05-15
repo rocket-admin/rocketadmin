@@ -1,7 +1,9 @@
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
+import { SaaSRegisterDemoUserAccountDS } from '../../../entities/user/application/data-structures/demo-user-account-register.ds.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../data-structures/common-responce.ds.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
 import { GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
@@ -28,8 +30,12 @@ export interface ISaasRegisterUser {
   execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto>;
 }
 
+export interface ISaasDemoRegisterUser {
+  execute(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto>;
+}
+
 export interface ILoginUserWithGoogle {
-  execute(inputData: SaasRegisterUserWithGoogleDS): Promise<UserEntity>;
+  execute(inputData: SaasRegisterUserWithGoogleDS, inTransaction: InTransactionEnum): Promise<UserEntity>;
 }
 
 export interface ILoginUserWithGitHub {
