@@ -12,13 +12,7 @@
             </button>
         </div>
         <div class="no-actions" *ngIf="rulesData && rules && rules.length === 0 && !newRule">
-            <button mat-stroked-button color="primary" type="button"
-                angulartics2On="click"
-                angularticsAction="Actions: add action is clicked"
-                (click)="addNewRule()">
-                <mat-icon>add</mat-icon>
-                Add first rule
-            </button>
+            <span>No added rules</span>
         </div>
         <mat-action-list *ngIf="rulesData && rules && rules.length">
             <button mat-list-item *ngFor="let rule of rules; let i = index"
@@ -198,6 +192,12 @@
                 <strong class="actions-hint__title">Configure custom triggers and actions for database records</strong>
                 <span class="actions-hint__text">React to standard operations like create, update, delete, or define your own.</span>
             </p>
+            <button mat-flat-button color="accent"
+                angulartics2On="click"
+                angularticsAction="Actions: add first action is clicked"
+                (click)="addNewRule()">
+                Add first rule
+            </button>
             <div class="rules-examples">
                 <div class="rule-example">
                     <div class="rule-example__row">

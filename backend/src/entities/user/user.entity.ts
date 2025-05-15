@@ -44,6 +44,9 @@ export class UserEntity {
   @Column({ default: false })
   suspended: boolean;
 
+  @Column({ default: false })
+  isDemoAccount: boolean;
+
   @BeforeInsert()
   async hashPassword() {
     if (this.password) {

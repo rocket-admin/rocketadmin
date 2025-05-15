@@ -2,9 +2,9 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { GetUserCompanyFullInfoUseCase } from '../../entities/company-info/use-cases/get-full-user-company-info.use.case.js';
 import { SaasController } from './saas.controller.js';
 import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
+import { GetFullCompanyInfoByUserIdUseCase } from './use-cases/get-full-company-info-by-user-id.use.case.js';
 import { GetUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
 import { GetUsersCountInCompanyByIdUseCase } from './use-cases/get-users-count-in-company.use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
@@ -14,6 +14,7 @@ import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-we
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
+import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 
 @Module({
   imports: [],
@@ -52,7 +53,7 @@ import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connec
     },
     {
       provide: UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID,
-      useClass: GetUserCompanyFullInfoUseCase,
+      useClass: GetFullCompanyInfoByUserIdUseCase,
     },
     {
       provide: UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY,
@@ -66,6 +67,10 @@ import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connec
       provide: UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY,
       useClass: UnFreezeConnectionsInCompanyUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_DEMO_USER_REGISTRATION,
+      useClass: SaasRegisterDemoUserAccountUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -78,6 +83,7 @@ export class SaasModule {
         { path: 'saas/company/registered', method: RequestMethod.POST },
         { path: 'saas/user/:userId', method: RequestMethod.GET },
         { path: 'saas/user/register', method: RequestMethod.POST },
+        { path: 'saas/user/demo/register', method: RequestMethod.POST },
         { path: 'saas/user/google/login', method: RequestMethod.POST },
         { path: 'saas/user/github/login', method: RequestMethod.POST },
         { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },

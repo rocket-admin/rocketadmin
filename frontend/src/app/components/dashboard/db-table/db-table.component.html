@@ -238,7 +238,17 @@
                                     [style.--height.px]="tableData.widgets[column].widget_params.height"
                                     class="field-image">
 
-                                <span>{{ getWidgetValue(column, element[column]) }}</span>
+                                <a *ngIf="tableData.widgets[column].widget_type === 'URL' && element[column]"
+                                    target="_blank"
+                                    [href]="element[column]"
+                                    class="field-link"
+                                    (click)="$event.stopPropagation()"
+                                    >
+                                    <mat-icon class="field-link__icon" fontSet="material-icons-outlined">link</mat-icon>
+                                    <span>{{element[column]}}</span>
+                                </a>
+
+                                <span *ngIf="tableData.widgets[column].widget_type !== 'URL'">{{ getWidgetValue(column, element[column]) }}</span>
 
                                 <button type="button" mat-icon-button
                                     class="field-value-copy-button"
