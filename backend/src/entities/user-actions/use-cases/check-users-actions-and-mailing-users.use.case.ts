@@ -59,6 +59,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
     const notFinishedActionsQb = this.userActionRepository
       .createQueryBuilder('user_action')
       .leftJoinAndSelect('user_action.user', 'user')
+      .andWhere('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
       .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
       .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
       .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
@@ -72,6 +73,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
       .leftJoinAndSelect('group.connection', 'connection')
       .leftJoinAndSelect('connection.logs', 'tableLogs')
       .leftJoinAndSelect('user.user_action', 'user_action')
+      .andWhere('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
       .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
       .orWhere('user_action.id is null')
       .andWhere('tableLogs.id is null');
