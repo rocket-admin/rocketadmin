@@ -17,7 +17,7 @@ import { escapeHtml } from '../utils/escape-html.util.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 
-interface ICronMessagingResults {
+export interface ICronMessagingResults {
   messageId?: string;
   accepted?: Array<string | Mail.Address>;
   rejected?: Array<string | Mail.Address>;
