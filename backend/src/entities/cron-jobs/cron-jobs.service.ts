@@ -11,7 +11,8 @@ import {
   ICheckUsersLogsAndUpdateActionsUseCase,
 } from '../user-actions/use-cases/use-cases-interfaces.js';
 import { JobListEntity } from './job-list.entity.js';
-import { EmailService } from '../email/email/email.service.js';
+import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
+import { console } from 'inspector';
 
 @Injectable()
 export class CronJobsService {
@@ -30,13 +31,15 @@ export class CronJobsService {
     try {
       const isJobAdded = await this.insertMidnightJob();
       if (!isJobAdded) {
-        await slackPostMessage('duplicated midnight cron job cron not started', Constants.EXCEPTIONS_CHANNELS);
         return;
       }
-      console.info('midnight cron started');
-      await slackPostMessage('midnight cron started', Constants.EXCEPTIONS_CHANNELS);
+      const startTime = new Date();
+      const startTimeString = `${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`;
+      await slackPostMessage(`midnight cron started at ${startTimeString}`, Constants.EXCEPTIONS_CHANNELS);
       await this.checkUsersLogsAndUpdateActionsUseCase.execute();
-      await slackPostMessage('midnight cron finished', Constants.EXCEPTIONS_CHANNELS);
+      const endTime = new Date();
+      const endTimeString = `${endTime.getHours()}:${endTime.getMinutes()}:${endTime.getSeconds()}`;
+      await slackPostMessage(`midnight cron finished at ${endTimeString}`, Constants.EXCEPTIONS_CHANNELS);
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
@@ -48,24 +51,31 @@ export class CronJobsService {
     try {
       const isJobAdded = await this.insertMorningJob();
       if (!isJobAdded) {
-        await slackPostMessage('duplicated morning cron job cron not started', Constants.EXCEPTIONS_CHANNELS);
         return;
       }
-      await slackPostMessage(
-        'started checking user actions and finding emails for messaging',
-        Constants.EXCEPTIONS_CHANNELS,
-      );
+      const startTime = new Date();
+      const startTimeString = `${startTime.getHours()}:${startTime.getMinutes()}:${startTime.getSeconds()}`;
+      await slackPostMessage(`email cron started at ${startTimeString}`, Constants.EXCEPTIONS_CHANNELS);
+
       const emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
       await slackPostMessage(`found ${emails.length} emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
       const mailingResults = await this.emailService.sendRemindersToUsers(emails);
       if (mailingResults.length === 0) {
         const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
         await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
-        await slackPostMessage('morning cron finished', Constants.EXCEPTIONS_CHANNELS);
+        const endTime = new Date();
+        const endTimeString = `${endTime.getHours()}:${endTime.getMinutes()}:${endTime.getSeconds()}`;
+        await slackPostMessage(`morning cron finished at ${endTimeString}`, Constants.EXCEPTIONS_CHANNELS);
       } else {
-        const mailingResultToString = JSON.stringify(mailingResults);
-        await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
-        await slackPostMessage('morning cron finished', Constants.EXCEPTIONS_CHANNELS);
+        const mailingResultToString = this.emailCronResultToSlackString(mailingResults);
+        if (mailingResultToString) {
+          await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
+        } else {
+          await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
+        }
+        const endTime = new Date();
+        const endTimeString = `${endTime.getHours()}:${endTime.getMinutes()}:${endTime.getSeconds()}`;
+        await slackPostMessage(`morning cron finished at ${endTimeString}`, Constants.EXCEPTIONS_CHANNELS);
       }
     } catch (e) {
       Sentry.captureException(e);
@@ -92,6 +102,26 @@ export class CronJobsService {
       return true;
     } catch (_error) {
       return false;
+    }
+  }
+
+  private emailCronResultToSlackString(results: Array<ICronMessagingResults>): string | null {
+    try {
+      let output = '```\n';
+      output += 'Idx | Accepted Email                  | Message ID\n';
+      output += '----|---------------------------------|------------------------------------------\n';
+
+      results.forEach((result, idx) => {
+        const accepted = result.accepted && result.accepted.length > 0 ? result.accepted.join(', ') : '-';
+        const messageId = result.messageId ?? '-';
+        const idxStr = String(idx + 1).padEnd(3);
+        const acceptedStr = accepted.padEnd(32);
+        output += `${idxStr} | ${acceptedStr} | ${messageId}\n`;
+      });
+      output += '```';
+      return output;
+    } catch (_error) {
+      return null;
     }
   }
 }
