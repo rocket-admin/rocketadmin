@@ -3,7 +3,7 @@ import * as JSON5 from 'json5';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
+import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
 import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
@@ -80,6 +80,7 @@ export class DbTableRowEditComponent implements OnInit {
   public nonModifyingFields: string[];
   public keyAttributesFromURL: object = {};
   public hasKeyAttributesFromURL: boolean;
+  public dubURLParams: object;
   public keyAttributesFromStructure: [] = [];
   public isPrimaryKeyUpdated: boolean;
   public tableTypes: object;
@@ -110,6 +111,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   private routeSub: Subscription | undefined;
+  private confirmationDialogRef: any;
 
   originalOrder = () => { return 0; }
 
@@ -193,6 +195,7 @@ export class DbTableRowEditComponent implements OnInit {
         };
 
         this.keyAttributesFromURL = primaryKeys;
+        this.dubURLParams = {...primaryKeys, action: 'dub'};
         this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
           .subscribe(res => {
@@ -551,12 +554,25 @@ export class DbTableRowEditComponent implements OnInit {
     )
   }
 
+  handleDeleteRow(){
+    this.handleActivateAction({
+      title: 'Delete row',
+      require_confirmation: true
+    } as CustomEvent);
+  }
+
   handleActivateAction(action: CustomEvent) {
     if (action.require_confirmation) {
-      this.dialog.open(BbBulkActionConfirmationDialogComponent, {
+      this.confirmationDialogRef = this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',
         data: {id: action.id, title: action.title, primaryKeys: [this.keyAttributesFromURL]}
       });
+
+      if (!action.id) {
+        this.confirmationDialogRef.afterClosed().subscribe((res) => {
+          this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], { queryParams: this.backUrlParams});
+        });
+      }
     } else {
       this._tables.activateActions(this.connectionID, this.tableName, action.id, action.title, [this.keyAttributesFromURL])
         .subscribe((res) => {
