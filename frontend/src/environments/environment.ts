@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiRoot: "/api"
+  apiRoot: "/api",
+  stagingHost: "rocketadmin-dev.tail9f8b2.ts.net"  // Tailscale host
 } as Record<string, any>;
 
 /*
