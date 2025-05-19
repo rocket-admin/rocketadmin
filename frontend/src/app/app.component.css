@@ -23,26 +23,17 @@
 }
 
 .nav-bar {
+    position: sticky;
+    top: 0;
     flex-shrink: 0;
     background-color: #212121;
+    z-index: 3;
 }
 
 @media (prefers-color-scheme: dark) {
     .nav-bar {
         border-bottom: 1px solid #303030;
     }
-}
-
-.nav-bar_interior {
-    --mat-toolbar-standard-height: 44px !important;
-
-    position: sticky;
-    top: 0;
-    z-index: 3;
-}
-
-.nav-bar_exterior {
-    --mat-toolbar-standard-height: 56px !important;
 }
 
 .nav-bar_home {
@@ -244,6 +235,14 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+}
+
+.main-menu-content_interior {
+    --mat-toolbar-standard-height: 44px !important;
+}
+
+.main-menu-content_exterior {
+    --mat-toolbar-standard-height: 56px !important;
 }
 
 .tab-content-wrapper {

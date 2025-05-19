@@ -51,7 +51,8 @@
         </a>
     </mat-sidenav>
 
-    <mat-sidenav-content class="main-menu-content">
+    <mat-sidenav-content class="main-menu-content"
+        [ngClass]="{'main-menu-content_exterior': userLoggedIn === false, 'main-menu-content_interior': userLoggedIn === true}">
         <mat-toolbar color="primary" class="nav-bar"
             [ngClass]="{'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID,
                 'nav-bar_exterior': userLoggedIn === false, 'nav-bar_interior': userLoggedIn === true}">

@@ -2,6 +2,11 @@
     margin-bottom: 12px;
 }
 
+.permissions-alert {
+    position: relative;
+    top: -8px;
+}
+
 .permissions-form ::ng-deep .mat-mdc-dialog-content {
     color: var(--mat-sidenav-content-text-color);
 }
