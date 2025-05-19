@@ -217,7 +217,7 @@ export class DbTableWidgetsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: 'Fields display',
+        label: 'UI Widgets',
         link: null
       }
     ]

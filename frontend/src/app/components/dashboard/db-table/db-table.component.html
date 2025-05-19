@@ -144,14 +144,14 @@
                         [ngClass]="{'action_active': tableData.widgetsCount}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: widgets is clicked">
-                        Fields display
+                        UI Widgets
                     </a>
                     <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
                         [disabled]="!tableData.keyAttributes?.length"
                         angulartics2On="click"
                         angularticsAction="Dashboard: actions is clicked">
-                        Actions
+                        Automations
                         <br />
                         <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
                             Primary keys are required.

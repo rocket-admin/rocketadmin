@@ -1,7 +1,7 @@
 <mat-drawer-container class="drawer">
     <mat-drawer mode="side" opened>
         <div class="drawer-header">
-            <h1 class="mat-h1">Rules</h1>
+            <h1 class="mat-h1">Automations</h1>
 
             <button mat-icon-button color="primary" *ngIf="rulesData && rules && rules.length !== 0"
                 type="button" class="add-icon-button"
@@ -12,7 +12,7 @@
             </button>
         </div>
         <div class="no-actions" *ngIf="rulesData && rules && rules.length === 0 && !newRule">
-            <span>No added rules</span>
+            <span>No added automations</span>
         </div>
         <mat-action-list *ngIf="rulesData && rules && rules.length">
             <button mat-list-item *ngFor="let rule of rules; let i = index"
@@ -196,7 +196,7 @@
                 angulartics2On="click"
                 angularticsAction="Actions: add first action is clicked"
                 (click)="addNewRule()">
-                Add first rule
+                Create automation
             </button>
             <div class="rules-examples">
                 <div class="rule-example">
