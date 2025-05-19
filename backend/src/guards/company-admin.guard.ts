@@ -21,7 +21,7 @@ export class CompanyAdminGuard implements CanActivate {
       const userId: string = request.decoded.sub;
       let companyId: string = request.params?.companyId || request.params?.slug;
       if (!companyId || !validateUuidByRegex(companyId)) {
-        companyId = request.body['companyId'];
+        companyId = request.body?.['companyId'];
       }
       if (!companyId || !validateUuidByRegex(companyId)) {
         const foundCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
