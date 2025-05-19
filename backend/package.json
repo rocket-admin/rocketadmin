@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@amplitude/node": "1.10.2",
-    "@aws-sdk/lib-dynamodb": "^3.810.0",
+    "@aws-sdk/lib-dynamodb": "^3.812.0",
     "@faker-js/faker": "^9.8.0",
     "@nestjs/common": "11.1.1",
     "@nestjs/config": "4.0.2",
