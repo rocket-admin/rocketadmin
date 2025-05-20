@@ -5,6 +5,7 @@ import { catchError, filter, map } from 'rxjs/operators';
 import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from './services/company.service';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
@@ -27,7 +28,6 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
-import { CompanyService } from './services/company.service';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -115,6 +115,10 @@ export class AppComponent {
       )
       .subscribe(() => {
         this.page = this.router.routerState.snapshot.url;
+
+        if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
+          this._auth.loginToDemoAccount().subscribe();
+        }
     })
 
     const expirationDateFromURL = new URLSearchParams(location.search).get('expires');
