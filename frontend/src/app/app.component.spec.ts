@@ -20,7 +20,7 @@ import { UiSettingsService } from './services/ui-settings.service';
 import { UserService } from './services/user.service';
 import { provideHttpClient } from '@angular/common/http';
 
-fdescribe('AppComponent', () => {
+describe('AppComponent', () => {
   let app: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   // let connectionsService: ConnectionsService;
