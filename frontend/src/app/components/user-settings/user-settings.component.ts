@@ -1,15 +1,16 @@
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { ApiKey, User } from 'src/app/models/user';
 import { Component, Input, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
-import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Angulartics2Module } from 'angulartics2';
 import { ApiKeyDeleteDialogComponent } from './api-key-delete-dialog/api-key-delete-dialog.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { EnableTwoFADialogComponent } from './enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,9 +24,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { RouterModule } from '@angular/router';
-import { UserService } from 'src/app/services/user.service';
-import { CompanyService } from 'src/app/services/company.service';
 import { Title } from '@angular/platform-browser';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-user-settings',
@@ -81,6 +81,12 @@ export class UserSettingsComponent implements OnInit {
   public generatingAPIkeyTitle: string;
   public generatedAPIkeyHash: string;
 
+  public isDemoAccountWarning: Alert = {
+    id: 10000000,
+    type: AlertType.Warning,
+    message: 'This is a DEMO SESSION! Once you log out, all changes made will be lost.',
+  }
+
   constructor(
     private _userService: UserService,
     private _authService: AuthService,
@@ -90,6 +96,10 @@ export class UserSettingsComponent implements OnInit {
     private title: Title,
     private angulartics2: Angulartics2,
   ) {}
+
+  get isDemo() {
+    return this._userService.isDemo;
+  }
 
   ngOnInit(): void {
     this.title.setTitle(`Account settings | ${this._company.companyTabTitle || 'Rocketadmin'}`);

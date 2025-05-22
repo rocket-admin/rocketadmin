@@ -62,6 +62,7 @@ export class AppComponent {
   isFeatureNotificationShown: boolean = false;
 
   userLoggedIn = null;
+  isDemo = false;
   redirect_uri = `${location.origin}/loader`;
   connections = [];
   token = null;
@@ -223,6 +224,8 @@ export class AppComponent {
     this._user.fetchUser()
     .subscribe((res: User) => {
         this.currentUser = res;
+        this.isDemo = this.currentUser.email.startsWith('demo_') && this.currentUser.email.endsWith('@rocketadmin.com');
+        this._user.setIsDemo(this.isDemo);
         this.setUserLoggedIn(true);
         // @ts-ignore
         if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
@@ -283,6 +286,19 @@ export class AppComponent {
   setUserLoggedIn(state) {
     this.userLoggedIn = state;
     this.changeDetector.detectChanges();
+  }
+
+  logoutAndRedirectToRegistration() {
+    this._auth.logOutUser().subscribe(() => {
+        this.setUserLoggedIn(false);
+        this.isDemo = false;
+        this._user.setIsDemo(false);
+        this.currentUser = null;
+        localStorage.removeItem('token_expiration');
+        this.router.navigate(['/registration']);
+      }
+    );
+
   }
 
   logOut(isTokenExpired?: boolean) {

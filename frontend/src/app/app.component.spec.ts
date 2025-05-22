@@ -1,24 +1,24 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Subject, of } from 'rxjs';
 
 import { Angulartics2Module } from 'angulartics2';
 import { AppComponent } from './app.component';
-import { By } from '@angular/platform-browser';
-import { ConnectionsService } from './services/connections.service';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatMenuModule } from '@angular/material/menu';
-import { RouterTestingModule } from '@angular/router/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
-import { of, Subject } from 'rxjs';
 import { AuthService } from './services/auth.service';
-import { UserService } from './services/user.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { By } from '@angular/platform-browser';
+import { ChangeDetectorRef } from '@angular/core';
 import { CompanyService } from './services/company.service';
-import { UiSettingsService } from './services/ui-settings.service';
-import { TablesService } from './services/tables.service';
+import { ConnectionsService } from './services/connections.service';
 // import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectorRef } from '@angular/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TablesService } from './services/tables.service';
+import { UiSettingsService } from './services/ui-settings.service';
+import { UserService } from './services/user.service';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('AppComponent', () => {
   let app: AppComponent;
@@ -52,7 +52,8 @@ describe('AppComponent', () => {
 
   const mockUserService = {
     cast: userCast,
-    fetchUser: jasmine.createSpy('fetchUser').and.returnValue(of(fakeUser))
+    fetchUser: jasmine.createSpy('fetchUser').and.returnValue(of(fakeUser)),
+    setIsDemo: jasmine.createSpy('setIsDemo'),
   };
 
   const mockCompanyService = {

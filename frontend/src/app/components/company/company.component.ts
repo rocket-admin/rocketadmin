@@ -102,6 +102,10 @@ export class CompanyComponent {
     return this._company.whiteLabelSettings || { logo: '', favicon: '', tabTitle	: '' };
   }
 
+  get isDemo() {
+    return this._user.isDemo;
+  }
+
   private getTitleSubscription: Subscription;
 
   constructor(
