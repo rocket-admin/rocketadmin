@@ -1,3 +1,4 @@
+import { Alert, AlertType } from 'src/app/models/alert';
 import { CommonModule, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';

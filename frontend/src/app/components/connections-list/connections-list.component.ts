@@ -56,6 +56,10 @@ export class ConnectionsListComponent implements OnInit {
     private title: Title
   ) { }
 
+  get isDemo() {
+    return this._userService.isDemo;
+  }
+
   ngOnInit(): void {
     this._companyService.getCurrentTabTitle()
       .pipe(take(1))

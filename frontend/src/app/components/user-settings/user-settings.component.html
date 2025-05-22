@@ -1,5 +1,6 @@
 <app-alert></app-alert>
-<app-alert *ngIf="currentUser.id && !currentUser.isActive" [alert]="emailVerificationWarning"></app-alert>
+<app-alert *ngIf="currentUser.id && !currentUser.isActive && !isDemo" [alert]="emailVerificationWarning"></app-alert>
+<app-alert *ngIf="currentUser.id && isDemo" [alert]="isDemoAccountWarning"></app-alert>
 
 <div class="page">
     <h1 class="mat-h1">
@@ -91,7 +92,7 @@
             [disabled]="submittingChangedShowTestConnections"
             [(ngModel)]="showTestConnections"
             (change)="changeShowTestConnections($event.checked)">
-            Show demo connections
+            Show demo admin panels
         </mat-slide-toggle>
 
         <div>

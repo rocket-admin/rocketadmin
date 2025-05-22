@@ -193,8 +193,8 @@
             Show less
         </button>
 
-        <div [ngClass]="connections.length ? 'fabActions' : null">
-            <a routerLink="/zapier" *ngIf="connections.length" class="zapier-link">
+        <div class="fabActions">
+            <a routerLink="/zapier" class="zapier-link">
                 <svg class="zapier-link__logo" width="401" height="400" viewBox="0 0 401 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="0.526367" width="400" height="400" fill="#FF4F00"/>
                     <rect x="0.526367" width="400" height="400" rx="200" fill="#FF4F00"/>
@@ -213,10 +213,10 @@
                 </svg>
             </a>
 
-            <a mat-flat-button *ngIf="currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN'"
+            <a mat-flat-button *ngIf="(currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN') && connections?.length"
                 data-testid="add-connection-button"
                 color="primary"
-                [ngClass]="connections.length ? 'fabAddButton' : 'addButton'"
+                class="fabAddButton"
                 routerLink="/connect-db"
                 angulartics2On="click"
                 angularticsAction="Connections: Add connection button is clicked">
@@ -224,10 +224,19 @@
                 Add database
             </a>
         </div>
+        <a mat-flat-button *ngIf="(currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN') && !connections?.length"
+            data-testid="add-connection-button"
+            color="primary"
+            class="addButton"
+            routerLink="/connect-db"
+            angulartics2On="click"
+            angularticsAction="Connections: Add connection button is clicked">
+            <mat-icon *ngIf="connections?.length">add</mat-icon>
+            Add database
+        </a>
 
 
-
-        <div *ngIf="!connections.length && connections !== null" class="empty-state_bottom">
+        <div *ngIf="!connections.length && connections !== null && !isDemo" class="empty-state_bottom">
             <p class="mat-body-1 empty-state__text">
                 Invited to the company and don't see admin panel?
             </p>
@@ -239,7 +248,7 @@
         <mat-divider *ngIf="testConnections && testConnections.length" class="connections-divider"></mat-divider>
 
         <ng-container *ngIf="testConnections && testConnections.length">
-            <h1 class="mat-display-1">Demo Admin Panels</h1>
+            <h1 class="mat-display-1">Explore demo admin panels</h1>
 
             <ul class="testConnections">
                 <li *ngFor="let testConnectionItem of testConnections">

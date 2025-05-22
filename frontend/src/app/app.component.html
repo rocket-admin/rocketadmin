@@ -64,7 +64,7 @@
                 <img src="../assets/rocketadmin_logo_white.svg" *ngIf="whiteLabelSettings.logo !== '' && !whiteLabelSettings.logo" class="logo__image">
             </a>-->
 
-            <div>
+            <div class="logo-box">
                 <a routerLink="/connections-list"
                     *ngIf="userLoggedIn"
                     class="logo">
@@ -81,6 +81,7 @@
                         <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
                     </picture>
                 </a>
+                <span *ngIf="isDemo" class="logo__demo-mark">demo</span>
             </div>
 
             <div *ngIf="connectionID" class="menu">
@@ -108,12 +109,20 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" *ngIf="isSaas && currentUser && currentUser.role === 'ADMIN'"
+                <a routerLink="/upgrade" *ngIf="isSaas && currentUser && currentUser.role === 'ADMIN' && !isDemo"
                     mat-flat-button color="accent"
                     data-testid="upgrade-header-link"
                     class="nav-bar__upgrade-button">
                     Upgrade
                 </a>
+
+                <button type="button" *ngIf="isSaas && currentUser && currentUser.role === 'ADMIN' && isDemo"
+                    mat-flat-button color="accent"
+                    data-testid="upgrade-header-link"
+                    class="nav-bar__upgrade-button"
+                    (click)="logoutAndRedirectToRegistration()">
+                    Create account
+                </button>
 
                 <button mat-icon-button type="button" data-testid="account-menu-anchor-header-button"
                     matBadge="1" [matBadgeHidden]="currentUser.isActive"

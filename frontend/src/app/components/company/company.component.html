@@ -251,7 +251,7 @@
 
         <div class="white-label">
             <div class="white-label-settings">
-                <div *ngIf="(currentPlan === 'free' || currentUser.role === 'DB_ADMIN') && isSaas"
+                <div *ngIf="(currentPlan === 'free' || currentUser.role === 'DB_ADMIN') && isSaas && !isDemo"
                     class="white-label-settings__overlay"
                     [matTooltip]="currentUser.role === 'DB_ADMIN' ? 'Contact your Account Owner to set up white label settings.' : 'To white‑label your domain, please upgrade to the Team plan or higher.'">
                 </div>
@@ -476,7 +476,7 @@
         data-testid="company-test-connections-switch"
         [(ngModel)]="company.show_test_connections"
         (change)="changeShowTestConnections($event.checked)">
-        Show demo connections
+        Show demo admin panels
     </mat-slide-toggle>
 </div>
 
