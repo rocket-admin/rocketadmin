@@ -20,24 +20,37 @@
 <div *ngIf="tableRowValues" class="wrapper">
     <div class="row-edit-header">
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
-        <div *ngIf="rowActions && rowActions.length">
-            <div class="row-actions_desktop">
-                <button type="button" mat-icon-button *ngFor="let action of rowActions"
-                    [matTooltip]="action.title"
-                    (click)="handleActivateAction(action)">
-                    <mat-icon fontSet="material-icons-outlined">
-                        {{action.icon}}
-                    </mat-icon>
-                </button>
-            </div>
-            <div class="row-actions_mobile">
-                <button type="button" mat-stroked-button *ngFor="let action of rowActions"
-                    (click)="handleActivateAction(action)">
-                    <mat-icon fontSet="material-icons-outlined">
-                        {{action.icon}}
-                    </mat-icon>
-                    {{action.title}}
-                </button>
+        <div class="row-actions">
+            <a mat-icon-button *ngIf="permissions.add && hasKeyAttributesFromURL"
+                routerLink="/dashboard/{{connectionID}}/{{tableName}}/entry"
+                [queryParams]="dubURLParams"
+                matTooltip="Duplicate row">
+                <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
+            </a>
+            <button type="button" mat-icon-button *ngIf="permissions.delete && hasKeyAttributesFromURL"
+                matTooltip="Delete row"
+                (click)="handleDeleteRow()">
+                <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+            </button>
+            <div *ngIf="rowActions && rowActions.length">
+                <div class="custom-actions_desktop">
+                    <button type="button" mat-icon-button *ngFor="let action of rowActions"
+                        [matTooltip]="action.title"
+                        (click)="handleActivateAction(action)">
+                        <mat-icon fontSet="material-icons-outlined">
+                            {{action.icon}}
+                        </mat-icon>
+                    </button>
+                </div>
+                <div class="custom-actions_mobile">
+                    <button type="button" mat-stroked-button *ngFor="let action of rowActions"
+                        (click)="handleActivateAction(action)">
+                        <mat-icon fontSet="material-icons-outlined">
+                            {{action.icon}}
+                        </mat-icon>
+                        {{action.title}}
+                    </button>
+                </div>
             </div>
         </div>
     </div>

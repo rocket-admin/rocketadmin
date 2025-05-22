@@ -178,7 +178,7 @@ export class DbTableActionsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: 'Rules for actions',
+        label: 'Automations',
         link: null
       }
     ]

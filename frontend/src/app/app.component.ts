@@ -5,6 +5,7 @@ import { catchError, filter, map } from 'rxjs/operators';
 import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from './services/company.service';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
@@ -27,7 +28,6 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
-import { CompanyService } from './services/company.service';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -62,6 +62,7 @@ export class AppComponent {
   isFeatureNotificationShown: boolean = false;
 
   userLoggedIn = null;
+  isDemo = false;
   redirect_uri = `${location.origin}/loader`;
   connections = [];
   token = null;
@@ -115,6 +116,10 @@ export class AppComponent {
       )
       .subscribe(() => {
         this.page = this.router.routerState.snapshot.url;
+
+        if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
+          this._auth.loginToDemoAccount().subscribe();
+        }
     })
 
     const expirationDateFromURL = new URLSearchParams(location.search).get('expires');
@@ -219,6 +224,8 @@ export class AppComponent {
     this._user.fetchUser()
     .subscribe((res: User) => {
         this.currentUser = res;
+        this.isDemo = this.currentUser.email.startsWith('demo_') && this.currentUser.email.endsWith('@rocketadmin.com');
+        this._user.setIsDemo(this.isDemo);
         this.setUserLoggedIn(true);
         // @ts-ignore
         if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
@@ -279,6 +286,19 @@ export class AppComponent {
   setUserLoggedIn(state) {
     this.userLoggedIn = state;
     this.changeDetector.detectChanges();
+  }
+
+  logoutAndRedirectToRegistration() {
+    this._auth.logOutUser().subscribe(() => {
+        this.setUserLoggedIn(false);
+        this.isDemo = false;
+        this._user.setIsDemo(false);
+        this.currentUser = null;
+        localStorage.removeItem('token_expiration');
+        this.router.navigate(['/registration']);
+      }
+    );
+
   }
 
   logOut(isTokenExpired?: boolean) {

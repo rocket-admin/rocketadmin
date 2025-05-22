@@ -28,24 +28,29 @@
     }
 }
 
-.row-actions_desktop {
+.row-actions {
+    display: flex;
+    align-items: center;
+}
+
+.custom-actions_desktop {
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
 @media (width <= 600px) {
-    .row-actions_desktop {
+    .custom-actions_desktop {
         display: none;
     }
 }
 
-.row-actions_mobile {
+.custom-actions_mobile {
     display: none;
 }
 
 @media (width <= 600px) {
-    .row-actions_mobile {
+    .custom-actions_mobile {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;

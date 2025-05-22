@@ -53,6 +53,12 @@ export const Constants = {
   PASSWORD_LENGTH: 256,
   DIGEST: 'sha512',
 
+  CURRENT_TIME_FORMATTED: (): string => {
+    const now = new Date();
+    const padString = (n: number) => n.toString().padStart(2, '0');
+    return `${padString(now.getHours())}:${padString(now.getMinutes())}:${padString(now.getSeconds())}`;
+  },
+
   ONE_WEEK_AGO: (): Date => {
     const today = new Date();
     const oneWeekAgo = today.getDate() - 7;

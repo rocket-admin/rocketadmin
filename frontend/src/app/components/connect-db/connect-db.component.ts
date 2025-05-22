@@ -100,6 +100,14 @@ export class ConnectDBComponent implements OnInit {
 
   private getTitleSubscription: Subscription;
 
+  // public isDemo: boolean = false;
+
+  public isDemoConnectionWarning: Alert = {
+    id: 10000000,
+    type: AlertType.Warning,
+    message: 'This is a DEMO SESSION! It will disappear after you log out. Don\'t use databases you\'re actively using or that contain information you wish to retain.'
+  }
+
   constructor(
     private _connections: ConnectionsService,
     private _notifications: NotificationsService,
@@ -111,6 +119,10 @@ export class ConnectDBComponent implements OnInit {
     private angulartics2: Angulartics2,
     private title: Title
   ) { }
+
+  get isDemo() {
+    return this._user.isDemo;
+  }
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;

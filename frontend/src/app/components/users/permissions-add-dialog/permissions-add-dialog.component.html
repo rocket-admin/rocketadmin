@@ -1,8 +1,8 @@
 <h1 mat-dialog-title>Permissions for <strong>{{ group.title }}</strong> group</h1>
 <form #addPermissionsForm="ngForm" class="permissions-form" (ngSubmit)="addPermissions()">
     <mat-dialog-content>
-        <app-alert *ngIf="connectionAccess === 'edit' && group.title === 'Admin'" [alert]="adminGroupAlert"></app-alert>
-        <app-alert *ngIf="connectionAccess === 'edit' && group.title !== 'Admin'" [alert]="connectionFullAccessAlert"></app-alert>
+        <app-alert *ngIf="connectionAccess === 'edit' && group.title === 'Admin'" [alert]="adminGroupAlert" class="permissions-alert"></app-alert>
+        <app-alert *ngIf="connectionAccess === 'edit' && group.title !== 'Admin'" [alert]="connectionFullAccessAlert" class="permissions-alert"></app-alert>
 
         <div class="permissions">
             <h2 class="mat-subtitle-1 permissions__title">Connection credentials</h2>
