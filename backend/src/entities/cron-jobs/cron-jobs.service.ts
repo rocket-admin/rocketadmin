@@ -72,7 +72,9 @@ export class CronJobsService {
           Constants.EXCEPTIONS_CHANNELS,
         );
       } else {
-        await this.sendEmailResultsToSlack(mailingResults);
+        const mailingResultToString = this.sentEmailsToSimpleString(mailingResults);
+        await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
+        // await this.sendEmailResultsToSlack(mailingResults);
         await slackPostMessage(
           `morning cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
           Constants.EXCEPTIONS_CHANNELS,
@@ -133,5 +135,13 @@ export class CronJobsService {
       const message = this.emailCronResultToSlackString(chunk);
       await slackPostMessage(message, Constants.EXCEPTIONS_CHANNELS);
     }
+  }
+
+  private sentEmailsToSimpleString(results: Array<ICronMessagingResults>): string | null {
+    const emailsSent = results.map((result) => {
+      return result.accepted && result.accepted.length > 0 ? result.accepted.join(', ') : '-';
+    });
+    const emailsSentString = emailsSent.join(', \n');
+    return emailsSentString;
   }
 }
