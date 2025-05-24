@@ -19,7 +19,7 @@ import { CodeRowComponent } from '../components/ui-components/row-fields/code/co
 import { ImageRowComponent } from '../components/ui-components/row-fields/image/image.component';
 import { UrlRowComponent } from '../components/ui-components/row-fields/url/url.component';
 
-export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time'];
+export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time', 'datetime', 'date time', 'datetime2', 'datetimeoffset', 'curdate', 'curtime', 'now', 'localtime', 'localtimestamp'];
 export const defaultTimestampValues = {
     postgres: ['current_date', 'current_time', 'current_timestamp', 'localtime', 'localtimestamp', 'now'],
     mysql: ['curdate', 'curtime', 'now'],
