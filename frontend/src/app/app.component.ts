@@ -1,8 +1,8 @@
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Angulartics2, Angulartics2Amplitude, Angulartics2OnModule } from 'angulartics2';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
 import { catchError, filter, map } from 'rxjs/operators';
 
-import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from './services/company.service';
@@ -49,6 +49,7 @@ amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
     MatBadgeModule,
     MatMenuModule,
     MatTooltipModule,
+    Angulartics2OnModule,
     FeatureNotificationComponent
   ],
 })
@@ -93,6 +94,7 @@ export class AppComponent {
     private _tables: TablesService,
     private _uiSettings: UiSettingsService,
     angulartics2Amplitude: Angulartics2Amplitude,
+    private angulartics2: Angulartics2,
     private domSanitizer: DomSanitizer,
     private matIconRegistry: MatIconRegistry,
   ) {
@@ -118,7 +120,11 @@ export class AppComponent {
         this.page = this.router.routerState.snapshot.url;
 
         if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
-          this._auth.loginToDemoAccount().subscribe();
+          this._auth.loginToDemoAccount().subscribe( () => {
+            this.angulartics2.eventTrack.next({
+              action: 'Demo account is logged in',
+            });
+          });
         }
     })
 
@@ -298,7 +304,6 @@ export class AppComponent {
         this.router.navigate(['/registration']);
       }
     );
-
   }
 
   logOut(isTokenExpired?: boolean) {

@@ -3,5 +3,6 @@ export const environment = {
   saas: true,
   apiRoot: "https://app.rocketadmin.com/api",
   saasURL: "https://app.rocketadmin.com",
-  saasHostnames: ['localhost']
+  saasHostnames: ['localhost'],
+  stagingHost: ""
 };
