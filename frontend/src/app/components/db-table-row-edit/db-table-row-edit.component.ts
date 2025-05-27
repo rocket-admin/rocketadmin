@@ -39,6 +39,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
+import { formatFieldValue } from 'src/app/lib/format-field-value';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -260,6 +261,26 @@ export class DbTableRowEditComponent implements OnInit {
 
                   console.log(res);
 
+                  const foreignKeyMap = {};
+                  for (const fk of res.foreignKeys) {
+                    foreignKeyMap[fk.column_name] = fk.referenced_column_name;
+                  }
+
+                  // Format each row
+                  const formattedRows = res.rows.map(row => {
+                    const formattedRow = {};
+
+                    for (const key in row) {
+                      if (foreignKeyMap[key] && typeof row[key] === 'object' && row[key] !== null) {
+                        const preferredKey = Object.keys(row[key]).find(k => k !== foreignKeyMap[key]);
+                        formattedRow[key] = preferredKey ? row[key][preferredKey] : row[key][foreignKeyMap[key]];
+                      } else {
+                        formattedRow[key] = formatFieldValue(row[key], res.structure.find((field: TableField) => field.column_name === key)?.data_type || 'text');
+                      }
+                    }
+                    return formattedRow;
+                  })
+
                   if (res.identity_column && res.list_fields.length) {
                     identityColumn = res.identity_column;
                     fieldsOrder = res.list_fields.filter((field: string) => field !== res.identity_column).slice(0, 3);
@@ -282,7 +303,7 @@ export class DbTableRowEditComponent implements OnInit {
                   }
 
                   const tableRecords = {
-                    rows: res.rows,
+                    rows: formattedRows,
                     links: res.rows.map(row => {
                       let params = {};
                       Object.keys(res.primaryColumns).forEach((key) => {

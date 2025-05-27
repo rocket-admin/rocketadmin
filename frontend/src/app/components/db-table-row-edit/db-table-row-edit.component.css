@@ -118,6 +118,10 @@
     height: 24px;
 }
 
+.related-records__panel ::ng-deep .mat-expansion-panel-body {
+    padding: 0 8px 16px;
+}
+
 .widget {
     display: grid;
     grid-template-columns: 0 1fr 36px;

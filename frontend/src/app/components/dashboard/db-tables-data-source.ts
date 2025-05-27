@@ -16,8 +16,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { UserService } from 'src/app/services/user.service';
 import { filter } from "lodash";
-import { format } from 'date-fns'
 import { normalizeFieldName } from 'src/app/lib/normalize';
+import { formatFieldValue } from 'src/app/lib/format-field-value';
 
 interface Column {
   title: string,
@@ -91,34 +91,6 @@ export class TablesDataSource implements DataSource<Object> {
       this.loadingSubject.complete();
   }
 
-  formatField(value, type) {
-    const dateTimeTypes = [
-      'timestamp without time zone',
-      'timestamp with time zone',
-      'abstime',
-      'realtime',
-      'datetime',
-      'timestamp'
-    ]
-
-    if (value && type === 'time') {
-      return value
-    } else if (value && type === 'date') {
-      const datetimeValue = new Date(value);
-      return format(datetimeValue, "P")
-    } else if (value && dateTimeTypes.includes(type)) {
-      const datetimeValue = new Date(value);
-      return format(datetimeValue, "P p")
-    } else if (type === 'boolean') {
-      if (value || value ===  1) return '✓'
-      else if (value === false || value === 0) return '✕'
-      else return '—'
-    } else if (type === 'json' || type === 'jsonb' || type === 'object' || type === 'array') {
-      return JSON.stringify(value)
-    }
-    return value;
-  }
-
   formatRow(row, columns) {
     const rowToFormat = {};
     for (const [columnName, columnStructute] of columns) {
@@ -126,7 +98,7 @@ export class TablesDataSource implements DataSource<Object> {
       if (['number', 'tinyint'].includes(columnStructute.data_type) && (columnStructute.character_maximum_length === 1)) {
         type = 'boolean'
       } else type = columnStructute.data_type;
-      rowToFormat[columnName] = this.formatField(row[columnName], type);
+      rowToFormat[columnName] = formatFieldValue(row[columnName], type);
     }
     return rowToFormat;
   }
