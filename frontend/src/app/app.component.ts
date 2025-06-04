@@ -120,6 +120,7 @@ export class AppComponent {
         this.page = this.router.routerState.snapshot.url;
 
         if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
+          console.log('App component, demo mode search params found');
           this._auth.loginToDemoAccount().subscribe( () => {
             this.angulartics2.eventTrack.next({
               action: 'Demo account is logged in',
@@ -240,6 +241,11 @@ export class AppComponent {
           user_hash: res.intercom_hash,
           user_id: res.id,
           email: res.email
+        });
+
+        //@ts-ignore
+        if (this.isDemo) window.hj?.('identify', this.currentUser.id, {
+          'mode': 'demo'
         });
         this._company.getWhiteLabelProperties(res.company.id).subscribe( whiteLabelSettings => {
           this.whiteLabelSettings.logo = whiteLabelSettings.logo;

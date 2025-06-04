@@ -26,6 +26,7 @@ export class AuthGuard implements CanActivate {
         const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
         if (expirationInterval > 0) return true;
       } else {
+        console.log('auth guard, expirationInterval <= 0');
         this.router.navigate(['/login']);
       }
       return false;
