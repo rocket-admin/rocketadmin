@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { OwnConnectionsComponent } from './own-connections.component';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('OwnConnectionsComponent', () => {
   let component: OwnConnectionsComponent;
@@ -8,7 +10,11 @@ describe('OwnConnectionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OwnConnectionsComponent]
+      imports: [OwnConnectionsComponent],
+      providers: [
+        provideHttpClient(),
+        provideRouter([])
+      ]
     })
     .compileComponents();
 

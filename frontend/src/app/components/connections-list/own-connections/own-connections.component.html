@@ -1,6 +1,6 @@
 <h1 *ngIf="isDemo" class="mat-display-1">Create you own test connection</h1>
 
-<div *ngIf="!connections.length && connections !== null" class="empty-state">
+<div *ngIf="!connections?.length && connections !== null" class="empty-state">
     <svg *ngIf="!isDemo" width="197" height="151" viewBox="0 0 197 151" fill="none" xmlns="http://www.w3.org/2000/svg">
         <line x1="147.928" y1="148.995" x2="49.7833" y2="148.995" stroke="black" stroke-width="2.13357"/>
         <rect x="87.8319" y="115.569" width="21.3357" height="33.426" fill="white" stroke="black" stroke-width="2.13357"/>
@@ -121,7 +121,7 @@
         </clipPath>
         </defs>
     </svg>
-    <p *ngIf="(currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN') && !isDemo" class="mat-body-1 empty-state__text" style="margin-bottom: -24px !important">
+    <p *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !isDemo" class="mat-body-1 empty-state__text" style="margin-bottom: -24px !important">
         Create your first connection
     </p>
 </div>
@@ -166,7 +166,7 @@
     </li>
 </ul>
 
-<button *ngIf="displayedCardCount < connections.length"
+<button *ngIf="displayedCardCount < connections?.length"
     type="button" mat-button color="accent"
     class="showAllButton" (click)="showMore()">
     Show all
@@ -197,7 +197,7 @@
         </svg>
     </a>
 
-    <a mat-flat-button *ngIf="(currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN') && connections?.length"
+    <a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && connections?.length"
         data-testid="add-connection-button"
         color="primary"
         class="fabAddButton"
@@ -208,7 +208,7 @@
         Add database
     </a>
 </div>
-<a mat-flat-button *ngIf="(currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN') && !connections?.length"
+<a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !connections?.length"
     data-testid="add-connection-button"
     color="primary"
     class="addButton"
@@ -219,7 +219,7 @@
     Add database
 </a>
 
-<div *ngIf="!connections.length && connections !== null && !isDemo" class="empty-state_bottom">
+<div *ngIf="!connections?.length && connections !== null && !isDemo" class="empty-state_bottom">
     <p class="mat-body-1 empty-state__text">
         Invited to the company and don't see admin panel?
     </p>

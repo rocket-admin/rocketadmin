@@ -12,10 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { PlaceholderConnectionsComponent } from '../skeletons/placeholder-connections/placeholder-connections.component';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
-import { UiSettings } from 'src/app/models/ui-settings';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { take } from 'rxjs/operators';
@@ -49,14 +46,12 @@ export class ConnectionsListComponent implements OnInit {
   public companyName: string;
   public currentUser: User;
 
-  private getTitleSubscription: Subscription;
 
   constructor(
     private _connectionsServise: ConnectionsService,
     public deleteDialog: MatDialog,
     private _userService: UserService,
     private _companyService: CompanyService,
-    private _uiSettings: UiSettingsService,
     private title: Title
   ) { }
 
@@ -78,10 +73,6 @@ export class ConnectionsListComponent implements OnInit {
         this.companyName = res.name;
       })
     });
-    // this._uiSettings.getUiSettings()
-    //   .subscribe( (settings: UiSettings) => {
-    //     this.connectionsListCollapsed = settings?.globalSettings?.connectionsListCollapsed;
-    // });
     this._connectionsServise.fetchConnections()
       .subscribe((res: any) => {
         this.setConnections(res);
@@ -92,7 +83,6 @@ export class ConnectionsListComponent implements OnInit {
     this.connections = res.connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
     this.testConnections = res.connections.filter(connectionItem => connectionItem.connection.isTestConnection);
     this.titles = Object.assign({}, ...res.connections.map((connectionItem) => ({[connectionItem.connection.id]: this.getTitle(connectionItem.connection)})));
-    // this.displayedCardCount = this.connectionsListCollapsed ? 3 : this.connections.length;
   }
 
   getTitle(connection: Connection) {
