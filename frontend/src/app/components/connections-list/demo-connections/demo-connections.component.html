@@ -1,0 +1,18 @@
+<h1 *ngIf="!isDemo" class="mat-display-1">Explore demo admin panels</h1>
+<h1 *ngIf="isDemo" class="mat-display-1">Try out a demo admin panel</h1>
+
+<ul class="testConnections">
+    <li *ngFor="let testConnectionItem of testConnections">
+        <a routerLink="/dashboard/{{testConnectionItem.connection.id}}" class="testConnectionLink"
+            attr.data-testid="{{testConnectionItem.connection.id}}-test-connection-list-item"
+            angulartics2On="click"
+            angularticsAction="Connections: open test db is clicked"
+            [angularticsProperties]="{'dbType': testConnectionItem.connection.type}">
+            <div class="testConnectionLink__iconBox">
+                <mat-icon [svgIcon]="testConnectionItem.connection.type" class="testConnectionLink__icon"></mat-icon>
+            </div>
+            {{ testConnectionItem.connection.title }}
+            <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
+        </a>
+    </li>
+</ul>
