@@ -89,7 +89,7 @@
         <mat-slide-toggle style="margin-top: 20px;"
             name="showTestConnections"
             data-testid="user-settings-test-connections-switch"
-            [disabled]="submittingChangedShowTestConnections"
+            [disabled]="submittingChangedShowTestConnections || isDemo"
             [(ngModel)]="showTestConnections"
             (change)="changeShowTestConnections($event.checked)">
             Show demo admin panels
