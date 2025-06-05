@@ -474,6 +474,7 @@
     <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"
         name="showTestConnections"
         data-testid="company-test-connections-switch"
+        [disabled]="isDemo"
         [(ngModel)]="company.show_test_connections"
         (change)="changeShowTestConnections($event.checked)">
         Show demo admin panels
