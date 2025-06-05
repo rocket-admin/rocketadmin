@@ -1,19 +1,27 @@
 import {
-  UseInterceptors,
-  Controller,
-  Injectable,
-  Inject,
-  UseGuards,
-  Post,
   Body,
-  Res,
-  Get,
+  Controller,
   Delete,
+  Get,
+  Inject,
+  Injectable,
+  Post,
   Query,
+  Res,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
+import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { TableReadGuard } from '../../guards/table-read.guard.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import {
   IAddMessageToThreadWithAIAssistant,
   ICreateThreadWithAIAssistant,
@@ -21,21 +29,13 @@ import {
   IGetAllThreadMessages,
   IGetAllUserThreadsWithAIAssistant,
 } from './ai-use-cases.interface.js';
-import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
-import { CreateThreadWithAIAssistantBodyDTO } from './application/dto/create-thread-with-ai-assistant-body.dto.js';
-import { CreateThreadWithAssistantDS } from './application/data-structures/create-thread-with-assistant.ds.js';
-import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
-import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
-import { MasterPassword } from '../../decorators/master-password.decorator.js';
-import { UserId } from '../../decorators/user-id.decorator.js';
-import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
-import { Response } from 'express';
 import { AddMessageToThreadWithAssistantDS } from './application/data-structures/add-message-to-thread-with-assistant.ds.js';
-import { FoundUserThreadsWithAiRO } from './application/dto/found-user-threads-with-ai.ro.js';
-import { FoundUserThreadMessagesRO } from './application/dto/found-user-thread-messages.ro.js';
-import { FindAllThreadMessagesDS } from './application/data-structures/find-all-thread-messages.ds.js';
-import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { CreateThreadWithAssistantDS } from './application/data-structures/create-thread-with-assistant.ds.js';
 import { DeleteThreadWithAssistantDS } from './application/data-structures/delete-thread-with-assistant.ds.js';
+import { FindAllThreadMessagesDS } from './application/data-structures/find-all-thread-messages.ds.js';
+import { CreateThreadWithAIAssistantBodyDTO } from './application/dto/create-thread-with-ai-assistant-body.dto.js';
+import { FoundUserThreadMessagesRO } from './application/dto/found-user-thread-messages.ro.js';
+import { FoundUserThreadsWithAiRO } from './application/dto/found-user-threads-with-ai.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -61,7 +61,7 @@ export class UserAIThreadsController {
     status: 201,
     description: 'Return ai assistant response text as stream.',
   })
-  @UseGuards(ConnectionEditGuard)
+  @UseGuards(TableReadGuard)
   @ApiBody({ type: CreateThreadWithAIAssistantBodyDTO })
   @ApiQuery({ name: 'tableName', required: true, type: String })
   @Post('/ai/thread/:connectionId')
@@ -90,7 +90,7 @@ export class UserAIThreadsController {
     status: 201,
     description: 'Return ai assistant response text as stream.',
   })
-  @UseGuards(ConnectionEditGuard)
+  @UseGuards(TableReadGuard)
   @ApiBody({ type: CreateThreadWithAIAssistantBodyDTO })
   @ApiQuery({ name: 'tableName', required: true, type: String })
   @Post('/ai/thread/message/:connectionId/:threadId')
