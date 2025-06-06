@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IActivateTableActionsInRule } from './action-rules-use-cases.interface.js';
 import { ActivatedTableActionsDTO } from '../application/dto/activated-table-actions.dto.js';
@@ -44,6 +44,11 @@ export class ActivateActionsInEventUseCase
       );
     }
     const tableName = foundActionsWithCustomEvents[0].action_rule.table_name;
+    const canUserReadTable = await this._dbContext.userAccessRepository.checkTableRead(userId, connectionId, tableName, masterPwd);
+    if (!canUserReadTable) {
+      throw new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS);
+    }
+
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
       masterPwd,
