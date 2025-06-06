@@ -16,8 +16,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { UserService } from 'src/app/services/user.service';
 import { filter } from "lodash";
-import { normalizeFieldName } from 'src/app/lib/normalize';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
+import { normalizeFieldName } from 'src/app/lib/normalize';
 
 interface Column {
   title: string,
@@ -208,7 +208,7 @@ export class TablesDataSource implements DataSource<Object> {
             .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
           this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
           this.permissions = res.table_permissions.accessLevel;
-          if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
+          if (this.keyAttributes.length) {
             this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
             this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
           } else {
