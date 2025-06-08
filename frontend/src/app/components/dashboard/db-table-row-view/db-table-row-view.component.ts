@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { normalizeFieldName } from 'src/app/lib/normalize';
+import { PlaceholderRecordViewComponent } from '../../skeletons/placeholder-record-view/placeholder-record-view.component';
 
 @Component({
   selector: 'app-db-table-row-view',
@@ -21,15 +22,11 @@ import { normalizeFieldName } from 'src/app/lib/normalize';
     ClipboardModule,
     MatTooltipModule,
     RouterModule,
-    CommonModule
+    CommonModule,
+    PlaceholderRecordViewComponent
   ]
 })
 export class DbTableRowViewComponent implements OnInit {
-  // @Input() structure: object[];
-  // @Input() foreignKeys: object;
-  // @Input() foreignKeysList: string[];
-  // @Input() widgets: { string: Widget };
-  // @Input() widgetsList: string[];
   @Input() activeFilters: object;
 
   public selectedRow: TableRow;
@@ -46,7 +43,6 @@ export class DbTableRowViewComponent implements OnInit {
 
   ngOnInit(): void {
     this._tableState.cast.subscribe((row) => {
-      console.log('Row selected:', row);
       this.selectedRow = row;
       if (row.columnsOrder) {
         const columnsOrder = this.selectedRow.columnsOrder.length ? this.selectedRow.columnsOrder : Object.keys(this.selectedRow.record);
