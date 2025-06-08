@@ -39,8 +39,14 @@ export interface TableSettings {
 }
 
 export interface TableRow {
+    tableName: string,
     record: object,
-    primaryKeys: object
+    columnsOrder: string[],
+    primaryKeys: object,
+    foreignKeys: TableForeignKey[],
+    foreignKeysList: string[],
+    widgets: Widget[],
+    widgetsList: string[],
     link?: string
 }
 

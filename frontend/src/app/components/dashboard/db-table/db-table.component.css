@@ -533,8 +533,17 @@ tr.mat-row:hover {
     top: 40px;
 }
 
-.foreign-key-link {
+.foreign-key-button {
+    background: transparent;
+    border: none;
     color: var(--color-accentedPalette-500);
+    text-decoration: underline;
+    font-size: inherit;
+}
+
+.foreign-key-button_selected {
+    color: var(--color-accentedPalette-700);
+    font-weight: 600;
 }
 
 .empty-table {

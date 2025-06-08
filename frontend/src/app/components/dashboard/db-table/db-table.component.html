@@ -217,11 +217,16 @@
                 <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
                     <div class="table-cell-content">
                         <span *ngIf="isForeignKey(column); else contentCell" class="field-value">
-                            <a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
+                            <!--<a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
                                 class="foreign-key-link"
                                 [queryParams]="getForeignKeyQueryParams(tableData.foreignKeys[column], element[column])">
                                 {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
-                            </a>
+                            </a>-->
+                            <button class="foreign-key-button" type="button"
+                                [ngClass]="{'foreign-key-button_selected': isForeignKeySelected(element[column], tableData.foreignKeys[column])}"
+                                (click)="handleForeignKeyView($event, tableData.foreignKeys[column], element[column])">
+                                {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
+                            </button>
                             <button type="button" mat-icon-button
                                 class="field-value-copy-button"
                                 matTooltip="Copy"
@@ -347,7 +352,7 @@
             <mat-row *matRowDef="let row; columns: tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns;"
                 class="db-table-row"
                 [ngClass]="{'db-table-row_selected': isRowSelected(tableData.getQueryParams(row))}"
-                (click)="handleViewRow({record: row, primaryKeys: tableData.getQueryParams(row)})">
+                (click)="handleViewRow(row)">
             </mat-row>
         </mat-table>
     </div>
