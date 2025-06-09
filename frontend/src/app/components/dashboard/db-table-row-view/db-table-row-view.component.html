@@ -4,13 +4,13 @@
     <div class="row-preview-sidebar__header">
         <h2 class="mat-heading-2 row-preview-sidebar__title">Preview</h2>
         <div class="row-preview-sidebar__actions">
-            <button mat-icon-button
+            <button mat-icon-button *ngIf="selectedRow.link"
                 matTooltip="Copy link to this record"
                 [cdkCopyToClipboard]="getDedicatedPageLink()"
                 (cdkCopyToClipboardCopied)="showCopyNotification('Link to this record was copied to clipboard.')">
                 <mat-icon>link</mat-icon>
             </button>
-            <a mat-icon-button
+            <a mat-icon-button *ngIf="selectedRow.link"
                 [routerLink]="selectedRow.link"
                 [queryParams]="selectedRow.primaryKeys"
                 matTooltip="Open the record"
@@ -24,22 +24,27 @@
     </div>
 
     <br />
-    <div *ngFor="let column of columns" class="row-preview-sidebar__field">
-        <strong>{{column.normalizedTitle}}</strong>
-        <span *ngIf="isForeignKey(column.title); else recordContent" class="row-preview-sidebar__field-value">
-            {{getForeignKeyValue(column.title)}}
-        </span>
-        <ng-template #recordContent>
-            <div *ngIf="isWidget(column.title); else stringValue">
-                <div *ngIf="widgets[column.title].widget_type === 'Image'">
-                    <img [src]="selectedRow.record[column.title]" alt="Image" class="row-preview-sidebar__image">
+    <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
+        <div *ngFor="let column of columns" class="row-preview-sidebar__field">
+            <strong>{{column.normalizedTitle}}</strong>
+            <span *ngIf="isForeignKey(column.title); else recordContent" class="row-preview-sidebar__field-value">
+                {{getForeignKeyValue(column.title)}}
+            </span>
+            <ng-template #recordContent>
+                <div *ngIf="isWidget(column.title); else stringValue">
+                    <div *ngIf="selectedRow.widgets[column.title].widget_type === 'Image'">
+                        <img [src]="selectedRow.record[column.title]" alt="Image" class="row-preview-sidebar__image">
+                    </div>
+                    <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
                 </div>
-                <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
-            </div>
-            <ng-template #stringValue>
-                <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
+                <ng-template #stringValue>
+                    <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
+                </ng-template>
             </ng-template>
-        </ng-template>
+        </div>
+    </ng-container>
 
-    </div>
+    <ng-template #loadingContent>
+        <app-placeholder-record-view></app-placeholder-record-view>
+    </ng-template>
 </div>

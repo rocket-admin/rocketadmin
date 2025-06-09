@@ -93,11 +93,6 @@
                 </app-db-table>
             </div>
             <app-db-table-row-view *ngIf="selectedRow"
-                [columns]="dataSource.columns"
-                [foreignKeys]="dataSource.foreignKeys"
-                [foreignKeysList]="dataSource.foreignKeysList"
-                [widgets]="dataSource.widgets"
-                [widgetsList]="dataSource.widgetsList"
                 [activeFilters]="filters"
             ></app-db-table-row-view>
             <app-db-table-ai-panel *ngIf="isAIpanelOpened"
