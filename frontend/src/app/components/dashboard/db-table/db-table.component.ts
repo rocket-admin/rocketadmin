@@ -406,8 +406,6 @@ export class DbTableComponent implements OnInit {
     event.stopPropagation();
     this.selectedRowType = 'foreignKey';
 
-    console.log('handleForeignKeyView', foreignKeys, row);
-
     this._tableState.selectRow({
       tableName: null,
       record: null,
@@ -422,7 +420,6 @@ export class DbTableComponent implements OnInit {
 
     this._tableRow.fetchTableRow(this.connectionID, foreignKeys.referenced_table_name, {[foreignKeys.referenced_column_name]: row[foreignKeys.referenced_column_name]})
       .subscribe(res => {
-        console.log('Fetched foreign key row:', res);
         this._tableState.selectRow({
           tableName: foreignKeys.referenced_table_name,
           record: res.row,
@@ -460,12 +457,11 @@ export class DbTableComponent implements OnInit {
   }
 
   isRowSelected(primaryKeys) {
-    if (this.selectedRowType === 'record' && this.selectedRow.primaryKeys !== null) return this.selectedRow && Object.keys(this.selectedRow.primaryKeys).length && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
+    if (this.selectedRowType === 'record' && this.selectedRow && this.selectedRow.primaryKeys !== null) return this.selectedRow && Object.keys(this.selectedRow.primaryKeys).length && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
     return false;
   }
 
   isForeignKeySelected(record, foreignKey: TableForeignKey) {
-    if (this.selectedRow) console.log('isForeignKeySelected', this.selectedRow.primaryKeys, foreignKey);
     const primaryKeyValue = record[foreignKey.referenced_column_name];
 
     if (this.selectedRowType === 'foreignKey' && this.selectedRow && this.selectedRow.record !== null) {
