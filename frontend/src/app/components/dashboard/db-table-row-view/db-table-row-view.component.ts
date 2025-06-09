@@ -8,9 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { PlaceholderRecordViewComponent } from '../../skeletons/placeholder-record-view/placeholder-record-view.component';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { normalizeFieldName } from 'src/app/lib/normalize';
-import { PlaceholderRecordViewComponent } from '../../skeletons/placeholder-record-view/placeholder-record-view.component';
 
 @Component({
   selector: 'app-db-table-row-view',
@@ -44,7 +44,7 @@ export class DbTableRowViewComponent implements OnInit {
   ngOnInit(): void {
     this._tableState.cast.subscribe((row) => {
       this.selectedRow = row;
-      if (row.columnsOrder) {
+      if (row && row.columnsOrder) {
         const columnsOrder = this.selectedRow.columnsOrder.length ? this.selectedRow.columnsOrder : Object.keys(this.selectedRow.record);
         this.columns = columnsOrder.map(column => {
           return {
