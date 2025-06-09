@@ -537,13 +537,18 @@ tr.mat-row:hover {
     background: transparent;
     border: none;
     color: var(--color-accentedPalette-500);
-    text-decoration: underline;
     font-size: inherit;
+    padding: 2px 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    width: 100%;
 }
 
 .foreign-key-button_selected {
-    color: var(--color-accentedPalette-700);
-    font-weight: 600;
+    background-color: var(--color-accentedPalette-100);
+    border-radius: 12px;
+    border: 1px solid var(--color-accentedPalette-300);
 }
 
 .empty-table {

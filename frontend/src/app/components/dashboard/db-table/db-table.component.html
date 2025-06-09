@@ -216,7 +216,7 @@
                 <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
                 <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
                     <div class="table-cell-content">
-                        <span *ngIf="isForeignKey(column); else contentCell" class="field-value">
+                        <span *ngIf="isForeignKey(column); else contentCell" class="field-value field-value_foreign-key">
                             <!--<a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
                                 class="foreign-key-link"
                                 [queryParams]="getForeignKeyQueryParams(tableData.foreignKeys[column], element[column])">
