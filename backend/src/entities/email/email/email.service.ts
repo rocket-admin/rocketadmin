@@ -56,12 +56,7 @@ export class EmailService {
           : triggerOperation === TableActionEventEnum.DELETE_ROW
             ? 'deleted a row'
             : 'performed an action';
-    const textContent = EMAIL_TEXT.ACTION_EMAIL.EMAIL_TEXT(
-      userInfo,
-      triggerOperation,
-      tableName,
-      primaryKeyValuesArray,
-    );
+    const textContent = EMAIL_TEXT.ACTION_EMAIL.EMAIL_TEXT(userInfo, action, tableName, primaryKeyValuesArray);
 
     const primaryKeysValuesStr = JSON.stringify(primaryKeyValuesArray);
     const letterContent: IMessage = {
@@ -76,6 +71,8 @@ export class EmailService {
         action,
         primaryKeysValuesStr,
         currentYear,
+        textContent,
+        primaryKeyValuesArray,
       }),
     };
     return await this.sendEmailToUser(letterContent);
