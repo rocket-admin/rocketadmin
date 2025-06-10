@@ -39,6 +39,7 @@ export interface TableSettings {
 }
 
 export interface TableRow {
+    connectionID: string,
     tableName: string,
     record: object,
     columnsOrder: string[],
@@ -47,6 +48,10 @@ export interface TableRow {
     foreignKeysList: string[],
     widgets: Widget[],
     widgetsList: string[],
+    relatedRecords: {
+        referenced_on_column_name: string,
+		referenced_by: []
+    }[],
     link?: string
 }
 
