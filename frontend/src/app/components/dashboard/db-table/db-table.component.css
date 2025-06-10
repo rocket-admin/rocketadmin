@@ -535,14 +535,17 @@ tr.mat-row:hover {
 
 .foreign-key-button {
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 12px;
     color: var(--color-accentedPalette-500);
+    cursor: pointer;
     font-size: inherit;
     padding: 2px 8px;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
-    width: 100%;
+    max-width: 100%;
+    transition: background 100ms, border-color 100ms;
 }
 
 .foreign-key-button_selected {
