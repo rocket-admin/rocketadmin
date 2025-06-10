@@ -15,6 +15,7 @@ import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.u
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
+import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-saml-use.case.js';
 
 @Module({
   imports: [],
@@ -71,6 +72,10 @@ import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-us
       provide: UseCaseType.SAAS_DEMO_USER_REGISTRATION,
       useClass: SaasRegisterDemoUserAccountUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_REGISTER_USER_WITH_SAML,
+      useClass: SaaSRegisterUserWIthSamlUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -91,6 +96,7 @@ export class SaasModule {
         { path: 'saas/company/:companyId/users/count', method: RequestMethod.GET },
         { path: 'saas/company/freeze-connections', method: RequestMethod.PUT },
         { path: 'saas/company/unfreeze-connections', method: RequestMethod.PUT },
+        { path: 'saas/user/saml/login', method: RequestMethod.POST },
       );
   }
 }
