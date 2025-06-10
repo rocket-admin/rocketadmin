@@ -115,7 +115,8 @@ export class DbTableComponent implements OnInit {
     lte: "<="
   }
   public selectedRow: TableRow = null;
-  public selectedRowType: 'record' | 'foreignKey';
+  public selectedRowType: 'record' | 'foreignKey' = 'record';
+  public tableRelatedRecords: any = null;
 
   @Input() set table(value){
     if (value) this.tableData = value;
@@ -142,9 +143,8 @@ export class DbTableComponent implements OnInit {
     merge(this.sort.sortChange, this.paginator.page)
       .pipe(
           tap(() => {
+
             const filters = JsonURL.stringify( this.activeFilters );
-
-
             this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
               queryParams: {
                 filters,
@@ -154,7 +154,7 @@ export class DbTableComponent implements OnInit {
                 page_size: this.paginator.pageSize
               }
             });
-            this.loadRowsPage()
+            this.loadRowsPage();
           })
       )
       .subscribe();
@@ -183,6 +183,10 @@ export class DbTableComponent implements OnInit {
   }
 
   loadRowsPage() {
+    console.log('loadRowsPage');
+    console.log('loadRowsPage, tableRelatedRecords before', this.tableRelatedRecords);
+    this.tableRelatedRecords = null;
+    console.log('loadRowsPage, tableRelatedRecords after', this.tableRelatedRecords);
     this.tableData.fetchRows({
       connectionID: this.connectionID,
       tableName: this.name,
@@ -390,6 +394,7 @@ export class DbTableComponent implements OnInit {
   handleViewRow(row: TableRow) {
     this.selectedRowType = 'record';
     this._tableState.selectRow({
+      connectionID: this.connectionID,
       tableName: this.name,
       record: row,
       columnsOrder: this.tableData.dataColumns,
@@ -398,6 +403,7 @@ export class DbTableComponent implements OnInit {
       foreignKeysList: this.tableData.foreignKeysList,
       widgets: this.tableData.widgets,
       widgetsList: this.tableData.widgetsList,
+      relatedRecords: this.tableData.relatedRecords || null,
       link: `/dashboard/${this.connectionID}/${this.name}/entry`
     });
   }
@@ -407,6 +413,7 @@ export class DbTableComponent implements OnInit {
     this.selectedRowType = 'foreignKey';
 
     this._tableState.selectRow({
+      connectionID: null,
       tableName: null,
       record: null,
       columnsOrder: null,
@@ -415,12 +422,14 @@ export class DbTableComponent implements OnInit {
       foreignKeysList: null,
       widgets: null,
       widgetsList: null,
+      relatedRecords: null,
       link: null
     })
 
     this._tableRow.fetchTableRow(this.connectionID, foreignKeys.referenced_table_name, {[foreignKeys.referenced_column_name]: row[foreignKeys.referenced_column_name]})
       .subscribe(res => {
         this._tableState.selectRow({
+          connectionID: this.connectionID,
           tableName: foreignKeys.referenced_table_name,
           record: res.row,
           columnsOrder: res.list_fields,
@@ -447,6 +456,7 @@ export class DbTableComponent implements OnInit {
             })
           ),
           widgetsList: res.table_widgets.map(widget => widget.field_name),
+          relatedRecords: res.referenced_table_names_and_columns[0],
           link: `/dashboard/${this.connectionID}/${foreignKeys.referenced_table_name}/entry`
         });
       })
@@ -457,7 +467,8 @@ export class DbTableComponent implements OnInit {
   }
 
   isRowSelected(primaryKeys) {
-    if (this.selectedRowType === 'record' && this.selectedRow && this.selectedRow.primaryKeys !== null) return this.selectedRow && Object.keys(this.selectedRow.primaryKeys).length && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
+    // console.log('isRowSelected', this.selectedRowType, this.selectedRow, primaryKeys);
+    if (this.selectedRowType === 'record' && this.selectedRow && this.selectedRow.primaryKeys !== null) return Object.keys(this.selectedRow.primaryKeys).length && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
     return false;
   }
 

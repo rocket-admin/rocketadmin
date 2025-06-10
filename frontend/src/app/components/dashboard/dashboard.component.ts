@@ -129,15 +129,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get defaultTableToOpen () {
-    console.log('dashboard component get defaultTableToOpen');
-    console.log(this._connections.defaultTableToOpen);
     return this._connections.defaultTableToOpen;
   }
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
     // this.isTestConnection = this._connections.currentConnection.isTestConnection;
-    this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings);
+    this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings, this._tableRow);
 
     this._tableState.cast.subscribe(row => {
       this.selectedRow = row;

@@ -11,6 +11,7 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { TableRowService } from 'src/app/services/table-row.service';
 // import { MatSort } from '@angular/material/sort';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
@@ -62,6 +63,10 @@ export class TablesDataSource implements DataSource<Object> {
   public widgets: Widget[];
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
+  public relatedRecords = {
+    referenced_on_column_name: '',
+    referenced_by: []
+  };
   public permissions;
   public isExportAllowed: boolean;
   public isImportAllowed: boolean;
@@ -79,7 +84,8 @@ export class TablesDataSource implements DataSource<Object> {
   constructor(
     private _tables: TablesService,
     private _connections: ConnectionsService,
-    private _uiSettings: UiSettingsService
+    private _uiSettings: UiSettingsService,
+    private _tableRow: TableRowService,
   ) {}
 
   connect(collectionViewer: CollectionViewer): Observable<Object[]> {
@@ -120,12 +126,6 @@ export class TablesDataSource implements DataSource<Object> {
       this.alert_settingsInfo = null;
       this.alert_widgetsWarning = null;
 
-      console.log('requstedPage');
-      console.log(requstedPage);
-
-      console.log('pageSize');
-      console.log(pageSize);
-
       const fetchedTable = this._tables.fetchTable({
         connectionID,
         tableName,
@@ -146,6 +146,22 @@ export class TablesDataSource implements DataSource<Object> {
             finalize(() => this.loadingSubject.next(false))
         )
         .subscribe((res: any) => {
+          if (res.rows && res.rows.length) {
+            const firstRow = res.rows[0];
+            this._tableRow.fetchTableRow(
+              connectionID,
+              tableName,
+              res.primaryColumns.reduce((keys, column) => {
+                if (this.foreignKeysList.includes(column.column_name)) {
+                  const referencedColumnNameOfForeignKey = this.foreignKeys[column.column_name].referenced_column_name;
+                  keys[column.column_name] = firstRow[column.column_name][referencedColumnNameOfForeignKey];
+                } else {
+                  keys[column.column_name] = firstRow[column.column_name];
+                }
+                return keys;
+              }, {})
+            ).subscribe((res) => this.relatedRecords = res.referenced_table_names_and_columns[0]);
+          }
           this.structure = [...res.structure];
           const columns = res.structure
             .reduce((items, item) => {

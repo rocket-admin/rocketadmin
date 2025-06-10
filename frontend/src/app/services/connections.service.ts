@@ -104,8 +104,6 @@ export class ConnectionsService {
   }
 
   get defaultTableToOpen() {
-    console.log('connections service get defaultTableToOpen');
-    console.log(this.defaultDisplayTable);
     return this.defaultDisplayTable;
   }
 
@@ -170,6 +168,7 @@ export class ConnectionsService {
       this.connection = {...this.connectionInitialState};
       this.connectionLogo = null;
       this.companyName = null;
+      this.defaultDisplayTable = null;
       this.isCustomAccentedColor = false;
       this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
     }
