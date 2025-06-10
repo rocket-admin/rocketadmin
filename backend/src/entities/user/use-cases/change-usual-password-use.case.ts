@@ -23,9 +23,8 @@ export class ChangeUsualPasswordUseCase
   ) {
     super();
   }
-
   protected async implementation(userData: ChangeUsualUserPasswordDs): Promise<IToken> {
-    const user = await this._dbContext.userRepository.findOneUserById(userData.email);
+    const user = await this._dbContext.userRepository.findOneUserById(userData.userId);
     if (!user) {
       throw new NotFoundException(Messages.USER_NOT_FOUND);
     }

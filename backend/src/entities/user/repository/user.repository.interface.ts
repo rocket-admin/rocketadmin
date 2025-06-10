@@ -13,6 +13,7 @@ export interface IUserRepository {
   findOneUserByEmail(
     email: string,
     externalRegistrationProvider?: ExternalRegistrationProviderEnum,
+    samlNameId?: string,
   ): Promise<UserEntity>;
 
   findUserWithConnections(userId: string): Promise<UserEntity>;

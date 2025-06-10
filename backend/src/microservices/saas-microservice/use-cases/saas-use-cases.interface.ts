@@ -11,6 +11,7 @@ import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-em
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js';
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
+import { SaasSAMLUserRegisterDS } from '../data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
 
@@ -56,4 +57,8 @@ export interface ISaaSGetUsersCountInCompany {
 
 export interface IFreezeConnectionsInCompany {
   execute(inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse>;
+}
+
+export interface ISaasSAMLRegisterUser {
+  execute(userData: SaasSAMLUserRegisterDS): Promise<UserEntity>;
 }

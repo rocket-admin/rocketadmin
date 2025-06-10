@@ -47,6 +47,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
   async findOneUserByEmail(
     email: string,
     externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+    samlNameId: string = null,
   ): Promise<UserEntity | null> {
     const userQb = this.createQueryBuilder('user').where('user.email = :userEmail', {
       userEmail: email?.toLowerCase(),
@@ -55,6 +56,9 @@ export const userCustomRepositoryExtension: IUserRepository = {
       userQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', {
         externalRegistrationProvider: externalRegistrationProvider,
       });
+    }
+    if (samlNameId && externalRegistrationProvider === ExternalRegistrationProviderEnum.SAML) {
+      userQb.andWhere('user.samlNameId = :samlNameId', { samlNameId: samlNameId });
     }
     return userQb.getOne();
   },

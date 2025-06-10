@@ -6,11 +6,13 @@ import { SaasUsualUserRegisterDS } from '../../entities/user/application/data-st
 import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { SuccessResponse } from './data-structures/common-responce.ds.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
+import { SaasSAMLUserRegisterDS } from './data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
 import {
   ICompanyRegistration,
@@ -23,9 +25,9 @@ import {
   ISaaSGetUsersCountInCompany,
   ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
+  ISaasSAMLRegisterUser,
   ISuspendUsers,
 } from './use-cases/saas-use-cases.interface.js';
-import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('saas')
@@ -48,6 +50,8 @@ export class SaasController {
     private readonly loginUserWithGoogleUseCase: ILoginUserWithGoogle,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB)
     private readonly loginUserWithGithubUseCase: ILoginUserWithGitHub,
+    @Inject(UseCaseType.SAAS_REGISTER_USER_WITH_SAML)
+    private readonly registerUserWithSamlUseCase: ISaasSAMLRegisterUser,
     @Inject(UseCaseType.SAAS_SUSPEND_USERS)
     private readonly suspendUsersUseCase: ISuspendUsers,
     @Inject(UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID)
@@ -202,5 +206,29 @@ export class SaasController {
   @Put('/company/unfreeze-connections')
   async unfreezeConnectionsInCompany(@Body('companyIds') companyIds: Array<string>) {
     return await this.unfreezeConnectionsInCompanyUseCase.execute({ companyIds });
+  }
+
+  @ApiOperation({ summary: 'Register user with SAML' })
+  @ApiBody({ type: SaasSAMLUserRegisterDS })
+  @ApiResponse({
+    status: 201,
+  })
+  @Post('user/saml/login')
+  async registerUserWithSaml(
+    @Body('email') email: string,
+    @Body('name') name: string,
+    @Body('companyId') companyId: string,
+    @Body('samlConfigId') samlConfigId: string,
+    @Body('samlNameId') samlNameId: string,
+    @Body('samlAttributes') samlAttributes: Record<string, any>,
+  ): Promise<UserEntity> {
+    return await this.registerUserWithSamlUseCase.execute({
+      email,
+      name,
+      companyId,
+      samlConfigId,
+      samlNameId,
+      samlAttributes
+    });
   }
 }
