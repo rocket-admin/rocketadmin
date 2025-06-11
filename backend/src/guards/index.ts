@@ -6,3 +6,4 @@ export { TableAddGuard } from './table-add.guard.js';
 export { TableDeleteGuard } from './table-delete.guard.js';
 export { TableEditGuard } from './table-edit.guard.js';
 export { TableReadGuard } from './table-read.guard.js';
+export { PaidFeatureGuard } from './paid-feature.guard.js';
