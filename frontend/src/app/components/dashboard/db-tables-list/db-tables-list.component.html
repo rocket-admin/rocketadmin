@@ -12,8 +12,8 @@
         <mat-form-field *ngIf="!collapsed" appearance="fill" class="search-input">
             <input matInput name="search" #search="ngModel"
                 placeholder="Search"
-                [(ngModel)]="searchString"
-                (keyup)="serach()">
+                [(ngModel)]="substringToSearch"
+                (keyup)="searchSubstring()">
             <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
         </mat-form-field>
         <mat-nav-list data-testid="tables-list">

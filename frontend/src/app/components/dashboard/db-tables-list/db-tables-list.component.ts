@@ -35,7 +35,7 @@ export class DbTablesListComponent {
   @Input() selectedTable: string;
   @Input() collapsed: boolean;
 
-  public searchString: string;
+  public substringToSearch: string;
   public foundTables: TableProperties[];
   constructor(
     private _tableState: TableStateService,
@@ -45,9 +45,9 @@ export class DbTablesListComponent {
     this.foundTables = this.tables;
   }
 
-  serach() {
+  searchSubstring() {
     this.foundTables = this.tables
-      .filter(tableItem => tableItem.table.toLowerCase().includes(this.searchString.toLowerCase()) || (tableItem.display_name && tableItem.display_name.toLowerCase().includes(this.searchString.toLowerCase())));
+      .filter(tableItem => tableItem.table.toLowerCase().includes(this.substringToSearch?.toLowerCase()) || (tableItem.display_name && tableItem.display_name.toLowerCase().includes(this.substringToSearch.toLowerCase())));
   }
 
   getTableName(table: TableProperties) {
