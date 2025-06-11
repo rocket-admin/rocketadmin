@@ -83,6 +83,7 @@ import {
 import { AddCompanyTabTitleDto } from './application/data-structures/add-company-tab-title.dto.js';
 import { FoundCompanyTabTitleRO } from './application/data-structures/found-company-tab-title.ro.js';
 import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-company-white-label-properties.ro.js';
+import { PaidFeatureGuard } from '../../guards/paid-feature.guard.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -497,7 +498,7 @@ export class CompanyInfoController {
     type: SuccessResponse,
   })
   @ApiParam({ name: 'companyId', required: true })
-  @UseGuards(CompanyAdminGuard)
+  @UseGuards(CompanyAdminGuard, PaidFeatureGuard)
   @Post('/logo/:companyId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadCompanyLogo(
@@ -549,7 +550,7 @@ export class CompanyInfoController {
     type: SuccessResponse,
   })
   @ApiParam({ name: 'companyId', required: true })
-  @UseGuards(CompanyAdminGuard)
+  @UseGuards(CompanyAdminGuard, PaidFeatureGuard)
   @Post('/favicon/:companyId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadCompanyFavicon(
@@ -602,7 +603,7 @@ export class CompanyInfoController {
   })
   @ApiBody({ type: AddCompanyTabTitleDto })
   @ApiParam({ name: 'companyId', required: true })
-  @UseGuards(CompanyAdminGuard)
+  @UseGuards(CompanyAdminGuard, PaidFeatureGuard)
   @Post('/tab-title/:companyId')
   async addCompanyTabTitle(
     @SlugUuid('companyId') companyId: string,

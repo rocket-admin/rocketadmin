@@ -6,7 +6,7 @@ import {
   QueryOrderingEnum,
   TableActionTypeEnum,
   UserActionEnum,
-  WidgetTypeEnum
+  WidgetTypeEnum,
 } from '../../enums/index.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
@@ -364,4 +364,5 @@ export const Messages = {
     `Invalid event type ${type}, supported types are ${enumToString(TableActionEventEnum)}`,
   INVALID_REQUEST_DOMAIN: `Invalid request domain`,
   INVALID_REQUEST_DOMAIN_FORMAT: `Invalid request domain format`,
+  FEATURE_NON_AVAILABLE_IN_FREE_PLAN: `This feature is not available in free plan.`,
 };
