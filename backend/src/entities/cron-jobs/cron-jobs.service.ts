@@ -72,9 +72,8 @@ export class CronJobsService {
           Constants.EXCEPTIONS_CHANNELS,
         );
       } else {
-        // const mailingResultToString = this.sentEmailsToSimpleString(mailingResults);
-        await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
-        // await this.sendEmailResultsToSlack(mailingResults);
+        // await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
+        await this.sendEmailResultsToSlack(mailingResults);
         await slackPostMessage(
           `morning cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
           Constants.EXCEPTIONS_CHANNELS,
@@ -133,15 +132,10 @@ export class CronJobsService {
     for (let i = 0; i < results.length; i += chunkSize) {
       const chunk = results.slice(i, i + chunkSize);
       const message = this.emailCronResultToSlackString(chunk);
+      if (!message) {
+        continue;
+      }
       await slackPostMessage(message, Constants.EXCEPTIONS_CHANNELS);
     }
-  }
-
-  private sentEmailsToSimpleString(results: Array<ICronMessagingResults>): string | null {
-    const emailsSent = results.map((result) => {
-      return result.accepted && result.accepted.length > 0 ? result.accepted.join(', ') : '-';
-    });
-    const emailsSentString = emailsSent.join(', \n');
-    return emailsSentString;
   }
 }

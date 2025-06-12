@@ -81,11 +81,9 @@ export class EmailService {
   public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults>> {
     const queue = new PQueue({ concurrency: 8 });
     const mailingResults: Array<SMTPTransport.SentMessageInfo | void> = await Promise.all(
-      userEmails.map(async (email: string, index) => {
+      userEmails.map(async (email: string) => {
         return await queue.add(async () => {
-          const result = await this.sendReminderToUser(email);
-          console.info(`${index} email sending result ${JSON.stringify(result)}`);
-          return result;
+          return await this.sendReminderToUser(email);
         });
       }),
     );
@@ -275,16 +273,18 @@ export class EmailService {
   }
 
   private buildMailingResults(results: Array<SMTPTransport.SentMessageInfo | void>): Array<ICronMessagingResults> {
-    return results.map((result) => {
-      if (!result) {
-        return;
-      }
-      const { messageId, accepted, rejected } = result;
-      return {
-        messageId: messageId ? messageId : undefined,
-        accepted: accepted ? accepted : undefined,
-        rejected: rejected ? rejected : undefined,
-      };
-    });
+    return results
+      .map((result) => {
+        if (!result) {
+          return;
+        }
+        const { messageId, accepted, rejected } = result;
+        return {
+          messageId: messageId ? messageId : undefined,
+          accepted: accepted ? accepted : undefined,
+          rejected: rejected ? rejected : undefined,
+        };
+      })
+      .filter((result) => !!result);
   }
 }
