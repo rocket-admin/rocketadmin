@@ -5,6 +5,7 @@ import { DbTableRowEditComponent } from './db-table-row-edit.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DBtype } from 'src/app/models/connection';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -291,7 +292,7 @@ describe('DbTableRowEditComponent', () => {
 
   describe('getFormattedUpdatedRow', () => {
     beforeEach(() => {
-      spyOnProperty(connectionsService, 'currentConnection').and.returnValue({ type: 'postgres' });
+      spyOnProperty(connectionsService, 'currentConnection').and.returnValue({ type: DBtype.Postgres });
       component.tableTypes = {};
       component.nonModifyingFields = [];
       component.pageAction = null;
