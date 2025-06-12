@@ -72,8 +72,8 @@ export class CronJobsService {
           Constants.EXCEPTIONS_CHANNELS,
         );
       } else {
-        const mailingResultToString = this.sentEmailsToSimpleString(mailingResults);
-        await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
+        // const mailingResultToString = this.sentEmailsToSimpleString(mailingResults);
+        await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
         // await this.sendEmailResultsToSlack(mailingResults);
         await slackPostMessage(
           `morning cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
