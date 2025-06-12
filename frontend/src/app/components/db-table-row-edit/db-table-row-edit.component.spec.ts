@@ -291,7 +291,7 @@ describe('DbTableRowEditComponent', () => {
 
   describe('getFormattedUpdatedRow', () => {
     beforeEach(() => {
-      (component as any).connectionType = 'postgres';
+      spyOnProperty(connectionsService, 'currentConnection').and.returnValue({ type: 'postgres' });
       component.tableTypes = {};
       component.nonModifyingFields = [];
       component.pageAction = null;
