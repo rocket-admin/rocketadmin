@@ -152,8 +152,8 @@ export class TablesDataSource implements DataSource<Object> {
               connectionID,
               tableName,
               res.primaryColumns.reduce((keys, column) => {
-                if (this.foreignKeysList.includes(column.column_name)) {
-                  const referencedColumnNameOfForeignKey = this.foreignKeys[column.column_name].referenced_column_name;
+                if (res.foreignKeys.map(foreignKey => foreignKey.column_name).includes(column.column_name)) {
+                  const referencedColumnNameOfForeignKey = res.foreignKeys[column.column_name].referenced_column_name;
                   keys[column.column_name] = firstRow[column.column_name][referencedColumnNameOfForeignKey];
                 } else {
                   keys[column.column_name] = firstRow[column.column_name];
