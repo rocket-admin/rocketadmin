@@ -12,8 +12,6 @@ import {
 } from '../user-actions/use-cases/use-cases-interfaces.js';
 import { JobListEntity } from './job-list.entity.js';
 import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
-import { console } from 'inspector';
-
 @Injectable()
 export class CronJobsService {
   constructor(
@@ -73,7 +71,7 @@ export class CronJobsService {
         );
       } else {
         // await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
-        await this.sendEmailResultsToSlack(mailingResults);
+        await this.sendEmailResultsToSlack(mailingResults, emails);
         await slackPostMessage(
           `morning cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
           Constants.EXCEPTIONS_CHANNELS,
@@ -127,10 +125,16 @@ export class CronJobsService {
     }
   }
 
-  private async sendEmailResultsToSlack(results: Array<ICronMessagingResults | null>): Promise<void> {
+  private async sendEmailResultsToSlack(
+    results: Array<ICronMessagingResults | null>,
+    allFoundEmails: Array<string>,
+  ): Promise<void> {
     const filteredResults = results.filter((result) => !!result);
     const nullResultsCount = results.length - filteredResults.length;
     const chunkSize = 20;
+    const emailsNonFoundInResults = allFoundEmails.filter(
+      (email) => !filteredResults.some((result) => result?.accepted?.includes(email)),
+    );
     for (let i = 0; i < filteredResults.length; i += chunkSize) {
       const chunk = filteredResults.slice(i, i + chunkSize);
       const message = this.emailCronResultToSlackString(chunk);
@@ -140,8 +144,10 @@ export class CronJobsService {
       await slackPostMessage(message, Constants.EXCEPTIONS_CHANNELS);
     }
     if (nullResultsCount > 0) {
-      const timedOutMessage = `The system timed out while sending results to ${nullResultsCount} email addresses.`;
-      await slackPostMessage(timedOutMessage, Constants.EXCEPTIONS_CHANNELS);
+      const timedOutMessage = `The system timed out while sending results to ${nullResultsCount} email addresses`;
+      const timedOutEmailsMessage = `: \n${emailsNonFoundInResults.join(', ')}\n`;
+      const fullTimedOutMessage = `${timedOutMessage}${timedOutEmailsMessage}`;
+      await slackPostMessage(fullTimedOutMessage, Constants.EXCEPTIONS_CHANNELS);
     }
   }
 }
