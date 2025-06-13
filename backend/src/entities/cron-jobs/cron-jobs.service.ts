@@ -127,15 +127,21 @@ export class CronJobsService {
     }
   }
 
-  private async sendEmailResultsToSlack(results: Array<ICronMessagingResults>): Promise<void> {
+  private async sendEmailResultsToSlack(results: Array<ICronMessagingResults | null>): Promise<void> {
+    const filteredResults = results.filter((result) => !!result);
+    const nullResultsCount = results.length - filteredResults.length;
     const chunkSize = 20;
-    for (let i = 0; i < results.length; i += chunkSize) {
-      const chunk = results.slice(i, i + chunkSize);
+    for (let i = 0; i < filteredResults.length; i += chunkSize) {
+      const chunk = filteredResults.slice(i, i + chunkSize);
       const message = this.emailCronResultToSlackString(chunk);
       if (!message) {
         continue;
       }
       await slackPostMessage(message, Constants.EXCEPTIONS_CHANNELS);
+    }
+    if (nullResultsCount > 0) {
+      const timedOutMessage = `The system timed out while sending results to ${nullResultsCount} email addresses.`;
+      await slackPostMessage(timedOutMessage, Constants.EXCEPTIONS_CHANNELS);
     }
   }
 }
