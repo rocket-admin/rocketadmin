@@ -1,38 +1,38 @@
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
 import { AlertComponent } from '../../ui-components/alert/alert.component';
-import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
+import { CodeRowComponent } from '../../ui-components/row-fields/code/code.component';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
+import { ImageRowComponent } from '../../ui-components/row-fields/image/image.component';
 import { Location } from '@angular/common';
+import { LongTextRowComponent } from '../../ui-components/row-fields/long-text/long-text.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { PasswordRowComponent } from '../../ui-components/row-fields/password/password.component';
 import { PlaceholderTableWidgetsComponent } from '../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { SelectRowComponent } from '../../ui-components/row-fields/select/select.component';
 import { TablesService } from 'src/app/services/tables.service';
+import { TextRowComponent } from '../../ui-components/row-fields/text/text.component';
 import { Title } from '@angular/platform-browser';
 import { UIwidgets } from "src/app/consts/field-types";
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { UrlRowComponent } from '../../ui-components/row-fields/url/url.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { PasswordRowComponent } from '../../ui-components/row-fields/password/password.component';
-import { UrlRowComponent } from '../../ui-components/row-fields/url/url.component';
-import { ImageRowComponent } from '../../ui-components/row-fields/image/image.component';
-import { CodeRowComponent } from '../../ui-components/row-fields/code/code.component';
-import { TextRowComponent } from '../../ui-components/row-fields/text/text.component';
-import { LongTextRowComponent } from '../../ui-components/row-fields/long-text/long-text.component';
-import { SelectRowComponent } from '../../ui-components/row-fields/select/select.component';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-db-table-widgets',
@@ -86,9 +86,9 @@ export class DbTableWidgetsComponent implements OnInit {
 </p>`;
   public defaultParams = {
     Boolean:
-`// Specify allow_null in field structure
-// use false to display checkbox
-// use true to display yes/no/unknown radiogroup
+`// Display "Yes/No" buttons and specify "allow_null" in field structure:
+// Use "false" to require that one of the buttons is selected;
+// Use "true" if the field might be left unspecified.
 
 {
 	"structure": {
