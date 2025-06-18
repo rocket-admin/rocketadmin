@@ -17,6 +17,7 @@ import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
 import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
+import { DbTableRowViewComponent } from '../dashboard/db-table-row-view/db-table-row-view.component';
 import { DynamicModule } from 'ng-dynamic-component';
 import JsonURL from "@jsonurl/jsonurl";
 import { MatButtonModule } from '@angular/material/button';
@@ -31,15 +32,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { PlaceholderRowEditComponent } from '../skeletons/placeholder-row-edit/placeholder-row-edit.component';
+import { PlaceholderTableViewComponent } from '../skeletons/placeholder-table-view/placeholder-table-view.component';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
+import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
-import { formatFieldValue } from 'src/app/lib/format-field-value';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -64,7 +66,8 @@ import { formatFieldValue } from 'src/app/lib/format-field-value';
     AlertComponent,
     PlaceholderRowEditComponent,
     BannerComponent,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    DbTableRowViewComponent
   ]
 })
 export class DbTableRowEditComponent implements OnInit {
@@ -104,6 +107,9 @@ export class DbTableRowEditComponent implements OnInit {
   public backUrlParams: object;
 
   public tableForeignKeys: TableForeignKey[];
+
+  public selectedRow: any;
+  public relatedRecordsProperties: {};
 
   public isTestConnectionWarning: Alert = {
     id: 10000000,
@@ -147,6 +153,10 @@ export class DbTableRowEditComponent implements OnInit {
       ...navUrlParams,
       ...(this.tableFiltersUrlString !== 'null' ? { filters: this.tableFiltersUrlString } : {})
     };
+
+    this._tableState.cast.subscribe(row => {
+      this.selectedRow = row;
+    });
 
     this.routeSub = this.route.queryParams.subscribe((params) => {
       this.tableName = this.route.snapshot.paramMap.get('table-name');
@@ -256,30 +266,61 @@ export class DbTableRowEditComponent implements OnInit {
                   chunkSize: 30,
                   filters
                 }).subscribe((res) => {
+                  // on each iteration add key "table name" with table properties to relatedRecordsProperties
+                  this.relatedRecordsProperties = Object.assign({}, this.relatedRecordsProperties, {
+                    [table.table_name]: {
+                      connectionID: this.connectionID,
+                      tableName: table.table_name,
+                      columnsOrder: res.list_fields,
+                      primaryColumns: res.primaryColumns,
+                      foreignKeys: Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey}))),
+                      foreignKeysList: res.foreignKeys.map(fk => fk.column_name),
+                      widgets: Object.assign({}, ...res.widgets.map((widget: Widget) => {
+                          let parsedParams;
+
+                          try {
+                            parsedParams = JSON5.parse(widget.widget_params);
+                          } catch {
+                            parsedParams = {};
+                          }
+
+                          return {
+                            [widget.field_name]: {
+                              ...widget,
+                              widget_params: parsedParams,
+                            },
+                          };
+                        })
+                      ),
+                      widgetsList: res.widgets.map(widget => widget.field_name),
+                      relatedRecords: [],
+                      link: `/dashboard/${this.connectionID}/${table.table_name}/entry`
+                    }
+                  });
                   let identityColumn = res.identity_column;
                   let fieldsOrder = [];
 
-                  console.log(res);
+                  // console.log(res);
 
-                  const foreignKeyMap = {};
-                  for (const fk of res.foreignKeys) {
-                    foreignKeyMap[fk.column_name] = fk.referenced_column_name;
-                  }
+                  // const foreignKeyMap = {};
+                  // for (const fk of res.foreignKeys) {
+                  //   foreignKeyMap[fk.column_name] = fk.referenced_column_name;
+                  // }
 
                   // Format each row
-                  const formattedRows = res.rows.map(row => {
-                    const formattedRow = {};
+                  // const formattedRows = res.rows.map(row => {
+                  //   const formattedRow = {};
 
-                    for (const key in row) {
-                      if (foreignKeyMap[key] && typeof row[key] === 'object' && row[key] !== null) {
-                        const preferredKey = Object.keys(row[key]).find(k => k !== foreignKeyMap[key]);
-                        formattedRow[key] = preferredKey ? row[key][preferredKey] : row[key][foreignKeyMap[key]];
-                      } else {
-                        formattedRow[key] = formatFieldValue(row[key], res.structure.find((field: TableField) => field.column_name === key)?.data_type || 'text');
-                      }
-                    }
-                    return formattedRow;
-                  })
+                  //   for (const key in row) {
+                  //     if (foreignKeyMap[key] && typeof row[key] === 'object' && row[key] !== null) {
+                  //       const preferredKey = Object.keys(row[key]).find(k => k !== foreignKeyMap[key]);
+                  //       formattedRow[key] = preferredKey ? row[key][preferredKey] : row[key][foreignKeyMap[key]];
+                  //     } else {
+                  //       formattedRow[key] = formatFieldValue(row[key], res.structure.find((field: TableField) => field.column_name === key)?.data_type || 'text');
+                  //     }
+                  //   }
+                  //   return formattedRow;
+                  // })
 
                   if (res.identity_column && res.list_fields.length) {
                     identityColumn = res.identity_column;
@@ -303,7 +344,7 @@ export class DbTableRowEditComponent implements OnInit {
                   }
 
                   const tableRecords = {
-                    rows: formattedRows,
+                    rows: res.rows,
                     links: res.rows.map(row => {
                       let params = {};
                       Object.keys(res.primaryColumns).forEach((key) => {
@@ -312,7 +353,8 @@ export class DbTableRowEditComponent implements OnInit {
                       return params;
                     }),
                     identityColumn,
-                    fieldsOrder
+                    fieldsOrder,
+                    foreignKeys: res.foreignKeys
                   }
                   this.referencedRecords[table.table_name] = tableRecords;
                 });
@@ -414,6 +456,30 @@ export class DbTableRowEditComponent implements OnInit {
 
   isWidget(columnName: string) {
     return this.tableWidgetsList.includes(columnName);
+  }
+
+  isForeignKey(columnName: string, foreignKeys: TableForeignKey[]) {
+    const foreignKeysList = foreignKeys.map((field: TableForeignKey) => {return field['column_name']});
+    return foreignKeysList.includes(columnName);
+  }
+
+  getForeignKeyValue(fieldValue: string, foreignKeys: TableForeignKey[]) {
+    // const identityColumnName = Object.keys(fieldValue).find(key => key !== foreignKeys[key].referenced_column_name);
+    console.log('getForeignKeyValue');
+    console.log(fieldValue);
+    console.log(foreignKeys);
+    const identityColumnName = Object.keys(fieldValue).find(key => {
+      return foreignKeys.some(fk => fk.column_name === key && fk.referenced_column_name !== key);
+    });
+    if (identityColumnName) {
+      console.log('getForeignKeyValue');
+      console.log(this.selectedRow.record);
+      return fieldValue[identityColumnName];
+    } else {
+      // const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
+      return fieldValue;
+    }
+    return '';
   }
 
   getModifyingFields(fields) {
@@ -604,4 +670,16 @@ export class DbTableRowEditComponent implements OnInit {
         })
     }
   }
+
+    handleViewRow(tableName: string, row: {}) {
+      // this.selectedRowType = 'record';
+      this._tableState.selectRow({
+        ...this.relatedRecordsProperties[tableName],
+        record: row,
+        primaryKeys: this.relatedRecordsProperties[tableName].primaryColumns.reduce((acc, column) => {
+          acc[column.column_name] = row[column.column_name];
+          return acc;
+        }, {}),
+      });
+    }
 }

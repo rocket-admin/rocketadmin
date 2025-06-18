@@ -1,9 +1,14 @@
+.page {
+    display: flex;
+}
+
 .wrapper {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 36px 0 16px;
+    width: 100vw;
 }
 
 @media (width <= 600px) {
@@ -11,6 +16,10 @@
         padding: 36px 9vw 16px;
         width: 100vw;
     }
+}
+
+.wrapper_shifted {
+    margin-left: clamp(-400px, -22vw, -200px);
 }
 
 .row-edit-header {
@@ -73,7 +82,7 @@
 } */
 
 .related-views {
-    position: fixed;
+    position: absolute;
     top: calc(52px + 96px);
     right: 0;
     display: flex;

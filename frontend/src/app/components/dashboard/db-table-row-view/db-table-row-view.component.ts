@@ -73,7 +73,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
           }
         })
 
-        if (row.relatedRecords?.referenced_by.length) {
+        if (row.relatedRecords?.referenced_by?.length) {
           this.referencedRecords = {};
 
           this.referencedTables = row.relatedRecords.referenced_by
