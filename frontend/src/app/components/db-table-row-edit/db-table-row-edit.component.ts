@@ -300,12 +300,15 @@ export class DbTableRowEditComponent implements OnInit {
 
                   if (res.rows && res.rows.length) {
                     const firstRow = res.rows[0];
+
+                    const relatedTableForeignKeys = Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey})));
+
                     this._tableRow.fetchTableRow(
                       this.connectionID,
                       table.table_name,
                       res.primaryColumns.reduce((keys, column) => {
                         if (res.foreignKeys.map(foreignKey => foreignKey.column_name).includes(column.column_name)) {
-                          const referencedColumnNameOfForeignKey = res.foreignKeys[column.column_name]?.referenced_column_name;
+                          const referencedColumnNameOfForeignKey = relatedTableForeignKeys[column.column_name]?.referenced_column_name;
                           keys[column.column_name] = firstRow[column.column_name][referencedColumnNameOfForeignKey];
                         } else {
                           keys[column.column_name] = firstRow[column.column_name];
@@ -320,8 +323,6 @@ export class DbTableRowEditComponent implements OnInit {
 
                   let identityColumn = res.identity_column;
                   let fieldsOrder = [];
-
-                  // console.log(res);
 
                   const foreignKeyMap = {};
                   for (const fk of res.foreignKeys) {

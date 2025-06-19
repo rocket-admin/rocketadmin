@@ -148,12 +148,16 @@ export class TablesDataSource implements DataSource<Object> {
         .subscribe((res: any) => {
           if (res.rows && res.rows.length) {
             const firstRow = res.rows[0];
+
+            this.foreignKeysList = res.foreignKeys.map((field) => {return field['column_name']});
+            this.foreignKeys = Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey})));
+
             this._tableRow.fetchTableRow(
               connectionID,
               tableName,
               res.primaryColumns.reduce((keys, column) => {
-                if (res.foreignKeys.map(foreignKey => foreignKey.column_name).includes(column.column_name)) {
-                  const referencedColumnNameOfForeignKey = res.foreignKeys[column.column_name].referenced_column_name;
+                if (this.foreignKeysList.includes(column.column_name)) {
+                  const referencedColumnNameOfForeignKey = this.foreignKeys[column.column_name].referenced_column_name;
                   keys[column.column_name] = firstRow[column.column_name][referencedColumnNameOfForeignKey];
                 } else {
                   keys[column.column_name] = firstRow[column.column_name];
@@ -248,9 +252,6 @@ export class TablesDataSource implements DataSource<Object> {
           this.isImportAllowed = res.allow_csv_import;
 
           this.sortByColumns = res.sortable_by;
-
-          this.foreignKeysList = res.foreignKeys.map((field) => {return field['column_name']});
-          this.foreignKeys = Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey})));
 
           if (res.widgets) {
             this.widgetsList = res.widgets.map((widget: Widget) => {return widget['field_name']});
