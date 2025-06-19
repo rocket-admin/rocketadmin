@@ -160,39 +160,41 @@
             </div>
 
             <div class="actions">
-                <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
-                    [queryParams]="backUrlParams"
-                    data-testid="record-back-to-table-button">
-                    Back
-                </a>
-                <button type="button" mat-button color="primary"
-                    *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
-                    class="actions__continue"
-                    data-testid="record-save-and-continue-editing-button"
-                    [disabled]="submitting || editRowForm.form.invalid"
-                    (click)="handleRowSubmitting(true)">
-                    Save and continue editing
-                </button>
+                <div class="actions-box">
+                    <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
+                        [queryParams]="backUrlParams"
+                        data-testid="record-back-to-table-button">
+                        Back
+                    </a>
+                    <button type="button" mat-button color="primary"
+                        *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
+                        class="actions__continue"
+                        data-testid="record-save-and-continue-editing-button"
+                        [disabled]="submitting || editRowForm.form.invalid"
+                        (click)="handleRowSubmitting(true)">
+                        Save and continue editing
+                    </button>
 
-                <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
-                    type="submit" mat-flat-button color="primary"
-                    data-testid="record-edit-button"
-                    [disabled]="submitting || editRowForm.form.invalid">
-                    Save
-                </button>
+                    <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
+                        type="submit" mat-flat-button color="primary"
+                        data-testid="record-edit-button"
+                        [disabled]="submitting || editRowForm.form.invalid">
+                        Save
+                    </button>
 
-                <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
-                    type="submit" mat-flat-button color="primary"
-                    data-testid="record-duplicate-button"
-                    [disabled]="submitting || editRowForm.form.invalid">
-                    Duplicate
-                </button>
+                    <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
+                        type="submit" mat-flat-button color="primary"
+                        data-testid="record-duplicate-button"
+                        [disabled]="submitting || editRowForm.form.invalid">
+                        Duplicate
+                    </button>
 
-                <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"
-                    data-testid="record-add-button"
-                    [disabled]="submitting || editRowForm.form.invalid">
-                    Add
-                </button>
+                    <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"
+                        data-testid="record-add-button"
+                        [disabled]="submitting || editRowForm.form.invalid">
+                        Add
+                    </button>
+                </div>
             </div>
         </form>
     </div>
