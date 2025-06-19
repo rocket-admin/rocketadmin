@@ -25,7 +25,7 @@
 
     <br />
 
-    <div *ngIf="selectedRow?.relatedRecords?.referenced_by.length">
+    <div *ngIf="selectedRow?.relatedRecords?.referenced_by?.length">
         <div class="related-records__title">
             <h3 class="mat-heading-3">Related records</h3>
             <button mat-icon-button type="button"
@@ -57,7 +57,8 @@
                 <mat-nav-list>
                     <a mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name]?.rows; let i = index" class="related-record"
                         [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'entry']"
-                        [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]">
+                        [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
+                        (click)="handleClose()">
                         <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].identityColumn]}}</span>
                         <span matListItemLine>
                             <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">

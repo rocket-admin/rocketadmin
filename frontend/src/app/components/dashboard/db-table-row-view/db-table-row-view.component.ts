@@ -61,7 +61,6 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
     // this.connectionID = this._connections.connectionID;
 
     this.selectedRowCast = this._tableState.cast.subscribe((row) => {
-      row && console.log('Row selected:', row.primaryKeys);
       this.selectedRow = row;
       if (row && row.columnsOrder) {
         const columnsOrder = this.selectedRow.columnsOrder.length ? this.selectedRow.columnsOrder : Object.keys(this.selectedRow.record);
@@ -73,7 +72,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
           }
         })
 
-        if (row.relatedRecords?.referenced_by.length) {
+        if (row.relatedRecords?.referenced_by?.length) {
           this.referencedRecords = {};
 
           this.referencedTables = row.relatedRecords.referenced_by
