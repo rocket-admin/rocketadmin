@@ -266,7 +266,7 @@ export class DbTableRowEditComponent implements OnInit {
                   chunkSize: 30,
                   filters
                 }).subscribe((res) => {
-                  // on each iteration add key "table name" with table properties to relatedRecordsProperties
+
                   this.relatedRecordsProperties = Object.assign({}, this.relatedRecordsProperties, {
                     [table.table_name]: {
                       connectionID: this.connectionID,
@@ -297,6 +297,27 @@ export class DbTableRowEditComponent implements OnInit {
                       link: `/dashboard/${this.connectionID}/${table.table_name}/entry`
                     }
                   });
+
+                  if (res.rows && res.rows.length) {
+                    const firstRow = res.rows[0];
+                    this._tableRow.fetchTableRow(
+                      this.connectionID,
+                      table.table_name,
+                      res.primaryColumns.reduce((keys, column) => {
+                        if (res.foreignKeys.map(foreignKey => foreignKey.column_name).includes(column.column_name)) {
+                          const referencedColumnNameOfForeignKey = res.foreignKeys[column.column_name].referenced_column_name;
+                          keys[column.column_name] = firstRow[column.column_name][referencedColumnNameOfForeignKey];
+                        } else {
+                          keys[column.column_name] = firstRow[column.column_name];
+                        }
+                        return keys;
+                      }, {})
+                    ).subscribe((res) => {
+                      this.relatedRecordsProperties[table.table_name].relatedRecords = res.referenced_table_names_and_columns[0];
+                    });
+                  }
+
+
                   let identityColumn = res.identity_column;
                   let fieldsOrder = [];
 
