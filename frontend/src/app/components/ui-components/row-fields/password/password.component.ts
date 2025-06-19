@@ -25,7 +25,17 @@ export class PasswordRowComponent extends BaseRowFieldComponent {
   ngOnInit(): void {
     super.ngOnInit();
     if (this.value === '***') this.value = '';
-    this.onFieldChange.emit(this.value);
+    // Don't emit empty password value to skip sending it to backend
+    if (this.value !== '') {
+      this.onFieldChange.emit(this.value);
+    }
+  }
+
+  onPasswordChange(newValue: string) {
+    // Only emit non-empty values to prevent sending empty strings to backend
+    if (newValue !== '') {
+      this.onFieldChange.emit(newValue);
+    }
   }
 
   onClearPasswordChange() {
