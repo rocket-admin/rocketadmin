@@ -305,7 +305,7 @@ export class DbTableRowEditComponent implements OnInit {
                       table.table_name,
                       res.primaryColumns.reduce((keys, column) => {
                         if (res.foreignKeys.map(foreignKey => foreignKey.column_name).includes(column.column_name)) {
-                          const referencedColumnNameOfForeignKey = res.foreignKeys[column.column_name].referenced_column_name;
+                          const referencedColumnNameOfForeignKey = res.foreignKeys[column.column_name]?.referenced_column_name;
                           keys[column.column_name] = firstRow[column.column_name][referencedColumnNameOfForeignKey];
                         } else {
                           keys[column.column_name] = firstRow[column.column_name];
