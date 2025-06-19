@@ -70,8 +70,8 @@
                         <mat-panel-title class="related-records__table-name"> {{referencedTable.displayTableName}} </mat-panel-title>
                         <mat-panel-description class="related-records__actions">
                             <mat-spinner *ngIf="!referencedRecords[referencedTable.table_name]" diameter="20"></mat-spinner>
-                            <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length">Absent</span>
-                            <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rows.length"
+                            <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rawRows.length">Absent</span>
+                            <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rawRows.length"
                                 [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'settings']"
                                 matTooltip="Set up records view">
                                 <mat-icon>settings</mat-icon>
@@ -86,31 +86,15 @@
                     </mat-expansion-panel-header>
 
                     <mat-nav-list>
-                        <!--<a mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name]?.rows; let i = index" class="related-record"
-                            [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'entry']"
-                            [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]">
-                            <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].identityColumn]}}</span>
-                            <span matListItemLine>
-                                <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
-                                    <strong>{{field_name}}:</strong>
-                                    {{ row[field_name]}}
-                                </span>
+                        <mat-list-item *ngFor="let rawRow of referencedRecords[referencedTable.table_name]?.rawRows; let i = index"
+                            class="related-record" (click)="handleViewRow(referencedTable.table_name, rawRow)">
+                            <span matListItemTitle>
+                                {{ referencedRecords[referencedTable.table_name].formattedRows[i][referencedRecords[referencedTable.table_name].identityColumn] }}
                             </span>
-                        </a>-->
-
-                        <mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name]?.rows; let i = index"
-                            class="related-record" (click)="handleViewRow(referencedTable.table_name, row)">
-                            <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].identityColumn]}}</span>
                             <span matListItemLine>
                                 <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
                                     <strong>{{field_name}}:</strong>
-
-                                    <span *ngIf="isForeignKey(field_name, referencedRecords[referencedTable.table_name]?.foreignKeys); else defaultFieldValue">
-                                        {{getForeignKeyValue(row[field_name], referencedRecords[referencedTable.table_name]?.foreignKeys)}}
-                                    </span>
-                                    <ng-template #defaultFieldValue>
-                                        {{row[field_name]}}
-                                    </ng-template>
+                                    <span>{{ referencedRecords[referencedTable.table_name].formattedRows[i][field_name] }}</span>
                                 </span>
                             </span>
                         </mat-list-item>

@@ -302,25 +302,25 @@ export class DbTableRowEditComponent implements OnInit {
 
                   // console.log(res);
 
-                  // const foreignKeyMap = {};
-                  // for (const fk of res.foreignKeys) {
-                  //   foreignKeyMap[fk.column_name] = fk.referenced_column_name;
-                  // }
+                  const foreignKeyMap = {};
+                  for (const fk of res.foreignKeys) {
+                    foreignKeyMap[fk.column_name] = fk.referenced_column_name;
+                  }
 
                   // Format each row
-                  // const formattedRows = res.rows.map(row => {
-                  //   const formattedRow = {};
+                  const formattedRows = res.rows.map(row => {
+                    const formattedRow = {};
 
-                  //   for (const key in row) {
-                  //     if (foreignKeyMap[key] && typeof row[key] === 'object' && row[key] !== null) {
-                  //       const preferredKey = Object.keys(row[key]).find(k => k !== foreignKeyMap[key]);
-                  //       formattedRow[key] = preferredKey ? row[key][preferredKey] : row[key][foreignKeyMap[key]];
-                  //     } else {
-                  //       formattedRow[key] = formatFieldValue(row[key], res.structure.find((field: TableField) => field.column_name === key)?.data_type || 'text');
-                  //     }
-                  //   }
-                  //   return formattedRow;
-                  // })
+                    for (const key in row) {
+                      if (foreignKeyMap[key] && typeof row[key] === 'object' && row[key] !== null) {
+                        const preferredKey = Object.keys(row[key]).find(k => k !== foreignKeyMap[key]);
+                        formattedRow[key] = preferredKey ? row[key][preferredKey] : row[key][foreignKeyMap[key]];
+                      } else {
+                        formattedRow[key] = formatFieldValue(row[key], res.structure.find((field: TableField) => field.column_name === key)?.data_type || 'text');
+                      }
+                    }
+                    return formattedRow;
+                  })
 
                   if (res.identity_column && res.list_fields.length) {
                     identityColumn = res.identity_column;
@@ -344,7 +344,8 @@ export class DbTableRowEditComponent implements OnInit {
                   }
 
                   const tableRecords = {
-                    rows: res.rows,
+                    rawRows: res.rows,
+                    formattedRows,
                     links: res.rows.map(row => {
                       let params = {};
                       Object.keys(res.primaryColumns).forEach((key) => {
@@ -456,30 +457,6 @@ export class DbTableRowEditComponent implements OnInit {
 
   isWidget(columnName: string) {
     return this.tableWidgetsList.includes(columnName);
-  }
-
-  isForeignKey(columnName: string, foreignKeys: TableForeignKey[]) {
-    const foreignKeysList = foreignKeys.map((field: TableForeignKey) => {return field['column_name']});
-    return foreignKeysList.includes(columnName);
-  }
-
-  getForeignKeyValue(fieldValue: string, foreignKeys: TableForeignKey[]) {
-    // const identityColumnName = Object.keys(fieldValue).find(key => key !== foreignKeys[key].referenced_column_name);
-    console.log('getForeignKeyValue');
-    console.log(fieldValue);
-    console.log(foreignKeys);
-    const identityColumnName = Object.keys(fieldValue).find(key => {
-      return foreignKeys.some(fk => fk.column_name === key && fk.referenced_column_name !== key);
-    });
-    if (identityColumnName) {
-      console.log('getForeignKeyValue');
-      console.log(this.selectedRow.record);
-      return fieldValue[identityColumnName];
-    } else {
-      // const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
-      return fieldValue;
-    }
-    return '';
   }
 
   getModifyingFields(fields) {
@@ -671,15 +648,15 @@ export class DbTableRowEditComponent implements OnInit {
     }
   }
 
-    handleViewRow(tableName: string, row: {}) {
-      // this.selectedRowType = 'record';
-      this._tableState.selectRow({
-        ...this.relatedRecordsProperties[tableName],
-        record: row,
-        primaryKeys: this.relatedRecordsProperties[tableName].primaryColumns.reduce((acc, column) => {
-          acc[column.column_name] = row[column.column_name];
-          return acc;
-        }, {}),
-      });
-    }
+  handleViewRow(tableName: string, row: {}) {
+    // this.selectedRowType = 'record';
+    this._tableState.selectRow({
+      ...this.relatedRecordsProperties[tableName],
+      record: row,
+      primaryKeys: this.relatedRecordsProperties[tableName].primaryColumns.reduce((acc, column) => {
+        acc[column.column_name] = row[column.column_name];
+        return acc;
+      }, {}),
+    });
+  }
 }
