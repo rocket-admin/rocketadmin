@@ -48,7 +48,6 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
   public referencedTables: { table_name: string; displayTableName: string; columns: string[] }[] = [];
   public referencedTablesURLParams: any;
   public referencedRecords: {} = {};
-  public referencedRecordsShown: boolean = false;
 
   constructor(
     private _tables: TablesService,
@@ -166,10 +165,6 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.selectedRowCast.unsubscribe();
-  }
-
-  toggleReferencedRecords() {
-    this.referencedRecordsShown = !this.referencedRecordsShown;
   }
 
   isForeignKey(columnName: string) {

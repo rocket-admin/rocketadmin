@@ -25,15 +25,12 @@
 
     <br />
 
-    <div *ngIf="selectedRow?.relatedRecords?.referenced_by?.length">
-        <div class="related-records__title">
-            <h3 class="mat-heading-3">Related records</h3>
-            <button mat-icon-button type="button"
-                (click)="toggleReferencedRecords()">
-                <mat-icon [ngClass]="{'related-records__toggle_open': referencedRecordsShown}">keyboard_arrow_down</mat-icon>
-            </button>
-        </div>
-        <mat-accordion multi="true" *ngIf="referencedRecordsShown" class="related-records__accordion">
+    <mat-expansion-panel *ngIf="selectedRow?.relatedRecords?.referenced_by?.length" class="related-records-panel">
+        <mat-expansion-panel-header class="related-records-panel__header">
+            Related records
+        </mat-expansion-panel-header>
+
+        <mat-accordion multi="true">
             <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index" class="related-records__panel">
                 <mat-expansion-panel-header class="related-records__header">
                     <mat-panel-title class="related-records__table-name"> {{referencedTable.displayTableName}} </mat-panel-title>
@@ -70,7 +67,7 @@
                 </mat-nav-list>
             </mat-expansion-panel>
         </mat-accordion>
-    </div>
+    </mat-expansion-panel>
 
     <div *ngIf="!selectedRow?.relatedRecords?.referenced_by">
         <div class="skeleton loading-related-records">

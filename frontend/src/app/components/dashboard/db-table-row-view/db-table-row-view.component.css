@@ -84,31 +84,22 @@
     margin-bottom: 16px;
 }
 
-.related-records__title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 8px 0 16px;
+.related-records-panel {
+    margin-left: 4px;
+    width: calc(100% - 8px);
 }
 
-.related-records__title h3 {
-    margin: 0 !important;
+.related-records-panel__header {
+    height: 36px !important;
+    padding: 0 12px 0 8px;
 }
 
-.related-records__toggle_open {
-    transform: rotate(180deg);
-    transition: transform 200ms ease;
-}
-
-.related-records__accordion {
-    display: block;
-    margin-left: 8px;
-    margin-bottom: 16px;
-    width: calc(100% - 16px);
+.related-records-panel ::ng-deep .mat-expansion-panel-body {
+    padding: 0;
 }
 
 .related-records__header {
-    padding: 0 8px;
+    padding: 0 12px 0 8px;
 }
 
 .related-records__table-name {
