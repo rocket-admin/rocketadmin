@@ -217,6 +217,8 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
     } else {
       this._tableState.setBackUrlFilters(null);
     }
+
+    this._tableState.clearSelection();
   }
 
   handleClose() {
