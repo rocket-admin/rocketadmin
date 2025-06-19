@@ -5,6 +5,7 @@ import { DbTableRowEditComponent } from './db-table-row-edit.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DBtype, Connection, ConnectionType } from 'src/app/models/connection';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -254,5 +255,108 @@ describe('DbTableRowEditComponent', () => {
 
     const isPriceWidget = component.isWidget('Price');
     expect(isPriceWidget).toBeTrue();
+  });
+
+  describe('updateField for password widget behavior', () => {
+    beforeEach(() => {
+      component.tableRowValues = {
+        id: 1,
+        username: 'testuser',
+        password: '***'
+      };
+    });
+
+    it('should update tableRowValues when password field receives a value', () => {
+      component.updateField('newPassword', 'password');
+      expect(component.tableRowValues['password']).toBe('newPassword');
+    });
+
+    it('should update tableRowValues when password field receives empty string', () => {
+      component.updateField('', 'password');
+      expect(component.tableRowValues['password']).toBe('');
+    });
+
+    it('should update tableRowValues when password field receives null (clear password)', () => {
+      component.updateField(null, 'password');
+      expect(component.tableRowValues['password']).toBe(null);
+    });
+
+    it('should handle password field update alongside other fields', () => {
+      component.updateField('updatedUser', 'username');
+      component.updateField('newPassword', 'password');
+      
+      expect(component.tableRowValues['username']).toBe('updatedUser');
+      expect(component.tableRowValues['password']).toBe('newPassword');
+    });
+  });
+
+  describe('getFormattedUpdatedRow', () => {
+    beforeEach(() => {
+      spyOnProperty(connectionsService, 'currentConnection').and.returnValue({ 
+        id: 'test-id',
+        database: 'test-db',
+        title: 'Test Connection',
+        host: 'localhost',
+        port: '5432',
+        sid: null,
+        type: DBtype.Postgres,
+        username: 'test-user',
+        ssh: false,
+        ssl: false,
+        cert: '',
+        masterEncryption: false,
+        azure_encryption: false,
+        connectionType: ConnectionType.Direct
+      } as Connection);
+      component.tableTypes = {};
+      component.nonModifyingFields = [];
+      component.pageAction = null;
+    });
+
+    it('should include password field when it has a value', () => {
+      component.tableRowValues = {
+        id: 1,
+        username: 'testuser',
+        password: 'newPassword'
+      };
+
+      const result = component.getFormattedUpdatedRow();
+      expect((result as any).password).toBe('newPassword');
+    });
+
+    it('should include password field when it is null (explicit clear)', () => {
+      component.tableRowValues = {
+        id: 1,
+        username: 'testuser',
+        password: null
+      };
+
+      const result = component.getFormattedUpdatedRow();
+      expect((result as any).password).toBe(null);
+    });
+
+    it('should include password field when it is empty string', () => {
+      component.tableRowValues = {
+        id: 1,
+        username: 'testuser',
+        password: ''
+      };
+
+      const result = component.getFormattedUpdatedRow();
+      expect((result as any).password).toBe('');
+    });
+
+    it('should preserve other fields when password is empty', () => {
+      component.tableRowValues = {
+        id: 1,
+        username: 'testuser',
+        password: ''
+      };
+
+      const result = component.getFormattedUpdatedRow();
+      expect((result as any).id).toBe(1);
+      expect((result as any).username).toBe('testuser');
+      expect((result as any).password).toBe('');
+    });
   });
 });
