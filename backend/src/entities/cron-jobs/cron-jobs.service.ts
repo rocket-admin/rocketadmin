@@ -12,8 +12,6 @@ import {
 } from '../user-actions/use-cases/use-cases-interfaces.js';
 import { JobListEntity } from './job-list.entity.js';
 import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
-import { console } from 'inspector';
-
 @Injectable()
 export class CronJobsService {
   constructor(
@@ -72,9 +70,8 @@ export class CronJobsService {
           Constants.EXCEPTIONS_CHANNELS,
         );
       } else {
-        // const mailingResultToString = this.sentEmailsToSimpleString(mailingResults);
-        await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
-        // await this.sendEmailResultsToSlack(mailingResults);
+        // await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
+        await this.sendEmailResultsToSlack(mailingResults, emails);
         await slackPostMessage(
           `morning cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
           Constants.EXCEPTIONS_CHANNELS,
@@ -128,20 +125,29 @@ export class CronJobsService {
     }
   }
 
-  private async sendEmailResultsToSlack(results: Array<ICronMessagingResults>): Promise<void> {
+  private async sendEmailResultsToSlack(
+    results: Array<ICronMessagingResults | null>,
+    allFoundEmails: Array<string>,
+  ): Promise<void> {
+    const filteredResults = results.filter((result) => !!result);
+    const nullResultsCount = results.length - filteredResults.length;
     const chunkSize = 20;
-    for (let i = 0; i < results.length; i += chunkSize) {
-      const chunk = results.slice(i, i + chunkSize);
+    const emailsNonFoundInResults = allFoundEmails.filter(
+      (email) => !filteredResults.some((result) => result?.accepted?.includes(email)),
+    );
+    for (let i = 0; i < filteredResults.length; i += chunkSize) {
+      const chunk = filteredResults.slice(i, i + chunkSize);
       const message = this.emailCronResultToSlackString(chunk);
+      if (!message) {
+        continue;
+      }
       await slackPostMessage(message, Constants.EXCEPTIONS_CHANNELS);
     }
-  }
-
-  private sentEmailsToSimpleString(results: Array<ICronMessagingResults>): string | null {
-    const emailsSent = results.map((result) => {
-      return result.accepted && result.accepted.length > 0 ? result.accepted.join(', ') : '-';
-    });
-    const emailsSentString = emailsSent.join(', \n');
-    return emailsSentString;
+    if (nullResultsCount > 0) {
+      const timedOutMessage = `The system timed out while sending results to ${nullResultsCount} email addresses`;
+      const timedOutEmailsMessage = `: \n${emailsNonFoundInResults.join(', ')}\n`;
+      const fullTimedOutMessage = `${timedOutMessage}${timedOutEmailsMessage}`;
+      await slackPostMessage(fullTimedOutMessage, Constants.EXCEPTIONS_CHANNELS);
+    }
   }
 }

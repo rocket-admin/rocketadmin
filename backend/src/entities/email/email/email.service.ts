@@ -78,14 +78,12 @@ export class EmailService {
     return await this.sendEmailToUser(letterContent);
   }
 
-  public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults>> {
+  public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults | null>> {
     const queue = new PQueue({ concurrency: 8 });
     const mailingResults: Array<SMTPTransport.SentMessageInfo | void> = await Promise.all(
-      userEmails.map(async (email: string, index) => {
+      userEmails.map(async (email: string) => {
         return await queue.add(async () => {
-          const result = await this.sendReminderToUser(email);
-          console.info(`${index} email sending result ${JSON.stringify(result)}`);
-          return result;
+          return await this.sendReminderToUser(email);
         });
       }),
     );
@@ -231,7 +229,7 @@ export class EmailService {
     return await this.emailTransporterService.transportEmail(emailMessage);
   }
 
-  private async sendReminderToUser(email: string): Promise<SMTPTransport.SentMessageInfo> {
+  private async sendReminderToUser(email: string): Promise<SMTPTransport.SentMessageInfo | null> {
     const letterContent: IMessage = {
       from: this.emailFrom,
       to: email,
@@ -274,10 +272,12 @@ export class EmailService {
     });
   }
 
-  private buildMailingResults(results: Array<SMTPTransport.SentMessageInfo | void>): Array<ICronMessagingResults> {
+  private buildMailingResults(
+    results: Array<SMTPTransport.SentMessageInfo | void>,
+  ): Array<ICronMessagingResults | null> {
     return results.map((result) => {
       if (!result) {
-        return;
+        return null;
       }
       const { messageId, accepted, rejected } = result;
       return {
