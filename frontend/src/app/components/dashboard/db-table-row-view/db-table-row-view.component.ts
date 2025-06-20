@@ -150,6 +150,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
                   Object.keys(res.primaryColumns).forEach((key) => {
                     params[res.primaryColumns[key].column_name] = row[res.primaryColumns[key].column_name];
                   });
+
                   return params;
                 }),
                 identityColumn,
@@ -182,6 +183,14 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
       }
     };
     return '';
+  }
+
+  getForeignKeyQueryParams(field: string) {
+    if (this.selectedRow) {
+      const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
+      return {[this.selectedRow.foreignKeys[field]?.referenced_column_name]: this.selectedRow.record[field][referencedColumnName]}
+    };
+    return {};
   }
 
   isWidget(columnName: string) {
