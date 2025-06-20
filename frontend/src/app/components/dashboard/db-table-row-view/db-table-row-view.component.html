@@ -79,9 +79,14 @@
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <span *ngIf="isForeignKey(column.title); else recordContent" class="row-preview-sidebar__field-value">
-                {{getForeignKeyValue(column.title)}}
-            </span>
+            <a *ngIf="isForeignKey(column.title); else recordContent"
+                routerLink="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
+                [queryParams]="getForeignKeyQueryParams(column.title)"
+                class="row-preview-sidebar__field-value row-preview-sidebar__field-value_foreign-key">
+                <span>{{getForeignKeyValue(column.title)}}</span>
+                <mat-icon fontSet="material-icons-outlined" class="row-preview-sidebar__field-value-icon">edit</mat-icon>
+            </a>
+
             <ng-template #recordContent>
                 <div *ngIf="isWidget(column.title); else stringValue">
                     <div *ngIf="selectedRow.widgets[column.title].widget_type === 'Image'">

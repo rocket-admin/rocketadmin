@@ -67,7 +67,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
         this.columns = columnsOrder.map(column => {
           return {
             title: column,
-            normalizedTitle: normalizeFieldName(column)
+            normalizedTitle: row.widgets[column]?.name || normalizeFieldName(column)
           }
         })
 
@@ -150,6 +150,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
                   Object.keys(res.primaryColumns).forEach((key) => {
                     params[res.primaryColumns[key].column_name] = row[res.primaryColumns[key].column_name];
                   });
+
                   return params;
                 }),
                 identityColumn,
@@ -177,11 +178,19 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
       if (identityColumnName) {
         return this.selectedRow.record[field][identityColumnName];
       } else {
-        // const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
-        return this.selectedRow.record[field];
+        const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
+        return this.selectedRow.record[field][referencedColumnName];
       }
     };
     return '';
+  }
+
+  getForeignKeyQueryParams(field: string) {
+    if (this.selectedRow) {
+      const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
+      return {[this.selectedRow.foreignKeys[field]?.referenced_column_name]: this.selectedRow.record[field][referencedColumnName]}
+    };
+    return {};
   }
 
   isWidget(columnName: string) {
