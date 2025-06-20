@@ -60,7 +60,11 @@ export class TablesDataSource implements DataSource<Object> {
   public foreignKeysList: string[] = [];
   public foreignKeys: TableForeignKey[] = [];
   public widgetsList: string[];
-  public widgets: Widget[];
+  public widgets: {
+    [key: string]: Widget & {
+      widget_params: object;
+    }
+  } = {};
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
   public relatedRecords = {
@@ -185,6 +189,28 @@ export class TablesDataSource implements DataSource<Object> {
           this.tableActions = res.action_events;
           this.tableBulkActions = res.action_events.filter((action: CustomEvent) => action.type === CustomActionType.Multiple);
 
+          if (res.widgets) {
+            this.widgetsList = res.widgets.map((widget: Widget) => {return widget['field_name']});
+            this.widgetsCount = this.widgetsList.length;
+            this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => {
+                let parsedParams;
+
+                try {
+                  parsedParams = JSON5.parse(widget.widget_params);
+                } catch {
+                  parsedParams = {};
+                }
+
+                return {
+                  [widget.field_name]: {
+                    ...widget,
+                    widget_params: parsedParams,
+                  },
+                };
+              })
+            );
+          }
+
           let orderedColumns: TableField[];
           if (res.list_fields.length) {
             orderedColumns = res.structure.sort((fieldA: TableField, fieldB: TableField) => res.list_fields.indexOf(fieldA.column_name) - res.list_fields.indexOf(fieldB.column_name));
@@ -198,26 +224,26 @@ export class TablesDataSource implements DataSource<Object> {
               if (shownColumns && shownColumns.length) {
                 return {
                   title: item.column_name,
-                  normalizedTitle: normalizeFieldName(item.column_name),
+                  normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
                   selected: shownColumns.includes(item.column_name)
                 }
               } else if (res.columns_view && res.columns_view.length !== 0) {
                 return {
                   title: item.column_name,
-                  normalizedTitle: normalizeFieldName(item.column_name),
+                  normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
                   selected: res.columns_view.includes(item.column_name)
                 }
               } else {
                 if (index < 6) {
                   return {
                     title: item.column_name,
-                    normalizedTitle: normalizeFieldName(item.column_name),
+                    normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
                     selected: true
                   }
                 }
                 return {
                   title: item.column_name,
-                  normalizedTitle: normalizeFieldName(item.column_name),
+                  normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
                   selected: false
                 }
               }
@@ -252,51 +278,6 @@ export class TablesDataSource implements DataSource<Object> {
           this.isImportAllowed = res.allow_csv_import;
 
           this.sortByColumns = res.sortable_by;
-
-          if (res.widgets) {
-            this.widgetsList = res.widgets.map((widget: Widget) => {return widget['field_name']});
-            this.widgetsCount = this.widgetsList.length;
-            this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => {
-                let parsedParams;
-
-                try {
-                  parsedParams = JSON5.parse(widget.widget_params);
-                } catch {
-                  parsedParams = {};
-                }
-
-                return {
-                  [widget.field_name]: {
-                    ...widget,
-                    widget_params: parsedParams,
-                  },
-                };
-              })
-            );
-
-            /*** for select widget ***/
-            // const selectWidgets = res.widgets.filter((widget: Widget) => widget.widget_type === 'Select');
-            // this.selectWidgetsOptions =
-            // Object.assign({}, ...selectWidgets.map((widget: Widget) => {
-            //   const params = JSON5.parse(widget.widget_params);
-            //   if (params.options) {
-            //     return {[widget.field_name]: params.options}
-            //   } else {
-            //     this.alert_widgetsWarning = {
-            //       id: 10002,
-            //       type: AlertType.Warning,
-            //       message: `Select widget for ${widget.field_name} column is configured incorrectly.`,
-            //       actions: [
-            //         {
-            //           type: AlertActionType.Anchor,
-            //           caption: 'Instruction',
-            //           to: 'https://help.rocketadmin.com/'
-            //         }
-            //       ]
-            //     }
-            //   }
-            // }))
-          }
 
           const widgetsConfigured = res.widgets && res.widgets.length;
           if (!res.configured && !widgetsConfigured

@@ -177,8 +177,8 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
       if (identityColumnName) {
         return this.selectedRow.record[field][identityColumnName];
       } else {
-        // const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
-        return this.selectedRow.record[field];
+        const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
+        return this.selectedRow.record[field][referencedColumnName];
       }
     };
     return '';
