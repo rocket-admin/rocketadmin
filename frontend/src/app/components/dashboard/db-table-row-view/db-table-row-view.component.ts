@@ -67,7 +67,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
         this.columns = columnsOrder.map(column => {
           return {
             title: column,
-            normalizedTitle: normalizeFieldName(column)
+            normalizedTitle: row.widgets[column]?.name || normalizeFieldName(column)
           }
         })
 
