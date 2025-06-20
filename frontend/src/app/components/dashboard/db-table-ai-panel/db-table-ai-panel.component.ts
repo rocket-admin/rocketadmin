@@ -40,6 +40,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   public isAIpanelOpened: boolean = false;
   public message: string = '';
   public charactrsNumber: number = 0;
+  public threadID: string = '';
   public messagesChain: {
     type: string;
     text: string
@@ -97,6 +98,48 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         this.sendMessage();
       }
     }
+  }
+
+  createThread(suggestedMessage?: string) {
+    if (suggestedMessage) {
+      this.message = suggestedMessage;
+    }
+    this.submitting = true;
+    this.messagesChain.push({
+      type: 'user',
+      text: this.message
+    });
+    const messageCopy = this.message;
+    this.message = '';
+
+    this._tables.createThread(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
+      // this.messagesChain = [];
+      console.log('Thread created successfully', response);
+      this.threadID = response.thread_id;
+
+      this.messagesChain.push({
+        type: 'ai',
+        text: this.markdownService.parse(response.response_message) as string
+      });
+      this.submitting = false;
+
+      this.angulartics2.eventTrack.next({
+        action: 'AI panel: thread created successfully',
+      });
+    },
+      (error_message) => {
+        this.messagesChain.push({
+          type: 'ai-error',
+          text: error_message
+        });
+        this.angulartics2.eventTrack.next({
+          action: 'AI panel: thread creation returned an error',
+        });
+      },
+      () => {
+        this.submitting = false;
+      }
+    );
   }
 
   sendMessage(suggestedMessage?: string): void {

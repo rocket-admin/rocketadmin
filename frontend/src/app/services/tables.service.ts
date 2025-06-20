@@ -470,6 +470,23 @@ export class TablesService {
       );
   }
 
+  createThread(connectionID, tableName, message) {
+    return this._http.post<any>(`/ai/thread/${connectionID}`, {user_message: message}, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map((res) => {
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          return throwError(() => new Error(err.error.message));
+        })
+      );
+  }
+
   requestAI(connectionID: string, tableName: string, message: string) {
     return this._http.post<any>(`/ai/request/${connectionID}`, {user_message: message}, {
       params: {
@@ -478,19 +495,10 @@ export class TablesService {
     })
       .pipe(
         map((res) => {
-          // this.tables.next('activate actions');
-          // this._notifications.showSuccessSnackbar(`${action.title} is done for ${primaryKeys.length} rows.`);
           return res
         }),
         catchError((err) => {
           console.log(err);
-          // this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-          //   {
-          //     type: AlertActionType.Button,
-          //     caption: 'Dismiss',
-          //     action: (id: number) => this._notifications.dismissAlert()
-          //   }
-          // ]);
           return throwError(() => new Error(err.error.message));
         })
       );
