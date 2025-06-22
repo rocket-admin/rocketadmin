@@ -368,13 +368,6 @@ export class DbTableRowEditComponent implements OnInit {
                   const tableRecords = {
                     rawRows: res.rows,
                     formattedRows,
-                    links: res.rows.map(row => {
-                      let params = {};
-                      Object.keys(res.primaryColumns).forEach((key) => {
-                        params[res.primaryColumns[key].column_name] = row[res.primaryColumns[key].column_name];
-                      });
-                      return params;
-                    }),
                     identityColumn,
                     fieldsOrder,
                     foreignKeys: res.foreignKeys
