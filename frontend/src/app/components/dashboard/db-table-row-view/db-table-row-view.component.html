@@ -39,13 +39,15 @@
                         <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length">Absent</span>
                         <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rows.length"
                             [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'settings']"
-                            matTooltip="Set up records view">
+                            matTooltip="Set up records view"
+                            (click)="handleClose()">
                             <mat-icon>settings</mat-icon>
                         </a>
                         <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]"
                             routerLink="/dashboard/{{selectedRow.connectionID}}/{{referencedTable.table_name}}"
                             [queryParams]="referencedTablesURLParams[i]"
-                            matTooltip="Open records in table view">
+                            matTooltip="Open records in table view"
+                            (click)="handleClose()">
                             <mat-icon>open_in_new</mat-icon>
                         </a>
                     </mat-panel-description>
@@ -82,7 +84,8 @@
             <a *ngIf="isForeignKey(column.title); else recordContent"
                 routerLink="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
                 [queryParams]="getForeignKeyQueryParams(column.title)"
-                class="row-preview-sidebar__field-value row-preview-sidebar__field-value_foreign-key">
+                class="row-preview-sidebar__field-value row-preview-sidebar__field-value_foreign-key"
+                (click)="handleClose()">
                 <span>{{getForeignKeyValue(column.title)}}</span>
                 <mat-icon fontSet="material-icons-outlined" class="row-preview-sidebar__field-value-icon">edit</mat-icon>
             </a>
