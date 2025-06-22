@@ -128,41 +128,70 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
               })
 
               if (res.identity_column && res.list_fields.length) {
-                identityColumn = res.identity_column;
                 identityColumn = {
                   isSet: true,
-                  name: res.identity_column,
+                  fieldName: res.identity_column,
                   displayName: tableWidgetsNameMap[res.identity_column] || normalizeFieldName(res.identity_column)
                 };
-                fieldsOrder = res.list_fields.filter((field: string) => field !== res.identity_column).slice(0, 3);
+                fieldsOrder = res.list_fields
+                .filter((field: string) => field !== res.identity_column)
+                .slice(0, 3)
+                .map((field: string) => {
+                  return {
+                    fieldName: field,
+                    displayName: tableWidgetsNameMap[field] || normalizeFieldName(field)
+                  };
+                });
               }
 
               if (res.identity_column && !res.list_fields.length) {
                 identityColumn = {
                   isSet: true,
-                  name: res.identity_column,
+                  fieldName: res.identity_column,
                   displayName: tableWidgetsNameMap[res.identity_column] || normalizeFieldName(res.identity_column)
                 };
-                fieldsOrder = res.structure.filter((field: TableField) => field.column_name !== res.identity_column).map((field: TableField) => field.column_name).slice(0, 3);
+                fieldsOrder = res.structure
+                  .filter((field: TableField) => field.column_name !== res.identity_column)
+                  .slice(0, 3)
+                  .map((field: TableField) => {
+                    return {
+                      fieldName: field.column_name,
+                      displayName: tableWidgetsNameMap[field.column_name] || normalizeFieldName(field.column_name)
+                    };
+                  });
               }
 
               if (!res.identity_column && res.list_fields.length) {
                 identityColumn = {
                   isSet: false,
-                  name: res.list_fields[0],
+                  fieldName: res.list_fields[0],
                   displayName: tableWidgetsNameMap[res.list_fields[0]] || normalizeFieldName(res.list_fields[0])
                 };
-                fieldsOrder = res.list_fields.slice(1, 4);
+                fieldsOrder = res.list_fields
+                  .slice(1, 4)
+                  .map((field: string) => {
+                    return {
+                      fieldName: field,
+                      displayName: tableWidgetsNameMap[field] || normalizeFieldName(field)
+                    };
+                  });
               }
 
               if (!res.identity_column && !res.list_fields.length) {
                 identityColumn = {
                   isSet: false,
-                  name: res.structure[0].column_name,
+                  fieldName: res.structure[0].column_name,
                   displayName: tableWidgetsNameMap[res.structure[0].column_name] || normalizeFieldName(res.structure[0].column_name)
                 };
                 console.log(identityColumn);
-                fieldsOrder = res.structure.slice(1, 4).map((field: TableField) => field.column_name);
+                fieldsOrder = res.structure
+                .slice(1, 4)
+                .map((field: TableField) => {
+                  return {
+                    fieldName: field.column_name,
+                    displayName: tableWidgetsNameMap[field.column_name] || normalizeFieldName(field.column_name)
+                  };
+                });
               }
 
               const tableRecords = {

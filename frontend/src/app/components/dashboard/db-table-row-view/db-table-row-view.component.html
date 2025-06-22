@@ -59,17 +59,17 @@
                         [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
                         (click)="handleClose()">
 
-                        <span matListItemTitle>
+                        <span matListItemTitle style="margin-left: -4px;">
                             <strong *ngIf="!referencedRecords[referencedTable.table_name].identityColumn.isSet">
                                 {{referencedRecords[referencedTable.table_name].identityColumn.displayName}}:&nbsp;
                             </strong>
-                            {{ row[referencedRecords[referencedTable.table_name].identityColumn.name] }}
+                            {{ row[referencedRecords[referencedTable.table_name].identityColumn.fieldName] }}
                         </span>
 
                         <span matListItemLine>
-                            <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
-                                <strong>{{field_name}}:</strong>
-                                {{ row[field_name]}}
+                            <span *ngFor="let field of referencedRecords[referencedTable.table_name].fieldsOrder">
+                                <strong>{{field.displayName}}:</strong>
+                                {{ row[field.fieldName] || '—' }};
                             </span>
                         </span>
                     </a>
