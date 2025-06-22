@@ -42,6 +42,7 @@ import { Title } from '@angular/platform-browser';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName, normalizeFieldName } from 'src/app/lib/normalize';
+import { isSet } from 'lodash';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -345,7 +346,11 @@ export class DbTableRowEditComponent implements OnInit {
                   })
 
                   if (res.identity_column && res.list_fields.length) {
-                    identityColumn = res.identity_column;
+                    identityColumn = {
+                      isSet: true,
+                      name: res.identity_column,
+                      displayName: this.relatedRecordsProperties[table.table_name].widgets[res.identity_column]?.name || normalizeFieldName(res.identity_column)
+                    };
                     fieldsOrder = res.list_fields
                       .filter((field: string) => field !== res.identity_column)
                       .slice(0, 3)
@@ -358,7 +363,11 @@ export class DbTableRowEditComponent implements OnInit {
                   }
 
                   if (res.identity_column && !res.list_fields.length) {
-                    identityColumn = res.identity_column;
+                    identityColumn = {
+                      isSet: true,
+                      name: res.identity_column,
+                      displayName: this.relatedRecordsProperties[table.table_name].widgets[res.identity_column]?.name || normalizeFieldName(res.identity_column)
+                    };
                     fieldsOrder = res.structure
                       .filter((field: TableField) => field.column_name !== res.identity_column)
                       .slice(0, 3)
@@ -371,7 +380,11 @@ export class DbTableRowEditComponent implements OnInit {
                   }
 
                   if (!res.identity_column && res.list_fields.length) {
-                    identityColumn = res.list_fields[0];
+                    identityColumn = {
+                      isSet: false,
+                      name: res.list_fields[0],
+                      displayName: this.relatedRecordsProperties[table.table_name].widgets[res.list_fields[0]]?.name || normalizeFieldName(res.list_fields[0])
+                    };
                     fieldsOrder = res.list_fields
                       .slice(1, 4)
                       .map((field: string) => {
@@ -383,7 +396,11 @@ export class DbTableRowEditComponent implements OnInit {
                   }
 
                   if (!res.identity_column && !res.list_fields.length) {
-                    identityColumn = res.structure[0].column_name;
+                    identityColumn = {
+                      isSet: false,
+                      name: res.structure[0].column_name,
+                      displayName: this.relatedRecordsProperties[table.table_name].widgets[res.structure[0].column_name]?.name || normalizeFieldName(res.structure[0].column_name)
+                    };
                     fieldsOrder = res.structure
                       .slice(1, 4)
                       .map((field: TableField) => {

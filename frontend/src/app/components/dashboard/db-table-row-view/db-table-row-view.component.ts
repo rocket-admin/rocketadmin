@@ -107,6 +107,11 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
                 foreignKeyMap[fk.column_name] = fk.referenced_column_name;
               }
 
+              const tableWidgetsNameMap = Object.keys(res.widgets).reduce((acc, key) => {
+                acc[key] = res.widgets[key].name;
+                return acc;
+              }, {});
+
               // Format each row
               const formattedRows = res.rows.map(row => {
                 const formattedRow = {};
@@ -124,21 +129,38 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
 
               if (res.identity_column && res.list_fields.length) {
                 identityColumn = res.identity_column;
+                identityColumn = {
+                  isSet: true,
+                  name: res.identity_column,
+                  displayName: tableWidgetsNameMap[res.identity_column] || normalizeFieldName(res.identity_column)
+                };
                 fieldsOrder = res.list_fields.filter((field: string) => field !== res.identity_column).slice(0, 3);
               }
 
               if (res.identity_column && !res.list_fields.length) {
-                identityColumn = res.identity_column;
+                identityColumn = {
+                  isSet: true,
+                  name: res.identity_column,
+                  displayName: tableWidgetsNameMap[res.identity_column] || normalizeFieldName(res.identity_column)
+                };
                 fieldsOrder = res.structure.filter((field: TableField) => field.column_name !== res.identity_column).map((field: TableField) => field.column_name).slice(0, 3);
               }
 
               if (!res.identity_column && res.list_fields.length) {
-                identityColumn = res.list_fields[0];
+                identityColumn = {
+                  isSet: false,
+                  name: res.list_fields[0],
+                  displayName: tableWidgetsNameMap[res.list_fields[0]] || normalizeFieldName(res.list_fields[0])
+                };
                 fieldsOrder = res.list_fields.slice(1, 4);
               }
 
               if (!res.identity_column && !res.list_fields.length) {
-                identityColumn = res.structure[0].column_name;
+                identityColumn = {
+                  isSet: false,
+                  name: res.structure[0].column_name,
+                  displayName: tableWidgetsNameMap[res.structure[0].column_name] || normalizeFieldName(res.structure[0].column_name)
+                };
                 console.log(identityColumn);
                 fieldsOrder = res.structure.slice(1, 4).map((field: TableField) => field.column_name);
               }

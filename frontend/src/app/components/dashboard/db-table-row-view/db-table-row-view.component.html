@@ -58,7 +58,14 @@
                         [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'entry']"
                         [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
                         (click)="handleClose()">
-                        <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].identityColumn]}}</span>
+
+                        <span matListItemTitle>
+                            <strong *ngIf="!referencedRecords[referencedTable.table_name].identityColumn.isSet">
+                                {{referencedRecords[referencedTable.table_name].identityColumn.displayName}}:&nbsp;
+                            </strong>
+                            {{ row[referencedRecords[referencedTable.table_name].identityColumn.name] }}
+                        </span>
+
                         <span matListItemLine>
                             <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
                                 <strong>{{field_name}}:</strong>
