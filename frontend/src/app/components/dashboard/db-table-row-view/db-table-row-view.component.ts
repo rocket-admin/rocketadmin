@@ -146,16 +146,20 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
               const tableRecords = {
                 rows: formattedRows,
                 links: res.rows.map(row => {
-                  let params = {};
-                  Object.keys(res.primaryColumns).forEach((key) => {
-                    params[res.primaryColumns[key].column_name] = row[res.primaryColumns[key].column_name];
-                  });
-
-                  return params;
+                  return res.primaryColumns.reduce((keys, column) => {
+                    if (res.foreignKeys.map(foreignKey => foreignKey.column_name).includes(column.column_name)) {
+                      const referencedColumnNameOfForeignKey = foreignKeyMap[column.column_name];
+                      keys[column.column_name] = row[column.column_name][referencedColumnNameOfForeignKey];
+                    } else {
+                      keys[column.column_name] = row[column.column_name];
+                    }
+                    return keys;
+                  }, {})
                 }),
                 identityColumn,
                 fieldsOrder
               }
+
               this.referencedRecords[table.table_name] = tableRecords;
             });
           });
