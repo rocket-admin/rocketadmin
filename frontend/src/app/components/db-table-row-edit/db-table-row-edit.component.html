@@ -89,12 +89,15 @@
                         <mat-list-item *ngFor="let rawRow of referencedRecords[referencedTable.table_name]?.rawRows; let i = index"
                             class="related-record" (click)="handleViewRow(referencedTable.table_name, rawRow)">
                             <span matListItemTitle>
-                                {{ referencedRecords[referencedTable.table_name].formattedRows[i][referencedRecords[referencedTable.table_name].identityColumn] }}
+                                <strong *ngIf="!referencedRecords[referencedTable.table_name].identityColumn.isSet">
+                                    {{referencedRecords[referencedTable.table_name].identityColumn.displayName}}:&nbsp;
+                                </strong>
+                                {{ referencedRecords[referencedTable.table_name].formattedRows[i][referencedRecords[referencedTable.table_name].identityColumn.name] }}
                             </span>
-                            <span matListItemLine>
-                                <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
-                                    <strong>{{field_name}}:</strong>
-                                    <span>{{ referencedRecords[referencedTable.table_name].formattedRows[i][field_name] }}</span>
+                            <span matListItemLine class="related-record__fields">
+                                <span *ngFor="let field of referencedRecords[referencedTable.table_name].fieldsOrder" class="related-record__field">
+                                    <strong class="related-record__fieldName">{{field.displayName}}:</strong>
+                                    <span>{{ referencedRecords[referencedTable.table_name].formattedRows[i][field.fieldName] }};</span>
                                 </span>
                             </span>
                         </mat-list-item>

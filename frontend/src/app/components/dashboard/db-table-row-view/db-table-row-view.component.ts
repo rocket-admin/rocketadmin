@@ -107,6 +107,11 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
                 foreignKeyMap[fk.column_name] = fk.referenced_column_name;
               }
 
+              const tableWidgetsNameMap = Object.keys(res.widgets).reduce((acc, key) => {
+                acc[key] = res.widgets[key].name;
+                return acc;
+              }, {});
+
               // Format each row
               const formattedRows = res.rows.map(row => {
                 const formattedRow = {};
@@ -123,39 +128,89 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
               })
 
               if (res.identity_column && res.list_fields.length) {
-                identityColumn = res.identity_column;
-                fieldsOrder = res.list_fields.filter((field: string) => field !== res.identity_column).slice(0, 3);
+                identityColumn = {
+                  isSet: true,
+                  fieldName: res.identity_column,
+                  displayName: tableWidgetsNameMap[res.identity_column] || normalizeFieldName(res.identity_column)
+                };
+                fieldsOrder = res.list_fields
+                .filter((field: string) => field !== res.identity_column)
+                .slice(0, 3)
+                .map((field: string) => {
+                  return {
+                    fieldName: field,
+                    displayName: tableWidgetsNameMap[field] || normalizeFieldName(field)
+                  };
+                });
               }
 
               if (res.identity_column && !res.list_fields.length) {
-                identityColumn = res.identity_column;
-                fieldsOrder = res.structure.filter((field: TableField) => field.column_name !== res.identity_column).map((field: TableField) => field.column_name).slice(0, 3);
+                identityColumn = {
+                  isSet: true,
+                  fieldName: res.identity_column,
+                  displayName: tableWidgetsNameMap[res.identity_column] || normalizeFieldName(res.identity_column)
+                };
+                fieldsOrder = res.structure
+                  .filter((field: TableField) => field.column_name !== res.identity_column)
+                  .slice(0, 3)
+                  .map((field: TableField) => {
+                    return {
+                      fieldName: field.column_name,
+                      displayName: tableWidgetsNameMap[field.column_name] || normalizeFieldName(field.column_name)
+                    };
+                  });
               }
 
               if (!res.identity_column && res.list_fields.length) {
-                identityColumn = res.list_fields[0];
-                fieldsOrder = res.list_fields.slice(1, 4);
+                identityColumn = {
+                  isSet: false,
+                  fieldName: res.list_fields[0],
+                  displayName: tableWidgetsNameMap[res.list_fields[0]] || normalizeFieldName(res.list_fields[0])
+                };
+                fieldsOrder = res.list_fields
+                  .slice(1, 4)
+                  .map((field: string) => {
+                    return {
+                      fieldName: field,
+                      displayName: tableWidgetsNameMap[field] || normalizeFieldName(field)
+                    };
+                  });
               }
 
               if (!res.identity_column && !res.list_fields.length) {
-                identityColumn = res.structure[0].column_name;
+                identityColumn = {
+                  isSet: false,
+                  fieldName: res.structure[0].column_name,
+                  displayName: tableWidgetsNameMap[res.structure[0].column_name] || normalizeFieldName(res.structure[0].column_name)
+                };
                 console.log(identityColumn);
-                fieldsOrder = res.structure.slice(1, 4).map((field: TableField) => field.column_name);
+                fieldsOrder = res.structure
+                .slice(1, 4)
+                .map((field: TableField) => {
+                  return {
+                    fieldName: field.column_name,
+                    displayName: tableWidgetsNameMap[field.column_name] || normalizeFieldName(field.column_name)
+                  };
+                });
               }
 
               const tableRecords = {
                 rows: formattedRows,
                 links: res.rows.map(row => {
-                  let params = {};
-                  Object.keys(res.primaryColumns).forEach((key) => {
-                    params[res.primaryColumns[key].column_name] = row[res.primaryColumns[key].column_name];
-                  });
-
-                  return params;
+                  return res.primaryColumns.reduce((keys, column) => {
+                    if (res.foreignKeys.map(foreignKey => foreignKey.column_name).includes(column.column_name)) {
+                      const referencedColumnNameOfForeignKey = foreignKeyMap[column.column_name];
+                      keys[column.column_name] = row[column.column_name][referencedColumnNameOfForeignKey];
+                    } else {
+                      keys[column.column_name] = row[column.column_name];
+                    }
+                    return keys;
+                  }, {})
                 }),
                 identityColumn,
                 fieldsOrder
               }
+
               this.referencedRecords[table.table_name] = tableRecords;
             });
           });
@@ -197,12 +252,33 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
     return this.selectedRow.widgetsList.includes(columnName);
   }
 
-  getDedicatedPageLink() {
+  getDedicatedPageLinkParams() {
     if (this.selectedRow) {
-      const params = new URLSearchParams();
+      const params = {};
       for (const key in this.selectedRow.primaryKeys) {
         if (this.selectedRow.primaryKeys.hasOwnProperty(key)) {
-          params.append(key, this.selectedRow.primaryKeys[key]);
+          if (this.selectedRow.foreignKeysList.includes(key)) {
+            const referencedColumnName = this.selectedRow.foreignKeys[key].referenced_column_name;
+            params[key] = this.selectedRow.record[key][referencedColumnName];
+          }
+          else {
+            params[key] = this.selectedRow.primaryKeys[key];
+          }
+
+        }
+      }
+      return params;
+    };
+    return {};
+  }
+
+  getDedicatedPageLink() {
+    if (this.selectedRow) {
+      const paramsObj = this.getDedicatedPageLinkParams();
+      const params = new URLSearchParams();
+      for (const key in paramsObj) {
+        if (paramsObj.hasOwnProperty(key)) {
+          params.set(key, paramsObj[key]);
         }
       }
       return `${location.origin}${this.selectedRow.link}?${params.toString()}`;
