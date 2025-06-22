@@ -41,7 +41,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import { normalizeTableName } from '../../lib/normalize';
+import { normalizeTableName, normalizeFieldName } from 'src/app/lib/normalize';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -346,23 +346,52 @@ export class DbTableRowEditComponent implements OnInit {
 
                   if (res.identity_column && res.list_fields.length) {
                     identityColumn = res.identity_column;
-                    fieldsOrder = res.list_fields.filter((field: string) => field !== res.identity_column).slice(0, 3);
+                    fieldsOrder = res.list_fields
+                      .filter((field: string) => field !== res.identity_column)
+                      .slice(0, 3)
+                      .map((field: string) => {
+                        return {
+                          fieldName: field,
+                          displayName: this.relatedRecordsProperties[table.table_name].widgets[field]?.name || normalizeFieldName(field),
+                        };
+                      });
                   }
 
                   if (res.identity_column && !res.list_fields.length) {
                     identityColumn = res.identity_column;
-                    fieldsOrder = res.structure.filter((field: TableField) => field.column_name !== res.identity_column).map((field: TableField) => field.column_name).slice(0, 3);
+                    fieldsOrder = res.structure
+                      .filter((field: TableField) => field.column_name !== res.identity_column)
+                      .slice(0, 3)
+                      .map((field: TableField) => {
+                        return {
+                          fieldName: field.column_name,
+                          displayName: this.relatedRecordsProperties[table.table_name].widgets[field.column_name]?.name || normalizeFieldName(field.column_name),
+                        }
+                      })
                   }
 
                   if (!res.identity_column && res.list_fields.length) {
                     identityColumn = res.list_fields[0];
-                    fieldsOrder = res.list_fields.slice(1, 4);
+                    fieldsOrder = res.list_fields
+                      .slice(1, 4)
+                      .map((field: string) => {
+                        return {
+                          fieldName: field,
+                          displayName: this.relatedRecordsProperties[table.table_name].widgets[field]?.name || normalizeFieldName(field),
+                        };
+                      });
                   }
 
                   if (!res.identity_column && !res.list_fields.length) {
                     identityColumn = res.structure[0].column_name;
-                    console.log(identityColumn);
-                    fieldsOrder = res.structure.slice(1, 4).map((field: TableField) => field.column_name);
+                    fieldsOrder = res.structure
+                      .slice(1, 4)
+                      .map((field: TableField) => {
+                        return {
+                          fieldName: field.column_name,
+                          displayName: this.relatedRecordsProperties[table.table_name].widgets[field.column_name]?.name || normalizeFieldName(field.column_name),
+                        }
+                      })
                   }
 
                   const tableRecords = {

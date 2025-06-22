@@ -91,10 +91,10 @@
                             <span matListItemTitle>
                                 {{ referencedRecords[referencedTable.table_name].formattedRows[i][referencedRecords[referencedTable.table_name].identityColumn] }}
                             </span>
-                            <span matListItemLine>
-                                <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
-                                    <strong>{{field_name}}:</strong>
-                                    <span>{{ referencedRecords[referencedTable.table_name].formattedRows[i][field_name] }}</span>
+                            <span matListItemLine class="related-record__fields">
+                                <span *ngFor="let field of referencedRecords[referencedTable.table_name].fieldsOrder" class="related-record__field">
+                                    <strong class="related-record__fieldName">{{field.displayName}}:</strong>
+                                    <span>{{ referencedRecords[referencedTable.table_name].formattedRows[i][field.fieldName] }};</span>
                                 </span>
                             </span>
                         </mat-list-item>
