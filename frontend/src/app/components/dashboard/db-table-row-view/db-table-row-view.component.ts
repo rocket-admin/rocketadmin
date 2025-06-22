@@ -201,12 +201,33 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
     return this.selectedRow.widgetsList.includes(columnName);
   }
 
-  getDedicatedPageLink() {
+  getDedicatedPageLinkParams() {
     if (this.selectedRow) {
-      const params = new URLSearchParams();
+      const params = {};
       for (const key in this.selectedRow.primaryKeys) {
         if (this.selectedRow.primaryKeys.hasOwnProperty(key)) {
-          params.append(key, this.selectedRow.primaryKeys[key]);
+          if (this.selectedRow.foreignKeysList.includes(key)) {
+            const referencedColumnName = this.selectedRow.foreignKeys[key].referenced_column_name;
+            params[key] = this.selectedRow.record[key][referencedColumnName];
+          }
+          else {
+            params[key] = this.selectedRow.primaryKeys[key];
+          }
+
+        }
+      }
+      return params;
+    };
+    return {};
+  }
+
+  getDedicatedPageLink() {
+    if (this.selectedRow) {
+      const paramsObj = this.getDedicatedPageLinkParams();
+      const params = new URLSearchParams();
+      for (const key in paramsObj) {
+        if (paramsObj.hasOwnProperty(key)) {
+          params.set(key, paramsObj[key]);
         }
       }
       return `${location.origin}${this.selectedRow.link}?${params.toString()}`;

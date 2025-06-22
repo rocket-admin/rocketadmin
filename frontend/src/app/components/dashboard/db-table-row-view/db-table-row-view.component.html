@@ -12,7 +12,7 @@
             </button>
             <a mat-icon-button *ngIf="selectedRow.link"
                 [routerLink]="selectedRow.link"
-                [queryParams]="selectedRow.primaryKeys"
+                [queryParams]="getDedicatedPageLinkParams()"
                 matTooltip="Open the record"
                 (click)="stashUrlParams()">
                 <mat-icon fontSet="material-icons-outlined">create</mat-icon>
