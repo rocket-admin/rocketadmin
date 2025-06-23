@@ -12,7 +12,7 @@
             </button>
             <a mat-icon-button *ngIf="selectedRow.link"
                 [routerLink]="selectedRow.link"
-                [queryParams]="selectedRow.primaryKeys"
+                [queryParams]="getDedicatedPageLinkParams()"
                 matTooltip="Open the record"
                 (click)="stashUrlParams()">
                 <mat-icon fontSet="material-icons-outlined">create</mat-icon>
@@ -25,15 +25,12 @@
 
     <br />
 
-    <div *ngIf="selectedRow?.relatedRecords?.referenced_by.length">
-        <div class="related-records__title">
-            <h3 class="mat-heading-3">Related records</h3>
-            <button mat-icon-button type="button"
-                (click)="toggleReferencedRecords()">
-                <mat-icon [ngClass]="{'related-records__toggle_open': referencedRecordsShown}">keyboard_arrow_down</mat-icon>
-            </button>
-        </div>
-        <mat-accordion multi="true" *ngIf="referencedRecordsShown" class="related-records__accordion">
+    <mat-expansion-panel *ngIf="selectedRow?.relatedRecords?.referenced_by?.length" class="related-records-panel">
+        <mat-expansion-panel-header class="related-records-panel__header">
+            Related records
+        </mat-expansion-panel-header>
+
+        <mat-accordion multi="true">
             <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index" class="related-records__panel">
                 <mat-expansion-panel-header class="related-records__header">
                     <mat-panel-title class="related-records__table-name"> {{referencedTable.displayTableName}} </mat-panel-title>
@@ -42,13 +39,15 @@
                         <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length">Absent</span>
                         <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rows.length"
                             [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'settings']"
-                            matTooltip="Set up records view">
+                            matTooltip="Set up records view"
+                            (click)="handleClose()">
                             <mat-icon>settings</mat-icon>
                         </a>
                         <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]"
                             routerLink="/dashboard/{{selectedRow.connectionID}}/{{referencedTable.table_name}}"
                             [queryParams]="referencedTablesURLParams[i]"
-                            matTooltip="Open records in table view">
+                            matTooltip="Open records in table view"
+                            (click)="handleClose()">
                             <mat-icon>open_in_new</mat-icon>
                         </a>
                     </mat-panel-description>
@@ -57,19 +56,27 @@
                 <mat-nav-list>
                     <a mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name]?.rows; let i = index" class="related-record"
                         [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'entry']"
-                        [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]">
-                        <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].identityColumn]}}</span>
+                        [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
+                        (click)="handleClose()">
+
+                        <span matListItemTitle style="margin-left: -4px;">
+                            <strong *ngIf="!referencedRecords[referencedTable.table_name].identityColumn.isSet">
+                                {{referencedRecords[referencedTable.table_name].identityColumn.displayName}}:&nbsp;
+                            </strong>
+                            {{ row[referencedRecords[referencedTable.table_name].identityColumn.fieldName] }}
+                        </span>
+
                         <span matListItemLine>
-                            <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
-                                <strong>{{field_name}}:</strong>
-                                {{ row[field_name]}}
+                            <span *ngFor="let field of referencedRecords[referencedTable.table_name].fieldsOrder">
+                                <strong>{{field.displayName}}:</strong>
+                                {{ row[field.fieldName] || '—' }};
                             </span>
                         </span>
                     </a>
                 </mat-nav-list>
             </mat-expansion-panel>
         </mat-accordion>
-    </div>
+    </mat-expansion-panel>
 
     <div *ngIf="!selectedRow?.relatedRecords?.referenced_by">
         <div class="skeleton loading-related-records">
@@ -81,9 +88,15 @@
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <span *ngIf="isForeignKey(column.title); else recordContent" class="row-preview-sidebar__field-value">
-                {{getForeignKeyValue(column.title)}}
-            </span>
+            <a *ngIf="isForeignKey(column.title); else recordContent"
+                routerLink="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
+                [queryParams]="getForeignKeyQueryParams(column.title)"
+                class="row-preview-sidebar__field-value row-preview-sidebar__field-value_foreign-key"
+                (click)="handleClose()">
+                <span>{{getForeignKeyValue(column.title)}}</span>
+                <mat-icon fontSet="material-icons-outlined" class="row-preview-sidebar__field-value-icon">edit</mat-icon>
+            </a>
+
             <ng-template #recordContent>
                 <div *ngIf="isWidget(column.title); else stringValue">
                     <div *ngIf="selectedRow.widgets[column.title].widget_type === 'Image'">

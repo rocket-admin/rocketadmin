@@ -77,9 +77,6 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
       this.fkRelations = this.relations;
     }
 
-    console.log('test fkRelations');
-    console.log(this.fkRelations);
-
     this.fkRelations && this._tables.fetchTable({
         connectionID: this.connectionID,
         tableName: this.fkRelations.referenced_table_name,
@@ -97,8 +94,6 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
               this.identityColumn ?
                 `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
                 Object.values(modifiedRow).filter(value => value).join(' | ');
-              console.log('test identityColumn');
-              console.log(this.currentDisplayedString);
               this.currentFieldValue = res.rows[0][this.fkRelations.referenced_column_name];
             this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
             this.onFieldChange.emit(this.currentFieldValue);
