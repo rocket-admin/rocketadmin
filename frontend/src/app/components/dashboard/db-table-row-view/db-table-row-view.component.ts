@@ -228,16 +228,18 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
   }
 
   getForeignKeyValue(field: string) {
-    if (this.selectedRow) {
+    if (this.selectedRow && typeof this.selectedRow.record[field] === 'object') {
       const identityColumnName = Object.keys(this.selectedRow.record[field]).find(key => key !== this.selectedRow.foreignKeys[field].referenced_column_name);
+      const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
       if (identityColumnName) {
         return this.selectedRow.record[field][identityColumnName];
-      } else {
-        const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
+      }
+      if (referencedColumnName) {
         return this.selectedRow.record[field][referencedColumnName];
       }
+      return this.selectedRow.record[field] || '';
     };
-    return '';
+    return this.selectedRow.record[field] || '';
   }
 
   getForeignKeyQueryParams(field: string) {
