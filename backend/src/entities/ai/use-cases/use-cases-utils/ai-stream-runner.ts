@@ -61,6 +61,7 @@ export class AiStreamsRunner {
     this.toolArgumentName = this.isMongoDB ? 'pipeline' : 'query';
     if (this.response) {
       this.response.setHeader('X-OpenAI-Thread-ID', this.thread_in_db_id);
+      this.response.setHeader('Access-Control-Expose-Headers', 'X-OpenAI-Thread-ID');
     }
   }
 
