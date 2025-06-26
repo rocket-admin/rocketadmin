@@ -8,10 +8,12 @@ export enum ConnectionTypesEnum {
   mongodb = 'mongodb',
   dynamodb = 'dynamodb',
   elasticsearch = 'elasticsearch',
+  cassandra = 'cassandra',
   agent_postgres = 'agent_postgres',
   agent_mysql = 'agent_mysql',
   agent_oracledb = 'agent_oracledb',
   agent_mssql = 'agent_mssql',
   agent_ibmdb2 = 'agent_ibmdb2',
   agent_mongodb = 'agent_mongodb',
+  agent_cassandra = 'agent_cassandra',
 }

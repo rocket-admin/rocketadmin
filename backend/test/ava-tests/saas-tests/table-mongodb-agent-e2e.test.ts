@@ -39,7 +39,7 @@ let testTableName: string;
 let testTableColumnName: string;
 let testTableSecondColumnName: string;
 let testEntitiesSeedsCount: number;
-let insertedSearchedIds: Array<{ _id: string; number: number }>;
+let insertedSearchedIds: Array<{ _id?: string; number: number }>;
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({

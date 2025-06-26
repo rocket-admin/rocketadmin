@@ -109,6 +109,9 @@ export class ConnectionEntity {
   authSource?: string | null;
 
   @Column({ default: null })
+  dataCenter?: string | null;
+
+  @Column({ default: null })
   master_hash?: string | null;
 
   @BeforeUpdate()

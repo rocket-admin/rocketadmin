@@ -35,5 +35,6 @@ export function buildFoundConnectionDs(
     connection_properties: connection.connection_properties,
     isFrozen: connection.is_frozen,
     authSource: connection.authSource ? connection.authSource : undefined,
+    dataCenter: connection.dataCenter ? connection.dataCenter : undefined,
   };
 }

@@ -162,6 +162,15 @@ services:
       timeout: 10s
       retries: 3
 
+  test-cassandra-e2e-testing:
+    image: cassandra:5.0.4
+    ports:
+      - 9042:9042
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster
+      - CASSANDRA_DC=TestDC
+      - CASSANDRA_RACK=TestRack
+
   rocketadmin-agent_mongo:
     build:
       context: .

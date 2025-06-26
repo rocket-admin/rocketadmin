@@ -263,6 +263,20 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestCassandraInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to Cassandra in Docker';
+    dto.type = 'cassandra';
+    dto.host = 'test-cassandra-e2e-testing';
+    dto.port = 9042;
+    dto.username = 'cassandra';
+    dto.password = 'cassandra';
+    dto.database = 'testdb';
+    dto.dataCenter = 'datacenter1';
+    dto.ssh = false;
+    return dto;
+  }
+
   generateKnexConfigAgentTests(db_type = 'postgres') {
     switch (db_type) {
       case 'postgres':

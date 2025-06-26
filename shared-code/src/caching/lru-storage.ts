@@ -10,15 +10,30 @@ import { PrimaryKeyDS } from '../data-access-layer/shared/data-structures/primar
 import { TableStructureDS } from '../data-access-layer/shared/data-structures/table-structure.ds.js';
 import { Database } from 'ibm_db';
 import { MongoClientDB } from '../data-access-layer/data-access-objects/data-access-object-mongodb.js';
+import { Client } from 'cassandra-driver';
 const knexCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
 const imdbDb2Cache = new LRUCache(CACHING_CONSTANTS.DEFAULT_IMDB_DB2_CACHE_OPTIONS);
 const mongoDbCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_MONGO_DB_CACHE_OPTIONS);
+const cassandraClientCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CASSANDRA_CLIENT_CACHE_OPTIONS);
 const tableStructureCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tableForeignKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tablePrimaryKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 
 export class LRUStorage {
+  public static setCassandraClientCache(connection: ConnectionParams, client: Client): void {
+    cassandraClientCache.set(this.getConnectionIdentifier(connection), client);
+  }
+
+  public static getCassandraClientCache(connection: ConnectionParams): Client | null {
+    const cachedClient = cassandraClientCache.get(this.getConnectionIdentifier(connection)) as Client;
+    return cachedClient ? cachedClient : null;
+  }
+
+  public static delCassandraClientCache(connection: ConnectionParams): void {
+    cassandraClientCache.delete(this.getConnectionIdentifier(connection));
+  }
+
   public static setMongoDbCache(connection: ConnectionParams, newDb: MongoClientDB): void {
     mongoDbCache.set(this.getConnectionIdentifier(connection), newDb);
   }

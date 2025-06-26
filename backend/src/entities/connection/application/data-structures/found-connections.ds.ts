@@ -72,6 +72,9 @@ export class FoundDirectConnectionsDs {
   @ApiProperty({ required: false })
   authSource?: string;
 
+  @ApiProperty({ required: false })
+  dataCenter?: string;
+
   @ApiProperty()
   isTestConnection: boolean;
 

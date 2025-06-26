@@ -1,6 +1,7 @@
 import { Knex } from 'knex';
 import { Database } from 'ibm_db';
 import { MongoClientDB } from '../data-access-layer/data-access-objects/data-access-object-mongodb.js';
+import { Client } from 'cassandra-driver';
 export const CACHING_CONSTANTS = {
   DEFAULT_CONNECTION_CACHE_OPTIONS: {
     max: 150,
@@ -19,6 +20,20 @@ export const CACHING_CONSTANTS = {
     updateAgeOnHas: false,
     dispose: async (db: Database) => {
       await db.close();
+    },
+  },
+
+  DEFAULT_CASSANDRA_CLIENT_CACHE_OPTIONS: {
+    max: 150,
+    ttl: 1000 * 60 * 60,
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+    dispose: async (_client: Client) => {
+      // try {
+      //   await client.shutdown();
+      // } catch (_e) {
+      //   return;
+      // }
     },
   },
 
