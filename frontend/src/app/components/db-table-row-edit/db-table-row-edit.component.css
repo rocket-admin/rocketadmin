@@ -132,6 +132,18 @@
     padding: 0 8px 16px;
 }
 
+.related-record__fields {
+    margin-left: -4px;
+}
+
+.related-record__field {
+    margin-left: 8px;
+}
+
+.related-record__fieldName {
+    margin-right: 4px;
+}
+
 .widget {
     display: grid;
     grid-template-columns: 0 1fr 36px;
