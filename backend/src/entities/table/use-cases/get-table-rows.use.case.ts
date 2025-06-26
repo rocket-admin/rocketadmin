@@ -39,6 +39,7 @@ import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -131,7 +132,12 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         tableSettings.ordering_field = orderingField.field;
         tableSettings.ordering = orderingField.value;
       }
-      if (isHexString(searchingFieldValue) && tableStructure.some((field) => isBinary(field.data_type))) {
+      if (
+        isHexString(searchingFieldValue) &&
+        (tableStructure.some((field) => isBinary(field.data_type)) ||
+          connection.type === ConnectionTypesEnum.mongodb ||
+          connection.type === ConnectionTypesEnum.agent_mongodb)
+      ) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
         tableSettings.search_fields = tableStructure
           .filter((field) => isBinary(field.data_type))
