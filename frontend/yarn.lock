@@ -6243,6 +6243,8 @@ __metadata:
     angular-password-strength-meter: ^12.0.0
     angulartics2: ^14.1.0
     date-fns: ^4.1.0
+    google-libphonenumber: ^3.2.42
+    intl-tel-input: ^25.3.1
     ipaddr.js: ^2.2.0
     jasmine-core: ~5.5.0
     jasmine-spec-reporter: ~7.0.0
@@ -6255,7 +6257,9 @@ __metadata:
     karma-jasmine-html-reporter: ^2.1.0
     lodash: ^4.17.21
     ng-dynamic-component: ^10.7.0
+    ngx-bootstrap: ^19.0.2
     ngx-cookie-service: ^19.0.0
+    ngx-intl-tel-input: ^17.0.0
     ngx-markdown: ^19.0.0
     ngx-stripe: ^19.0.0
     pluralize: ^8.0.0
@@ -7354,6 +7358,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"google-libphonenumber@npm:^3.2.42":
+  version: 3.2.42
+  resolution: "google-libphonenumber@npm:3.2.42"
+  checksum: f98ea03d7509ccef535a6490089895ae2ae03b49c8c3a3c604d94184064379442357c58675759f12f70be8c6ea8c224799ea751830971fb54a116c3751241657
+  languageName: node
+  linkType: hard
+
 "gopd@npm:^1.2.0":
   version: 1.2.0
   resolution: "gopd@npm:1.2.0"
@@ -7719,6 +7730,13 @@ __metadata:
   version: 1.0.1
   resolution: "internmap@npm:1.0.1"
   checksum: 9d00f8c0cf873a24a53a5a937120dab634c41f383105e066bb318a61864e6292d24eb9516e8e7dccfb4420ec42ca474a0f28ac9a6cc82536898fa09bbbe53813
+  languageName: node
+  linkType: hard
+
+"intl-tel-input@npm:^25.3.1":
+  version: 25.3.1
+  resolution: "intl-tel-input@npm:25.3.1"
+  checksum: f4bb9cd2cfe8370ab6f5c4836747bd22a301ed9cc2c4987b0760135e1b0101ab87c5093796b789e09fab3c6e787bda12dbfb015bdade239809447dcaeab91aae
   languageName: node
   linkType: hard
 
@@ -9211,6 +9229,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ngx-bootstrap@npm:^19.0.2":
+  version: 19.0.2
+  resolution: "ngx-bootstrap@npm:19.0.2"
+  dependencies:
+    tslib: ^2.3.0
+  peerDependencies:
+    "@angular/animations": ^19.0.1
+    "@angular/common": ^19.0.1
+    "@angular/core": ^19.0.1
+    "@angular/forms": ^19.0.1
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: d919e82d827fb2171e36e8a62a631ebe2113c162af325f7e43f38295e3ce84c83b6d8d34a7131393150b2343619309ae33bece0ca7ae75a6631797bf2a8a3429
+  languageName: node
+  linkType: hard
+
 "ngx-cookie-service@npm:^19.0.0":
   version: 19.0.0
   resolution: "ngx-cookie-service@npm:19.0.0"
@@ -9220,6 +9253,22 @@ __metadata:
     "@angular/common": ^19.0.0
     "@angular/core": ^19.0.0
   checksum: a8476d61a2e96fb44f239410b359a213a6de8bf4e468271ce91c73a775f1b45ad690cb19ecd1af3b38ae36d55e79b2b9f09bca6b637572c2f74b800a4d244ab7
+  languageName: node
+  linkType: hard
+
+"ngx-intl-tel-input@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "ngx-intl-tel-input@npm:17.0.0"
+  dependencies:
+    tslib: ^2.3.0
+  peerDependencies:
+    "@angular/common": ">= 17.0.0"
+    "@angular/core": ">= 17.0.0"
+    "@angular/forms": ">= 17.0.0"
+    google-libphonenumber: ^3.0.0
+    intl-tel-input: ^19.0.0
+    ngx-bootstrap: ">= 12.0.0"
+  checksum: 8d1a7d8545118c8e79e0f073c75a73a5fead30c64df45831f0e27cc78d6d8c8042490893f273ff65611e5b4d5d07b5b85f7c8a823b1463474080dd0a6b27084a
   languageName: node
   linkType: hard
 
