@@ -15,6 +15,7 @@ import { TimeFilterComponent } from '../components/ui-components/filter-fields/t
 import { TimeIntervalFilterComponent } from '../components/ui-components/filter-fields/time-interval/time-interval.component';
 import { IdFilterComponent } from '../components/ui-components/filter-fields/id/id.component';
 import { FileFilterComponent } from '../components/ui-components/filter-fields/file/file.component';
+import { CountryFilterComponent } from '../components/ui-components/filter-fields/country/country.component';
 
 export const UIwidgets = {
     Default: '',
@@ -29,7 +30,8 @@ export const UIwidgets = {
     Number: NumberFilterComponent,
     Select: SelectFilterComponent,
     Password: PasswordFilterComponent,
-    File: FileFilterComponent
+    File: FileFilterComponent,
+    Country: CountryFilterComponent
 }
 
 export const filterTypes = {
