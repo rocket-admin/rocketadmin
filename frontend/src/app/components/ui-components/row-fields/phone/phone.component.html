@@ -2,13 +2,11 @@
     <mat-label>{{normalizedLabel}}</mat-label>
     <ngx-mat-input-tel
         [preferredCountries]="preferredCountries"
-        [enableAutoCountrySelect]="enableAutoCountrySelect"
         [enablePlaceholder]="enablePlaceholder"
         [enableSearch]="true"
         [format]="'international'"
-        [inputId]="'phone-' + key"
         attr.data-testid="record-{{label}}-phone"
-        [(value)]="value"
-        (valueChange)="onPhoneNumberChange($event)">
+        [(ngModel)]="value"
+        (ngModelChange)="onPhoneNumberChange($event)">
     </ngx-mat-input-tel>
 </mat-form-field>
