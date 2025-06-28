@@ -1,6 +1,6 @@
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
-import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
@@ -10,9 +10,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
-import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-db-table-ai-panel',
@@ -40,7 +40,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   public isAIpanelOpened: boolean = false;
   public message: string = '';
   public charactrsNumber: number = 0;
-  public threadID: string = '';
+  public threadID: string = null;
   public messagesChain: {
     type: string;
     text: string
@@ -95,7 +95,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         });
       } else {
         event.preventDefault();
-        this.sendMessage();
+        this.createThread();
       }
     }
   }
@@ -112,14 +112,12 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const messageCopy = this.message;
     this.message = '';
 
-    this._tables.createThread(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
-      // this.messagesChain = [];
-      console.log('Thread created successfully', response);
-      this.threadID = response.thread_id;
+    this._tables.createAIthread(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
+      this.threadID = response.threadId;
 
       this.messagesChain.push({
         type: 'ai',
-        text: this.markdownService.parse(response.response_message) as string
+        text: this.markdownService.parse(response.responseMessage) as string
       });
       this.submitting = false;
 
@@ -154,7 +152,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const messageCopy = this.message;
     this.message = '';
     this.charactrsNumber = 0;
-    this._tables.requestAI(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
+    this._tables.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy).subscribe((response) => {
       this.messagesChain.push({
         type: 'ai',
         text: this.markdownService.parse(response.response_message) as string

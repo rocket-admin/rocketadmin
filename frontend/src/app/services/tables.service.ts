@@ -1,11 +1,11 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { CustomAction, Rule, TableSettings, Widget } from '../models/table';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { Angulartics2 } from 'angulartics2';
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
 
@@ -470,15 +470,22 @@ export class TablesService {
       );
   }
 
-  createThread(connectionID, tableName, message) {
+  createAIthread(connectionID, tableName, message) {
     return this._http.post<any>(`/ai/thread/${connectionID}`, {user_message: message}, {
+      responseType: 'text' as 'json',
+      observe: 'response',
       params: {
         tableName
       }
     })
       .pipe(
         map((res) => {
-          return res
+          const threadId = res.headers.get('x-openai-thread-id');
+          this.angulartics2.eventTrack.next({
+            action: 'AI: thread created'
+          });
+          const responseMessage = res.body as string;
+          return {threadId, responseMessage}
         }),
         catchError((err) => {
           console.log(err);
@@ -487,8 +494,8 @@ export class TablesService {
       );
   }
 
-  requestAI(connectionID: string, tableName: string, message: string) {
-    return this._http.post<any>(`/ai/request/${connectionID}`, {user_message: message}, {
+  requestAImessage(connectionID: string, tableName: string, threadId: string, message: string) {
+    return this._http.post<any>(`/ai/thread/message/${connectionID}/${threadId}`, {user_message: message}, {
       params: {
         tableName
       }
