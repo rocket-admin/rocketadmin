@@ -6257,6 +6257,7 @@ __metadata:
     ng-dynamic-component: ^10.7.0
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.0.0
+    ngx-mat-input-tel: ^19.0.0
     ngx-stripe: ^19.0.0
     pluralize: ^8.0.0
     postgres-interval: ^4.0.2
@@ -9255,6 +9256,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ngx-mat-input-tel@npm:^19.0.0":
+  version: 19.5.1
+  resolution: "ngx-mat-input-tel@npm:19.5.1"
+  dependencies:
+    tslib: ^2.x
+  peerDependencies:
+    "@angular/common": ">=19.x"
+    "@angular/core": ">=19.x"
+    "@angular/forms": ">=19.x"
+    "@angular/platform-browser": ">=19.x"
+    "@angular/platform-browser-dynamic": ">=19.x"
+    libphonenumber-js: ^1.12.5
+  checksum: 1cd9d15f5cd7cbec0e528707b9dfc7e2bfc8a2ad32fa1ad551559b9367f283e2217d188bade72f213d13f9efc90ee45316d9f167193f137850b7a5e6890cdf27
+  languageName: node
+  linkType: hard
+
 "ngx-stripe@npm:^19.0.0":
   version: 19.0.0
   resolution: "ngx-stripe@npm:19.0.0"
@@ -11857,7 +11874,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.8.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.1, tslib@npm:^2.5.0, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
+"tslib@npm:2.8.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.1, tslib@npm:^2.5.0, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1, tslib@npm:^2.x":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: e4aba30e632b8c8902b47587fd13345e2827fa639e7c3121074d5ee0880723282411a8838f830b55100cbe4517672f84a2472667d355b81e8af165a55dc6203a

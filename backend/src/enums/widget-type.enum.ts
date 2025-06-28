@@ -17,4 +17,5 @@ export enum WidgetTypeEnum {
   Image = 'Image',
   URL = 'URL',
   Code = 'Code',
+  Phone = 'Phone',
 }
