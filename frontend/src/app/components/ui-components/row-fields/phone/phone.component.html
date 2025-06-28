@@ -1,21 +1,14 @@
 <mat-form-field class="phone-form-field" appearance="outline">
     <mat-label>{{normalizedLabel}}</mat-label>
-    <ngx-intl-tel-input
+    <ngx-mat-input-tel
         [preferredCountries]="preferredCountries"
-        [onlyCountries]="[]"
         [enableAutoCountrySelect]="enableAutoCountrySelect"
         [enablePlaceholder]="enablePlaceholder"
-        [customPlaceholder]="''"
-        [numberFormat]="numberFormat"
-        [searchCountryField]="[SearchCountryField.Iso2, SearchCountryField.Name]"
-        [selectedCountryISO]="CountryISO.UnitedStates"
-        [maxLength]="15"
-        [selectFirstCountry]="false"
-        [phoneValidation]="phoneValidation"
+        [enableSearch]="true"
+        [format]="'international'"
         [inputId]="'phone-' + key"
         attr.data-testid="record-{{label}}-phone"
         [(value)]="value"
-        (hasError)="onPhoneNumberChange($event)"
-        (numberChange)="onPhoneNumberChange($event)">
-    </ngx-intl-tel-input>
+        (valueChange)="onPhoneNumberChange($event)">
+    </ngx-mat-input-tel>
 </mat-form-field>
