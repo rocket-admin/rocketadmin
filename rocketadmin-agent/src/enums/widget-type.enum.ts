@@ -10,4 +10,13 @@ export enum WidgetTypeEnum {
   Readonly = 'Readonly',
   Number = 'Number',
   Select = 'Select',
+  UUID = 'UUID',
+  Enum = 'Enum',
+  Foreign_key = 'Foreign_key',
+  File = 'File',
+  Image = 'Image',
+  URL = 'URL',
+  Code = 'Code',
+  Phone = 'Phone',
+  Country = 'Country'
 }
