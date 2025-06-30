@@ -6,5 +6,8 @@
     "rocketadmin-agent",
     "shared-code"
   ],
-  "packageManager": "yarn@3.4.1"
+  "packageManager": "yarn@3.4.1",
+  "dependencies": {
+    "libphonenumber-js": "^1.12.9"
+  }
 }
