@@ -702,8 +702,20 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
 
   private async getCassandraClient(): Promise<cassandra.Client> {
     const cachedClient = LRUStorage.getCassandraClientCache(this.connection);
+
     if (cachedClient) {
-      return cachedClient as cassandra.Client;
+      try {
+        await cachedClient.execute('SELECT key FROM system.local LIMIT 1');
+        return cachedClient as cassandra.Client;
+      } catch (error) {
+        console.log(`Cached client connection failed: ${error.message}. Creating new connection.`);
+        try {
+          await cachedClient.shutdown();
+        } catch (_) {
+        } finally {
+          LRUStorage.delCassandraClientCache(this.connection);
+        }
+      }
     }
     try {
       let contactPoints = [this.connection.host];

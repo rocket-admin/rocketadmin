@@ -119,6 +119,7 @@ async function bootstrap() {
     config_encryption_option: false,
     encryption_password: null,
     saving_logs_option: false,
+    dataCenter: null,
   };
 
   const configFromEnvironment = Config.readConnectionConfigFromEnv();

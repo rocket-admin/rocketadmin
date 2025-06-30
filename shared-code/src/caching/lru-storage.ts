@@ -1,6 +1,8 @@
-import { LRUCache } from 'lru-cache';
+import { Client } from 'cassandra-driver';
+import { Database } from 'ibm_db';
 import { Knex } from 'knex';
-import { CACHING_CONSTANTS } from './caching-constants.js';
+import { LRUCache } from 'lru-cache';
+import { MongoClientDB } from '../data-access-layer/data-access-objects/data-access-object-mongodb.js';
 import {
   ConnectionAgentParams,
   ConnectionParams,
@@ -8,9 +10,7 @@ import {
 import { ForeignKeyDS } from '../data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { PrimaryKeyDS } from '../data-access-layer/shared/data-structures/primary-key.ds.js';
 import { TableStructureDS } from '../data-access-layer/shared/data-structures/table-structure.ds.js';
-import { Database } from 'ibm_db';
-import { MongoClientDB } from '../data-access-layer/data-access-objects/data-access-object-mongodb.js';
-import { Client } from 'cassandra-driver';
+import { CACHING_CONSTANTS } from './caching-constants.js';
 const knexCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
 const imdbDb2Cache = new LRUCache(CACHING_CONSTANTS.DEFAULT_IMDB_DB2_CACHE_OPTIONS);
@@ -19,7 +19,6 @@ const cassandraClientCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CASSANDRA_CL
 const tableStructureCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tableForeignKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tablePrimaryKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
-
 export class LRUStorage {
   public static setCassandraClientCache(connection: ConnectionParams, client: Client): void {
     cassandraClientCache.set(this.getConnectionIdentifier(connection), client);
@@ -32,6 +31,14 @@ export class LRUStorage {
 
   public static delCassandraClientCache(connection: ConnectionParams): void {
     cassandraClientCache.delete(this.getConnectionIdentifier(connection));
+  }
+
+  public static getCassandraClientCount(): number {
+    return cassandraClientCache.size;
+  }
+
+  public static clearCassandraClientCache(): void {
+    cassandraClientCache.clear();
   }
 
   public static setMongoDbCache(connection: ConnectionParams, newDb: MongoClientDB): void {
@@ -181,12 +188,17 @@ export class LRUStorage {
       return JSON.stringify(cacheObj);
     }
     const cacheObj = {
-      id: connectionParams.id,
-      signing_key: connectionParams.signing_key,
+      // id: connectionParams.id,
+      // signing_key: connectionParams.signing_key,
       host: connectionParams.host,
       port: connectionParams.port,
       username: connectionParams.username,
       database: connectionParams.database,
+      type: connectionParams.type,
+      schema: connectionParams.schema ? connectionParams.schema : null,
+      authSource: connectionParams.authSource ? connectionParams.authSource : null,
+      sid: connectionParams.sid ? connectionParams.sid : null,
+      dataCenter: connectionParams.dataCenter ? connectionParams.dataCenter : null,
     };
     return JSON.stringify(cacheObj);
   }

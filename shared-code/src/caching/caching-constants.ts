@@ -28,12 +28,12 @@ export const CACHING_CONSTANTS = {
     ttl: 1000 * 60 * 60,
     updateAgeOnGet: false,
     updateAgeOnHas: false,
-    dispose: async (_client: Client) => {
-      // try {
-      //   await client.shutdown();
-      // } catch (_e) {
-      //   return;
-      // }
+    dispose: async (client: Client) => {
+      try {
+        await client.shutdown();
+      } catch (_e) {
+        return;
+      }
     },
   },
 

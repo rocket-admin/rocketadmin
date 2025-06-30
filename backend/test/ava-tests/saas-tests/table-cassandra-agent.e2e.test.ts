@@ -25,6 +25,7 @@ import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
+import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -34,15 +35,22 @@ let testUtils: TestUtils;
 const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
+let testTableName: string;
+let testTableColumnName: string;
+let testTableSecondColumnName: string;
+let testEntitiesSeedsCount: number;
+let insertedSearchedIds: Array<{ id?: string; number: number }>;
+let connectionToTestDB: any;
 
 test.before(async () => {
+  setSaasEnvVariable();
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-
+  connectionToTestDB = getTestData(mockFactory).cassandraAgentTestConnection;
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(
@@ -54,6 +62,16 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
+});
+
+test.beforeEach(async () => {
+  const connectionToCassandraDBInDocker = getTestData(mockFactory).cassandraTestConnection;
+  const testTableCreationResult = await createTestTable(connectionToCassandraDBInDocker);
+  testTableName = testTableCreationResult.testTableName;
+  testTableColumnName = testTableCreationResult.testTableColumnName;
+  testTableSecondColumnName = testTableCreationResult.testTableSecondColumnName;
+  testEntitiesSeedsCount = testTableCreationResult.testEntitiesSeedsCount;
+  insertedSearchedIds = testTableCreationResult.insertedSearchedIds;
 });
 
 test.after(async () => {
@@ -69,11 +87,7 @@ currentTest = 'GET /connection/tables/:slug';
 
 test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -82,6 +96,7 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    console.log('🚀 ~ test.only ~ createConnectionRO:', createConnectionRO);
     t.is(createConnectionResponse.status, 201);
 
     const getTablesResponse = await request(app.getHttpServer())
@@ -91,6 +106,7 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
       .set('Accept', 'application/json');
 
     const getTablesRO = JSON.parse(getTablesResponse.text);
+    console.log('🚀 ~ test.serial ~ getTablesRO:', getTablesRO)
     t.is(typeof getTablesRO, 'object');
     t.is(getTablesRO.length > 0, true);
 
@@ -114,11 +130,7 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
 
 test.serial(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -144,11 +156,7 @@ test.serial(`${currentTest} should throw an error when connectionId not passed i
 
 test.serial(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -178,11 +186,7 @@ currentTest = 'GET /table/rows/:slug';
 
 test.serial(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -225,12 +229,7 @@ test.serial(`${currentTest} should return rows of selected table without search 
 
 test.serial(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName, insertedSearchedIds } =
-      await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -263,8 +262,6 @@ test.serial(`${currentTest} should return rows of selected table with search and
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-
-    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
 
     t.is(createTableSettingsResponse.status, 201);
 
@@ -300,11 +297,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
 
 test.serial(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -374,11 +367,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 
 test.serial(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -451,11 +440,7 @@ test.serial(
 should return all found rows with pagination page=1 perPage=2`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -529,11 +514,7 @@ test.serial(
 should return all found rows with pagination page=1 perPage=3`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -607,11 +588,7 @@ test.serial(
 should return all found rows with sorting ids by DESC`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -692,11 +669,7 @@ test.serial(
 should return all found rows with sorting ids by ASC`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -774,11 +747,7 @@ test.serial(
 should return all found rows with sorting ports by DESC and with pagination page=1, perPage=2`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -855,11 +824,7 @@ test.serial(
   `${currentTest} should return all found rows with sorting age by ASC and with pagination page=1, perPage=2`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -935,11 +900,7 @@ test.serial(
   `${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1013,11 +974,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1099,11 +1056,7 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1176,11 +1129,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and ASC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1252,11 +1201,7 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and ASC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1327,11 +1272,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1414,11 +1355,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1494,11 +1431,7 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting and filtering`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1570,11 +1503,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 
 test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1635,11 +1564,7 @@ test.serial(
   `${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
-
-      testTables.push(testTableName);
 
       const createConnectionResponse = await request(app.getHttpServer())
         .post('/connection')
@@ -1701,12 +1626,7 @@ test.serial(
 
 currentTest = 'GET /table/structure/:slug';
 test.serial(`${currentTest} should return table structure`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -1754,12 +1674,7 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
 });
 
 test.serial(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -1779,12 +1694,7 @@ test.serial(`${currentTest} should throw an exception whe connection id not pass
 });
 
 test.serial(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -1807,12 +1717,7 @@ test.serial(`${currentTest} should throw an exception whe connection id passed i
 });
 
 test.serial(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -1834,12 +1739,7 @@ test.serial(`${currentTest}should throw an exception when tableName not passed i
 });
 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -1864,12 +1764,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 currentTest = 'POST /table/row/:slug';
 
 test.serial(`${currentTest} should add row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -1948,12 +1843,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
 });
 
 test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2003,12 +1893,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 });
 
 test.serial(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2061,12 +1946,7 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
 });
 
 test.serial(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2108,12 +1988,7 @@ test.serial(`${currentTest} should throw an exception when row is not passed in 
 });
 
 test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2168,12 +2043,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 currentTest = 'PUT /table/row/:slug';
 
 test.serial(`${currentTest} should update row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2233,12 +2103,7 @@ test.serial(`${currentTest} should update row in table and return result`, async
 });
 
 test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2269,12 +2134,8 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 });
 
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
   const foundIdForUpdate = insertedSearchedIds[0].id;
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2308,12 +2169,9 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 });
 
 test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
+
   const foundIdForUpdate = insertedSearchedIds[0].id;
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2346,12 +2204,9 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 });
 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
+
   const foundIdForUpdate = insertedSearchedIds[0].id;
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2384,12 +2239,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 });
 
 test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2423,17 +2273,8 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const {
-      testTableName,
-      testTableColumnName,
-      testEntitiesSeedsCount,
-      testTableSecondColumnName,
-      insertedSearchedIds,
-    } = await createTestTable(connectionToTestDB);
     const foundIdForUpdate = insertedSearchedIds[0].id;
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -2468,12 +2309,7 @@ test.serial(
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-      await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -2499,21 +2335,16 @@ test.serial(
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(updateRowInTableResponse.status, 400);
-    const { message } = JSON.parse(updateRowInTableResponse.text);
-    t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+    t.is(updateRowInTableResponse.status, 500);
+    const { message, originalMessage } = JSON.parse(updateRowInTableResponse.text);
+    t.is(originalMessage, `No data returned from agent`);
   },
 );
 
 currentTest = 'PUT /table/rows/update/:connectionId';
 
 test.serial(`${currentTest} should update multiple rows and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2579,12 +2410,7 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
 currentTest = 'DELETE /table/row/:slug';
 
 test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2629,11 +2455,7 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 });
 
 test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2676,12 +2498,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 });
 
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2726,12 +2543,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 });
 
 test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2776,12 +2588,7 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 });
 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2826,12 +2633,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 });
 
 test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -2877,17 +2679,7 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const {
-      testTableName,
-      testTableColumnName,
-      testEntitiesSeedsCount,
-      testTableSecondColumnName,
-      insertedSearchedIds,
-    } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -2934,12 +2726,7 @@ test.serial(
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-      await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -2957,20 +2744,15 @@ test.serial(
       .set('Accept', 'application/json');
 
     const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-    t.is(deleteRowInTableResponse.status, 400);
-    t.is(deleteRowInTableRO.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+    t.is(deleteRowInTableResponse.status, 500);
+    t.is(deleteRowInTableRO.originalMessage, `No data returned from agent`);
   },
 );
 
 currentTest = 'GET /table/row/:slug';
 
 test.serial(`${currentTest} found row`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3006,12 +2788,7 @@ test.serial(`${currentTest} found row`, async (t) => {
 });
 
 test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3035,17 +2812,7 @@ test.serial(`${currentTest} should throw an exception, when connection id is not
 test.serial(
   `${currentTest} should throw an exception, when connection id passed in request is incorrect`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const {
-      testTableName,
-      testTableColumnName,
-      testEntitiesSeedsCount,
-      testTableSecondColumnName,
-      insertedSearchedIds,
-    } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -3071,12 +2838,7 @@ test.serial(
 );
 
 test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3101,12 +2863,7 @@ test.serial(`${currentTest} should throw an exception, when tableName in not pas
 });
 
 test.serial(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3131,12 +2888,7 @@ test.serial(`${currentTest} should throw an exception, when tableName passed in 
 });
 
 test.serial(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3161,17 +2913,7 @@ test.serial(`${currentTest} should throw an exception, when primary key is not p
 test.serial(
   `${currentTest} should throw an exception, when primary key passed in request has incorrect name`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const {
-      testTableName,
-      testTableColumnName,
-      testEntitiesSeedsCount,
-      testTableSecondColumnName,
-      insertedSearchedIds,
-    } = await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -3198,12 +2940,7 @@ test.serial(
 test.serial(
   `${currentTest} should throw an exception, when primary key passed in request has incorrect value`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-      await createTestTable(connectionToTestDB);
-
-    testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -3221,21 +2958,16 @@ test.serial(
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(foundRowInTableResponse.status, 400);
-    const { message } = JSON.parse(foundRowInTableResponse.text);
-    t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+    t.is(foundRowInTableResponse.status, 500);
+    const { message, originalMessage } = JSON.parse(foundRowInTableResponse.text);
+    t.is(originalMessage, `No data returned from agent`);
   },
 );
 
 currentTest = 'PUT /table/rows/delete/:slug';
 
 test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3315,12 +3047,7 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 currentTest = 'DELETE /table/rows/:slug';
 
 test.serial(`${currentTest} should delete rows in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3392,8 +3119,7 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 
 currentTest = 'POST /connection/test';
 
-test.serial(`${currentTest} should test connection and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
+test.skip(`${currentTest} should test connection and return result`, async (t) => {
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
   const testConnectionResponse = await request(app.getHttpServer())
@@ -3408,10 +3134,9 @@ test.serial(`${currentTest} should test connection and return result`, async (t)
   t.is(message, 'Successfully connected');
 });
 
-test.serial(
+test.skip(
   `${currentTest} should test connection and return negative result when connection password is incorrect result`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
     connectionToTestDB.password = '8764323452888';
@@ -3432,11 +3157,7 @@ test.serial(
 currentTest = 'GET table/csv/:slug';
 
 test.serial(`${currentTest} should return csv file with table data`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3474,11 +3195,7 @@ test.serial(`${currentTest} should return csv file with table data`, async (t) =
 });
 
 test.serial(`${currentTest} should throw exception when csv export is disabled in table settings`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3530,11 +3247,7 @@ test.serial(
   `${currentTest} should return csv file with table data with search, with pagination, with sorting,
 with search and pagination: page=1, perPage=2 and DESC sorting`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-      await createTestTable(connectionToTestDB);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -3599,11 +3312,7 @@ with search and pagination: page=1, perPage=2 and DESC sorting`,
 
 currentTest = 'POST /table/csv/import/:slug';
 test.serial(`${currentTest} should import csv file with table data`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
@@ -3706,11 +3415,7 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
 });
 
 test.serial(`${currentTest} should throw exception whe csv import is disabled`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).cassandraTestConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')

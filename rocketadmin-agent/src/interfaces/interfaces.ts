@@ -29,6 +29,7 @@ export interface ICLIConnectionCredentials {
   config_encryption_option: boolean;
   encryption_password: string;
   saving_logs_option: boolean;
+  dataCenter: string;
 }
 
 export interface ISavedCLIConnectionCredentials {

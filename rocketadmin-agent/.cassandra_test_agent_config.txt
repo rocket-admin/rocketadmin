@@ -1,0 +1,22 @@
+{
+  "encrypted": false,
+  "hash": null,
+  "credentials": {
+    "app_port": 3000,
+    "azure_encryption": false,
+    "cert": null,
+    "database": "testdb",
+    "host": "test-cassandra-e2e-testing",
+    "password": "cassandra",
+    "port": 9042,
+    "token": "CASSANDRA-TEST-AGENT-TOKEN",
+    "type": "cassandra",
+    "username": "cassandra",
+    "ssl": false,
+    "application_save_option": true,
+    "config_encryption_option": false,
+    "encryption_password": null,
+    "saving_logs_option": false,
+    "dataCenter": "datacenter1"
+  }
+}

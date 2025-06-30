@@ -277,6 +277,13 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestCassandraAgent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypesEnum.agent_cassandra;
+    return dto;
+  }
+
   generateKnexConfigAgentTests(db_type = 'postgres') {
     switch (db_type) {
       case 'postgres':

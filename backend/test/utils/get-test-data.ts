@@ -29,6 +29,7 @@ export function getTestData(mockFactory: MockFactory) {
   const dynamoDBConnection = mockFactory.generateConnectionToTestDynamoDBInDocker();
   const elasticsearchTestConnection = mockFactory.generateConnectionToTestElasticsearchInDocker();
   const cassandraTestConnection = mockFactory.generateConnectionToTestCassandraInDocker();
+  const cassandraAgentTestConnection = mockFactory.generateConnectionToTestCassandraAgent();
   return {
     newConnection,
     newEncryptedConnection,
@@ -58,5 +59,6 @@ export function getTestData(mockFactory: MockFactory) {
     dynamoDBConnection,
     elasticsearchTestConnection,
     cassandraTestConnection,
+    cassandraAgentTestConnection,
   };
 }

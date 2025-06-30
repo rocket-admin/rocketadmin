@@ -583,61 +583,76 @@ export async function createTestCassandraTable(
     contactPoints: [connectionParams.host],
     localDataCenter: connectionParams.dataCenter,
     authProvider: new cassandra.auth.PlainTextAuthProvider(connectionParams.username, connectionParams.password),
+    pooling: {
+      coreConnectionsPerHost: {
+        [cassandra.types.distance.local]: 1,
+        [cassandra.types.distance.remote]: 1,
+      },
+      maxRequestsPerConnection: 32,
+    },
+    socketOptions: {
+      readTimeout: 30000,
+      connectTimeout: 30000,
+    },
   });
 
-  await client.connect();
-
   try {
-    await client.execute(
-      `CREATE KEYSPACE IF NOT EXISTS ${connectionParams.database} WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1}`,
-    );
-    await client.execute(`USE ${connectionParams.database}`);
-    await client.execute(
-      `CREATE TABLE IF NOT EXISTS ${testTableName} (id UUID, ${testTableColumnName} TEXT, ${testTableSecondColumnName} TEXT, age INT, created_at TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY (id, age))`,
-    );
-  } catch (error) {
-    console.error(`Error creating Cassandra table: ${error.message}`);
-    throw error;
-  }
-  const insertedSearchedIds = [];
-  for (let i = 0; i < testEntitiesSeedsCount; i++) {
-    const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+    await client.connect();
 
-    const generatedId = uuidv4();
-    const query = `INSERT INTO ${testTableName} (id, ${testTableColumnName}, ${testTableSecondColumnName}, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`;
-    const age = isSearchedUser
-      ? i === 0
-        ? 14
-        : i === testEntitiesSeedsCount - 21
-          ? 90
-          : 95
-      : faker.number.int({ min: 16, max: 80 });
-    const params = [
-      generatedId,
-      isSearchedUser ? testSearchedUserName : faker.person.firstName(),
-      faker.internet.email(),
-      age,
-      new Date(),
-      new Date(),
-    ];
     try {
-      await client.execute(query, params, { prepare: true });
-      if (isSearchedUser) {
-        insertedSearchedIds.push({
-          number: i,
-          id: generatedId,
-        });
-      }
+      await client.execute(
+        `CREATE KEYSPACE IF NOT EXISTS ${connectionParams.database} WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1}`,
+      );
+      await client.execute(`USE ${connectionParams.database}`);
+      await client.execute(
+        `CREATE TABLE IF NOT EXISTS ${testTableName} (id UUID, ${testTableColumnName} TEXT, ${testTableSecondColumnName} TEXT, age INT, created_at TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY (id, age))`,
+      );
     } catch (error) {
-      console.error(`Error inserting into Cassandra table: ${error.message}`);
+      console.error(`Error creating Cassandra table: ${error.message}`);
       throw error;
     }
+    const insertedSearchedIds = [];
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+
+      const generatedId = uuidv4();
+      const query = `INSERT INTO ${testTableName} (id, ${testTableColumnName}, ${testTableSecondColumnName}, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`;
+      const age = isSearchedUser
+        ? i === 0
+          ? 14
+          : i === testEntitiesSeedsCount - 21
+            ? 90
+            : 95
+        : faker.number.int({ min: 16, max: 80 });
+      const params = [
+        generatedId,
+        isSearchedUser ? testSearchedUserName : faker.person.firstName(),
+        faker.internet.email(),
+        age,
+        new Date(),
+        new Date(),
+      ];
+      try {
+        await client.execute(query, params, { prepare: true });
+        if (isSearchedUser) {
+          insertedSearchedIds.push({
+            number: i,
+            id: generatedId,
+          });
+        }
+      } catch (error) {
+        console.error(`Error inserting into Cassandra table: ${error.message}`);
+        throw error;
+      }
+    }
+    return {
+      testTableName: testTableName,
+      testTableColumnName: testTableColumnName,
+      testTableSecondColumnName: testTableSecondColumnName,
+      testEntitiesSeedsCount: testEntitiesSeedsCount,
+      insertedSearchedIds,
+    };
+  } finally {
+    await client.shutdown().catch((err) => console.error('Error shutting down Cassandra client:', err));
   }
-  return {
-    testTableName: testTableName,
-    testTableColumnName: testTableColumnName,
-    testTableSecondColumnName: testTableSecondColumnName,
-    testEntitiesSeedsCount: testEntitiesSeedsCount,
-    insertedSearchedIds,
-  };
 }

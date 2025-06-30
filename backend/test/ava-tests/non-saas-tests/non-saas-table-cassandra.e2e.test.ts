@@ -25,6 +25,7 @@ import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
+import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -36,6 +37,7 @@ const testTables: Array<string> = [];
 let currentTest;
 
 test.before(async () => {
+  setSaasEnvVariable();
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
@@ -263,8 +265,6 @@ test.serial(`${currentTest} should return rows of selected table with search and
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-
-    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
 
     t.is(createTableSettingsResponse.status, 201);
 

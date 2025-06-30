@@ -61,6 +61,8 @@ export const customAgentRepositoryExtension = {
         return 'MONGODB-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.elasticsearch:
         return 'ELASTICSEARCH-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_cassandra:
+        return 'CASSANDRA-TEST-AGENT-TOKEN';  
     }
   },
 };
