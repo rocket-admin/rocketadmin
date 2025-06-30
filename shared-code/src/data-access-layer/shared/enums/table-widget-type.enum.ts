@@ -14,5 +14,9 @@ export enum TableWidgetTypeEnum {
   Enum = 'Enum',
   Foreign_key = 'Foreign_key',
   File = 'File',
-  Phone = 'Phone'
+  Image = 'Image',
+  URL = 'URL',
+  Code = 'Code',
+  Phone = 'Phone',
+  Country = 'Country',
 }
