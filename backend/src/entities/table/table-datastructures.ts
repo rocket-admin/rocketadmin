@@ -109,6 +109,9 @@ export class TableStructureDs {
 
   @ApiProperty()
   display_name: string;
+
+  @ApiProperty({ isArray: true })
+  excluded_fields: Array<string>;
 }
 
 export class ReferencedByTableInfoDs {

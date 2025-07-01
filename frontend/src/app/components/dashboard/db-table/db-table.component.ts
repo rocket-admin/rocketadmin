@@ -183,10 +183,7 @@ export class DbTableComponent implements OnInit {
   }
 
   loadRowsPage() {
-    console.log('loadRowsPage');
-    console.log('loadRowsPage, tableRelatedRecords before', this.tableRelatedRecords);
     this.tableRelatedRecords = null;
-    console.log('loadRowsPage, tableRelatedRecords after', this.tableRelatedRecords);
     this.tableData.fetchRows({
       connectionID: this.connectionID,
       tableName: this.name,

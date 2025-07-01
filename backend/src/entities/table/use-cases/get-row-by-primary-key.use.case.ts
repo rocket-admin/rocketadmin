@@ -223,6 +223,7 @@ export class GetRowByPrimaryKeyUseCase
       referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,
       table_access_level: tableAccessLevel.accessLevel,
+      excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
     } as any;
   }
 
