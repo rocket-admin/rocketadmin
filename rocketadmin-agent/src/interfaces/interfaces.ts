@@ -30,6 +30,7 @@ export interface ICLIConnectionCredentials {
   encryption_password: string;
   saving_logs_option: boolean;
   dataCenter: string;
+  authSource: string;
 }
 
 export interface ISavedCLIConnectionCredentials {

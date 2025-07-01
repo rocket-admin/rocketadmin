@@ -120,6 +120,7 @@ async function bootstrap() {
     encryption_password: null,
     saving_logs_option: false,
     dataCenter: null,
+    authSource: null,
   };
 
   const configFromEnvironment = Config.readConnectionConfigFromEnv();
@@ -160,6 +161,12 @@ async function bootstrap() {
       }
       if (connectionCredentials.type === ConnectionTypesEnum.mssql) {
         connectionCredentials.azure_encryption = CLIQuestionUtility.askConnectionAzureEncryption();
+      }
+      if (connectionCredentials.type === ConnectionTypesEnum.cassandra) {
+        connectionCredentials.dataCenter = CLIQuestionUtility.askConnectionDataCenter();
+      }
+      if (connectionCredentials.type === ConnectionTypesEnum.mongodb) {
+        connectionCredentials.authSource = CLIQuestionUtility.askConnectionAuthSource();
       }
       connectionCredentials.cert = null;
       connectionCredentials.ssl = CLIQuestionUtility.askConnectionSslOption();

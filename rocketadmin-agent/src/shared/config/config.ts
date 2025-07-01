@@ -29,6 +29,7 @@ const connectionConfig: ICLIConnectionCredentials = {
   encryption_password: null,
   saving_logs_option: false,
   dataCenter: null,
+  authSource: null,
 };
 
 export class Config {
@@ -190,6 +191,7 @@ export class Config {
       encryption_password: null,
       saving_logs_option: process.env.LOGS_TO_TEXT_FILE === '1',
       dataCenter: process.env.CONNECTION_DATA_CENTER || null,
+      authSource: process.env.CONNECTION_AUTH_SOURCE || null,
     };
 
     const errors = validateConnectionData(connectionConfig);
