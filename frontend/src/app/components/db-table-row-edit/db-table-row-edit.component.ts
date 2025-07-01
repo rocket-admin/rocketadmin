@@ -7,6 +7,7 @@ import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKe
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
 import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
+import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
@@ -41,7 +42,6 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import { normalizeTableName, normalizeFieldName } from 'src/app/lib/normalize';
 import { isSet } from 'lodash';
 
 @Component({
@@ -179,7 +179,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.tableForeignKeys = res.foreignKeys;
             this.setRowStructure(res.structure);
             res.table_widgets && this.setWidgets(res.table_widgets);
-            this.shownRows = this.getModifyingFields(res.structure);
+            this.shownRows = this.getModifyingFields(res.structure).filter((field: TableField) => !res.excluded_fields.includes(field.column_name));
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
