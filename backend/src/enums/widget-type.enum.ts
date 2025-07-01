@@ -18,4 +18,5 @@ export enum WidgetTypeEnum {
   URL = 'URL',
   Code = 'Code',
   Phone = 'Phone',
+  Country = 'Country'
 }
