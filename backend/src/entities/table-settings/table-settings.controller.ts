@@ -159,7 +159,7 @@ export class TableSettingsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.createTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
+    return await this.createTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Update table settings' })

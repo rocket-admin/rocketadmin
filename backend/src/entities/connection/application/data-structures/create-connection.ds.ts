@@ -21,6 +21,7 @@ export class CreateConnectionDs {
     cert: string;
     azure_encryption: boolean;
     authSource: string;
+    dataCenter: string;
   };
   creation_info: {
     authorId: string;

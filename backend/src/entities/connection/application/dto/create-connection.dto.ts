@@ -107,4 +107,9 @@ export class CreateConnectionDto {
   @IsString()
   @ApiProperty({ required: false })
   authSource?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  dataCenter?: string;
 }
