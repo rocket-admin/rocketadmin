@@ -47,30 +47,32 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.addRowInTable,
-        tableName,
-        row,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.addRowInTable,
+          tableName,
+          row,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async deleteRowInTable(
@@ -81,30 +83,32 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.deleteRowInTable,
-        tableName,
-        primaryKey,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.deleteRowInTable,
+          tableName,
+          primaryKey,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getIdentityColumns(
@@ -117,32 +121,34 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getIdentityColumns,
-        tableName,
-        referencedFieldName,
-        identityColumnName,
-        fieldValues,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getIdentityColumns,
+          tableName,
+          referencedFieldName,
+          identityColumnName,
+          fieldValues,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getRowByPrimaryKey(
@@ -154,35 +160,37 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getRowByPrimaryKey,
-        tableName,
-        primaryKey,
-        tableSettings: settings,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getRowByPrimaryKey,
+          tableName,
+          primaryKey,
+          tableSettings: settings,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      if (Array.isArray(commandResult)) {
-        return commandResult[0];
-      }
+        if (Array.isArray(commandResult)) {
+          return commandResult[0];
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async bulkGetRowsFromTableByPrimaryKeys(
@@ -194,31 +202,33 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.bulkGetRowsFromTableByPrimaryKeys,
-        tableName,
-        primaryKey: primaryKeys,
-        tableSettings: settings,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.bulkGetRowsFromTableByPrimaryKeys,
+          tableName,
+          primaryKey: primaryKeys,
+          tableSettings: settings,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getRowsFromTable(
@@ -234,35 +244,37 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getRowsFromTable,
-        tableName,
-        tableSettings: settings,
-        page,
-        perPage,
-        searchedFieldValue,
-        filteringFields,
-        autocompleteFields,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getRowsFromTable,
+          tableName,
+          tableSettings: settings,
+          page,
+          perPage,
+          searchedFieldValue,
+          filteringFields,
+          autocompleteFields,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getTableForeignKeys(tableName: string, userEmail: string): Promise<ForeignKeyDS[]> {
@@ -274,30 +286,32 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       return cachedForeignKeys;
     }
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getTableForeignKeys,
-        tableName,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getTableForeignKeys,
+          tableName,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      LRUStorage.setTableForeignKeysCache(this.connection, tableName, commandResult);
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        LRUStorage.setTableForeignKeysCache(this.connection, tableName, commandResult);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<PrimaryKeyDS[]> {
@@ -309,58 +323,62 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       return cachedPrimaryColumns;
     }
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getTablePrimaryColumns,
-        tableName,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getTablePrimaryColumns,
+          tableName,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, commandResult);
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, commandResult);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getTablesFromDB(userEmail: string): Promise<TableDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getTablesFromDB,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getTablesFromDB,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getTableStructure(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
@@ -372,54 +390,58 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       return cachedTableStructure;
     }
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getTableStructure,
-        tableName,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getTableStructure,
+          tableName,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      LRUStorage.setTableStructureCache(this.connection, tableName, commandResult);
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        LRUStorage.setTableStructureCache(this.connection, tableName, commandResult);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async testConnect(userEmail: string = 'unknown'): Promise<TestConnectionResultDS> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.testConnect,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.testConnect,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async updateRowInTable(
@@ -431,31 +453,33 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.updateRowInTable,
-        tableName,
-        row,
-        primaryKey,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.updateRowInTable,
+          tableName,
+          row,
+          primaryKey,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async bulkUpdateRowsInTable(
@@ -467,31 +491,33 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.bulkUpdateRowsInTable,
-        tableName,
-        row: newValues,
-        primaryKey: primaryKeys,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.bulkUpdateRowsInTable,
+          tableName,
+          row: newValues,
+          primaryKey: primaryKeys,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async bulkDeleteRowsInTable(
@@ -502,30 +528,32 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.bulkDeleteRowsInTable,
-        tableName,
-        primaryKey: primaryKeys,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.bulkDeleteRowsInTable,
+          tableName,
+          primaryKey: primaryKeys,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async validateSettings(
@@ -536,30 +564,32 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.validateSettings,
-        tableName,
-        tableSettings: settings,
-        email: userEmail,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.validateSettings,
+          tableName,
+          tableSettings: settings,
+          email: userEmail,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getReferencedTableNamesAndColumns(
@@ -569,58 +599,62 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
-        email: userEmail,
-        tableName,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
+          email: userEmail,
+          tableName,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async isView(tableName: string, userEmail: string): Promise<boolean> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.isView,
-        email: userEmail,
-        tableName,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.isView,
+          email: userEmail,
+          tableName,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (commandResult === null || commandResult === undefined) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (commandResult === null || commandResult === undefined) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async getTableRowsStream(
@@ -634,63 +668,68 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.getRowsAsStream,
-        tableName,
-        tableSettings: settings,
-        page,
-        perPage,
-        searchedFieldValue,
-        filteringFields,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.getRowsAsStream,
+          tableName,
+          tableSettings: settings,
+          page,
+          perPage,
+          searchedFieldValue,
+          filteringFields,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult?.data;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult?.data;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
-    try {
-      const stream = new Readable();
-      stream.push(file.buffer);
-      stream.push(null);
-      const parser = stream.pipe(csv.parse({ columns: true }));
-      const rows: any[] = [];
-      for await (const record of parser) {
-        rows.push(record);
+
+    return this.executeWithRetry(async () => {
+      try {
+        const stream = new Readable();
+        stream.push(file.buffer);
+        stream.push(null);
+        const parser = stream.pipe(csv.parse({ columns: true }));
+        const rows: any[] = [];
+        for await (const record of parser) {
+          rows.push(record);
+        }
+        const rowsWithProcessedDates = await this.processTimeColumnsInRows(rows, tableName, userEmail);
+        const queue = new PQueue({ concurrency: 3 });
+        await Promise.all(
+          rowsWithProcessedDates.map(async (row) => {
+            return await queue.add(async () => {
+              return await this.addRowInTable(tableName, row, userEmail);
+            });
+          }),
+        );
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      const rowsWithProcessedDates = await this.processTimeColumnsInRows(rows, tableName, userEmail);
-      const queue = new PQueue({ concurrency: 3 });
-      await Promise.all(
-        rowsWithProcessedDates.map(async (row) => {
-          return await queue.add(async () => {
-            return await this.addRowInTable(tableName, row, userEmail);
-          });
-        }),
-      );
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
-      }
-      throw e;
-    }
+    });
   }
 
   public async executeRawQuery(
@@ -701,30 +740,32 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
-    try {
-      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-        operationType: DataAccessObjectCommandsEnum.executeRawQuery,
-        query,
-        email: userEmail,
-        tableName,
-      });
+    return this.executeWithRetry(async () => {
+      try {
+        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+          operationType: DataAccessObjectCommandsEnum.executeRawQuery,
+          query,
+          email: userEmail,
+          tableName,
+        });
 
-      if (commandResult instanceof Error) {
-        throw new Error(commandResult.message);
-      }
+        if (commandResult instanceof Error) {
+          throw new Error(commandResult.message);
+        }
 
-      if (!commandResult) {
-        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-      }
+        if (!commandResult) {
+          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+        }
 
-      return commandResult?.data;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        this.checkIsErrorLocalAndThrowException(e);
-        throw new Error(e.response?.data);
+        return commandResult?.data;
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          this.checkIsErrorLocalAndThrowException(e);
+          throw new Error(e.response?.data);
+        }
+        throw e;
       }
-      throw e;
-    }
+    });
   }
 
   private generateJWT(connectionToken: string): string {
@@ -740,12 +781,36 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     );
   }
 
-  private checkIsErrorLocalAndThrowException(e: Error & { code?: string; hostname?: string }): void {
+  private async executeWithRetry<T>(operationFunction: () => Promise<T>, maxRetries: number = 1): Promise<T> {
+    let lastError: Error;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operationFunction();
+      } catch (e) {
+        lastError = e as Error;
+        if (e instanceof Error && e.message === ERROR_MESSAGES.CLIENT_NOT_CONNECTED && attempt < maxRetries) {
+          console.log(`Retry attempt ${attempt + 1} due to: ${e.message}`);
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          continue;
+        }
+        throw e;
+      }
+    }
+
+    throw lastError;
+  }
+
+  private checkIsErrorLocalAndThrowException(
+    e: Error & { code?: string; hostname?: string; response?: { data?: string } },
+  ): void {
     if (e?.message === ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT) {
       throw new Error(e.message);
     }
     if (e?.code?.toLowerCase() === 'enotfound' && e?.hostname === 'autoadmin-ws.local') {
       throw new Error(ERROR_MESSAGES.CANT_CONNECT_AUTOADMIN_WS);
+    }
+    if (e?.response?.data === 'Client is not connected' || e?.response?.data === ERROR_MESSAGES.CLIENT_NOT_CONNECTED) {
+      throw new Error(ERROR_MESSAGES.CLIENT_NOT_CONNECTED);
     }
   }
 

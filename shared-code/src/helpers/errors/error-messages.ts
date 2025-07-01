@@ -10,4 +10,5 @@ export const ERROR_MESSAGES = {
   AGENT_SHOULD_BE_DEFINED: `Agent and agent token should be defined`,
   NO_DATA_RETURNED_FROM_AGENT: `No data returned from agent`,
   INVALID_OBJECT_ID_FORMAT: `Invalid object id format`,
+  CLIENT_NOT_CONNECTED: `Client is not connected`,
 };
