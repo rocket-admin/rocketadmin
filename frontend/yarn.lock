@@ -6253,12 +6253,10 @@ __metadata:
     karma-coverage-istanbul-reporter: ^3.0.3
     karma-jasmine: ~5.1.0
     karma-jasmine-html-reporter: ^2.1.0
-    libphonenumber-js: ^1.12.9
     lodash: ^4.17.21
     ng-dynamic-component: ^10.7.0
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.0.0
-    ngx-mat-input-tel: ^19.0.0
     ngx-stripe: ^19.0.0
     pluralize: ^8.0.0
     postgres-interval: ^4.0.2
@@ -8428,13 +8426,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"libphonenumber-js@npm:^1.12.9":
-  version: 1.12.9
-  resolution: "libphonenumber-js@npm:1.12.9"
-  checksum: 9d01151ffa1d0f634ebbc4e7d5cde6baa7c53765e162745cb2dd85815e04b42847ff2e4c54fe172121c335c86cd6f5ce9192af62237099213e799de653d5a6dd
-  languageName: node
-  linkType: hard
-
 "license-webpack-plugin@npm:4.0.2":
   version: 4.0.2
   resolution: "license-webpack-plugin@npm:4.0.2"
@@ -9261,22 +9252,6 @@ __metadata:
     prismjs:
       optional: true
   checksum: e0fde86e79fa3a0bedf93e8826ecc655976ced0cbd396a396bdcab2ab9e46992ad46f49f77e40cb37b4cc92766d2ba0dddd2d7cb75b4a8100d984dfe218dcb03
-  languageName: node
-  linkType: hard
-
-"ngx-mat-input-tel@npm:^19.0.0":
-  version: 19.5.1
-  resolution: "ngx-mat-input-tel@npm:19.5.1"
-  dependencies:
-    tslib: ^2.x
-  peerDependencies:
-    "@angular/common": ">=19.x"
-    "@angular/core": ">=19.x"
-    "@angular/forms": ">=19.x"
-    "@angular/platform-browser": ">=19.x"
-    "@angular/platform-browser-dynamic": ">=19.x"
-    libphonenumber-js: ^1.12.5
-  checksum: 1cd9d15f5cd7cbec0e528707b9dfc7e2bfc8a2ad32fa1ad551559b9367f283e2217d188bade72f213d13f9efc90ee45316d9f167193f137850b7a5e6890cdf27
   languageName: node
   linkType: hard
 
@@ -11882,7 +11857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.8.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.1, tslib@npm:^2.5.0, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1, tslib@npm:^2.x":
+"tslib@npm:2.8.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.1, tslib@npm:^2.5.0, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: e4aba30e632b8c8902b47587fd13345e2827fa639e7c3121074d5ee0880723282411a8838f830b55100cbe4517672f84a2472667d355b81e8af165a55dc6203a

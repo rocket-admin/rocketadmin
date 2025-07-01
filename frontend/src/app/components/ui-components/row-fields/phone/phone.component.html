@@ -1,12 +1,43 @@
-<mat-form-field class="phone-form-field" appearance="outline">
+<div class="phone-input-container">
+  <mat-form-field class="country-select-field" appearance="outline">
+    <mat-label>Country</mat-label>
+    <mat-select 
+      [(value)]="selectedCountry" 
+      (selectionChange)="onCountryChange()"
+      [disabled]="readonly || disabled">
+      <mat-select-trigger>
+        <span class="country-option" *ngIf="selectedCountry">
+          <span class="flag">{{selectedCountry.flag}}</span>
+          <span class="dial-code">{{selectedCountry.dialCode}}</span>
+          <span class="country-name">{{selectedCountry.name}}</span>
+        </span>
+      </mat-select-trigger>
+      <mat-option *ngFor="let country of sortedCountries" [value]="country">
+        <span class="country-option">
+          <span class="flag">{{country.flag}}</span>
+          <span class="dial-code">{{country.dialCode}}</span>
+          <span class="country-name">{{country.name}}</span>
+        </span>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="phone-number-field" appearance="outline">
     <mat-label>{{normalizedLabel}}</mat-label>
-    <ngx-mat-input-tel
-        [preferredCountries]="preferredCountries"
-        [enablePlaceholder]="enablePlaceholder"
-        [enableSearch]="true"
-        [format]="'international'"
-        attr.data-testid="record-{{label}}-phone"
-        [(ngModel)]="value"
-        (ngModelChange)="onPhoneNumberChange($event)">
-    </ngx-mat-input-tel>
-</mat-form-field>
+    <input 
+      matInput 
+      type="tel"
+      [(ngModel)]="phoneNumber"
+      (ngModelChange)="onPhoneNumberChange()"
+      [placeholder]="getPhoneNumberPlaceholder()"
+      [readonly]="readonly"
+      [disabled]="disabled"
+      [class.invalid]="phoneValidation && !isValidPhoneNumber()"
+      attr.data-testid="record-{{label}}-phone">
+    <mat-hint *ngIf="selectedCountry && !phoneNumber.startsWith('+')">{{selectedCountry.dialCode}}</mat-hint>
+    <mat-hint *ngIf="!selectedCountry || phoneNumber.startsWith('+')">Enter international number (e.g., +1234567890) or select country first</mat-hint>
+    <mat-error *ngIf="phoneValidation && !isValidPhoneNumber() && phoneNumber">
+      Invalid phone number format
+    </mat-error>
+  </mat-form-field>
+</div>

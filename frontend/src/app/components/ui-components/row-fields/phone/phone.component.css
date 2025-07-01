@@ -1,23 +1,67 @@
-.phone-form-field {
+.phone-input-container {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
   width: 100%;
 }
 
-.phone-form-field ::ng-deep .ngx-int-tel-input {
-  width: 100%;
+.country-select-field {
+  flex: 0 0 200px;
+  min-width: 200px;
 }
 
-.phone-form-field ::ng-deep .ngx-int-tel-input .form-control {
-  border: none;
-  outline: none;
-  box-shadow: none;
-  padding: 0;
-  font-size: inherit;
-  font-family: inherit;
-  color: inherit;
-  background: transparent;
+.phone-number-field {
+  flex: 1;
+  min-width: 0;
 }
 
-.phone-form-field ::ng-deep .ngx-int-tel-input .country-dropdown {
-  border: none;
-  background: transparent;
+.country-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flag {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.dial-code {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  min-width: 40px;
+}
+
+.country-name {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.phone-number-field input.invalid {
+  border-color: #f44336;
+}
+
+@media (max-width: 768px) {
+  .phone-input-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .country-select-field {
+    flex: none;
+    width: 100%;
+  }
+  
+  .phone-number-field {
+    width: 100%;
+  }
+}
+
+/* Dark theme support */
+:host-context(.dark-theme) .dial-code {
+  color: rgba(255, 255, 255, 0.87);
+}
+
+:host-context(.dark-theme) .country-name {
+  color: rgba(255, 255, 255, 0.6);
 }
