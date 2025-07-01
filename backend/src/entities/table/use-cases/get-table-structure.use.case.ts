@@ -134,6 +134,7 @@ export class GetTableStructureUseCase
         table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
         list_fields: tableSettings?.list_fields ? tableSettings.list_fields : [],
         display_name: tableSettings?.display_name ? tableSettings.display_name : null,
+        excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
       };
     } catch (e) {
       if (e instanceof HttpException) {
