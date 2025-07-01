@@ -3076,6 +3076,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^8.32.1
     "@typescript-eslint/parser": ^8.32.1
     axios: ^1.9.0
+    cassandra-driver: ^4.8.0
     csv: ^6.3.11
     eslint: ^9.27.0
     eslint-config-prettier: ^10.1.5
@@ -4808,7 +4809,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"adm-zip@npm:^0.5.16":
+"adm-zip@npm:^0.5.16, adm-zip@npm:~0.5.10":
   version: 0.5.16
   resolution: "adm-zip@npm:0.5.16"
   checksum: 1f4104f3462b99e1b34d78ccfbdcf47e533a9cc7f894cedec6cd67b06cc6ad0b3a45241d66df5471050c7abbdd67e5707e3959fc76d75176ed6101a5b2a580d5
@@ -5912,6 +5913,17 @@ __metadata:
   version: 1.0.30001680
   resolution: "caniuse-lite@npm:1.0.30001680"
   checksum: 2641d2b18c5ab0a6663cb350c5adc81e5ede1a7677d1c7518a8053ada87bf6f206419e1820a2608f76fa5e4f7bea327cbe47df423783e571569a88c0ea645270
+  languageName: node
+  linkType: hard
+
+"cassandra-driver@npm:^4.8.0":
+  version: 4.8.0
+  resolution: "cassandra-driver@npm:4.8.0"
+  dependencies:
+    "@types/node": ^18.11.18
+    adm-zip: ~0.5.10
+    long: ~5.2.3
+  checksum: 29f074bc550e76466b3f7becf4cea1713947e00d37f0c207c695a0fdd00863e3d57c64358a9740b62ea79fb8b4f583ccd87159449de1f1f66150e9276fa0bde3
   languageName: node
   linkType: hard
 
@@ -10079,6 +10091,13 @@ __metadata:
   version: 5.2.3
   resolution: "long@npm:5.2.3"
   checksum: 885ede7c3de4facccbd2cacc6168bae3a02c3e836159ea4252c87b6e34d40af819824b2d4edce330bfb5c4d6e8ce3ec5864bdcf9473fa1f53a4f8225860e5897
+  languageName: node
+  linkType: hard
+
+"long@npm:~5.2.3":
+  version: 5.2.5
+  resolution: "long@npm:5.2.5"
+  checksum: e69605f84d24ded688b5654ff41352cbcf816f8201bc9a2cd89dfce38fab0563017ed15d39ec8007f1e09db908f034e8c5b386530fe689f9caa837bf35e75c42
   languageName: node
   linkType: hard
 

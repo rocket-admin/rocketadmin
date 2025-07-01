@@ -28,6 +28,8 @@ const connectionConfig: ICLIConnectionCredentials = {
   config_encryption_option: false,
   encryption_password: null,
   saving_logs_option: false,
+  dataCenter: null,
+  authSource: null,
 };
 
 export class Config {
@@ -46,6 +48,7 @@ export class Config {
     connectionConfig.azure_encryption = config.azure_encryption;
     connectionConfig.config_encryption_option = config.config_encryption_option;
     connectionConfig.saving_logs_option = config.saving_logs_option;
+    connectionConfig.dataCenter = config.dataCenter;
 
     if (config.ssl && rewrite) {
       try {
@@ -187,6 +190,8 @@ export class Config {
       config_encryption_option: false,
       encryption_password: null,
       saving_logs_option: process.env.LOGS_TO_TEXT_FILE === '1',
+      dataCenter: process.env.CONNECTION_DATA_CENTER || null,
+      authSource: process.env.CONNECTION_AUTH_SOURCE || null,
     };
 
     const errors = validateConnectionData(connectionConfig);

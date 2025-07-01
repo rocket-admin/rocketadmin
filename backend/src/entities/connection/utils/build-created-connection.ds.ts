@@ -34,6 +34,7 @@ export function buildCreatedConnectionDs(
     updatedAt: connection.updatedAt,
     username: connection.username,
     authSource: connection.authSource,
+    dataCenter: connection.dataCenter,
     master_hash: connection.master_hash,
     isFrozen: connection.is_frozen,
     groups: connection.groups?.map((group) => {
