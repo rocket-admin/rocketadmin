@@ -4,14 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import Sentry from '@sentry/minimal';
 import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { slackPostMessage } from '../../helpers/index.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { slackPostMessage } from '../../helpers/index.js';
+import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
 import {
   ICheckUsersActionsAndMailingUsers,
   ICheckUsersLogsAndUpdateActionsUseCase,
 } from '../user-actions/use-cases/use-cases-interfaces.js';
 import { JobListEntity } from './job-list.entity.js';
-import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
 @Injectable()
 export class CronJobsService {
   constructor(
@@ -59,8 +60,15 @@ export class CronJobsService {
         Constants.EXCEPTIONS_CHANNELS,
       );
 
-      const emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
-      await slackPostMessage(`found ${emails.length} emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
+      let emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
+      emails = emails.filter((email) => {
+        if (email && /^demo_.*@rocketadmin\.com$/i.test(email)) {
+          return false;
+        }
+        return ValidationHelper.isValidEmail(email);
+      });
+
+      await slackPostMessage(`found ${emails.length} valid emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
       const mailingResults = await this.emailService.sendRemindersToUsers(emails);
       if (mailingResults.length === 0) {
         const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
