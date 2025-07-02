@@ -4,7 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CommonModule } from '@angular/common';
+import { Observable, map, startWith } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { parsePhoneNumber, getCountries, getCountryCallingCode, AsYouType, CountryCode as LibPhoneCountryCode } from 'libphonenumber-js';
 
 interface CountryCode {
@@ -20,7 +24,7 @@ interface CountryCode {
   selector: 'app-row-phone',
   templateUrl: './phone.component.html',
   styleUrls: ['./phone.component.css'],
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule]
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatAutocompleteModule, FormsModule, ReactiveFormsModule]
 })
 export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
   @Input() value: string = '';
@@ -34,7 +38,10 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
   selectedCountry: CountryCode;
   phoneNumber: string = '';
   displayPhoneNumber: string = '';
-  private formatter: AsYouType | null = null;
+  formatter: AsYouType | null = null;
+  
+  countryControl = new FormControl<CountryCode | null>(null);
+  filteredCountries$: Observable<CountryCode[]>;
   
   countries: CountryCode[] = [
     { code: 'AF', name: 'Afghanistan', dialCode: '+93', flag: '🇦🇫' },
@@ -287,9 +294,10 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
     super.ngOnInit();
     this.configureFromWidgetParams();
     this.initializePhoneNumber();
+    this.initializeAutocomplete();
   }
 
-  private configureFromWidgetParams(): void {
+  configureFromWidgetParams(): void {
     if (this.widgetStructure && this.widgetStructure.widget_params) {
       const params = this.widgetStructure.widget_params;
       
@@ -343,6 +351,7 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
       const country = this.countries.find(c => c.code === phoneNumber.country);
       if (country) {
         this.selectedCountry = country;
+        this.countryControl.setValue(country);
         this.phoneNumber = phoneNumber.nationalNumber;
         this.displayPhoneNumber = phoneNumber.formatNational();
         this.initializeFormatter();
@@ -367,10 +376,44 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
 
   private setDefaultCountry(): void {
     this.selectedCountry = this.countries.find(c => c.code === this.preferredCountries[0]) || this.countries[0];
+    this.countryControl.setValue(this.selectedCountry);
     this.initializeFormatter();
   }
 
-  private initializeFormatter(): void {
+  private initializeAutocomplete(): void {
+    this.filteredCountries$ = this.countryControl.valueChanges.pipe(
+      startWith(this.selectedCountry),
+      map(value => {
+        if (typeof value === 'string') {
+          return this._filterCountries(value);
+        } else if (value && typeof value === 'object') {
+          return this.sortedCountries;
+        }
+        return this.sortedCountries;
+      })
+    );
+  }
+
+  _filterCountries(value: string): CountryCode[] {
+    const filterValue = value.toLowerCase();
+    return this.sortedCountries.filter(country => 
+      country.name.toLowerCase().includes(filterValue) ||
+      country.code.toLowerCase().includes(filterValue) ||
+      country.dialCode.includes(filterValue)
+    );
+  }
+
+  displayCountryFn(country: CountryCode): string {
+    return country ? `${country.flag} ${country.name} ${country.dialCode}` : '';
+  }
+
+  onCountrySelected(country: CountryCode): void {
+    this.selectedCountry = country;
+    this.initializeFormatter();
+    this.formatAndUpdatePhoneNumber();
+  }
+
+  initializeFormatter(): void {
     if (this.selectedCountry) {
       this.formatter = new AsYouType(this.selectedCountry.code as LibPhoneCountryCode);
     }
@@ -423,6 +466,7 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
         const detectedCountry = this.countries.find(c => c.code === phoneNumber.country);
         if (detectedCountry) {
           this.selectedCountry = detectedCountry;
+          this.countryControl.setValue(detectedCountry);
           this.phoneNumber = phoneNumber.nationalNumber;
           this.displayPhoneNumber = phoneNumber.formatNational();
           this.initializeFormatter();
@@ -490,6 +534,155 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
       return `Local number or ${this.selectedCountry.dialCode}1234567890`;
     }
     return 'Enter +1234567890 or select country';
+  }
+
+  getExamplePhoneNumber(): string {
+    if (!this.selectedCountry) return '';
+    
+    // Generate example phone number based on country
+    const exampleNumbers: { [key: string]: string } = {
+      'US': '(202) 456-1111',
+      'GB': '020 7946 0958',
+      'CA': '(416) 555-1234',
+      'AU': '(02) 1234 5678',
+      'DE': '030 12345678',
+      'FR': '01 23 45 67 89',
+      'IT': '06 1234 5678',
+      'ES': '91 123 45 67',
+      'NL': '020 123 4567',
+      'BE': '02 123 45 67',
+      'CH': '044 123 45 67',
+      'AT': '01 12345678',
+      'SE': '08-123 456 78',
+      'NO': '22 12 34 56',
+      'DK': '32 12 34 56',
+      'FI': '09 1234 5678',
+      'PL': '12 123 45 67',
+      'CZ': '224 123 456',
+      'HU': '(06 1) 123 4567',
+      'SK': '2 1234 5678',
+      'SI': '1 123 45 67',
+      'HR': '1 123 4567',
+      'RO': '021 123 4567',
+      'BG': '02 123 4567',
+      'GR': '21 1234 5678',
+      'PT': '21 123 4567',
+      'IE': '01 123 4567',
+      'LU': '621 123 456',
+      'MT': '2123 4567',
+      'CY': '22 123456',
+      'EE': '372 1234',
+      'LV': '2123 4567',
+      'LT': '8 612 34567',
+      'RU': '8 (495) 123-45-67',
+      'UA': '044 123 4567',
+      'BY': '8 017 123-45-67',
+      'MD': '22 123456',
+      'JP': '03-1234-5678',
+      'KR': '02-123-4567',
+      'CN': '010 1234 5678',
+      'HK': '2123 4567',
+      'TW': '02 1234 5678',
+      'SG': '6123 4567',
+      'MY': '03-1234 5678',
+      'TH': '02 123 4567',
+      'PH': '02 1234 5678',
+      'ID': '021 1234 5678',
+      'VN': '28 1234 5678',
+      'IN': '011 1234 5678',
+      'PK': '21 1234 5678',
+      'BD': '2 1234 5678',
+      'LK': '11 234 5678',
+      'NP': '1 123 4567',
+      'AF': '20 123 4567',
+      'IR': '021 1234 5678',
+      'IQ': '1 123 4567',
+      'SA': '011 123 4567',
+      'AE': '4 123 4567',
+      'QA': '4412 3456',
+      'KW': '2221 2345',
+      'BH': '1712 3456',
+      'OM': '2412 3456',
+      'JO': '6 123 4567',
+      'LB': '1 123 456',
+      'SY': '11 123 4567',
+      'IL': '2-123-4567',
+      'PS': '59 123 4567',
+      'TR': '(0212) 123 45 67',
+      'GE': '32 123 45 67',
+      'AM': '10 123456',
+      'AZ': '12 123 45 67',
+      'KZ': '8 (7172) 12 34 56',
+      'KG': '312 123456',
+      'TJ': '372 123456',
+      'UZ': '71 123 45 67',
+      'TM': '12 123456',
+      'MN': '11 123456',
+      'ZA': '011 123 4567',
+      'EG': '02 12345678',
+      'MA': '522 123456',
+      'TN': '71 123 456',
+      'DZ': '21 12 34 56',
+      'LY': '21 123 4567',
+      'SD': '15 123 4567',
+      'ET': '11 123 4567',
+      'KE': '20 123 4567',
+      'UG': '41 123 4567',
+      'TZ': '22 123 4567',
+      'RW': '78 123 4567',
+      'BI': '22 12 34 56',
+      'DJ': '77 12 34 56',
+      'SO': '1 123456',
+      'ER': '1 123 456',
+      'SS': '95 123 4567',
+      'CF': '70 12 34 56',
+      'TD': '22 12 34 56',
+      'CM': '6 71 23 45 67',
+      'GQ': '222 123456',
+      'GA': '06 12 34 56',
+      'CG': '06 612 3456',
+      'CD': '12 123 4567',
+      'AO': '222 123456',
+      'ZM': '21 123 4567',
+      'ZW': '4 123456',
+      'BW': '71 123 456',
+      'NA': '61 123 4567',
+      'SZ': '2505 1234',
+      'LS': '2212 3456',
+      'MZ': '21 123456',
+      'MW': '1 123 456',
+      'MG': '20 12 345 67',
+      'MU': '212 3456',
+      'SC': '4 123 456',
+      'KM': '773 1234',
+      'YT': '269 61 23 45',
+      'RE': '262 12 34 56',
+      'MV': '330 1234',
+      'BR': '(11) 1234-5678',
+      'AR': '011 1234-5678',
+      'CL': '2 1234 5678',
+      'CO': '(601) 234 5678',
+      'PE': '1 123 4567',
+      'VE': '0212-1234567',
+      'EC': '2 123 4567',
+      'BO': '2 123 4567',
+      'PY': '21 123 456',
+      'UY': '2 123 4567',
+      'GY': '222 1234',
+      'SR': '421234',
+      'GF': '594 12 34 56',
+      'FK': '41234',
+      'MX': '55 1234 5678',
+      'GT': '2 123 4567',
+      'BZ': '223 1234',
+      'SV': '2123 4567',
+      'HN': '2 123 4567',
+      'NI': '2 123 4567',
+      'CR': '2 123 4567',
+      'PA': '123 4567'
+    };
+    
+    return exampleNumbers[this.selectedCountry.code] || `${this.selectedCountry.dialCode} 123 4567`;
   }
 
   isValidPhoneNumber(): boolean {
