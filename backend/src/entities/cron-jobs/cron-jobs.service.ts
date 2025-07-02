@@ -4,14 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import Sentry from '@sentry/minimal';
 import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { slackPostMessage } from '../../helpers/index.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { slackPostMessage } from '../../helpers/index.js';
+import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
 import {
   ICheckUsersActionsAndMailingUsers,
   ICheckUsersLogsAndUpdateActionsUseCase,
 } from '../user-actions/use-cases/use-cases-interfaces.js';
 import { JobListEntity } from './job-list.entity.js';
-import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
 @Injectable()
 export class CronJobsService {
   constructor(
@@ -64,8 +65,7 @@ export class CronJobsService {
         if (email && /^demo_.*@rocketadmin\.com$/i.test(email)) {
           return false;
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return email && emailRegex.test(email);
+        return ValidationHelper.isValidEmail(email);
       });
 
       await slackPostMessage(`found ${emails.length} valid emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
