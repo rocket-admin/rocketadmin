@@ -1,12 +1,17 @@
 <mat-form-field class="country-form-field" appearance="outline">
     <mat-label>{{normalizedLabel}}</mat-label>
-    <mat-select name="{{label}}-{{key}}"
+    <input type="text" matInput
         [required]="required" [disabled]="disabled" [readonly]="readonly"
         attr.data-testid="record-{{label}}-country"
-        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
-        <mat-option *ngFor="let country of countries"
-            [value]="country.value">
-            {{country.label}}
+        [formControl]="countryControl"
+        [matAutocomplete]="auto">
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+        <mat-option *ngFor="let country of filteredCountries | async"
+            [value]="country"
+            (onSelectionChange)="country && onCountrySelected(country)">
+            <span *ngIf="country.flag" class="country-flag">{{country.flag}}</span>
+            <span class="country-name">{{country.label}}</span>
+            <span *ngIf="country.value" class="country-code">({{country.value}})</span>
         </mat-option>
-    </mat-select>
+    </mat-autocomplete>
 </mat-form-field>
