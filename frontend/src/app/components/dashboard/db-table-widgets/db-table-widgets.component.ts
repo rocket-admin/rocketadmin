@@ -162,6 +162,15 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
   URL: `// No settings required`,
+  Phone:
+`// Configure international phone number widget
+// example:
+{
+  "preferred_countries": ["US", "GB", "CA"],
+  "enable_placeholder": true,
+  "phone_validation": true
+}
+`,
   Foreign_key: `// Provide settings for foreign key widget
 {
   "column_name": "", // copy the name of the column you selected
