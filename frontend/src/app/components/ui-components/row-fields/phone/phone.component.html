@@ -27,16 +27,16 @@
     <input 
       matInput 
       type="tel"
-      [(ngModel)]="phoneNumber"
+      [(ngModel)]="displayPhoneNumber"
       (ngModelChange)="onPhoneNumberChange()"
       [placeholder]="getPhoneNumberPlaceholder()"
       [readonly]="readonly"
       [disabled]="disabled"
       [class.invalid]="phoneValidation && !isValidPhoneNumber()"
       attr.data-testid="record-{{label}}-phone">
-    <mat-hint *ngIf="selectedCountry && !phoneNumber.startsWith('+')">{{selectedCountry.dialCode}}</mat-hint>
-    <mat-hint *ngIf="!selectedCountry || phoneNumber.startsWith('+')">Enter international number (e.g., +1234567890) or select country first</mat-hint>
-    <mat-error *ngIf="phoneValidation && !isValidPhoneNumber() && phoneNumber">
+    <mat-hint *ngIf="selectedCountry && !displayPhoneNumber.startsWith('+')">{{selectedCountry.dialCode}}</mat-hint>
+    <mat-hint *ngIf="!selectedCountry || displayPhoneNumber.startsWith('+')">Enter international number (e.g., +1234567890) or select country first</mat-hint>
+    <mat-error *ngIf="phoneValidation && !isValidPhoneNumber() && displayPhoneNumber">
       Invalid phone number format
     </mat-error>
   </mat-form-field>

@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
+import { parsePhoneNumber, getCountries, getCountryCallingCode, AsYouType, CountryCode as LibPhoneCountryCode } from 'libphonenumber-js';
 
 interface CountryCode {
   code: string;
@@ -33,6 +34,8 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
 
   selectedCountry: CountryCode;
   phoneNumber: string = '';
+  displayPhoneNumber: string = '';
+  private formatter: AsYouType | null = null;
   
   countries: CountryCode[] = [
     { code: 'AF', name: 'Afghanistan', dialCode: '+93', flag: '🇦🇫' },
@@ -314,102 +317,163 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
       this.parseExistingPhoneNumber(this.value);
     } else {
       // Set default country
-      this.selectedCountry = this.countries.find(c => c.code === this.preferredCountries[0]) || this.countries[0];
+      this.setDefaultCountry();
+      this.displayPhoneNumber = '';
     }
   }
 
   private parseExistingPhoneNumber(fullNumber: string): void {
-    // Clean the number first (remove spaces, dashes, parentheses)
-    const cleanNumber = fullNumber.replace(/[\s\-\(\)]/g, '');
+    let phoneNumber;
     
-    // Try to extract country code from existing number
-    // Sort countries by dial code length (longest first) to match correctly
-    const sortedByDialCode = this.countries.sort((a, b) => b.dialCode.length - a.dialCode.length);
+    try {
+      // First try to parse as international number
+      phoneNumber = parsePhoneNumber(fullNumber);
+    } catch (error) {
+      // Will try with default country below
+    }
     
-    const country = sortedByDialCode.find(c => {
-      const cleanDialCode = c.dialCode.replace('+', '');
-      return cleanNumber.startsWith('+' + cleanDialCode) || cleanNumber.startsWith(cleanDialCode);
-    });
-    
-    if (country) {
-      this.selectedCountry = country;
-      const cleanDialCode = country.dialCode.replace('+', '');
-      let remainingNumber = cleanNumber;
-      
-      // Remove the country code from the beginning
-      if (remainingNumber.startsWith('+' + cleanDialCode)) {
-        remainingNumber = remainingNumber.substring(cleanDialCode.length + 1);
-      } else if (remainingNumber.startsWith(cleanDialCode)) {
-        remainingNumber = remainingNumber.substring(cleanDialCode.length);
+    // If that failed or didn't detect country, try with default country
+    if (!phoneNumber || !phoneNumber.country) {
+      try {
+        const defaultCountryCode = this.preferredCountries[0] || 'US';
+        phoneNumber = parsePhoneNumber(fullNumber, defaultCountryCode as LibPhoneCountryCode);
+      } catch (error) {
+        console.warn('Failed to parse with default country as well:', error);
       }
-      
-      this.phoneNumber = remainingNumber;
+    }
+    
+    if (phoneNumber && phoneNumber.country) {
+      // Find the country in our list - exact match by country code
+      const country = this.countries.find(c => c.code === phoneNumber.country);
+      if (country) {
+        this.selectedCountry = country;
+        this.phoneNumber = phoneNumber.nationalNumber;
+        this.displayPhoneNumber = phoneNumber.formatNational();
+        this.initializeFormatter();
+        return;
+      } else {
+        console.warn('Country not found in list:', phoneNumber.country);
+      }
+    }
+    
+    // Fallback: use default country and original number
+    this.setDefaultCountry();
+    this.phoneNumber = fullNumber.replace(/\D/g, '');
+    
+    // Try to format with default country formatter
+    if (this.formatter && this.phoneNumber) {
+      this.formatter.reset();
+      this.displayPhoneNumber = this.formatter.input(this.phoneNumber);
     } else {
-      // Default to first preferred country
-      this.selectedCountry = this.countries.find(c => c.code === this.preferredCountries[0]) || this.countries[0];
-      this.phoneNumber = fullNumber;
+      this.displayPhoneNumber = fullNumber;
+    }
+  }
+
+  private setDefaultCountry(): void {
+    this.selectedCountry = this.countries.find(c => c.code === this.preferredCountries[0]) || this.countries[0];
+    this.initializeFormatter();
+  }
+
+  private initializeFormatter(): void {
+    if (this.selectedCountry) {
+      this.formatter = new AsYouType(this.selectedCountry.code as LibPhoneCountryCode);
     }
   }
 
   onCountryChange(): void {
-    this.updateFullPhoneNumber();
+    this.initializeFormatter();
+    this.formatAndUpdatePhoneNumber();
   }
 
   onPhoneNumberChange(): void {
     // Check if user entered a full international number (starts with +)
-    if (this.phoneNumber.startsWith('+')) {
+    if (this.displayPhoneNumber.startsWith('+')) {
       this.detectCountryFromInput();
     } else {
-      this.updateFullPhoneNumber();
+      this.formatAndUpdatePhoneNumber();
     }
   }
 
-  private detectCountryFromInput(): void {
-    if (!this.phoneNumber.startsWith('+')) {
+  private formatAndUpdatePhoneNumber(): void {
+    if (!this.displayPhoneNumber) {
+      this.phoneNumber = '';
+      this.value = '';
+      this.onFieldChange.emit(this.value);
       return;
     }
 
-    // Clean the number (remove spaces, dashes, parentheses)
-    const cleanNumber = this.phoneNumber.replace(/[\s\-\(\)]/g, '');
-    
-    // Sort countries by dial code length (longest first) to match correctly
-    const sortedByDialCode = [...this.countries].sort((a, b) => b.dialCode.length - a.dialCode.length);
-    
-    const detectedCountry = sortedByDialCode.find(c => {
-      return cleanNumber.startsWith(c.dialCode);
-    });
-    
-    if (detectedCountry) {
-      // Update selected country
-      this.selectedCountry = detectedCountry;
+    if (this.formatter && !this.displayPhoneNumber.startsWith('+')) {
+      this.formatter.reset();
+      const formatted = this.formatter.input(this.displayPhoneNumber);
+      this.displayPhoneNumber = formatted;
       
-      // Extract the remaining phone number (without country code)
-      const remainingNumber = cleanNumber.substring(detectedCountry.dialCode.length);
-      
-      // Update the phone number field to show only the local part
-      this.phoneNumber = remainingNumber;
-      
-      // Update the full value
-      this.updateFullPhoneNumber();
+      // Extract raw number for storage
+      this.phoneNumber = this.displayPhoneNumber.replace(/\D/g, '');
     } else {
-      // If no country detected, treat as full number
-      this.updateFullPhoneNumber();
+      this.phoneNumber = this.displayPhoneNumber.replace(/\D/g, '');
     }
+    
+    this.updateFullPhoneNumber();
+  }
+
+  private detectCountryFromInput(): void {
+    if (!this.displayPhoneNumber.startsWith('+')) {
+      return;
+    }
+
+    try {
+      const phoneNumber = parsePhoneNumber(this.displayPhoneNumber);
+      if (phoneNumber && phoneNumber.country) {
+        const detectedCountry = this.countries.find(c => c.code === phoneNumber.country);
+        if (detectedCountry) {
+          this.selectedCountry = detectedCountry;
+          this.phoneNumber = phoneNumber.nationalNumber;
+          this.displayPhoneNumber = phoneNumber.formatNational();
+          this.initializeFormatter();
+          this.updateFullPhoneNumber();
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('Could not detect country from input:', this.displayPhoneNumber, error);
+    }
+    
+    // If detection failed, update with current input
+    this.phoneNumber = this.displayPhoneNumber.replace(/\D/g, '');
+    this.updateFullPhoneNumber();
   }
 
   private updateFullPhoneNumber(): void {
-    if (this.phoneNumber.startsWith('+')) {
-      // If user entered a full international number, use it as-is
-      this.value = this.phoneNumber;
-    } else if (this.selectedCountry && this.phoneNumber) {
-      // Combine country code with local number
-      this.value = `${this.selectedCountry.dialCode} ${this.phoneNumber}`;
-    } else if (this.phoneNumber) {
-      // Just the number without country code
-      this.value = this.phoneNumber;
-    } else {
+    if (!this.displayPhoneNumber && !this.phoneNumber) {
       this.value = '';
+      this.onFieldChange.emit(this.value);
+      return;
     }
+
+    try {
+      let phoneNumber;
+      
+      if (this.displayPhoneNumber.startsWith('+')) {
+        // User entered full international number
+        phoneNumber = parsePhoneNumber(this.displayPhoneNumber);
+      } else if (this.selectedCountry && this.displayPhoneNumber) {
+        // User entered local number, parse with selected country
+        phoneNumber = parsePhoneNumber(this.displayPhoneNumber, this.selectedCountry.code as LibPhoneCountryCode);
+      }
+      
+      if (phoneNumber && phoneNumber.isValid()) {
+        // Store in international format without spaces (E164)
+        this.value = phoneNumber.number; // E164 format: +380671111111
+      } else {
+        // Fallback: clean the display number
+        this.value = this.displayPhoneNumber.replace(/\s/g, '');
+      }
+    } catch (error) {
+      console.warn('Error formatting phone number:', error);
+      // Fallback: clean the display number
+      this.value = this.displayPhoneNumber.replace(/\s/g, '');
+    }
+    
     this.onFieldChange.emit(this.value);
   }
 
@@ -434,17 +498,22 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
 
   isValidPhoneNumber(): boolean {
     if (!this.phoneValidation) return true;
-    if (!this.phoneNumber) return true; // Empty is valid (let required validation handle it)
+    if (!this.displayPhoneNumber) return true; // Empty is valid (let required validation handle it)
     
-    // If it's an international number (starts with +), validate differently
-    if (this.phoneNumber.startsWith('+')) {
-      const phoneRegex = /^\+[\d\s\-\(\)]+$/;
-      const cleanNumber = this.phoneNumber.replace(/\D/g, '');
-      return phoneRegex.test(this.phoneNumber) && cleanNumber.length >= 8; // At least country code + 7 digits
-    } else {
-      // Local number validation - digits, spaces, dashes, parentheses
-      const phoneRegex = /^[\d\s\-\(\)]+$/;
-      return phoneRegex.test(this.phoneNumber) && this.phoneNumber.replace(/\D/g, '').length >= 7;
+    try {
+      let phoneNumber;
+      
+      if (this.displayPhoneNumber.startsWith('+')) {
+        phoneNumber = parsePhoneNumber(this.displayPhoneNumber);
+      } else if (this.selectedCountry) {
+        phoneNumber = parsePhoneNumber(this.displayPhoneNumber, this.selectedCountry.code as LibPhoneCountryCode);
+      } else {
+        return false;
+      }
+
+      return phoneNumber ? phoneNumber.isValid() : false;
+    } catch (error) {
+      return false;
     }
   }
 }
