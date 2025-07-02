@@ -59,8 +59,16 @@ export class CronJobsService {
         Constants.EXCEPTIONS_CHANNELS,
       );
 
-      const emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
-      await slackPostMessage(`found ${emails.length} emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
+      let emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
+      emails = emails.filter((email) => {
+        if (email && /^demo_.*@rocketadmin\.com$/i.test(email)) {
+          return false;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return email && emailRegex.test(email);
+      });
+
+      await slackPostMessage(`found ${emails.length} valid emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
       const mailingResults = await this.emailService.sendRemindersToUsers(emails);
       if (mailingResults.length === 0) {
         const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
