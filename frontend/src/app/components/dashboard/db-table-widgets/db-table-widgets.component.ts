@@ -168,9 +168,7 @@ export class DbTableWidgetsComponent implements OnInit {
 {
   "preferred_countries": ["US", "GB", "CA"],
   "enable_placeholder": true,
-  "enable_auto_country_select": true,
-  "phone_validation": true,
-  "format": "international"
+  "phone_validation": true
 }
 `,
   Foreign_key: `// Provide settings for foreign key widget

@@ -29,7 +29,6 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
 
   preferredCountries: string[] = ['US', 'GB'];
   enablePlaceholder: boolean = true;
-  enableAutoCountrySelect: boolean = true;
   phoneValidation: boolean = true;
 
   selectedCountry: CountryCode;
@@ -302,9 +301,6 @@ export class PhoneRowComponent extends BaseRowFieldComponent implements OnInit {
         this.enablePlaceholder = params.enable_placeholder;
       }
       
-      if (typeof params.enable_auto_country_select === 'boolean') {
-        this.enableAutoCountrySelect = params.enable_auto_country_select;
-      }
       
       if (typeof params.phone_validation === 'boolean') {
         this.phoneValidation = params.phone_validation;
