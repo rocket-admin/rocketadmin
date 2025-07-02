@@ -1,5 +1,6 @@
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
+import { DataAccessObjectCassandra } from '../data-access-objects/data-access-object-cassandra.js';
 import { DataAccessObjectDynamoDB } from '../data-access-objects/data-access-object-dynamodb.js';
 import { DataAccessObjectElasticsearch } from '../data-access-objects/data-access-object-elasticsearch.js';
 import { DataAccessObjectIbmDb2 } from '../data-access-objects/data-access-object-ibmdb2.js';
@@ -26,6 +27,7 @@ export function getDataAccessObject(
     ConnectionTypesEnum.agent_postgres,
     ConnectionTypesEnum.agent_ibmdb2,
     ConnectionTypesEnum.agent_mongodb,
+    ConnectionTypesEnum.agent_cassandra,
   ];
   if (!connectionParams || connectionParams === null) {
     throw new Error(ERROR_MESSAGES.CONNECTION_PARAMS_SHOULD_BE_DEFINED);
@@ -58,6 +60,9 @@ export function getDataAccessObject(
     case ConnectionTypesEnum.elasticsearch:
       const connectionParamsElasticsearch = buildConnectionParams(connectionParams);
       return new DataAccessObjectElasticsearch(connectionParamsElasticsearch);
+    case ConnectionTypesEnum.cassandra:
+      const connectionParamsCassandra = buildConnectionParams(connectionParams);
+      return new DataAccessObjectCassandra(connectionParamsCassandra);
     default:
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
@@ -118,6 +123,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     azure_encryption: connectionParams.azure_encryption || false,
     signing_key: connectionParams.signing_key || null,
     authSource: connectionParams.authSource || null,
+    dataCenter: connectionParams.dataCenter || null,
     isTestConnection: connectionParams.isTestConnection || false,
   };
   return connection;
