@@ -90,6 +90,9 @@ export class CreatedConnectionDTO {
   authSource: string;
 
   @ApiProperty()
+  dataCenter: string | null;
+
+  @ApiProperty()
   master_hash: string;
 
   @ApiProperty({ isArray: true, type: CreatedGroupInConnectionDTO })

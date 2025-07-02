@@ -74,6 +74,10 @@ export const Messages = {
     CONNECTION_SCHEMA_MESSAGE: `Please enter the schema name. If it not exists leave this field empty: \n ->`,
     CONNECTION_SID_MESSAGE: `You selected database type "Oracle Database", if it have instance identifier (SID) please enter it's name
     or leave this field empty, if it doesn't exist': \n ->`,
+    CONNECTION_DATACENTER_MESSAGE: `You selected database type "Cassandra", if it have data center name please enter it's name
+    or leave this field empty, if it doesn't exist': \n ->`,
+    CONNECTION_AUTH_SOURCE_MESSAGE: `You selected database type "MongoDB", if it have auth source name please enter it's name
+    or leave this field empty, if it doesn't exist': \n ->`,
     CONNECTION_AZURE_ENCRYPTION_MESSAGE: `Azure encryption option.
      If your database located in Microsoft Azure cloud, and requires encryption choose "Yes" or "No" - if it doesn't: \n ->`,
     CONNECTION_SSL_OPTION_MESSAGE: `SSL option. Choose "Yes"  if your database support ssl connections and

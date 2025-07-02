@@ -3,7 +3,16 @@ export class ConnectionParams {
 
   title: string | null;
 
-  type: 'postgres' | 'oracledb' | 'mysql2' | 'mssql' | 'ibmdb2' | 'mongodb' | 'dynamodb' | 'elasticsearch';
+  type:
+    | 'postgres'
+    | 'oracledb'
+    | 'mysql2'
+    | 'mssql'
+    | 'ibmdb2'
+    | 'mongodb'
+    | 'dynamodb'
+    | 'elasticsearch'
+    | 'cassandra';
 
   host: string;
 
@@ -38,6 +47,8 @@ export class ConnectionParams {
   signing_key: string;
 
   authSource: string | null;
+
+  dataCenter?: string | null;
 
   isTestConnection: boolean;
 }
