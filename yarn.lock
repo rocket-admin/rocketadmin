@@ -10569,13 +10569,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"libphonenumber-js@npm:^1.12.9":
-  version: 1.12.9
-  resolution: "libphonenumber-js@npm:1.12.9"
-  checksum: 9d01151ffa1d0f634ebbc4e7d5cde6baa7c53765e162745cb2dd85815e04b42847ff2e4c54fe172121c335c86cd6f5ce9192af62237099213e799de653d5a6dd
-  languageName: node
-  linkType: hard
-
 "lines-and-columns@npm:^1.1.6":
   version: 1.2.4
   resolution: "lines-and-columns@npm:1.2.4"
@@ -12928,8 +12921,6 @@ __metadata:
 "root@workspace:.":
   version: 0.0.0-use.local
   resolution: "root@workspace:."
-  dependencies:
-    libphonenumber-js: ^1.12.9
   languageName: unknown
   linkType: soft
 
