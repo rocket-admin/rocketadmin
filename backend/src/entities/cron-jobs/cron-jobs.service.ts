@@ -86,6 +86,7 @@ export class CronJobsService {
         );
       }
     } catch (e) {
+      await slackPostMessage(`Error in morning cron: ${e.message}`, Constants.EXCEPTIONS_CHANNELS);
       Sentry.captureException(e);
       console.error(e);
     }
