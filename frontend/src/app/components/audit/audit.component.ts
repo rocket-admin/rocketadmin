@@ -18,6 +18,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
@@ -28,10 +29,6 @@ import { User } from '@sentry/angular-ivy';
 import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { tap } from 'rxjs/operators';
-import { BannerComponent } from '../ui-components/banner/banner.component';
-import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
-import { MatIconModule } from '@angular/material/icon';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
