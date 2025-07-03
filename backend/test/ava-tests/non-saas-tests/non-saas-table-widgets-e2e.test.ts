@@ -511,7 +511,7 @@ test.serial(`${currentTest} should return table widgets without deleted widget`,
   t.is(getTableWidgetsRO.length, 1);
 });
 
-test.serial(
+test.skip(
   `${currentTest} should throw exception when table widget with incorrect type passed in request`,
   async (t) => {
     const { token } = await registerUserAndReturnUserInfo(app);

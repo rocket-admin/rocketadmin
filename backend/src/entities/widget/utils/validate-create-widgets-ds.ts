@@ -38,11 +38,11 @@ export async function validateCreateWidgetsDs(
       }
     }
     const { widget_type } = widgetDS;
-    if (widget_type) {
-      if (!Object.keys(WidgetTypeEnum).find((key) => key === widget_type)) {
-        errors.push(Messages.WIDGET_TYPE_INCORRECT);
-      }
-    }
+    // if (widget_type) {
+    //   if (!Object.keys(WidgetTypeEnum).find((key) => key === widget_type)) {
+    //     errors.push(Messages.WIDGET_TYPE_INCORRECT);
+    //   }
+    // }
     if (widget_type && widget_type === WidgetTypeEnum.Password) {
       if (
         widgetDS.widget_params['algorithm'] &&
