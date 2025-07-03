@@ -28,6 +28,7 @@ import { tap } from 'rxjs/operators';
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { MatIconModule } from '@angular/material/icon';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-audit',
@@ -76,7 +77,8 @@ export class AuditComponent implements OnInit, OnDestroy {
     private _tables: TablesService,
     private _users: UsersService,
     public dialog: MatDialog,
-    private title: Title
+    private title: Title,
+    private _userService: UserService
   ) { }
 
   ngAfterViewInit() {
@@ -97,7 +99,7 @@ export class AuditComponent implements OnInit, OnDestroy {
     this.accesLevel = this._connections.currentConnectionAccessLevel;
     this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
     this.dataColumns = ['Table', 'User', 'Action', 'Date', 'Status'];
-    this.dataSource = new AuditDataSource(this._connections);
+    this.dataSource = new AuditDataSource(this._connections, this._userService);
     this.loadLogsPage();
 
     this._tables.fetchTables(this.connectionID)
@@ -130,7 +132,8 @@ export class AuditComponent implements OnInit, OnDestroy {
     this.dataSource.fetchLogs({
       connectionID: this.connectionID,
       tableName: this.tableName,
-      userEmail: this.userEmail
+      userEmail: this.userEmail,
+      usersList: this.usersList
     });
   }
 
@@ -159,9 +162,9 @@ export class AuditComponent implements OnInit, OnDestroy {
       case 'updateRow':
         return 'edit';
       case 'rowReceived':
-        return 'download';
+        return 'visibility_outline';
       case 'rowsReceived':
-        return 'download';
+        return 'visibility_outline';
       case 'ruleAction':
         return 'rule';
       case 'actionActivated':

@@ -82,7 +82,7 @@
                             </span>
                         </ng-container>
                         <ng-template #actionOrRegularCell>
-                            <ng-container *ngIf="column === 'Action'; else regularCell">
+                            <ng-container *ngIf="column === 'Action'; else userOrRegularCell">
                                 <div class="action-cell">
                                     <mat-icon class="action-icon">
                                         {{getActionIcon(element.operationType, element.actionIcon)}}
@@ -91,7 +91,20 @@
                                 </div>
                             </ng-container>
                         </ng-template>
+                        <ng-template #userOrRegularCell>
+                            <ng-container *ngIf="column === 'User'; else regularCell">
+                                <span style="display: flex; flex-direction: column; line-height: 1.2;">
+                                  <span>{{element.name}}</span>
+                                  <span style="color: #888; font-size: 12px;">{{element.email || element[column] || '—'}}</span>
+                                </span>
+                            </ng-container>
+                        </ng-template>
                         <ng-template #regularCell>
+                            <ng-container *ngIf="column === 'Date'; else regularCellDefault">
+                              <span class="date-cell">{{(element[column] || '').split(',')[0]}} at {{(element[column] || '').split(',')[1]?.trim()}}</span>
+                            </ng-container>
+                        </ng-template>
+                        <ng-template #regularCellDefault>
                             {{element[column] || '—'}}
                         </ng-template>
                     </div>
