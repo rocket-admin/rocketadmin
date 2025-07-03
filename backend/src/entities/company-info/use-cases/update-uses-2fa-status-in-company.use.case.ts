@@ -1,14 +1,12 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/update-users-2fa-status-in-company.ds.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { IUpdateUsers2faStatusInCompany } from './company-info-use-cases.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { EmailService } from '../../email/email/email.service.js';
+import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/update-users-2fa-status-in-company.ds.js';
+import { IUpdateUsers2faStatusInCompany } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateUses2faStatusInCompanyUseCase
@@ -18,7 +16,6 @@ export class UpdateUses2faStatusInCompanyUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
     private readonly emailService: EmailService,
   ) {
     super();
@@ -31,15 +28,6 @@ export class UpdateUses2faStatusInCompanyUseCase
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
     }
     foundCompany.is2faEnabled = is2faEnabled;
-    if (isSaaS()) {
-      const updateCompany2faStatusInCoreResult = await this.saasCompanyGatewayService.updateCompany2faStatus(
-        companyId,
-        is2faEnabled,
-      );
-      if (!updateCompany2faStatusInCoreResult.success) {
-        throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-      }
-    }
     if (is2faEnabled) {
       const usersEmails = foundCompany.users.map((user) => user.email.toLowerCase());
       this.emailService.send2faEnabledInCompany(usersEmails, foundCompany.name);

@@ -4,22 +4,21 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AmplitudeEventTypeEnum, SubscriptionLevelEnum } from '../../../enums/index.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
-import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
 import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { IUpdateConnection } from './use-cases.interfaces.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
-import { isTest } from '../../../helpers/app/is-test.js';
 
 @Injectable()
 export class UpdateConnectionUseCase
@@ -44,7 +43,7 @@ export class UpdateConnectionUseCase
     let { connection_parameters } = updateConnectionData;
     await validateCreateConnectionData(updateConnectionData);
 
-    if (isSaaS() && !isTest()) {
+    if (isSaaS()) {
       const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
       const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
       if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
@@ -94,6 +93,7 @@ export class UpdateConnectionUseCase
     let connectionToken = null;
     if (isConnectionTypeAgent(updatedConnection.type)) {
       connectionToken = await this.renewOrCreateConnectionToken(updatedConnection.id);
+      updatedConnection = this.clearNonRequiredConnectionAgentProperties(updatedConnection);
     }
     if (updatedConnection.masterEncryption && masterPwd) {
       updatedConnection = Encryptor.encryptConnectionCredentials(updatedConnection, masterPwd);
@@ -137,5 +137,25 @@ export class UpdateConnectionUseCase
 
   private async renewOrCreateConnectionToken(connectionId: string): Promise<string> {
     return await this._dbContext.agentRepository.renewOrCreateConnectionToken(connectionId);
+  }
+
+  private clearNonRequiredConnectionAgentProperties(connection: ConnectionEntity): ConnectionEntity {
+    delete connection.masterEncryption;
+    delete connection.authSource;
+    delete connection.schema;
+    delete connection.sid;
+    delete connection.ssh;
+    delete connection.privateSSHKey;
+    delete connection.sshHost;
+    delete connection.sshPort;
+    delete connection.sshUsername;
+    delete connection.cert;
+    delete connection.azure_encryption;
+    delete connection.host;
+    delete connection.port;
+    delete connection.username;
+    delete connection.password;
+    delete connection.database;
+    return connection;
   }
 }

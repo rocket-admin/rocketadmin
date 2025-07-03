@@ -18,6 +18,7 @@ import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-laye
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import JSON5 from 'json5';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class GetTableStructureUseCase
@@ -45,6 +46,11 @@ export class GetTableStructureUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    if (foundConnection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
+    }
+
     try {
       const dao = getDataAccessObject(foundConnection);
       const foundTalesInConnection = await dao.getTablesFromDB();
@@ -128,6 +134,7 @@ export class GetTableStructureUseCase
         table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
         list_fields: tableSettings?.list_fields ? tableSettings.list_fields : [],
         display_name: tableSettings?.display_name ? tableSettings.display_name : null,
+        excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
       };
     } catch (e) {
       if (e instanceof HttpException) {

@@ -200,8 +200,27 @@
     margin-bottom: -8px;
 }
 
-.role-select {
-    width: 148px;
+.role-option {
+    padding-top: 4px;
+    padding-bottom: 4px
+}
+
+.role-option-header {
+    display: flex;
+    align-items: center;
+}
+
+.role-option-header__mark {
+    font-size: 14px;
+    margin-bottom: -10px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.role-option__description {
+    color: rgba(0,0,0,0.64);
+    font-size: 13px;
+    margin-top: 2px;
 }
 
 .test-connections-toggle {
@@ -210,6 +229,16 @@
 
 .cname-hint {
     margin-top: 2px;
+}
+
+.cname-hint_dimmed {
+    color: rgba(0,0,0,0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+    .cname-hint_dimmed {
+        color: rgba(255,255,255,0.7);
+    }
 }
 
 .cname-value {
@@ -232,18 +261,69 @@
     z-index: -1;
 }
 
-.role-description {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.6);
-    margin-top: 4px;
-    line-height: 1.2;
+@media (prefers-color-scheme: dark) {
+    .cname-value::after {
+        background-color: var(--color-accentedPalette-700);
+    }
 }
 
-::ng-deep .mat-option {
-    padding: 8px 16px;
-    height: auto !important;
+
+
+
+
+.white-label {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 32px;
+    margin-bottom: 32px;
 }
 
-::ng-deep .mat-option-text {
-    white-space: normal;
+.white-label-settings {
+    position: relative;
+}
+
+.white-label-settings-images {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+
+.upload-logo-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.white-label-preview {
+    height: auto;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.white-label-how-to {
+    border: 1px solid var(--color-primaryPalette-100);
+    color: rgba(0,0,0,0.72);
+    padding: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .white-label-how-to {
+        border: 1px solid var(--color-primaryPalette-700);
+        color: rgba(255,255,255,0.7);
+    }
+}
+
+.white-label-settings__overlay {
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.64);
+    z-index: 2;
+}
+
+.cname-instructions {
+    list-style: none;
 }

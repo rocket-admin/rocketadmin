@@ -1,12 +1,10 @@
 import { InTransactionEnum } from '../../../enums/index.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
 import { ChangeUsualUserPasswordDto } from '../application/data-structures/change-usual-user-password.ds.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
-import { CreatedUserDs } from '../application/data-structures/created-user.ds.js';
 import { FindUserDs } from '../application/data-structures/find-user.ds.js';
-import { FoundUserDto } from '../dto/found-user.dto.js';
-import { GoogleLoginDs } from '../application/data-structures/google-login.ds.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { OtpSecretDS } from '../application/data-structures/otp-secret.ds.js';
 import {
@@ -16,16 +14,12 @@ import {
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
 import { SaveUserSettingsDs } from '../application/data-structures/save-user-settings.ds.js';
+import { ToggleConnectionDisplayModeDs } from '../application/data-structures/toggle-connection-display-mode.ds.js';
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
-import { IToken } from '../utils/generate-gwt-token.js';
+import { FoundUserDto } from '../dto/found-user.dto.js';
 import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
-import { ToggleConnectionDisplayModeDs } from '../application/data-structures/toggle-connection-display-mode.ds.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-
-export interface ICreateUserUseCase {
-  execute(userData: CreateUserDs): Promise<CreatedUserDs>;
-}
+import { IToken } from '../utils/generate-gwt-token.js';
 
 export interface IFindUserUseCase {
   execute(userData: FindUserDs | CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
@@ -39,20 +33,8 @@ export interface IOtpLogin {
   execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
-export interface IUsualRegister {
-  execute(userData: UsualLoginDs, inTransaction: InTransactionEnum): Promise<IToken>;
-}
-
 export interface ILogOut {
   execute(token: string, inTransaction: InTransactionEnum): Promise<boolean>;
-}
-
-export interface IGoogleLogin {
-  execute(inputData: GoogleLoginDs, inTransaction: InTransactionEnum): Promise<IToken>;
-}
-
-export interface IFacebookLogin {
-  execute(facebookToken: string, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IUsualPasswordChange {
@@ -101,14 +83,6 @@ export interface IVerifyOTP {
 
 export interface IDisableOTP {
   execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpDisablingResultDS>;
-}
-
-export interface IGetGitHubLoginLink {
-  execute(inTransaction: InTransactionEnum): Promise<string>;
-}
-
-export interface IAuthGitHub {
-  execute(code: string, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface ISaveUserSettings {

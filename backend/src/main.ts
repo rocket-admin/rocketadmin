@@ -12,6 +12,7 @@ import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
 import bodyParser from 'body-parser';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   try {
@@ -21,10 +22,13 @@ async function bootstrap() {
       rawBody: true,
       logger: ['error', 'warn', 'fatal', 'warn'],
     };
-    const app = await NestFactory.create(ApplicationModule, appOptions);
+
+    const app = await NestFactory.create<NestExpressApplication>(ApplicationModule, appOptions);
+    app.set('query parser', 'extended');
 
     Sentry.init({
       dsn: process.env.SENTRY_DSN,
+      tracesSampleRate: 1.0,
     });
 
     const globalPrefix = process.env.GLOBAL_PREFIX || '/';

@@ -100,11 +100,48 @@
 
         <!-- Role Column -->
         <ng-container matColumnDef="role">
-            <th mat-header-cell *matHeaderCellDef>Role</th>
+            <th mat-header-cell *matHeaderCellDef style="padding-left: 24px">Role</th>
             <td mat-cell *matCellDef="let element; let i = index"
                 data-label="Role"
                 class="company-member-cell">
-                <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role === 'USER') && !element.invitedUserEmail; else noSelect"
+                <div *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role !== 'ADMIN') && !element.invitedUserEmail; else noSelect">
+                    <button mat-button type="button" [matMenuTriggerFor]="menu"
+                        style="width: 100%"
+                        angulartics2On="click"
+                        angularticsAction="Company: role is clicked">
+                        {{ companyRolesName[element.role] }}
+                        <mat-icon iconPositionEnd style="margin-left: auto">arrow_drop_down</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item class="role-option"
+                            (click)="updateRole(element.id, CompanyMemberRole.CAO)">
+                            <div class="role-option-header">
+                                <strong>Account Owner</strong>
+                                <mat-icon *ngIf="element.role === CompanyMemberRole.CAO" class="role-option-header__mark">check</mat-icon>
+                            </div>
+                            <div class="role-option__description">Can manage company information, <br> and has full control over databases</div>
+                        </button>
+                        <button mat-menu-item class="role-option"
+                            (click)="updateRole(element.id, CompanyMemberRole.SystemAdmin)">
+                            <div class="role-option-header">
+                                <strong>System Admin</strong>
+                                <mat-icon *ngIf="element.role === CompanyMemberRole.SystemAdmin" class="role-option-header__mark">check</mat-icon>
+                            </div>
+                            <div class="role-option__description">Can view company information, <br> and has full control over databases</div>
+                        </button>
+                        <button mat-menu-item class="role-option"
+                            (click)="updateRole(element.id, CompanyMemberRole.Member)">
+                            <div class="role-option-header">
+                                <strong>Member</strong>
+                                <mat-icon *ngIf="element.role === CompanyMemberRole.Member" class="role-option-header__mark">check</mat-icon>
+                            </div>
+                            <div class="role-option__description">Can view company information, <br> and can manage existing databases</div>
+                        </button>
+                    </mat-menu>
+                </div>
+
+
+                <!--<mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role !== 'ADMIN') && !element.invitedUserEmail; else noSelect"
                     attr.data-testid="company-member-role-{{i}}-select"
                     class="role-select"
                     angulartics2On="click"
@@ -113,19 +150,16 @@
                     (ngModelChange)="updateRole(element.id, element.role)">
                     <mat-option value="ADMIN" attr.data-testid="company-member-superadmin-role-{{i}}-select-option">
                         Account Owner
-                        <div class="role-description">Full access to all company settings, billing, and user management</div>
                     </mat-option>
                     <mat-option value="DB_ADMIN" attr.data-testid="company-member-dbadmin-role-{{i}}-select-option">
                         System Admin
-                        <div class="role-description">Can manage database connections and user access to databases</div>
                     </mat-option>
                     <mat-option value="USER" attr.data-testid="company-member-user-role-{{i}}-select-option">
                         Member
-                        <div class="role-description">Basic access to assigned databases and features</div>
                     </mat-option>
-                </mat-select>
+                </mat-select>-->
                 <ng-template #noSelect>
-                    <span attr.data-testid="company-member-user-role-{{i}}-cell">
+                    <span attr.data-testid="company-member-user-role-{{i}}-cell" style="padding: 0 8px">
                         {{element.role === "ADMIN" ? 'Account Owner' : null}}
                         {{element.role === "DB_ADMIN" ? 'System Admin' : null}}
                         {{element.role === "USER" ? 'Member' : null}}
@@ -196,7 +230,7 @@
                     Revoke
                 </button>
                 <ng-template #deleteUserButton>
-                    <button mat-button *ngIf="(adminsCount > 1 && currentUser.role === 'ADMIN') || element.role === 'USER'"
+                    <button mat-button *ngIf="(adminsCount > 1 && currentUser.role === 'ADMIN') || element.role === 'USER' || element.role === 'DB_ADMIN'"
                         type="button" color="warn"
                         attr.data-testid="company-member-delete-{{i}}-button"
                         angulartics2On="click"
@@ -212,63 +246,238 @@
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
 
+    <ng-container *ngIf="currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN')">
+        <h2 class="heading-2 tableHeader__heading">Branding</h2>
+
+        <div class="white-label">
+            <div class="white-label-settings">
+                <div *ngIf="(currentPlan === 'free' || currentUser.role === 'DB_ADMIN') && isSaas && !isDemo"
+                    class="white-label-settings__overlay"
+                    [matTooltip]="currentUser.role === 'DB_ADMIN' ? 'Contact your Account Owner to set up white label settings.' : 'To white‑label your domain, please upgrade to the Team plan or higher.'">
+                </div>
+                <form *ngIf="isSaas"
+                    class="text-filed-edit"
+                    (ngSubmit)="handleChangeCompanyDomain()">
+                    <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
+                        <mat-label>Custom domain</mat-label>
+                        <input matInput name="company-custom-domain" #domainField="ngModel"
+                            data-testid="custom-domain-input"
+                            angulartics2On="change"
+                            angularticsAction="Company: custom domain is edited"
+                            placeholder="e.g. {{companyCustomDomainPlaceholder}}"
+                            [readonly]="currentUser.role === 'DB_ADMIN' || isCustomDomain"
+                            [(ngModel)]="companyCustomDomainHostname">
+                        <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'ADMIN' && isCustomDomain" class="cname-hint">
+                            To change the domain, visit <a href="https://app.rocketadmin.com/company" target="_blank">app.rocketadmin.com/company</a>
+                        </mat-hint>
+                        <mat-hint *ngIf="currentPlan === 'free' || !companyCustomDomainHostname" class="cname-hint">
+                            Make your admin panel available at your domain.
+                        </mat-hint>
+                    </mat-form-field>
+                    <div class="text-filed-edit__buttons">
+                        <button type="submit" *ngIf="currentUser.role === 'ADMIN'"
+                            mat-button color="primary"
+                            [disabled]="!domainField.dirty || submittingCustomDomain">
+                            {{submittingCustomDomain ? 'Saving' : 'Save'}}
+                        </button>
+                        <button type="button" *ngIf="companyCustomDomain.hostname && currentUser.role === 'ADMIN'"
+                            mat-button color="warn"
+                            [disabled]="submittingCustomDomain"
+                            (click)="handleDeleteDomainDialogOpen()">
+                            Delete
+                        </button>
+                        <a *ngIf="currentUser.role === 'DB_ADMIN' && companyCustomDomainHostname"
+                            href="https://{{companyCustomDomainHostname}}"
+                            target="_blank"
+                            mat-button color="primary">
+                            Open
+                        </a>
+                    </div>
+                </form>
+
+                <div class="white-label-settings-images">
+                    <form #uploadLogoForm="ngForm" class="upload-logo-form">
+                        <div class="file-uploader-appearance">
+                            <button mat-stroked-button type="button" (click)="logoInput.click()">
+                                <mat-icon fontSet="material-icons-outlined">upload</mat-icon>
+                                Company logo
+                            </button>
+                            <input #logoInput type="file" class="file-input" name="company-logo-uploader" (change)="onCompanyLogoSelected($event)" hidden>
+                        </div>
+
+                        <button mat-icon-button *ngIf="whiteLabelSettings.logo" (click)="removeLogo()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </form>
+
+                    <form #uploadFaviconForm="ngForm" class="upload-logo-form">
+                        <div class="file-uploader-appearance">
+                            <button mat-stroked-button type="button" (click)="faviconInput.click()">
+                                <mat-icon fontSet="material-icons-outlined">upload</mat-icon>
+                                Favicon
+                            </button>
+                            <input #faviconInput type="file" class="file-input" name="company-favicon-uploader" (change)="onFaviconSelected($event)" hidden>
+                        </div>
+
+                        <button mat-icon-button *ngIf="whiteLabelSettings.favicon" (click)="removeFavicon()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </form>
+                </div>
+
+
+                <form *ngIf="isSaas"
+                    class="text-filed-edit"
+                    (ngSubmit)="updateTabTitle()">
+                    <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
+                        <mat-label>Browser tab title</mat-label>
+                        <input matInput name="company-custom-domain" #domainField="ngModel"
+                            data-testid="custom-tab-title-input"
+                            angulartics2On="change"
+                            angularticsAction="Company: tab title domain is edited"
+                            placeholder="e.g. {{company.name}}"
+                            [readonly]="currentUser.role === 'DB_ADMIN'"
+                            [(ngModel)]="companyTabTitle">
+                        <mat-hint *ngIf="currentPlan === 'free'" class="cname-hint">
+                            Set the title that appears on the browser tab.
+                        </mat-hint>
+                    </mat-form-field>
+                    <div class="text-filed-edit__buttons">
+                        <button type="submit" *ngIf="currentUser.role === 'ADMIN'"
+                            mat-button color="primary"
+                            [disabled]="!domainField.dirty || submittingTabTitle">
+                            {{submittingTabTitle ? 'Saving' : 'Save'}}
+                        </button>
+                        <button type="button" *ngIf="companyTabTitle && currentUser.role === 'ADMIN'"
+                            mat-button color="warn"
+                            [disabled]="submittingTabTitle"
+                            (click)="deleteTabTitle()">
+                            Delete
+                        </button>
+                    </div>
+                </form>
+
+                <svg class="white-label-preview" width="4539" height="2082" viewBox="0 0 4539 2082" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_474_332)">
+                    <rect width="4538.62" height="1482" fill="white"/>
+                    <g filter="url(#filter0_d_474_332)">
+                    <path d="M0 0H4545.75V1482H0V0Z" fill="#F1F1F1"/>
+                    </g>
+                    <path d="M1020.42 708.057H79.0051C35.3718 708.057 0 743.429 0 787.062V1402.99C0 1446.63 35.3715 1482 79.0049 1482H4466.74C4510.38 1482 4545.75 1446.63 4545.75 1402.99V787.062C4545.75 743.429 4510.38 708.057 4466.74 708.057H3578.47C3534.84 708.057 3499.46 672.685 3499.46 629.052V446.653V264.255C3499.46 220.622 3464.09 185.25 3420.46 185.25H1178.43C1134.8 185.25 1099.43 220.622 1099.43 264.255V629.052C1099.43 672.685 1064.06 708.057 1020.42 708.057Z" fill="white"/>
+                    <circle cx="364.904" cy="447.427" r="53.0742" fill="#FB6C66"/>
+                    <circle cx="547.344" cy="447.427" r="53.0742" fill="#F9BF3C"/>
+                    <circle cx="729.803" cy="447.427" r="53.0742" fill="#3ACA52"/>
+                    <line x1="480.993" y1="1086.33" x2="321.771" y2="1086.33" stroke="#BCBCBC" stroke-width="10.67"/>
+                    <line x1="666.744" y1="1084.74" x2="825.967" y2="1084.74" stroke="#BCBCBC" stroke-width="10.67"/>
+                    <path d="M399.285 1008.01L321.769 1085.53L399.285 1163.05" stroke="#BCBCBC" stroke-width="10.67"/>
+                    <path d="M748.445 1163.05L825.961 1085.54L748.445 1008.02" stroke="#BCBCBC" stroke-width="10.67"/>
+                    <path d="M1644.43 1085.53L1566.92 1008.02L1489.4 1085.53" stroke="#BCBCBC" stroke-width="10.67"/>
+                    <path d="M1174.28 1061.1L1227.35 1061.1L1227.35 1008.02" stroke="#BCBCBC" stroke-width="10.67"/>
+                    <path d="M1226.26 1060.13C1220.14 1042.71 1208.04 1028.03 1192.1 1018.7C1176.16 1009.36 1157.43 1006 1139.24 1009.19C1121.05 1012.38 1104.59 1021.92 1092.78 1036.12C1080.97 1050.32 1074.59 1068.25 1074.77 1086.72C1074.94 1105.18 1081.67 1122.99 1093.75 1136.96C1105.83 1150.92 1122.48 1160.15 1140.72 1162.99C1158.97 1165.83 1177.63 1162.1 1193.39 1152.47C1209.14 1142.83 1220.96 1127.92 1226.75 1110.38" stroke="#BCBCBC" stroke-width="10.67"/>
+                    <path d="M1505.98 1069.38V1163.92H1628.72V1069.38" stroke="#BCBCBC" stroke-width="10.67"/>
+
+                    <rect *ngIf="!whiteLabelSettings.favicon" x="1320.23" y="328.021" width="238.834" height="238.834" rx="45.3477" fill="#212121"/>
+
+                    <image *ngIf="whiteLabelSettings.favicon"
+                        x="1320.23"
+                        y="328.021"
+                        height="238.834"
+                        width="238.834"
+                        [attr.href]="whiteLabelSettings.favicon" />
+
+                    <path d="M1670.69 461.306V375.945H1681.02V413.957H1726.54V375.945H1736.88V461.306H1726.54V423.127H1681.02V461.306H1670.69Z" fill="#606060"/>
+                    <path d="M1782.24 462.639C1776.46 462.639 1771.39 461.264 1767.03 458.513C1762.7 455.762 1759.31 451.914 1756.86 446.968C1754.44 442.022 1753.23 436.242 1753.23 429.629C1753.23 422.96 1754.44 417.139 1756.86 412.165C1759.31 407.191 1762.7 403.329 1767.03 400.578C1771.39 397.827 1776.46 396.452 1782.24 396.452C1788.02 396.452 1793.08 397.827 1797.42 400.578C1801.78 403.329 1805.17 407.191 1807.58 412.165C1810.03 417.139 1811.25 422.96 1811.25 429.629C1811.25 436.242 1810.03 442.022 1807.58 446.968C1805.17 451.914 1801.78 455.762 1797.42 458.513C1793.08 461.264 1788.02 462.639 1782.24 462.639ZM1782.24 453.803C1786.63 453.803 1790.25 452.678 1793.08 450.427C1795.91 448.176 1798.01 445.217 1799.37 441.549C1800.74 437.881 1801.42 433.908 1801.42 429.629C1801.42 425.35 1800.74 421.362 1799.37 417.667C1798.01 413.971 1795.91 410.984 1793.08 408.706C1790.25 406.427 1786.63 405.288 1782.24 405.288C1777.85 405.288 1774.24 406.427 1771.41 408.706C1768.57 410.984 1766.47 413.971 1765.11 417.667C1763.75 421.362 1763.07 425.35 1763.07 429.629C1763.07 433.908 1763.75 437.881 1765.11 441.549C1766.47 445.217 1768.57 448.176 1771.41 450.427C1774.24 452.678 1777.85 453.803 1782.24 453.803Z" fill="#606060"/>
+                    <path d="M1826.27 461.306V397.285H1835.77V407.288H1836.6C1837.94 403.871 1840.09 401.217 1843.06 399.328C1846.04 397.41 1849.61 396.452 1853.78 396.452C1858 396.452 1861.52 397.41 1864.32 399.328C1867.16 401.217 1869.36 403.871 1870.95 407.288H1871.62C1873.26 403.982 1875.71 401.356 1878.99 399.411C1882.27 397.438 1886.2 396.452 1890.79 396.452C1896.51 396.452 1901.19 398.244 1904.83 401.828C1908.47 405.385 1910.29 410.929 1910.29 418.459V461.306H1900.46V418.459C1900.46 413.735 1899.17 410.359 1896.58 408.33C1894 406.302 1890.96 405.288 1887.45 405.288C1882.95 405.288 1879.47 406.649 1876.99 409.372C1874.52 412.068 1873.28 415.486 1873.28 419.626V461.306H1863.28V417.458C1863.28 413.818 1862.1 410.887 1859.74 408.664C1857.38 406.413 1854.33 405.288 1850.61 405.288C1848.05 405.288 1845.66 405.969 1843.44 407.33C1841.24 408.692 1839.47 410.581 1838.11 412.999C1836.77 415.388 1836.1 418.153 1836.1 421.293V461.306H1826.27Z" fill="#606060"/>
+                    <path d="M1955.12 462.639C1948.95 462.639 1943.63 461.278 1939.16 458.555C1934.71 455.804 1931.28 451.969 1928.86 447.051C1926.47 442.105 1925.28 436.353 1925.28 429.796C1925.28 423.238 1926.47 417.458 1928.86 412.457C1931.28 407.427 1934.64 403.51 1938.95 400.703C1943.28 397.869 1948.34 396.452 1954.12 396.452C1957.46 396.452 1960.75 397.007 1964 398.119C1967.25 399.23 1970.21 401.036 1972.88 403.537C1975.54 406.01 1977.67 409.289 1979.25 413.374C1980.84 417.458 1981.63 422.488 1981.63 428.462V432.63H1932.28V424.127H1971.63C1971.63 420.515 1970.9 417.292 1969.46 414.457C1968.04 411.623 1966.01 409.386 1963.37 407.747C1960.76 406.108 1957.68 405.288 1954.12 405.288C1950.2 405.288 1946.81 406.26 1943.95 408.205C1941.12 410.123 1938.94 412.624 1937.41 415.708C1935.88 418.792 1935.11 422.099 1935.11 425.628V431.296C1935.11 436.131 1935.95 440.229 1937.62 443.592C1939.31 446.926 1941.66 449.468 1944.66 451.219C1947.66 452.942 1951.15 453.803 1955.12 453.803C1957.71 453.803 1960.04 453.442 1962.12 452.72C1964.24 451.969 1966.06 450.858 1967.58 449.385C1969.11 447.885 1970.29 446.023 1971.13 443.8L1980.63 446.468C1979.63 449.691 1977.95 452.525 1975.59 454.97C1973.22 457.388 1970.31 459.277 1966.83 460.639C1963.36 461.972 1959.46 462.639 1955.12 462.639Z" fill="#606060"/>
+                    <path d="M2043.94 348.437V488.814H2035.61V348.437H2043.94Z" fill="#606060"/>
+
+                    <text
+                        [attr.x]="2102.34"
+                        [attr.y]="461"
+                        [textContent]="companyTabTitle"
+                        fill="#606060"
+                        font-size="115">
+                    </text>
+
+                    <line x1="3185.94" y1="401.516" x2="3272.19" y2="487.762" stroke="#BCBCBC" stroke-width="7.90051"/>
+                    <line x1="3272.19" y1="407.103" x2="3185.95" y2="493.348" stroke="#BCBCBC" stroke-width="7.90051"/>
+                    <line x1="3652.16" y1="443.506" x2="3771.58" y2="443.506" stroke="#BCBCBC" stroke-width="7.90051"/>
+                    <line x1="3715.82" y1="387.75" x2="3715.82" y2="507.167" stroke="#BCBCBC" stroke-width="7.90051"/>
+                    <path d="M1995 1034.6C1995 931.475 2078.6 847.875 2181.73 847.875H4545.75V1332.38H2181.73C2078.6 1332.38 1995 1248.78 1995 1145.65V1034.6Z" fill="#E4E4E4"/>
+
+                    <text
+                        [attr.x]="2400"
+                        [attr.y]="1150"
+                        [textContent]="companyCustomDomainHostname"
+                        fill="#C177FC"
+                        font-size="130">
+                    </text>
+
+                    <rect x="2186.01" y="1074.37" width="99.5141" height="86.2456" rx="8.00253" fill="#BEBEBE"/>
+                    <path d="M2262.3 1090.96V1054.61C2262.3 1039.88 2250.36 1027.94 2235.63 1027.94H2232.59C2217.85 1027.94 2205.91 1039.88 2205.91 1054.61V1090.96" stroke="#BEBEBE" stroke-width="5.33502"/>
+                    <path *ngIf="!whiteLabelSettings.favicon" d="M1490.41 415.663H1458.31C1453.55 415.663 1451.18 411.963 1452.96 407.647L1464.85 379.283C1467.23 373.117 1463.66 366.951 1457.12 366.951H1427.4C1423.83 366.951 1420.86 369.418 1419.67 372.501L1404.81 406.414C1402.43 412.58 1405.4 416.896 1411.34 416.896H1442.26C1445.83 416.896 1448.8 418.746 1449.99 421.829L1464.26 455.742C1466.04 460.058 1463.66 463.758 1458.31 463.758H1386.97C1384 463.758 1381.03 466.224 1379.24 468.691L1366.76 501.987C1363.79 508.153 1366.76 514.319 1373.89 514.319H1444.04C1447.01 514.319 1449.99 511.236 1451.18 508.153L1467.23 471.157C1468.42 467.458 1471.39 465.608 1474.36 465.608H1505.87C1511.82 465.608 1514.79 460.675 1511.82 455.125L1498.74 421.212C1497.55 418.746 1493.98 416.279 1491.01 416.279L1490.41 415.663Z" fill="white"/>
+                    </g>
+
+                    <rect x="0" y="1482" width="100%" height="600" fill="#212121" />
+
+                    <image *ngIf="whiteLabelSettings.logo"
+                        x="100"
+                        y="1570"
+                        height="400"
+                        [attr.href]="whiteLabelSettings.logo" />
+
+                    <defs>
+                    <filter id="filter0_d_474_332" x="-117.37" y="-106.7" width="4780.49" height="1716.74" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="10.67"/>
+                    <feGaussianBlur stdDeviation="58.6852"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.388235 0 0 0 0 0.388235 0 0 0 0 0.388235 0 0 0 0.12 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_474_332"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_474_332" result="shape"/>
+                    </filter>
+                    <clipPath id="clip0_474_332">
+                    <rect width="4538.62" height="1482" fill="white"/>
+                    </clipPath>
+                    </defs>
+                </svg>
+            </div>
+            <div *ngIf="isSaas" class="white-label-how-to">
+                <h3>Configure DNS Records</h3>
+                <p>
+                    These instructions will guide you in setting up domain to have your admin panel on it.
+                    After setup, the domain will respond on browser requests to Rocketadmin servers.
+                </p>
+                <ol class="cname-instructions">
+                    <li>
+                        <strong>Step 1:</strong> Go to your domain registrar, sign in, and locate the domain DNS Manage section.
+                    </li>
+                    <li>
+                        <strong>Step 2:</strong> Create a new type CNAME record with a name
+                        <span *ngIf="companyCustomDomainThirdLevel" class="cname-value">{{companyCustomDomainThirdLevel}}</span>
+                        <span *ngIf="!companyCustomDomainThirdLevel">of the subdomain you want to use</span>
+                        and value <span class="cname-value">cname.rocketadmin.com</span>. Save changes.
+                    </li>
+                </ol>
+                <br/>
+                <p>Done! Now wait for the server's updates; it might take 1-2 hours.</p>
+            </div>
+        </div>
+    </ng-container >
+
     <div *ngIf="currentUser && currentUser.role === 'USER' && currentPlan !== 'free' && companyCustomDomainHostname">
         <strong>Your admin panel address: </strong>
         <span data-testid="company-custom-domain">{{companyCustomDomainHostname}}</span>
     </div>
 
-    <form *ngIf="currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN')"
-        class="text-filed-edit"
-        (ngSubmit)="handleChangeCompanyDomain()">
-        <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
-            <mat-label>White label custom domain</mat-label>
-            <input matInput name="company-custom-domain" #domainField="ngModel"
-                data-testid="custom-domain-input"
-                angulartics2On="change"
-                angularticsAction="Company: custom domain is edited"
-                placeholder="e.g. {{companyCustomDomainPlaceholder}}"
-                [readonly]="currentUser.role === 'DB_ADMIN'"
-                [disabled]="currentPlan === 'free' || submittingCustomDomain"
-                [matTooltip]="currentPlan === 'free' && isSaas ? 'To white‑label your domain, please upgrade to the Team plan or higher.' : null"
-                [(ngModel)]="companyCustomDomainHostname">
-            <mat-hint *ngIf="currentPlan === 'free' && isSaas" style="color: rgba(0,0,0,0.54)">
-                Use a custom domain to make your admin panel accessible at your own address. <span *ngIf="currentUser.role === 'DB_ADMIN'">Contact your <i>Account Owner</i> to get it set up.</span>
-            </mat-hint>
-            <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'ADMIN' && isSaas" class="cname-hint">
-                A CNAME record must exist for the subdomain you want to use, pointing to <span class="cname-value">cname.rocketadmin.com</span>.
-            </mat-hint>
-            <mat-hint *ngIf="currentPlan !== 'free' && currentUser.role === 'DB_ADMIN' && isSaas" class="cname-hint">
-                A new type CNAME record named <span class="cname-value">{{companyCustomDomainThirdLevel}}</span> with the value <span class="cname-value">cname.rocketadmin.com</span> is required.
-                Contact your <i>Account Owner</i> to set up a domain.
-            </mat-hint>
-        </mat-form-field>
-        <div class="text-filed-edit__buttons">
-            <button type="submit" *ngIf="currentUser.role === 'ADMIN'"
-                mat-button color="primary"
-                [disabled]="!domainField.dirty || submittingCustomDomain">
-                {{submittingCustomDomain ? 'Saving' : 'Save'}}
-            </button>
-            <button type="button" *ngIf="companyCustomDomain.hostname && currentUser.role === 'ADMIN'"
-                mat-button color="warn"
-                [disabled]="submittingCustomDomain"
-                (click)="handleDeleteDomainDialogOpen()">
-                Delete
-            </button>
-            <a *ngIf="currentUser.role === 'DB_ADMIN'"
-                href="https://{{companyCustomDomainHostname}}"
-                target="_blank"
-                mat-button color="primary">
-                Open
-            </a>
-        </div>
-    </form>
-
     <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"
         name="showTestConnections"
         data-testid="company-test-connections-switch"
+        [disabled]="isDemo"
         [(ngModel)]="company.show_test_connections"
         (change)="changeShowTestConnections($event.checked)">
-        Show test connections
+        Show demo admin panels
     </mat-slide-toggle>
 </div>
 

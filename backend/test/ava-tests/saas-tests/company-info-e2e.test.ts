@@ -6,8 +6,11 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
 import { nanoid } from 'nanoid';
+import path, { join } from 'path';
 import request from 'supertest';
+import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
@@ -23,6 +26,8 @@ import {
 } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -81,11 +86,9 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    t.is(Object.keys(foundCompanyInfoRO).length, 9);
+    t.is(Object.keys(foundCompanyInfoRO).length, 10);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
   } catch (error) {
@@ -118,11 +121,9 @@ test.serial(`${currentTest} should return full found company info for company ad
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 14);
+    t.is(Object.keys(foundCompanyInfoRO).length, 15);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -174,11 +175,9 @@ test.serial(`${currentTest} should return found company info for non-admin user`
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(Object.keys(foundCompanyInfoRO).length, 9);
+    t.is(Object.keys(foundCompanyInfoRO).length, 10);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
   } catch (error) {
@@ -500,7 +499,6 @@ test.serial(`${currentTest} should update company name`, async (t) => {
   t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
 
   const newName = `${faker.company.name()}_${nanoid(5)}`;
-
   const updateCompanyNameResult = await request(app.getHttpServer())
     .put(`/company/name/${foundCompanyInfoRO.id}`)
     .send({
@@ -590,6 +588,33 @@ test.serial(`${currentTest} should return users in company`, async (t) => {
   t.is(usersInCompany.status, 200);
   const usersInCompanyRO = JSON.parse(usersInCompany.text);
   t.is(usersInCompanyRO.length, 2);
+
+  usersInCompanyRO.forEach((user) => {
+    t.true('id' in user);
+    t.true('isActive' in user);
+    t.true('email' in user);
+    t.true('createdAt' in user);
+    t.true('suspended' in user);
+    t.true('name' in user);
+    t.true('is_2fa_enabled' in user);
+    t.true('role' in user);
+    t.true('externalRegistrationProvider' in user);
+    t.true('user_membership' in user);
+    t.true('has_groups' in user);
+
+    t.true(Array.isArray(user.user_membership));
+    user.user_membership.forEach((user_membership) => {
+      t.true('id' in user_membership);
+      t.true('title' in user_membership);
+      t.true('database' in user_membership);
+      t.true(Array.isArray(user_membership.groups));
+      user_membership.groups.forEach((group) => {
+        t.true('id' in group);
+        t.true('title' in group);
+        t.is(Object.keys(group).length, 2);
+      });
+    });
+  });
 });
 
 currentTest = `PUT company/users/roles/:companyId`;
@@ -691,8 +716,8 @@ test.serial(`${currentTest} should delete company`, async (t) => {
     .set('Cookie', adminUserToken)
     .set('Accept', 'application/json');
 
-  t.is(deleteCompanyResult.status, 200);
   const deleteCompanyResultRO = JSON.parse(deleteCompanyResult.text);
+  t.is(deleteCompanyResult.status, 200);
   t.is(deleteCompanyResultRO.success, true);
 
   const foundCompanyInfoAfterDelete = await request(app.getHttpServer())
@@ -861,6 +886,7 @@ test.serial(
       .set('Accept', 'application/json');
 
     const foundCompanyInfoAfterUpgradeRO = JSON.parse(foundCompanyInfoAfterUpgrade.text);
+
     firstConnection = foundCompanyInfoAfterUpgradeRO.connections.find(
       (connectionRO) => connections.firstId === connectionRO.id,
     );
@@ -1144,3 +1170,429 @@ test.serial(
     t.is(resultAfterToggleOnRO.connections.length, 5);
   },
 );
+
+currentTest = 'POST & GET /company/logo/:companyId';
+test.serial(`${currentTest} should create and return found company logo after creation`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
+  const downloadedLogoPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_logo.png`);
+
+  const createLogoResponse = await request(app.getHttpServer())
+    .post(`/company/logo/${foundCompanyInfoRO.id}`)
+    .attach('file', testLogoPatch)
+    .set('Content-Type', 'image/png')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'image/png');
+
+  const createLogoRO = JSON.parse(createLogoResponse.text);
+  t.is(createLogoResponse.status, 201);
+
+  const foundCompanyLogo = await request(app.getHttpServer())
+    .get(`/company/logo/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyLogo.status, 200);
+  const foundCompanyLogoRO = JSON.parse(foundCompanyLogo.text);
+  t.is(foundCompanyLogoRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyLogoRO.logo.image.length > 0, true);
+  fs.writeFileSync(downloadedLogoPatch, foundCompanyLogoRO.logo.image);
+  const isFileExists = fs.existsSync(downloadedLogoPatch);
+
+  t.is(isFileExists, true);
+
+  // should return company logo for simple user
+
+  const foundCompanyLogoForSimpleUser = await request(app.getHttpServer())
+    .get(`/company/logo/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyLogoForSimpleUser.status, 200);
+  const foundCompanyLogoForSimpleUserRO = JSON.parse(foundCompanyLogoForSimpleUser.text);
+  t.is(foundCompanyLogoForSimpleUserRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyLogoForSimpleUserRO.logo.image.length > 0, true);
+
+  const downloadedLogoPatchForSimpleUser = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoRO.id}_simple_user_logo.png`,
+  );
+  fs.writeFileSync(downloadedLogoPatchForSimpleUser, foundCompanyLogoForSimpleUserRO.logo.image);
+  const isFileExistsForSimpleUser = fs.existsSync(downloadedLogoPatchForSimpleUser);
+  t.is(isFileExistsForSimpleUser, true);
+
+  //should return logo in full company info for admin
+  const foundCompanyInfoWithLogo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithLogo.status, 200);
+  const foundCompanyInfoWithLogoRO = JSON.parse(foundCompanyInfoWithLogo.text);
+  t.is(foundCompanyInfoWithLogoRO.hasOwnProperty('logo'), true);
+  t.is(foundCompanyInfoWithLogoRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithLogoRO.logo.image.length > 0, true);
+
+  const downloadedLogoPatchWithLogo = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithLogoRO.id}_admin_user_logo.png`,
+  );
+  fs.writeFileSync(downloadedLogoPatchWithLogo, foundCompanyInfoWithLogoRO.logo.image);
+  const isFileExistsWithLogo = fs.existsSync(downloadedLogoPatchWithLogo);
+  t.is(isFileExistsWithLogo, true);
+
+  //should return logo in full company info for simple user
+  const foundCompanyInfoWithLogoForSimpleUser = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithLogoForSimpleUser.status, 200);
+  const foundCompanyInfoWithLogoForSimpleUserRO = JSON.parse(foundCompanyInfoWithLogoForSimpleUser.text);
+  t.is(foundCompanyInfoWithLogoForSimpleUserRO.hasOwnProperty('logo'), true);
+  t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.image.length > 0, true);
+
+  const downloadedLogoPatchForSimpleUserWithLogo = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithLogoForSimpleUserRO.id}_simple_user_logo.png`,
+  );
+  fs.writeFileSync(downloadedLogoPatchForSimpleUserWithLogo, foundCompanyInfoWithLogoForSimpleUserRO.logo.image);
+  const isFileExistsForSimpleUserWithLogo = fs.existsSync(downloadedLogoPatchForSimpleUserWithLogo);
+  t.is(isFileExistsForSimpleUserWithLogo, true);
+});
+
+currentTest = 'POST & GET /company/favicon/:companyId';
+test.serial(`${currentTest} should create and return found company favicon after creation`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
+  const downloadedFaviconPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_favicon.png`);
+
+  const createFaviconResponse = await request(app.getHttpServer())
+    .post(`/company/favicon/${foundCompanyInfoRO.id}`)
+    .attach('file', testFaviconPatch)
+    .set('Content-Type', 'image/png')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'image/png');
+
+  const createFaviconRO = JSON.parse(createFaviconResponse.text);
+  t.is(createFaviconResponse.status, 201);
+
+  const foundCompanyFavicon = await request(app.getHttpServer())
+    .get(`/company/favicon/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyFavicon.status, 200);
+  const foundCompanyFaviconRO = JSON.parse(foundCompanyFavicon.text);
+  t.is(foundCompanyFaviconRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyFaviconRO.favicon.image.length > 0, true);
+  fs.writeFileSync(downloadedFaviconPatch, foundCompanyFaviconRO.favicon.image);
+  const isFileExists = fs.existsSync(downloadedFaviconPatch);
+
+  t.is(isFileExists, true);
+
+  // should return company favicon for simple user
+
+  const foundCompanyFaviconForSimpleUser = await request(app.getHttpServer())
+    .get(`/company/favicon/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyFaviconForSimpleUser.status, 200);
+  const foundCompanyFaviconForSimpleUserRO = JSON.parse(foundCompanyFaviconForSimpleUser.text);
+  t.is(foundCompanyFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyFaviconForSimpleUserRO.favicon.image.length > 0, true);
+
+  const downloadedFaviconPatchForSimpleUser = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoRO.id}_simple_user_favicon.png`,
+  );
+  fs.writeFileSync(downloadedFaviconPatchForSimpleUser, foundCompanyFaviconForSimpleUserRO.favicon.image);
+  const isFileExistsForSimpleUser = fs.existsSync(downloadedFaviconPatchForSimpleUser);
+  t.is(isFileExistsForSimpleUser, true);
+
+  //should return favicon in full company info for admin
+  const foundCompanyInfoWithFavicon = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithFavicon.status, 200);
+  const foundCompanyInfoWithFaviconRO = JSON.parse(foundCompanyInfoWithFavicon.text);
+  t.is(foundCompanyInfoWithFaviconRO.hasOwnProperty('favicon'), true);
+  t.is(foundCompanyInfoWithFaviconRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithFaviconRO.favicon.image.length > 0, true);
+
+  const downloadedFaviconPatchWithFavicon = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithFaviconRO.id}_admin_user_favicon.png`,
+  );
+  fs.writeFileSync(downloadedFaviconPatchWithFavicon, foundCompanyInfoWithFaviconRO.favicon.image);
+  const isFileExistsWithFavicon = fs.existsSync(downloadedFaviconPatchWithFavicon);
+  t.is(isFileExistsWithFavicon, true);
+
+  //should return favicon in full company info for simple user
+  const foundCompanyInfoWithFaviconForSimpleUser = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoWithFaviconForSimpleUser.status, 200);
+  const foundCompanyInfoWithFaviconForSimpleUserRO = JSON.parse(foundCompanyInfoWithFaviconForSimpleUser.text);
+  t.is(foundCompanyInfoWithFaviconForSimpleUserRO.hasOwnProperty('favicon'), true);
+  t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image.length > 0, true);
+
+  const downloadedFaviconPatchForSimpleUserWithFavicon = join(
+    __dirname,
+    'response-files',
+    `${foundCompanyInfoWithFaviconForSimpleUserRO.id}_simple_user_favicon.png`,
+  );
+  fs.writeFileSync(
+    downloadedFaviconPatchForSimpleUserWithFavicon,
+    foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image,
+  );
+  const isFileExistsForSimpleUserWithFavicon = fs.existsSync(downloadedFaviconPatchForSimpleUserWithFavicon);
+  t.is(isFileExistsForSimpleUserWithFavicon, true);
+});
+
+currentTest = 'POST & GET /company/tab-title/:companyId';
+test.serial(`${currentTest} should create and return found company tab title after creation`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const newTabTitle = `${faker.company.name()}_${faker.word.noun()}`;
+  const addCompanyTabTitleResponse = await request(app.getHttpServer())
+    .post(`/company/tab-title/${foundCompanyInfoRO.id}`)
+    .send({
+      tab_title: newTabTitle,
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(addCompanyTabTitleResponse.status, 201);
+
+  const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoAfterUpdate.status, 200);
+  const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
+  t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyInfoROAfterUpdate.tab_title, newTabTitle);
+
+  const foundCompanyTabTitle = await request(app.getHttpServer())
+    .get(`/company/tab-title/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyTabTitle.status, 200);
+  const foundCompanyTabTitleRO = JSON.parse(foundCompanyTabTitle.text);
+  t.is(foundCompanyTabTitleRO.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyTabTitleRO.tab_title, newTabTitle);
+
+  //should return tab title in full company info for simple user
+
+  const foundCompanyTabTitleForSimpleUser = await request(app.getHttpServer())
+    .get(`/company/tab-title/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyTabTitleForSimpleUser.status, 200);
+  const foundCompanyTabTitleForSimpleUserRO = JSON.parse(foundCompanyTabTitleForSimpleUser.text);
+  t.is(foundCompanyTabTitleForSimpleUserRO.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyTabTitleForSimpleUserRO.tab_title, newTabTitle);
+});
+
+currentTest = 'GET /company/white-label-properties/:companyId';
+test.serial(`${currentTest} should return found company white label properties for company admin user`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  // crete company logo
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
+  const downloadedLogoPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_logo.png`);
+
+  const createLogoResponse = await request(app.getHttpServer())
+    .post(`/company/logo/${foundCompanyInfoRO.id}`)
+    .attach('file', testLogoPatch)
+    .set('Content-Type', 'image/png')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'image/png');
+
+  const createLogoRO = JSON.parse(createLogoResponse.text);
+  t.is(createLogoResponse.status, 201);
+
+  // crete company favicon
+  const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
+  const downloadedFaviconPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_favicon.png`);
+
+  const createFaviconResponse = await request(app.getHttpServer())
+    .post(`/company/favicon/${foundCompanyInfoRO.id}`)
+    .attach('file', testFaviconPatch)
+    .set('Content-Type', 'image/png')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'image/png');
+
+  const createFaviconRO = JSON.parse(createFaviconResponse.text);
+  t.is(createFaviconResponse.status, 201);
+
+  // crete company tab title
+  const newTabTitle = `${faker.company.name()}_${faker.word.noun()}`;
+  const addCompanyTabTitleResponse = await request(app.getHttpServer())
+    .post(`/company/tab-title/${foundCompanyInfoRO.id}`)
+    .send({
+      tab_title: newTabTitle,
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(addCompanyTabTitleResponse.status, 201);
+
+  // should return all white label properties for company
+
+  const foundCompanyWhiteLabelProperties = await request(app.getHttpServer())
+    .get(`/company/white-label-properties/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyWhiteLabelProperties.status, 200);
+  const foundCompanyWhiteLabelPropertiesRO = JSON.parse(foundCompanyWhiteLabelProperties.text);
+  t.is(foundCompanyWhiteLabelPropertiesRO.hasOwnProperty('logo'), true);
+  t.is(foundCompanyWhiteLabelPropertiesRO.hasOwnProperty('favicon'), true);
+  t.is(foundCompanyWhiteLabelPropertiesRO.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyWhiteLabelPropertiesRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyWhiteLabelPropertiesRO.logo.image.length > 0, true);
+  t.is(foundCompanyWhiteLabelPropertiesRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyWhiteLabelPropertiesRO.favicon.image.length > 0, true);
+  t.is(foundCompanyWhiteLabelPropertiesRO.tab_title, newTabTitle);
+
+  //should return all white label properties for simple user
+
+  const foundCompanyWhiteLabelPropertiesForSimpleUser = await request(app.getHttpServer())
+    .get(`/company/white-label-properties/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', simpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUser.status, 200);
+  const foundCompanyWhiteLabelPropertiesForSimpleUserRO = JSON.parse(
+    foundCompanyWhiteLabelPropertiesForSimpleUser.text,
+  );
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.hasOwnProperty('logo'), true);
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.hasOwnProperty('favicon'), true);
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.hasOwnProperty('tab_title'), true);
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.logo.mimeType, 'image/png');
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.logo.image.length > 0, true);
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.favicon.mimeType, 'image/png');
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.favicon.image.length > 0, true);
+  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.tab_title, newTabTitle);
+});

@@ -1,6 +1,8 @@
+import * as JSON5 from 'json5';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { CustomAction, TableForeignKey, TablePermissions, TableProperties, TableRow } from 'src/app/models/table';
+import { CustomAction, TableForeignKey, TablePermissions, TableProperties, TableRow, Widget } from 'src/app/models/table';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable, merge, of } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
@@ -33,6 +35,7 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
+import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { normalizeTableName } from '../../../lib/normalize'
 
@@ -112,6 +115,8 @@ export class DbTableComponent implements OnInit {
     lte: "<="
   }
   public selectedRow: TableRow = null;
+  public selectedRowType: 'record' | 'foreignKey' = 'record';
+  public tableRelatedRecords: any = null;
 
   @Input() set table(value){
     if (value) this.tableData = value;
@@ -123,6 +128,7 @@ export class DbTableComponent implements OnInit {
   constructor(
     private _tableState: TableStateService,
     private _notifications: NotificationsService,
+    private _tableRow: TableRowService,
     private route: ActivatedRoute,
     public router: Router,
     public dialog: MatDialog,
@@ -137,9 +143,8 @@ export class DbTableComponent implements OnInit {
     merge(this.sort.sortChange, this.paginator.page)
       .pipe(
           tap(() => {
+
             const filters = JsonURL.stringify( this.activeFilters );
-
-
             this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
               queryParams: {
                 filters,
@@ -149,7 +154,7 @@ export class DbTableComponent implements OnInit {
                 page_size: this.paginator.pageSize
               }
             });
-            this.loadRowsPage()
+            this.loadRowsPage();
           })
       )
       .subscribe();
@@ -178,6 +183,7 @@ export class DbTableComponent implements OnInit {
   }
 
   loadRowsPage() {
+    this.tableRelatedRecords = null;
     this.tableData.fetchRows({
       connectionID: this.connectionID,
       tableName: this.name,
@@ -383,7 +389,74 @@ export class DbTableComponent implements OnInit {
   }
 
   handleViewRow(row: TableRow) {
-    this._tableState.selectRow({...row, link: `/dashboard/${this.connectionID}/${this.name}/entry`});
+    this.selectedRowType = 'record';
+    this._tableState.selectRow({
+      connectionID: this.connectionID,
+      tableName: this.name,
+      record: row,
+      columnsOrder: this.tableData.dataColumns,
+      primaryKeys: this.tableData.getQueryParams(row),
+      foreignKeys: this.tableData.foreignKeys,
+      foreignKeysList: this.tableData.foreignKeysList,
+      widgets: this.tableData.widgets,
+      widgetsList: this.tableData.widgetsList,
+      relatedRecords: this.tableData.relatedRecords || null,
+      link: `/dashboard/${this.connectionID}/${this.name}/entry`
+    });
+  }
+
+  handleForeignKeyView(event, foreignKeys, row) {
+    event.stopPropagation();
+    this.selectedRowType = 'foreignKey';
+
+    this._tableState.selectRow({
+      connectionID: null,
+      tableName: null,
+      record: null,
+      columnsOrder: null,
+      primaryKeys: null,
+      foreignKeys: null,
+      foreignKeysList: null,
+      widgets: null,
+      widgetsList: null,
+      relatedRecords: null,
+      link: null
+    })
+
+    this._tableRow.fetchTableRow(this.connectionID, foreignKeys.referenced_table_name, {[foreignKeys.referenced_column_name]: row[foreignKeys.referenced_column_name]})
+      .subscribe(res => {
+        this._tableState.selectRow({
+          connectionID: this.connectionID,
+          tableName: foreignKeys.referenced_table_name,
+          record: res.row,
+          columnsOrder: res.list_fields,
+          primaryKeys: {
+            [foreignKeys.referenced_column_name]: res.row[foreignKeys.referenced_column_name]
+          },
+          foreignKeys: Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey}))),
+          foreignKeysList: res.foreignKeys.map(fk => fk.column_name),
+          widgets: Object.assign({}, ...res.table_widgets.map((widget: Widget) => {
+              let parsedParams;
+
+              try {
+                parsedParams = JSON5.parse(widget.widget_params);
+              } catch {
+                parsedParams = {};
+              }
+
+              return {
+                [widget.field_name]: {
+                  ...widget,
+                  widget_params: parsedParams,
+                },
+              };
+            })
+          ),
+          widgetsList: res.table_widgets.map(widget => widget.field_name),
+          relatedRecords: res.referenced_table_names_and_columns[0],
+          link: `/dashboard/${this.connectionID}/${foreignKeys.referenced_table_name}/entry`
+        });
+      })
   }
 
   handleViewAIpanel() {
@@ -391,7 +464,18 @@ export class DbTableComponent implements OnInit {
   }
 
   isRowSelected(primaryKeys) {
-    return this.selectedRow && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
+    // console.log('isRowSelected', this.selectedRowType, this.selectedRow, primaryKeys);
+    if (this.selectedRowType === 'record' && this.selectedRow && this.selectedRow.primaryKeys !== null) return Object.keys(this.selectedRow.primaryKeys).length && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
+    return false;
+  }
+
+  isForeignKeySelected(record, foreignKey: TableForeignKey) {
+    const primaryKeyValue = record[foreignKey.referenced_column_name];
+
+    if (this.selectedRowType === 'foreignKey' && this.selectedRow && this.selectedRow.record !== null) {
+      return Object.values(this.selectedRow.primaryKeys)[0] === primaryKeyValue && this.selectedRow.tableName === foreignKey.referenced_table_name;
+    }
+    return false;
   }
 
   showCopyNotification(message: string) {

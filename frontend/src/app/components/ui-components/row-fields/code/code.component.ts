@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { CommonModule } from '@angular/common';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 @Component({
   selector: 'app-code',
@@ -20,6 +21,13 @@ export class CodeRowComponent extends BaseRowFieldComponent {
     scrollBeyondLastLine: false,
     wordWrap: 'on',
   };
+  public codeEditorTheme = 'vs-dark';
+
+  constructor(
+    private _uiSettings: UiSettingsService,
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -28,5 +36,7 @@ export class CodeRowComponent extends BaseRowFieldComponent {
       uri: `${this.label}.json`,
       value: this.value
     }
+
+    this.codeEditorTheme = this._uiSettings.editorTheme;
   }
 }

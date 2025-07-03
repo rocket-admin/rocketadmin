@@ -1,26 +1,52 @@
 import { AlertActionType, AlertType } from '../models/alert';
+import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { CompanyMemberRole } from '../models/company';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { ConfigurationService } from './configuration.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
-import { ConfigurationService } from './configuration.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompanyService {
 
+  public saasHostnames = (environment as any).saasHostnames;
+
   private company = new BehaviorSubject<string>('');
   public cast = this.company.asObservable();
+
+  private companyTabTitleSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
+
+  private companyLogo: string;
+  private companyFavicon: string;
+  public companyTabTitle: string;
 
   constructor(
     private _http: HttpClient,
     private _notifications: NotificationsService,
     private _configuration: ConfigurationService
   ) { }
+
+  get whiteLabelSettings() {
+    return {
+      logo: this.companyLogo,
+      favicon: this.companyFavicon,
+      tabTitle: this.companyTabTitle,
+    };
+  }
+
+  getCurrentTabTitle() {
+    return this.companyTabTitleSubject.asObservable();
+  }
+
+  isCustomDomain() {
+    const domain = window.location.hostname;
+    return !this.saasHostnames.includes(domain);
+  }
 
   fetchCompany() {
     return this._http.get<any>(`/company/my/full`)
@@ -316,4 +342,146 @@ export class CompanyService {
       );
   }
 
+  uploadLogo(companyId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post<any>(`/company/logo/${companyId}`, formData)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Logo has been updated. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  removeLogo(companyId: string) {
+    return this._http.delete<any>(`/company/logo/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Logo has been removed. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  uploadFavicon(companyId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post<any>(`/company/favicon/${companyId}`, formData)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Favicon has been updated. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  removeFavicon(companyId: string) {
+    return this._http.delete<any>(`/company/favicon/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Favicon has been removed. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  updateTabTitle(companyId: string, tab_title: string) {
+      return this._http.post<any>(`/company/tab-title/${companyId}`, {tab_title})
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Tab title has been saved. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  removeTabTitle(companyId: string) {
+    return this._http.delete<any>(`/company/tab-title/${companyId}`)
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar('Tab title has been removed. Please rerefresh the page to see the changes.');
+          this.company.next('updated-white-label-settings');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+
+  getWhiteLabelProperties(companyId: string) {
+    return this._http.get<any>(`/company/white-label-properties/${companyId}`)
+      .pipe(
+        map(res => {
+          if (res.logo && res.logo.image && res.logo.mimeType) {
+            this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
+          } else {
+            this.companyLogo = null;
+          }
+
+          if (res.favicon && res.favicon.image && res.favicon.mimeType) {
+            this.companyFavicon = `data:${res.favicon.mimeType};base64,${res.favicon.image}`;
+          } else {
+            this.companyFavicon = null;
+          }
+
+          if (res.tab_title) {
+            this.companyTabTitle = res.tab_title;
+          } else {
+            this.companyTabTitle = null;
+          }
+
+          this.companyTabTitleSubject.next(res.tab_title);
+
+          this.company.next('');
+
+          return {
+            logo: this.companyLogo,
+            favicon: this.companyFavicon,
+            tab_title: res.tab_title,
+          }
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
 }

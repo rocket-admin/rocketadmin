@@ -17,162 +17,193 @@
     </div>
 </app-banner>
 
-<div *ngIf="tableRowValues" class="wrapper">
-    <div class="row-edit-header">
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
-        <div *ngIf="rowActions && rowActions.length">
-            <div class="row-actions_desktop">
-                <button type="button" mat-icon-button *ngFor="let action of rowActions"
-                    [matTooltip]="action.title"
-                    (click)="handleActivateAction(action)">
-                    <mat-icon fontSet="material-icons-outlined">
-                        {{action.icon}}
-                    </mat-icon>
+<div class="page">
+     <div *ngIf="tableRowValues" class="wrapper" [ngClass]="{'wrapper_shifted' :selectedRow}">
+        <div class="row-edit-header">
+            <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
+            <div class="row-actions">
+                <a mat-icon-button *ngIf="permissions.add && hasKeyAttributesFromURL"
+                    routerLink="/dashboard/{{connectionID}}/{{tableName}}/entry"
+                    [queryParams]="dubURLParams"
+                    matTooltip="Duplicate row">
+                    <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
+                </a>
+                <button type="button" mat-icon-button *ngIf="permissions.delete && hasKeyAttributesFromURL"
+                    matTooltip="Delete row"
+                    (click)="handleDeleteRow()">
+                    <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
                 </button>
-            </div>
-            <div class="row-actions_mobile">
-                <button type="button" mat-stroked-button *ngFor="let action of rowActions"
-                    (click)="handleActivateAction(action)">
-                    <mat-icon fontSet="material-icons-outlined">
-                        {{action.icon}}
-                    </mat-icon>
-                    {{action.title}}
-                </button>
+                <div *ngIf="rowActions && rowActions.length">
+                    <div class="custom-actions_desktop">
+                        <button type="button" mat-icon-button *ngFor="let action of rowActions"
+                            [matTooltip]="action.title"
+                            (click)="handleActivateAction(action)">
+                            <mat-icon fontSet="material-icons-outlined">
+                                {{action.icon}}
+                            </mat-icon>
+                        </button>
+                    </div>
+                    <div class="custom-actions_mobile">
+                        <button type="button" mat-stroked-button *ngFor="let action of rowActions"
+                            (click)="handleActivateAction(action)">
+                            <mat-icon fontSet="material-icons-outlined">
+                                {{action.icon}}
+                            </mat-icon>
+                            {{action.title}}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div *ngIf="referencedTables && referencedTables.length" class="related-views">
+        <div *ngIf="referencedTables && referencedTables.length" class="related-views">
 
-        <h3>
-            Records related to&nbsp;
-            <span *ngIf="tableRowValues[identityColumn]">"{{tableRowValues[identityColumn]}}"</span>
-            <span *ngIf="!tableRowValues[identityColumn]">this row</span>
-        </h3>
+            <h3>
+                Records related to&nbsp;
+                <span *ngIf="tableRowValues[identityColumn]">"{{tableRowValues[identityColumn]}}"</span>
+                <span *ngIf="!tableRowValues[identityColumn]">this row</span>
+            </h3>
 
-        <mat-accordion multi="true">
-            <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index">
-                <mat-expansion-panel-header>
-                    <mat-panel-title class="related-records__table-name"> {{referencedTable.displayTableName}} </mat-panel-title>
-                    <mat-panel-description class="related-records__actions">
-                        <span *ngIf="!referencedRecords[referencedTable.table_name]?.rows.length">Absent</span>
-                        <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]?.rows.length"
-                            [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'settings']"
-                            matTooltip="Set up records view">
-                            <mat-icon>settings</mat-icon>
-                        </a>
-                        <a mat-icon-button
-                            routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
-                            [queryParams]="referencedTablesURLParams[i]"
-                            matTooltip="Open records in table view">
-                            <mat-icon>open_in_new</mat-icon>
-                        </a>
-                    </mat-panel-description>
-                </mat-expansion-panel-header>
+            <mat-accordion multi="true">
+                <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index" class="related-records__panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title class="related-records__table-name"> {{referencedTable.displayTableName}} </mat-panel-title>
+                        <mat-panel-description class="related-records__actions">
+                            <mat-spinner *ngIf="!referencedRecords[referencedTable.table_name]" diameter="20"></mat-spinner>
+                            <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rawRows.length">Absent</span>
+                            <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rawRows.length"
+                                [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'settings']"
+                                matTooltip="Set up records view">
+                                <mat-icon>settings</mat-icon>
+                            </a>
+                            <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]"
+                                routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
+                                [queryParams]="referencedTablesURLParams[i]"
+                                matTooltip="Open records in table view">
+                                <mat-icon>open_in_new</mat-icon>
+                            </a>
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
 
-                <mat-nav-list>
-                    <a mat-list-item *ngFor="let row of referencedRecords[referencedTable.table_name]?.rows; let i = index" class="related-record"
-                        [routerLink]="['/dashboard', connectionID, referencedTable.table_name, 'entry']"
-                        [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]">
-                        <span matListItemTitle>{{row[referencedRecords[referencedTable.table_name].identityColumn]}}</span>
-                        <span matListItemLine>
-                            <span *ngFor="let field_name of referencedRecords[referencedTable.table_name].fieldsOrder">
-                                <strong>{{field_name}}:</strong>
-                                {{row[field_name] | json}}
+                    <mat-nav-list>
+                        <mat-list-item *ngFor="let rawRow of referencedRecords[referencedTable.table_name]?.rawRows; let i = index"
+                            class="related-record" (click)="handleViewRow(referencedTable.table_name, rawRow)">
+                            <span matListItemTitle>
+                                <strong *ngIf="!referencedRecords[referencedTable.table_name].identityColumn.isSet">
+                                    {{referencedRecords[referencedTable.table_name].identityColumn.displayName}}:&nbsp;
+                                </strong>
+                                {{ referencedRecords[referencedTable.table_name].formattedRows[i][referencedRecords[referencedTable.table_name].identityColumn.name] }}
                             </span>
-                        </span>
-                    </a>
-                </mat-nav-list>
-            </mat-expansion-panel>
-        </mat-accordion>
-    </div>
+                            <span matListItemLine class="related-record__fields">
+                                <span *ngFor="let field of referencedRecords[referencedTable.table_name].fieldsOrder" class="related-record__field">
+                                    <strong class="related-record__fieldName">{{field.displayName}}:</strong>
+                                    <span>{{ referencedRecords[referencedTable.table_name].formattedRows[i][field.fieldName] }};</span>
+                                </span>
+                            </span>
+                        </mat-list-item>
+                    </mat-nav-list>
+                </mat-expansion-panel>
+            </mat-accordion>
+        </div>
 
-    <form #editRowForm="ngForm" class="form"
-        (ngSubmit)="handleRowSubmitting(false)">
-        <div *ngFor="let value of fieldsOrdered; let index = index">
-                <!-- <mat-form-field class="example-form-field" appearance="outline">
-                    <mat-label>test label</mat-label>
-                    <input matInput type="text" required name="test-name" ngModel>
-                    <mat-error>!!!</mat-error>
-                </mat-form-field> -->
-            <div *ngIf="isWidget(value); else defaultTableField" [ngClass]="{ widget: tableWidgets[value].description }">
-                <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value].widget_type ? UIwidgets[tableWidgets[value].widget_type] : inputs[tableTypes[value]]"
-                    [ndcDynamicInputs]="{
-                        key: index,
-                        label: tableWidgets[value].name || value,
-                        value: tableRowValues[value],
-                        required: tableRowRequiredValues[value],
-                        readonly: !permissions?.edit && pageAction !== 'dub',
-                        disabled: isReadonlyField(value),
-                        widgetStructure: tableWidgets[value],
-                        relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
-                    }"
-                    [ndcDynamicOutputs]="{
-                        onFieldChange: { handler: updateField, args: ['$event', value] }
-                    }"
-                ></ndc-dynamic>
-                <mat-icon *ngIf="tableWidgets[value].description"
-                    class="widget-info"
-                    [ngClass]="{ 'widget-info_centered': tableWidgets[value].widget_type === 'Boolean' || tableTypes[value] === 'boolean' }"
-                    [matTooltip]="tableWidgets[value].description"
-                    matTooltipPosition="above">
-                    info_outline
-                </mat-icon>
+        <form #editRowForm="ngForm" class="form"
+            (ngSubmit)="handleRowSubmitting(false)">
+            <div>
+                <div style="display: flex; flex-direction: column">
+                    <div *ngFor="let value of fieldsOrdered; let index = index" style="display: flex; flex-direction: column">
+                        <!-- <mat-form-field class="example-form-field" appearance="outline">
+                            <mat-label>test label</mat-label>
+                            <input matInput type="text" required name="test-name" ngModel>
+                            <mat-error>!!!</mat-error>
+                        </mat-form-field> -->
+                        <div *ngIf="isWidget(value); else defaultTableField" [ngClass]="{ widget: tableWidgets[value].description }">
+                            <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value].widget_type ? UIwidgets[tableWidgets[value].widget_type] : inputs[tableTypes[value]]"
+                                [ndcDynamicInputs]="{
+                                    key: index,
+                                    label: tableWidgets[value].name || value,
+                                    value: tableRowValues[value],
+                                    required: tableRowRequiredValues[value],
+                                    readonly: !permissions?.edit && pageAction !== 'dub',
+                                    disabled: isReadonlyField(value),
+                                    widgetStructure: tableWidgets[value],
+                                    relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
+                                }"
+                                [ndcDynamicOutputs]="{
+                                    onFieldChange: { handler: updateField, args: ['$event', value] }
+                                }"
+                            ></ndc-dynamic>
+                            <mat-icon *ngIf="tableWidgets[value].description"
+                                class="widget-info"
+                                [ngClass]="{ 'widget-info_centered': tableWidgets[value].widget_type === 'Boolean' || tableTypes[value] === 'boolean' }"
+                                [matTooltip]="tableWidgets[value].description"
+                                matTooltipPosition="above">
+                                info_outline
+                            </mat-icon>
+                        </div>
+
+                        <ng-template #defaultTableField>
+                            <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value]]"
+                                [ndcDynamicInputs]="{
+                                    key: index,
+                                    label: value,
+                                    value: tableRowValues[value],
+                                    required: tableRowRequiredValues[value],
+                                    readonly: !permissions?.edit && pageAction !== 'dub',
+                                    disabled: isReadonlyField(value),
+                                    structure: tableRowStructure[value],
+                                    relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
+                                }"
+                                [ndcDynamicOutputs]="{
+                                    onFieldChange: { handler: updateField, args: ['$event', value] }
+                                }"
+                            ></ndc-dynamic>
+                        </ng-template>
+                    </div>
+                </div>
             </div>
 
-            <ng-template #defaultTableField>
-                <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value]]"
-                    [ndcDynamicInputs]="{
-                        key: index,
-                        label: value,
-                        value: tableRowValues[value],
-                        required: tableRowRequiredValues[value],
-                        readonly: !permissions?.edit && pageAction !== 'dub',
-                        disabled: isReadonlyField(value),
-                        structure: tableRowStructure[value],
-                        relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
-                    }"
-                    [ndcDynamicOutputs]="{
-                        onFieldChange: { handler: updateField, args: ['$event', value] }
-                    }"
-                ></ndc-dynamic>
-            </ng-template>
-        </div>
+            <div class="actions">
+                <div class="actions-box">
+                    <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
+                        [queryParams]="backUrlParams"
+                        data-testid="record-back-to-table-button">
+                        Back
+                    </a>
+                    <button type="button" mat-button color="primary"
+                        *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
+                        class="actions__continue"
+                        data-testid="record-save-and-continue-editing-button"
+                        [disabled]="submitting || editRowForm.form.invalid"
+                        (click)="handleRowSubmitting(true)">
+                        Save and continue editing
+                    </button>
 
-        <div class="actions">
-            <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
-                [queryParams]="backUrlParams"
-                data-testid="record-back-to-table-button">
-                Back
-            </a>
-            <button type="button" mat-button color="primary"
-                *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
-                class="actions__continue"
-                data-testid="record-save-and-continue-editing-button"
-                [disabled]="submitting || editRowForm.form.invalid"
-                (click)="handleRowSubmitting(true)">
-                Save and continue editing
-            </button>
+                    <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
+                        type="submit" mat-flat-button color="primary"
+                        data-testid="record-edit-button"
+                        [disabled]="submitting || editRowForm.form.invalid">
+                        Save
+                    </button>
 
-            <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
-                type="submit" mat-flat-button color="primary"
-                data-testid="record-edit-button"
-                [disabled]="submitting || editRowForm.form.invalid">
-                Save
-            </button>
+                    <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
+                        type="submit" mat-flat-button color="primary"
+                        data-testid="record-duplicate-button"
+                        [disabled]="submitting || editRowForm.form.invalid">
+                        Duplicate
+                    </button>
 
-            <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
-                type="submit" mat-flat-button color="primary"
-                data-testid="record-duplicate-button"
-                [disabled]="submitting || editRowForm.form.invalid">
-                Duplicate
-            </button>
+                    <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"
+                        data-testid="record-add-button"
+                        [disabled]="submitting || editRowForm.form.invalid">
+                        Add
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 
-            <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"
-                data-testid="record-add-button"
-                [disabled]="submitting || editRowForm.form.invalid">
-                Add
-            </button>
-        </div>
-    </form>
+    <app-db-table-row-view *ngIf="selectedRow"
+        [activeFilters]="null"
+    ></app-db-table-row-view>
 </div>
+

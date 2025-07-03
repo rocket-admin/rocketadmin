@@ -1,25 +1,8 @@
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
-import {
-  TableAccessLevelsDs,
-  TablePermissionDs,
-} from '../permission/application/data-structures/create-permissions.ds.js';
-import { ITableAccessLevel } from '../permission/permission.interface.js';
+import { ApiProperty } from '@nestjs/swagger';
+import { FilterCriteriaEnum } from '../../enums/index.js';
+import { TableAccessLevelsDs } from '../permission/application/data-structures/create-permissions.ds.js';
 import { FoundActionEventDTO } from '../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { TableWidgetRO } from '../widget/table-widget.interface.js';
-import { ApiProperty } from '@nestjs/swagger';
-
-export class AllTablesWithPermissionsDs {
-  @ApiProperty({ isArray: true })
-  tables: Array<TablePermissionDs>;
-}
-
-export class AutocompleteFieldsDs {
-  @ApiProperty({ isArray: true })
-  fields: Array<string>;
-
-  @ApiProperty()
-  value: string;
-}
 
 export class FilteringFieldsDs {
   @ApiProperty()
@@ -63,14 +46,6 @@ export class ForeignKeyDSStructure {
   autocomplete_columns: Array<string>;
 }
 
-export class IOrderingField {
-  @ApiProperty()
-  field: string;
-
-  @ApiProperty({ enum: QueryOrderingEnum })
-  value: QueryOrderingEnum;
-}
-
 export class PaginationRO {
   @ApiProperty()
   total: number;
@@ -88,26 +63,6 @@ export class PaginationRO {
 export class PrimaryColumnNameDs {
   @ApiProperty()
   column_name: string;
-}
-
-export class StructureInfoDs {
-  @ApiProperty()
-  column_type: string;
-
-  @ApiProperty()
-  data_type: string;
-
-  @ApiProperty()
-  column_default: string;
-
-  @ApiProperty()
-  column_name: string;
-
-  @ApiProperty()
-  allow_null: boolean;
-
-  @ApiProperty()
-  extra?: string;
 }
 
 export class StructureRowInfoDs {
@@ -154,14 +109,9 @@ export class TableStructureDs {
 
   @ApiProperty()
   display_name: string;
-}
 
-export class TablePrimaryColumnInfoDs {
-  @ApiProperty()
-  data_type: string;
-
-  @ApiProperty()
-  column_name: string;
+  @ApiProperty({ isArray: true })
+  excluded_fields: Array<string>;
 }
 
 export class ReferencedByTableInfoDs {
@@ -219,22 +169,4 @@ export class TableRowRODs {
 
   @ApiProperty({ isArray: true, type: ReferencedTableNamesAndColumnsDs })
   referenced_table_names_and_columns: Array<ReferencedTableNamesAndColumnsDs>;
-}
-
-export class TableRowsRO {
-  rows: Array<Record<string, unknown>>;
-  primaryColumns: Array<PrimaryColumnNameDs>;
-  pagination: PaginationRO | Record<string, unknown>;
-  sortable_by: Array<string>;
-  ordering_field: string;
-  ordering: QueryOrderingEnum;
-  columns_view: Array<string>;
-  structure: Array<StructureRowInfoDs>;
-  foreignKeys: Array<ForeignKeyDSStructure>;
-}
-
-export class TablesWithTableAccessLevelDs {
-  table: string;
-  permissions: Array<ITableAccessLevel>;
-  display_name?: string;
 }

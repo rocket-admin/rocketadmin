@@ -2,12 +2,11 @@ import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/co
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
 import { IRemoveUserFromCompany } from './company-info-use-cases.interface.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class RemoveUserFromCompanyUseCase
@@ -50,20 +49,10 @@ export class RemoveUserFromCompanyUseCase
         HttpStatus.NOT_FOUND,
       );
     }
-    if (isSaaS()) {
-      const saasResponse = await this.saasCompanyGatewayService.removeUserFromCompany(companyId, foundUser.id);
-      if (!saasResponse) {
-        throw new HttpException(
-          {
-            message: Messages.FAILED_REMOVE_USER_SAAS_UNHANDLED_ERROR,
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
     foundCompanyWithUsers.users = foundCompanyWithUsers.users.filter((user) => user.id !== userId);
     await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
     await this._dbContext.userRepository.remove(foundUser);
+    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
     return {
       success: true,
     };

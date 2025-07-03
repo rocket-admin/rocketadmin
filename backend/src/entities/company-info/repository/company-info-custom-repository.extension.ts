@@ -1,3 +1,5 @@
+import { Constants } from '../../../helpers/constants/constants.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 import { ICompanyInfoRepository } from './company-info-repository.interface.js';
 
@@ -49,6 +51,9 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
   // returns groups and connections where user is invited
   async findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
     return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.logo', 'logo')
+      .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
       .leftJoinAndSelect('company_info.users', 'current_user')
       .leftJoinAndSelect('company_info.users', 'users')
       .leftJoinAndSelect('company_info.connections', 'connections')
@@ -78,6 +83,9 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .leftJoinAndSelect('company_info.users', 'current_user')
       .leftJoinAndSelect('company_info.users', 'users')
       .leftJoinAndSelect('company_info.invitations', 'invitations')
+      .leftJoinAndSelect('company_info.logo', 'logo')
+      .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
       .where('company_info.id = :companyId', { companyId })
       .getOne();
   },
@@ -87,6 +95,9 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
   async findAllCompanyWithConnectionsUsersJoining(companyId: string): Promise<CompanyInfoEntity> {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.users', 'users')
+      .leftJoinAndSelect('company_info.logo', 'logo')
+      .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
       .leftJoinAndSelect('users.groups', 'groups')
       .leftJoinAndSelect('groups.connection', 'connections')
       .leftJoinAndSelect('connections.author', 'connection_author')
@@ -102,5 +113,63 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .where('users.email = :userEmail', { userEmail: userEmail?.toLowerCase() })
       .andWhere('users."externalRegistrationProvider" IS NULL')
       .getMany();
+  },
+
+  async findCompaniesPaidConnections(companyIds: Array<string>): Promise<ConnectionEntity[]> {
+    const paidConnectionTypes = Constants.PAID_CONNECTIONS_TYPES;
+    const foundCompaniesWithPaidConnections = await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.connections', 'connections')
+      .where('company_info.id IN (:...companyIds)', { companyIds })
+      .andWhere('connections.type IN (:...paidConnectionTypes)', { paidConnectionTypes })
+      .andWhere('connections.isTestConnection IS FALSE')
+      .andWhere('connections.is_frozen IS FALSE')
+      .getMany();
+    return foundCompaniesWithPaidConnections.map((companyInfo: CompanyInfoEntity) => {
+      return companyInfo.connections;
+    });
+  },
+
+  async findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>> {
+    const paidConnectionTypes = Constants.PAID_CONNECTIONS_TYPES;
+    const foundCompaniesWithPaidConnections = await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.connections', 'connections')
+      .where('company_info.id IN (:...companyIds)', { companyIds })
+      .andWhere('connections.type IN (:...paidConnectionTypes)', { paidConnectionTypes })
+      .andWhere('connections.isTestConnection IS FALSE')
+      .andWhere('connections.is_frozen IS TRUE')
+      .getMany();
+    return foundCompaniesWithPaidConnections.map((companyInfo: CompanyInfoEntity) => {
+      return companyInfo.connections;
+    });
+  },
+
+  async findCompanyWithLogo(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.logo', 'logo')
+      .where('company_info.id = :companyId', { companyId })
+      .getOne();
+  },
+
+  async findCompanyWithFavicon(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .where('company_info.id = :companyId', { companyId })
+      .getOne();
+  },
+
+  async findCompanyWithTabTitle(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
+      .where('company_info.id = :companyId', { companyId })
+      .getOne();
+  },
+
+  async findCompanyWithWhiteLabelProperties(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.logo', 'logo')
+      .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
+      .where('company_info.id = :companyId', { companyId })
+      .getOne();
   },
 };

@@ -31,6 +31,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { UserService } from 'src/app/services/user.service';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
@@ -85,7 +86,6 @@ export class DbTableActionsComponent implements OnInit {
 
   public defaultIcons = ['favorite_outline', 'star_outline', 'done', 'arrow_forward', 'key_outline', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
-  public codeLangSelected: string = 'cs';
   public signingKey: string;
 
   public codeViewerOptions = {
@@ -102,6 +102,7 @@ export class DbTableActionsComponent implements OnInit {
     { value: EventType.Custom, label: 'Custom' }
   ];
   public selectedEvents: string[] = [];
+  public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
 
   constructor(
     private _connections: ConnectionsService,
@@ -109,6 +110,7 @@ export class DbTableActionsComponent implements OnInit {
     private _notifications: NotificationsService,
     private _company: CompanyService,
     private _userService: UserService,
+    private _uiSettings: UiSettingsService,
     public dialog: MatDialog,
     private title: Title,
     private angulartics2: Angulartics2,
@@ -119,13 +121,14 @@ export class DbTableActionsComponent implements OnInit {
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
     this._connections.getCurrentConnectionSigningKey().subscribe(signingKey => this.codeSnippets = codeSnippets(signingKey));
+    this.codeEditorTheme = this._uiSettings.editorTheme;
 
     try {
       this.rulesData = await this.getRules();
       console.log(this.rulesData);
       this.rules = this.rulesData.action_rules;
       if (this.rules.length) this.setSelectedRule(this.rules[0]);
-      this.title.setTitle(`${this.rulesData.display_name || this.normalizedTableName} - Actions | Rocketadmin`);
+      this.title.setTitle(`${this.rulesData.display_name || this.normalizedTableName} - Actions | ${this._company.companyTabTitle || 'Rocketadmin'}`);
     } catch(error) {
       if (error instanceof HttpErrorResponse) {
         this.rulesData = null;
@@ -145,8 +148,7 @@ export class DbTableActionsComponent implements OnInit {
         try {
           this.rulesData = await this.getRules();
           this.rules = this.rulesData.action_rules;
-          this.selectedRule = this.rules[0];
-          this.selectedRuleTitle = this.selectedRule.title;
+          if (this.rules.length) this.setSelectedRule(this.rules[0]);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -176,7 +178,7 @@ export class DbTableActionsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: 'Rules for actions',
+        label: 'Automations',
         link: null
       }
     ]

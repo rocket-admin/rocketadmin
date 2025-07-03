@@ -86,7 +86,7 @@ test.after(async () => {
 // });
 
 currentTest = 'POST custom-domain/register/:companyId';
-test.skip(`${currentTest} - should return registered custom domain`, async (t) => {
+test.serial(`${currentTest} - should return registered custom domain`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -118,8 +118,8 @@ test.skip(`${currentTest} - should return registered custom domain`, async (t) =
       requestDomainData,
       adminUserToken,
     );
-    t.is(registerDomainResponse.status, 201);
     const registerDomainResponseRO = await registerDomainResponse.json();
+    t.is(registerDomainResponse.status, 201);
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
@@ -131,7 +131,7 @@ test.skip(`${currentTest} - should return registered custom domain`, async (t) =
   }
 });
 
-test.skip(`${currentTest} - should throw exception when hostname is incorrect`, async (t) => {
+test.serial(`${currentTest} - should throw exception when hostname is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -171,7 +171,7 @@ test.skip(`${currentTest} - should throw exception when hostname is incorrect`, 
 
 currentTest = 'GET custom-domain/:companyId';
 
-test.skip(`${currentTest} - should return found custom domain`, async (t) => {
+test.serial(`${currentTest} - should return found custom domain`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -246,7 +246,7 @@ test.skip(`${currentTest} - should return found custom domain`, async (t) => {
   }
 });
 
-test.skip(`${currentTest} - should throw exception when company id is invalid`, async (t) => {
+test.serial(`${currentTest} - should throw exception when company id is invalid`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -300,7 +300,7 @@ test.skip(`${currentTest} - should throw exception when company id is invalid`, 
 });
 
 currentTest = 'PUT custom-domain/update/:companyId';
-test.skip(`${currentTest} - should return updated custom domain`, async (t) => {
+test.serial(`${currentTest} - should return updated custom domain`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -351,8 +351,9 @@ test.skip(`${currentTest} - should return updated custom domain`, async (t) => {
       updateDomainData,
       adminUserToken,
     );
-    t.is(updateDomainResponse.status, 200);
+
     const updateDomainResponseRO = await updateDomainResponse.json();
+    t.is(updateDomainResponse.status, 200);
     t.is(updateDomainResponseRO.hostname, updatedCustomDomain);
     t.is(updateDomainResponseRO.companyId, companyId);
     t.is(updateDomainResponseRO.hasOwnProperty('id'), true);
@@ -364,7 +365,7 @@ test.skip(`${currentTest} - should return updated custom domain`, async (t) => {
   }
 });
 
-test.skip(`${currentTest} - should throw exception when hostname is invalid`, async (t) => {
+test.serial(`${currentTest} - should throw exception when hostname is invalid`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -396,9 +397,9 @@ test.skip(`${currentTest} - should throw exception when hostname is invalid`, as
       requestDomainData,
       adminUserToken,
     );
-    t.is(registerDomainResponse.status, 201);
-    const registerDomainResponseRO = await registerDomainResponse.json();
 
+    const registerDomainResponseRO = await registerDomainResponse.json();
+    t.is(registerDomainResponse.status, 201);
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
     t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
@@ -420,7 +421,7 @@ test.skip(`${currentTest} - should throw exception when hostname is invalid`, as
   }
 });
 
-test.skip(`${currentTest} - should throw exception when company id is incorrect`, async (t) => {
+test.serial(`${currentTest} - should throw exception when company id is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -478,7 +479,7 @@ test.skip(`${currentTest} - should throw exception when company id is incorrect`
 });
 
 currentTest = 'DELETE custom-domain/delete/:companyId';
-test.skip(`${currentTest} - should delete custom domain`, async (t) => {
+test.serial(`${currentTest} - should delete custom domain`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {

@@ -72,6 +72,9 @@ export class FoundDirectConnectionsDs {
   @ApiProperty({ required: false })
   authSource?: string;
 
+  @ApiProperty({ required: false })
+  dataCenter?: string;
+
   @ApiProperty()
   isTestConnection: boolean;
 
@@ -129,11 +132,6 @@ export class FoundAgentConnectionsDs {
 
   @ApiProperty({ required: false })
   connection_properties: any;
-}
-
-export class FoundDirectConnectionsWithGroupAndUsersDs extends FoundDirectConnectionsDs {
-  @ApiProperty({ isArray: true })
-  groups: Array<FoundGroupDataWithUsersDs>;
 }
 
 export class FoundSipleConnectionInfoDS {

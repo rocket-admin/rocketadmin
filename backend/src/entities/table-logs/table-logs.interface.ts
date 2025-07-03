@@ -1,6 +1,4 @@
-import { PaginationRO } from '../table/table-datastructures.js';
-import { LogOperationTypeEnum } from '../../enums/index.js';
-import { OperationResultStatusEnum } from '../../enums/index.js';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums/index.js';
 
 export interface ITableLogRO {
   table_name: string;
@@ -13,7 +11,3 @@ export interface ITableLogRO {
   connection_id: string;
 }
 
-export interface ITableLogsRO {
-  logs: Array<ITableLogRO>;
-  pagination: PaginationRO;
-}

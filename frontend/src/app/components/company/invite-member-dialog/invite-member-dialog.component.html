@@ -5,19 +5,55 @@
             <mat-label>Enter user email</mat-label>
             <input matInput type="email" [(ngModel)]="companyMemberEmail"
                 name="email" #email="ngModel" required emailValidator [disabled]="submitting">
-            <mat-error *ngIf="email.errors?.required && (email.invalid && email.touched)">Title should not be empty.</mat-error>
+            <mat-error *ngIf="email.errors?.required && (email.invalid && email.touched)">Email should not be empty.</mat-error>
             <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="add-member-input">
+        <div style="margin-bottom: 16px">
+            <button mat-stroked-button type="button" [matMenuTriggerFor]="menu"
+                class="role-button"
+                angulartics2On="click"
+                angularticsAction="Company: role is clicked">
+                {{ companyRolesName[companyMemberRole] }}
+                <mat-icon iconPositionEnd style="margin-left: auto">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item class="role-option"
+                    (click)="companyMemberRole = CompanyMemberRole.CAO">
+                    <div class="role-option-header">
+                        <strong>Account Owner</strong>
+                        <mat-icon *ngIf="companyMemberRole === CompanyMemberRole.CAO" class="role-option-header__mark">check</mat-icon>
+                    </div>
+                    <div class="role-option__description">Can manage company information, <br> and has full control over databases</div>
+                </button>
+                <button mat-menu-item class="role-option"
+                    (click)="companyMemberRole = CompanyMemberRole.SystemAdmin">
+                    <div class="role-option-header">
+                        <strong>System Admin</strong>
+                        <mat-icon *ngIf="companyMemberRole === CompanyMemberRole.SystemAdmin" class="role-option-header__mark">check</mat-icon>
+                    </div>
+                    <div class="role-option__description">Can view company information, <br> and has full control over databases</div>
+                </button>
+                <button mat-menu-item class="role-option-header"
+                    (click)="companyMemberRole = CompanyMemberRole.Member">
+                    <div class="role-option-header">
+                        <strong>Member</strong>
+                        <mat-icon *ngIf="companyMemberRole === CompanyMemberRole.Member" class="role-option-header__mark">check</mat-icon>
+                    </div>
+                    <div class="role-option__description">Can view company information, <br> and can manage existing databases</div>
+                </button>
+            </mat-menu>
+        </div>
+
+        <!--<mat-form-field appearance="outline" class="add-member-input">
             <mat-label>Role</mat-label>
             <mat-select name="memberType" #memberType="ngModel"
                 [disabled]="submitting"
                 [(ngModel)]="companyMemberRole">
-                <mat-option value="ADMIN">Chief Account Officer</mat-option>
+                <mat-option value="ADMIN">Account Owner</mat-option>
                 <mat-option value="DB_ADMIN">System Admin</mat-option>
-                <mat-option value="USER">Specialist</mat-option>
+                <mat-option value="USER">Member</mat-option>
             </mat-select>
-        </mat-form-field>
+        </mat-form-field>-->
 
         <mat-form-field appearance="outline" class="add-member-input">
             <mat-label>Group</mat-label>

@@ -12,10 +12,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subject } from 'rxjs';
-import { TablesService } from 'src/app/services/tables.service';
 import { RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
 import { TableForeignKey } from 'src/app/models/table';
+import { TablesService } from 'src/app/services/tables.service';
 
 interface Suggestion {
   displayString: string;
@@ -60,8 +60,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
   ) {
     super();
     this.autocmpleteUpdate.pipe(
-      debounceTime(500),
-      distinctUntilChanged())
+      debounceTime(500))
       .subscribe(value => {
         if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
         this.fetchSuggestions();
@@ -77,9 +76,6 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
     } else if (this.relations) {
       this.fkRelations = this.relations;
     }
-
-    console.log('test fkRelations');
-    console.log(this.fkRelations);
 
     this.fkRelations && this._tables.fetchTable({
         connectionID: this.connectionID,
@@ -98,8 +94,6 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
               this.identityColumn ?
                 `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
                 Object.values(modifiedRow).filter(value => value).join(' | ');
-              console.log('test identityColumn');
-              console.log(this.currentDisplayedString);
               this.currentFieldValue = res.rows[0][this.fkRelations.referenced_column_name];
             this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
             this.onFieldChange.emit(this.currentFieldValue);
@@ -134,6 +128,8 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
     if (currentRow !== undefined) {
       this.currentFieldValue = currentRow.fieldValue;
       // this.currentFieldQueryParams = Object.assign({}, ...this.primaeyKeys.map((primaeyKey) => ({[primaeyKey.column_name]: currentRow[primaeyKey.column_name]})));
+      console.log(this.label + 'this.currentFieldValue');
+      console.log(this.currentFieldValue);
       this.onFieldChange.emit(this.currentFieldValue);
     } else {
       this.fetching = true;

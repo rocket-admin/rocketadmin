@@ -7,6 +7,3 @@ export function escapeHtml(unsafe: string): string {
     .replace(/'/g, '&#039;');
 }
 
-export function wrapStringInTagAWithoutLink(stringToWrap: string): string {
-  return `<a>${stringToWrap}</a>`;
-}

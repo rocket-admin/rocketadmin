@@ -84,6 +84,12 @@ import { IAiUserFilesRepository } from '../../entities/ai/ai-data-entities/ai-us
 import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files.entity.js';
 import { aiUserThreadRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.extension.js';
 import { aiUserFileRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-file-repository.extension.js';
+import { CompanyLogoEntity } from '../../entities/company-logo/company-logo.entity.js';
+import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
+import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-tab-title.entity.js';
+import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
+import { ITableFiltersCustomRepository } from '../../entities/table-filters/repository/table-filters-custom-repository.interface.js';
+import { tableFiltersCustomRepositoryExtension } from '../../entities/table-filters/repository/table-filters-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -118,6 +124,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
   private _aiUserThreadsRepository: Repository<AiUserThreadEntity> & IAiUserThreadsRepository;
   private _aiUserFilesRepository: Repository<AiUserFileEntity> & IAiUserFilesRepository;
+  private _companyLogoRepository: Repository<CompanyLogoEntity>;
+  private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
+  private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
+  private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -200,6 +210,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._aiUserFilesRepository = this.appDataSource
       .getRepository(AiUserFileEntity)
       .extend(aiUserFileRepositoryExtension);
+    this._companyLogoRepository = this.appDataSource.getRepository(CompanyLogoEntity);
+    this._companyFaviconRepository = this.appDataSource.getRepository(CompanyFaviconEntity);
+    this._companyTabTitleRepository = this.appDataSource.getRepository(CompanyTabTitleEntity);
+    this._tableFiltersRepository = this.appDataSource
+      .getRepository(TableFiltersEntity)
+      .extend(tableFiltersCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -316,6 +332,22 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get aiUserFilesRepository(): Repository<AiUserFileEntity> & IAiUserFilesRepository {
     return this._aiUserFilesRepository;
+  }
+
+  public get companyLogoRepository(): Repository<CompanyLogoEntity> {
+    return this._companyLogoRepository;
+  }
+
+  public get companyFaviconRepository(): Repository<CompanyFaviconEntity> {
+    return this._companyFaviconRepository;
+  }
+
+  public get companyTabTitleRepository(): Repository<CompanyTabTitleEntity> {
+    return this._companyTabTitleRepository;
+  }
+
+  public get tableFiltersRepository(): Repository<TableFiltersEntity> & ITableFiltersCustomRepository {
+    return this._tableFiltersRepository;
   }
 
   public startTransaction(): Promise<void> {

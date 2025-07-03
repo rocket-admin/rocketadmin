@@ -1,7 +1,7 @@
 <mat-drawer-container class="drawer">
     <mat-drawer mode="side" opened>
         <div class="drawer-header">
-            <h1 class="mat-h1">Rules</h1>
+            <h1 class="mat-h1">Automations</h1>
 
             <button mat-icon-button color="primary" *ngIf="rulesData && rules && rules.length !== 0"
                 type="button" class="add-icon-button"
@@ -12,14 +12,7 @@
             </button>
         </div>
         <div class="no-actions" *ngIf="rulesData && rules && rules.length === 0 && !newRule">
-            <span class="mat-body-1">No rules added</span>
-            <button mat-stroked-button color="primary" type="button"
-                angulartics2On="click"
-                angularticsAction="Actions: add action is clicked"
-                (click)="addNewRule()">
-                <mat-icon>add</mat-icon>
-                Add rule
-            </button>
+            <span>No added automations</span>
         </div>
         <mat-action-list *ngIf="rulesData && rules && rules.length">
             <button mat-list-item *ngFor="let rule of rules; let i = index"
@@ -58,13 +51,13 @@
                     <input matInput [(ngModel)]="selectedRuleTitle" name="rule-title" required>
                 </mat-form-field>
                 <div class="event">
-                    <span class="mat-body-1 text_highlighted">When</span>
+                    <span class="mat-body-1 text_highlighted">Trigger(s)</span>
                     <br/>
                     <div *ngFor="let event of selectedRule.events; let i = index">
                         <div class="event">
                             <span *ngIf="i > 0" class="mat-body-1 event__or text_highlighted">or</span>
                             <mat-form-field appearance="outline">
-                                <mat-label>Events</mat-label>
+                                <mat-label>Event</mat-label>
                                 <mat-select name="{{event.event}}-event-type"
                                     [required]="selectedRule.events.length === 1"
                                     [(ngModel)]="event.event"
@@ -124,9 +117,9 @@
                     </div>
                 </div>
 
-                <span class="mat-body-1"><span class="text_highlighted">then</span> perform action(s)</span>
-                <div *ngFor="let action of selectedRule.table_actions" >
+                <div *ngFor="let action of selectedRule.table_actions">
                     <div class="rule-action">
+                        <span class="mat-body-1 text_highlighted rule-action__label">Action</span>
                         <mat-form-field appearance="outline">
                             <mat-label>Actions type</mat-label>
                             <mat-select name="action-column" [(ngModel)]="action.method">
@@ -162,12 +155,12 @@
                                     class="copy-button"
                                     matTooltip="Copy code"
                                     [cdkCopyToClipboard]="lang.value.snippet"
-                                    (cdkCopyToClipboardCopied)="showCopyNotification(codeSnippets[codeLangSelected].langName + 'code snippet was copied to clipboard.')">
+                                    (cdkCopyToClipboardCopied)="showCopyNotification(lang.value.langName + ' code snippet was copied to clipboard.')">
                                     <mat-icon>content_copy</mat-icon>
                                 </button>
 
                                 <ngs-code-editor
-                                    theme="vs"
+                                    [theme]="codeEditorTheme"
                                     [codeModel]="{
                                         language: lang.value.mode,
                                         uri: 'snippet.' + (lang.value.mode || 'txt'),
@@ -192,6 +185,66 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+        <div *ngIf="!selectedRule || !rules.length" class="empty-state">
+            <p class="actions-hint">
+                <strong class="actions-hint__title">Configure custom triggers and actions for database records</strong>
+                <span class="actions-hint__text">React to standard operations like create, update, delete, or define your own.</span>
+            </p>
+            <button mat-flat-button color="accent"
+                angulartics2On="click"
+                angularticsAction="Actions: add first action is clicked"
+                (click)="addNewRule()">
+                Create automation
+            </button>
+            <div class="rules-examples">
+                <div class="rule-example">
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Trigger</span>
+                        <span class="rule-example__value">Add row</span>
+                        <span class="rule-example__value" style="margin-left: -16px;">Update row</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Action</span>
+                        <span class="rule-example__value">send&nbsp;<strong>email</strong>&nbsp;notification</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">to</span>
+                        <span class="rule-example__value">admin&#64;example.com, user&#64;example.com</span>
+                    </div>
+                </div>
+
+                <div class="rule-example">
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Trigger</span>
+                        <span class="rule-example__value">Delete row</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Action</span>
+                        <span class="rule-example__value">send&nbsp;<strong>Slack</strong>&nbsp;notification</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">to</span>
+                        <span class="rule-example__value">https://hooks.slack.com/services/...</span>
+                    </div>
+                </div>
+
+                <div class="rule-example">
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Trigger</span>
+                        <span class="rule-example__value"><mat-icon>block</mat-icon>&nbsp;Block user</span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">Action</span>
+                        <span class="rule-example__value">send&nbsp;<strong>webhook</strong></span>
+                    </div>
+                    <div class="rule-example__row">
+                        <span class="text_highlighted">to</span>
+                        <span class="rule-example__value">https://example.com/webhook</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </mat-drawer-content>

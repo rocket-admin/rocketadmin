@@ -629,7 +629,7 @@ export class TableController {
     @UserId() userId: string,
     @UploadedFile(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: 'text/csv' })
+        .addFileTypeValidator({ fileType: 'text/csv', skipMagicNumbersValidation: true })
         .addMaxSizeValidator({ maxSize: Constants.MAX_FILE_SIZE_IN_BYTES })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )

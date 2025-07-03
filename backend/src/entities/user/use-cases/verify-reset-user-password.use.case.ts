@@ -46,9 +46,9 @@ export class VerifyResetUserPasswordUseCase
       );
     }
     foundUser.password = await Encryptor.hashUserPassword(newUserPassword);
-    await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.passwordResetRepository.removePasswordResetEntity(verificationEntity);
-    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(foundUser.id);
+    const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
+    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(savedUser.id);
     return {
       id: foundUser.id,
       email: foundUser.email,

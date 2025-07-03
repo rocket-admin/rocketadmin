@@ -29,6 +29,7 @@ import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-su
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
+import { ZapierComponent } from './components/zapier/zapier.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -40,11 +41,12 @@ const routes: Routes = [
   {path: 'external/user/email/verify/:verification-token', component: EmailVerificationComponent, title: 'Email verification | Rocketadmin'},
   {path: 'external/user/email/change/verify/:change-token', component: EmailChangeComponent, title: 'Email updating | Rocketadmin'},
   {path: 'deleted', component: UserDeletedSuccessComponent, title: 'User deleted | Rocketadmin'},
-  {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard], title: 'Add new database | Rocketadmin'},
-  {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard], title: 'Connections | Rocketadmin'},
-  {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},
-  {path: 'company', component: CompanyComponent, canActivate: [AuthGuard], title: 'Company settings | Rocketadmin'},
-  {path: 'company/:company-id/verify/:verification-token', component: CompanyMemberInvitationComponent, title: 'Invitation | Rocketadmin'},
+  {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard]},
+  {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard]},
+  {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard]},
+  // company routes have to be in this specific order
+  {path: 'company/:company-id/verify/:verification-token', pathMatch: 'full', component: CompanyMemberInvitationComponent, title: 'Invitation | Rocketadmin'},
+  {path: 'company', pathMatch: 'full', component: CompanyComponent, canActivate: [AuthGuard]},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
   {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard], title: 'Upgrade | Rocketadmin'},
   {path: 'upgrade/payment', component: PaymentFormComponent, canActivate: [AuthGuard], title: 'Payment | Rocketadmin'},
@@ -53,17 +55,13 @@ const routes: Routes = [
   {path: 'connection-settings/:connection-id', component: ConnectionSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id', component: DashboardComponent, canActivate: [AuthGuard]},
   {path: 'audit/:connection-id', component: AuditComponent, canActivate: [AuthGuard]},
-  // {path: 'dashboard/:connection-id', component: DashboardComponent,
-  //   children: [
-  //     {path: ':id', component: DbTableComponent}
-  //   ]
-  // },
   {path: 'dashboard/:connection-id/:table-name', pathMatch: 'full', component: DashboardComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/entry', pathMatch: 'full', component: DbTableRowEditComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/widgets', pathMatch: 'full', component: DbTableWidgetsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/settings', pathMatch: 'full', component: DbTableSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/actions', pathMatch: 'full', component: DbTableActionsComponent, canActivate: [AuthGuard]},
   {path: 'permissions/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
+  {path: 'zapier', component: ZapierComponent, canActivate: [AuthGuard]},
   {path: '**', component: PageNotFoundComponent},
 ];
 

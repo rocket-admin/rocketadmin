@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { NgForOf, NgIf } from '@angular/common';
 import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-invite-member-dialog',
@@ -25,18 +27,28 @@ import { EmailValidationDirective } from 'src/app/directives/emailValidator.dire
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatMenuModule,
+    MatIconModule,
     EmailValidationDirective
   ]
 })
 export class InviteMemberDialogComponent {
+  CompanyMemberRole = CompanyMemberRole;
+
   public companyMemberEmail: string;
-  public companyMemberRole: CompanyMemberRole = CompanyMemberRole.Specialist;
+  public companyMemberRole: CompanyMemberRole = CompanyMemberRole.Member;
   public submitting: boolean = false;
   public companyUsersGroup: string = null;
   public groups: {
     title: string,
     groups: object[]
   }[] = [];
+
+  public companyRolesName = {
+    'ADMIN': 'Account Owner',
+    'DB_ADMIN': 'System Admin',
+    'USER': 'Member'
+  }
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public company: any,

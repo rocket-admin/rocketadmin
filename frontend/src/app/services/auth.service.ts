@@ -82,6 +82,9 @@ export class AuthService {
   }
 
   loginUser(userData: ExistingAuthUser) {
+    if (userData.companyId === '') {
+      delete userData.companyId;
+    }
     return this._http.post<any>('/user/login', userData)
     .pipe(
       map(res => {
@@ -268,5 +271,27 @@ export class AuthService {
           return EMPTY;
         })
       );
+  }
+
+  loginToDemoAccount() {
+    const config = this._configuration.getConfig();
+    return this._http.post<any>(config.saasURL + '/saas/user/demo/register', undefined)
+    .pipe(
+      map(res => {
+        this.auth.next(res);
+        return res
+      }),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message || err.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: () => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
   }
 }

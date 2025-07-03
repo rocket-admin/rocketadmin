@@ -14,7 +14,3 @@ export interface IUserInfo {
   name: string;
 }
 
-export interface IUserRO {
-  email?: string;
-  user: IUserData;
-}

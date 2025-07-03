@@ -529,17 +529,16 @@ WHERE TABLE_TYPE = 'VIEW'
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const knex = await this.configureKnex();
-    const [rowsCount, tableStructure, tableSchema] = await Promise.all([
-      this.getRowsCount(tableName, null),
+    const [tableStructure, tableSchema] = await Promise.all([
       this.getTableStructure(tableName),
       this.getSchemaName(tableName),
     ]);
 
     const availableFields = this.findAvailableFields(tableSettings, tableStructure);
 
-    if (rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
-      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
-    }
+    // if (rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+    //   throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    // }
 
     if (tableSchema) {
       tableName = `${tableSchema}.[${tableName}]`;

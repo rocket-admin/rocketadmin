@@ -36,6 +36,9 @@ export const Constants = {
   FREE_PLAN_USERS_COUNT: 3,
   NON_FREE_PLAN_CONNECTION_TYPES: [ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql, ConnectionTypesEnum.oracledb],
   MAX_FILE_SIZE_IN_BYTES: 10485760,
+  MAX_COMPANY_LOGO_SIZE: 5242880,
+  MAX_COMPANY_FAVICON_SIZE: 5242880,
+  PAID_CONNECTIONS_TYPES: [ConnectionTypesEnum.oracledb, ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql],
 
   VERIFICATION_STRING_WHITELIST: () => {
     const numbers = [...Array(10).keys()].map((num) => num.toString());
@@ -49,6 +52,12 @@ export const Constants = {
   PASSWORD_HASH_ITERATIONS: 10000,
   PASSWORD_LENGTH: 256,
   DIGEST: 'sha512',
+
+  CURRENT_TIME_FORMATTED: (): string => {
+    const now = new Date();
+    const padString = (n: number) => n.toString().padStart(2, '0');
+    return `${padString(now.getHours())}:${padString(now.getMinutes())}:${padString(now.getSeconds())}`;
+  },
 
   ONE_WEEK_AGO: (): Date => {
     const today = new Date();
@@ -294,7 +303,7 @@ export const Constants = {
   },
 
   APP_REQUEST_DOMAINS(): Array<string> {
-    const allowedDomains = ['app.rocketadmin.com', 'saas.rocketadmin.com'];
+    const allowedDomains = ['app.rocketadmin.com', 'saas.rocketadmin.com', Constants.APP_DOMAIN_ADDRESS];
     if (isTest()) {
       allowedDomains.push('127.0.0.1', Constants.APP_DOMAIN_ADDRESS);
     }

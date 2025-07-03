@@ -1,13 +1,16 @@
-.alert {
+:host {
     position: sticky;
-    top: 0;
+    top: var(--mat-toolbar-standard-height);
+    z-index: 2;
+}
+
+.alert {
     display: flex;
     gap: 12px;
     background-color: var(--bg-color);
     border-left: 12px solid var(--alert-theme-color);
     margin-bottom: 8px;
     padding: 12px 16px;
-    z-index: 1;
 }
 
 @media (prefers-color-scheme: dark) {

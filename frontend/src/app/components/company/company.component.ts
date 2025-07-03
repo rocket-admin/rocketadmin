@@ -1,31 +1,34 @@
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
+import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
 import { Company, CompanyMember, CompanyMemberRole } from 'src/app/models/company';
 
-import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { CompanyService } from 'src/app/services/company.service';
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { DeleteDomainDialogComponent } from './delete-domain-dialog/delete-domain-dialog.component';
 import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
+import { FormsModule } from '@angular/forms';
 import { InviteMemberDialogComponent } from './invite-member-dialog/invite-member-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgIf } from '@angular/common';
+import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
+import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revoke-invitation-dialog.component';
+import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { SubscriptionPlans } from 'src/app/models/user';
+import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import { orderBy } from "lodash";
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableModule } from '@angular/material/table';
-import { AlertComponent } from '../ui-components/alert/alert.component';
-import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
-import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
-import { NgIf } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { DeleteDomainDialogComponent } from './delete-domain-dialog/delete-domain-dialog.component';
 
 @Component({
   selector: 'app-company',
@@ -42,6 +45,7 @@ import { DeleteDomainDialogComponent } from './delete-domain-dialog/delete-domai
     MatSlideToggleModule,
     MatTooltipModule,
     MatTableModule,
+    MatMenuModule,
     RouterModule,
     Angulartics2OnModule,
     AlertComponent,
@@ -52,6 +56,7 @@ import { DeleteDomainDialogComponent } from './delete-domain-dialog/delete-domai
 })
 export class CompanyComponent {
 
+  CompanyMemberRole = CompanyMemberRole;
   public isSaas = (environment as any).saas;
   public company: Company = null;
   public members: any = null;
@@ -68,33 +73,66 @@ export class CompanyComponent {
   public companyCustomDomain: {
     id: string,
     companyId: string,
-    hostname: string
+    hostname: string,
   } = {
     id: null,
     companyId: '',
-    hostname: ''
+    hostname: '',
   };
 
   public companyCustomDomainHostname: string;
   public companyCustomDomainPlaceholder: string;
   public companyCustomDomainThirdLevel: string;
   public submittingCustomDomain: boolean = false;
+  public isCustomDomain: boolean = false;
+
+  public submittingLogo: boolean = false;
+  public submittingFavicon: boolean = false;
+
+  public companyTabTitle: string;
+  public submittingTabTitle: boolean = false;
+
+  public companyRolesName = {
+    'ADMIN': 'Account Owner',
+    'DB_ADMIN': 'System Admin',
+    'USER': 'Member'
+  }
+
+  get whiteLabelSettings(): {logo: string, favicon: string, tabTitle: string} {
+    return this._company.whiteLabelSettings || { logo: '', favicon: '', tabTitle	: '' };
+  }
+
+  get isDemo() {
+    return this._user.isDemo;
+  }
+
+  private getTitleSubscription: Subscription;
 
   constructor(
     public _company: CompanyService,
     public _user: UserService,
-    // private _notifications: NotificationsService,
     public dialog: MatDialog,
     private angulartics2: Angulartics2,
-    // private title: Title
+    private title: Title
   ) { }
 
   ngOnInit() {
+    this.isCustomDomain = this._company.isCustomDomain() && this.isSaas;
+
+    this.getTitleSubscription = this._company.getCurrentTabTitle().subscribe(title => {
+      this.companyTabTitle = title;
+      this.title.setTitle(`Company settings | ${title || 'Rocketadmin'}`);
+    });
+
     this._company.fetchCompany().subscribe(res => {
       this.company = res;
       this.setCompanyPlan(res.subscriptionLevel);
       this.getCompanyMembers(res.id);
-      this.getCompanyCustomDomain(res.id);
+      if (this.isCustomDomain) {
+        this.companyCustomDomainHostname = res.custom_domain;
+      } else {
+        this.getCompanyCustomDomain(res.id);
+      }
     });
 
     this._company.cast.subscribe( arg =>  {
@@ -110,8 +148,17 @@ export class CompanyComponent {
         this.getCompanyMembers(this.company.id);
       } else if (arg === 'domain') {
         this.getCompanyCustomDomain(this.company.id);
-      };
+      } else if (arg === 'updated-white-label-settings') {
+        // this.submittingLogo = true;
+        this._company.getWhiteLabelProperties(this.company.id).subscribe();
+      }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.getTitleSubscription) {
+      this.getTitleSubscription.unsubscribe();
+    }
   }
 
   getCompanyMembers(companyId: string) {
@@ -278,6 +325,99 @@ export class CompanyComponent {
     this.dialog.open(DeleteDomainDialogComponent, {
       width: '25em',
       data: { companyId: this.company.id, domain: this.companyCustomDomainHostname }
+    });
+  }
+
+  onCompanyLogoSelected(event: any) {
+    this.submittingLogo = true;
+
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    let companyLogoFile: File | null = null;
+
+    if (file) {
+      companyLogoFile = file;
+    } else {
+      companyLogoFile = null;
+    }
+
+    this._company.uploadLogo(this.company.id, companyLogoFile).subscribe(res => {
+      this.submittingLogo = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: logo is uploaded successfully',
+      });
+    }, err => {
+      this.submittingLogo = false;
+    });
+  }
+
+  removeLogo() {
+    this.submittingLogo = true;
+    this._company.removeLogo(this.company.id).subscribe(res => {
+      this.submittingLogo = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: logo is removed successfully',
+      });
+    }, err => {
+      this.submittingLogo = false;
+    });
+  }
+
+  onFaviconSelected(event: any) {
+    console.log('favicon selected');
+    this.submittingFavicon = true;
+
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    let faviconFile: File | null = null;
+
+    if (file) {
+      faviconFile = file;
+    } else {
+      faviconFile = null;
+    }
+
+    this._company.uploadFavicon(this.company.id, faviconFile).subscribe(res => {
+      this.submittingFavicon = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: favicon is uploaded successfully',
+      });
+    }, err => {
+      this.submittingFavicon = false;
+    });
+  }
+
+  removeFavicon() {
+    this.submittingFavicon = true;
+    this._company.removeFavicon(this.company.id).subscribe(res => {
+      this.submittingFavicon = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: favicon is removed successfully',
+      });
+    }, err => {
+      this.submittingFavicon = false;
+    });
+  }
+
+  updateTabTitle() {
+    this.submittingTabTitle = true;
+    this._company.updateTabTitle(this.company.id, this.companyTabTitle).subscribe(() => {
+      this.submittingTabTitle = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: tab title is updated successfully',
+      });
+    }, err => {
+      this.submittingTabTitle = false;
+    });
+  }
+
+  deleteTabTitle() {
+    this.submittingTabTitle = true;
+    this._company.removeTabTitle(this.company.id).subscribe(() => {
+      this.submittingTabTitle = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Company: tab title is deleted successfully',
+      });
     });
   }
 }

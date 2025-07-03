@@ -1,10 +1,11 @@
 import { AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, Component, NgZone, OnInit } from '@angular/core';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
-import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 import { ExistingAuthUser } from 'src/app/models/user';
 import { FormsModule } from '@angular/forms';
@@ -66,14 +67,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private angulartics2: Angulartics2,
     private ngZone: NgZone,
     private _notifications: NotificationsService,
+    public _company: CompanyService,
   ) { }
 
   ngOnInit(): void {
-    const domain = window.location.hostname;
-
-    if (domain !== 'app.rocketadmin.com' && domain !== 'localhost') {
-      this.isCustomDomain = true;
-    }
+    this.isCustomDomain = this._company.isCustomDomain() && this.isSaas;
 
     const error = new URLSearchParams(location.search).get('error');
     if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [

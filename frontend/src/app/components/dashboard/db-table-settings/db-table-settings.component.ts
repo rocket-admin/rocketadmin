@@ -26,6 +26,7 @@ import { Title } from '@angular/platform-browser';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CompanyService } from 'src/app/services/company.service';
 
 @Component({
   selector: 'app-db-table-settings',
@@ -90,6 +91,7 @@ export class DbTableSettingsComponent implements OnInit {
     private _tables: TablesService,
     private _connections: ConnectionsService,
     private _location: Location,
+    private _company: CompanyService,
     public router: Router,
     private title: Title,
     private angulartics2: Angulartics2,
@@ -148,7 +150,7 @@ export class DbTableSettingsComponent implements OnInit {
         if (Object.keys(res).length === 0 || (res && res.list_fields && !res.list_fields.length)) {
           this.listFieldsOrder = [...this.fields];
         };
-        this.title.setTitle(`${res.display_name || this.displayTableName} - Table settings | Rocketadmin`);
+        this.title.setTitle(`${res.display_name || this.displayTableName} - Table settings | ${this._company.companyTabTitle || 'Rocketadmin'}`);
       }
     );
   }

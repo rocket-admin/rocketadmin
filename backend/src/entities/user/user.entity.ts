@@ -44,6 +44,9 @@ export class UserEntity {
   @Column({ default: false })
   suspended: boolean;
 
+  @Column({ default: false })
+  isDemoAccount: boolean;
+
   @BeforeInsert()
   async hashPassword() {
     if (this.password) {
@@ -132,6 +135,9 @@ export class UserEntity {
     default: null,
   })
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
+
+  @Column({ default: null })
+  samlNameId: string;
 
   @Column({ default: true })
   showTestConnections: boolean;

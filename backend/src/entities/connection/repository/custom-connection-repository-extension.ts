@@ -1,12 +1,12 @@
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { TableLogsEntity } from '../../table-logs/table-logs.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
 import { IConnectionRepository } from './connection.repository.interface.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 
 export const customConnectionRepositoryExtension: IConnectionRepository = {
   async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
@@ -94,9 +94,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     let connection = await qb.getOne();
     if (!connection) {
       return null;
-    }
-    if (connection.is_frozen) {
-      throw new Error(Messages.CONNECTION_IS_FROZEN);
     }
     if (!connection.signing_key) {
       connection.signing_key = Encryptor.generateRandomString(40);
@@ -226,6 +223,22 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       .where('connection.isTestConnection = :isTest', { isTest: false })
       .andWhere('company.id = :companyId', { companyId: companyId });
     return await connectionQb.getMany();
+  },
+
+  async freezeConnections(connectionsIds: Array<string>): Promise<void> {
+    await this.createQueryBuilder()
+      .update(ConnectionEntity)
+      .set({ is_frozen: true })
+      .where('id IN (:...connectionsIds)', { connectionsIds })
+      .execute();
+  },
+
+  async unFreezeConnections(connectionsIds: Array<string>): Promise<void> {
+    await this.createQueryBuilder()
+      .update(ConnectionEntity)
+      .set({ is_frozen: false })
+      .where('id IN (:...connectionsIds)', { connectionsIds })
+      .execute();
   },
 
   decryptConnectionField(field: string): string {

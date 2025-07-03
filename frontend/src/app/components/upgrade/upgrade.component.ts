@@ -54,15 +54,27 @@ export class UpgradeComponent implements OnInit {
       enterprise: true
     },
     {
+      title: 'DynamoDB',
+      free: true,
+      team: true,
+      enterprise: true
+    },
+    {
+      title: 'IBM DB2',
+      free: true,
+      team: true,
+      enterprise: true
+    },
+    {
       title: 'Oracle',
       free: '',
-      team: true,
+      team: '',
       enterprise: true
     },
     {
       title: 'Microsoft SQL',
       free: '',
-      team: true,
+      team: '',
       enterprise: true
     }
   ]
@@ -138,8 +150,14 @@ export class UpgradeComponent implements OnInit {
       enterprise: true
     },
     {
-      title: 'Color theme and logo',
+      title: 'Branding',
       free: true,
+      team: true,
+      enterprise: true
+    },
+    {
+      title: 'Custom domain',
+      free: '',
       team: true,
       enterprise: true
     },

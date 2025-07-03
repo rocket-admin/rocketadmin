@@ -2,12 +2,10 @@ import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/co
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { IRevokeUserInvitationInCompany } from './company-info-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { RevokeUserInvitationDs } from '../application/data-structures/revoke-user-invitation.dto.js';
+import { IRevokeUserInvitationInCompany } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class RevokeUserInvitationInCompanyUseCase
@@ -17,7 +15,6 @@ export class RevokeUserInvitationInCompanyUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -45,21 +42,6 @@ export class RevokeUserInvitationInCompanyUseCase
         },
         HttpStatus.NOT_FOUND,
       );
-    }
-
-    if (isSaaS()) {
-      const saasRevokeResponse = await this.saasCompanyGatewayService.revokeUserInvitationInCompany(
-        companyId,
-        foundInvitation.verification_string,
-      );
-      if (!saasRevokeResponse.success) {
-        throw new HttpException(
-          {
-            message: Messages.FILED_REVOKE_USER_INVITATION_UNHANDLED_ERROR,
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
     }
     foundCompanyWithInvitations.invitations = foundCompanyWithInvitations.invitations.filter(
       (invitation) => invitation.invitedUserEmail !== email,

@@ -36,7 +36,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       if (!user) {
         throw new NotFoundException(Messages.USER_NOT_FOUND);
       }
-    } else if (!Constants.APP_REQUEST_DOMAINS().includes(request_domain)) {
+    } else if (!Constants.APP_REQUEST_DOMAINS().includes(request_domain) && isSaaS()) {
       const foundUserCompanyIdByDomain =
         await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(request_domain);
       const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(
@@ -82,15 +82,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
       return;
     }
 
-    if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
-      throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
-    }
-
-    const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`];
-
-    if (allowedDomains.includes(requestDomain)) {
-      return;
-    }
+    const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`, Constants.APP_DOMAIN_ADDRESS];
 
     if (isTest()) {
       allowedDomains.push(`127.0.0.1`);
@@ -98,6 +90,15 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
         return;
       }
     }
+
+    if (allowedDomains.includes(requestDomain)) {
+      return;
+    }
+
+    if (!ValidationHelper.isValidDomain(requestDomain) && !isTest()) {
+      throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
+    }
+
     const companyIdByDomain: string | null =
       await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(requestDomain);
 

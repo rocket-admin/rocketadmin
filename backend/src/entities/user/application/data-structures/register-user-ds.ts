@@ -7,4 +7,5 @@ export class RegisterUserDs {
   isActive: boolean;
   name: string;
   role?: UserRoleEnum;
+  samlNameId?: string;
 }

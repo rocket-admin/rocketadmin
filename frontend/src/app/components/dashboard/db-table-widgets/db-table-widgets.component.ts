@@ -1,25 +1,34 @@
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
 import { AlertComponent } from '../../ui-components/alert/alert.component';
-import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
+import { CodeRowComponent } from '../../ui-components/row-fields/code/code.component';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
+import { ImageRowComponent } from '../../ui-components/row-fields/image/image.component';
 import { Location } from '@angular/common';
+import { LongTextRowComponent } from '../../ui-components/row-fields/long-text/long-text.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { PasswordRowComponent } from '../../ui-components/row-fields/password/password.component';
 import { PlaceholderTableWidgetsComponent } from '../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { SelectRowComponent } from '../../ui-components/row-fields/select/select.component';
 import { TablesService } from 'src/app/services/tables.service';
+import { TextRowComponent } from '../../ui-components/row-fields/text/text.component';
 import { Title } from '@angular/platform-browser';
 import { UIwidgets } from "src/app/consts/field-types";
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { UrlRowComponent } from '../../ui-components/row-fields/url/url.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
@@ -41,7 +50,13 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     AlertComponent,
     PlaceholderTableWidgetsComponent,
     BreadcrumbsComponent,
+    PasswordRowComponent,
+    ImageRowComponent,
+    CodeRowComponent,
     WidgetComponent,
+    TextRowComponent,
+    LongTextRowComponent,
+    SelectRowComponent,
     Angulartics2OnModule
   ],
 })
@@ -56,6 +71,7 @@ export class DbTableWidgetsComponent implements OnInit {
   public widgetTypes = Object.keys(UIwidgets);
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
+  public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
   public paramsEditorOptions = {
     minimap: { enabled: false },
     lineNumbersMinChars:  3,
@@ -64,11 +80,15 @@ export class DbTableWidgetsComponent implements OnInit {
     scrollBeyondLastLine: false,
     wordWrap: 'on',
   };
+  public widgetCodeEample = `<h1 class="post-title">Why UI Customization Matters in Admin Panels</h1>
+<p class="post-paragraph">
+  A well-designed <strong>admin panel</strong> isn’t just about managing data — it’s about making that data easier to understand and interact with. By customizing how each field is displayed, you can turn raw database values into meaningful, user-friendly interfaces that save time and reduce errors.
+</p>`;
   public defaultParams = {
     Boolean:
-`// Specify allow_null in field structure
-// use false to display checkbox
-// use true to display yes/no/unknown radiogroup
+`// Display "Yes/No" buttons and specify "allow_null" in field structure:
+// Use "false" to require that one of the buttons is selected;
+// Use "true" if the field might be left unspecified.
 
 {
 	"structure": {
@@ -142,6 +162,15 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
   URL: `// No settings required`,
+  Phone:
+`// Configure international phone number widget
+// example:
+{
+  "preferred_countries": ["US", "GB", "CA"],
+  "enable_placeholder": true,
+  "phone_validation": true
+}
+`,
   Foreign_key: `// Provide settings for foreign key widget
 {
   "column_name": "", // copy the name of the column you selected
@@ -155,6 +184,8 @@ export class DbTableWidgetsComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _location: Location,
+    private _uiSettings: UiSettingsService,
+    private _company: CompanyService,
     public dialog: MatDialog,
     public router: Router,
     private title: Title,
@@ -174,9 +205,10 @@ export class DbTableWidgetsComponent implements OnInit {
         this.fieldsCount = res.structure.length;
         this.fields = res.structure.map((field: TableField) => field.column_name);
         this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
-        this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
+        this.title.setTitle(`${this.dispalyTableName} - Field display | ${this._company.companyTabTitle || 'Rocketadmin'}`);
         this.getWidgets();
       })
+    this.codeEditorTheme = this._uiSettings.editorTheme;
   }
 
   get currentConnection() {
@@ -194,7 +226,7 @@ export class DbTableWidgetsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: 'Widgets',
+        label: 'UI Widgets',
         link: null
       }
     ]

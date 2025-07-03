@@ -1,20 +1,11 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  Scope,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { SuspendUsersInCompanyDS } from '../application/data-structures/suspend-users-in-company.ds.js';
 import { ISuspendUsersInCompany } from './company-info-use-cases.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class SuspendUsersInCompanyUseCase
@@ -24,7 +15,6 @@ export class SuspendUsersInCompanyUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -49,13 +39,6 @@ export class SuspendUsersInCompanyUseCase
 
     if (isUnsuspendUserLeft) {
       throw new BadRequestException(Messages.CANNOT_SUSPEND_LAST_USER);
-    }
-
-    if (isSaaS()) {
-      const { success } = await this.saasCompanyGatewayService.suspendUsersInCompany(companyInfoId, userIdsToSuspend);
-      if (!success) {
-        throw new InternalServerErrorException(Messages.SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR);
-      }
     }
     await this._dbContext.userRepository.suspendUsers(userIdsToSuspend);
     return {

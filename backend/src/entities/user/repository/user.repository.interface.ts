@@ -13,6 +13,7 @@ export interface IUserRepository {
   findOneUserByEmail(
     email: string,
     externalRegistrationProvider?: ExternalRegistrationProviderEnum,
+    samlNameId?: string,
   ): Promise<UserEntity>;
 
   findUserWithConnections(userId: string): Promise<UserEntity>;
@@ -59,4 +60,8 @@ export interface IUserRepository {
   bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>>;
 
   findOneUserByEmailAndGroupId(email: string, groupId: string): Promise<UserEntity>;
+
+  countUsersInCompany(companyId: string): Promise<number>;
+
+  suspendNewestUsersInCompany(companyId: string, unsuspendedUsersLeft: number): Promise<Array<UserEntity>>;
 }

@@ -2,13 +2,15 @@ import * as ipaddr from 'ipaddr.js';
 
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
+import { Subscription, take } from 'rxjs';
 
 import { AccessLevel } from 'src/app/models/user';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Db2CredentialsFormComponent } from './db-credentials-forms/db2-credentials-form/db2-credentials-form.component';
 import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
@@ -36,7 +38,6 @@ import { OracledbCredentialsFormComponent } from './db-credentials-forms/oracled
 import { PostgresCredentialsFormComponent } from './db-credentials-forms/postgres-credentials-form/postgres-credentials-form.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
@@ -73,7 +74,7 @@ import isIP from 'validator/lib/isIP';
     Angulartics2Module
   ]
 })
-export class ConnectDBComponent implements OnInit, OnDestroy {
+export class ConnectDBComponent implements OnInit {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
@@ -99,10 +100,19 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   private getTitleSubscription: Subscription;
 
+  // public isDemo: boolean = false;
+
+  public isDemoConnectionWarning: Alert = {
+    id: 10000000,
+    type: AlertType.Warning,
+    message: 'This is a DEMO SESSION! It will disappear after you log out. Don\'t use databases you\'re actively using or that contain information you wish to retain.'
+  }
+
   constructor(
     private _connections: ConnectionsService,
     private _notifications: NotificationsService,
     public _user: UserService,
+    private _company: CompanyService,
     private ngZone: NgZone,
     public router: Router,
     public dialog: MatDialog,
@@ -110,12 +120,22 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     private title: Title
   ) { }
 
+  get isDemo() {
+    return this._user.isDemo;
+  }
+
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
 
-    if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
-    });
+    this._connections.getCurrentConnectionTitle()
+      .pipe(take(1))
+      .subscribe(connectionTitle => {
+        if (this.connectionID) {
+          this.title.setTitle(`Credentials — ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+        } else {
+          this.title.setTitle(`Add new database | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+        }
+      });
 
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
@@ -124,10 +144,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
         fbq('trackCustom', 'Add_connection');
       }
     };
-  }
-
-  ngOnDestroy() {
-    if (this.connectionID && !this.connectionToken) this.getTitleSubscription.unsubscribe();
   }
 
   get db():Connection {

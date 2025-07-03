@@ -1,4 +1,4 @@
-export class GetUserInfoByEmailDS {
-  email: string;
+export class GetUserInfoByIdDS {
+  userId: string;
   companyId?: string;
 }

@@ -1,24 +1,4 @@
-import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
-import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 import { ApiProperty } from '@nestjs/swagger';
-
-export class FoundTableStructureDs {
-  @ApiProperty({ isArray: true })
-  structure: Array<FullTableStructureDs>;
-
-  @ApiProperty({ isArray: true })
-  primaryColumns: Array<PrimaryKeyDS>;
-
-  @ApiProperty({ isArray: true })
-  foreignKeys: Array<ForeignKeyDS>;
-
-  @ApiProperty({ isArray: true })
-  readonly_fields: Array<string>;
-
-  @ApiProperty({ isArray: true })
-  table_widgets: Array<TableWidgetEntity>;
-}
 
 export class FullTableStructureDs {
   @ApiProperty()

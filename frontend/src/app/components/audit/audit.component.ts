@@ -1,9 +1,12 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Subscription, merge } from 'rxjs';
+import { take, tap } from 'rxjs/operators';
 
 import { Angulartics2OnModule } from 'angulartics2';
 import { AuditDataSource } from './audit-data-source';
+import { BannerComponent } from '../ui-components/banner/banner.component';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
@@ -15,6 +18,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
 import { TableProperties } from 'src/app/models/table';
@@ -53,7 +57,7 @@ import { UserService } from 'src/app/services/user.service';
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.css']
 })
-export class AuditComponent implements OnInit, OnDestroy {
+export class AuditComponent implements OnInit {
   public isSaas = (environment as any).saas;
   public connectionID: string;
   public accesLevel: string;
@@ -76,6 +80,7 @@ export class AuditComponent implements OnInit, OnDestroy {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _users: UsersService,
+    private _companyService: CompanyService,
     public dialog: MatDialog,
     private title: Title,
     private _userService: UserService
@@ -92,9 +97,11 @@ export class AuditComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
-      this.title.setTitle(`Audit - ${connectionTitle} | Rocketadmin`);
-    });
+    this._companyService.getCurrentTabTitle()
+      .pipe(take(1))
+      .subscribe(tabTitle => {
+        this.title.setTitle(`Connections | ${tabTitle || 'Rocketadmin'}`);
+      });
     this.connectionID = this._connections.currentConnectionID;
     this.accesLevel = this._connections.currentConnectionAccessLevel;
     this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
@@ -122,10 +129,6 @@ export class AuditComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         this.usersList = res;
       })
-  }
-
-  ngOnDestroy() {
-    this.getTitleSubscription.unsubscribe();
   }
 
   loadLogsPage() {

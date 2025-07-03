@@ -12,8 +12,8 @@
 
 @media (prefers-color-scheme: dark) {
     .main-menu-container {
-        --mat-sidenav-content-background-color: #212121;
-        --mat-sidenav-container-background-color: #212121;
+        --mat-sidenav-content-background-color: #191919;
+        --mat-sidenav-container-background-color: #191919;
         --mat-sidenav-container-divider-color: #303030;
     }
 }
@@ -23,26 +23,17 @@
 }
 
 .nav-bar {
+    position: sticky;
+    top: 0;
     flex-shrink: 0;
     background-color: #212121;
+    z-index: 3;
 }
 
 @media (prefers-color-scheme: dark) {
     .nav-bar {
         border-bottom: 1px solid #303030;
     }
-}
-
-.nav-bar_interior {
-    --mat-toolbar-standard-height: 44px !important;
-
-    position: sticky;
-    top: 0;
-    z-index: 2;
-}
-
-.nav-bar_exterior {
-    --mat-toolbar-standard-height: 56px !important;
 }
 
 .nav-bar_home {
@@ -54,7 +45,7 @@
 .nav-bar_connection {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    z-index: 2;
+    z-index: 3;
 }
 
 @media (width <= 600px) {
@@ -101,12 +92,6 @@
     font-weight: 500 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-    .nav-bar__button_active {
-        --mdc-text-button-label-text-color: var(--color-accentedDarkPalette-500) !important;
-    }
-}
-
 @media screen and (max-width: 600px) {
     .nav-bar__button_active {
         color: inherit;
@@ -116,7 +101,7 @@
 
 .nav-bar__upgrade-button {
     /* --mdc-filled-button-label-text-color: #424242; */
-    --mdc-filled-button-label-text-color: #fff !important;
+    /* --mdc-filled-button-label-text-color: #fff !important; */
     --mdc-filled-button-container-height: 28px;
 
     margin-right: -8px;
@@ -124,6 +109,11 @@
 
 .nav-bar__account-button {
     color: #fff;
+}
+
+.logo-box {
+    display: flex;
+    align-items: center;
 }
 
 .logo {
@@ -136,6 +126,14 @@
 .logo__image {
     height: 24px;
     margin-right: 12px;
+}
+
+.logo__demo-mark {
+    background: var(--color-accentedPalette-700);
+    font-size: 12px;
+    line-height: 20px;
+    margin-bottom: -2px;
+    padding: 0 8px;
 }
 
 .menu {
@@ -165,6 +163,7 @@
 
 .actions .action {
     --mdc-outlined-button-outline-color: #fff;
+    --mat-toolbar-container-text-color: #fff;
     width: 96px;
 }
 
@@ -249,6 +248,14 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+}
+
+.main-menu-content_interior {
+    --mat-toolbar-standard-height: 44px !important;
+}
+
+.main-menu-content_exterior {
+    --mat-toolbar-standard-height: 56px !important;
 }
 
 .tab-content-wrapper {

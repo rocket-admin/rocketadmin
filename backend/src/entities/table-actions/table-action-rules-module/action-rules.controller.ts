@@ -237,7 +237,7 @@ export class ActionRulesController {
     isArray: true,
   })
   @ApiBody({ type: Object })
-  @UseGuards(ConnectionReadGuard)
+  // @UseGuards(ConnectionReadGuard)
   @Post('/event/actions/activate/:eventId/:connectionId')
   async activateTableActionsInRule(
     @SlugUuid('connectionId') connectionId: string,

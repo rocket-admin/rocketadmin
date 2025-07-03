@@ -23,6 +23,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -37,7 +38,6 @@ export class GetRowByPrimaryKeyUseCase
   }
 
   protected async implementation(inputData: GetRowByPrimaryKeyDs): Promise<TableRowRODs> {
-     
     let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
     if (!primaryKey) {
       throw new HttpException(
@@ -56,6 +56,10 @@ export class GetRowByPrimaryKeyUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     const dao = getDataAccessObject(connection);
@@ -219,6 +223,7 @@ export class GetRowByPrimaryKeyUseCase
       referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,
       table_access_level: tableAccessLevel.accessLevel,
+      excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
     } as any;
   }
 

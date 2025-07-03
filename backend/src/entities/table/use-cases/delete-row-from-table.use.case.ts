@@ -18,6 +18,7 @@ import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unkno
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
@@ -56,6 +57,10 @@ export class DeleteRowFromTableUseCase
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
 
     const dao = getDataAccessObject(connection);

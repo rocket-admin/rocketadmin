@@ -2,6 +2,11 @@
     margin-bottom: 12px;
 }
 
+.permissions-alert {
+    position: relative;
+    top: -8px;
+}
+
 .permissions-form ::ng-deep .mat-mdc-dialog-content {
     color: var(--mat-sidenav-content-text-color);
 }
@@ -47,6 +52,12 @@
     justify-items: center;
     background-color: var(--color-accentedPalette-100);
     padding: 8px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .tables-list__header {
+        background-color: var(--color-accentedPalette-800);
+    }
 }
 
 .tables-list__item {
@@ -130,10 +141,4 @@
 
 .visibilityIcon_visible {
     color: var(--color-accentedPalette-500);
-}
-
-@media (prefers-color-scheme: dark) {
-    .visibilityIcon_visible {
-        color: var(--color-accentedDarkPalette-500)
-    }
 }

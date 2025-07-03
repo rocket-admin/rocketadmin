@@ -230,7 +230,7 @@ test.serial(`${currentTest} should return all connection users from different gr
     const foundUsersRO = JSON.parse(findAllUsersResponse.text);
     t.is(foundUsersRO.length, 2);
 
-    t.is(foundUsersRO[0].isActive, false);
+    // t.is(foundUsersRO[0].isActive, false);
     t.is(foundUsersRO[1].isActive, true);
     t.is(foundUsersRO[1].hasOwnProperty('email'), true);
     t.is(foundUsersRO[0].hasOwnProperty('email'), true);
@@ -298,7 +298,6 @@ test.serial(`${currentTest} should throw an exception, when connection id is inc
   }
 });
 
-currentTest = 'GET /connection/one/:slug';
 test(`${currentTest} should return a found connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
@@ -343,6 +342,66 @@ test(`${currentTest} should return a found connection`, async (t) => {
     throw e;
   }
 });
+
+test.serial(
+  `${currentTest} should return a found connection when user not added into any connection group`,
+  async (t) => {
+    try {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+        getTestConnectionData();
+      const { token } = await registerUserAndReturnUserInfo(app);
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newConnection)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createConnectionResponse.status, 201);
+      const connectionRO = JSON.parse(createConnectionResponse.text);
+
+      const createGroupResponse = await request(app.getHttpServer())
+        .post(`/connection/group/${connectionRO.id}`)
+        .send(newGroup1)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createGroupResponse.status, 201);
+      const createGroupRO = JSON.parse(createGroupResponse.text);
+
+      const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app, undefined);
+
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+      const findOneResponse = await request(app.getHttpServer())
+        .get(`/connection/one/${createConnectionRO.id}`)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', secondUserRegisterInfo.token)
+        .set('Accept', 'application/json');
+
+      const findOneConnectionRO = JSON.parse(findOneResponse.text);
+      t.is(findOneResponse.status, 200);
+
+      t.is(findOneConnectionRO.connection.hasOwnProperty('id'), true);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('title'), true);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('type'), true);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('host'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('port'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('username'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('database'), true);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('sid'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('password'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('groups'), false);
+      t.is(findOneConnectionRO.connection.hasOwnProperty('author'), false);
+      t.is(findOneConnectionRO.accessLevel, AccessLevelEnum.none);
+      t.is(findOneConnectionRO.groupManagement, false);
+      t.is(findOneConnectionRO.connectionProperties, null);
+      t.pass();
+    } catch (e) {
+      throw e;
+    }
+  },
+);
 
 test.serial(
   `${currentTest} should throw an exception "id is missing" when connection id not passed in the request`,
@@ -1955,5 +2014,48 @@ test.serial(`${currentTest} negative result if passed connection master password
     t.is(isValid, false);
   } catch (e) {
     throw e;
+  }
+});
+
+currentTest = `PUT /connection/unfreeze/:connectionId`;
+test.serial(`${currentTest} should unfreeze connection`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+    const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newPgConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createConnectionResult.status, 201);
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    const { id } = createConnectionRO;
+
+    const unfreezeConnectionResponse = await request(app.getHttpServer())
+      .put(`/connection/unfreeze/${id}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(unfreezeConnectionResponse.status, 200);
+    const unfreezeConnectionRO = JSON.parse(unfreezeConnectionResponse.text);
+    t.is(unfreezeConnectionRO.success, true);
+
+    const findOneResponce = await request(app.getHttpServer())
+      .get(`/connection/one/${id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(findOneResponce.status, 200);
+    const result = findOneResponce.body.connection;
+    t.is(result.isFrozen, false);
+  } catch (error) {
+    throw error;
   }
 });

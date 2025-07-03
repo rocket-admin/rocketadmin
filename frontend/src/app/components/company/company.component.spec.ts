@@ -22,7 +22,7 @@ describe('CompanyComponent', () => {
   let fixture: ComponentFixture<CompanyComponent>;
   let dialog: MatDialog;
 
-  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'getCustomDomain', 'updateCompanyName', 'updateCompanyMemberRole', 'cast']);
+  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['isCustomDomain', 'fetchCompany', 'fetchCompanyMembers', 'getCustomDomain', 'updateCompanyName', 'updateCompanyMemberRole', 'cast']);
   let fakeUserService = jasmine.createSpyObj('UserService', ['cast']);
 
   const mockCompany: Company = {
@@ -113,6 +113,7 @@ describe('CompanyComponent', () => {
   fakeCompanyService.getCustomDomain.and.returnValue(of(mockCompanyDomain));
   fakeCompanyService.updateCompanyName.and.returnValue(of({}));
   fakeCompanyService.updateCompanyMemberRole.and.returnValue(of({}));
+  fakeCompanyService.getCurrentTabTitle = jasmine.createSpy().and.returnValue(of('Rocketadmin'));
   fakeUserService.cast = of(mockMembers[1]);
 
   beforeEach(async () => {
@@ -247,7 +248,7 @@ describe('CompanyComponent', () => {
       "email": "user1@test.com",
       "name": "User 3333",
       "is_2fa_enabled": false,
-      "role": CompanyMemberRole.Specialist,
+      "role": CompanyMemberRole.Member,
       "has_groups": false
     }
 

@@ -19,6 +19,7 @@
 @media (prefers-color-scheme: dark) {
     .row-preview-sidebar_open {
         border-left: 1px solid var(--mat-sidenav-container-divider-color);
+        background-color: #202020;
     }
 }
 
@@ -51,6 +52,7 @@
 .row-preview-sidebar__field {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
     padding: 12px 16px;
 }
@@ -65,8 +67,102 @@
     }
 }
 
+.row-preview-sidebar__field-value_foreign-key {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+@media (prefers-color-scheme: light) {
+    .row-preview-sidebar__field-value_foreign-key {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.64);
+    }
+    .row-preview-sidebar__field-value {
+        color: rgba(0, 0, 0, 0.64);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .row-preview-sidebar__field-value_foreign-key {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.64);
+    }
+
+    .row-preview-sidebar__field-value {
+        color: rgba(255, 255, 255, 0.64);
+    }
+}
+
+.row-preview-sidebar__field-value-icon {
+    font-size: 16px;
+    height: 16px;
+    margin-left: 8px;
+    width: 16px;
+}
+
 .row-preview-sidebar__image {
     width: 100%;
     margin-top: 8px;
     margin-bottom: 16px;
+}
+
+.related-records-panel {
+    margin-left: 4px;
+    width: calc(100% - 8px);
+}
+
+.related-records-panel__header {
+    height: 36px !important;
+    padding: 0 12px 0 8px;
+}
+
+.related-records-panel ::ng-deep .mat-expansion-panel-body {
+    padding: 0;
+}
+
+.related-records__header {
+    padding: 0 12px 0 8px;
+}
+
+.related-records__table-name {
+    flex: 1 0 auto;
+}
+
+.related-records__actions {
+    flex-grow: 0;
+    justify-content: flex-end;
+}
+
+.related-record {
+    --mdc-list-list-item-two-line-container-height: 60px;
+
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.related-record ::ng-deep .mdc-list-item__primary-text::before {
+    height: 24px;
+}
+
+.related-records__panel ::ng-deep .mat-expansion-panel-body {
+    padding: 0 8px;
+}
+
+.loading-related-records {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 0 16px;
+}
+
+.loading-related-records__title {
+    mix-blend-mode: normal !important;
+    height: 28px;
+    width: 120px;
+}
+
+.loading-related-records__button {
+    mix-blend-mode: normal !important;
+    border-radius: 50%;
+    height: 36px;
+    width: 36px;
 }

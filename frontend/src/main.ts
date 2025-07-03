@@ -49,6 +49,7 @@ const colorConfig: IColorConfig<Palettes, Colors> = {
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string, whitePalette: string, accentedDarkPalette: string, warnDarkPalette: string };
 type Colors = { myColorName: string };
 
+const stripeKey = location.host === environment.stagingHost ? 'pk_test_51JM8FBFtHdda1TsBTjVNBFMIAA8cXLNWTmZCF22FCS5swdJIFqMk82ZEeZpvTys7oxlDekdcYIGaQ5MEFz6lWa2s000r6RziCg' : 'pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk'
 
 
 if (environment.production) {
@@ -79,7 +80,7 @@ bootstrapApplication(AppComponent, {
         // ...saasExtraModules,
         NgxThemeModule.forRoot(colorConfig, {
             frameworks: ['material'], // optional, default : ['tailwind', 'material']
-        }), NgxStripeModule.forRoot('pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk'), ConfigModule.buildForConfigUrl('/config.json')),
+        }), NgxStripeModule.forRoot(stripeKey), ConfigModule.buildForConfigUrl('/config.json')),
         PasswordStrengthMeterComponent,
         ConnectionsService,
         UsersService,

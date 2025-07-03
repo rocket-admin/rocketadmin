@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, of, throwError } from 'rxjs';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { NavigationEnd, ResolveEnd, Router, RouterEvent } from '@angular/router';
@@ -56,6 +56,7 @@ export class ConnectionsService {
   public currentPage: string;
   public connectionLogo: string;
   public companyName: string;
+  public isCustomAccentedColor: boolean;
   public defaultDisplayTable: string;
 
   private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
@@ -142,8 +143,6 @@ export class ConnectionsService {
   }
 
   setConnectionInfo(id: string) {
-    console.log('setConnectionInfo');
-    console.log(id);
     if (id) {
       this.fetchConnection(id).subscribe(res => {
         this.connection = res.connection;
@@ -152,14 +151,16 @@ export class ConnectionsService {
         this.connectionNameSubject.next(res.connection.title || res.connection.database);
         this.connectionSigningKeySubject.next(res.connection.signing_key);
         if (res.connectionProperties) {
-          console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
           this.defaultDisplayTable = res.connectionProperties.default_showing_table;
+          this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
           this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
           this.connectionLogo = null;
           this.companyName = null;
+          this.defaultDisplayTable = null;
+          this.isCustomAccentedColor = false;
           this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
         }
       });
@@ -167,6 +168,8 @@ export class ConnectionsService {
       this.connection = {...this.connectionInitialState};
       this.connectionLogo = null;
       this.companyName = null;
+      this.defaultDisplayTable = null;
+      this.isCustomAccentedColor = false;
       this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
     }
   }
@@ -293,7 +296,7 @@ export class ConnectionsService {
         const errorMessage = err.error?.message || 'Unknown error';
         const errorDetails = err.error?.originalMessage || '';
         this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, []);
-        return throwError(() => new Error(errorMessage));
+        return throwError(() => errorMessage);
       })
     );
   }

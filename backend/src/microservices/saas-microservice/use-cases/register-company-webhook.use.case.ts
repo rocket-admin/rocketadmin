@@ -44,11 +44,11 @@ export class RegisteredCompanyWebhookUseCase
     foundUser.role = UserRoleEnum.ADMIN;
     await this._dbContext.userRepository.saveUserEntity(foundUser);
     const newCompanyInfo = new CompanyInfoEntity();
-    newCompanyInfo.name = companyName;
+    newCompanyInfo.name = companyName ? companyName : 'New Company';
     newCompanyInfo.id = companyId;
-    newCompanyInfo.users = [foundUser];
     newCompanyInfo.show_test_connections = true;
     const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
+    foundUser.company = savedCompanyInfo;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     return {
       userId: savedUser.id,

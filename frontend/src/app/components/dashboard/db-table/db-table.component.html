@@ -32,7 +32,7 @@
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
             <ng-container *ngIf="tableData.tableBulkActions && tableData.tableBulkActions.length">
-                <button type="button" mat-button *ngFor="let action of tableData.tableBulkActions"
+                <button type="button" mat-button class="actions__action" *ngFor="let action of tableData.tableBulkActions"
                 (click)="handleActions(action)">
                     {{action.title}}
                 </button>
@@ -110,8 +110,8 @@
                     </mat-menu>
                 </div>
                 <button mat-icon-button type="button"
-                    *ngIf="accessLevel === 'edit'"
-                    matTooltip="Emport / Export"
+                    *ngIf="accessLevel === 'edit' && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"
+                    matTooltip="Import / Export"
                     [matMenuTriggerFor]="transferDataMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked">
@@ -139,29 +139,29 @@
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #settingsMenu="matMenu">
-                    <a mat-menu-item *ngIf="accessLevel === 'edit'"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: settings is clicked">
-                        Settings
-                    </a>
                     <a mat-menu-item *ngIf="tableData"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
                         [ngClass]="{'action_active': tableData.widgetsCount}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: widgets is clicked">
-                        Widgets
+                        UI Widgets
                     </a>
                     <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
                         [disabled]="!tableData.keyAttributes?.length"
                         angulartics2On="click"
                         angularticsAction="Dashboard: actions is clicked">
-                        Actions
+                        Automations
                         <br />
                         <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
                             Primary keys are required.
                         </span>
+                    </a>
+                    <a mat-menu-item *ngIf="accessLevel === 'edit'"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: settings is clicked">
+                        Settings
                     </a>
                 </mat-menu>
             </div>
@@ -216,12 +216,17 @@
                 <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
                 <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
                     <div class="table-cell-content">
-                        <span *ngIf="isForeignKey(column); else contentCell" class="field-value">
-                            <a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
+                        <span *ngIf="isForeignKey(column); else contentCell" class="field-value field-value_foreign-key">
+                            <!--<a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
                                 class="foreign-key-link"
                                 [queryParams]="getForeignKeyQueryParams(tableData.foreignKeys[column], element[column])">
                                 {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
-                            </a>
+                            </a>-->
+                            <button class="foreign-key-button" type="button"
+                                [ngClass]="{'foreign-key-button_selected': isForeignKeySelected(element[column], tableData.foreignKeys[column])}"
+                                (click)="handleForeignKeyView($event, tableData.foreignKeys[column], element[column])">
+                                {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
+                            </button>
                             <button type="button" mat-icon-button
                                 class="field-value-copy-button"
                                 matTooltip="Copy"
@@ -238,7 +243,17 @@
                                     [style.--height.px]="tableData.widgets[column].widget_params.height"
                                     class="field-image">
 
-                                <span>{{ getWidgetValue(column, element[column]) }}</span>
+                                <a *ngIf="tableData.widgets[column].widget_type === 'URL' && element[column]"
+                                    target="_blank"
+                                    [href]="element[column]"
+                                    class="field-link"
+                                    (click)="$event.stopPropagation()"
+                                    >
+                                    <mat-icon class="field-link__icon" fontSet="material-icons-outlined">link</mat-icon>
+                                    <span>{{element[column]}}</span>
+                                </a>
+
+                                <span *ngIf="tableData.widgets[column].widget_type !== 'URL'">{{ getWidgetValue(column, element[column]) }}</span>
 
                                 <button type="button" mat-icon-button
                                     class="field-value-copy-button"
@@ -337,7 +352,7 @@
             <mat-row *matRowDef="let row; columns: tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns;"
                 class="db-table-row"
                 [ngClass]="{'db-table-row_selected': isRowSelected(tableData.getQueryParams(row))}"
-                (click)="handleViewRow({record: row, primaryKeys: tableData.getQueryParams(row)})">
+                (click)="handleViewRow(row)">
             </mat-row>
         </mat-table>
     </div>
@@ -362,7 +377,7 @@
         </a>
     </div>
 
-    <mat-paginator
+    <mat-paginator data-testid="table-paginator"
         [pageSize]="30"
         [pageSizeOptions]="[10, 30, 100, 300]"
         [showFirstLastButtons]="!tableData.largeDataset">

@@ -74,6 +74,7 @@ import {
   IRefreshConnectionAgentToken,
   IRestoreConnection,
   ITestConnection,
+  IUnfreezeConnection,
   IUpdateConnection,
   IUpdateMasterPassword,
   IValidateConnectionMasterPassword,
@@ -123,6 +124,8 @@ export class ConnectionController {
     private readonly refreshConnectionAgentTokenUseCase: IRefreshConnectionAgentToken,
     @Inject(UseCaseType.VALIDATE_CONNECTION_MASTER_PASSWORD)
     private readonly validateConnectionMasterPasswordUseCase: IValidateConnectionMasterPassword,
+    @Inject(UseCaseType.UNFREEZE_CONNECTION)
+    private readonly unfreezeConnectionUseCase: IUnfreezeConnection,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly amplitudeService: AmplitudeService,
@@ -269,6 +272,7 @@ export class ConnectionController {
         type: createConnectionDto.type,
         username: createConnectionDto.username,
         authSource: createConnectionDto.authSource,
+        dataCenter: createConnectionDto.dataCenter,
       },
       creation_info: {
         authorId: userId,
@@ -321,6 +325,7 @@ export class ConnectionController {
         type: updateConnectionDto.type,
         username: updateConnectionDto.username,
         authSource: updateConnectionDto.authSource,
+        dataCenter: updateConnectionDto.dataCenter,
       },
       update_info: {
         authorId: userId,
@@ -528,6 +533,7 @@ export class ConnectionController {
         type: testConnectionData.type,
         username: testConnectionData.username,
         authSource: testConnectionData.authSource,
+        dataCenter: testConnectionData.dataCenter,
       },
       update_info: {
         authorId: userId,
@@ -615,6 +621,7 @@ export class ConnectionController {
         cert: restoreConnectionData.cert,
         azure_encryption: restoreConnectionData.azure_encryption,
         authSource: restoreConnectionData.authSource,
+        dataCenter: restoreConnectionData.dataCenter,
       },
       update_info: {
         connectionId: connectionId,
@@ -667,6 +674,24 @@ export class ConnectionController {
     return await this.refreshConnectionAgentTokenUseCase.execute(connectionId, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Unfreeze connection' })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponse,
+    description: 'The connection was unfrozen.',
+  })
+  @UseGuards(ConnectionEditGuard)
+  @Put('/connection/unfreeze/:connectionId')
+  async unfreezeConnection(
+    @UserId() userId: string,
+    @SlugUuid('connectionId') connectionId: string,
+  ): Promise<SuccessResponse> {
+    if (!connectionId) {
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
+    }
+    return await this.unfreezeConnectionUseCase.execute({ connectionId, userId }, InTransactionEnum.ON);
+  }
+
   private validateParameters = (connectionData: CreateConnectionDto): Array<string> => {
     const errors = [];
 
@@ -684,7 +709,10 @@ export class ConnectionController {
 
       if (!connectionData.username) errors.push(Messages.USERNAME_MISSING);
 
-      if (connectionData.type === ConnectionTypesEnum.dynamodb) {
+      if (
+        connectionData.type === ConnectionTypesEnum.dynamodb ||
+        connectionData.type === ConnectionTypesEnum.elasticsearch
+      ) {
         return errors;
       }
 

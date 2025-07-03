@@ -7,6 +7,9 @@ import ibmdb, { Database } from 'ibm_db';
 import { MongoClient, Db, ObjectId } from 'mongodb';
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { Client } from '@elastic/elasticsearch';
+import * as cassandra from 'cassandra-driver';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function createTestTable(
   connectionParams: any,
@@ -19,6 +22,14 @@ export async function createTestTable(
 
   if (connectionParams.type === ConnectionTypesEnum.mongodb) {
     return createTestMongoTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
+  if (connectionParams.type === ConnectionTypesEnum.elasticsearch) {
+    return createTestElasticsearchTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
+  if (connectionParams.type === ConnectionTypesEnum.cassandra) {
+    return createTestCassandraTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
 
   if (connectionParams.type === ConnectionTypesEnum.dynamodb) {
@@ -68,7 +79,88 @@ export async function createTestTable(
   };
 }
 
-async function createTestTableIbmDb2(
+export async function createTestElasticsearchTable(
+  connectionParams,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName().toLowerCase();
+  const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+  const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+  const { host, port, username, password } = connectionParams;
+  const protocol = 'http';
+  const node = `${protocol}://${host}:${port}`;
+  const options: any = {
+    node,
+    auth: {
+      username,
+      password,
+    },
+  };
+  const client = new Client(options);
+  const response = await client.indices.create({
+    index: testTableName,
+  });
+  await client.indices.putMapping({
+    index: testTableName,
+    dynamic: 'runtime',
+    properties: {
+      [testTableColumnName]: {
+        type: 'text',
+      },
+      [testTableSecondColumnName]: {
+        type: 'text',
+      },
+    },
+  });
+  const insertedSearchedIds: Array<{
+    number: number;
+    _id: string;
+  }> = [];
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+      const insertResult = await client.index({
+        index: testTableName,
+        body: {
+          [testTableColumnName]: testSearchedUserName,
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+          age: i === 0 ? 14 : i === testEntitiesSeedsCount - 21 ? 90 : 95,
+        },
+      });
+      insertedSearchedIds.push({
+        number: i,
+        _id: insertResult._id,
+      });
+    } else {
+      const insertResult = await client.index({
+        index: testTableName,
+        body: {
+          [testTableColumnName]: faker.person.firstName(),
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+          age: faker.number.int({ min: 16, max: 80 }),
+        },
+      });
+      insertedSearchedIds.push({
+        number: i,
+        _id: insertResult._id,
+      });
+    }
+  }
+  await client.indices.refresh({ index: testTableName });
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+    insertedSearchedIds,
+  };
+}
+
+export async function createTestTableIbmDb2(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -211,7 +303,7 @@ export type CreatedTableInfo = {
   testTableColumnName: string;
   testTableSecondColumnName: string;
   testEntitiesSeedsCount: number;
-  insertedSearchedIds?: Array<{ number: number; _id: string }>;
+  insertedSearchedIds?: Array<{ number: number; _id?: string; id?: string }>;
 };
 
 export async function createTestTableForMSSQLWithChema(
@@ -325,7 +417,7 @@ export async function createTestOracleTable(
           [pColumnName]: ++counter,
           [testTableColumnName]: testSearchedUserName,
           [testTableSecondColumnName]: faker.internet.email(),
-          created_at: new Date("2010-11-03"),
+          created_at: new Date('2010-11-03'),
           updated_at: new Date(),
         });
       } else {
@@ -477,4 +569,90 @@ export async function createTestDynamoDBTable(
     testTableSecondColumnName: testTableSecondColumnName,
     testEntitiesSeedsCount: testEntitiesSeedsCount,
   };
+}
+
+export async function createTestCassandraTable(
+  connectionParams: any,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName().toLowerCase();
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+  const client = new cassandra.Client({
+    contactPoints: [connectionParams.host],
+    localDataCenter: connectionParams.dataCenter,
+    authProvider: new cassandra.auth.PlainTextAuthProvider(connectionParams.username, connectionParams.password),
+    pooling: {
+      coreConnectionsPerHost: {
+        [cassandra.types.distance.local]: 1,
+        [cassandra.types.distance.remote]: 1,
+      },
+      maxRequestsPerConnection: 32,
+    },
+    socketOptions: {
+      readTimeout: 30000,
+      connectTimeout: 30000,
+    },
+  });
+
+  try {
+    await client.connect();
+
+    try {
+      await client.execute(
+        `CREATE KEYSPACE IF NOT EXISTS ${connectionParams.database} WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1}`,
+      );
+      await client.execute(`USE ${connectionParams.database}`);
+      await client.execute(
+        `CREATE TABLE IF NOT EXISTS ${testTableName} (id UUID, ${testTableColumnName} TEXT, ${testTableSecondColumnName} TEXT, age INT, created_at TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY (id, age))`,
+      );
+    } catch (error) {
+      console.error(`Error creating Cassandra table: ${error.message}`);
+      throw error;
+    }
+    const insertedSearchedIds = [];
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+
+      const generatedId = uuidv4();
+      const query = `INSERT INTO ${testTableName} (id, ${testTableColumnName}, ${testTableSecondColumnName}, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`;
+      const age = isSearchedUser
+        ? i === 0
+          ? 14
+          : i === testEntitiesSeedsCount - 21
+            ? 90
+            : 95
+        : faker.number.int({ min: 16, max: 80 });
+      const params = [
+        generatedId,
+        isSearchedUser ? testSearchedUserName : faker.person.firstName(),
+        faker.internet.email(),
+        age,
+        new Date(),
+        new Date(),
+      ];
+      try {
+        await client.execute(query, params, { prepare: true });
+        if (isSearchedUser) {
+          insertedSearchedIds.push({
+            number: i,
+            id: generatedId,
+          });
+        }
+      } catch (error) {
+        console.error(`Error inserting into Cassandra table: ${error.message}`);
+        throw error;
+      }
+    }
+    return {
+      testTableName: testTableName,
+      testTableColumnName: testTableColumnName,
+      testTableSecondColumnName: testTableSecondColumnName,
+      testEntitiesSeedsCount: testEntitiesSeedsCount,
+      insertedSearchedIds,
+    };
+  } finally {
+    await client.shutdown().catch((err) => console.error('Error shutting down Cassandra client:', err));
+  }
 }

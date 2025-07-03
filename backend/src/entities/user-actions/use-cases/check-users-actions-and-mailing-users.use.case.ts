@@ -8,7 +8,8 @@ import { UserEntity } from '../../user/user.entity.js';
 import { UserActionEntity } from '../user-action.entity.js';
 import { buildNewConnectionNotFinishedEmailSentAction } from '../utils/build-new-user-action-entity.js';
 import { ICheckUsersActionsAndMailingUsers } from './use-cases-interfaces.js';
-
+import PQueue from 'p-queue';
+import Sentry from '@sentry/minimal';
 @Injectable()
 export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActionsAndMailingUsers {
   constructor(
@@ -18,26 +19,30 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
     private readonly userRepository: Repository<UserEntity>,
   ) {}
   public async execute(): Promise<Array<string>> {
-    console.info('Updating actions with mailing started');
-    const nonFinishedUsersActions = await this.findAllNonFinishedActionsTwoWeeksOld();
-    const usersWithoutLogs = await this.findUsersWithoutLogs();
-    const usersFromActions: Array<UserEntity> = nonFinishedUsersActions.map((action: UserActionEntity) => action.user);
-    const allUsersArray: Array<UserEntity> = usersWithoutLogs.concat(usersFromActions);
-    const filteredUsers: Array<{ id: string; email: string }> = Array.from(new Set(allUsersArray.map((u) => u.id))).map(
-      (id) => {
+    try {
+      const nonFinishedUsersActions = await this.findAllNonFinishedActionsTwoWeeksOld();
+      const usersWithoutLogs = await this.findUsersWithoutLogs();
+      const usersFromActions: Array<UserEntity> = nonFinishedUsersActions.map(
+        (action: UserActionEntity) => action.user,
+      );
+      const allUsersArray: Array<UserEntity> = usersWithoutLogs.concat(usersFromActions);
+      const filteredUsers: Array<{ id: string; email: string }> = Array.from(
+        new Set(allUsersArray.map((u) => u.id)),
+      ).map((id) => {
         return {
           id: id,
           email: allUsersArray.find((u) => u.id === id).email,
         };
-      },
-    );
-    await Promise.allSettled(
-      filteredUsers.map(async (u) => {
-        await this.updateOrCreateActionForUser(u);
-      }),
-    );
-    const userEmails = filteredUsers.map((u) => u.email?.toLowerCase());
-    return getUniqArrayStrings(userEmails);
+      });
+      const queue = new PQueue({ concurrency: 3 });
+      await Promise.all(filteredUsers.map((u) => queue.add(() => this.updateOrCreateActionForUser(u))));
+      const userEmails = filteredUsers.map((u) => u.email?.toLowerCase());
+      return getUniqArrayStrings(userEmails);
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error(e);
+      return [];
+    }
   }
 
   private async updateOrCreateActionForUser(u: { id: string; email: string }): Promise<void> {
@@ -59,6 +64,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
     const notFinishedActionsQb = this.userActionRepository
       .createQueryBuilder('user_action')
       .leftJoinAndSelect('user_action.user', 'user')
+      .andWhere('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
       .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
       .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
       .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
@@ -72,6 +78,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
       .leftJoinAndSelect('group.connection', 'connection')
       .leftJoinAndSelect('connection.logs', 'tableLogs')
       .leftJoinAndSelect('user.user_action', 'user_action')
+      .andWhere('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
       .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
       .orWhere('user_action.id is null')
       .andWhere('tableLogs.id is null');
