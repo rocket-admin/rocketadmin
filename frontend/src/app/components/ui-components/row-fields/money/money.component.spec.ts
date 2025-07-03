@@ -127,6 +127,7 @@ describe('MoneyRowComponent', () => {
     component.displayAmount = 'abc123def'; // Contains letters which get stripped
     
     component.onAmountChange();
+    component.onAmountBlur();
     
     expect(component.amount).toBe(123);
     expect(component.displayAmount).toBe('123.00');
