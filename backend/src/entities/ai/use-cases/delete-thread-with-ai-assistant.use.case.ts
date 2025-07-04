@@ -29,7 +29,7 @@ export class DeleteThreadWithAIAssistantUseCase
 
     const { openai } = getOpenAiClient();
 
-    await openai.beta.threads.del(foundThread.thread_ai_id);
+    await openai.beta.threads.delete(foundThread.thread_ai_id);
     await this._dbContext.aiUserThreadsRepository.delete(foundThread.id);
 
     return {

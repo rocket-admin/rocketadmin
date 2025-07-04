@@ -13,6 +13,8 @@ import { AddMessageToThreadWithAIAssistantUseCase } from './use-cases/add-messag
 import { FindAllUserThreadsWithAssistantUseCase } from './use-cases/find-all-user-threads-with-assistant.use.case.js';
 import { FindAllMessagesInAiThreadUseCase } from './use-cases/find-all-messages-in-ai-thread.use.case.js';
 import { DeleteThreadWithAIAssistantUseCase } from './use-cases/delete-thread-with-ai-assistant.use.case.js';
+import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
+import { RequestInfoFromTableWithAIUseCaseV2 } from './use-cases/request-info-from-table-with-ai-v2.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -24,6 +26,10 @@ import { DeleteThreadWithAIAssistantUseCase } from './use-cases/delete-thread-wi
     {
       provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI,
       useClass: RequestInfoFromTableWithAIUseCase,
+    },
+    {
+      provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V2,
+      useClass: RequestInfoFromTableWithAIUseCaseV2,
     },
     {
       provide: UseCaseType.CREATE_THREAD_WITH_AI_ASSISTANT,
@@ -46,7 +52,7 @@ import { DeleteThreadWithAIAssistantUseCase } from './use-cases/delete-thread-wi
       useClass: DeleteThreadWithAIAssistantUseCase,
     },
   ],
-  controllers: [UserAIRequestsController, UserAIThreadsController],
+  controllers: [UserAIRequestsController, UserAIThreadsController, UserAIRequestsControllerV2],
 })
 export class AIModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): any {
@@ -54,6 +60,7 @@ export class AIModule implements NestModule {
       .apply(AuthMiddleware)
       .forRoutes(
         { path: '/ai/request/:connectionId', method: RequestMethod.POST },
+        { path: '/ai/v2/request/:connectionId', method: RequestMethod.POST },
         { path: '/ai/thread/:connectionId', method: RequestMethod.POST },
         { path: '/ai/thread/message/:connectionId/:threadId', method: RequestMethod.POST },
         { path: '/ai/threads', method: RequestMethod.GET },
