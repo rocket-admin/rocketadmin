@@ -13,6 +13,7 @@ import { ValidationError } from 'class-validator';
 import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
 import bodyParser from 'body-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import session from 'express-session';
 
 async function bootstrap() {
   try {
@@ -39,6 +40,22 @@ async function bootstrap() {
     app.use(helmet());
 
     app.use(cookieParser());
+
+    const cookieDomain = process.env.ROCKETADMIN_COOKIE_DOMAIN || undefined;
+    app.use(
+      session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          secure: true,
+          domain: cookieDomain,
+          maxAge: 2 * 60 * 60 * 1000,
+          httpOnly: true,
+        },
+        name: 'rocketadmin.sid',
+      }),
+    );
 
     app.enableCors({
       origin: [
