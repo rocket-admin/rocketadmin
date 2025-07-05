@@ -85,12 +85,12 @@
             data-label="Email"
             attr.data-testid="company-member-email-{{i}}-cell">
             <div class="company-member-cell_email-value">
-                <mat-icon *ngIf="element.externalRegistrationProvider && element.externalRegistrationProvider === null"
+                <mat-icon *ngIf="element.externalRegistrationProvider === null"
                     class="company-member-cell_email-icon"
                     matTooltip="You registred with your email">
                     mail_outline
                 </mat-icon>
-                <mat-icon *ngIf="element.externalRegistrationProvider && element.externalRegistrationProvider !== null"
+                <mat-icon *ngIf="element.externalRegistrationProvider !== null"
                     class="company-member-cell_email-icon"
                     [svgIcon]="authProviderIcons[element.externalRegistrationProvider]"
                     matTooltip="You registred with {{element.externalRegistrationProvider}}">
