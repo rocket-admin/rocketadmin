@@ -20,6 +20,7 @@ import { ImageRowComponent } from '../components/ui-components/row-fields/image/
 import { UrlRowComponent } from '../components/ui-components/row-fields/url/url.component';
 import { CountryRowComponent } from '../components/ui-components/row-fields/country/country.component';
 import { PhoneRowComponent } from '../components/ui-components/row-fields/phone/phone.component';
+import { MoneyRowComponent } from '../components/ui-components/row-fields/money/money.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time', 'datetime', 'date time', 'datetime2', 'datetimeoffset', 'curdate', 'curtime', 'now', 'localtime', 'localtimestamp'];
 export const defaultTimestampValues = {
@@ -46,6 +47,7 @@ export const UIwidgets = {
     URL: UrlRowComponent,
     Country: CountryRowComponent,
     Phone: PhoneRowComponent,
+    Money: MoneyRowComponent,
     Foreign_key: ForeignKeyRowComponent,
 }
 
@@ -95,7 +97,7 @@ export const fieldTypes = {
         bytea: FileRowComponent,
 
         //etc
-        money: TextRowComponent,
+        money: MoneyRowComponent,
 
         //mess (math)
         point: PointRowComponent,
@@ -224,8 +226,8 @@ export const fieldTypes = {
         image: FileRowComponent,
 
         // etc
-        money: TextRowComponent,
-        smallmoney: TextRowComponent,
+        money: MoneyRowComponent,
+        smallmoney: MoneyRowComponent,
 
         "foreign key": ForeignKeyRowComponent
     },

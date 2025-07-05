@@ -1,0 +1,43 @@
+<div class="money-widget">
+  <div class="money-input-container">
+    <!-- Currency selector (if enabled) -->
+    <mat-form-field 
+      *ngIf="showCurrencySelector" 
+      class="money-selector" 
+      appearance="outline">
+      <mat-label>Currency</mat-label>
+      <mat-select 
+        [(value)]="selectedCurrency"
+        (selectionChange)="onCurrencyChange()"
+        [disabled]="disabled"
+        attr.data-testid="record-{{label}}-money-selector">
+        <mat-option 
+          *ngFor="let currency of currencies" 
+          [value]="currency.code">
+          {{ displayCurrencyFn(currency) }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Amount input -->
+    <mat-form-field 
+      class="amount-input" 
+      appearance="outline">
+      <mat-label>{{normalizedLabel}}</mat-label>
+      <span matTextPrefix *ngIf="selectedCurrencyData && displayAmount">{{selectedCurrencyData.symbol}}</span>
+      <input 
+        matInput
+        type="text"
+        [(ngModel)]="displayAmount"
+        (ngModelChange)="onAmountChange()"
+        (blur)="onAmountBlur()"
+        [placeholder]="placeholder"
+        [required]="required"
+        [disabled]="disabled"
+        [readonly]="readonly"
+        attr.data-testid="record-{{label}}-money-amount"
+        [step]="0.01">
+    </mat-form-field>
+  </div>
+
+</div>
