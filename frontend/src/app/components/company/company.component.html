@@ -87,13 +87,13 @@
             <div class="company-member-cell_email-value">
                 <mat-icon *ngIf="element.externalRegistrationProvider === null"
                     class="company-member-cell_email-icon"
-                    matTooltip="You registred with your email">
+                    matTooltip="Email registration">
                     mail_outline
                 </mat-icon>
                 <mat-icon *ngIf="element.externalRegistrationProvider !== null"
                     class="company-member-cell_email-icon"
                     [svgIcon]="authProviderIcons[element.externalRegistrationProvider]"
-                    matTooltip="You registred with {{element.externalRegistrationProvider}}">
+                    matTooltip="{{element.externalRegistrationProvider}} registration">
                 </mat-icon>
                 <span>{{element.email}}</span>
             </div>
