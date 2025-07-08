@@ -37,6 +37,7 @@ import { RouterModule } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { normalizeTableName } from '../../../lib/normalize'
 
 interface Column {
@@ -425,10 +426,20 @@ export class DbTableComponent implements OnInit {
 
     this._tableRow.fetchTableRow(this.connectionID, foreignKeys.referenced_table_name, {[foreignKeys.referenced_column_name]: row[foreignKeys.referenced_column_name]})
       .subscribe(res => {
+        const filedsTypes = res.structure.reduce((acc, field) => {
+          acc[field.column_name	] = field.data_type;
+          return acc;
+        }, {});
+
+        const formattedRecord = Object.entries(res.row).reduce((acc, [key, value]) => {
+          acc[key] = formatFieldValue(value, filedsTypes[key]);
+          return acc;
+        }, {})
+
         this._tableState.selectRow({
           connectionID: this.connectionID,
           tableName: foreignKeys.referenced_table_name,
-          record: res.row,
+          record: formattedRecord,
           columnsOrder: res.list_fields,
           primaryKeys: {
             [foreignKeys.referenced_column_name]: res.row[foreignKeys.referenced_column_name]
