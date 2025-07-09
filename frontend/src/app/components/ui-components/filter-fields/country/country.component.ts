@@ -23,7 +23,7 @@ export class CountryFilterComponent extends BaseFilterFieldComponent {
   @Input() value: string;
 
   public countries: {value: string | null, label: string, flag: string}[] = [];
-  public countryControl = new FormControl('');
+  public countryControl = new FormControl<{value: string | null, label: string, flag: string} | string>('');
   public filteredCountries: Observable<{value: string | null, label: string, flag: string}[]>;
 
   originalOrder = () => { return 0; }
@@ -40,7 +40,7 @@ export class CountryFilterComponent extends BaseFilterFieldComponent {
   private setupAutocomplete(): void {
     this.filteredCountries = this.countryControl.valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || ''))
+      map(value => this._filter(typeof value === 'string' ? value : (value?.label || '')))
     );
   }
 
@@ -48,7 +48,7 @@ export class CountryFilterComponent extends BaseFilterFieldComponent {
     if (this.value) {
       const country = this.countries.find(c => c.value === this.value);
       if (country) {
-        this.countryControl.setValue(country.label);
+        this.countryControl.setValue(country);
       }
     }
   }

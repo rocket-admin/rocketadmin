@@ -31,7 +31,7 @@ export class TimeIntervalRowComponent extends BaseRowFieldComponent {
   ngOnInit(): void {
     super.ngOnInit();
     // @ts-ignore
-    if (this.value) this.interval = {...pgInterval.parse(this.value)};
+    if (this.value) this.interval = this.value;
   }
 
   onInputChange() {

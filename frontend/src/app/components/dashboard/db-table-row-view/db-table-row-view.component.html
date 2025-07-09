@@ -38,12 +38,13 @@
                         <mat-spinner *ngIf="!referencedRecords[referencedTable.table_name]" diameter="20"></mat-spinner>
                         <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length">Absent</span>
                         <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rows.length"
+                            target="_blank"
                             [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'settings']"
                             matTooltip="Set up records view"
                             (click)="handleClose()">
                             <mat-icon>settings</mat-icon>
                         </a>
-                        <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]"
+                        <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]" target="_blank"
                             routerLink="/dashboard/{{selectedRow.connectionID}}/{{referencedTable.table_name}}"
                             [queryParams]="referencedTablesURLParams[i]"
                             matTooltip="Open records in table view"

@@ -16,21 +16,22 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class TimeIntervalFilterComponent extends BaseFilterFieldComponent {
   @Input() value;
+  static type = 'number';
 
   public interval = {
-    years: '',
-    months: '',
-    days: '',
-    hours: '',
-    minutes: '',
-    seconds: '',
-    milliseconds: ''
+    years: 0,
+    months: 0,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 0
   };
 
   ngOnInit(): void {
     super.ngOnInit();
-    // @ts-ignore
-    if (this.value) this.interval = {...pgInterval.parse(this.value)};
+
+    if (this.value) this.interval = this.parseIntervalString(this.value);
   }
 
   onInputChange() {
@@ -38,4 +39,47 @@ export class TimeIntervalFilterComponent extends BaseFilterFieldComponent {
     const currentInterval = pgInterval.prototype.toPostgres.call(this.interval);
     this.onFieldChange.emit(currentInterval);
   }
+
+  parseIntervalString(input) {
+    const units = {
+      year: 'years',
+      years: 'years',
+      month: 'months',
+      months: 'months',
+      day: 'days',
+      days: 'days',
+      hour: 'hours',
+      hours: 'hours',
+      minute: 'minutes',
+      minutes: 'minutes',
+      second: 'seconds',
+      seconds: 'seconds',
+      millisecond: 'milliseconds',
+      milliseconds: 'milliseconds',
+    };
+
+    const result = {
+      years: 0,
+      months: 0,
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    };
+
+    const regex = /(\d+(?:\.\d+)?)\s*(years?|months?|days?|hours?|minutes?|seconds?|milliseconds?)/gi;
+
+    let match;
+    while ((match = regex.exec(input)) !== null) {
+      const value = parseFloat(match[1]);
+      const unit = match[2].toLowerCase();
+      const key = units[unit];
+
+      if (key) result[key] += value;
+    }
+
+    return result;
+  }
+
 }
