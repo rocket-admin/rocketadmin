@@ -1,0 +1,76 @@
+.money-widget {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.money-input-container {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.money-selector {
+  min-width: 180px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.money-selector .mat-mdc-form-field {
+  margin-left: 0;
+}
+
+.amount-input {
+  flex: 1;
+  min-width: 120px;
+}
+
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .money-input-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .money-selector {
+    width: 100%;
+    min-width: unset;
+    margin-left: 16px;
+  }
+}
+
+/* Ensure proper spacing with Material Design */
+.mat-mdc-form-field {
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.mat-mdc-form-field + .mat-mdc-form-field {
+  margin-left: 0;
+}
+
+/* Prefix/suffix styling */
+.mat-mdc-form-field-prefix,
+.mat-mdc-form-field-suffix {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+[data-theme="dark"] .mat-mdc-form-field-prefix,
+[data-theme="dark"] .mat-mdc-form-field-suffix {
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* Specific styling for text prefix */
+.mat-mdc-form-field-text-prefix {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  margin-right: 4px;
+}
+
+[data-theme="dark"] .mat-mdc-form-field-text-prefix {
+  color: rgba(255, 255, 255, 0.87);
+}

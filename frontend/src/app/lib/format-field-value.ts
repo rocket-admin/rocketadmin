@@ -22,8 +22,9 @@ export function formatFieldValue(value, type) {
       if (value || value ===  1) return '✓'
       else if (value === false || value === 0) return '✕'
       else return '—'
-    } else if (type === 'json' || type === 'jsonb' || type === 'object' || type === 'array') {
+    } else if (type === 'json' || type === 'jsonb' || type === 'object' || type === 'array' || type === 'interval') {
       return JSON.stringify(value)
     }
+
     return value;
   }

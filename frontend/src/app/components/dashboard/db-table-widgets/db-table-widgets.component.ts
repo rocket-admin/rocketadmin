@@ -171,11 +171,21 @@ export class DbTableWidgetsComponent implements OnInit {
   "phone_validation": true
 }
 `,
+  Country: `// No settings required`,
   Foreign_key: `// Provide settings for foreign key widget
 {
   "column_name": "", // copy the name of the column you selected
   "referenced_column_name": "",
   "referenced_table_name": ""
+}
+`,
+  Money: `// Configure money widget settings
+// example:
+{
+  "default_currency": "USD",
+  "show_currency_selector": false,
+  "decimal_places": 2,
+  "allow_negative": true
 }
 `,
   }
