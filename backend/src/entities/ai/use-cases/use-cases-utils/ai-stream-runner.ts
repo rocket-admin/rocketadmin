@@ -154,7 +154,8 @@ export class AiStreamsRunner {
 
     return new Promise((resolve, reject) => {
       this.openai.beta.threads.runs
-        .submitToolOutputsStream(this.thread_ai_id, runId, {
+        .submitToolOutputsStream(runId, {
+          thread_id: this.thread_ai_id,
           tool_outputs: [
             {
               tool_call_id: toolCallId,

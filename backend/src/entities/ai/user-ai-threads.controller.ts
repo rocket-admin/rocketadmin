@@ -56,7 +56,7 @@ export class UserAIThreadsController {
     private readonly deleteThreadWithAIAssistantUseCase: IDeleteThreadWithAIAssistant,
   ) {}
 
-  @ApiOperation({ summary: 'Create new thread with ai assistant' })
+  @ApiOperation({ summary: 'Create new thread with ai assistant', deprecated: true })
   @ApiResponse({
     status: 201,
     description: 'Return ai assistant response text as stream.',
@@ -85,7 +85,7 @@ export class UserAIThreadsController {
     return await this.createThreadWithAIAssistantUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Add new message to thread with assistant' })
+  @ApiOperation({ summary: 'Add new message to thread with assistant', deprecated: true })
   @ApiResponse({
     status: 201,
     description: 'Return ai assistant response text as stream.',
@@ -115,7 +115,7 @@ export class UserAIThreadsController {
     return await this.addMessageToThreadWithAIAssistantUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all user threads with assistant' })
+  @ApiOperation({ summary: 'Get all user threads with assistant', deprecated: true })
   @ApiResponse({
     status: 201,
     description: 'Return user threads.',
@@ -126,7 +126,7 @@ export class UserAIThreadsController {
     return await this.getAllUserThreadsWithAIAssistantUseCase.execute(userId, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all messages from a thread' })
+  @ApiOperation({ summary: 'Get all messages from a thread', deprecated: true })
   @ApiResponse({
     status: 201,
     description: 'Return messages from a thread.',
@@ -156,7 +156,7 @@ export class UserAIThreadsController {
     return await this.getAllThreadMessagesUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete users thread with ai assistant' })
+  @ApiOperation({ summary: 'Delete users thread with ai assistant', deprecated: true })
   @ApiResponse({
     status: 201,
     description: 'Delete users thread.',
