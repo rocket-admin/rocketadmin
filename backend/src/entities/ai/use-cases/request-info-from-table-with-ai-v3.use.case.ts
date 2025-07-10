@@ -237,7 +237,16 @@ Remember that all responses should be clear and user-friendly, explaining techni
             if (completedToolCall) {
               try {
                 const toolName = completedToolCall.function.name;
-                response.write(`data: Processing ${toolName} request...\n\n`);
+
+                if (toolName === 'executeRawSql') {
+                  response.write(`data: Running your database query...\n\n`);
+                } else if (toolName === 'executeAggregationPipeline') {
+                  response.write(`data: Analyzing your data with the requested filters...\n\n`);
+                } else if (toolName === 'getTableStructure') {
+                  response.write(`data: Examining database table structure...\n\n`);
+                } else {
+                  response.write(`data: Processing your request...\n\n`);
+                }
 
                 if (toolName === 'getTableStructure') {
                   const tableStructureInfo = await this.getTableStructureInfo(
@@ -282,7 +291,9 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
                     });
                   } catch (innerStreamError) {
                     console.error('Error creating second OpenAI stream with table structure data:', innerStreamError);
-                    response.write(`data: Error analyzing table structure: ${innerStreamError.message}\n\n`);
+                    response.write(
+                      `data: Sorry, I encountered a problem analyzing your table information: ${innerStreamError.message}\n\n`,
+                    );
                     continue;
                   }
 
@@ -290,7 +301,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
                   let innerCurrentToolCall = null;
                   let innerResponseId = null;
                   let innerAiResponseBuffer = '';
-                  response.write(`data: Analyzing table structure from ${tableName} and preparing SQL query...\n\n`);
+                  response.write(`data: Analyzing your data structure and preparing an appropriate query...\n\n`);
 
                   for await (const innerChunk of continuedStream) {
                     const typedInnerChunk = innerChunk as ResponseChunk;
@@ -376,9 +387,14 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
                     ) {
                       const completedInnerToolCall = innerToolCalls.find((tc) => tc.id === typedInnerChunk.item.id);
                       if (completedInnerToolCall) {
-                        response.write(
-                          `data: Processing ${completedInnerToolCall.function.name} request from second stream...\n\n`,
-                        );
+                        const toolName = completedInnerToolCall.function.name;
+                        if (toolName === 'executeRawSql') {
+                          response.write(`data: Running database query with your table information...\n\n`);
+                        } else if (toolName === 'executeAggregationPipeline') {
+                          response.write(`data: Analyzing your data with the provided filters...\n\n`);
+                        } else {
+                          response.write(`data: Processing your request with the table information...\n\n`);
+                        }
 
                         await this.processQueryToolCall(
                           completedInnerToolCall,
@@ -437,7 +453,9 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
                 }
               } catch (error) {
                 console.error('Error processing tool call:', error);
-                response.write(`data: Error processing tool call: ${error.message}\n\n`);
+                response.write(
+                  `data: Sorry, I encountered an issue while processing your request: ${error.message}\n\n`,
+                );
               }
             }
           }
@@ -457,7 +475,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
         }
       } catch (streamError) {
         console.error('Error creating OpenAI stream:', streamError);
-        response.write(`data: Error creating AI stream: ${streamError.message}\n\n`);
+        response.write(`data: Sorry, I'm having trouble connecting to the AI service: ${streamError.message}\n\n`);
         if (streamError.status === 401) {
           response.write(
             `data: This may be due to insufficient API permissions. Ensure your API key has the "api.responses.write" scope.\n\n`,
@@ -670,16 +688,28 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
       const sanitizedArgs = this.sanitizeJsonString(toolCall.function.arguments);
       const toolArgs = JSON.parse(sanitizedArgs);
 
-      response.write(`data: Processing ${toolName} request...\n\n`);
+      if (toolName === 'executeRawSql') {
+        response.write(`data: Running your database query...\n\n`);
+      } else if (toolName === 'executeAggregationPipeline') {
+        response.write(`data: Processing your data analysis request...\n\n`);
+      } else if (toolName === 'getTableStructure') {
+        response.write(`data: Retrieving table information...\n\n`);
+      } else {
+        response.write(`data: Processing your request...\n\n`);
+      }
 
       if (toolName === 'executeRawSql') {
         const query = toolArgs.query;
         if (!query || typeof query !== 'string') {
-          response.write(`data: Invalid SQL query provided.\n\n`);
+          response.write(
+            `data: Sorry, I couldn't understand how to query your data. Could you try rephrasing your question?\n\n`,
+          );
           return;
         }
         if (!this.isValidSQLQuery(query)) {
-          response.write(`data: Sorry, I cannot execute this query as it contains potentially harmful operations.\n\n`);
+          response.write(
+            `data: Sorry, for data safety reasons I can only run read-only queries that don't modify your data.\n\n`,
+          );
           return;
         }
 
@@ -720,7 +750,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
           }
         } catch (error) {
           console.error('Error executing SQL query:', error);
-          response.write(`data: Error executing SQL query: ${error.message}\n\n`);
+          response.write(`data: Sorry, I couldn't retrieve the data you requested: ${error.message}\n\n`);
         }
       } else if (toolName === 'executeAggregationPipeline') {
         const pipeline = toolArgs.pipeline;
@@ -730,9 +760,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
         }
 
         if (!this.isValidMongoDbCommand(pipeline)) {
-          response.write(
-            `data: Sorry, I cannot execute this pipeline as it contains potentially harmful operations.\n\n`,
-          );
+          response.write(`data: Sorry, I can only run data analysis operations that don't modify your data.\n\n`);
           console.info('MongoDB pipeline validation failed, potentially harmful:', pipeline);
           return;
         }
@@ -773,7 +801,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
           }
         } catch (error) {
           console.error('Error executing MongoDB pipeline:', error);
-          response.write(`data: Error executing MongoDB pipeline: ${error.message}\n\n`);
+          response.write(`data: Sorry, I couldn't complete the data analysis you requested: ${error.message}\n\n`);
         }
       } else if (toolName === 'getTableStructure') {
         response.write(`data: Table structure information has been fetched.\n\n`);
@@ -783,7 +811,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
       }
     } catch (error) {
       console.error('Error in processQueryToolCall:', error);
-      response.write(`data: Error processing query tool call: ${error.message}\n\n`);
+      response.write(`data: Sorry, I ran into a problem while working with your data: ${error.message}\n\n`);
     }
   }
 
@@ -827,10 +855,12 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
 
       if (!query || query.length < 10) return false;
 
-      response.write(`data: I see you generated a SQL query. Let me execute that for you automatically...\n\n`);
+      response.write(`data: I notice a potential database query in your question. Let me run that for you...\n\n`);
 
       if (!this.isValidSQLQuery(query)) {
-        response.write(`data: Cannot automatically execute this query as it may not be safe.\n\n`);
+        response.write(
+          `data: Sorry, I can't run this query as it might modify data or contains potentially unsafe operations.\n\n`,
+        );
         return false;
       }
 
@@ -839,7 +869,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
 
       try {
         const queryResult = await dao.executeRawQuery(finalQuery, tableName, userEmail);
-        response.write(`data: Automatically executed query.\n\n`);
+        response.write(`data: Successfully retrieved the data you requested.\n\n`);
 
         const openApiKey = getRequiredEnvVariable('OPENAI_API_KEY');
         const openai = new OpenAI({ apiKey: openApiKey });
@@ -866,7 +896,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
         return true;
       } catch (error) {
         console.error('Error auto-executing detected SQL query:', error);
-        response.write(`data: Error executing detected SQL query: ${error.message}\n\n`);
+        response.write(`data: Sorry, I couldn't retrieve that data for you: ${error.message}\n\n`);
         return true;
       }
     } catch (error) {
@@ -1032,7 +1062,7 @@ Please provide a clear, concise, and conversational answer that directly address
   ): Promise<boolean> {
     try {
       console.log('Streaming human-readable answer for query results using responses API');
-      response.write(`data: Generating a human-friendly explanation of the results...\n\n`);
+      response.write(`data: Creating an explanation of what your data shows...\n\n`);
 
       const simplifiedResults = this.simplifyQueryResults(queryResult);
 
