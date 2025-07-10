@@ -35,6 +35,41 @@ export class RequestInfoFromTableWithAIUseCaseV3
     const openai = new OpenAI({ apiKey: openApiKey });
     const { connectionId, tableName, user_message, master_password, user_id, response } = inputData;
 
+    this.initializeSession(response);
+
+    const { foundConnection, dao, databaseType, isMongoDb, userEmail } = await this.setupConnection(
+      connectionId,
+      master_password,
+      user_id,
+    );
+
+    this.setupResponseHeaders(response);
+
+    const tools = getOpenAiTools(isMongoDb);
+    let heartbeatInterval: NodeJS.Timeout | null = null;
+
+    try {
+      response.write(`data: Analyzing your request about the "${tableName}" table...\n\n`);
+      heartbeatInterval = this.setupHeartbeat(response);
+
+      const system_prompt = this.createSystemPrompt(tableName, databaseType, foundConnection);
+
+      try {
+        const stream = await this.createOpenAIStream(openai, user_message, system_prompt, user_id, tools, response);
+
+        await this.processStream(stream, response, dao, tableName, userEmail, foundConnection, isMongoDb, user_message);
+      } catch (streamError) {
+        this.handleStreamError(streamError, response);
+      }
+
+      this.cleanupAndEnd(heartbeatInterval, response);
+    } catch (error) {
+      this.handleError(response, error, 'AI request processing');
+      this.cleanupAndEnd(heartbeatInterval, response);
+    }
+  }
+
+  private initializeSession(response: any): void {
     if (!response.req.session) {
       (response.req as any).session = {
         lastResponseId: null,
@@ -42,7 +77,9 @@ export class RequestInfoFromTableWithAIUseCaseV3
     } else if (response.req.session.lastResponseId === undefined) {
       response.req.session.lastResponseId = null;
     }
+  }
 
+  private async setupConnection(connectionId: string, master_password: string, user_id: string) {
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
       master_password,
@@ -68,26 +105,29 @@ export class RequestInfoFromTableWithAIUseCaseV3
     const databaseType = foundConnection.type;
     const isMongoDb = databaseType === ConnectionTypesEnum.mongodb;
 
+    return { foundConnection, dao, databaseType, isMongoDb, userEmail };
+  }
+
+  private setupResponseHeaders(response: any): void {
     response.setHeader('Content-Type', 'text/event-stream');
     response.setHeader('Cache-Control', 'no-cache');
     response.setHeader('Connection', 'keep-alive');
+  }
 
-    const tools = getOpenAiTools(isMongoDb);
-    let heartbeatInterval: NodeJS.Timeout | null = null;
+  private setupHeartbeat(response: any): NodeJS.Timeout {
+    const interval = setInterval(() => {
+      try {
+        response.write(`:heartbeat\n\n`);
+      } catch (err) {
+        console.error('Error sending heartbeat:', err);
+        clearInterval(interval);
+      }
+    }, 5000);
+    return interval;
+  }
 
-    try {
-      response.write(`data: Analyzing your request about the "${tableName}" table...\n\n`);
-
-      heartbeatInterval = setInterval(() => {
-        try {
-          response.write(`:heartbeat\n\n`);
-        } catch (err) {
-          console.error('Error sending heartbeat:', err);
-          clearInterval(heartbeatInterval);
-        }
-      }, 5000);
-
-      const system_prompt = `You are an AI assistant helping with database queries.
+  private createSystemPrompt(tableName: string, databaseType: any, foundConnection: any): string {
+    return `You are an AI assistant helping with database queries.
 Database type: ${this.convertDdTypeEnumToReadableString(databaseType as ConnectionTypesEnum)}
 Table name: "${tableName}".
 ${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
@@ -109,159 +149,206 @@ IMPORTANT:
 - Always provide your answers in a conversational, human-friendly format
 
 Remember that all responses should be clear and user-friendly, explaining technical details when necessary.`;
+  }
+
+  private async createOpenAIStream(
+    openai: OpenAI,
+    user_message: string,
+    system_prompt: string,
+    user_id: string,
+    tools: any[],
+    response: any,
+  ) {
+    return await openai.responses.create({
+      model: 'gpt-4.1',
+      input: user_message,
+      tool_choice: 'auto',
+      instructions: system_prompt,
+      user: user_id,
+      stream: true,
+      tools: tools,
+      previous_response_id: response.req.session.lastResponseId || undefined,
+    });
+  }
+
+  private async processStream(
+    stream: any,
+    response: any,
+    dao: any,
+    tableName: string,
+    userEmail: string,
+    foundConnection: any,
+    isMongoDb: boolean,
+    user_message: string,
+  ) {
+    let currentToolCall = null;
+    const toolCalls = [];
+    let responseId = null;
+    let aiResponseBuffer = '';
+    const responseIdRef = { id: null };
+
+    for await (const chunk of stream) {
+      const typedChunk = chunk as any;
+
+      const result = this.processStreamChunk(
+        typedChunk,
+        response,
+        aiResponseBuffer,
+        currentToolCall,
+        toolCalls,
+        responseIdRef,
+      );
+
+      aiResponseBuffer = result.buffer;
+      currentToolCall = result.currentToolCall;
+      responseId = responseIdRef.id;
+
+      if (typedChunk.type === 'response.output_item.done' && typedChunk.item?.type === 'function_call') {
+        await this.handleCompletedToolCall(
+          typedChunk,
+          toolCalls,
+          dao,
+          tableName,
+          userEmail,
+          foundConnection,
+          isMongoDb,
+          response,
+          user_message,
+          aiResponseBuffer,
+          responseId,
+        );
+      }
+    }
+
+    if (
+      toolCalls.length === 0 ||
+      !toolCalls.some(
+        (tc) => tc.function?.name === 'executeRawSql' || tc.function?.name === 'executeAggregationPipeline',
+      )
+    ) {
+      await this.detectAndExecuteSqlQueries(aiResponseBuffer, dao, tableName, userEmail, foundConnection, response);
+    }
+
+    if (aiResponseBuffer.trim() && responseId) {
+      response.req.session.lastResponseId = responseId;
+    }
+  }
+
+  private async handleCompletedToolCall(
+    typedChunk: any,
+    toolCalls: any[],
+    dao: any,
+    tableName: string,
+    userEmail: string,
+    foundConnection: any,
+    isMongoDb: boolean,
+    response: any,
+    user_message: string,
+    aiResponseBuffer: string,
+    responseId: string,
+  ) {
+    const completedToolCall = toolCalls.find((tc) => tc.id === typedChunk.item.id);
+    if (completedToolCall) {
       try {
-        const stream = await openai.responses.create({
-          model: 'gpt-4.1',
-          input: user_message,
-          tool_choice: 'auto',
-          instructions: system_prompt,
-          user: user_id,
-          stream: true,
-          tools: tools,
-          previous_response_id: response.req.session.lastResponseId || undefined,
-        });
+        const toolName = completedToolCall.function.name;
+        response.write(`data: ${this.getUserMessageForTool(toolName)}\n\n`);
 
-        let currentToolCall = null;
-        const toolCalls = [];
-        let responseId = null;
-        let aiResponseBuffer = '';
+        if (toolName === 'getTableStructure') {
+          await this.handleTableStructureTool(
+            dao,
+            tableName,
+            userEmail,
+            foundConnection,
+            response,
+            user_message,
+            aiResponseBuffer,
+            responseId,
+            isMongoDb,
+          );
+        } else if (toolName === 'executeRawSql' || toolName === 'executeAggregationPipeline') {
+          await this.processQueryToolCall(
+            completedToolCall,
+            dao,
+            tableName,
+            userEmail,
+            foundConnection,
+            isMongoDb,
+            response,
+            user_message,
+          );
+        }
+      } catch (error) {
+        this.handleError(response, error, 'processing your request');
+      }
+    }
+  }
 
-        for await (const chunk of stream) {
-          type ResponseChunk = {
-            type: string;
-            delta?: string;
-            item_id?: string;
-            item?: {
-              id: string;
-              type: string;
-              name?: string;
-              arguments?: string;
-              content?: string;
-              text?: string;
-              function?: {
-                name: string;
-                arguments: string;
-              };
-            };
-            output_index?: number;
-            arguments?: string;
-            text?: string;
-            index?: number;
-            output_text?: {
-              delta?: string;
-              done?: boolean;
-            };
-            content_part?: {
-              added?: string;
-              done?: boolean;
-            };
-            part?: {
-              text?: string;
-            };
-            response?: {
-              output?: Array<{
-                type: string;
-                text?: string;
-              }>;
-              id?: string;
-              done?: boolean;
-              completed?: boolean;
-              status?: string;
-              content?: {
-                delta?: string;
-              };
-            };
-          };
+  private async handleTableStructureTool(
+    dao: any,
+    tableName: string,
+    userEmail: string,
+    foundConnection: any,
+    response: any,
+    user_message: string,
+    aiResponseBuffer: string,
+    responseId: string,
+    isMongoDb: boolean,
+  ) {
+    const tableStructureInfo = await this.getTableStructureInfo(dao, tableName, userEmail, foundConnection);
 
-          const typedChunk = chunk as ResponseChunk;
+    response.write(`data: Fetching table structure information for ${tableName}...\n\n`);
 
-          aiResponseBuffer = this.processStreamTextChunk(typedChunk, response, aiResponseBuffer);
+    const updatedSystemPrompt = this.createTableStructurePrompt(tableName, foundConnection, isMongoDb);
 
-          if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
-            response.write(`:heartbeat\n\n`);
-            if (typedChunk.type === 'response.created' && typedChunk.response?.id) {
-              responseId = typedChunk.response.id;
-            }
-          }
+    try {
+      const enhancedMessage = this.createTableStructureMessage(user_message, tableStructureInfo);
 
-          if (typedChunk.type === 'response.completed' && typedChunk.response?.id) {
-            responseId = typedChunk.response.id;
-          }
+      responseId = null;
+      response.req.session.lastResponseId = null;
 
-          if (typedChunk.type === 'response.function_call_arguments.delta' && typedChunk.delta && typedChunk.item_id) {
-            try {
-              if (!currentToolCall) {
-                const outputItem = toolCalls.find((tc) => tc.id === typedChunk.item_id);
-                if (outputItem) {
-                  currentToolCall = outputItem;
-                }
-              }
+      const openApiKey = getRequiredEnvVariable('OPENAI_API_KEY');
+      const openai = new OpenAI({ apiKey: openApiKey });
+      const tools = getOpenAiTools(isMongoDb);
 
-              if (currentToolCall && currentToolCall.id === typedChunk.item_id) {
-                if (!currentToolCall.function.arguments) {
-                  currentToolCall.function.arguments = '';
-                }
-                currentToolCall.function.arguments += typedChunk.delta;
-              }
-            } catch (error) {
-              console.error('Error processing function call arguments delta:', error);
-            }
-          }
+      const continuedStream = await openai.responses.create({
+        model: 'gpt-4.1',
+        input: enhancedMessage,
+        tool_choice: 'auto',
+        instructions: updatedSystemPrompt,
+        user: user_message,
+        stream: true,
+        tools: tools,
+      });
 
-          if (typedChunk.type === 'response.output_item.added' && typedChunk.item?.type === 'function_call') {
-            currentToolCall = {
-              id: typedChunk.item.id,
-              index: typedChunk.output_index || 0,
-              type: 'function',
-              function: {
-                name: typedChunk.item.name || '',
-                arguments: typedChunk.item.arguments || '',
-              },
-            };
-            toolCalls.push(currentToolCall);
-          }
+      await this.processSecondStream(
+        continuedStream,
+        response,
+        dao,
+        tableName,
+        userEmail,
+        foundConnection,
+        isMongoDb,
+        user_message,
+        aiResponseBuffer,
+      );
+    } catch (innerStreamError) {
+      console.error('Error creating second OpenAI stream with table structure data:', innerStreamError);
+      response.write(
+        `data: Sorry, I encountered a problem analyzing your table information: ${innerStreamError.message}\n\n`,
+      );
+    }
+  }
 
-          if (
-            typedChunk.type === 'response.function_call_arguments.done' &&
-            typedChunk.item_id &&
-            typedChunk.arguments
-          ) {
-            const relevantToolCall = toolCalls.find((tc) => tc.id === typedChunk.item_id);
-            if (relevantToolCall) {
-              relevantToolCall.function.arguments = typedChunk.arguments;
-            }
-          }
+  private createTableStructurePrompt(tableName: string, foundConnection: any, isMongoDb: boolean): string {
+    const basePrompt = this.createSystemPrompt(tableName, foundConnection.type, foundConnection);
+    return (
+      basePrompt +
+      `\n\nYou are continuing a conversation where the user asked about table data and you requested the table structure. You now have the structure and must analyze it to answer the user's question with ${isMongoDb ? 'MongoDB aggregation' : 'SQL'}.`
+    );
+  }
 
-          if (typedChunk.type === 'response.output_item.done' && typedChunk.item?.type === 'function_call') {
-            const completedToolCall = toolCalls.find((tc) => tc.id === typedChunk.item.id);
-            if (completedToolCall) {
-              try {
-                const toolName = completedToolCall.function.name;
-
-                if (toolName === 'executeRawSql') {
-                  response.write(`data: Running your database query...\n\n`);
-                } else if (toolName === 'executeAggregationPipeline') {
-                  response.write(`data: Analyzing your data with the requested filters...\n\n`);
-                } else if (toolName === 'getTableStructure') {
-                  response.write(`data: Examining database table structure...\n\n`);
-                } else {
-                  response.write(`data: Processing your request...\n\n`);
-                }
-
-                if (toolName === 'getTableStructure') {
-                  const tableStructureInfo = await this.getTableStructureInfo(
-                    dao,
-                    tableName,
-                    userEmail,
-                    foundConnection,
-                  );
-                  response.write(`data: Fetching table structure information for ${tableName}...\n\n`);
-                  const updatedSystemPrompt =
-                    system_prompt +
-                    `\n\nYou are continuing a conversation where the user asked about table data and you requested the table structure. You now have the structure and must analyze it to answer the user's question with SQL.`;
-                  let continuedStream;
-                  try {
-                    const enhancedMessage = `I asked: "${user_message}"
+  private createTableStructureMessage(user_message: string, tableStructureInfo: any): string {
+    return `I asked: "${user_message}"
 
 You called the getTableStructure tool, and here is the result:
 
@@ -276,233 +363,119 @@ Now, using this table structure information:
 4. When you get the results, explain them to me conversationally, directly answering my question
 
 Remember: You MUST use the executeRawSql tool to run your query and show me the actual data.`;
+  }
 
-                    responseId = null;
-                    response.req.session.lastResponseId = null;
+  private async processSecondStream(
+    continuedStream: any,
+    response: any,
+    dao: any,
+    tableName: string,
+    userEmail: string,
+    foundConnection: any,
+    isMongoDb: boolean,
+    user_message: string,
+    originalBuffer: string,
+  ) {
+    const innerToolCalls = [];
+    let innerCurrentToolCall = null;
+    let innerResponseId = null;
+    let innerAiResponseBuffer = '';
+    const innerResponseIdRef = { id: null };
 
-                    continuedStream = await openai.responses.create({
-                      model: 'gpt-4.1',
-                      input: enhancedMessage,
-                      tool_choice: 'auto',
-                      instructions: updatedSystemPrompt,
-                      user: user_id,
-                      stream: true,
-                      tools: tools,
-                    });
-                  } catch (innerStreamError) {
-                    console.error('Error creating second OpenAI stream with table structure data:', innerStreamError);
-                    response.write(
-                      `data: Sorry, I encountered a problem analyzing your table information: ${innerStreamError.message}\n\n`,
-                    );
-                    continue;
-                  }
+    response.write(`data: Analyzing your data structure and preparing an appropriate query...\n\n`);
 
-                  const innerToolCalls = [];
-                  let innerCurrentToolCall = null;
-                  let innerResponseId = null;
-                  let innerAiResponseBuffer = '';
-                  response.write(`data: Analyzing your data structure and preparing an appropriate query...\n\n`);
+    for await (const innerChunk of continuedStream) {
+      const typedInnerChunk = innerChunk as any;
 
-                  for await (const innerChunk of continuedStream) {
-                    const typedInnerChunk = innerChunk as ResponseChunk;
-                    innerAiResponseBuffer = this.processStreamTextChunk(
-                      typedInnerChunk,
-                      response,
-                      innerAiResponseBuffer,
-                    );
+      const result = this.processStreamChunk(
+        typedInnerChunk,
+        response,
+        innerAiResponseBuffer,
+        innerCurrentToolCall,
+        innerToolCalls,
+        innerResponseIdRef,
+      );
 
-                    if (
-                      typedInnerChunk.type === 'response.created' ||
-                      typedInnerChunk.type === 'response.in_progress'
-                    ) {
-                      response.write(`:heartbeat\n\n`);
+      innerAiResponseBuffer = result.buffer;
+      innerCurrentToolCall = result.currentToolCall;
+      innerResponseId = innerResponseIdRef.id;
 
-                      if (typedInnerChunk.type === 'response.created' && typedInnerChunk.response?.id) {
-                        innerResponseId = typedInnerChunk.response.id;
-                      }
-                    }
+      if (typedInnerChunk.type === 'response.output_item.done' && typedInnerChunk.item?.type === 'function_call') {
+        const completedInnerToolCall = innerToolCalls.find((tc) => tc.id === typedInnerChunk.item.id);
+        if (completedInnerToolCall) {
+          const toolName = completedInnerToolCall.function.name;
+          response.write(`data: ${this.getUserMessageForTool(toolName, true)}\n\n`);
 
-                    if (typedInnerChunk.type === 'response.completed' && typedInnerChunk.response?.id) {
-                      innerResponseId = typedInnerChunk.response.id;
-                    }
-
-                    if (
-                      typedInnerChunk.type === 'response.function_call_arguments.delta' &&
-                      typedInnerChunk.delta &&
-                      typedInnerChunk.item_id
-                    ) {
-                      try {
-                        if (!innerCurrentToolCall) {
-                          const innerOutputItem = innerToolCalls.find((tc) => tc.id === typedInnerChunk.item_id);
-                          if (innerOutputItem) {
-                            innerCurrentToolCall = innerOutputItem;
-                          }
-                        }
-
-                        if (innerCurrentToolCall && innerCurrentToolCall.id === typedInnerChunk.item_id) {
-                          if (!innerCurrentToolCall.function.arguments) {
-                            innerCurrentToolCall.function.arguments = '';
-                          }
-                          innerCurrentToolCall.function.arguments += typedInnerChunk.delta;
-                        }
-                      } catch (error) {
-                        console.error('Error processing inner function call arguments delta:', error);
-                      }
-                    }
-
-                    if (
-                      typedInnerChunk.type === 'response.output_item.added' &&
-                      typedInnerChunk.item?.type === 'function_call'
-                    ) {
-                      innerCurrentToolCall = {
-                        id: typedInnerChunk.item.id,
-                        index: typedInnerChunk.output_index || 0,
-                        type: 'function',
-                        function: {
-                          name: typedInnerChunk.item.name || '',
-                          arguments: typedInnerChunk.item.arguments || '',
-                        },
-                      };
-                      innerToolCalls.push(innerCurrentToolCall);
-
-                      response.write(
-                        `data: Preparing to ${innerCurrentToolCall.function.name.replace(/([A-Z])/g, ' $1').toLowerCase()}...\n\n`,
-                      );
-                    }
-
-                    if (
-                      typedInnerChunk.type === 'response.function_call_arguments.done' &&
-                      typedInnerChunk.item_id &&
-                      typedInnerChunk.arguments
-                    ) {
-                      const relevantInnerToolCall = innerToolCalls.find((tc) => tc.id === typedInnerChunk.item_id);
-                      if (relevantInnerToolCall) {
-                        relevantInnerToolCall.function.arguments = typedInnerChunk.arguments;
-                      }
-                    }
-
-                    if (
-                      typedInnerChunk.type === 'response.output_item.done' &&
-                      typedInnerChunk.item?.type === 'function_call'
-                    ) {
-                      const completedInnerToolCall = innerToolCalls.find((tc) => tc.id === typedInnerChunk.item.id);
-                      if (completedInnerToolCall) {
-                        const toolName = completedInnerToolCall.function.name;
-                        if (toolName === 'executeRawSql') {
-                          response.write(`data: Running database query with your table information...\n\n`);
-                        } else if (toolName === 'executeAggregationPipeline') {
-                          response.write(`data: Analyzing your data with the provided filters...\n\n`);
-                        } else {
-                          response.write(`data: Processing your request with the table information...\n\n`);
-                        }
-
-                        await this.processQueryToolCall(
-                          completedInnerToolCall,
-                          dao,
-                          tableName,
-                          userEmail,
-                          foundConnection,
-                          isMongoDb,
-                          response,
-                          user_message,
-                        );
-                      }
-                    }
-                  }
-
-                  if (
-                    innerToolCalls.length === 0 ||
-                    !innerToolCalls.some(
-                      (tc) =>
-                        tc.function?.name === 'executeRawSql' || tc.function?.name === 'executeAggregationPipeline',
-                    )
-                  ) {
-                    await this.detectAndExecuteSqlQueries(
-                      innerAiResponseBuffer,
-                      dao,
-                      tableName,
-                      userEmail,
-                      foundConnection,
-                      response,
-                    );
-                  }
-
-                  if (innerAiResponseBuffer.trim()) {
-                    if (aiResponseBuffer) {
-                      aiResponseBuffer += '\n\n' + innerAiResponseBuffer;
-                      if (innerResponseId) {
-                        responseId = innerResponseId;
-                      }
-                    } else {
-                      if (innerResponseId) {
-                        response.req.session.lastResponseId = innerResponseId;
-                      }
-                    }
-                  }
-                } else if (toolName === 'executeRawSql' || toolName === 'executeAggregationPipeline') {
-                  await this.processQueryToolCall(
-                    completedToolCall,
-                    dao,
-                    tableName,
-                    userEmail,
-                    foundConnection,
-                    isMongoDb,
-                    response,
-                    user_message,
-                  );
-                }
-              } catch (error) {
-                console.error('Error processing tool call:', error);
-                response.write(
-                  `data: Sorry, I encountered an issue while processing your request: ${error.message}\n\n`,
-                );
-              }
-            }
-          }
-        }
-
-        if (
-          toolCalls.length === 0 ||
-          !toolCalls.some(
-            (tc) => tc.function?.name === 'executeRawSql' || tc.function?.name === 'executeAggregationPipeline',
-          )
-        ) {
-          await this.detectAndExecuteSqlQueries(aiResponseBuffer, dao, tableName, userEmail, foundConnection, response);
-        }
-
-        if (aiResponseBuffer.trim() && responseId) {
-          response.req.session.lastResponseId = responseId;
-        }
-      } catch (streamError) {
-        console.error('Error creating OpenAI stream:', streamError);
-        response.write(`data: Sorry, I'm having trouble connecting to the AI service: ${streamError.message}\n\n`);
-        if (streamError.status === 401) {
-          response.write(
-            `data: This may be due to insufficient API permissions. Ensure your API key has the "api.responses.write" scope.\n\n`,
-          );
-        } else if (streamError.status === 500) {
-          response.write(
-            `data: This appears to be a temporary issue with the OpenAI service. Please try again later.\n\n`,
+          await this.processQueryToolCall(
+            completedInnerToolCall,
+            dao,
+            tableName,
+            userEmail,
+            foundConnection,
+            isMongoDb,
+            response,
+            user_message,
           );
         }
       }
-
-      if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-        heartbeatInterval = null;
-      }
-
-      response.end();
-    } catch (error) {
-      console.error('Error in AI request processing:', error);
-      response.write(`data: An error occurred: ${error.message}\n\n`);
-      if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-        heartbeatInterval = null;
-      }
-
-      response.end();
     }
+
+    if (
+      innerToolCalls.length === 0 ||
+      !innerToolCalls.some(
+        (tc) => tc.function?.name === 'executeRawSql' || tc.function?.name === 'executeAggregationPipeline',
+      )
+    ) {
+      await this.detectAndExecuteSqlQueries(
+        innerAiResponseBuffer,
+        dao,
+        tableName,
+        userEmail,
+        foundConnection,
+        response,
+      );
+    }
+
+    this.handleBufferAndResponseId(innerAiResponseBuffer, innerResponseId, originalBuffer, response);
+  }
+
+  private handleBufferAndResponseId(
+    innerBuffer: string,
+    innerResponseId: string | null,
+    originalBuffer: string,
+    response: any,
+  ) {
+    if (innerBuffer.trim()) {
+      if (originalBuffer) {
+        if (innerResponseId) {
+          response.req.session.lastResponseId = innerResponseId;
+        }
+      } else {
+        if (innerResponseId) {
+          response.req.session.lastResponseId = innerResponseId;
+        }
+      }
+    }
+  }
+
+  private handleStreamError(streamError: any, response: any) {
+    console.error('Error creating OpenAI stream:', streamError);
+    response.write(`data: Sorry, I'm having trouble connecting to the AI service: ${streamError.message}\n\n`);
+
+    if (streamError.status === 401) {
+      response.write(
+        `data: This may be due to insufficient API permissions. Please check your API key configuration.\n\n`,
+      );
+    } else if (streamError.status === 500) {
+      response.write(`data: This appears to be a temporary issue with the AI service. Please try again later.\n\n`);
+    }
+  }
+
+  private cleanupAndEnd(heartbeatInterval: NodeJS.Timeout | null, response: any) {
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+    }
+    response.end();
   }
 
   private async getTableStructureInfo(dao, tableName, userEmail, foundConnection) {
@@ -688,15 +661,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
       const sanitizedArgs = this.sanitizeJsonString(toolCall.function.arguments);
       const toolArgs = JSON.parse(sanitizedArgs);
 
-      if (toolName === 'executeRawSql') {
-        response.write(`data: Running your database query...\n\n`);
-      } else if (toolName === 'executeAggregationPipeline') {
-        response.write(`data: Processing your data analysis request...\n\n`);
-      } else if (toolName === 'getTableStructure') {
-        response.write(`data: Retrieving table information...\n\n`);
-      } else {
-        response.write(`data: Processing your request...\n\n`);
-      }
+      response.write(`data: ${this.getUserMessageForTool(toolName)}\n\n`);
 
       if (toolName === 'executeRawSql') {
         const query = toolArgs.query;
@@ -810,8 +775,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
         response.write(`data: Received unknown tool call: ${toolName}\n\n`);
       }
     } catch (error) {
-      console.error('Error in processQueryToolCall:', error);
-      response.write(`data: Sorry, I ran into a problem while working with your data: ${error.message}\n\n`);
+      this.handleError(response, error, 'in processQueryToolCall');
     }
   }
 
@@ -1062,29 +1026,11 @@ Please provide a clear, concise, and conversational answer that directly address
   ): Promise<boolean> {
     try {
       console.log('Streaming human-readable answer for query results using responses API');
-      response.write(`data: Creating an explanation of what your data shows...\n\n`);
+      this.writeToResponse(response, 'Creating an explanation of what your data shows...');
 
       const simplifiedResults = this.simplifyQueryResults(queryResult);
-
-      const instructions = `You are a helpful assistant that explains database query results in simple, human-readable terms.
-Your task is to analyze the query results and provide a clear, conversational explanation.
-Focus directly on answering the user's original question in a friendly tone.
-Mention the number of records found if relevant and summarize key insights.
-Do not mention SQL syntax or technical implementation details unless specifically asked.
-Keep your response concise and easy to understand.`;
-
-      const inputPrompt = `
-I need you to explain these database query results in simple terms:
-
-Original question: "${originalQuestion}"
-
-Database type: ${this.convertDdTypeEnumToReadableString(connection.type as ConnectionTypesEnum)}
-Query executed: ${query}
-
-Query results: ${JSON.stringify(simplifiedResults, null, 2)}
-
-Please provide a clear, concise, and conversational answer that directly addresses my original question.
-`;
+      const instructions = this.getExplanationInstructions();
+      const inputPrompt = this.createExplanationPrompt(originalQuestion, connection, query, simplifiedResults);
 
       try {
         const stream = await openai.responses.create({
@@ -1096,144 +1042,11 @@ Please provide a clear, concise, and conversational answer that directly address
           previous_response_id: response.req.session.lastResponseId || undefined,
         });
 
-        type StreamChunk = {
-          type: string;
-          delta?: string;
-          item?: {
-            id?: string;
-            type?: string;
-            text?: string;
-            content?: string;
-          };
-          text?: string;
-          content?: string;
-          part?: {
-            text?: string;
-            content?: string;
-          };
-          content_part?: {
-            added?: string;
-          };
-          output?: any;
-          response?: {
-            id?: string;
-            output?: Array<{
-              type: string;
-              text?: string;
-            }>;
-            done?: boolean;
-            completed?: boolean;
-            status?: string;
-          };
-        };
-
-        let hasReceivedContent = false;
-        let fullResponse = '';
-        let seenFullContent = false;
-        const processedChunkIds = new Set();
-        let responseId = null;
-
-        for await (const chunk of stream) {
-          const typedChunk = chunk as unknown as StreamChunk;
-
-          if (typedChunk.type === 'response.created' && typedChunk.response?.id) {
-            responseId = typedChunk.response.id;
-            console.log(`Captured response ID in streamHumanReadableAnswer: ${responseId}`);
-          } else if (typedChunk.type === 'response.completed' && typedChunk.response?.id) {
-            responseId = typedChunk.response.id;
-            console.log(`Captured response ID from completed response in streamHumanReadableAnswer: ${responseId}`);
-          }
-
-          if (typedChunk.item?.id && processedChunkIds.has(typedChunk.item.id)) {
-            continue;
-          }
-
-          if (typedChunk.item?.id) {
-            processedChunkIds.add(typedChunk.item.id);
-          }
-
-          if (
-            typedChunk.type === 'response.output.complete' ||
-            typedChunk.type === 'response.completed' ||
-            typedChunk.type === 'response.message.delta' ||
-            typedChunk.type === 'response.message.completed' ||
-            typedChunk.type === 'response.output.done'
-          ) {
-            seenFullContent = true;
-            continue;
-          }
-          const contentLength = this.getContentLength(typedChunk);
-          if (hasReceivedContent && contentLength > 50) {
-            seenFullContent = true;
-            continue;
-          }
-
-          if (seenFullContent && typedChunk.type !== 'response.created' && typedChunk.type !== 'response.in_progress') {
-            continue;
-          }
-
-          if (typedChunk.delta && typeof typedChunk.delta === 'string') {
-            hasReceivedContent = true;
-            fullResponse += typedChunk.delta;
-            response.write(`data: ${this.safeStringify(typedChunk.delta)}\n\n`);
-          } else if (typedChunk.item?.text) {
-            hasReceivedContent = true;
-            fullResponse += this.safeStringify(typedChunk.item.text);
-            response.write(`data: ${this.safeStringify(typedChunk.item.text)}\n\n`);
-          } else if (typedChunk.item?.content) {
-            hasReceivedContent = true;
-            fullResponse += this.safeStringify(typedChunk.item.content);
-            response.write(`data: ${this.safeStringify(typedChunk.item.content)}\n\n`);
-          } else if (typedChunk.text) {
-            hasReceivedContent = true;
-            fullResponse += this.safeStringify(typedChunk.text);
-            response.write(`data: ${this.safeStringify(typedChunk.text)}\n\n`);
-          } else if (typedChunk.content) {
-            hasReceivedContent = true;
-            fullResponse += this.safeStringify(typedChunk.content);
-            response.write(`data: ${this.safeStringify(typedChunk.content)}\n\n`);
-          } else if (typedChunk.part?.text) {
-            hasReceivedContent = true;
-            fullResponse += this.safeStringify(typedChunk.part.text);
-            response.write(`data: ${this.safeStringify(typedChunk.part.text)}\n\n`);
-          } else if (typedChunk.part?.content) {
-            hasReceivedContent = true;
-            fullResponse += this.safeStringify(typedChunk.part.content);
-            response.write(`data: ${this.safeStringify(typedChunk.part.content)}\n\n`);
-          } else if (typedChunk.content_part?.added) {
-            hasReceivedContent = true;
-            const addedContent = this.safeStringify(typedChunk.content_part.added);
-            fullResponse += addedContent;
-            response.write(`data: ${addedContent}\n\n`);
-          } else if (typedChunk.output) {
-            seenFullContent = true;
-          }
-
-          if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
-            response.write(`:heartbeat\n\n`);
-          }
-        }
-
-        if (hasReceivedContent && fullResponse.trim() && !seenFullContent && !processedChunkIds.size) {
-          response.write(`data: ${this.safeStringify(fullResponse.trim())}\n\n`);
-        }
-
-        if (hasReceivedContent) {
-          response.write(`data: [END]\n\n`);
-
-          if (responseId) {
-            response.req.session.lastResponseId = responseId;
-          }
-
-          return true;
-        } else {
-          return false;
-        }
+        return await this.processExplanationStream(stream, response);
       } catch (streamingError) {
         console.error('Error streaming responses API interpretation:', streamingError);
         if (streamingError instanceof Error) {
           console.error('Error details:', streamingError.message);
-          console.error('Error stack:', streamingError.stack);
         }
         return false;
       }
@@ -1241,6 +1054,160 @@ Please provide a clear, concise, and conversational answer that directly address
       console.error('Error in streamHumanReadableAnswer:', error);
       return false;
     }
+  }
+
+  private getExplanationInstructions(): string {
+    return `You are a helpful assistant that explains database query results in simple, human-readable terms.
+Your task is to analyze the query results and provide a clear, conversational explanation.
+Focus directly on answering the user's original question in a friendly tone.
+Mention the number of records found if relevant and summarize key insights.
+Do not mention SQL syntax or technical implementation details unless specifically asked.
+Keep your response concise and easy to understand.`;
+  }
+
+  private createExplanationPrompt(originalQuestion: string, connection: any, query: string, results: any): string {
+    return `
+I need you to explain these database query results in simple terms:
+
+Original question: "${originalQuestion}"
+
+Database type: ${this.convertDdTypeEnumToReadableString(connection.type as ConnectionTypesEnum)}
+Query executed: ${query}
+
+Query results: ${JSON.stringify(results, null, 2)}
+
+Please provide a clear, concise, and conversational answer that directly addresses my original question.
+`;
+  }
+
+  private async processExplanationStream(stream: any, response: any): Promise<boolean> {
+    type StreamChunk = {
+      type: string;
+      delta?: string;
+      item?: {
+        id?: string;
+        type?: string;
+        text?: string;
+        content?: string;
+      };
+      text?: string;
+      content?: string;
+      part?: {
+        text?: string;
+        content?: string;
+      };
+      content_part?: {
+        added?: string;
+      };
+      output?: any;
+      response?: {
+        id?: string;
+        output?: Array<{
+          type: string;
+          text?: string;
+        }>;
+        done?: boolean;
+        completed?: boolean;
+        status?: string;
+      };
+    };
+
+    let hasReceivedContent = false;
+    let seenFullContent = false;
+    const processedChunkIds = new Set();
+    let responseId = null;
+
+    for await (const chunk of stream) {
+      const typedChunk = chunk as unknown as StreamChunk;
+
+      if (this.captureResponseId(typedChunk, responseId)) {
+        responseId = typedChunk.response.id;
+      }
+
+      if (this.shouldSkipChunk(typedChunk, processedChunkIds, seenFullContent)) {
+        continue;
+      }
+
+      const contentLength = this.getContentLength(typedChunk);
+      if (hasReceivedContent && contentLength > 50) {
+        seenFullContent = true;
+        continue;
+      }
+
+      const extractedContent = this.extractContentFromExplanationChunk(typedChunk);
+      if (extractedContent) {
+        hasReceivedContent = true;
+        this.writeToResponse(response, this.safeStringify(extractedContent));
+      }
+
+      if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
+        response.write(`:heartbeat\n\n`);
+      }
+    }
+
+    if (hasReceivedContent) {
+      this.writeToResponse(response, '[END]');
+
+      if (responseId) {
+        response.req.session.lastResponseId = responseId;
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  private captureResponseId(chunk: any, _currentId: string): boolean {
+    return (chunk.type === 'response.created' || chunk.type === 'response.completed') && chunk.response?.id;
+  }
+
+  private shouldSkipChunk(chunk: any, processedIds: Set<any>, fullContentSeen: boolean): boolean {
+    if (chunk.item?.id && processedIds.has(chunk.item.id)) {
+      return true;
+    }
+
+    if (chunk.item?.id) {
+      processedIds.add(chunk.item.id);
+    }
+
+    if (
+      chunk.type === 'response.output.complete' ||
+      chunk.type === 'response.completed' ||
+      chunk.type === 'response.message.delta' ||
+      chunk.type === 'response.message.completed' ||
+      chunk.type === 'response.output.done'
+    ) {
+      return true;
+    }
+
+    if (fullContentSeen && chunk.type !== 'response.created' && chunk.type !== 'response.in_progress') {
+      return true;
+    }
+
+    return false;
+  }
+
+  private extractContentFromExplanationChunk(chunk: any): string {
+    if (chunk.delta && typeof chunk.delta === 'string') {
+      return chunk.delta;
+    } else if (chunk.item?.text) {
+      return chunk.item.text;
+    } else if (chunk.item?.content) {
+      return chunk.item.content;
+    } else if (chunk.text) {
+      return chunk.text;
+    } else if (chunk.content) {
+      return chunk.content;
+    } else if (chunk.part?.text) {
+      return chunk.part.text;
+    } else if (chunk.part?.content) {
+      return chunk.part.content;
+    } else if (chunk.content_part?.added) {
+      return chunk.content_part.added;
+    }
+
+    return null;
   }
 
   private simplifyQueryResults(results: any): any {
@@ -1481,50 +1448,165 @@ Please provide a clear, concise, and conversational answer that directly address
   }
 
   private processStreamTextChunk(chunk: any, response: any, buffer: string): string {
-    if (
-      chunk.type === 'response.completed' ||
-      chunk.type === 'response.output_text.done' ||
-      chunk.type === 'response.content_part.done'
-    ) {
+    if (this.isCompletionChunk(chunk)) {
       return buffer;
     }
 
-    let text = '';
-    let shouldSend = false;
-
-    if (chunk.type === 'response.text.delta' && chunk.delta) {
-      text = chunk.delta;
-      shouldSend = true;
-    } else if (chunk.type === 'response.output_item.added' && chunk.item?.type === 'text' && chunk.item?.text) {
-      text = chunk.item.text;
-      shouldSend = true;
-    } else if (chunk.text) {
-      text = chunk.text;
-      shouldSend = true;
-    } else if (chunk.type === 'response.content.delta' && chunk.delta) {
-      text = chunk.delta;
-      shouldSend = true;
-    } else if (chunk.type === 'response.output_text.delta' && chunk.delta) {
-      text = chunk.delta;
-      shouldSend = true;
-    } else if (chunk.type === 'response.content_part.added') {
-      if (chunk.part?.text) {
-        text = chunk.part.text;
-        shouldSend = true;
-      } else if (chunk.content_part?.added) {
-        text = chunk.content_part.added;
-        shouldSend = true;
-      }
-    } else if (chunk.type === 'response.message.delta' && chunk.delta) {
-      text = chunk.delta;
-      shouldSend = true;
-    }
-
-    if (shouldSend && !this.isEmptyContent(text)) {
-      response.write(`data: ${text}\n\n`);
-      return buffer + text;
+    const extractedText = this.extractTextFromChunk(chunk);
+    if (extractedText && !this.isEmptyContent(extractedText)) {
+      response.write(`data: ${extractedText}\n\n`);
+      return buffer + extractedText;
     }
 
     return buffer;
+  }
+
+  private isCompletionChunk(chunk: any): boolean {
+    return (
+      chunk.type === 'response.completed' ||
+      chunk.type === 'response.output_text.done' ||
+      chunk.type === 'response.content_part.done'
+    );
+  }
+
+  private extractTextFromChunk(chunk: any): string {
+    if (chunk.type === 'response.text.delta' && chunk.delta) {
+      return chunk.delta;
+    } else if (chunk.type === 'response.output_item.added' && chunk.item?.type === 'text' && chunk.item?.text) {
+      return chunk.item.text;
+    } else if (chunk.text) {
+      return chunk.text;
+    } else if (chunk.type === 'response.content.delta' && chunk.delta) {
+      return chunk.delta;
+    } else if (chunk.type === 'response.output_text.delta' && chunk.delta) {
+      return chunk.delta;
+    } else if (chunk.type === 'response.content_part.added') {
+      if (chunk.part?.text) {
+        return chunk.part.text;
+      } else if (chunk.content_part?.added) {
+        return chunk.content_part.added;
+      }
+    } else if (chunk.type === 'response.message.delta' && chunk.delta) {
+      return chunk.delta;
+    }
+    return '';
+  }
+
+  private processToolCall(currentToolCall, toolCalls, typedChunk) {
+    if (typedChunk.type === 'response.function_call_arguments.delta' && typedChunk.delta && typedChunk.item_id) {
+      try {
+        if (!currentToolCall) {
+          const outputItem = toolCalls.find((tc) => tc.id === typedChunk.item_id);
+          if (outputItem) {
+            currentToolCall = outputItem;
+          }
+        }
+
+        if (currentToolCall && currentToolCall.id === typedChunk.item_id) {
+          if (!currentToolCall.function.arguments) {
+            currentToolCall.function.arguments = '';
+          }
+          currentToolCall.function.arguments += typedChunk.delta;
+        }
+      } catch (error) {
+        console.error('Error processing function call arguments delta:', error);
+      }
+      return currentToolCall;
+    }
+
+    if (typedChunk.type === 'response.output_item.added' && typedChunk.item?.type === 'function_call') {
+      currentToolCall = {
+        id: typedChunk.item.id,
+        index: typedChunk.output_index || 0,
+        type: 'function',
+        function: {
+          name: typedChunk.item.name || '',
+          arguments: typedChunk.item.arguments || '',
+        },
+      };
+      toolCalls.push(currentToolCall);
+      return currentToolCall;
+    }
+
+    if (typedChunk.type === 'response.function_call_arguments.done' && typedChunk.item_id && typedChunk.arguments) {
+      const relevantToolCall = toolCalls.find((tc) => tc.id === typedChunk.item_id);
+      if (relevantToolCall) {
+        relevantToolCall.function.arguments = typedChunk.arguments;
+      }
+    }
+
+    return currentToolCall;
+  }
+
+  private getUserMessageForTool(toolName: string, isSecondQuery: boolean = false): string {
+    if (toolName === 'executeRawSql') {
+      return isSecondQuery ? 'Running database query with your table information...' : 'Running your database query...';
+    } else if (toolName === 'executeAggregationPipeline') {
+      return isSecondQuery
+        ? 'Analyzing your data with the provided filters...'
+        : 'Analyzing your data with the requested filters...';
+    } else if (toolName === 'getTableStructure') {
+      return 'Examining database table structure...';
+    } else {
+      return 'Processing your request...';
+    }
+  }
+
+  private handleError(response: any, error: any, context: string = 'processing your request'): void {
+    console.error(`Error ${context}:`, error);
+    const userMessage = this.getUserFriendlyErrorMessage(error, context);
+    this.writeToResponse(response, userMessage);
+  }
+
+  private getUserFriendlyErrorMessage(error: any, context: string = 'processing your data'): string {
+    let message = `Sorry, I encountered an issue while ${context}.`;
+
+    if (error.message.includes('syntax error')) {
+      message = 'I had trouble understanding the database structure. Could you rephrase your question?';
+    } else if (error.message.includes('permission denied')) {
+      message = "I don't have permission to access that information in the database.";
+    } else if (error.message.includes('no such table')) {
+      message = "I couldn't find that table in the database.";
+    } else if (error.message.includes('connection')) {
+      message = "I'm having trouble connecting to the database right now.";
+    } else {
+      message += ` ${error.message}`;
+    }
+
+    return message;
+  }
+
+  private formatResponseOutput(text: string): string {
+    return `data: ${text}\n\n`;
+  }
+
+  private writeToResponse(response: any, text: string): void {
+    response.write(this.formatResponseOutput(text));
+  }
+
+  private processStreamChunk(
+    typedChunk: any,
+    response: any,
+    buffer: string,
+    currentToolCall: any,
+    toolCalls: any[],
+    responseIdRef: { id: string | null },
+  ): { buffer: string; currentToolCall: any } {
+    const updatedBuffer = this.processStreamTextChunk(typedChunk, response, buffer);
+
+    if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
+      response.write(`:heartbeat\n\n`);
+      if (typedChunk.type === 'response.created' && typedChunk.response?.id) {
+        responseIdRef.id = typedChunk.response.id;
+      }
+    }
+
+    if (typedChunk.type === 'response.completed' && typedChunk.response?.id) {
+      responseIdRef.id = typedChunk.response.id;
+    }
+
+    const updatedToolCall = this.processToolCall(currentToolCall, toolCalls, typedChunk);
+
+    return { buffer: updatedBuffer, currentToolCall: updatedToolCall };
   }
 }
