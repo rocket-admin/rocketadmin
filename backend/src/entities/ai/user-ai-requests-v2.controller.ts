@@ -11,7 +11,6 @@ import { TableReadGuard } from '../../guards/table-read.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IRequestInfoFromTableV2 } from './ai-use-cases.interface.js';
 import { RequestInfoFromTableDSV2 } from './application/data-structures/request-info-from-table.ds.js';
-import { ResponseInfoDS } from './application/data-structures/response-info.ds.js';
 import { RequestInfoFromTableBodyDTO } from './application/dto/request-info-from-table-body.dto.js';
 
 @UseInterceptors(SentryInterceptor)
