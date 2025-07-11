@@ -29,7 +29,6 @@ export class UserAIRequestsControllerV2 {
   @ApiResponse({
     status: 201,
     description: 'Returned info.',
-    type: ResponseInfoDS,
   })
   @UseGuards(TableReadGuard)
   @ApiBody({ type: RequestInfoFromTableBodyDTO })
