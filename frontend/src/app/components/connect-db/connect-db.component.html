@@ -34,6 +34,7 @@
                 <mat-option value="postgres">PostgreSQL</mat-option>
                 <mat-option value="mongodb">MongoDB</mat-option>
                 <mat-option value="dynamodb" *ngIf="db.connectionType === 'direct'">DynamoDB</mat-option>
+                <mat-option value="cassandra">Cassandra</mat-option>
                 <mat-option value="oracledb">Oracle</mat-option>
                 <mat-option value="mssql">MS SQL</mat-option>
                 <mat-option value="ibmdb2">IBM DB2</mat-option>
@@ -126,6 +127,20 @@
             (switchToAgent)="switchToAgent"
             (masterKeyChange)="handleMasterKeyChange($event)">
         </app-dynamodb-credentials-form>
+
+        <app-cassandra-credentials-form *ngIf="db.type === 'cassandra' && db.connectionType === 'direct'"
+            [ngClass]="{
+                'credentials-fieldset': !db.isTestConnection,
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
+            }"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)">
+        </app-cassandra-credentials-form>
 
         <app-oracledb-credentials-form *ngIf="db.type === 'oracledb' && db.connectionType === 'direct'"
             [ngClass]="{

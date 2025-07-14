@@ -7,6 +7,7 @@ export enum DBtype {
     MSSQL = 'mssql',
     Mongo = 'mongodb',
     Dynamo = 'dynamodb',
+    Cassandra = 'cassandra',
     DB2 = 'ibmdb2'
 }
 
@@ -40,7 +41,8 @@ export interface Connection {
     connectionType: ConnectionType,
     schema?: string,
     signing_key?: string,
-    isTestConnection?: boolean
+    isTestConnection?: boolean,
+    dataCenter?: string
 }
 
 export interface ConnectionItem {

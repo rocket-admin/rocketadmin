@@ -17,6 +17,7 @@ import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dial
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DynamodbCredentialsFormComponent } from './db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component';
+import { CassandraCredentialsFormComponent } from './db-credentials-forms/cassandra-credentials-form/cassandra-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -64,6 +65,7 @@ import isIP from 'validator/lib/isIP';
     MatSlideToggleModule,
     Db2CredentialsFormComponent,
     DynamodbCredentialsFormComponent,
+    CassandraCredentialsFormComponent,
     MongodbCredentialsFormComponent,
     MssqlCredentialsFormComponent,
     MysqlCredentialsFormComponent,
@@ -95,6 +97,7 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.MSSQL]: '1433',
     [DBtype.Mongo]: '27017',
     [DBtype.Dynamo]: '',
+    [DBtype.Cassandra]: '9142',
     [DBtype.DB2]: '50000'
   }
 
