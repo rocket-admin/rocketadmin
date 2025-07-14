@@ -578,7 +578,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)
-      .filter(([key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'object')
+      .filter(([key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'ARRAY' || value === 'object')
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
