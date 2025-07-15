@@ -34,6 +34,7 @@ import { CompanyLogoModule } from './entities/company-logo/company-logo.module.j
 import { CompanyFaviconModule } from './entities/company-favicon/company-favicon.module.js';
 import { CompanyTabTitleModule } from './entities/company-tab-title/company-tab-title.module.js';
 import { TableFiltersModule } from './entities/table-filters/table-filters.module.js';
+import { DemoDataModule } from './entities/demo-data/demo-deta.module.js';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { TableFiltersModule } from './entities/table-filters/table-filters.modul
     CompanyFaviconModule,
     CompanyTabTitleModule,
     TableFiltersModule,
+    DemoDataModule,
   ],
   controllers: [AppController],
   providers: [

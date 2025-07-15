@@ -1,23 +1,17 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import assert from 'assert';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
+import { DemoDataService } from '../../../entities/demo-data/demo-data.service.js';
 import { EmailService } from '../../../entities/email/email/email.service.js';
-import { GroupEntity } from '../../../entities/group/group.entity.js';
-import { PermissionEntity } from '../../../entities/permission/permission.entity.js';
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
-import { buildConnectionEntitiesFromTestDtos } from '../../../entities/user/utils/build-connection-entities-from-test-dtos.js';
-import { buildDefaultAdminGroups } from '../../../entities/user/utils/build-default-admin-groups.js';
-import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build-default-admin-permissions.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 
@@ -31,6 +25,7 @@ export class SaasUsualRegisterUseCase
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
     private readonly emailService: EmailService,
+    private readonly demoDataService: DemoDataService,
   ) {
     super();
   }
@@ -59,27 +54,7 @@ export class SaasUsualRegisterUseCase
 
     const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
 
-    const testConnections = Constants.getTestConnectionsArr();
-    const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
-    const createdTestConnections = await Promise.all(
-      testConnectionsEntities.map(async (connection): Promise<ConnectionEntity> => {
-        assert(savedUser.id, 'User should be saved before creating connections');
-        connection.author = savedUser;
-        return await this._dbContext.connectionRepository.saveNewConnection(connection);
-      }),
-    );
-    const testGroupsEntities = buildDefaultAdminGroups(savedUser, createdTestConnections);
-    const createdTestGroups = await Promise.all(
-      testGroupsEntities.map(async (group: GroupEntity) => {
-        return await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
-      }),
-    );
-    const testPermissionsEntities = buildDefaultAdminPermissions(createdTestGroups);
-    await Promise.all(
-      testPermissionsEntities.map(async (permission: PermissionEntity) => {
-        await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
-      }),
-    );
+    const createdTestConnections = await this.demoDataService.createDemoDataForUser(savedUser.id);
 
     if (userCompany) {
       userCompany.users.push(savedUser);
