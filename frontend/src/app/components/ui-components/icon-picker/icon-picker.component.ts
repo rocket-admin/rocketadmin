@@ -2,13 +2,13 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-icon-picker',
@@ -38,7 +38,7 @@ export class IconPickerComponent {
   constructor() { console.log(this.resetButtonShown, 'resetButtonShown'); }
 
   ngOnInit() {
-    console.log(this.resetButtonShown, 'resetButtonShown');
+    this.customIcon = this.icon || '';
   }
 
   applyIcon() {

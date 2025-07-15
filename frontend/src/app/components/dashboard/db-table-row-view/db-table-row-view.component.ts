@@ -107,8 +107,8 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
                 foreignKeyMap[fk.column_name] = fk.referenced_column_name;
               }
 
-              const tableWidgetsNameMap = Object.keys(res.widgets).reduce((acc, key) => {
-                acc[key] = res.widgets[key].name;
+              const tableWidgetsNameMap = res.widgets.reduce((acc, widget: Widget) => {
+                acc[widget.field_name] = widget.name;
                 return acc;
               }, {});
 

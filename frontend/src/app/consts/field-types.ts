@@ -1,26 +1,26 @@
 import { BinaryDataCaptionRowComponent } from '../components/ui-components/row-fields/binary-data-caption/binary-data-caption.component';
 import { BooleanRowComponent } from 'src/app/components/ui-components/row-fields/boolean/boolean.component'
+import { CodeRowComponent } from '../components/ui-components/row-fields/code/code.component';
+import { CountryRowComponent } from '../components/ui-components/row-fields/country/country.component';
 import { DateRowComponent } from '../components/ui-components/row-fields/date/date.component';
 import { DateTimeRowComponent } from '../components/ui-components/row-fields/date-time/date-time.component';
+import { FileRowComponent } from '../components/ui-components/row-fields/file/file.component';
 import { ForeignKeyRowComponent } from '../components/ui-components/row-fields/foreign-key/foreign-key.component';
+import { IdRowComponent } from '../components/ui-components/row-fields/id/id.component';
+import { ImageRowComponent } from '../components/ui-components/row-fields/image/image.component';
 import { JsonEditorRowComponent } from '../components/ui-components/row-fields/json-editor/json-editor.component';
 import { LongTextRowComponent } from 'src/app/components/ui-components/row-fields/long-text/long-text.component'
+import { MoneyRowComponent } from '../components/ui-components/row-fields/money/money.component';
 import { NumberRowComponent } from 'src/app/components/ui-components/row-fields/number/number.component';
 import { PasswordRowComponent } from '../components/ui-components/row-fields/password/password.component';
+import { PhoneRowComponent } from '../components/ui-components/row-fields/phone/phone.component';
 import { PointRowComponent } from 'src/app/components/ui-components/row-fields/point/point.component';
 import { SelectRowComponent } from '../components/ui-components/row-fields/select/select.component';
 import { StaticTextRowComponent } from '../components/ui-components/row-fields/static-text/static-text.component';
 import { TextRowComponent } from 'src/app/components/ui-components/row-fields/text/text.component';
-import { TimeRowComponent } from '../components/ui-components/row-fields/time/time.component';
 import { TimeIntervalRowComponent } from '../components/ui-components/row-fields/time-interval/time-interval.component';
-import { IdRowComponent } from '../components/ui-components/row-fields/id/id.component';
-import { FileRowComponent } from '../components/ui-components/row-fields/file/file.component';
-import { CodeRowComponent } from '../components/ui-components/row-fields/code/code.component';
-import { ImageRowComponent } from '../components/ui-components/row-fields/image/image.component';
+import { TimeRowComponent } from '../components/ui-components/row-fields/time/time.component';
 import { UrlRowComponent } from '../components/ui-components/row-fields/url/url.component';
-import { CountryRowComponent } from '../components/ui-components/row-fields/country/country.component';
-import { PhoneRowComponent } from '../components/ui-components/row-fields/phone/phone.component';
-import { MoneyRowComponent } from '../components/ui-components/row-fields/money/money.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time', 'datetime', 'date time', 'datetime2', 'datetimeoffset', 'curdate', 'curtime', 'now', 'localtime', 'localtimestamp'];
 export const defaultTimestampValues = {
@@ -92,6 +92,7 @@ export const fieldTypes = {
         // json-editor
         json: JsonEditorRowComponent, //json-editor
         jsonb: JsonEditorRowComponent, //json-editor
+        ARRAY: JsonEditorRowComponent,
 
         //file
         bytea: FileRowComponent,
