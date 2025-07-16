@@ -1,5 +1,3 @@
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import {
   EncryptionAlgorithmEnum,
   LogOperationTypeEnum,
@@ -8,8 +6,11 @@ import {
   UserActionEnum,
   WidgetTypeEnum,
 } from '../../enums/index.js';
+
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 export const Messages = {
@@ -161,7 +162,7 @@ export const Messages = {
   GOOGLE_LOGIN_FAILED: 'Google account login failed. If the problem persists, please contact our support team.',
   GITHUB_AUTHENTICATION_FAILED: `GitHub authentication failed. If the problem persists, please contact our support team`,
   GITHUB_REGISTRATION_FAILED: `GitHub registration failed. If the problem persists, please contact our support team`,
-  HOST_MISSING: 'Host is missing',
+  HOST_MISSING: 'Hostname is missing',
   HOST_NAME_INVALID: 'Hostname is invalid',
   ID_MISSING: 'Id is missing',
   INCORRECT_DATE_FORMAT: `Date format is incorrect.`,
