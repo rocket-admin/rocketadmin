@@ -1,11 +1,11 @@
 <h1 mat-dialog-title>Give access to our IP address</h1>
 <mat-dialog-content>
     <p class="mat-body">
-        Please make sure our servers are able to access your database. Rocketadmin uses <app-ip-address-button ip="18.221.81.73"></app-ip-address-button> IP address for all outbound requests.
+        Please make sure our servers are able to access your database. Rocketadmin uses the IP address <app-ip-address-button ip="18.221.81.73"></app-ip-address-button> for all outbound requests.
     </p>
     <br>
     <div *ngIf="data.provider === 'amazon'" class="mat-body">
-        <strong>Setup VPC security groups.</strong>
+        <strong>Set up AWS's VPC security groups</strong>
         <ol class="rules">
             <li>Open the Amazon RDS <strong>console</strong>.</li>
             <li>
@@ -23,7 +23,7 @@
         </ol>
     </div>
     <div *ngIf="data.provider === 'azure'" class="mat-body">
-        <strong>Setup firewall rules.</strong>
+        <strong>Set up Azure's firewall rules</strong>
         <ol class="rules">
             <li>Open your database overview and select <strong>Networking</strong> from the navigation pane.</li>
             <li>In the <strong>Connectivity method</strong> you have to have <strong>Public access (allowed IP addresses)</strong>.</li>
@@ -36,7 +36,7 @@
         </ol>
     </div>
     <div *ngIf="data.provider === 'google'" class="mat-body">
-        <strong>Setup authorized networks</strong>
+        <strong>Set up Google Cloud's authorized networks</strong>
         <ol class="rules">
             <li>Open your instance overview and select <strong>Connections</strong> from the navigation pane.</li>
             <li>
@@ -136,27 +136,27 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{data.db.sch
     <button *ngIf="data.provider === null" mat-button mat-dialog-close mat-dialog-close>Cancel</button>
     <a *ngIf="data.provider === 'amazon'" mat-button target="_blank"
         href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_mysql">
-        Learn more for AWS
+        Setup guide
     </a>
     <a *ngIf="data.provider === 'azure'" mat-button target="_blank"
         href="https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal">
-        Learn more for Azure
+        Setup guide
     </a>
     <a *ngIf="data.provider === 'google'" mat-button target="_blank"
         href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_google_cloud">
-        Learn more for Google Cloud
+        Setup guide
     </a>
     <a *ngIf="data.provider === 'mongoatlas'" mat-button target="_blank"
         href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_mongo_atlas">
-        Learn more for MongoDB Atlas
+        Setup guide
     </a>
     <a *ngIf="data.provider === 'digitalocean'" mat-button target="_blank"
         href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql">
-        Learn more for DigitalOcean
+        Setup guide
     </a>
     <button mat-flat-button color="primary"
         mat-dialog-close="confirmed">
-        I gave access
+        I've given access
     </button>
 </mat-dialog-actions>
 
