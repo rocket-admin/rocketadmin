@@ -99,7 +99,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
   private _groupRepository: IGroupRepository;
   private _permissionRepository: IPermissionRepository;
-  private _tableSettingsRepository: ITableSettingsRepository;
+  private _tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
   private _userAccessRepository: IUserAccessRepository;
   private _agentRepository: IAgentRepository;
   private _emailVerificationRepository: IEmailVerificationRepository;
@@ -111,7 +111,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableLogsRepository: ITableLogsRepository;
   private _userActionRepository: IUserActionRepository;
   private _logOutRepository: ILogOutRepository;
-  private _tableWidgetsRepository: ITableWidgetsRepository;
+  private _tableWidgetsRepository: Repository<TableWidgetEntity> & ITableWidgetsRepository;
   private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
   private _tableInfoReposioty: Repository<TableInfoEntity>;
   private _tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;
@@ -234,7 +234,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._permissionRepository;
   }
 
-  public get tableSettingsRepository(): ITableSettingsRepository {
+  public get tableSettingsRepository(): Repository<TableSettingsEntity> & ITableSettingsRepository {
     return this._tableSettingsRepository;
   }
 
@@ -282,7 +282,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._logOutRepository;
   }
 
-  public get tableWidgetsRepository(): ITableWidgetsRepository {
+  public get tableWidgetsRepository(): Repository<TableWidgetEntity> & ITableWidgetsRepository {
     return this._tableWidgetsRepository;
   }
 
