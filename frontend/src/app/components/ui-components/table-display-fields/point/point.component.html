@@ -1,0 +1,6 @@
+<div class="field-wrapper" *ngIf="formattedPoint">
+  <span class="value-wrapper" [matTooltip]="formattedPoint">{{ formattedPoint }}</span>
+  <button mat-icon-button class="copy-button" [cdkCopyToClipboard]="formattedPoint" matTooltip="Copy to clipboard">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

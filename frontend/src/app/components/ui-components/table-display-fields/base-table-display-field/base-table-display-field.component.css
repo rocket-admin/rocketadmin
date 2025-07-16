@@ -1,0 +1,22 @@
+.field-display {
+  display: flex;
+  align-items: center;
+}
+
+.field-label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.field-value {
+  flex-grow: 1;
+}
+
+.field-copy-button {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.field-display:hover .field-copy-button {
+  opacity: 1;
+}

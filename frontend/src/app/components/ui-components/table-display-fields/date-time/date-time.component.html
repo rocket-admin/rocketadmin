@@ -1,0 +1,10 @@
+<div class="field-display">
+  <span class="field-value">{{formattedDateTime || '—'}}</span>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="formattedDateTime"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(formattedDateTime)">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

@@ -1,0 +1,41 @@
+.field-display {
+  display: flex;
+  align-items: center;
+}
+
+.field-value {
+  margin-right: 8px;
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.url-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-primaryPalette-500);
+}
+
+.url-link__icon {
+    flex-shrink: 0;
+    margin-bottom: -2px;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+
+.field-copy-button {
+  display: none;
+}
+
+.field-display:hover .field-copy-button {
+  display: block !important;
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  display: none;
+  transform: translate(0, -50%) scale(0.85);
+  background-color: var(--hover-color);
+}

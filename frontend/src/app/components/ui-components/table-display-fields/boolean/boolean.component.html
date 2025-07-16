@@ -1,0 +1,15 @@
+<div class="field-display">
+  <div class="field-value">
+    <mat-icon *ngIf="value === true" class="boolean-icon boolean-icon-true">check_circle</mat-icon>
+    <mat-icon *ngIf="value === false" class="boolean-icon boolean-icon-false">cancel</mat-icon>
+    <span *ngIf="value !== true && value !== false">—</span>
+  </div>
+  <button type="button" 
+      mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="value !== undefined && value !== null ? value.toString() : ''"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(value !== undefined && value !== null ? value.toString() : '')">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

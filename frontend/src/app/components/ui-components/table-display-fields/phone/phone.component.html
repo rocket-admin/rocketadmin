@@ -1,0 +1,6 @@
+<div class="field-wrapper" *ngIf="value">
+  <a [href]="'tel:' + value" class="phone-link" [matTooltip]="value">{{ value }}</a>
+  <button mat-icon-button class="copy-button" [cdkCopyToClipboard]="value" matTooltip="Copy to clipboard">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

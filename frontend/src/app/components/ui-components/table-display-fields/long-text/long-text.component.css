@@ -1,0 +1,29 @@
+.field-display {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.field-value {
+  flex: 1 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 36px;
+  line-height: 36px;
+  /* width: 100%; */
+}
+
+.field-copy-button {
+  display: none;
+}
+
+.field-display:hover .field-copy-button {
+  display: block !important;
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  display: none;
+  transform: translate(0, -50%) scale(0.85);
+  background-color: var(--hover-color);
+}

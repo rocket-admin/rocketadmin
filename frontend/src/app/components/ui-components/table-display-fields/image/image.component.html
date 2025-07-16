@@ -1,0 +1,14 @@
+<div class="field-display">
+  <span *ngIf="!isUrl" class="field-value">[Image URL]</span>
+  <img *ngIf="isUrl"
+    class="image-thumbnail"
+    [src]="value" alt="Image"
+    [style.--height.px]="widgetStructure.widget_params.height">
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy URL"
+      [cdkCopyToClipboard]="value"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(value)">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

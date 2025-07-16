@@ -5,16 +5,32 @@ import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChil
 import { CustomAction, TableForeignKey, TablePermissions, TableProperties, TableRow, Widget } from 'src/app/models/table';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable, merge, of } from 'rxjs';
+import { UIwidgets, tableDisplayTypes } from '../../../consts/table-display-types';
 import { map, startWith, tap } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
 import { Angulartics2OnModule } from 'angulartics2';
+// Import all display components
+import { BaseTableDisplayFieldComponent } from '../../ui-components/table-display-fields/base-table-display-field/base-table-display-field.component';
+import { BooleanDisplayComponent } from '../../ui-components/table-display-fields/boolean/boolean.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { CodeDisplayComponent } from '../../ui-components/table-display-fields/code/code.component';
 import { CommonModule } from '@angular/common';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { CountryDisplayComponent } from '../../ui-components/table-display-fields/country/country.component';
+import { DateDisplayComponent } from '../../ui-components/table-display-fields/date/date.component';
+import { DateTimeDisplayComponent } from '../../ui-components/table-display-fields/date-time/date-time.component';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table-import-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DynamicModule } from 'ng-dynamic-component';
+import { FileDisplayComponent } from '../../ui-components/table-display-fields/file/file.component';
+import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
+import { IdDisplayComponent } from '../../ui-components/table-display-fields/id/id.component';
+import { ImageDisplayComponent } from '../../ui-components/table-display-fields/image/image.component';
+import { JsonEditorDisplayComponent } from '../../ui-components/table-display-fields/json-editor/json-editor.component';
 import JsonURL from "@jsonurl/jsonurl";
+import { LongTextDisplayComponent } from '../../ui-components/table-display-fields/long-text/long-text.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -31,14 +47,26 @@ import { MatSort } from '@angular/material/sort';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MoneyDisplayComponent } from '../../ui-components/table-display-fields/money/money.component';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { NumberDisplayComponent } from '../../ui-components/table-display-fields/number/number.component';
+import { PasswordDisplayComponent } from '../../ui-components/table-display-fields/password/password.component';
+import { PhoneDisplayComponent } from '../../ui-components/table-display-fields/phone/phone.component';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { PointDisplayComponent } from '../../ui-components/table-display-fields/point/point.component';
 import { RouterModule } from '@angular/router';
+import { SelectDisplayComponent } from '../../ui-components/table-display-fields/select/select.component';
 import { SelectionModel } from '@angular/cdk/collections';
+import { StaticTextDisplayComponent } from '../../ui-components/table-display-fields/static-text/static-text.component';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { TextDisplayComponent } from '../../ui-components/table-display-fields/text/text.component';
+import { TimeDisplayComponent } from '../../ui-components/table-display-fields/time/time.component';
+import { TimeIntervalDisplayComponent } from '../../ui-components/table-display-fields/time-interval/time-interval.component';
+import { UrlDisplayComponent } from '../../ui-components/table-display-fields/url/url.component';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { normalizeTableName } from '../../../lib/normalize'
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 
 interface Column {
   title: string,
@@ -70,7 +98,32 @@ interface Column {
     ClipboardModule,
     DragDropModule,
     Angulartics2OnModule,
-    PlaceholderTableDataComponent
+    PlaceholderTableDataComponent,
+    DynamicModule,
+    // Display components for different field types
+    // BaseTableDisplayFieldComponent,
+    // TextDisplayComponent,
+    // LongTextDisplayComponent,
+    // IdDisplayComponent,
+    // BooleanDisplayComponent,
+    ForeignKeyDisplayComponent,
+    // DateDisplayComponent,
+    // DateTimeDisplayComponent,
+    // TimeDisplayComponent,
+    // SelectDisplayComponent,
+    // CodeDisplayComponent,
+    // MoneyDisplayComponent,
+    // PasswordDisplayComponent,
+    // FileDisplayComponent,
+    // ImageDisplayComponent,
+    // UrlDisplayComponent,
+    // JsonEditorDisplayComponent,
+    // NumberDisplayComponent,
+    // StaticTextDisplayComponent,
+    // CountryDisplayComponent,
+    // PhoneDisplayComponent,
+    // PointDisplayComponent,
+    // TimeIntervalDisplayComponent
   ]
 })
 
@@ -118,6 +171,9 @@ export class DbTableComponent implements OnInit {
   public selectedRow: TableRow = null;
   public selectedRowType: 'record' | 'foreignKey' = 'record';
   public tableRelatedRecords: any = null;
+  public displayCellComponents;
+  public UIwidgets = UIwidgets;
+  public tableTypes: object;
 
   @Input() set table(value){
     if (value) this.tableData = value;
@@ -130,6 +186,7 @@ export class DbTableComponent implements OnInit {
     private _tableState: TableStateService,
     private _notifications: NotificationsService,
     private _tableRow: TableRowService,
+    private _connections: ConnectionsService,
     private route: ActivatedRoute,
     public router: Router,
     public dialog: MatDialog,
@@ -163,6 +220,10 @@ export class DbTableComponent implements OnInit {
 
   ngOnInit() {
     this.searchString = this.route.snapshot.queryParams.search;
+
+    const connectionType = this._connections.currentConnection.type;
+    this.displayCellComponents = tableDisplayTypes[connectionType];
+
     this._tableState.cast.subscribe(row => {
       this.selectedRow = row;
     });
@@ -209,6 +270,35 @@ export class DbTableComponent implements OnInit {
     return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
   }
 
+  // getFieldDisplayComponent(column: string) {
+  //   // First check if it's a widget or a foreign key
+  //   if (this.isWidget(column)) {
+  //     return this.displayComponents[this.tableData.widgets[column].widget_type?.toLowerCase()];
+  //   }
+
+  //   if (this.isForeignKey(column)) {
+  //     return this.displayComponents['foreign key'];
+  //   }
+
+  //   // Check if it's a primary key
+  //   if (this.tableData.keyAttributes && this.tableData.keyAttributes[0]?.column_name === column) {
+  //     return this.displayComponents['id'];
+  //   }
+
+  //   // Otherwise use the data type from the structure to determine the component
+  //   const field = this.tableData.structure?.find(f => f.column_name === column);
+  //   if (field && field.data_type) {
+  //     // Try to get the specific component for this data type
+  //     const typeComponent = this.displayComponents[field.data_type.toLowerCase()];
+  //     if (typeComponent) {
+  //       return typeComponent;
+  //     }
+  //   }
+
+  //   // Default to text component if we couldn't determine the type
+  //   return this.displayComponents['text'];
+  // }
+
   isForeignKey(column: string) {
     return this.tableData.foreignKeysList.includes(column);
   }
@@ -223,16 +313,16 @@ export class DbTableComponent implements OnInit {
     if (this.tableData.widgetsList) return this.tableData.widgetsList.includes(column);
   }
 
-  getWidgetValue(column: string, value: string) {
-    if (this.tableData.widgets[column].widget_type === 'Select') {
-      const fieldOptions = this.tableData.widgets[column].widget_params.options;
-      if (fieldOptions) {
-        const cellValue = fieldOptions.find(option => option.value === value);
-          if (cellValue) return cellValue.label
-      }
-    }
-    return value;
-  }
+  // getWidgetValue(column: string, value: string) {
+  //   if (this.tableData.widgets[column].widget_type === 'Select') {
+  //     const fieldOptions = this.tableData.widgets[column].widget_params.options;
+  //     if (fieldOptions) {
+  //       const cellValue = fieldOptions.find(option => option.value === value);
+  //         if (cellValue) return cellValue.label
+  //     }
+  //   }
+  //   return value;
+  // }
 
   getCellValue(foreignKey: TableForeignKey, cell) {
     const identityColumnName = Object.keys(cell).find(key => key !== foreignKey.referenced_column_name);
@@ -406,8 +496,7 @@ export class DbTableComponent implements OnInit {
     });
   }
 
-  handleForeignKeyView(event, foreignKeys, row) {
-    event.stopPropagation();
+  handleForeignKeyView(foreignKeys, row) {
     this.selectedRowType = 'foreignKey';
 
     this._tableState.selectRow({
@@ -489,7 +578,7 @@ export class DbTableComponent implements OnInit {
     return false;
   }
 
-  showCopyNotification(message: string) {
+  showCopyNotification(message: string, value?: string) {
     this._notifications.showSuccessSnackbar(message);
   }
 

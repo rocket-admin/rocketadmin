@@ -1,0 +1,19 @@
+<div class="field-display">
+  <span class="field-value">
+    <a *ngIf="isValidUrl"
+        [href]="value" target="_blank"
+        class="url-link"
+        (click)="$event.stopPropagation()">
+        <mat-icon class="url-link__icon" fontSet="material-icons-outlined">link</mat-icon>
+        {{value || '—'}}
+    </a>
+    <span *ngIf="!isValidUrl">{{value || '—'}}</span>
+  </span>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy URL"
+      [cdkCopyToClipboard]="value"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(value)">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

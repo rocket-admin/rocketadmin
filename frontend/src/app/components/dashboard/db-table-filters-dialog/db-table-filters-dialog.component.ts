@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TablesService } from 'src/app/services/tables.service';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { UIwidgets } from 'src/app/consts/field-types';
+import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { filterTypes } from 'src/app/consts/filter-types';
 import { ActivatedRoute } from '@angular/router';
 import { getComparatorsFromUrl, getFiltersFromUrl } from 'src/app/lib/parse-filter-params';

@@ -1,0 +1,11 @@
+<div class="field-display field-display-id">
+  <span class="field-value field-value-id">{{value || '—'}}</span>
+  <button type="button" 
+      mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="value"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(value)">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

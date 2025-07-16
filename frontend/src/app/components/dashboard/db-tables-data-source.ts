@@ -19,6 +19,7 @@ import { UserService } from 'src/app/services/user.service';
 import { filter } from "lodash";
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { normalizeFieldName } from 'src/app/lib/normalize';
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 
 interface Column {
   title: string,
@@ -67,6 +68,7 @@ export class TablesDataSource implements DataSource<Object> {
   } = {};
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
+  public tableTypes: object = {};
   public relatedRecords = {
     referenced_on_column_name: '',
     referenced_by: []
@@ -210,6 +212,8 @@ export class TablesDataSource implements DataSource<Object> {
               })
             );
           }
+
+          this.tableTypes = getTableTypes(res.structure, this.foreignKeysList);
 
           let orderedColumns: TableField[];
           if (res.list_fields.length) {

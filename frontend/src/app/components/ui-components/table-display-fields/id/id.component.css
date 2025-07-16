@@ -1,0 +1,13 @@
+.field-display-id {
+  display: flex;
+  align-items: center;
+}
+
+.field-value-id {
+  font-weight: 500;
+  flex-grow: 1;
+}
+
+.field-copy-button {
+  margin-left: 8px;
+}
