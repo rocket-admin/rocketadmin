@@ -90,6 +90,7 @@ export class DemoDataService {
       );
       if (createdMySQLConnection) {
         await this.createTestTableSettingsMySQL(createdMySQLConnection);
+        await this.createConnectionPropertiesForMySQLDemoData(createdMySQLConnection);
         await this.createMySQLDemoTableActions(createdMySQLConnection);
       }
     }
@@ -556,6 +557,27 @@ export class DemoDataService {
         await this._dbContext.actionEventsRepository.saveNewOrUpdatedActionEvent(newActionEvent);
       }
     }
+  }
+
+  private async createConnectionPropertiesForMySQLDemoData(connection: ConnectionEntity): Promise<void> {
+    const createPropertiesData: CreateConnectionPropertiesDs = {
+      hidden_tables: [],
+      logo_url:
+        'https://demo-data.rocketadmin.com/postgres-demo-images/assets_task_01k04f14nee91t3zf3kfdfhphg_1752496717_img_1-1.webp',
+      primary_color: '#4CA1F7',
+      secondary_color: '#E94A74',
+      hostname: null,
+      company_name: 'CoworkingHub',
+      tables_audit: true,
+      connectionId: '2e42cbbb-794c-4b9f-83b2-0951bdb0a891',
+      human_readable_table_names: true,
+      allow_ai_requests: true,
+      default_showing_table: 'event',
+      userId: connection?.author?.id || null,
+      master_password: null,
+    };
+    const connectionProperties = buildConnectionPropertiesEntity(createPropertiesData, connection);
+    await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(connectionProperties);
   }
 
   private async createPostgresDemoTableActions(connection: ConnectionEntity): Promise<void> {
