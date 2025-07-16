@@ -82,15 +82,483 @@ export class DemoDataService {
       );
       if (createdPostgresConnection) {
         await this.createTestTableSettingsPostgres(createdPostgresConnection);
-        await this.createConnectionPropertiesForDemoData(createdPostgresConnection);
-        await this.createDemoTableActions(createdPostgresConnection);
+        await this.createConnectionPropertiesForPostgresDemoData(createdPostgresConnection);
+        await this.createPostgresDemoTableActions(createdPostgresConnection);
+      }
+      const createdMySQLConnection = createdTestConnections.find(
+        (connection) => connection.type === ConnectionTypesEnum.mysql || connection.type === ConnectionTypesEnum.mysql2,
+      );
+      if (createdMySQLConnection) {
+        await this.createTestTableSettingsMySQL(createdMySQLConnection);
+        await this.createMySQLDemoTableActions(createdMySQLConnection);
       }
     }
 
     return createdTestConnections;
   }
 
-  private async createDemoTableActions(connection: ConnectionEntity): Promise<void> {
+  private async createTestTableSettingsMySQL(connection: ConnectionEntity): Promise<Array<TableSettingsEntity>> {
+    const tableSettingsDtos: Array<CreateTableSettingsDs> = [
+      {
+        table_name: 'event',
+        display_name: '',
+        search_fields: [],
+        excluded_fields: [],
+        list_fields: ['title', 'start_time', 'end_time', 'space_id', 'image_url', 'organizer_id', 'description', 'id'],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: '',
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: ['title', 'description'],
+        identification_fields: [],
+        columns_view: ['organizer_id', 'space_id', 'title', 'description', 'start_time', 'end_time'],
+        identity_column: 'title',
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: [],
+        icon: 'celebration',
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+      {
+        table_name: 'event_attendee',
+        display_name: '',
+        search_fields: ['event_id', 'user_id', 'guest_name', 'guest_email', 'status'],
+        excluded_fields: [],
+        list_fields: ['user_id', 'guest_name', 'status', 'guest_email', 'event_id', 'created_at', 'id'],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: '',
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: ['event_id', 'user_id', 'guest_name', 'guest_email'],
+        identification_fields: [],
+        columns_view: [],
+        identity_column: 'user_id',
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: [],
+        icon: 'groups',
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+      {
+        table_name: 'events',
+        display_name: null,
+        search_fields: [],
+        excluded_fields: [],
+        list_fields: [],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: null,
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: [],
+        identification_fields: [],
+        columns_view: null,
+        identity_column: null,
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: null,
+        icon: null,
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+      {
+        table_name: 'location',
+        display_name: '',
+        search_fields: ['name', 'address', 'city', 'country'],
+        excluded_fields: [],
+        list_fields: [],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: '',
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: ['name', 'address', 'city', 'country'],
+        identification_fields: [],
+        columns_view: ['name', 'address', 'city', 'country'],
+        identity_column: 'name',
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: [],
+        icon: 'domain',
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+      {
+        table_name: 'membership',
+        display_name: '',
+        search_fields: ['user_id', 'space_id', 'membership_type'],
+        excluded_fields: [],
+        list_fields: ['user_id', 'start_date', 'end_date', 'space_id', 'membership_type', 'id'],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: '',
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: ['user_id', 'space_id'],
+        identification_fields: [],
+        columns_view: ['user_id', 'space_id', 'start_date', 'end_date', 'membership_type'],
+        identity_column: 'user_id',
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: [],
+        icon: 'diamond',
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+      {
+        table_name: 'space',
+        display_name: '',
+        search_fields: ['location_id', 'name', 'type', 'description'],
+        excluded_fields: [],
+        list_fields: ['name', 'type', 'price_per_hour', 'capacity', 'location_id', 'description', 'id'],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: '',
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: ['location_id', 'name', 'description'],
+        identification_fields: [],
+        columns_view: [],
+        identity_column: 'name',
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: [],
+        icon: 'desk',
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+      {
+        table_name: 'table-1',
+        display_name: '',
+        search_fields: [],
+        excluded_fields: [],
+        list_fields: [],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: '',
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: [],
+        identification_fields: [],
+        columns_view: [],
+        identity_column: '',
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: [],
+        icon: '',
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+      {
+        table_name: 'user',
+        display_name: '',
+        search_fields: ['name', 'email', 'phone'],
+        excluded_fields: [],
+        list_fields: [],
+        list_per_page: null,
+        ordering: QueryOrderingEnum.ASC,
+        ordering_field: '',
+        readonly_fields: [],
+        sortable_by: [],
+        autocomplete_columns: ['name', 'email', 'phone'],
+        identification_fields: [],
+        columns_view: [],
+        identity_column: 'name',
+        can_delete: true,
+        can_update: true,
+        can_add: true,
+        sensitive_fields: ['email', 'phone'],
+        icon: 'person',
+        allow_csv_export: true,
+        allow_csv_import: true,
+        connection_id: connection.id,
+        masterPwd: null,
+        userId: connection?.author?.id || null,
+      },
+    ];
+    const tableSettingEntities = tableSettingsDtos.map((dto) => {
+      return buildNewTableSettingsEntity(dto, connection);
+    });
+    const savedTableSettings = await this._dbContext.tableSettingsRepository.save(tableSettingEntities);
+    await this.createDemoMySQLTablesWidgets(savedTableSettings);
+    return savedTableSettings;
+  }
+
+  private async createDemoMySQLTablesWidgets(tableSettings: Array<TableSettingsEntity>): Promise<void> {
+    const foundEventTableSettings = tableSettings.find((settings) => settings.table_name === 'event');
+    if (foundEventTableSettings) {
+      const createEventWidgetsData: Array<CreateTableWidgetDs> = [
+        {
+          field_name: 'organizer_id',
+          widget_type: '' as any,
+          name: 'Organizer',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'space_id',
+          widget_type: '' as any,
+          name: 'Space',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'start_time',
+          widget_type: '' as any,
+          name: 'Starts at',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'end_time',
+          widget_type: '' as any,
+          name: 'Ends at',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'image_url',
+          widget_type: 'Image' as any,
+          name: 'Poster',
+          description: '',
+          widget_params: '// provide image height in px to dispaly in table\n// example:\n{\n  "height": 100\n}\n',
+          widget_options: null,
+        },
+      ];
+      const newWidgets = createEventWidgetsData.map((widget) => {
+        const newWidget = buildNewTableWidgetEntity(widget);
+        newWidget.settings = foundEventTableSettings;
+        return newWidget;
+      });
+      await this._dbContext.tableWidgetsRepository.save(newWidgets);
+    }
+    const foundEventAttendeeTableSettings = tableSettings.find((settings) => settings.table_name === 'event_attendee');
+    if (foundEventAttendeeTableSettings) {
+      const createEventAttendeeWidgetsData: Array<CreateTableWidgetDs> = [
+        {
+          field_name: 'event_id',
+          widget_type: '' as any,
+          name: 'Event',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'user_id',
+          widget_type: '' as any,
+          name: 'User',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'status',
+          widget_type: 'Select' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// provide array of options to map database value (key \'value\') in human readable value (key \'label\');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  "allow_null": true,\n  "options": [\n    {\n      "value": "confirmed",\n      "label": "⭐ Confirmed"\n    },\n    {\n      "value": "checked_in",\n      "label": "✅ Checked in"\n    },\n    {\n      "value": "cancelled",\n      "label": "❌ Cancelled"\n    }\n  ]\n}',
+          widget_options: null,
+        },
+      ];
+      const newWidgets = createEventAttendeeWidgetsData.map((widget) => {
+        const newWidget = buildNewTableWidgetEntity(widget);
+        newWidget.settings = foundEventAttendeeTableSettings;
+        return newWidget;
+      });
+      await this._dbContext.tableWidgetsRepository.save(newWidgets);
+    }
+
+    const foundMembershipTableSettings = tableSettings.find((settings) => settings.table_name === 'membership');
+    if (foundMembershipTableSettings) {
+      const createMembershipWidgetsData: Array<CreateTableWidgetDs> = [
+        {
+          field_name: 'user_id',
+          widget_type: '' as any,
+          name: 'User',
+          description: '',
+          widget_params: '',
+          widget_options: null,
+        },
+        {
+          field_name: 'space_id',
+          widget_type: '' as any,
+          name: 'Space',
+          description: '',
+          widget_params: '',
+          widget_options: null,
+        },
+      ];
+      const newWidgets = createMembershipWidgetsData.map((widget) => {
+        const newWidget = buildNewTableWidgetEntity(widget);
+        newWidget.settings = foundMembershipTableSettings;
+        return newWidget;
+      });
+      await this._dbContext.tableWidgetsRepository.save(newWidgets);
+    }
+
+    const foundSpaceTableSettings = tableSettings.find((settings) => settings.table_name === 'space');
+    if (foundSpaceTableSettings) {
+      const createSpaceWidgetsData: Array<CreateTableWidgetDs> = [
+        {
+          field_name: 'price_per_hour',
+          widget_type: 'Money' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure money widget settings\n// example:\n{\n  "default_currency": "USD",\n  "show_currency_selector": false,\n  "decimal_places": 2,\n  "allow_negative": false\n}\n',
+          widget_options: null,
+        },
+        {
+          field_name: 'type',
+          widget_type: 'Select' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// provide array of options to map database value (key \'value\') in human readable value (key \'label\');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  "allow_null": false,\n  "options": [\n    {\n      "value": "private_office",\n      "label": "Private office"\n    },\n    {\n      "value": "meeting_room",\n      "label": "Meeting room"\n    },\n    {\n      "value": "conference_room",\n      "label": "Conference room"\n    },\n    {\n      "value": "event_stage",\n      "label": "Event stage"\n    },\n    {\n      "value": "hot_desk",\n      "label": "Hot desk"\n    }\n  ]\n}',
+          widget_options: null,
+        },
+      ];
+      const newWidgets = createSpaceWidgetsData.map((widget) => {
+        const newWidget = buildNewTableWidgetEntity(widget);
+        newWidget.settings = foundSpaceTableSettings;
+        return newWidget;
+      });
+      await this._dbContext.tableWidgetsRepository.save(newWidgets);
+    }
+    const foundUserTableSettings = tableSettings.find((settings) => settings.table_name === 'user');
+    if (foundUserTableSettings) {
+      const createUserWidgetsData: Array<CreateTableWidgetDs> = [
+        {
+          field_name: 'phone',
+          widget_type: 'Phone' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure international phone number widget\n// example:\n{\n  "preferred_countries": ["US", "GB", "CA"],\n  "enable_placeholder": true,\n  "enable_auto_country_select": true,\n  "phone_validation": true,\n  "format": "international"\n}\n',
+          widget_options: null,
+        },
+        {
+          field_name: 'role',
+          widget_type: 'Select' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// provide array of options to map database value (key \'value\') in human readable value (key \'label\');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  "allow_null": false,\n  "options": [\n    {\n      "value": "admin",\n      "label": "👑 Admin"\n    },\n    {\n      "value": "organizer",\n      "label": "👩‍💻 Organizer"\n    },\n    {\n      "value": "member",\n      "label": "🙍🏻‍♂️ Member"\n    }\n  ]\n}',
+          widget_options: null,
+        },
+      ];
+      const newWidgets = createUserWidgetsData.map((widget) => {
+        const newWidget = buildNewTableWidgetEntity(widget);
+        newWidget.settings = foundUserTableSettings;
+        return newWidget;
+      });
+      await this._dbContext.tableWidgetsRepository.save(newWidgets);
+    }
+  }
+
+  private async createMySQLDemoTableActions(connection: ConnectionEntity): Promise<void> {
+    const actionRulesData: Array<CreateRuleDataDs> = [
+      {
+        table_name: 'user',
+        rule_title: 'Blacklist',
+      },
+      {
+        table_name: 'user',
+        rule_title: 'Notification on new user',
+      },
+    ];
+    const savedEmptyActionRules = [];
+    for (const rule_data of actionRulesData) {
+      const newActionRule = buildEmptyActionRule(rule_data, connection);
+      const savedActionRule = await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRule(newActionRule);
+      savedEmptyActionRules.push(savedActionRule);
+    }
+    const foundSavedUserBlacklistActionRule = savedEmptyActionRules.find(
+      (rule) => rule.table_name === 'user' && rule.rule_title === 'Blacklist',
+    );
+    if (foundSavedUserBlacklistActionRule) {
+      const createActionEventData: CreateTableActionEventDS = {
+        event: TableActionEventEnum.CUSTOM,
+        event_title: 'Blacklist',
+        icon: 'do_not_disturb_on_total_silence',
+        require_confirmation: true,
+        type: TableActionTypeEnum.single,
+      };
+      const newActionEvent = buildActionEventWithRule(createActionEventData, foundSavedUserBlacklistActionRule);
+      await this._dbContext.actionEventsRepository.saveNewOrUpdatedActionEvent(newActionEvent);
+    }
+    const foundSavedUserNotificationActionRule = savedEmptyActionRules.find(
+      (rule) => rule.table_name === 'user' && rule.rule_title === 'Notification on new user',
+    );
+    if (foundSavedUserNotificationActionRule) {
+      const createActionEventData: Array<CreateTableActionEventDS> = [
+        {
+          event: TableActionEventEnum.ADD_ROW,
+          event_title: null,
+          icon: null,
+          require_confirmation: false,
+          type: TableActionTypeEnum.single,
+        },
+        {
+          event: TableActionEventEnum.UPDATE_ROW,
+          event_title: null,
+          icon: null,
+          require_confirmation: false,
+          type: TableActionTypeEnum.single,
+        },
+        {
+          event: TableActionEventEnum.DELETE_ROW,
+          event_title: null,
+          icon: null,
+          require_confirmation: false,
+          type: TableActionTypeEnum.single,
+        },
+      ];
+      for (const actionEventData of createActionEventData) {
+        const newActionEvent = buildActionEventWithRule(actionEventData, foundSavedUserNotificationActionRule);
+        await this._dbContext.actionEventsRepository.saveNewOrUpdatedActionEvent(newActionEvent);
+      }
+    }
+  }
+
+  private async createPostgresDemoTableActions(connection: ConnectionEntity): Promise<void> {
     const actionRulesData: Array<CreateRuleDataDs> = [
       {
         table_name: 'certificates',
@@ -136,7 +604,7 @@ export class DemoDataService {
     }
   }
 
-  private async createConnectionPropertiesForDemoData(
+  private async createConnectionPropertiesForPostgresDemoData(
     connection: ConnectionEntity,
   ): Promise<ConnectionPropertiesEntity> {
     const createPropertiesData: CreateConnectionPropertiesDs = {
