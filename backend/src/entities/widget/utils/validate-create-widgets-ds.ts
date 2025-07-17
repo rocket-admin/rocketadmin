@@ -50,6 +50,9 @@ export async function validateCreateWidgetsDs(
       ) {
         errors.push(Messages.ENCRYPTION_ALGORITHM_INCORRECT(widgetDS.widget_params['algorithm']));
       }
+      if (widgetDS.widget_params['encrypt'] === undefined) {
+        errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('encrypt'));
+      }
     }
 
     if (widget_type && widget_type === WidgetTypeEnum.Foreign_key) {
