@@ -8,9 +8,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-password-display',
   templateUrl: './password.component.html',
-  styleUrls: ['./password.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './password.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class PasswordDisplayComponent extends BaseTableDisplayFieldComponent {
-  static type = 'password';
 }

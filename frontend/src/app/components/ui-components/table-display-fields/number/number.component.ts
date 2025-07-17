@@ -8,10 +8,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-display-number',
   templateUrl: './number.component.html',
-  styleUrls: ['./number.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './number.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class NumberDisplayComponent extends BaseTableDisplayFieldComponent {
-  // Value is inherited from base component
-  static type = 'number';
 }

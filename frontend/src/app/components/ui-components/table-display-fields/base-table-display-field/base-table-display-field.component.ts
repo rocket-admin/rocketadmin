@@ -10,7 +10,7 @@ import { normalizeFieldName } from '../../../../lib/normalize';
   styleUrl: './base-table-display-field.component.css',
   imports: [CommonModule]
 })
-export class BaseTableDisplayFieldComponent implements OnInit {
+export class BaseTableDisplayFieldComponent {
   @Input() key: string;
   @Input() value: any;
   @Input() structure: TableField;
@@ -18,10 +18,4 @@ export class BaseTableDisplayFieldComponent implements OnInit {
   // @Input() relations: TableForeignKey;
 
   @Output() onCopyToClipboard = new EventEmitter<string>();
-
-  // public normalizedLabel: string;
-
-  ngOnInit(): void {
-    // this.normalizedLabel = normalizeFieldName(this.label);
-  }
 }

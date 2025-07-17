@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-display-id',
   templateUrl: './id.component.html',
-  styleUrls: ['./id.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './id.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class IdDisplayComponent extends BaseTableDisplayFieldComponent {

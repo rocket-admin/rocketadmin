@@ -11,16 +11,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-display-long-text',
   templateUrl: './long-text.component.html',
-  styleUrls: ['./long-text.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './long-text.component.css'],
   imports: [CommonModule, ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class LongTextDisplayComponent extends BaseTableDisplayFieldComponent {
-  // Value is inherited from base component
-  static type = 'long_text';
 
-  public expanded: boolean = false;
-
-  toggleExpand(): void {
-    this.expanded = !this.expanded;
-  }
 }

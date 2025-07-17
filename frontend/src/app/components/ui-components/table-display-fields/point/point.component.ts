@@ -1,7 +1,8 @@
+import { Component, OnInit } from '@angular/core';
+
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -9,25 +10,24 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-point-display',
   templateUrl: './point.component.html',
-  styleUrls: ['./point.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './point.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class PointDisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
   static type = 'point';
-  
+
   formattedPoint: string;
-  
-  override ngOnInit() {
-    super.ngOnInit();
+
+  ngOnInit() {
     this.formatPoint();
   }
-  
+
   private formatPoint() {
     if (!this.value) {
       this.formattedPoint = '';
       return;
     }
-    
+
     try {
       if (typeof this.value === 'string') {
         // Handle string format like "(x,y)" or "x,y"

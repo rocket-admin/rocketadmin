@@ -12,7 +12,7 @@ import { TableForeignKey } from 'src/app/models/table';
 @Component({
   selector: 'app-display-foreign-key',
   templateUrl: './foreign-key.component.html',
-  styleUrls: ['./foreign-key.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './foreign-key.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class ForeignKeyDisplayComponent extends BaseTableDisplayFieldComponent {

@@ -456,45 +456,6 @@ th.mat-header-cell, td.mat-cell {
     }
 }
 
-/* .field-value {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-}
-
-@media (prefers-color-scheme: light) {
-    .field-value {
-        color: rgba(0, 0, 0, 0.64)
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .field-value {
-        color: rgba(255, 255, 255, 0.64)
-    }
-} */
-
-/* .field-value-copy-button {
-    position: absolute;
-    right: -6px;
-    top: 50%;
-    display: none;
-    transform: translate(0, -50%) scale(0.85);
-    background-color: var(--hover-color);
-}
-
-@media (prefers-color-scheme: dark) {
-    .field-value-copy-button {
-        --hover-color: var(--color-primaryPalette-800);
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .field-value-copy-button {
-        --hover-color: var(--color-primaryPalette-50);
-    }
-} */
-
 .db-table-cell:hover .field-value-copy-button {
     display: initial;
 }

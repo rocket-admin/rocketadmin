@@ -547,7 +547,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     if (this.connectionType === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes)
-        .filter(([key, value]) => value === 'datetime');
+        .filter(([key, value]) => value === 'datetime' || value === 'timestamp');
       if (datetimeFields.length) {
         for (const datetimeField of datetimeFields) {
           if (updatedRow[datetimeField[0]]) {

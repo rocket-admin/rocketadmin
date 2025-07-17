@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-display-text',
   templateUrl: './text.component.html',
-  styleUrls: ['./text.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './text.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class TextDisplayComponent extends BaseTableDisplayFieldComponent {

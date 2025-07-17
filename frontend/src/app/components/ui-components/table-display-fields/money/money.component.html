@@ -1,12 +1,12 @@
 <div class="field-display">
   <span class="field-value">
-    <span *ngIf="displayCurrency">{{displayCurrency}} </span>{{displayAmount || '—'}}
+    {{formattedValue || '—'}}
   </span>
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy"
-      [cdkCopyToClipboard]="displayCurrency ? (displayCurrency + ' ' + displayAmount) : displayAmount"
-      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(displayCurrency ? (displayCurrency + ' ' + displayAmount) : displayAmount)">
+      [cdkCopyToClipboard]="formattedValue"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(formattedValue)">
       <mat-icon>content_copy</mat-icon>
   </button>
 </div>

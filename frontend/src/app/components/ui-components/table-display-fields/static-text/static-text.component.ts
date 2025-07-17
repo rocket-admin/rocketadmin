@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-display-static-text',
   templateUrl: './static-text.component.html',
-  styleUrls: ['./static-text.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './static-text.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class StaticTextDisplayComponent extends BaseTableDisplayFieldComponent {

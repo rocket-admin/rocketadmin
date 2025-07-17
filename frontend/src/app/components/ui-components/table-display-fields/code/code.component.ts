@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-code-display',
   templateUrl: './code.component.html',
-  styleUrls: ['./code.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './code.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class CodeDisplayComponent extends BaseTableDisplayFieldComponent {

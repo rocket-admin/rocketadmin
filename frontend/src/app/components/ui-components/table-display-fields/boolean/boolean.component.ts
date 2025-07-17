@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-display-boolean',
   templateUrl: './boolean.component.html',
-  styleUrls: ['./boolean.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './boolean.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class BooleanDisplayComponent extends BaseTableDisplayFieldComponent {

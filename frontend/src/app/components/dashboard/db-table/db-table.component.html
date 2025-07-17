@@ -216,7 +216,7 @@
                 <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
                 <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
                     <div class="table-cell-content">
-                        <span *ngIf="isForeignKey(column); else contentCell" class="field-value field-value_foreign-key">
+                        <ng-container *ngIf="isForeignKey(column); else contentCell">
                             <app-display-foreign-key
                                 [key]="i"
                                 [relations]="tableData.foreignKeys[column]"
@@ -225,21 +225,19 @@
                                 (onForeignKeyClick)="handleForeignKeyView(tableData.foreignKeys[column], element[column])"
                                 (onCopyToClipboard)="showCopyNotification('Field value was copied to clipboard.')">
                             </app-display-foreign-key>
-                        </span>
+                        </ng-container>
                         <ng-template #contentCell>
-                            <div *ngIf="isWidget(column); else simpleValue" class="field-value">
-                                <ndc-dynamic
-                                    [ndcDynamicComponent]="UIwidgets[tableData.widgets[column].widget_type]"
-                                    [ndcDynamicInputs]="{
-                                        key: i,
-                                        value: element[column],
-                                        widgetStructure: tableData.widgets[column]
-                                    }"
-                                    [ndcDynamicOutputs]="{
-                                        onCopyToClipboard: { handler: showCopyNotification, args: ['Field value was copied to clipboard.'] }
-                                    }">
-                                </ndc-dynamic>
-                            </div>
+                            <ndc-dynamic *ngIf="isWidget(column) && tableData.widgets[column].widget_type; else simpleValue"
+                                [ndcDynamicComponent]="UIwidgets[tableData.widgets[column].widget_type]"
+                                [ndcDynamicInputs]="{
+                                    key: i,
+                                    value: element[column],
+                                    widgetStructure: tableData.widgets[column]
+                                }"
+                                [ndcDynamicOutputs]="{
+                                    onCopyToClipboard: { handler: showCopyNotification, args: ['Field value was copied to clipboard.'] }
+                                }">
+                            </ndc-dynamic>
                             <ng-template #simpleValue>
                                 <ndc-dynamic
                                     [ndcDynamicComponent]="displayCellComponents[tableData.tableTypes[column]]"

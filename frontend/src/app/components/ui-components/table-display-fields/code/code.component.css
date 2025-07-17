@@ -1,32 +1,12 @@
-.field-display {
-  display: flex;
-  align-items: center;
-}
-
 .field-value {
-  margin-right: 8px;
-  flex: 1;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+  background-color: #EAEAFF;
+  border-radius: 4px;
   font-family: monospace;
+  padding: 0 8px;
 }
 
-.field-copy-button {
-  visibility: hidden;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  margin-left: 4px;
-}
-
-.field-display:hover .field-copy-button {
-  visibility: visible;
-}
-
-.field-copy-button mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-  line-height: 16px;
+@media (prefers-color-scheme: dark) {
+  .field-value {
+    background-color: #2C2C54;
+  }
 }

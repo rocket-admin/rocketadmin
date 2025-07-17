@@ -1,8 +1,10 @@
-<div class="field-wrapper" *ngIf="value">
-  <div class="json-display">
-    <pre>{{ formattedJson }}</pre>
-  </div>
-  <button mat-icon-button class="copy-button" [cdkCopyToClipboard]="formattedJson" matTooltip="Copy to clipboard">
-    <mat-icon>content_copy</mat-icon>
+<div class="field-display" *ngIf="value">
+  <div class="json-display">{{ formattedJson }}</div>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="value"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(value)">
+      <mat-icon>content_copy</mat-icon>
   </button>
 </div>

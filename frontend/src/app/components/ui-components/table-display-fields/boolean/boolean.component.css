@@ -1,26 +1,27 @@
-.field-display {
-  display: flex;
-  align-items: center;
-}
-
-.field-value {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-}
-
 .boolean-icon {
-  vertical-align: middle;
+  transform: scale(0.85);
 }
 
-.boolean-icon-true {
-  color: #4caf50;
+@media (prefers-color-scheme: light) {
+  .boolean-icon-true {
+    color: #1B5E20;
+  }
+
+  .boolean-icon-false {
+    color: #B71C1C;
+  }
 }
 
-.boolean-icon-false {
-  color: #f44336;
+@media (prefers-color-scheme: dark) {
+  .boolean-icon-true {
+    color: #4CAF50;
+  }
+
+  .boolean-icon-false {
+    color: #E53935;
+  }
 }
 
-.field-copy-button {
-  margin-left: 8px;
-}
+
+
+

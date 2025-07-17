@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-url-display',
   templateUrl: './url.component.html',
-  styleUrls: ['./url.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './url.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class UrlDisplayComponent extends BaseTableDisplayFieldComponent {
@@ -24,13 +24,4 @@ export class UrlDisplayComponent extends BaseTableDisplayFieldComponent {
       return false;
     }
   }
-  
-//   get displayUrl(): string {
-//     if (!this.value) return '—';
-    
-//     if (this.value.length > 30) {
-//       return this.value.substring(0, 27) + '...';
-//     }
-//     return this.value;
-//   }
 }

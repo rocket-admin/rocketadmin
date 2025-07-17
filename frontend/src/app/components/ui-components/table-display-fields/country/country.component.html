@@ -1,5 +1,8 @@
 <div class="field-wrapper" *ngIf="value">
-  <span class="value-wrapper" [matTooltip]="value">{{ value }}</span>
+  <span class="value-wrapper" [matTooltip]="value">
+    <!--<span class="country-flag">{{ countryFlag }}</span>-->
+    <span>{{ countryName }}</span>
+  </span>
   <button mat-icon-button class="copy-button" [cdkCopyToClipboard]="value" matTooltip="Copy to clipboard">
     <mat-icon>content_copy</mat-icon>
   </button>

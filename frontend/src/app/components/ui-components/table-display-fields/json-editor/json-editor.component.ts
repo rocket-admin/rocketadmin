@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-json-editor-display',
   templateUrl: './json-editor.component.html',
-  styleUrls: ['./json-editor.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './json-editor.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class JsonEditorDisplayComponent extends BaseTableDisplayFieldComponent {

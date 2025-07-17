@@ -1,27 +1,6 @@
-.field-wrapper {
-  display: flex;
-  align-items: flex-start;
-}
-
 .json-display {
-  max-height: 200px;
-  max-width: 300px;
-  overflow: auto;
-  background-color: #f5f5f5;
+  background-color: #EAEAFF;
   border-radius: 4px;
-  padding: 8px;
-  margin-right: 8px;
-}
-
-pre {
-  margin: 0;
-  white-space: pre-wrap;
-}
-
-.copy-button {
-  visibility: hidden;
-}
-
-.field-wrapper:hover .copy-button {
-  visibility: visible;
+  font-family: monospace;
+  padding: 0 8px;
 }

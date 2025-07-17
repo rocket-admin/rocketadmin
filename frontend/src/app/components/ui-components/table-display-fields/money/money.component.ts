@@ -2,56 +2,60 @@ import { Component, OnInit } from '@angular/core';
 
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CommonModule } from '@angular/common';
-
-interface MoneyValue {
-  amount: number | string;
-  currency: string;
-}
+import { getCurrencyByCode } from 'src/app/consts/currencies';
 
 @Component({
   selector: 'app-money-display',
   templateUrl: './money.component.html',
-  styleUrls: ['./money.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './money.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class MoneyDisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
-  static type = 'money';
-
-  public displayAmount: string = '';
   public displayCurrency: string = '';
+  public currencySymbol: string = '';
 
-  override ngOnInit(): void {
-    super.ngOnInit();
-
-    if (this.value) {
-      if (typeof this.value === 'object' && 'amount' in this.value && 'currency' in this.value) {
-        // Handle MoneyValue object format
-        const moneyValue = this.value as MoneyValue;
-        this.displayAmount = String(moneyValue.amount);
-        this.displayCurrency = moneyValue.currency;
-      } else if (typeof this.value === 'number') {
-        // Handle number format
-        this.displayAmount = String(this.value);
-        this.displayCurrency = 'USD'; // Default currency
-      } else if (typeof this.value === 'string') {
-        // Try to parse as JSON
-        try {
-          const parsedValue = JSON.parse(this.value);
-          if (parsedValue && typeof parsedValue === 'object') {
-            this.displayAmount = String(parsedValue.amount || '');
-            this.displayCurrency = parsedValue.currency || '';
-          } else {
-            this.displayAmount = this.value;
-          }
-        } catch {
-          // If not valid JSON, just display as is
-          this.displayAmount = this.value;
-        }
-      }
+  ngOnInit(): void {
+    // Get currency from widget params
+    this.displayCurrency = '';
+    if (this.widgetStructure && this.widgetStructure.widget_params && this.widgetStructure.widget_params.default_currency) {
+      this.displayCurrency = this.widgetStructure.widget_params.default_currency;
+      const currency = getCurrencyByCode(this.displayCurrency);
+      this.currencySymbol = currency ? currency.symbol : '';
     }
+  }
+
+  get formattedValue(): string {
+    if (!this.value) {
+      return '';
+    }
+
+    let amount: number | string;
+    let currency: string = this.displayCurrency;
+
+    if (typeof this.value === 'object' && this.value.amount !== undefined) {
+      amount = this.value.amount;
+      if (this.value.currency) {
+        currency = this.value.currency;
+        const currencyObj = getCurrencyByCode(currency);
+        this.currencySymbol = currencyObj ? currencyObj.symbol : '';
+      }
+    } else {
+      amount = this.value;
+    }
+
+    if (typeof amount === 'string') {
+      amount = parseFloat(amount);
+    }
+
+    if (isNaN(amount as number)) {
+      return '';
+    }
+
+    const decimalPlaces = this.widgetStructure?.widget_params?.decimal_places ?? 2;
+    return `${this.currencySymbol}${(amount as number).toFixed(decimalPlaces)}`;
   }
 }

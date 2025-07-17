@@ -1,26 +1,8 @@
-.field-wrapper {
-  display: flex;
-  align-items: center;
+.field-display {
+  padding-right: 24px;
 }
 
 .phone-link {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 300px;
   text-decoration: none;
   color: var(--primary-color);
-}
-
-.phone-link:hover {
-  text-decoration: underline;
-}
-
-.copy-button {
-  visibility: hidden;
-  margin-left: 4px;
-}
-
-.field-wrapper:hover .copy-button {
-  visibility: visible;
 }

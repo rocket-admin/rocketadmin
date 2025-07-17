@@ -1,3 +1,4 @@
+import { CURRENCIES, Money, MoneyValue } from 'src/app/consts/currencies';
 import { Component, Input, OnInit } from '@angular/core';
 
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
@@ -6,18 +7,6 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-
-interface Money {
-  code: string;
-  name: string;
-  symbol: string;
-  flag?: string;
-}
-
-interface MoneyValue {
-  amount: number | string;
-  currency: string;
-}
 
 @Component({
   selector: 'app-edit-money',
@@ -39,41 +28,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
   amount: number | string = '';
   displayAmount: string = '';
 
-  currencies: Money[] = [
-    { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸' },
-    { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺' },
-    { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧' },
-    { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵' },
-    { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', flag: '🇨🇭' },
-    { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$', flag: '🇨🇦' },
-    { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', flag: '🇦🇺' },
-    { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', flag: '🇨🇳' },
-    { code: 'INR', name: 'Indian Rupee', symbol: '₹', flag: '🇮🇳' },
-    { code: 'KRW', name: 'South Korean Won', symbol: '₩', flag: '🇰🇷' },
-    { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', flag: '🇸🇬' },
-    { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$', flag: '🇭🇰' },
-    { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr', flag: '🇳🇴' },
-    { code: 'SEK', name: 'Swedish Krona', symbol: 'kr', flag: '🇸🇪' },
-    { code: 'DKK', name: 'Danish Krone', symbol: 'kr', flag: '🇩🇰' },
-    { code: 'PLN', name: 'Polish Zloty', symbol: 'zł', flag: '🇵🇱' },
-    { code: 'CZK', name: 'Czech Koruna', symbol: 'Kč', flag: '🇨🇿' },
-    { code: 'HUF', name: 'Hungarian Forint', symbol: 'Ft', flag: '🇭🇺' },
-    { code: 'RUB', name: 'Russian Ruble', symbol: '₽', flag: '🇷🇺' },
-    { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', flag: '🇧🇷' },
-    { code: 'MXN', name: 'Mexican Peso', symbol: '$', flag: '🇲🇽' },
-    { code: 'ZAR', name: 'South African Rand', symbol: 'R', flag: '🇿🇦' },
-    { code: 'TRY', name: 'Turkish Lira', symbol: '₺', flag: '🇹🇷' },
-    { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ', flag: '🇦🇪' },
-    { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼', flag: '🇸🇦' },
-    { code: 'ILS', name: 'Israeli Shekel', symbol: '₪', flag: '🇮🇱' },
-    { code: 'EGP', name: 'Egyptian Pound', symbol: '£', flag: '🇪🇬' },
-    { code: 'THB', name: 'Thai Baht', symbol: '฿', flag: '🇹🇭' },
-    { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM', flag: '🇲🇾' },
-    { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp', flag: '🇮🇩' },
-    { code: 'PHP', name: 'Philippine Peso', symbol: '₱', flag: '🇵🇭' },
-    { code: 'VND', name: 'Vietnamese Dong', symbol: '₫', flag: '🇻🇳' },
-    { code: 'UAH', name: 'Ukrainian Hryvnia', symbol: '₴', flag: '🇺🇦' }
-  ];
+  currencies: Money[] = CURRENCIES;
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -84,19 +39,19 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
   configureFromWidgetParams(): void {
     if (this.widgetStructure && this.widgetStructure.widget_params) {
       const params = this.widgetStructure.widget_params;
-      
+
       if (typeof params.default_currency === 'string') {
         this.defaultCurrency = params.default_currency;
       }
-      
+
       if (typeof params.show_currency_selector === 'boolean') {
         this.showCurrencySelector = params.show_currency_selector;
       }
-      
+
       if (typeof params.decimal_places === 'number') {
         this.decimalPlaces = Math.max(0, Math.min(10, params.decimal_places));
       }
-      
+
       if (typeof params.allow_negative === 'boolean') {
         this.allowNegative = params.allow_negative;
       }
@@ -128,7 +83,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
     // Try to parse formats like "100.50 USD", "USD 100.50", "$100.50", "€100,50"
     const currencyMatch = stringValue.match(/([A-Z]{3})/);
     const numberMatch = stringValue.match(/([\d,.-]+)/);
-    
+
     if (currencyMatch) {
       this.selectedCurrency = currencyMatch[1];
     } else {
@@ -140,7 +95,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
         this.selectedCurrency = this.defaultCurrency;
       }
     }
-    
+
     if (numberMatch) {
       const cleanNumber = numberMatch[1].replace(/,/g, '');
       this.amount = parseFloat(cleanNumber) || '';
@@ -158,15 +113,15 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
   onAmountChange(): void {
     // Clean and validate the input
     let cleanValue = this.displayAmount.replace(/[^\d.-]/g, '');
-    
+
     // Handle negative values
     if (!this.allowNegative) {
       cleanValue = cleanValue.replace(/-/g, '');
     }
-    
+
     // Parse the number
     const numericValue = parseFloat(cleanValue);
-    
+
     if (!isNaN(numericValue)) {
       this.amount = numericValue;
       // Don't reformat while user is typing to preserve focus
@@ -180,7 +135,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
       // Invalid input, revert to previous value
       this.displayAmount = this.formatAmount(this.amount);
     }
-    
+
     this.updateValue();
   }
 
@@ -195,13 +150,13 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
     if (amount === '' || amount === null || amount === undefined) {
       return '';
     }
-    
+
     const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    
+
     if (isNaN(numericAmount)) {
       return '';
     }
-    
+
     return numericAmount.toFixed(this.decimalPlaces);
   }
 
@@ -220,7 +175,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
         this.value = typeof this.amount === 'string' ? parseFloat(this.amount) || 0 : this.amount;
       }
     }
-    
+
     this.onFieldChange.emit(this.value);
   }
 
@@ -237,10 +192,10 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
     if (!this.amount && this.amount !== 0) {
       return '';
     }
-    
+
     const currency = this.selectedCurrencyData;
     const formattedAmount = this.formatAmount(this.amount);
-    
+
     return `${currency.symbol}${formattedAmount}`;
   }
 

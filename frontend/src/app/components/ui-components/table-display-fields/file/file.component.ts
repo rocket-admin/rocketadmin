@@ -14,7 +14,7 @@ interface Blob {
 @Component({
   selector: 'app-file-display',
   templateUrl: './file.component.html',
-  styleUrls: ['./file.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './file.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class FileDisplayComponent extends BaseTableDisplayFieldComponent {

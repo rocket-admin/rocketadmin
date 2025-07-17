@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-binary-data-caption-display',
   templateUrl: './binary-data-caption.component.html',
-  styleUrls: ['./binary-data-caption.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './binary-data-caption.component.css'],
   imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class BinaryDataCaptionDisplayComponent extends BaseTableDisplayFieldComponent {

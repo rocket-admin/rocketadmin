@@ -1,6 +1,10 @@
-<div class="field-wrapper" *ngIf="formattedInterval">
-  <span class="value-wrapper" [matTooltip]="formattedInterval">{{ formattedInterval }}</span>
-  <button mat-icon-button class="copy-button" [cdkCopyToClipboard]="formattedInterval" matTooltip="Copy to clipboard">
-    <mat-icon>content_copy</mat-icon>
+<div class="field-display">
+  <span class="field-value">{{ formattedInterval }}</span>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="formattedInterval"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(formattedInterval)">
+      <mat-icon>content_copy</mat-icon>
   </button>
 </div>

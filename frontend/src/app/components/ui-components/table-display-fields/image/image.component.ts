@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-image-display',
   templateUrl: './image.component.html',
-  styleUrls: ['./image.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './image.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class ImageDisplayComponent extends BaseTableDisplayFieldComponent {

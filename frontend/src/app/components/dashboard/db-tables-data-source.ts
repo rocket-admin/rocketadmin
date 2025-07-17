@@ -18,8 +18,8 @@ import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { UserService } from 'src/app/services/user.service';
 import { filter } from "lodash";
 import { formatFieldValue } from 'src/app/lib/format-field-value';
-import { normalizeFieldName } from 'src/app/lib/normalize';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
+import { normalizeFieldName } from 'src/app/lib/normalize';
 
 interface Column {
   title: string,

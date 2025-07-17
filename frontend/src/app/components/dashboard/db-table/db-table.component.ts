@@ -270,35 +270,6 @@ export class DbTableComponent implements OnInit {
     return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
   }
 
-  // getFieldDisplayComponent(column: string) {
-  //   // First check if it's a widget or a foreign key
-  //   if (this.isWidget(column)) {
-  //     return this.displayComponents[this.tableData.widgets[column].widget_type?.toLowerCase()];
-  //   }
-
-  //   if (this.isForeignKey(column)) {
-  //     return this.displayComponents['foreign key'];
-  //   }
-
-  //   // Check if it's a primary key
-  //   if (this.tableData.keyAttributes && this.tableData.keyAttributes[0]?.column_name === column) {
-  //     return this.displayComponents['id'];
-  //   }
-
-  //   // Otherwise use the data type from the structure to determine the component
-  //   const field = this.tableData.structure?.find(f => f.column_name === column);
-  //   if (field && field.data_type) {
-  //     // Try to get the specific component for this data type
-  //     const typeComponent = this.displayComponents[field.data_type.toLowerCase()];
-  //     if (typeComponent) {
-  //       return typeComponent;
-  //     }
-  //   }
-
-  //   // Default to text component if we couldn't determine the type
-  //   return this.displayComponents['text'];
-  // }
-
   isForeignKey(column: string) {
     return this.tableData.foreignKeysList.includes(column);
   }
@@ -312,17 +283,6 @@ export class DbTableComponent implements OnInit {
   isWidget(column: string) {
     if (this.tableData.widgetsList) return this.tableData.widgetsList.includes(column);
   }
-
-  // getWidgetValue(column: string, value: string) {
-  //   if (this.tableData.widgets[column].widget_type === 'Select') {
-  //     const fieldOptions = this.tableData.widgets[column].widget_params.options;
-  //     if (fieldOptions) {
-  //       const cellValue = fieldOptions.find(option => option.value === value);
-  //         if (cellValue) return cellValue.label
-  //     }
-  //   }
-  //   return value;
-  // }
 
   getCellValue(foreignKey: TableForeignKey, cell) {
     const identityColumnName = Object.keys(cell).find(key => key !== foreignKey.referenced_column_name);

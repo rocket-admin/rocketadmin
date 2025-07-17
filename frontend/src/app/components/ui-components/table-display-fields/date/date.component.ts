@@ -10,22 +10,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-date-display',
   templateUrl: './date.component.html',
-  styleUrls: ['./date.component.css'],
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './date.component.css'],
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class DateDisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
   static type = 'date';
-  
+
   public formattedDate: string;
-  
-  override ngOnInit(): void {
-    super.ngOnInit();
-    
+
+  ngOnInit(): void {
     if (this.value) {
       try {
         const date = new Date(this.value);
         if (!isNaN(date.getTime())) {
-          this.formattedDate = format(date, 'yyyy-MM-dd');
+          this.formattedDate = format(date, "P");
         } else {
           this.formattedDate = this.value;
         }

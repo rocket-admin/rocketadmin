@@ -1,14 +1,3 @@
-.field-display {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.field-value {
-  flex-grow: 1;
-  width: 100%;
-}
-
 .foreign-key-button {
   background: transparent;
   border: 1px solid transparent;
@@ -35,16 +24,4 @@
   border: 1px solid var(--color-accentedPalette-300);
 }
 
-.field-copy-button {
-  display: none;
-}
 
-.field-display:hover .field-copy-button {
-  display: block !important;
-  position: absolute;
-  right: -6px;
-  top: 50%;
-  display: none;
-  transform: translate(0, -50%) scale(0.85);
-  background-color: var(--hover-color);
-}
