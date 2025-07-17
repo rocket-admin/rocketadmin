@@ -91,6 +91,10 @@ html {
   box-shadow: 0 3px 1px -2px #0003,0 2px 2px #00000024,0 1px 5px #0000001f;
 }
 
+.mat-mdc-form-field-bottom-align::before {
+  margin-left: -3px;
+}
+
 $button-custom-level: mat.m2-define-typography-level(
   $font-family: 'Noto Sans',
   $font-weight: 500,
