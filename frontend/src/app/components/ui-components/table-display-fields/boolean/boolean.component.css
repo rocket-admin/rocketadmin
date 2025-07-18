@@ -1,0 +1,27 @@
+.boolean-icon {
+  transform: scale(0.85);
+}
+
+@media (prefers-color-scheme: light) {
+  .boolean-icon-true {
+    color: #1B5E20;
+  }
+
+  .boolean-icon-false {
+    color: #B71C1C;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .boolean-icon-true {
+    color: #4CAF50;
+  }
+
+  .boolean-icon-false {
+    color: #E53935;
+  }
+}
+
+
+
+

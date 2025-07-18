@@ -1,0 +1,26 @@
+.field-display {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-value {
+  flex-grow: 1 0 auto;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.field-copy-button {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  background-color: var(--hover-color);
+  transform: translate(0, -50%) scale(0.85);
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+}
+
+.field-display:hover .field-copy-button {
+  opacity: 1;
+}

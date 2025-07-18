@@ -216,81 +216,39 @@
                 <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
                 <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
                     <div class="table-cell-content">
-                        <span *ngIf="isForeignKey(column); else contentCell" class="field-value field-value_foreign-key">
-                            <!--<a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
-                                class="foreign-key-link"
-                                [queryParams]="getForeignKeyQueryParams(tableData.foreignKeys[column], element[column])">
-                                {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
-                            </a>-->
-                            <button class="foreign-key-button" type="button"
-                                [ngClass]="{'foreign-key-button_selected': isForeignKeySelected(element[column], tableData.foreignKeys[column])}"
-                                (click)="handleForeignKeyView($event, tableData.foreignKeys[column], element[column])">
-                                {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
-                            </button>
-                            <button type="button" mat-icon-button
-                                class="field-value-copy-button"
-                                matTooltip="Copy"
-                                [cdkCopyToClipboard]="getCellValue(tableData.foreignKeys[column], element[column])"
-                                (click)="$event.stopPropagation()"
-                                (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
-                                <mat-icon>content_copy</mat-icon>
-                            </button>
-                        </span>
+                        <ng-container *ngIf="isForeignKey(column); else contentCell">
+                            <app-display-foreign-key
+                                [key]="i"
+                                [relations]="tableData.foreignKeys[column]"
+                                [value]="getCellValue(tableData.foreignKeys[column], element[column])"
+                                [isSelected]="isForeignKeySelected(element[column], tableData.foreignKeys[column])"
+                                (onForeignKeyClick)="handleForeignKeyView(tableData.foreignKeys[column], element[column])"
+                                (onCopyToClipboard)="showCopyNotification('Field value was copied to clipboard.')">
+                            </app-display-foreign-key>
+                        </ng-container>
                         <ng-template #contentCell>
-                            <div *ngIf="isWidget(column); else simpleValue" class="field-value">
-                                <img *ngIf="tableData.widgets[column].widget_type === 'Image' && element[column]"
-                                    [src]="element[column]"
-                                    [style.--height.px]="tableData.widgets[column].widget_params.height"
-                                    class="field-image">
-
-                                <a *ngIf="tableData.widgets[column].widget_type === 'URL' && element[column]"
-                                    target="_blank"
-                                    [href]="element[column]"
-                                    class="field-link"
-                                    (click)="$event.stopPropagation()"
-                                    >
-                                    <mat-icon class="field-link__icon" fontSet="material-icons-outlined">link</mat-icon>
-                                    <span>{{element[column]}}</span>
-                                </a>
-
-                                <span *ngIf="tableData.widgets[column].widget_type !== 'URL'">{{ getWidgetValue(column, element[column]) }}</span>
-
-                                <button type="button" mat-icon-button
-                                    class="field-value-copy-button"
-                                    matTooltip="Copy"
-                                    [cdkCopyToClipboard]="getWidgetValue(column, element[column])"
-                                    (click)="$event.stopPropagation()"
-                                    (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
-                                    <mat-icon>content_copy</mat-icon>
-                                </button>
-                            </div>
+                            <ndc-dynamic *ngIf="isWidget(column) && tableData.widgets[column].widget_type; else simpleValue"
+                                [ndcDynamicComponent]="UIwidgets[tableData.widgets[column].widget_type]"
+                                [ndcDynamicInputs]="{
+                                    key: i,
+                                    value: element[column],
+                                    widgetStructure: tableData.widgets[column]
+                                }"
+                                [ndcDynamicOutputs]="{
+                                    onCopyToClipboard: { handler: showCopyNotification, args: ['$event'] }
+                                }">
+                            </ndc-dynamic>
                             <ng-template #simpleValue>
-                                <span *ngIf="tableData.keyAttributes[0]?.column_name === column; else nonPrimaryKey"
-                                    attr.data-testid="table-primary-key-{{i}}-cell"
-                                    class="field-value">
-                                    {{element[column] || '—'}}
-                                    <button type="button" mat-icon-button
-                                        class="field-value-copy-button"
-                                        matTooltip="Copy"
-                                        [cdkCopyToClipboard]="element[column]"
-                                        (click)="$event.stopPropagation()"
-                                        (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
-                                        <mat-icon>content_copy</mat-icon>
-                                    </button>
-                                </span>
-                                <ng-template #nonPrimaryKey>
-                                    <span class="field-value">
-                                        {{element[column] || '—'}}
-                                        <button type="button" mat-icon-button
-                                            class="field-value-copy-button"
-                                            matTooltip="Copy"
-                                            [cdkCopyToClipboard]="element[column]"
-                                            (click)="$event.stopPropagation()"
-                                            (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
-                                            <mat-icon>content_copy</mat-icon>
-                                        </button>
-                                    </span>
-                                </ng-template>
+                                <ndc-dynamic
+                                    [ndcDynamicComponent]="displayCellComponents[tableData.tableTypes[column]]"
+                                    [ndcDynamicInputs]="{
+                                        key: i,
+                                        value: element[column]
+                                    }"
+                                    [ndcDynamicOutputs]="{
+                                        onCopyToClipboard: { handler: showCopyNotification, args: [ '$event' ] }
+                                    }">
+                                </ndc-dynamic>
                             </ng-template>
                         </ng-template>
                     </div>

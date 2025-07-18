@@ -6,7 +6,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
-import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
+import { UIwidgets, defaultTimestampValues, recordEditTypes, timestampTypes } from 'src/app/consts/record-edit-types';
 import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -436,7 +436,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   get inputs() {
-    return fieldTypes[this.connectionType]
+    return recordEditTypes[this.connectionType]
   }
 
   get currentConnection() {
@@ -547,7 +547,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     if (this.connectionType === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes)
-        .filter(([key, value]) => value === 'datetime');
+        .filter(([key, value]) => value === 'datetime' || value === 'timestamp');
       if (datetimeFields.length) {
         for (const datetimeField of datetimeFields) {
           if (updatedRow[datetimeField[0]]) {
