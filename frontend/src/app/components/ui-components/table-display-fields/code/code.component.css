@@ -1,0 +1,12 @@
+.field-value {
+  background-color: #EAEAFF;
+  border-radius: 4px;
+  font-family: monospace;
+  padding: 0 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .field-value {
+    background-color: #2C2C54;
+  }
+}

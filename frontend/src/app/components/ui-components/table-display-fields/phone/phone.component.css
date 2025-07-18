@@ -1,0 +1,8 @@
+.field-display {
+  padding-right: 24px;
+}
+
+.phone-link {
+  text-decoration: none;
+  color: var(--primary-color);
+}

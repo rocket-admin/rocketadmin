@@ -1,0 +1,14 @@
+.url-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-primaryPalette-500);
+}
+
+.url-link__icon {
+    flex-shrink: 0;
+    margin-bottom: -2px;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}

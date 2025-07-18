@@ -5,11 +5,11 @@
     <form action="" #connectForm="ngForm" class="form"
         (ngSubmit)="handleCredentialsSubmitting(connectForm)">
         <h1 class="mat-h1 connectForm__fullLine">
-            {{ connectionID ? 'Edit credentials' : 'Connect a database' }}
+            {{ connectionID ? 'Edit credentials' : 'Connect database' }}
         </h1>
 
         <mat-form-field appearance="outline" class="connectForm__title">
-            <mat-label>Connection title</mat-label>
+            <mat-label>Connection name</mat-label>
             <input matInput name="title" #title="ngModel"
                 data-testid="connection-title-input"
                 angulartics2On="change"
@@ -44,7 +44,7 @@
             <mat-button-toggle-group name="connectionType"
                 data-testid="connection-type-toggle"
                 class="connectForm__typeSwitch"
-                [disabled]="submitting || db.isTestConnection"
+                [disabled]="submitting || db.isTestConnection || db.type === 'dynamodb'"
                 [(ngModel)]="db.connectionType">
                 <mat-button-toggle value="direct">Direct connection</mat-button-toggle>
                 <mat-button-toggle value="agent">Agent connection</mat-button-toggle>
@@ -57,18 +57,18 @@
             <div *ngIf="connectionID; else warningAlert" class="warningMessage">
                 <mat-icon class="warningMessage__icon">warning_amber</mat-icon>
                 <div class="mat-body-1">
-                    Please make sure our servers are able to access your database. <br/> Rocketadmin uses
+                    Please make sure our servers are able to access your database. <br/> Rocketadmin uses the IP address
                     <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
-                    IP address for all outbound requests.
+                    for all outbound requests.
                 </div>
             </div>
 
             <ng-template #warningAlert>
                 <app-alert [alert]="warning">
                     <div class="mat-body-1" style="margin-bottom: 0">
-                        Please make sure our servers are able to access your database. <br/> Rocketadmin uses
+                        Please make sure our servers are able to access your database. <br/> Rocketadmin uses the IP address
                         <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
-                        IP address for all outbound requests.
+                        for all outbound requests.
                     </div>
                 </app-alert>
             </ng-template>
@@ -173,7 +173,7 @@
 
             <div class="instruction__docker">
                 <p class="mat-body-1">
-                    Visit our DockerHub page to install the Rocketadmin agent via Docker.
+                    Visit our DockerHub page to install the Rocketadmin agent.
                 </p>
 
                 <a mat-flat-button color="accent" class="github-button"
