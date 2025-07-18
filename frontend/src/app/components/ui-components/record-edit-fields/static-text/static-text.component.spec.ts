@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StaticTextRowComponent } from './static-text.component';
+import { StaticTextEditComponent } from './static-text.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('StaticTextRowComponent', () => {
-  let component: StaticTextRowComponent;
-  let fixture: ComponentFixture<StaticTextRowComponent>;
+describe('StaticTextEditComponent', () => {
+  let component: StaticTextEditComponent;
+  let fixture: ComponentFixture<StaticTextEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StaticTextRowComponent, BrowserAnimationsModule]
+      imports: [StaticTextEditComponent, BrowserAnimationsModule]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(StaticTextRowComponent);
+    fixture = TestBed.createComponent(StaticTextEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

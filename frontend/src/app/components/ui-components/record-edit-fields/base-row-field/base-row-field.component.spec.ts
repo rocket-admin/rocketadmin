@@ -1,17 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BaseRowFieldComponent } from './base-row-field.component';
+import { BaseEditFieldComponent } from './base-row-field.component';
 
-describe('BaseRowFieldComponent', () => {
-  let component: BaseRowFieldComponent;
-  let fixture: ComponentFixture<BaseRowFieldComponent>;
+describe('BaseEditFieldComponent', () => {
+  let component: BaseEditFieldComponent;
+  let fixture: ComponentFixture<BaseEditFieldComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BaseRowFieldComponent]
+      imports: [BaseEditFieldComponent]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BaseRowFieldComponent);
+
+    fixture = TestBed.createComponent(BaseEditFieldComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

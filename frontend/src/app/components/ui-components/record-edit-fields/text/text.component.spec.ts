@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TextRowComponent } from './text.component';
+import { TextEditComponent } from './text.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('TextRowComponent', () => {
-  let component: TextRowComponent;
-  let fixture: ComponentFixture<TextRowComponent>;
+describe('TextEditComponent', () => {
+  let component: TextEditComponent;
+  let fixture: ComponentFixture<TextEditComponent>;
 
   beforeEach(async() => {
     await TestBed.configureTestingModule({
-    imports: [TextRowComponent, BrowserAnimationsModule]
+    imports: [TextEditComponent, BrowserAnimationsModule]
   }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TextRowComponent);
+    fixture = TestBed.createComponent(TextEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

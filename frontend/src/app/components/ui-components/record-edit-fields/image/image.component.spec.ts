@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ImageRowComponent } from './image.component';
+import { ImageEditComponent } from './image.component';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('ImageComponent', () => {
-  let component: ImageRowComponent;
-  let fixture: ComponentFixture<ImageRowComponent>;
+  let component: ImageEditComponent;
+  let fixture: ComponentFixture<ImageEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [
         FormsModule,
-        ImageRowComponent,
+        ImageEditComponent,
         BrowserAnimationsModule
     ]}).compileComponents();
 
-    fixture = TestBed.createComponent(ImageRowComponent);
+    fixture = TestBed.createComponent(ImageEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

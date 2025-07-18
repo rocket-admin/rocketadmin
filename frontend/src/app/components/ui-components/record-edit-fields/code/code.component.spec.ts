@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CodeRowComponent } from './code.component';
+import { CodeEditComponent } from './code.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { provideHttpClient } from '@angular/common/http';
 
 describe('CodeComponent', () => {
-  let component: CodeRowComponent;
-  let fixture: ComponentFixture<CodeRowComponent>;
+  let component: CodeEditComponent;
+  let fixture: ComponentFixture<CodeEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CodeRowComponent, BrowserAnimationsModule],
+      imports: [CodeEditComponent, BrowserAnimationsModule],
       providers: [provideHttpClient()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CodeRowComponent);
+    fixture = TestBed.createComponent(CodeEditComponent);
     component = fixture.componentInstance;
 
     component.widgetStructure = {

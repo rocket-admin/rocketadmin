@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormsModule } from '@angular/forms';
-import { IdRowComponent } from './id.component';
+import { IdEditComponent } from './id.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('IdRowComponent', () => {
-  let component: IdRowComponent;
-  let fixture: ComponentFixture<IdRowComponent>;
+describe('IdEditComponent', () => {
+  let component: IdEditComponent;
+  let fixture: ComponentFixture<IdEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FormsModule, IdRowComponent, BrowserAnimationsModule]
+      imports: [FormsModule, IdEditComponent, BrowserAnimationsModule]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IdRowComponent);
+    fixture = TestBed.createComponent(IdEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TimeIntervalRowComponent } from './time-interval.component';
+import { TimeIntervalEditComponent } from './time-interval.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('TimeIntervalRowComponent', () => {
-  let component: TimeIntervalRowComponent;
-  let fixture: ComponentFixture<TimeIntervalRowComponent>;
+describe('TimeIntervalEditComponent', () => {
+  let component: TimeIntervalEditComponent;
+  let fixture: ComponentFixture<TimeIntervalEditComponent>;
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [TimeIntervalRowComponent, BrowserAnimationsModule]
-  }).compileComponents();
+      imports: [TimeIntervalEditComponent, BrowserAnimationsModule]
+    }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TimeIntervalRowComponent);
+    fixture = TestBed.createComponent(TimeIntervalEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

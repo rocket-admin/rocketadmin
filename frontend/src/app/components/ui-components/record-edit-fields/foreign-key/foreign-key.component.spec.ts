@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ForeignKeyRowComponent } from './foreign-key.component';
+import { ForeignKeyEditComponent } from './foreign-key.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -11,9 +11,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
-describe('ForeignKeyRowComponent', () => {
-  let component: ForeignKeyRowComponent;
-  let fixture: ComponentFixture<ForeignKeyRowComponent>;
+describe('ForeignKeyEditComponent', () => {
+  let component: ForeignKeyEditComponent;
+  let fixture: ComponentFixture<ForeignKeyEditComponent>;
   let tablesService: TablesService;
 
   const structureNetwork = [
@@ -127,7 +127,7 @@ describe('ForeignKeyRowComponent', () => {
         MatAutocompleteModule,
         MatDialogModule,
         Angulartics2Module.forRoot(),
-        ForeignKeyRowComponent,
+        ForeignKeyEditComponent,
         BrowserAnimationsModule
       ],
       providers: [provideHttpClient(), provideRouter([])]
@@ -135,7 +135,7 @@ describe('ForeignKeyRowComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ForeignKeyRowComponent);
+    fixture = TestBed.createComponent(ForeignKeyEditComponent);
     component = fixture.componentInstance;
     component.relations = fakeRelations;
     tablesService = TestBed.inject(TablesService);

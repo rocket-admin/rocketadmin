@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SelectRowComponent } from './select.component';
+import { SelectEditComponent } from './select.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('SelectRowComponent', () => {
-  let component: SelectRowComponent;
-  let fixture: ComponentFixture<SelectRowComponent>;
+describe('SelectEditComponent', () => {
+  let component: SelectEditComponent;
+  let fixture: ComponentFixture<SelectEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SelectRowComponent, BrowserAnimationsModule]
+      imports: [SelectEditComponent, BrowserAnimationsModule]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SelectRowComponent);
+    fixture = TestBed.createComponent(SelectEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

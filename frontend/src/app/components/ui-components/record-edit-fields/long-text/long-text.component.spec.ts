@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LongTextRowComponent } from './long-text.component';
+import { LongTextEditComponent } from './long-text.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('LongTextRowComponent', () => {
-  let component: LongTextRowComponent;
-  let fixture: ComponentFixture<LongTextRowComponent>;
+describe('LongTextEditComponent', () => {
+  let component: LongTextEditComponent;
+  let fixture: ComponentFixture<LongTextEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LongTextRowComponent, BrowserAnimationsModule]
+      imports: [LongTextEditComponent, BrowserAnimationsModule]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LongTextRowComponent);
+    fixture = TestBed.createComponent(LongTextEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

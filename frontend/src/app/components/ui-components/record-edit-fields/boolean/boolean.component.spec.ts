@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BooleanRowComponent } from './boolean.component';
+import { BooleanEditComponent } from './boolean.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 
-describe('BooleanRowComponent', () => {
-  let component: BooleanRowComponent;
-  let fixture: ComponentFixture<BooleanRowComponent>;
+describe('BooleanEditComponent', () => {
+  let component: BooleanEditComponent;
+  let fixture: ComponentFixture<BooleanEditComponent>;
 
   const fakeStructure = {
     "column_name": "banned",
@@ -26,7 +26,7 @@ describe('BooleanRowComponent', () => {
       imports: [
         MatSnackBarModule,
         MatDialogModule,
-        BooleanRowComponent,
+        BooleanEditComponent,
         BrowserAnimationsModule
       ],
       providers: [provideHttpClient()]
@@ -34,7 +34,7 @@ describe('BooleanRowComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BooleanRowComponent);
+    fixture = TestBed.createComponent(BooleanEditComponent);
     component = fixture.componentInstance;
   });
 

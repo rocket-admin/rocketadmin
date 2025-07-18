@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PasswordRowComponent } from './password.component';
+import { PasswordEditComponent } from './password.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('PasswordRowComponent', () => {
-  let component: PasswordRowComponent;
-  let fixture: ComponentFixture<PasswordRowComponent>;
+describe('PasswordEditComponent', () => {
+  let component: PasswordEditComponent;
+  let fixture: ComponentFixture<PasswordEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PasswordRowComponent, BrowserAnimationsModule]
+      imports: [PasswordEditComponent, BrowserAnimationsModule]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PasswordRowComponent);
+    fixture = TestBed.createComponent(PasswordEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

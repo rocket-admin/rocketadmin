@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DateRowComponent } from './date.component';
+import { DateEditComponent } from './date.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('DateRowComponent', () => {
-  let component: DateRowComponent;
-  let fixture: ComponentFixture<DateRowComponent>;
+describe('DateEditComponent', () => {
+  let component: DateEditComponent;
+  let fixture: ComponentFixture<DateEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DateRowComponent, BrowserAnimationsModule]
+      imports: [DateEditComponent, BrowserAnimationsModule]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DateRowComponent);
+    fixture = TestBed.createComponent(DateEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

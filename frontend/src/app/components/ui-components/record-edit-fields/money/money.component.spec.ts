@@ -6,16 +6,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MoneyRowComponent } from './money.component';
+import { MoneyEditComponent } from './money.component';
 
-describe('MoneyRowComponent', () => {
-  let component: MoneyRowComponent;
-  let fixture: ComponentFixture<MoneyRowComponent>;
+describe('MoneyEditComponent', () => {
+  let component: MoneyEditComponent;
+  let fixture: ComponentFixture<MoneyEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        MoneyRowComponent,
+        MoneyEditComponent,
         CommonModule,
         FormsModule,
         MatFormFieldModule,
@@ -25,7 +25,7 @@ describe('MoneyRowComponent', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MoneyRowComponent);
+    fixture = TestBed.createComponent(MoneyEditComponent);
     component = fixture.componentInstance;
     
     // Set required properties from base component

@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DBtype } from 'src/app/models/connection';
-import { DateTimeRowComponent } from './date-time.component';
+import { DateTimeEditComponent } from './date-time.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 
-describe('DateTimeRowComponent', () => {
-  let component: DateTimeRowComponent;
-  let fixture: ComponentFixture<DateTimeRowComponent>;
+describe('DateTimeEditComponent', () => {
+  let component: DateTimeEditComponent;
+  let fixture: ComponentFixture<DateTimeEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
         MatSnackBarModule,
         MatDialogModule,
-        DateTimeRowComponent,
+        DateTimeEditComponent,
         BrowserAnimationsModule
       ],
       providers: [provideHttpClient()]
@@ -24,7 +24,7 @@ describe('DateTimeRowComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DateTimeRowComponent);
+    fixture = TestBed.createComponent(DateTimeEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
