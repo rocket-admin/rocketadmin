@@ -136,7 +136,8 @@ export class DbTableWidgetsComponent implements OnInit {
 // example:
 
 {
-  "algorithm": "sha224"
+  "encrypt": true,
+  "algorithm": "sha256"
 }
 
 `,
