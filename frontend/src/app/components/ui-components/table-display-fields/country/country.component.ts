@@ -26,7 +26,7 @@ export class CountryDisplayComponent extends BaseTableDisplayFieldComponent impl
       this.countryName = country ? country.name : this.value;
       this.countryFlag = getCountryFlag(this.value);
     } else {
-      this.countryName = '';
+      this.countryName = '—';
       this.countryFlag = '';
     }
   }

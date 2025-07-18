@@ -19,7 +19,6 @@ export class DateTimeDisplayComponent extends BaseTableDisplayFieldComponent imp
   public formattedDateTime: string;
 
   ngOnInit(): void {
-    console.log('DateTimeDisplayComponent initialized with value:', this.value);
     if (this.value) {
       try {
         const date = new Date(this.value);

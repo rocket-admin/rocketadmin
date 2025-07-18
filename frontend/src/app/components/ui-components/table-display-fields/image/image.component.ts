@@ -13,7 +13,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class ImageDisplayComponent extends BaseTableDisplayFieldComponent {
-
   get isUrl(): boolean {
     if (!this.value) return false;
     try {

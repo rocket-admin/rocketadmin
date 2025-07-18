@@ -13,11 +13,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class JsonEditorDisplayComponent extends BaseTableDisplayFieldComponent {
-  static type = 'json-editor';
-  
   get formattedJson(): string {
     if (!this.value) return '';
-    
+
     try {
       const parsedValue = typeof this.value === 'string' ? JSON.parse(this.value) : this.value;
       return JSON.stringify(parsedValue, null, 2);

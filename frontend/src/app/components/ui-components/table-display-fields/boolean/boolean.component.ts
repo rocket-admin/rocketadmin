@@ -15,6 +15,4 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class BooleanDisplayComponent extends BaseTableDisplayFieldComponent {
-  // Value is inherited from base component
-  static type = 'boolean';
 }

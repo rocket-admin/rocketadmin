@@ -18,12 +18,10 @@ interface Blob {
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class FileDisplayComponent extends BaseTableDisplayFieldComponent {
-  static type = 'file';
-  
   get isBlob(): boolean {
     return typeof this.value === 'object' && this.value !== null && 'type' in this.value && 'data' in this.value;
   }
-  
+
   get displayText(): string {
     if (this.isBlob) {
       return 'Binary Data';

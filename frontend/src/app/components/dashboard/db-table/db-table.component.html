@@ -235,7 +235,7 @@
                                     widgetStructure: tableData.widgets[column]
                                 }"
                                 [ndcDynamicOutputs]="{
-                                    onCopyToClipboard: { handler: showCopyNotification, args: ['Field value was copied to clipboard.'] }
+                                    onCopyToClipboard: { handler: showCopyNotification, args: ['$event'] }
                                 }">
                             </ndc-dynamic>
                             <ng-template #simpleValue>
@@ -246,7 +246,7 @@
                                         value: element[column]
                                     }"
                                     [ndcDynamicOutputs]="{
-                                        onCopyToClipboard: { handler: showCopyNotification, args: ['Field value was copied to clipboard.'] }
+                                        onCopyToClipboard: { handler: showCopyNotification, args: [ '$event' ] }
                                     }">
                                 </ndc-dynamic>
                             </ng-template>

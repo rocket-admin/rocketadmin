@@ -12,5 +12,4 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class BinaryDataCaptionDisplayComponent extends BaseTableDisplayFieldComponent {
-  static type = 'binary_data_caption';
 }

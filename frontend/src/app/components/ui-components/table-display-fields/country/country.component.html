@@ -1,9 +1,14 @@
-<div class="field-wrapper" *ngIf="value">
-  <span class="value-wrapper" [matTooltip]="value">
+<div class="field-display">
+  <span class="field-value">
     <!--<span class="country-flag">{{ countryFlag }}</span>-->
     <span>{{ countryName }}</span>
   </span>
-  <button mat-icon-button class="copy-button" [cdkCopyToClipboard]="value" matTooltip="Copy to clipboard">
-    <mat-icon>content_copy</mat-icon>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="countryName"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Field value was copied to clipboard.')"
+      (click)="$event.stopPropagation()">
+      <mat-icon>content_copy</mat-icon>
   </button>
 </div>

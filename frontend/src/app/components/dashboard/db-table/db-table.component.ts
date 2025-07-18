@@ -538,7 +538,7 @@ export class DbTableComponent implements OnInit {
     return false;
   }
 
-  showCopyNotification(message: string, value?: string) {
+  showCopyNotification = (message: string) => {
     this._notifications.showSuccessSnackbar(message);
   }
 

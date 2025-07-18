@@ -3,8 +3,9 @@
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy"
-      [cdkCopyToClipboard]="value"
-      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit(value)">
+      [cdkCopyToClipboard]="displayValue"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Field value was copied to clipboard.')"
+      (click)="$event.stopPropagation()">
       <mat-icon>content_copy</mat-icon>
   </button>
 </div>
