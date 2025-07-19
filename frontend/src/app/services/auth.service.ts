@@ -31,7 +31,7 @@ export class AuthService {
         map(res => {
           if ((environment as any).saas) {
             // @ts-ignore
-            fbq('trackCustom', 'Signup');
+            window.fbq?.('trackCustom', 'Signup');
           }
           this._notifications.showSuccessSnackbar(`Confirmation email has been sent to you.`);
           this.auth.next(res);
