@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import convert from 'convert';
 
 @Component({
   selector: 'app-display-number',
@@ -12,4 +13,24 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class NumberDisplayComponent extends BaseTableDisplayFieldComponent {
+  
+  get displayValue(): string {
+    if (this.value == null || this.value === '') {
+      return '—';
+    }
+
+    const unit = this.widgetStructure?.widget_params?.unit;
+    
+    if (!unit) {
+      return this.value.toString();
+    }
+
+    try {
+      const convertedValue = convert(parseFloat(this.value), unit).to('best');
+      return convertedValue.toString(2);
+    } catch (error) {
+      console.warn('Unit conversion failed:', error);
+      return this.value.toString();
+    }
+  }
 }
