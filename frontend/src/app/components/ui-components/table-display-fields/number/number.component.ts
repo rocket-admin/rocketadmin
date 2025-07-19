@@ -27,7 +27,9 @@ export class NumberDisplayComponent extends BaseTableDisplayFieldComponent {
 
     try {
       const convertedValue = convert(parseFloat(this.value), unit).to('best');
-      return convertedValue.toString(2);
+      // Format number to max 2 decimal places without trailing zeros
+      const formattedQuantity = parseFloat(convertedValue.quantity.toFixed(2)).toString();
+      return `${formattedQuantity} ${convertedValue.unit}`;
     } catch (error) {
       console.warn('Unit conversion failed:', error);
       return this.value.toString();
