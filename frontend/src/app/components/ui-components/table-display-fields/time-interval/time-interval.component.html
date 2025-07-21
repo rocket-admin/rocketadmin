@@ -1,0 +1,11 @@
+<div class="field-display">
+  <span class="field-value">{{ formattedInterval }}</span>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="formattedInterval"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Field value was copied to clipboard.')"
+      (click)="$event.stopPropagation()">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

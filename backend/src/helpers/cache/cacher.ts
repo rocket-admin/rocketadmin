@@ -1,11 +1,11 @@
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { Knex } from 'knex';
 import { LRUCache } from 'lru-cache';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
-import { Constants } from '../constants/constants.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
-import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { isSaaS } from '../app/is-saas.js';
+import { Constants } from '../constants/constants.js';
 
 const knexCache = new LRUCache(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRUCache(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);

@@ -107,8 +107,8 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
                 foreignKeyMap[fk.column_name] = fk.referenced_column_name;
               }
 
-              const tableWidgetsNameMap = Object.keys(res.widgets).reduce((acc, key) => {
-                acc[key] = res.widgets[key].name;
+              const tableWidgetsNameMap = res.widgets.reduce((acc, widget: Widget) => {
+                acc[widget.field_name] = widget.name;
                 return acc;
               }, {});
 
@@ -244,8 +244,13 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
 
   getForeignKeyQueryParams(field: string) {
     if (this.selectedRow) {
-      const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
-      return {[this.selectedRow.foreignKeys[field]?.referenced_column_name]: this.selectedRow.record[field][referencedColumnName]}
+      const referencedColumnName = this.selectedRow.foreignKeys[field]?.referenced_column_name;
+
+      if (typeof this.selectedRow.record[field] === 'object') {
+        return {[referencedColumnName]: this.selectedRow.record[field][referencedColumnName]}
+      } else {
+        return {[referencedColumnName]: this.selectedRow.record[field]};
+      }
     };
     return {};
   }

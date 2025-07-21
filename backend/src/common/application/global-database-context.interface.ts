@@ -45,13 +45,15 @@ import { CompanyFaviconEntity } from '../../entities/company-favicon/company-fav
 import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-tab-title.entity.js';
 import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
 import { ITableFiltersCustomRepository } from '../../entities/table-filters/repository/table-filters-custom-repository.interface.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
   connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
   groupRepository: IGroupRepository;
   permissionRepository: IPermissionRepository;
-  tableSettingsRepository: ITableSettingsRepository;
+  tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
   userAccessRepository: IUserAccessRepository;
   agentRepository: IAgentRepository;
   emailVerificationRepository: IEmailVerificationRepository;
@@ -63,7 +65,7 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableLogsRepository: ITableLogsRepository;
   userActionRepository: IUserActionRepository;
   logOutRepository: ILogOutRepository;
-  tableWidgetsRepository: ITableWidgetsRepository;
+  tableWidgetsRepository: Repository<TableWidgetEntity> & ITableWidgetsRepository;
   tableInfoRepository: Repository<TableInfoEntity>;
   tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
   tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;

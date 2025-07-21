@@ -30,7 +30,7 @@
             <span *ngIf="connectionAccess === 'edit' || group.title === 'Admin'">Full access</span>
             <div class="tables-options">
                 <button mat-button type="button" *ngIf="!(connectionAccess === 'edit' || group.title === 'Admin')"
-                    (click)="grantFullTableAccess()">
+                    (click)="grantFullTableAccess()" data-testid="full-access-button">
                         Full access
                 </button>
 
@@ -52,7 +52,7 @@
                     <div>Edit</div>
                 </div>
 
-                <div *ngFor="let table of tablesAccess; let i = index" class="tables-list__item">
+                <div *ngFor="let table of tablesAccess; let i = index" class="tables-list__item" [attr.data-testid]="'table-row-' + table.tableName">
                     <div style="display: contents;">
                         <div class="tableVisibility">
                             <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"
@@ -76,7 +76,8 @@
                             [disabled]="!table.accessLevel.visibility"
                             (change)="uncheckActions(table)"
                             [(ngModel)]="table.accessLevel.readonly"
-                            (click)="onVisibilityChange($event, i)">
+                            (click)="onVisibilityChange($event, i)"
+                            [attr.data-testid]="table.tableName + '-readonly-toggle'">
                         </mat-slide-toggle>
                         <div (click)="onRecordActionPermissionChange('add', i)">
                             <mat-checkbox name="{{table.tableName}}-add"

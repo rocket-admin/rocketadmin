@@ -329,4 +329,30 @@ export class CLIQuestionUtility {
       }
     }
   }
+
+  public static askConnectionDataCenter(): string {
+    const connectionDataCenter = readlineSync.question(Messages.INTRO_MESSAGES.CONNECTION_DATACENTER_MESSAGE).trim();
+    if (connectionDataCenter === Constants.CLI_QUIT_COMMAND) {
+      console.log(Messages.INTRO_MESSAGES.APPLICATION_CLI_QUIT);
+      process.exit(0);
+    }
+    if (!connectionDataCenter || connectionDataCenter.length <= 0) {
+      return null;
+    } else {
+      return connectionDataCenter;
+    }
+  }
+
+  public static askConnectionAuthSource(): string {
+    const connectionAuthSource = readlineSync.question(Messages.INTRO_MESSAGES.CONNECTION_AUTH_SOURCE_MESSAGE).trim();
+    if (connectionAuthSource === Constants.CLI_QUIT_COMMAND) {
+      console.log(Messages.INTRO_MESSAGES.APPLICATION_CLI_QUIT);
+      process.exit(0);
+    }
+    if (!connectionAuthSource || connectionAuthSource.length <= 0) {
+      return null;
+    } else {
+      return connectionAuthSource;
+    }
+  }
 }

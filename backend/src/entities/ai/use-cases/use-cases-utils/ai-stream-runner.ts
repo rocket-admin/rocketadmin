@@ -61,6 +61,7 @@ export class AiStreamsRunner {
     this.toolArgumentName = this.isMongoDB ? 'pipeline' : 'query';
     if (this.response) {
       this.response.setHeader('X-OpenAI-Thread-ID', this.thread_in_db_id);
+      this.response.setHeader('Access-Control-Expose-Headers', 'X-OpenAI-Thread-ID');
     }
   }
 
@@ -153,7 +154,8 @@ export class AiStreamsRunner {
 
     return new Promise((resolve, reject) => {
       this.openai.beta.threads.runs
-        .submitToolOutputsStream(this.thread_ai_id, runId, {
+        .submitToolOutputsStream(runId, {
+          thread_id: this.thread_ai_id,
           tool_outputs: [
             {
               tool_call_id: toolCallId,

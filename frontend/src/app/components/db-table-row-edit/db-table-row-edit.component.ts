@@ -6,7 +6,8 @@ import { Component, NgZone, OnInit } from '@angular/core';
 import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
-import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
+import { UIwidgets, defaultTimestampValues, recordEditTypes, timestampTypes } from 'src/app/consts/record-edit-types';
+import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
@@ -41,7 +42,6 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import { normalizeTableName, normalizeFieldName } from 'src/app/lib/normalize';
 import { isSet } from 'lodash';
 
 @Component({
@@ -179,7 +179,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.tableForeignKeys = res.foreignKeys;
             this.setRowStructure(res.structure);
             res.table_widgets && this.setWidgets(res.table_widgets);
-            this.shownRows = this.getModifyingFields(res.structure);
+            this.shownRows = this.getModifyingFields(res.structure).filter((field: TableField) => !res.excluded_fields.includes(field.column_name));
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
@@ -436,7 +436,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   get inputs() {
-    return fieldTypes[this.connectionType]
+    return recordEditTypes[this.connectionType]
   }
 
   get currentConnection() {
@@ -547,7 +547,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     if (this.connectionType === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes)
-        .filter(([key, value]) => value === 'datetime');
+        .filter(([key, value]) => value === 'datetime' || value === 'timestamp');
       if (datetimeFields.length) {
         for (const datetimeField of datetimeFields) {
           if (updatedRow[datetimeField[0]]) {
@@ -578,7 +578,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)
-      .filter(([key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'object')
+      .filter(([key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'ARRAY' || value === 'object')
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {

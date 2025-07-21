@@ -38,17 +38,20 @@ export async function validateCreateWidgetsDs(
       }
     }
     const { widget_type } = widgetDS;
-    if (widget_type) {
-      if (!Object.keys(WidgetTypeEnum).find((key) => key === widget_type)) {
-        errors.push(Messages.WIDGET_TYPE_INCORRECT);
-      }
-    }
+    // if (widget_type) {
+    //   if (!Object.keys(WidgetTypeEnum).find((key) => key === widget_type)) {
+    //     errors.push(Messages.WIDGET_TYPE_INCORRECT);
+    //   }
+    // }
     if (widget_type && widget_type === WidgetTypeEnum.Password) {
       if (
         widgetDS.widget_params['algorithm'] &&
         !Object.keys(EncryptionAlgorithmEnum).find((key) => key === widgetDS.widget_params['algorithm'])
       ) {
         errors.push(Messages.ENCRYPTION_ALGORITHM_INCORRECT(widgetDS.widget_params['algorithm']));
+      }
+      if (widgetDS.widget_params['encrypt'] === undefined) {
+        errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('encrypt'));
       }
     }
 

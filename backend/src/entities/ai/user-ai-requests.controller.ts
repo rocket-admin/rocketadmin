@@ -24,7 +24,7 @@ export class UserAIRequestsController {
     private readonly requestInfoFromTableWithAIUseCase: IRequestInfoFromTable,
   ) {}
 
-  @ApiOperation({ summary: 'Request info from table in connection with AI' })
+  @ApiOperation({ summary: 'Request info from table in connection with AI', deprecated: true })
   @ApiResponse({
     status: 201,
     description: 'Returned info.',

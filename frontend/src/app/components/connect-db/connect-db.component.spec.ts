@@ -108,7 +108,7 @@ describe('ConnectDBComponent', () => {
     }));
 
     component.testConnection();
-    expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection exists. Your credentials are correct.')
+    expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection is live')
 
     fakeNotifications.showSuccessSnackbar.calls.reset();
   });

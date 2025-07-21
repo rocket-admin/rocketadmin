@@ -444,63 +444,15 @@ th.mat-header-cell, td.mat-cell {
     }
 }
 
-.field-value {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-}
-
 @media (prefers-color-scheme: light) {
-    .field-value {
+    .table-cell-content {
         color: rgba(0, 0, 0, 0.64)
     }
 }
 
 @media (prefers-color-scheme: dark) {
-    .field-value {
+    .table-cell-content {
         color: rgba(255, 255, 255, 0.64)
-    }
-}
-
-.field-image {
-    display: block;
-    height: var(--height);
-    margin: 12px 0;
-}
-
-.field-link {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--color-primaryPalette-500);
-}
-
-.field-link__icon {
-    flex-shrink: 0;
-    margin-bottom: -2px;
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
-}
-
-.field-value-copy-button {
-    position: absolute;
-    right: -6px;
-    top: 50%;
-    display: none;
-    transform: translate(0, -50%) scale(0.85);
-    background-color: var(--hover-color);
-}
-
-@media (prefers-color-scheme: dark) {
-    .field-value-copy-button {
-        --hover-color: var(--color-primaryPalette-800);
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .field-value-copy-button {
-        --hover-color: var(--color-primaryPalette-50);
     }
 }
 
@@ -531,32 +483,6 @@ tr.mat-row:hover {
 .spinner-wrapper ::ng-deep.mat-spinner {
     position: relative;
     top: 40px;
-}
-
-.foreign-key-button {
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    color: var(--color-accentedPalette-500);
-    cursor: pointer;
-    font-size: inherit;
-    padding: 2px 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: left;
-    max-width: 100%;
-    transition: background 100ms, border-color 100ms;
-}
-
-.foreign-key-button:hover{
-    background-color: var(--color-accentedPalette-100);
-    border: 1px solid var(--color-accentedPalette-300);
-}
-
-.foreign-key-button_selected {
-    background-color: var(--color-accentedPalette-100);
-    border-radius: 12px;
-    border: 1px solid var(--color-accentedPalette-300);
 }
 
 .empty-table {

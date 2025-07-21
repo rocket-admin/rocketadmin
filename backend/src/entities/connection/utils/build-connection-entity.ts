@@ -30,6 +30,7 @@ export async function buildConnectionEntity(
       type,
       password,
       authSource,
+      dataCenter,
     },
     creation_info: { masterPwd },
   } = createConnectionData;
@@ -54,6 +55,7 @@ export async function buildConnectionEntity(
   connection.cert = cert;
   connection.schema = schema;
   connection.authSource = authSource;
+  connection.dataCenter = dataCenter;
 
   if (connection.masterEncryption && masterPwd && !isConnectionTypeAgent(connection.type)) {
     connection = Encryptor.encryptConnectionCredentials(connection, masterPwd);

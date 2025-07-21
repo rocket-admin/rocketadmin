@@ -98,6 +98,11 @@ export class CompanyComponent {
     'USER': 'Member'
   }
 
+  public authProviderIcons = {
+    GOOGLE: 'google',
+    GITHUB: 'github',
+  }
+
   get whiteLabelSettings(): {logo: string, favicon: string, tabTitle: string} {
     return this._company.whiteLabelSettings || { logo: '', favicon: '', tabTitle	: '' };
   }

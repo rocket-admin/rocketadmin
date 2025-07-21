@@ -1,0 +1,7 @@
+<div class="field-display">
+  <div class="field-value">
+    <mat-icon *ngIf="value === true" class="boolean-icon boolean-icon-true">check_small</mat-icon>
+    <mat-icon *ngIf="value === false" class="boolean-icon boolean-icon-false">close_small</mat-icon>
+    <span *ngIf="value !== true && value !== false">—</span>
+  </div>
+</div>

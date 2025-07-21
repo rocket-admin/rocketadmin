@@ -20,6 +20,8 @@ services:
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
       - test-elasticsearch-e2e-testing
+      - cassandra-init
+      - test-cassandra-e2e-testing
     links:
       - postgres
       - testMySQL-e2e-testing
@@ -30,6 +32,7 @@ services:
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
       - test-elasticsearch-e2e-testing
+      - test-cassandra-e2e-testing
     command: ["yarn", "start"]
 
   testMySQL-e2e-testing:
@@ -162,6 +165,42 @@ services:
       timeout: 10s
       retries: 3
 
+  test-cassandra-e2e-testing:
+    image: cassandra:5.0.4
+    ports:
+      - 9042:9042
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster
+      - CASSANDRA_DC=TestDC
+      - CASSANDRA_RACK=TestRack
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "cqlsh",
+          "-u",
+          "cassandra",
+          "-p",
+          "cassandra",
+          "-e",
+          "describe keyspaces",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  cassandra-init:
+    image: cassandra:5.0.4
+    depends_on:
+      test-cassandra-e2e-testing:
+        condition: service_healthy
+    volumes:
+      - ./init-cassandra.sh:/init-cassandra.sh
+    command: ["/init-cassandra.sh"]
+    restart: "no"
+
   rocketadmin-agent_mongo:
     build:
       context: .
@@ -270,4 +309,28 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
+    command: ["yarn", "start:dev"]
+
+  rocketadmin-agent_cassandra:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8128:8128
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+      - test-cassandra-e2e-testing
+    depends_on:
+      test-cassandra-e2e-testing:
+        condition: service_healthy
+      cassandra-init:
+        condition: service_completed_successfully
+      autoadmin-ws-server:
+        condition: service_started
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.cassandra_test_agent_config.txt
     command: ["yarn", "start:dev"]

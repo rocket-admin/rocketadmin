@@ -3,7 +3,7 @@
     <mat-dialog-content>
         <mat-form-field appearance="outline">
             <mat-label>Enter group title</mat-label>
-            <input matInput [(ngModel)]="groupTitle" name="title" #title="ngModel" required>
+            <input matInput [(ngModel)]="groupTitle" name="title" #title="ngModel" required data-testid="group-title-input">
             <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error>
         </mat-form-field>
     </mat-dialog-content>

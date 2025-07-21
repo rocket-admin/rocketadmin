@@ -4,31 +4,31 @@ import { TableField, Widget } from 'src/app/models/table';
 
 import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
-import { CodeRowComponent } from '../../ui-components/row-fields/code/code.component';
+import { CodeEditComponent } from '../../ui-components/record-edit-fields/code/code.component';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
-import { ImageRowComponent } from '../../ui-components/row-fields/image/image.component';
+import { ImageEditComponent } from '../../ui-components/record-edit-fields/image/image.component';
 import { Location } from '@angular/common';
-import { LongTextRowComponent } from '../../ui-components/row-fields/long-text/long-text.component';
+import { LongTextEditComponent } from '../../ui-components/record-edit-fields/long-text/long-text.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { PasswordRowComponent } from '../../ui-components/row-fields/password/password.component';
+import { PasswordEditComponent } from '../../ui-components/record-edit-fields/password/password.component';
 import { PlaceholderTableWidgetsComponent } from '../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
-import { SelectRowComponent } from '../../ui-components/row-fields/select/select.component';
+import { SelectEditComponent } from '../../ui-components/record-edit-fields/select/select.component';
 import { TablesService } from 'src/app/services/tables.service';
-import { TextRowComponent } from '../../ui-components/row-fields/text/text.component';
+import { TextEditComponent } from '../../ui-components/record-edit-fields/text/text.component';
 import { Title } from '@angular/platform-browser';
-import { UIwidgets } from "src/app/consts/field-types";
+import { UIwidgets } from "src/app/consts/record-edit-types";
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { UrlRowComponent } from '../../ui-components/row-fields/url/url.component';
+import { UrlEditComponent } from '../../ui-components/record-edit-fields/url/url.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
@@ -50,13 +50,13 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     AlertComponent,
     PlaceholderTableWidgetsComponent,
     BreadcrumbsComponent,
-    PasswordRowComponent,
-    ImageRowComponent,
-    CodeRowComponent,
+    PasswordEditComponent,
+    ImageEditComponent,
+    CodeEditComponent,
     WidgetComponent,
-    TextRowComponent,
-    LongTextRowComponent,
-    SelectRowComponent,
+    TextEditComponent,
+    LongTextEditComponent,
+    SelectEditComponent,
     Angulartics2OnModule
   ],
 })
@@ -136,7 +136,8 @@ export class DbTableWidgetsComponent implements OnInit {
 // example:
 
 {
-  "algorithm": "sha224"
+  "encrypt": true,
+  "algorithm": "sha256"
 }
 
 `,
@@ -162,11 +163,30 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
   URL: `// No settings required`,
+  Phone:
+`// Configure international phone number widget
+// example:
+{
+  "preferred_countries": ["US", "GB", "CA"],
+  "enable_placeholder": true,
+  "phone_validation": true
+}
+`,
+  Country: `// No settings required`,
   Foreign_key: `// Provide settings for foreign key widget
 {
   "column_name": "", // copy the name of the column you selected
   "referenced_column_name": "",
   "referenced_table_name": ""
+}
+`,
+  Money: `// Configure money widget settings
+// example:
+{
+  "default_currency": "USD",
+  "show_currency_selector": false,
+  "decimal_places": 2,
+  "allow_negative": true
 }
 `,
   }
