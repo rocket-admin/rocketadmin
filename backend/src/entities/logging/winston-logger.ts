@@ -14,34 +14,38 @@ export class WinstonLogger implements LoggerService {
     });
   }
 
-  log(message: any, ...optionalParams: any[]) {
+  public log(message: any, ...optionalParams: any[]) {
     this.logger.info(message, ...optionalParams);
   }
 
-  error(message: any, ...optionalParams: any[]) {
+  public error(message: any, ...optionalParams: any[]) {
     this.logger.error(message, ...optionalParams);
   }
 
-  warn(message: any, ...optionalParams: any[]) {
+  public warn(message: any, ...optionalParams: any[]) {
     this.logger.warn(message, ...optionalParams);
   }
 
-  logWithSlack(message: any, ...optionalParams: any[]) {
+  public logWithSlack(message: any, ...optionalParams: any[]) {
     this.logger.error(message, ...optionalParams);
     slackPostMessage(message).catch((error) => {
       this.logger.error('Failed to send Slack message', error);
     });
   }
 
-  debug(message: any, ...optionalParams: any[]) {
+  public printTechString(str: string): void {
+    this.logger.info(`\n ${str} \n`);
+  }
+
+  public debug(message: any, ...optionalParams: any[]) {
     this.logger.debug(message, ...optionalParams);
   }
 
-  verbose(message: any, ...optionalParams: any[]) {
+  public verbose(message: any, ...optionalParams: any[]) {
     this.logger.verbose(message, ...optionalParams);
   }
 
-  fatal(message: any, ...optionalParams: any[]) {
+  public fatal(message: any, ...optionalParams: any[]) {
     this.logger.error(message, ...optionalParams);
     slackPostMessage(message).catch((error) => {
       this.logger.error('Failed to send Slack message', error);
