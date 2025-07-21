@@ -23,9 +23,11 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
+
 const mockFactory = new MockFactory();
 
 test.before(async () => {
@@ -38,7 +40,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
 
   app.useGlobalPipes(
     new ValidationPipe({
