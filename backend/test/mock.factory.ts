@@ -652,7 +652,7 @@ export class MockFactory {
     /* eslint-disable */
     newWidgetDTO.field_name = 'id';
     newWidgetDTO.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO.widget_params = JSON.stringify({ a: '*', b: '+', c: '#' });
+    newWidgetDTO.widget_params = JSON.stringify({ a: '*', b: '+', c: '#', encrypt: false });
     newWidgetDTO.name = 'new widget';
     newWidgetDTO.description = 'test widget';
     /* eslint-enable */
@@ -665,13 +665,13 @@ export class MockFactory {
     /* eslint-disable */
     newWidgetDTO.field_name = 'database';
     newWidgetDTO.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO.widget_params = json5.stringify({ a: '*', b: '+', c: '#' });
+    newWidgetDTO.widget_params = json5.stringify({ a: '*', b: '+', c: '#', encrypt: false });
     newWidgetDTO.name = 'new widget';
     newWidgetDTO.description = 'test widget';
     const newWidgetDTO2 = new CreateTableWidgetDto();
     newWidgetDTO2.field_name = 'id';
     newWidgetDTO2.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO2.widget_params = json5.stringify({ a: '&', b: '!!', c: '||' });
+    newWidgetDTO2.widget_params = json5.stringify({ a: '&', b: '!!', c: '||', encrypt: false });
     newWidgetDTO2.name = 'new widget';
     newWidgetDTO2.description = 'test 2 widget';
     /* eslint-enable */
@@ -686,13 +686,13 @@ export class MockFactory {
     /* eslint-disable */
     newWidgetDTO.field_name = secondFieldName;
     newWidgetDTO.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO.widget_params = JSON.stringify({ a: '*', b: '+', c: '#' });
+    newWidgetDTO.widget_params = JSON.stringify({ a: '*', b: '+', c: '#', encrypt: false });
     newWidgetDTO.name = 'new widget';
     newWidgetDTO.description = 'test widget';
     const newWidgetDTO2 = new CreateTableWidgetDto();
     newWidgetDTO2.field_name = firstFieldName;
     newWidgetDTO2.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO2.widget_params = JSON.stringify({ a: '&', b: '!!', c: '||' });
+    newWidgetDTO2.widget_params = JSON.stringify({ a: '&', b: '!!', c: '||', encrypt: false });
     newWidgetDTO2.name = 'new widget';
     newWidgetDTO2.description = 'test 2 widget';
     /* eslint-enable */
@@ -707,13 +707,13 @@ export class MockFactory {
     /* eslint-disable */
     newWidgetDTO.field_name = 'database';
     newWidgetDTO.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO.widget_params = json5.stringify({ a: '&', b: '+', c: '#' });
+    newWidgetDTO.widget_params = json5.stringify({ a: '&', b: '+', c: '#', encrypt: false });
     newWidgetDTO.name = 'new updated widget';
     newWidgetDTO.description = 'updated test widget';
     const newWidgetDTO2 = new CreateTableWidgetDto();
     newWidgetDTO2.field_name = 'id';
     newWidgetDTO2.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO2.widget_params = json5.stringify({ a: '-', b: '!!', c: '||' });
+    newWidgetDTO2.widget_params = json5.stringify({ a: '-', b: '!!', c: '||', encrypt: false });
     newWidgetDTO2.name = 'new updated widget';
     newWidgetDTO2.description = 'updated test 2 widget';
     /* eslint-enable */
@@ -728,13 +728,13 @@ export class MockFactory {
     /* eslint-disable */
     newWidgetDTO.field_name = 'email';
     newWidgetDTO.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO.widget_params = JSON.stringify({ a: '&', b: '+', c: '#' });
+    newWidgetDTO.widget_params = JSON.stringify({ a: '&', b: '+', c: '#', encrypt: false });
     newWidgetDTO.name = 'new updated widget';
     newWidgetDTO.description = 'updated test widget';
     const newWidgetDTO2 = new CreateTableWidgetDto();
     newWidgetDTO2.field_name = 'id';
     newWidgetDTO2.widget_type = WidgetTypeEnum.Password;
-    newWidgetDTO2.widget_params = JSON.stringify({ a: '-', b: '!!', c: '||' });
+    newWidgetDTO2.widget_params = JSON.stringify({ a: '-', b: '!!', c: '||', encrypt: false });
     newWidgetDTO2.name = 'new updated widget';
     newWidgetDTO2.description = 'updated test 2 widget';
     /* eslint-enable */

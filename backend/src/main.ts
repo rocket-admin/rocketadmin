@@ -36,7 +36,7 @@ async function bootstrap() {
     const globalPrefix = process.env.GLOBAL_PREFIX || '/';
     app.setGlobalPrefix(globalPrefix);
 
-    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
 
     app.use(helmet());
 

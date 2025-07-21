@@ -17,6 +17,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
     secondId: null,
     firstAdminGroupId: null,
   };
+
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
   const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -140,6 +141,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
     secondId: null,
     firstAdminGroupId: null,
   };
+
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
   const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -273,6 +275,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
     secondId: null,
     firstAdminGroupId: null,
   };
+
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
   const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -427,6 +430,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
     secondId: null,
     firstAdminGroupId: null,
   };
+
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
   const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -551,6 +555,7 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
     secondId: null,
     firstAdminGroupId: null,
   };
+
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
   const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
