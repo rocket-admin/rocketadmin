@@ -19,6 +19,7 @@ import { TestUtils } from '../../utils/test.utils.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -39,7 +40,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {
@@ -511,35 +512,32 @@ test.serial(`${currentTest} should return table widgets without deleted widget`,
   t.is(getTableWidgetsRO.length, 1);
 });
 
-test.skip(
-  `${currentTest} should throw exception when table widget with incorrect type passed in request`,
-  async (t) => {
-    const { token } = await registerUserAndReturnUserInfo(app);
-    const newConnection = getTestData(mockFactory).newEncryptedConnection;
-    const createdConnection = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('masterpwd', 'ahalaimahalai')
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+test.skip(`${currentTest} should throw exception when table widget with incorrect type passed in request`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const newConnection = getTestData(mockFactory).newEncryptedConnection;
+  const createdConnection = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('masterpwd', 'ahalaimahalai')
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
 
-    const connectionId = JSON.parse(createdConnection.text).id;
-    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
-    const copyWidgets = [...newTableWidgets];
-    copyWidgets[0].widget_type = faker.lorem.words(1);
-    const createTableWidgetResponse = await request(app.getHttpServer())
-      .post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
-      .send({ widgets: copyWidgets })
-      .set('Content-Type', 'application/json')
-      .set('Cookie', token)
-      .set('masterpwd', 'ahalaimahalai')
-      .set('Accept', 'application/json');
-    const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-    t.is(createTableWidgetResponse.status, 400);
-    t.is(createTableWidgetRO.message, Messages.WIDGET_TYPE_INCORRECT);
-  },
-);
+  const connectionId = JSON.parse(createdConnection.text).id;
+  const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
+  const copyWidgets = [...newTableWidgets];
+  copyWidgets[0].widget_type = faker.lorem.words(1);
+  const createTableWidgetResponse = await request(app.getHttpServer())
+    .post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
+    .send({ widgets: copyWidgets })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('masterpwd', 'ahalaimahalai')
+    .set('Accept', 'application/json');
+  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  t.is(createTableWidgetResponse.status, 400);
+  t.is(createTableWidgetRO.message, Messages.WIDGET_TYPE_INCORRECT);
+});
 
 test.serial(
   `${currentTest} should throw exception when table widget passed in request has incorrect field_name`,

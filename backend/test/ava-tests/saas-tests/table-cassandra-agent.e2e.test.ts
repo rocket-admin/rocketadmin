@@ -26,6 +26,7 @@ import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -52,7 +53,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   connectionToTestDB = getTestData(mockFactory).cassandraAgentTestConnection;
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {
@@ -106,7 +107,7 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
       .set('Accept', 'application/json');
 
     const getTablesRO = JSON.parse(getTablesResponse.text);
-    console.log('🚀 ~ test.serial ~ getTablesRO:', getTablesRO)
+    console.log('🚀 ~ test.serial ~ getTablesRO:', getTablesRO);
     t.is(typeof getTablesRO, 'object');
     t.is(getTablesRO.length > 0, true);
 
@@ -3134,25 +3135,22 @@ test.skip(`${currentTest} should test connection and return result`, async (t) =
   t.is(message, 'Successfully connected');
 });
 
-test.skip(
-  `${currentTest} should test connection and return negative result when connection password is incorrect result`,
-  async (t) => {
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+test.skip(`${currentTest} should test connection and return negative result when connection password is incorrect result`, async (t) => {
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
-    connectionToTestDB.password = '8764323452888';
-    connectionToTestDB.database = 'test_db';
-    const testConnectionResponse = await request(app.getHttpServer())
-      .post('/connection/test/')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+  connectionToTestDB.password = '8764323452888';
+  connectionToTestDB.database = 'test_db';
+  const testConnectionResponse = await request(app.getHttpServer())
+    .post('/connection/test/')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
 
-    t.is(testConnectionResponse.status, 201);
-    const { result } = JSON.parse(testConnectionResponse.text);
-    t.is(result, false);
-  },
-);
+  t.is(testConnectionResponse.status, 201);
+  const { result } = JSON.parse(testConnectionResponse.text);
+  t.is(result, false);
+});
 
 currentTest = 'GET table/csv/:slug';
 

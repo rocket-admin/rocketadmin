@@ -27,6 +27,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -47,7 +49,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {
@@ -2076,8 +2078,6 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
   t.is(rows[42].ID, rows[41].ID + 1);
 
-  
-  
   // check that rows adding was logged
 
   const getLogsResponse = await request(app.getHttpServer())
@@ -2090,7 +2090,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const getLogsRO = JSON.parse(getLogsResponse.text);
   t.is(getLogsRO.hasOwnProperty('logs'), true);
   t.is(getLogsRO.hasOwnProperty('pagination'), true);
-  t.is(getLogsRO.logs.length > 0 , true);
+  t.is(getLogsRO.logs.length > 0, true);
   const addRowLogIndex = getLogsRO.logs.findIndex((log) => log.operationType === 'addRow');
   t.is(getLogsRO.logs[addRowLogIndex].hasOwnProperty('affected_primary_key'), true);
   t.is(typeof getLogsRO.logs[addRowLogIndex].affected_primary_key, 'object');
