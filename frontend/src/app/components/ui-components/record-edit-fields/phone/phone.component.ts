@@ -1,11 +1,10 @@
-import { AsYouType, CountryCode as LibPhoneCountryCode, getCountries, getCountryCallingCode, parsePhoneNumber } from 'libphonenumber-js';
-import { Component, Injectable, Input, OnInit } from '@angular/core';
+import { AsYouType, CountryCode as LibPhoneCountryCode, parsePhoneNumber } from 'libphonenumber-js';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable, map, startWith } from 'rxjs';
 
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CommonModule } from '@angular/common';
 import { FormControl } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -19,13 +18,11 @@ interface CountryCode {
   flag: string;
 }
 
-@Injectable()
-
 @Component({
   selector: 'app-edit-phone',
   templateUrl: './phone.component.html',
   styleUrls: ['./phone.component.css'],
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatAutocompleteModule, FormsModule, ReactiveFormsModule]
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatAutocompleteModule, ReactiveFormsModule]
 })
 export class PhoneEditComponent extends BaseEditFieldComponent implements OnInit {
   @Input() value: string = '';
