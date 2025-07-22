@@ -23,6 +23,7 @@ import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { pauseCode } from '../../../src/helpers/pause-code.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -50,7 +51,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {
@@ -2138,7 +2139,10 @@ test.serial(
 
       t.is(updateConnectionResponse.status, 200);
 
-      const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(firstTableInfo.testTableName, false);
+      const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(
+        firstTableInfo.testTableName,
+        false,
+      );
       newConnectionProperties.hidden_tables = [];
       newConnectionProperties.tables_audit = false;
 

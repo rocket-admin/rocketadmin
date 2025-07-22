@@ -172,7 +172,7 @@ export class ConnectDBComponent implements OnInit {
           });
           if (credsCorrect.result) {
             this._notifications.dismissAlert();
-            this._notifications.showSuccessSnackbar('Connection exists. Your credentials are correct.')
+            this._notifications.showSuccessSnackbar('Connection is live')
           } else {
             this._notifications.showAlert(AlertType.Error, credsCorrect.message, [
               {

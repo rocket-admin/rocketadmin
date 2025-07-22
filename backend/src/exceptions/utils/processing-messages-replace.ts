@@ -1,6 +1,6 @@
 export const PROCESSING_MESSAGES_REPLACE = {
   getaddrinfo_ENOTFOUND:
-    'Client was not able to connect to given address. Please check the hostname and port, ' +
+    'Client was not able to connect to this address. Please check the hostname and port, ' +
     'and make sure our servers are able to access your database. We use IP address 18.221.81.73 for all outbound requests.',
   ORA_02292: 'You tried to change a record in a table that is referenced by a record in a child table ',
   ALLOW_CONNECTIONS:

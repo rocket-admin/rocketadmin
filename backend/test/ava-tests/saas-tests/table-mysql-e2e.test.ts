@@ -26,6 +26,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -45,7 +47,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {

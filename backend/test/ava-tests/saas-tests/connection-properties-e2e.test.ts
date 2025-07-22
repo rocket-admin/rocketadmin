@@ -15,6 +15,7 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

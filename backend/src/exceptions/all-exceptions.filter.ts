@@ -1,12 +1,14 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
-import { Logger } from '../helpers/logging/Logger.js';
+
 import { processExceptionMessage } from './utils/process-exception-message.js';
 import Sentry from '@sentry/minimal';
 import { Messages } from './text/messages.js';
+import { WinstonLogger } from '../entities/logging/winston-logger.js';
 
 export type ExceptionType = 'no_master_key' | 'invalid_master_key' | 'query_timeout';
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  constructor(private readonly logger: WinstonLogger) {}
   async catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
@@ -28,7 +30,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     Sentry.captureException(exception, sentryContextObject);
 
     if (status === 500 || status === 408) {
-      Logger.logError(exception);
+      this.logger.error(exception);
     }
 
     const customExceptionType = this.getErrorType(text);

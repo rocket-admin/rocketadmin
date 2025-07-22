@@ -9,7 +9,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { getOpenAiClient } from '../utils/get-open-ai-client.js';
 import { Readable } from 'stream';
-import { FileLike } from 'openai/uploads.js';
+import { Uploadable } from 'openai/uploads.js';
 import { Blob } from 'fetch-blob';
 import { File } from 'fetch-blob/file.js';
 import { buildUserAiThreadEntity } from '../utils/build-ai-user-thread-entity.util.js';
@@ -102,7 +102,7 @@ export class CreateThreadWithAIAssistantUseCase
 
     const blob = new Blob([allTablesStructuresData], { type: 'application/jsonl' });
 
-    const fileLike: FileLike = new File([blob], 'data.json', {
+    const fileLike: Uploadable = new File([blob], 'data.json', {
       lastModified: Date.now(),
       type: 'application/jsonl',
     });

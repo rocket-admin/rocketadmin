@@ -6,12 +6,12 @@ import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-str
 import { IInviteUserInCompanyAndConnectionGroup } from './company-info-use-cases.interface.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { Logger } from '../../../helpers/logging/Logger.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { isTest } from '../../../helpers/app/is-test.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { CompanyInfoHelperService } from '../company-info-helper.service.js';
+import { WinstonLogger } from '../../logging/winston-logger.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class InviteUserInCompanyAndConnectionGroupUseCase
@@ -24,6 +24,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
     private readonly emailService: EmailService,
     private readonly companyInfoHelperService: CompanyInfoHelperService,
+    private readonly logger: WinstonLogger,
   ) {
     super();
   }
@@ -90,7 +91,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       }
 
       if (!isSaaS()) {
-        Logger.printTechString(`Invitation verification string: ${renewedEmailVerification.verification_string}`);
+        this.logger.printTechString(`Invitation verification string: ${renewedEmailVerification.verification_string}`);
       }
       throw new HttpException(
         {

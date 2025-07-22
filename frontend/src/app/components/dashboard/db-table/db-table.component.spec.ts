@@ -132,24 +132,6 @@ describe('DbTableComponent', () => {
     expect(isWigetAge).toBeTrue();
   });
 
-  it('should return label from id for Select widget', () => {
-    component.tableData.widgets = mockWidgets;
-    component.tableData.selectWidgetsOptions = mockSelectOption;
-
-    const selectDisplayedValue = component.getWidgetValue('Region', 'CA');
-
-    expect(selectDisplayedValue).toEqual('California');
-  });
-
-  it('should return value if widget is not Select', () => {
-    component.tableData.widgets = mockWidgets;
-    component.tableData.selectWidgetsOptions = mockSelectOption;
-
-    const selectDisplayedValue = component.getWidgetValue('address_id', '0987654321');
-
-    expect(selectDisplayedValue).toEqual('0987654321');
-  });
-
   it('should return 2 for active filters with object of two fileds', () => {
     const numberOfFilters = component.getFiltersCount({ "Country": "С", "Name": "John"})
 

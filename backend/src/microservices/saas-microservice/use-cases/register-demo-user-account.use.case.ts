@@ -4,16 +4,11 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
-import { GroupEntity } from '../../../entities/group/group.entity.js';
-import { PermissionEntity } from '../../../entities/permission/permission.entity.js';
+import { DemoDataService } from '../../../entities/demo-data/demo-data.service.js';
 import { SaaSRegisterDemoUserAccountDS } from '../../../entities/user/application/data-structures/demo-user-account-register.ds.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
-import { buildConnectionEntitiesFromTestDtos } from '../../../entities/user/utils/build-connection-entities-from-test-dtos.js';
-import { buildDefaultAdminGroups } from '../../../entities/user/utils/build-default-admin-groups.js';
-import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build-default-admin-permissions.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import { ISaasDemoRegisterUser } from './saas-use-cases.interface.js';
 
 @Injectable()
@@ -24,15 +19,16 @@ export class SaasRegisterDemoUserAccountUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly demoDataService: DemoDataService,
   ) {
     super();
   }
 
   protected async implementation(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto> {
     const savedUser = await this.createDemoUser(userData);
-    const createdTestConnections = await this.createTestConnections(savedUser);
-    const createdTestGroups = await this.createTestGroups(savedUser, createdTestConnections);
-    await this.createTestPermissions(createdTestGroups);
+
+    const createdTestConnections = await this.demoDataService.createDemoDataForUser(savedUser.id);
+
     const savedCompanyInfo = await this.createCompanyInfo(userData, createdTestConnections);
 
     savedUser.company = savedCompanyInfo;
@@ -52,41 +48,6 @@ export class SaasRegisterDemoUserAccountUseCase
     demoUser.role = UserRoleEnum.ADMIN;
 
     return await this._dbContext.userRepository.save(demoUser);
-  }
-
-  private async createTestConnections(savedUser: UserEntity): Promise<ConnectionEntity[]> {
-    const testConnections = Constants.getTestConnectionsArr();
-    const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
-
-    return await Promise.all(
-      testConnectionsEntities.map(async (connection): Promise<ConnectionEntity> => {
-        connection.author = savedUser;
-        return await this._dbContext.connectionRepository.saveNewConnection(connection);
-      }),
-    );
-  }
-
-  private async createTestGroups(
-    savedUser: UserEntity,
-    createdTestConnections: ConnectionEntity[],
-  ): Promise<GroupEntity[]> {
-    const testGroupsEntities = buildDefaultAdminGroups(savedUser, createdTestConnections);
-
-    return await Promise.all(
-      testGroupsEntities.map(async (group: GroupEntity) => {
-        return await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
-      }),
-    );
-  }
-
-  private async createTestPermissions(createdTestGroups: GroupEntity[]): Promise<void> {
-    const testPermissionsEntities = buildDefaultAdminPermissions(createdTestGroups);
-
-    await Promise.all(
-      testPermissionsEntities.map(async (permission: PermissionEntity) => {
-        await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
-      }),
-    );
   }
 
   private async createCompanyInfo(

@@ -1,0 +1,27 @@
+.field-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.value-wrapper {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+}
+
+.country-flag {
+  margin-right: 6px;
+  font-size: 1.2em;
+}
+
+.copy-button {
+  visibility: hidden;
+  margin-left: 4px;
+}
+
+.field-wrapper:hover .copy-button {
+  visibility: visible;
+}

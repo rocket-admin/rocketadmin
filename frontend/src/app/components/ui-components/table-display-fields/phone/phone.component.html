@@ -1,0 +1,15 @@
+<div class="field-display">
+  <span *ngIf="value" class="phone-content">
+    <span *ngIf="countryFlag" class="country-flag" [matTooltip]="countryName">{{ countryFlag }}</span>
+    <a [href]="'tel:' + value" class="field-value phone-link">{{ formattedNumber || value }}</a>
+  </span>
+  <span *ngIf="!value" class="field-value">—</span>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="value"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Field value was copied to clipboard.')"
+      (click)="$event.stopPropagation()">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

@@ -12,7 +12,6 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
-import { Logger } from '../../../helpers/logging/Logger.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
@@ -24,6 +23,7 @@ import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
 import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
 import { IFindTablesInConnection } from './table-use-cases.interface.js';
+import { WinstonLogger } from '../../logging/winston-logger.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -34,6 +34,7 @@ export class FindTablesInConnectionUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private amplitudeService: AmplitudeService,
+    private readonly logger: WinstonLogger,
   ) {
     super();
   }
@@ -87,7 +88,7 @@ export class FindTablesInConnectionUseCase
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
     } finally {
       if (!connection.isTestConnection && tables && tables.length) {
-        Logger.logInfo({
+        this.logger.log({
           tables: tables.map((table) => table.tableName),
           connectionId: connectionId,
           connectionType: connection.type,
