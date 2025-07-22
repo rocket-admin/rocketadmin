@@ -471,7 +471,7 @@ export class TablesService {
   }
 
   createAIthread(connectionID, tableName, message) {
-    return this._http.post<any>(`/ai/thread/${connectionID}`, {user_message: message}, {
+    return this._http.post<any>(`/ai/v2/request/${connectionID}`, {user_message: message}, {
       responseType: 'text' as 'json',
       observe: 'response',
       params: {
