@@ -106,7 +106,11 @@ export class DbTableWidgetsComponent implements OnInit {
 }`,
     String: `// No settings required`,
     Readonly: `// No settings required`,
-    Number: `// No settings required`,
+    Number: `// Configure number display with unit conversion
+// Example units: "bytes", "meters", "seconds", "grams"
+{
+  "unit": null
+}`,
     Select:
 `// provide array of options to map database value (key 'value') in human readable value (key 'label');
 // for example:
