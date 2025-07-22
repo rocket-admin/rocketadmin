@@ -1,21 +1,21 @@
-import { IMessage } from './email.interface.js';
-import { EmailTransporterService } from '../transporter/email-transporter-service.js';
-import { EmailGenerator } from './email.generator.js';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { EmailLetter } from '../email-messages/email-message.js';
 import { Inject, Injectable } from '@nestjs/common';
-import * as nunjucks from 'nunjucks';
 import * as Sentry from '@sentry/node';
-import { getProcessVariable } from '../../../helpers/get-process-variable.js';
-import { Constants } from '../../../helpers/constants/constants.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Logger } from '../../../helpers/logging/Logger.js';
-import PQueue from 'p-queue';
 import Mail from 'nodemailer/lib/mailer/index.js';
-import { EMAIL_TEXT } from '../email-text/email-text.js';
-import { escapeHtml } from '../utils/escape-html.util.js';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import * as nunjucks from 'nunjucks';
+import PQueue from 'p-queue';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { getProcessVariable } from '../../../helpers/get-process-variable.js';
+import { WinstonLogger } from '../../logging/winston-logger.js';
 import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
+import { EmailLetter } from '../email-messages/email-message.js';
+import { EMAIL_TEXT } from '../email-text/email-text.js';
+import { EmailTransporterService } from '../transporter/email-transporter-service.js';
+import { escapeHtml } from '../utils/escape-html.util.js';
+import { EmailGenerator } from './email.generator.js';
+import { IMessage } from './email.interface.js';
 
 export interface ICronMessagingResults {
   messageId?: string;
@@ -30,6 +30,7 @@ export class EmailService {
     @Inject(BaseType.NUNJUCKS)
     private readonly nunjucksEnv: nunjucks.Environment,
     private readonly emailTransporterService: EmailTransporterService,
+    private readonly logger: WinstonLogger,
   ) {}
 
   public async sendEmailToUser(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
@@ -106,7 +107,7 @@ export class EmailService {
       );
       return mailingResults;
     } catch (error) {
-      Logger.logError(error);
+      this.logger.error(error);
     }
   }
 

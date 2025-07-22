@@ -1,30 +1,31 @@
+import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as Sentry from '@sentry/node';
+import bodyParser from 'body-parser';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import session from 'express-session';
 import helmet from 'helmet';
 import { ApplicationModule } from './app.module.js';
+import { WinstonLogger } from './entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
+import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
 import { Constants } from './helpers/constants/constants.js';
 import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
-import { ValidationError } from 'class-validator';
-import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
-import bodyParser from 'body-parser';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import session from 'express-session';
 
 async function bootstrap() {
   try {
-    process.env.NO_COLOR = 'true';
     requiredEnvironmentVariablesValidator();
     const appOptions: NestApplicationOptions = {
       rawBody: true,
-      logger: ['error', 'warn', 'fatal', 'warn'],
+      logger: new WinstonLogger(),
     };
 
     const app = await NestFactory.create<NestExpressApplication>(ApplicationModule, appOptions);
+    app.useLogger(app.get(WinstonLogger));
     app.set('query parser', 'extended');
 
     Sentry.init({
@@ -35,7 +36,7 @@ async function bootstrap() {
     const globalPrefix = process.env.GLOBAL_PREFIX || '/';
     app.setGlobalPrefix(globalPrefix);
 
-    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
 
     app.use(helmet());
 
