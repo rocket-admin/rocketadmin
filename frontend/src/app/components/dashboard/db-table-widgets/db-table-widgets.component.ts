@@ -193,6 +193,7 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_negative": true
 }
 `,
+  Color: `// No settings required`,
   }
 
   constructor(

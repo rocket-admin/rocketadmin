@@ -19,4 +19,5 @@ export enum TableWidgetTypeEnum {
   Code = 'Code',
   Phone = 'Phone',
   Country = 'Country',
+  Color = 'Color',
 }
