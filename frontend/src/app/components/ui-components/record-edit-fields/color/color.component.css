@@ -1,0 +1,42 @@
+.color-edit-container {
+  width: 100%;
+}
+
+.color-form-field {
+  width: 100%;
+}
+
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.color-picker-input {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  background: none;
+  padding: 0;
+}
+
+.color-picker-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.color-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  flex-shrink: 0;
+}
+
+.mat-form-field.mat-form-field-invalid .color-preview {
+  border-color: #f44336;
+}

@@ -1,0 +1,23 @@
+<div class="color-edit-container">
+  <mat-form-field class="color-form-field" appearance="outline">
+    <mat-label>{{normalizedLabel}}</mat-label>
+    <input matInput type="text" name="{{label}}-{{key}}"
+        [required]="required" [disabled]="disabled" [readonly]="readonly"
+        attr.data-testid="record-{{label}}-color"
+        [(ngModel)]="value" (ngModelChange)="onTextInputChange()"
+        placeholder="#000000"
+        pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+    <div matSuffix class="color-picker-container">
+      <input type="color" 
+             class="color-picker-input"
+             [value]="isValidColor ? value : '#000000'"
+             [disabled]="disabled || readonly"
+             (change)="onColorPickerChange($event)"
+             title="Choose color">
+      <div class="color-preview" 
+           [style.background-color]="isValidColor ? value : '#cccccc'"
+           [title]="value || 'No color'">
+      </div>
+    </div>
+  </mat-form-field>
+</div>

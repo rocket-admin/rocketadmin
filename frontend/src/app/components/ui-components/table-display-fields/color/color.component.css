@@ -1,0 +1,18 @@
+.color-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  flex-shrink: 0;
+}
+
+.field-value {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
