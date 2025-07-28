@@ -295,13 +295,18 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
         query += ` WHERE ${whereConditions.join(' AND ')} ALLOW FILTERING`;
       }
 
-      const countQuery =
-        `SELECT COUNT(*) as count FROM ${tableName.toLowerCase()}` +
-        (whereConditions.length > 0 ? ` WHERE ${whereConditions.join(' AND ')} ALLOW FILTERING` : '');
-      const countResult = await client.execute(countQuery, params, { prepare: true });
-      const totalCount = parseInt(countResult.rows[0].count?.toString() || '0', 10);
+      const {
+        totalCount,
+        isEstimated,
+        result: preExecutedResult,
+      } = await this.getRowCountWithFallback(client, tableName, whereConditions, params, query);
 
-      const result = await client.execute(query, params, { prepare: true });
+      let result: cassandra.types.ResultSet;
+      if (preExecutedResult) {
+        result = preExecutedResult;
+      } else {
+        result = await client.execute(query, params, { prepare: true });
+      }
       const startIndex = (page - 1) * perPage;
 
       const allRows = [...result.rows];
@@ -336,7 +341,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       return {
         data: rows,
         pagination,
-        large_dataset: totalCount > DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
+        large_dataset: totalCount > DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT || isEstimated,
       };
     } catch (error) {
       throw new Error(`Failed to get rows from table: ${error.message}`);
@@ -697,6 +702,83 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       return result.rows;
     } catch (error) {
       throw new Error(`Failed to execute raw query: ${error.message}`);
+    }
+  }
+
+  private isAWSConnection(): boolean {
+    const { host } = this.connection;
+
+    if (host.includes('cassandra') && host.includes('amazonaws.com')) {
+      return true;
+    }
+
+    if (host.includes('amazonaws.com')) {
+      return true;
+    }
+
+    const ec2HostRegex = /^(ec2-).*([.]compute[.]amazonaws[.]com)$/i;
+    if (ec2HostRegex.test(host)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async getRowCountWithFallback(
+    client: cassandra.Client,
+    tableName: string,
+    whereConditions: string[],
+    params: any[],
+    query: string,
+  ): Promise<{ totalCount: number; isEstimated: boolean; result?: cassandra.types.ResultSet }> {
+    const isAWS = this.isAWSConnection();
+
+    if (isAWS) {
+      return this.estimateRowCount(client, tableName, whereConditions, params, query);
+    }
+
+    try {
+      const countQuery =
+        `SELECT COUNT(*) as count FROM ${tableName.toLowerCase()}` +
+        (whereConditions.length > 0 ? ` WHERE ${whereConditions.join(' AND ')} ALLOW FILTERING` : '');
+      const countResult = await client.execute(countQuery, params, { prepare: true });
+      const totalCount = parseInt(countResult.rows[0].count?.toString() || '0', 10);
+      return { totalCount, isEstimated: false };
+    } catch (countError) {
+      console.warn(`COUNT query failed, falling back to estimation: ${countError.message}`);
+      return this.estimateRowCount(client, tableName, whereConditions, params, query);
+    }
+  }
+
+  private async estimateRowCount(
+    client: cassandra.Client,
+    tableName: string,
+    whereConditions: string[],
+    params: any[],
+    query: string,
+  ): Promise<{ totalCount: number; isEstimated: boolean; result: cassandra.types.ResultSet }> {
+    try {
+      const result = await client.execute(query, params, { prepare: true });
+      let estimatedCount = result.rows.length;
+      if (whereConditions.length === 0) {
+        try {
+          const sampleQuery = `SELECT * FROM ${tableName.toLowerCase()} LIMIT 10000`;
+          const sampleResult = await client.execute(sampleQuery, [], { prepare: true });
+
+          if (sampleResult.rows.length >= 10000) {
+            estimatedCount = Math.max(estimatedCount, sampleResult.rows.length * 2);
+          } else {
+            estimatedCount = Math.max(estimatedCount, sampleResult.rows.length);
+          }
+        } catch (sampleError) {
+          console.warn(`Row count sampling failed: ${sampleError.message}`);
+        }
+      }
+
+      return { totalCount: estimatedCount, isEstimated: true, result };
+    } catch (error) {
+      console.warn(`Row count estimation failed: ${error.message}`);
+      return { totalCount: 100, isEstimated: true, result: null };
     }
   }
 
