@@ -86,7 +86,7 @@ export class DbTableRowEditComponent implements OnInit {
   public keyAttributesFromURL: object = {};
   public hasKeyAttributesFromURL: boolean;
   public dubURLParams: object;
-  public keyAttributesFromStructure: [] = [];
+  public keyAttributesListFromStructure: string[] = [];
   public isPrimaryKeyUpdated: boolean;
   public tableTypes: object;
   public tableWidgets: object;
@@ -174,7 +174,7 @@ export class DbTableRowEditComponent implements OnInit {
               edit: true
             };
 
-            this.keyAttributesFromStructure = res.primaryColumns;
+            this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
             this.setRowStructure(res.structure);
@@ -214,8 +214,11 @@ export class DbTableRowEditComponent implements OnInit {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
             this.permissions = res.table_access_level;
+            this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
 
-            this.nonModifyingFields = res.structure.filter((field: TableField) => !this.getModifyingFields(res.structure).some(modifyingField => field.column_name === modifyingField.column_name)).map((field: TableField) => field.column_name);
+            this.nonModifyingFields = res.structure
+              .filter((field: TableField) => !this.getModifyingFields(res.structure).some(modifyingField => field.column_name === modifyingField.column_name))
+              .map((field: TableField) => field.column_name);
             this.readonlyFields = [...res.readonly_fields, ...this.nonModifyingFields];
             if (this.connectionType === DBtype.Dynamo) {
               this.readonlyFields = [...this.readonlyFields, ...res.primaryColumns.map((field: TableField) => field.column_name)];
@@ -521,7 +524,11 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   getModifyingFields(fields) {
-    return fields.filter((field: TableField) => !field.auto_increment && !(timestampTypes.includes(field.data_type) && field.column_default && defaultTimestampValues[this.connectionType].includes(field.column_default.toLowerCase().replace(/\(.*\)/, ""))));
+    return fields.filter((field: TableField) =>
+      !field.auto_increment &&
+      !(this.keyAttributesListFromStructure.includes(field.column_name) && field.column_default) &&
+      !(timestampTypes.includes(field.data_type) && field.column_default && defaultTimestampValues[this.connectionType].includes(field.column_default.toLowerCase().replace(/\(.*\)/, "")))
+    );
   }
 
   updateField = (updatedValue: any, field: string) => {
