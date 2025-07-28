@@ -8,6 +8,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NgIf } from '@angular/common';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-cassandra-credentials-form',
@@ -18,6 +19,7 @@ import { NgIf } from '@angular/common';
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatCheckboxModule,
     MatExpansionModule,
     HostnameValidationDirective,
     MasterEncryptionPasswordComponent,
