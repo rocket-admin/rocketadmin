@@ -366,50 +366,50 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
           case 3:
             return 'blob';
           case 4:
-            return 'int';
-          case 5:
-            return 'bigint';
-          case 6:
-            return 'varint';
-          case 7:
-            return 'decimal';
-          case 8:
             return 'boolean';
-          case 9:
-            return 'float';
-          case 10:
-            return 'double';
-          case 11:
+          case 5:
             return 'counter';
-          case 12:
+          case 6:
+            return 'decimal';
+          case 7:
+            return 'double';
+          case 8:
+            return 'float';
+          case 9:
+            return 'int';
+          case 10:
             return 'text';
+          case 11:
+            return 'timestamp';
+          case 12:
+            return 'uuid';
           case 13:
             return 'varchar';
           case 14:
-            return 'smallint';
+            return 'varint';
           case 15:
-            return 'tinyint';
-          case 16:
-            return 'uuid';
-          case 17:
             return 'timeuuid';
-          case 19:
-            return 'timestamp';
-          case 20:
+          case 16:
             return 'inet';
-          case 21:
+          case 17:
             return 'date';
-          case 22:
+          case 18:
             return 'time';
+          case 19:
+            return 'smallint';
+          case 20:
+            return 'tinyint';
+          case 21:
+            return 'duration';
           case 32:
             return 'list';
           case 33:
             return 'map';
           case 34:
             return 'set';
-          case 35:
+          case 48:
             return 'udt';
-          case 36:
+          case 49:
             return 'tuple';
           default:
             return `type_code_${type.code}`;
