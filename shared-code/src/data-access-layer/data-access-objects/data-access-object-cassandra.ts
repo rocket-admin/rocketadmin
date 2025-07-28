@@ -357,6 +357,14 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       if (type.info && type.info.name) return type.info.name;
       if (type.code !== undefined) {
         switch (type.code) {
+          case 0:
+            return 'custom';
+          case 1:
+            return 'ascii';
+          case 2:
+            return 'bigint';
+          case 3:
+            return 'blob';
           case 4:
             return 'int';
           case 5:
@@ -371,10 +379,16 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
             return 'float';
           case 10:
             return 'double';
+          case 11:
+            return 'counter';
           case 12:
             return 'text';
           case 13:
             return 'varchar';
+          case 14:
+            return 'smallint';
+          case 15:
+            return 'tinyint';
           case 16:
             return 'uuid';
           case 17:
@@ -393,8 +407,10 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
             return 'map';
           case 34:
             return 'set';
-          case 0:
-            return 'custom';
+          case 35:
+            return 'udt';
+          case 36:
+            return 'tuple';
           default:
             return `type_code_${type.code}`;
         }
