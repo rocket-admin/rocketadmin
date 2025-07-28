@@ -352,9 +352,15 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
     return [];
   }
   private cassandraTypeToReadable(type: any): string {
-    if (typeof type === 'string') return type;
+    if (typeof type === 'string') {
+      return this.stripGenerics(type);
+    }
+
     if (type && typeof type === 'object') {
-      if (type.info && type.info.name) return type.info.name;
+      if (type.info && type.info.name) {
+        return this.stripGenerics(type.info.name);
+      }
+
       if (type.code !== undefined) {
         switch (type.code) {
           case 0:
@@ -417,6 +423,13 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       }
     }
     return 'unknown';
+  }
+
+  private stripGenerics(typeName: string): string {
+    if (typeName.includes('<')) {
+      return typeName.substring(0, typeName.indexOf('<'));
+    }
+    return typeName;
   }
 
   public async getTablePrimaryColumns(tableName: string): Promise<Array<PrimaryKeyDS>> {
