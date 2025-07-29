@@ -1,8 +1,11 @@
 import { BinaryDataCaptionFilterComponent } from '../components/ui-components/filter-fields/binary-data-caption/binary-data-caption.component';
 import { BooleanFilterComponent } from 'src/app/components/ui-components/filter-fields/boolean/boolean.component'
+import { CountryFilterComponent } from '../components/ui-components/filter-fields/country/country.component';
 import { DateFilterComponent } from '../components/ui-components/filter-fields/date/date.component';
 import { DateTimeFilterComponent } from '../components/ui-components/filter-fields/date-time/date-time.component';
+import { FileFilterComponent } from '../components/ui-components/filter-fields/file/file.component';
 import { ForeignKeyFilterComponent } from '../components/ui-components/filter-fields/foreign-key/foreign-key.component';
+import { IdFilterComponent } from '../components/ui-components/filter-fields/id/id.component';
 import { JsonEditorFilterComponent } from '../components/ui-components/filter-fields/json-editor/json-editor.component';
 import { LongTextFilterComponent } from 'src/app/components/ui-components/filter-fields/long-text/long-text.component'
 import { NumberFilterComponent } from 'src/app/components/ui-components/filter-fields/number/number.component';
@@ -13,9 +16,6 @@ import { StaticTextFilterComponent } from '../components/ui-components/filter-fi
 import { TextFilterComponent } from 'src/app/components/ui-components/filter-fields/text/text.component';
 import { TimeFilterComponent } from '../components/ui-components/filter-fields/time/time.component';
 import { TimeIntervalFilterComponent } from '../components/ui-components/filter-fields/time-interval/time-interval.component';
-import { IdFilterComponent } from '../components/ui-components/filter-fields/id/id.component';
-import { FileFilterComponent } from '../components/ui-components/filter-fields/file/file.component';
-import { CountryFilterComponent } from '../components/ui-components/filter-fields/country/country.component';
 
 export const UIwidgets = {
     Default: '',
@@ -241,5 +241,31 @@ export const filterTypes = {
         array: JsonEditorFilterComponent,
 
         "foreign key": ForeignKeyFilterComponent
+    },
+    cassandra: {
+        int: NumberFilterComponent,
+        bigint: NumberFilterComponent,
+        varint: NumberFilterComponent,
+        decimal: NumberFilterComponent,
+        float: NumberFilterComponent,
+        double: NumberFilterComponent,
+
+        boolean: BooleanFilterComponent,
+
+        timeuuid: IdFilterComponent,
+
+        timestamp: DateTimeFilterComponent,
+        date: DateFilterComponent,
+        time: TimeFilterComponent,
+
+        uuid: TextFilterComponent,
+        varchar: TextFilterComponent,
+        inet: TextFilterComponent,
+        ascii: TextFilterComponent,
+        text: TextFilterComponent,
+
+        list: JsonEditorFilterComponent,
+        map: JsonEditorFilterComponent,
+        set: JsonEditorFilterComponent,
     }
 }
