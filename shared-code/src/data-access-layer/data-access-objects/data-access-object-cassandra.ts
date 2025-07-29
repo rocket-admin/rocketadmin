@@ -857,6 +857,9 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
         protocolOptions: {
           port,
         },
+        queryOptions: {
+          consistency: cassandra.types.consistencies.localQuorum,
+        },
       };
       if (this.connection.ssl) {
         clientOptions.sslOptions = {
