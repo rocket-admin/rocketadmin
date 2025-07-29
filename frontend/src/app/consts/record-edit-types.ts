@@ -1,6 +1,7 @@
 import { BinaryDataCaptionEditComponent } from '../components/ui-components/record-edit-fields/binary-data-caption/binary-data-caption.component';
 import { BooleanEditComponent } from 'src/app/components/ui-components/record-edit-fields/boolean/boolean.component'
 import { CodeEditComponent } from '../components/ui-components/record-edit-fields/code/code.component';
+import { ColorEditComponent } from '../components/ui-components/record-edit-fields/color/color.component';
 import { CountryEditComponent } from '../components/ui-components/record-edit-fields/country/country.component';
 import { DateEditComponent } from '../components/ui-components/record-edit-fields/date/date.component';
 import { DateTimeEditComponent } from '../components/ui-components/record-edit-fields/date-time/date-time.component';
@@ -49,6 +50,7 @@ export const UIwidgets = {
     Phone: PhoneEditComponent,
     Money: MoneyEditComponent,
     Foreign_key: ForeignKeyEditComponent,
+    Color: ColorEditComponent,
 }
 
 export const recordEditTypes = {
