@@ -295,13 +295,18 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
         query += ` WHERE ${whereConditions.join(' AND ')} ALLOW FILTERING`;
       }
 
-      const countQuery =
-        `SELECT COUNT(*) as count FROM ${tableName.toLowerCase()}` +
-        (whereConditions.length > 0 ? ` WHERE ${whereConditions.join(' AND ')} ALLOW FILTERING` : '');
-      const countResult = await client.execute(countQuery, params, { prepare: true });
-      const totalCount = parseInt(countResult.rows[0].count?.toString() || '0', 10);
+      const {
+        totalCount,
+        isEstimated,
+        result: preExecutedResult,
+      } = await this.getRowCountWithFallback(client, tableName, whereConditions, params, query);
 
-      const result = await client.execute(query, params, { prepare: true });
+      let result: cassandra.types.ResultSet;
+      if (preExecutedResult) {
+        result = preExecutedResult;
+      } else {
+        result = await client.execute(query, params, { prepare: true });
+      }
       const startIndex = (page - 1) * perPage;
 
       const allRows = [...result.rows];
@@ -336,7 +341,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       return {
         data: rows,
         pagination,
-        large_dataset: totalCount > DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
+        large_dataset: totalCount > DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT || isEstimated,
       };
     } catch (error) {
       throw new Error(`Failed to get rows from table: ${error.message}`);
@@ -347,55 +352,84 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
     return [];
   }
   private cassandraTypeToReadable(type: any): string {
-    if (typeof type === 'string') return type;
+    if (typeof type === 'string') {
+      return this.stripGenerics(type);
+    }
+
     if (type && typeof type === 'object') {
-      if (type.info && type.info.name) return type.info.name;
+      if (type.info && type.info.name) {
+        return this.stripGenerics(type.info.name);
+      }
+
       if (type.code !== undefined) {
         switch (type.code) {
-          case 4:
-            return 'int';
-          case 5:
+          case 0:
+            return 'custom';
+          case 1:
+            return 'ascii';
+          case 2:
             return 'bigint';
-          case 6:
-            return 'varint';
-          case 7:
-            return 'decimal';
-          case 8:
+          case 3:
+            return 'blob';
+          case 4:
             return 'boolean';
-          case 9:
-            return 'float';
-          case 10:
+          case 5:
+            return 'counter';
+          case 6:
+            return 'decimal';
+          case 7:
             return 'double';
-          case 12:
+          case 8:
+            return 'float';
+          case 9:
+            return 'int';
+          case 10:
             return 'text';
+          case 11:
+            return 'timestamp';
+          case 12:
+            return 'uuid';
           case 13:
             return 'varchar';
-          case 16:
-            return 'uuid';
-          case 17:
+          case 14:
+            return 'varint';
+          case 15:
             return 'timeuuid';
-          case 19:
-            return 'timestamp';
-          case 20:
+          case 16:
             return 'inet';
-          case 21:
+          case 17:
             return 'date';
-          case 22:
+          case 18:
             return 'time';
+          case 19:
+            return 'smallint';
+          case 20:
+            return 'tinyint';
+          case 21:
+            return 'duration';
           case 32:
             return 'list';
           case 33:
             return 'map';
           case 34:
             return 'set';
-          case 0:
-            return 'custom';
+          case 48:
+            return 'udt';
+          case 49:
+            return 'tuple';
           default:
             return `type_code_${type.code}`;
         }
       }
     }
     return 'unknown';
+  }
+
+  private stripGenerics(typeName: string): string {
+    if (typeName.includes('<')) {
+      return typeName.substring(0, typeName.indexOf('<'));
+    }
+    return typeName;
   }
 
   public async getTablePrimaryColumns(tableName: string): Promise<Array<PrimaryKeyDS>> {
@@ -700,6 +734,83 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
     }
   }
 
+  private isAWSConnection(): boolean {
+    const { host } = this.connection;
+
+    if (host.includes('cassandra') && host.includes('amazonaws.com')) {
+      return true;
+    }
+
+    if (host.includes('amazonaws.com')) {
+      return true;
+    }
+
+    const ec2HostRegex = /^(ec2-).*([.]compute[.]amazonaws[.]com)$/i;
+    if (ec2HostRegex.test(host)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async getRowCountWithFallback(
+    client: cassandra.Client,
+    tableName: string,
+    whereConditions: string[],
+    params: any[],
+    query: string,
+  ): Promise<{ totalCount: number; isEstimated: boolean; result?: cassandra.types.ResultSet }> {
+    const isAWS = this.isAWSConnection();
+
+    if (isAWS) {
+      return this.estimateRowCount(client, tableName, whereConditions, params, query);
+    }
+
+    try {
+      const countQuery =
+        `SELECT COUNT(*) as count FROM ${tableName.toLowerCase()}` +
+        (whereConditions.length > 0 ? ` WHERE ${whereConditions.join(' AND ')} ALLOW FILTERING` : '');
+      const countResult = await client.execute(countQuery, params, { prepare: true });
+      const totalCount = parseInt(countResult.rows[0].count?.toString() || '0', 10);
+      return { totalCount, isEstimated: false };
+    } catch (countError) {
+      console.warn(`COUNT query failed, falling back to estimation: ${countError.message}`);
+      return this.estimateRowCount(client, tableName, whereConditions, params, query);
+    }
+  }
+
+  private async estimateRowCount(
+    client: cassandra.Client,
+    tableName: string,
+    whereConditions: string[],
+    params: any[],
+    query: string,
+  ): Promise<{ totalCount: number; isEstimated: boolean; result: cassandra.types.ResultSet }> {
+    try {
+      const result = await client.execute(query, params, { prepare: true });
+      let estimatedCount = result.rows.length;
+      if (whereConditions.length === 0) {
+        try {
+          const sampleQuery = `SELECT * FROM ${tableName.toLowerCase()} LIMIT 10000`;
+          const sampleResult = await client.execute(sampleQuery, [], { prepare: true });
+
+          if (sampleResult.rows.length >= 10000) {
+            estimatedCount = Math.max(estimatedCount, sampleResult.rows.length * 2);
+          } else {
+            estimatedCount = Math.max(estimatedCount, sampleResult.rows.length);
+          }
+        } catch (sampleError) {
+          console.warn(`Row count sampling failed: ${sampleError.message}`);
+        }
+      }
+
+      return { totalCount: estimatedCount, isEstimated: true, result };
+    } catch (error) {
+      console.warn(`Row count estimation failed: ${error.message}`);
+      return { totalCount: 100, isEstimated: true, result: null };
+    }
+  }
+
   private async getCassandraClient(): Promise<cassandra.Client> {
     const cachedClient = LRUStorage.getCassandraClientCache(this.connection);
 
@@ -745,6 +856,9 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
         authProvider,
         protocolOptions: {
           port,
+        },
+        queryOptions: {
+          consistency: cassandra.types.consistencies.localQuorum,
         },
       };
       if (this.connection.ssl) {

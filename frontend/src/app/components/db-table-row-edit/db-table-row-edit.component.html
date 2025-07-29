@@ -170,7 +170,7 @@
                         Back
                     </a>
                     <button type="button" mat-button color="primary"
-                        *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
+                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
                         class="actions__continue"
                         data-testid="record-save-and-continue-editing-button"
                         [disabled]="submitting || editRowForm.form.invalid"
