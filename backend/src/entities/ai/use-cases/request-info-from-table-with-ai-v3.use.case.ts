@@ -46,11 +46,12 @@ export class RequestInfoFromTableWithAIUseCaseV3
     this.setupResponseHeaders(response);
 
     const tools = getOpenAiTools(isMongoDb);
+    // eslint-disable-next-line prefer-const
     let heartbeatInterval: NodeJS.Timeout | null = null;
 
     try {
       response.write(`Analyzing your request about the "${tableName}" table...`);
-      heartbeatInterval = this.setupHeartbeat(response);
+      // heartbeatInterval = this.setupHeartbeat(response);
 
       const system_prompt = this.createSystemPrompt(tableName, databaseType, foundConnection);
 
