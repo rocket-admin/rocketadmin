@@ -295,7 +295,7 @@ export const recordEditTypes = {
         varchar: TextEditComponent,
         inet: TextEditComponent,
         ascii: TextEditComponent,
-        text: LongTextEditComponent,
+        text: TextEditComponent,
 
         list: JsonEditorEditComponent,
         map: JsonEditorEditComponent,
