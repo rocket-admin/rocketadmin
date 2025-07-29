@@ -14,10 +14,6 @@
              [disabled]="disabled || readonly"
              (change)="onColorPickerChange($event)"
              title="Choose color">
-      <div class="color-preview" 
-           [style.background-color]="isValidColor ? value : '#cccccc'"
-           [title]="value || 'No color'">
-      </div>
     </div>
   </mat-form-field>
 </div>
