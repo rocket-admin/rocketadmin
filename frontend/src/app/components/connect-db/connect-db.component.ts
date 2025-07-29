@@ -8,6 +8,7 @@ import { Subscription, take } from 'rxjs';
 
 import { AccessLevel } from 'src/app/models/user';
 import { AlertComponent } from '../ui-components/alert/alert.component';
+import { CassandraCredentialsFormComponent } from './db-credentials-forms/cassandra-credentials-form/cassandra-credentials-form.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
@@ -17,7 +18,6 @@ import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dial
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DynamodbCredentialsFormComponent } from './db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component';
-import { CassandraCredentialsFormComponent } from './db-credentials-forms/cassandra-credentials-form/cassandra-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -97,7 +97,7 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.MSSQL]: '1433',
     [DBtype.Mongo]: '27017',
     [DBtype.Dynamo]: '',
-    [DBtype.Cassandra]: '9142',
+    [DBtype.Cassandra]: '9042',
     [DBtype.DB2]: '50000'
   }
 
