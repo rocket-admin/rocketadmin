@@ -193,6 +193,8 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_negative": true
 }
 `,
+  Color: `// No settings required
+// You can use this field to display colors in hex format, like #FF5733 or #333.`,
   }
 
   constructor(

@@ -1,0 +1,31 @@
+.color-edit-container {
+  width: 100%;
+}
+
+.color-form-field {
+  width: 100%;
+}
+
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.color-picker-input {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  background: none;
+  padding: 0;
+  margin-right: 8px;
+}
+
+.color-picker-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
