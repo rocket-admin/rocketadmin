@@ -287,6 +287,7 @@ export const tableDisplayTypes = {
         uuid: TextDisplayComponent,
         varchar: TextDisplayComponent,
         inet: TextDisplayComponent,
+        ascii: TextDisplayComponent,
         text: LongTextDisplayComponent,
 
         list: JsonEditorDisplayComponent,
