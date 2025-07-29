@@ -5,13 +5,14 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgIf } from '@angular/common';
 
 @Injectable()
 @Component({
   selector: 'app-display-color',
   templateUrl: './color.component.html',
   styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './color.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
+  imports: [NgIf, ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class ColorDisplayComponent extends BaseTableDisplayFieldComponent {
   get isValidColor(): boolean {

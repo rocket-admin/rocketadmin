@@ -1,8 +1,8 @@
 <div class="field-display">
   <div class="color-display">
-    <div 
-      class="color-swatch" 
-      [style.background-color]="isValidColor ? value : '#cccccc'"
+    <div *ngIf="isValidColor"
+      class="color-swatch"
+      [style.background-color]="value"
       [title]="value || 'No color'"
     ></div>
     <span class="field-value">{{value || '—'}}</span>
