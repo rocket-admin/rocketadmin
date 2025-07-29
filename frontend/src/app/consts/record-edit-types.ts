@@ -274,5 +274,31 @@ export const recordEditTypes = {
         array: JsonEditorEditComponent,
         json: JsonEditorEditComponent,
         binary: FileEditComponent,
+    },
+    cassandra: {
+        int: NumberEditComponent,
+        bigint: NumberEditComponent,
+        varint: NumberEditComponent,
+        decimal: NumberEditComponent,
+        float: NumberEditComponent,
+        double: NumberEditComponent,
+
+        boolean: BooleanEditComponent,
+
+        timeuuid: IdEditComponent,
+
+        timestamp: DateTimeEditComponent,
+        date: DateEditComponent,
+        time: TimeEditComponent,
+
+        uuid: TextEditComponent,
+        varchar: TextEditComponent,
+        inet: TextEditComponent,
+        ascii: TextEditComponent,
+        text: LongTextEditComponent,
+
+        list: JsonEditorEditComponent,
+        map: JsonEditorEditComponent,
+        set: JsonEditorEditComponent,
     }
 }

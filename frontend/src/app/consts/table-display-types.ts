@@ -267,5 +267,31 @@ export const tableDisplayTypes = {
         array: JsonEditorDisplayComponent,
         json: JsonEditorDisplayComponent,
         binary: FileDisplayComponent,
-    }
+    },
+    cassandra: {
+        int: NumberDisplayComponent,
+        bigint: NumberDisplayComponent,
+        varint: NumberDisplayComponent,
+        decimal: NumberDisplayComponent,
+        float: NumberDisplayComponent,
+        double: NumberDisplayComponent,
+
+        boolean: BooleanDisplayComponent,
+
+        timeuuid: IdDisplayComponent,
+
+        timestamp: DateTimeDisplayComponent,
+        date: DateDisplayComponent,
+        time: TimeDisplayComponent,
+
+        uuid: TextDisplayComponent,
+        varchar: TextDisplayComponent,
+        inet: TextDisplayComponent,
+        ascii: TextDisplayComponent,
+        text: LongTextDisplayComponent,
+
+        list: JsonEditorDisplayComponent,
+        map: JsonEditorDisplayComponent,
+        set: JsonEditorDisplayComponent,
+    },
 }
