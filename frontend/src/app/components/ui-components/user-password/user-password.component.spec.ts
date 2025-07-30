@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
 import { UserPasswordComponent } from './user-password.component';
-import { IPasswordStrengthMeterService } from '@eresearchqut/angular-password-strength-meter';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Angulartics2Module } from 'angulartics2';
 
