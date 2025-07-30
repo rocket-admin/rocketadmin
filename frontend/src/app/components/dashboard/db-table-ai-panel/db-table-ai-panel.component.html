@@ -32,7 +32,7 @@
                 <mat-action-list role="list">
                     <button mat-list-item *ngFor="let suggestion of aiRequestSuggestions"
                         class="suggestion-button"
-                        (click)="sendMessage(suggestion)"
+                        (click)="createThread(suggestion)"
                         angulartics2On="click"
                         angularticsAction="AI panel: suggested request is clicked">
                         {{suggestion}}
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <form (ngSubmit)="sendMessage()" class="ai-message-form">
+        <form (ngSubmit)="threadID ? sendMessage() : createThread()" class="ai-message-form">
             <mat-form-field class="form-field" appearance="outline" class="ai-message-form__textarea">
                 <mat-label class="ai-message-form__label">What should I analyze?</mat-label>
                 <textarea matInput name="message"

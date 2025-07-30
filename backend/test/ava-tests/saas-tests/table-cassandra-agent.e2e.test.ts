@@ -354,7 +354,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'text');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'uuid');
 
     t.is(getTableRowsRO.pagination.total, 42);
     t.is(getTableRowsRO.pagination.lastPage, 21);
@@ -424,7 +424,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'text');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'uuid');
 
     t.is(getTableRowsRO.pagination.total, 42);
     t.is(getTableRowsRO.pagination.lastPage, 21);
@@ -497,7 +497,7 @@ should return all found rows with pagination page=1 perPage=2`,
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
       t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-      t.is(getTableRowsRO.primaryColumns[0].data_type, 'text');
+      t.is(getTableRowsRO.primaryColumns[0].data_type, 'uuid');
 
       t.is(getTableRowsRO.pagination.total, 3);
       t.is(getTableRowsRO.pagination.lastPage, 2);
@@ -571,7 +571,7 @@ should return all found rows with pagination page=1 perPage=3`,
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
       t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-      t.is(getTableRowsRO.primaryColumns[0].data_type, 'text');
+      t.is(getTableRowsRO.primaryColumns[0].data_type, 'uuid');
 
       t.is(getTableRowsRO.pagination.total, 3);
       t.is(getTableRowsRO.pagination.lastPage, 2);

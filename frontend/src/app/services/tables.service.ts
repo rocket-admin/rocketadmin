@@ -1,11 +1,11 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { CustomAction, Rule, TableSettings, Widget } from '../models/table';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { Angulartics2 } from 'angulartics2';
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
 
@@ -470,27 +470,42 @@ export class TablesService {
       );
   }
 
-  requestAI(connectionID: string, tableName: string, message: string) {
-    return this._http.post<any>(`/ai/request/${connectionID}`, {user_message: message}, {
+  createAIthread(connectionID, tableName, message) {
+    return this._http.post<any>(`/ai/v2/request/${connectionID}`, {user_message: message}, {
+      responseType: 'text' as 'json',
+      observe: 'response',
       params: {
         tableName
       }
     })
       .pipe(
         map((res) => {
-          // this.tables.next('activate actions');
-          // this._notifications.showSuccessSnackbar(`${action.title} is done for ${primaryKeys.length} rows.`);
+          const threadId = res.headers.get('x-openai-thread-id');
+          this.angulartics2.eventTrack.next({
+            action: 'AI: thread created'
+          });
+          const responseMessage = res.body as string;
+          return {threadId, responseMessage}
+        }),
+        catchError((err) => {
+          console.log(err);
+          return throwError(() => new Error(err.error.message));
+        })
+      );
+  }
+
+  requestAImessage(connectionID: string, tableName: string, threadId: string, message: string) {
+    return this._http.post<any>(`/ai/thread/message/${connectionID}/${threadId}`, {user_message: message}, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map((res) => {
           return res
         }),
         catchError((err) => {
           console.log(err);
-          // this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-          //   {
-          //     type: AlertActionType.Button,
-          //     caption: 'Dismiss',
-          //     action: (id: number) => this._notifications.dismissAlert()
-          //   }
-          // ]);
           return throwError(() => new Error(err.error.message));
         })
       );
