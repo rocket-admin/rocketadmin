@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { PasswordStrengthMeterComponent } from '@eresearchqut/angular-password-strength-meter';
+import { PasswordStrengthMeterComponent } from 'angular-password-strength-meter';
 import { PasswordValidationDirective } from 'src/app/directives/passwordValidator.directive';
 import { Angulartics2OnModule } from 'angulartics2';
 
