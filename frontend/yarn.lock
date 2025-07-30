@@ -1824,20 +1824,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eresearchqut/angular-password-strength-meter@npm:^13.0.7":
-  version: 13.0.7
-  resolution: "@eresearchqut/angular-password-strength-meter@npm:13.0.7"
-  dependencies:
-    tslib: ^2.8.1
-  peerDependencies:
-    "@angular/common": ^19.2.3
-    "@angular/core": ^19.2.3
-    "@zxcvbn-ts/core": ^3.0.0
-    "@zxcvbn-ts/language-en": ^3.0.0
-  checksum: fbc03e520e048e955d8763b6eb75b56db02b3b29b09878c1b4e8da008d33327064801d4117cd7d45347e09d85f37f1a66abb423adc5253064c23ea91ce287cf3
-  languageName: node
-  linkType: hard
-
 "@esbuild/aix-ppc64@npm:0.21.5":
   version: 0.21.5
   resolution: "@esbuild/aix-ppc64@npm:0.21.5"
@@ -4629,6 +4615,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"angular-password-strength-meter@npm:@eresearchqut/angular-password-strength-meter@^13.0.7":
+  version: 13.0.7
+  resolution: "@eresearchqut/angular-password-strength-meter@npm:13.0.7"
+  dependencies:
+    tslib: ^2.8.1
+  peerDependencies:
+    "@angular/common": ^19.2.3
+    "@angular/core": ^19.2.3
+    "@zxcvbn-ts/core": ^3.0.0
+    "@zxcvbn-ts/language-en": ^3.0.0
+  checksum: fbc03e520e048e955d8763b6eb75b56db02b3b29b09878c1b4e8da008d33327064801d4117cd7d45347e09d85f37f1a66abb423adc5253064c23ea91ce287cf3
+  languageName: node
+  linkType: hard
+
 "angulartics2@npm:^14.1.0":
   version: 14.1.0
   resolution: "angulartics2@npm:14.1.0"
@@ -6337,7 +6337,6 @@ __metadata:
     "@angular/platform-browser-dynamic": ~19.2.14
     "@angular/router": ~19.2.14
     "@brumeilde/ngx-theme": ^1.2.1
-    "@eresearchqut/angular-password-strength-meter": ^13.0.7
     "@jsonurl/jsonurl": ^1.1.8
     "@ngstack/code-editor": ^9.0.0
     "@sentry-internal/rrweb": ^2.16.0
@@ -6352,6 +6351,7 @@ __metadata:
     "@zxcvbn-ts/core": ^3.0.4
     "@zxcvbn-ts/language-en": ^3.0.2
     amplitude-js: ^8.21.9
+    angular-password-strength-meter: "npm:@eresearchqut/angular-password-strength-meter@^13.0.7"
     angulartics2: ^14.1.0
     convert: ^5.12.0
     date-fns: ^4.1.0
