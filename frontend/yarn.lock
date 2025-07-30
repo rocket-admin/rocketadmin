@@ -5303,10 +5303,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"color-name@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "color-name@npm:2.0.0"
+  checksum: 10a1addae41de2987d6b90dbd3cfade266c2e6f680ce21749911df4493b4fae07654862c6b5358bdd13e155461acb4eedaa5e0ba172bf13542cdcca10866cf2b
+  languageName: node
+  linkType: hard
+
 "color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
+  languageName: node
+  linkType: hard
+
+"color-string@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "color-string@npm:2.0.1"
+  dependencies:
+    color-name: ^2.0.0
+  checksum: a5ab024f78f67c0d5c1c995943ff95dce193beaa981492f6a36c05a9939a9db519e2d821d91df15677a47107fe90e4b12fd345729d755c65b543924db05c3a3f
   languageName: node
   linkType: hard
 
@@ -6267,6 +6283,7 @@ __metadata:
     amplitude-js: ^8.21.9
     angular-password-strength-meter: ^12.0.0
     angulartics2: ^14.1.0
+    color-string: ^2.0.1
     convert: ^5.12.0
     date-fns: ^4.1.0
     ipaddr.js: ^2.2.0
