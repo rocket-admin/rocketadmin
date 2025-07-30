@@ -79,13 +79,6 @@
         </mat-accordion>
     </mat-expansion-panel>
 
-    <div *ngIf="!selectedRow?.relatedRecords?.referenced_by">
-        <div class="skeleton loading-related-records">
-            <div class="bone loading-related-records__title"></div>
-            <div class="bone loading-related-records__button"></div>
-        </div>
-    </div>
-
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
