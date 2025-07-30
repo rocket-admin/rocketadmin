@@ -128,10 +128,12 @@ export class RequestInfoFromTableWithAIUseCaseV3
   }
 
   private createSystemPrompt(tableName: string, databaseType: any, foundConnection: any): string {
+    const currentDatetime = new Date().toISOString();
     return `You are an AI assistant helping with database queries.
 Database type: ${this.convertDdTypeEnumToReadableString(databaseType as ConnectionTypesEnum)}
 Table name: "${tableName}".
 ${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
+Current date and time: ${currentDatetime}
 
 Please follow these steps EXACTLY:
 1. First, always use the getTableStructure tool to analyze the table schema and understand available columns
@@ -141,7 +143,6 @@ Please follow these steps EXACTLY:
 5. ALWAYS call the executeRawSql or executeAggregationPipeline tool with the generated query to get the actual data
 6. After receiving query results, explain them to the user in a clear, conversational way
 7. Include explanations of your approach when helpful
-
 IMPORTANT:
 - You MUST execute your generated queries using the appropriate tool - this is required for every question
 - After generating a SQL query, immediately call executeRawSql with that query
