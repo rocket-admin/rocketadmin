@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CompanyMemberRole } from 'src/app/models/company';
 import { FormsModule }   from '@angular/forms';
-import { IPasswordStrengthMeterService } from '@eresearchqut/angular-password-strength-meter';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PasswordChangeComponent } from './password-change.component';
 import { Router } from '@angular/router';

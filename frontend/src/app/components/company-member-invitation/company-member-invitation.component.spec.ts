@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CompanyMemberInvitationComponent } from './company-member-invitation.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Angulartics2Module } from 'angulartics2';
-import { IPasswordStrengthMeterService } from '@eresearchqut/angular-password-strength-meter';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
