@@ -1,3 +1,23 @@
+.loading-related-records {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 0 16px;
+}
+
+.loading-related-records__title {
+    mix-blend-mode: normal !important;
+    height: 28px;
+    width: 120px;
+}
+
+.loading-related-records__button {
+    mix-blend-mode: normal !important;
+    border-radius: 50%;
+    height: 36px;
+    width: 36px;
+}
+
 .record-field {
     display: flex;
     flex-direction: column;

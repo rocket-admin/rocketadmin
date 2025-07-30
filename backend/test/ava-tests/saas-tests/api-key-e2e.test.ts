@@ -18,9 +18,11 @@ import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { MockFactory } from '../../mock.factory.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
 let currentTest: string;
+
 const mockFactory = new MockFactory();
 
 test.before(async () => {
@@ -32,7 +34,7 @@ test.before(async () => {
   // testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {

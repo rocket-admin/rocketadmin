@@ -46,11 +46,12 @@ export class RequestInfoFromTableWithAIUseCaseV3
     this.setupResponseHeaders(response);
 
     const tools = getOpenAiTools(isMongoDb);
+    // eslint-disable-next-line prefer-const
     let heartbeatInterval: NodeJS.Timeout | null = null;
 
     try {
-      response.write(`data: Analyzing your request about the "${tableName}" table...\n\n`);
-      heartbeatInterval = this.setupHeartbeat(response);
+      // response.write(`Analyzing your request about the "${tableName}" table...`);
+      // heartbeatInterval = this.setupHeartbeat(response);
 
       const system_prompt = this.createSystemPrompt(tableName, databaseType, foundConnection);
 
@@ -117,7 +118,7 @@ export class RequestInfoFromTableWithAIUseCaseV3
   private setupHeartbeat(response: any): NodeJS.Timeout {
     const interval = setInterval(() => {
       try {
-        response.write(`:heartbeat\n\n`);
+        response.write(`:heartbeat`);
       } catch (err) {
         console.error('Error sending heartbeat:', err);
         clearInterval(interval);
@@ -251,7 +252,7 @@ Remember that all responses should be clear and user-friendly, explaining techni
     if (completedToolCall) {
       try {
         const toolName = completedToolCall.function.name;
-        response.write(`data: ${this.getUserMessageForTool(toolName)}\n\n`);
+        // response.write(`${this.getUserMessageForTool(toolName)}`);
 
         if (toolName === 'getTableStructure') {
           await this.handleTableStructureTool(
@@ -296,7 +297,7 @@ Remember that all responses should be clear and user-friendly, explaining techni
   ) {
     const tableStructureInfo = await this.getTableStructureInfo(dao, tableName, userEmail, foundConnection);
 
-    response.write(`data: Fetching table structure information for ${tableName}...\n\n`);
+    // response.write(`Fetching table structure information for ${tableName}...`);
 
     const updatedSystemPrompt = this.createTableStructurePrompt(tableName, foundConnection, isMongoDb);
 
@@ -334,7 +335,7 @@ Remember that all responses should be clear and user-friendly, explaining techni
     } catch (innerStreamError) {
       console.error('Error creating second OpenAI stream with table structure data:', innerStreamError);
       response.write(
-        `data: Sorry, I encountered a problem analyzing your table information: ${innerStreamError.message}\n\n`,
+        `Sorry, I encountered a problem analyzing your table information: ${innerStreamError.message}`,
       );
     }
   }
@@ -382,7 +383,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
     let innerAiResponseBuffer = '';
     const innerResponseIdRef = { id: null };
 
-    response.write(`data: Analyzing your data structure and preparing an appropriate query...\n\n`);
+    // response.write(`Analyzing your data structure and preparing an appropriate query...`);
 
     for await (const innerChunk of continuedStream) {
       const typedInnerChunk = innerChunk as any;
@@ -403,8 +404,8 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
       if (typedInnerChunk.type === 'response.output_item.done' && typedInnerChunk.item?.type === 'function_call') {
         const completedInnerToolCall = innerToolCalls.find((tc) => tc.id === typedInnerChunk.item.id);
         if (completedInnerToolCall) {
-          const toolName = completedInnerToolCall.function.name;
-          response.write(`data: ${this.getUserMessageForTool(toolName, true)}\n\n`);
+          // const toolName = completedInnerToolCall.function.name;
+          // response.write(`${this.getUserMessageForTool(toolName, true)}`);
 
           await this.processQueryToolCall(
             completedInnerToolCall,
@@ -460,14 +461,14 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
 
   private handleStreamError(streamError: any, response: any) {
     console.error('Error creating OpenAI stream:', streamError);
-    response.write(`data: Sorry, I'm having trouble connecting to the AI service: ${streamError.message}\n\n`);
+    response.write(`Sorry, I'm having trouble connecting to the AI service: ${streamError.message}`);
 
     if (streamError.status === 401) {
       response.write(
-        `data: This may be due to insufficient API permissions. Please check your API key configuration.\n\n`,
+        `This may be due to insufficient API permissions. Please check your API key configuration.`,
       );
     } else if (streamError.status === 500) {
-      response.write(`data: This appears to be a temporary issue with the AI service. Please try again later.\n\n`);
+      response.write(`This appears to be a temporary issue with the AI service. Please try again later.`);
     }
   }
 
@@ -661,19 +662,19 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
       const sanitizedArgs = this.sanitizeJsonString(toolCall.function.arguments);
       const toolArgs = JSON.parse(sanitizedArgs);
 
-      response.write(`data: ${this.getUserMessageForTool(toolName)}\n\n`);
+      // response.write(`${this.getUserMessageForTool(toolName)}`);
 
       if (toolName === 'executeRawSql') {
         const query = toolArgs.query;
         if (!query || typeof query !== 'string') {
           response.write(
-            `data: Sorry, I couldn't understand how to query your data. Could you try rephrasing your question?\n\n`,
+            `Sorry, I couldn't understand how to query your data. Could you try rephrasing your question?`,
           );
           return;
         }
         if (!this.isValidSQLQuery(query)) {
           response.write(
-            `data: Sorry, for data safety reasons I can only run read-only queries that don't modify your data.\n\n`,
+            `Sorry, for data safety reasons I can only run read-only queries that don't modify your data.`,
           );
           return;
         }
@@ -682,7 +683,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
 
         try {
           const queryResult = await dao.executeRawQuery(finalQuery, tableName, userEmail);
-          response.write(`data: Query executed successfully.\n\n`);
+          // response.write(`Query executed successfully.`);
           if (
             await this.streamHumanReadableAnswer(
               query,
@@ -694,9 +695,9 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
               response,
             )
           ) {
-            console.info('Successfully streamed human-readable answer');
+            // console.info('Successfully streamed human-readable answer');
           } else {
-            console.info('Streaming failed, using non-streaming fallback');
+            // console.info('Streaming failed, using non-streaming fallback');
             const formattedResults = this.formatQueryResults(queryResult);
             const interpretation = await this.generateHumanReadableAnswer(
               query,
@@ -708,32 +709,32 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
             );
 
             if (interpretation) {
-              response.write(`data: ${interpretation}\n\n`);
+              response.write(`${interpretation}`);
             } else {
-              response.write(`data: Results: ${formattedResults}\n\n`);
+              response.write(`Results: ${formattedResults}`);
             }
           }
         } catch (error) {
           console.error('Error executing SQL query:', error);
-          response.write(`data: Sorry, I couldn't retrieve the data you requested: ${error.message}\n\n`);
+          response.write(`Sorry, I couldn't retrieve the data you requested: ${error.message}`);
         }
       } else if (toolName === 'executeAggregationPipeline') {
         const pipeline = toolArgs.pipeline;
         if (!pipeline || typeof pipeline !== 'string') {
-          response.write(`data: Invalid MongoDB pipeline provided.\n\n`);
+          response.write(`Invalid MongoDB pipeline provided.`);
           return;
         }
 
         if (!this.isValidMongoDbCommand(pipeline)) {
-          response.write(`data: Sorry, I can only run data analysis operations that don't modify your data.\n\n`);
+          response.write(`Sorry, I can only run data analysis operations that don't modify your data.`);
           console.info('MongoDB pipeline validation failed, potentially harmful:', pipeline);
           return;
         }
 
         try {
-          console.info('Executing MongoDB pipeline:', pipeline);
+          // console.info('Executing MongoDB pipeline:', pipeline);
           const pipelineResult = await dao.executeRawQuery(pipeline, tableName, userEmail);
-          response.write(`data: Pipeline executed successfully.\n\n`);
+          // response.write(`Pipeline executed successfully.`);
           if (
             await this.streamHumanReadableAnswer(
               pipeline,
@@ -745,9 +746,9 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
               response,
             )
           ) {
-            console.info('Successfully streamed MongoDB pipeline interpretation');
+            // console.info('Successfully streamed MongoDB pipeline interpretation');
           } else {
-            console.info('Streaming failed for MongoDB, using non-streaming fallback');
+            // console.info('Streaming failed for MongoDB, using non-streaming fallback');
             const formattedResults = this.formatQueryResults(pipelineResult);
             const interpretation = await this.generateHumanReadableAnswer(
               pipeline,
@@ -759,20 +760,20 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
             );
 
             if (interpretation) {
-              response.write(`data: ${interpretation}\n\n`);
+              response.write(`${interpretation}`);
             } else {
-              response.write(`data: Results: ${formattedResults}\n\n`);
+              response.write(`Results: ${formattedResults}`);
             }
           }
         } catch (error) {
           console.error('Error executing MongoDB pipeline:', error);
-          response.write(`data: Sorry, I couldn't complete the data analysis you requested: ${error.message}\n\n`);
+          response.write(`Sorry, I couldn't complete the data analysis you requested: ${error.message}`);
         }
       } else if (toolName === 'getTableStructure') {
-        response.write(`data: Table structure information has been fetched.\n\n`);
+        // response.write(`Table structure information has been fetched.`);
       } else {
         console.info(`Unknown tool call: ${toolName}`);
-        response.write(`data: Received unknown tool call: ${toolName}\n\n`);
+        response.write(`Received unknown tool call: ${toolName}`);
       }
     } catch (error) {
       this.handleError(response, error, 'in processQueryToolCall');
@@ -819,11 +820,11 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
 
       if (!query || query.length < 10) return false;
 
-      response.write(`data: I notice a potential database query in your question. Let me run that for you...\n\n`);
+      // response.write(`I notice a potential database query in your question. Let me run that for you...`);
 
       if (!this.isValidSQLQuery(query)) {
         response.write(
-          `data: Sorry, I can't run this query as it might modify data or contains potentially unsafe operations.\n\n`,
+          `Sorry, I can't run this query as it might modify data or contains potentially unsafe operations.`,
         );
         return false;
       }
@@ -833,7 +834,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
 
       try {
         const queryResult = await dao.executeRawQuery(finalQuery, tableName, userEmail);
-        response.write(`data: Successfully retrieved the data you requested.\n\n`);
+        // response.write(`Successfully retrieved the data you requested.`);
 
         const openApiKey = getRequiredEnvVariable('OPENAI_API_KEY');
         const openai = new OpenAI({ apiKey: openApiKey });
@@ -851,16 +852,16 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
         );
 
         if (interpretation) {
-          response.write(`data: ${interpretation}\n\n`);
+          response.write(`${interpretation}`);
         } else {
           const formattedResults = this.formatQueryResults(queryResult);
-          response.write(`data: Results: ${formattedResults}\n\n`);
+          response.write(`Results: ${formattedResults}`);
         }
 
         return true;
       } catch (error) {
         console.error('Error auto-executing detected SQL query:', error);
-        response.write(`data: Sorry, I couldn't retrieve that data for you: ${error.message}\n\n`);
+        response.write(`Sorry, I couldn't retrieve that data for you: ${error.message}`);
         return true;
       }
     } catch (error) {
@@ -878,7 +879,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
     userId: string,
   ): Promise<string | null> {
     try {
-      console.log('Generating human-readable answer for query results using responses API');
+      // console.log('Generating human-readable answer for query results using responses API');
 
       const simplifiedResults = this.simplifyQueryResults(queryResult);
 
@@ -1026,7 +1027,7 @@ Please provide a clear, concise, and conversational answer that directly address
   ): Promise<boolean> {
     try {
       console.log('Streaming human-readable answer for query results using responses API');
-      this.writeToResponse(response, 'Creating an explanation of what your data shows...');
+      // this.writeToResponse(response, 'Creating an explanation of what your data shows...');
 
       const simplifiedResults = this.simplifyQueryResults(queryResult);
       const instructions = this.getExplanationInstructions();
@@ -1141,7 +1142,7 @@ Please provide a clear, concise, and conversational answer that directly address
       }
 
       if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
-        response.write(`:heartbeat\n\n`);
+        // response.write(`:heartbeat`);
       }
     }
 
@@ -1454,7 +1455,7 @@ Please provide a clear, concise, and conversational answer that directly address
 
     const extractedText = this.extractTextFromChunk(chunk);
     if (extractedText && !this.isEmptyContent(extractedText)) {
-      response.write(`data: ${extractedText}\n\n`);
+      response.write(`${extractedText}`);
       return buffer + extractedText;
     }
 
@@ -1577,7 +1578,7 @@ Please provide a clear, concise, and conversational answer that directly address
   }
 
   private formatResponseOutput(text: string): string {
-    return `data: ${text}\n\n`;
+    return `${text}`;
   }
 
   private writeToResponse(response: any, text: string): void {
@@ -1595,7 +1596,7 @@ Please provide a clear, concise, and conversational answer that directly address
     const updatedBuffer = this.processStreamTextChunk(typedChunk, response, buffer);
 
     if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
-      response.write(`:heartbeat\n\n`);
+      // response.write(`:heartbeat`);
       if (typedChunk.type === 'response.created' && typedChunk.response?.id) {
         responseIdRef.id = typedChunk.response.id;
       }

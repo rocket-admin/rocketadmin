@@ -28,6 +28,8 @@ import { join } from 'path';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { clearAllTestKnex, getTestKnex } from '../../utils/get-test-knex.js';
 import { Knex } from 'knex';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -47,7 +49,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {

@@ -1,5 +1,6 @@
 import { BooleanDisplayComponent } from 'src/app/components/ui-components/table-display-fields/boolean/boolean.component';
 import { CodeDisplayComponent } from '../components/ui-components/table-display-fields/code/code.component';
+import { ColorDisplayComponent } from '../components/ui-components/table-display-fields/color/color.component';
 import { CountryDisplayComponent } from '../components/ui-components/table-display-fields/country/country.component';
 import { DateDisplayComponent } from '../components/ui-components/table-display-fields/date/date.component';
 import { DateTimeDisplayComponent } from '../components/ui-components/table-display-fields/date-time/date-time.component';
@@ -42,6 +43,7 @@ export const UIwidgets = {
     Phone: PhoneDisplayComponent,
     Money: MoneyDisplayComponent,
     Foreign_key: ForeignKeyDisplayComponent,
+    Color: ColorDisplayComponent,
 }
 
 export const tableDisplayTypes = {
@@ -265,5 +267,31 @@ export const tableDisplayTypes = {
         array: JsonEditorDisplayComponent,
         json: JsonEditorDisplayComponent,
         binary: FileDisplayComponent,
-    }
+    },
+    cassandra: {
+        int: NumberDisplayComponent,
+        bigint: NumberDisplayComponent,
+        varint: NumberDisplayComponent,
+        decimal: NumberDisplayComponent,
+        float: NumberDisplayComponent,
+        double: NumberDisplayComponent,
+
+        boolean: BooleanDisplayComponent,
+
+        timeuuid: IdDisplayComponent,
+
+        timestamp: DateTimeDisplayComponent,
+        date: DateDisplayComponent,
+        time: TimeDisplayComponent,
+
+        uuid: TextDisplayComponent,
+        varchar: TextDisplayComponent,
+        inet: TextDisplayComponent,
+        ascii: TextDisplayComponent,
+        text: LongTextDisplayComponent,
+
+        list: JsonEditorDisplayComponent,
+        map: JsonEditorDisplayComponent,
+        set: JsonEditorDisplayComponent,
+    },
 }

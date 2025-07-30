@@ -25,6 +25,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -44,7 +46,7 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {
@@ -1037,77 +1039,80 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   },
 );
 
-test.serial(`${currentTest} with search, with pagination and with sorting
-should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`, async (t) => {
-  try {
-    const connectionToTestDB = getTestData(mockFactory).elasticsearchTestConnection;
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
+test.serial(
+  `${currentTest} with search, with pagination and with sorting
+should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`,
+  async (t) => {
+    try {
+      const connectionToTestDB = getTestData(mockFactory).elasticsearchTestConnection;
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
-    testTables.push(testTableName);
+      testTables.push(testTableName);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestDB)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
 
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'age',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'age',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
 
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
 
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
-    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.pagination.currentPage, 2);
-    t.is(getTableRowsRO.pagination.perPage, 2);
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 1);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+      t.is(getTableRowsRO.pagination.currentPage, 2);
+      t.is(getTableRowsRO.pagination.perPage, 2);
 
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 test.serial(
   `${currentTest} with search, with pagination and with sorting

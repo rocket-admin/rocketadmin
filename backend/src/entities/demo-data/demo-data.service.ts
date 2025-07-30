@@ -472,7 +472,7 @@ export class DemoDataService {
           name: '',
           description: '',
           widget_params:
-            '// Configure international phone number widget\n// example:\n{\n  "preferred_countries": ["US", "GB", "CA"],\n  "enable_placeholder": true,\n  "enable_auto_country_select": true,\n  "phone_validation": true,\n  "format": "international"\n}\n',
+            '// Configure international phone number widget\n// example:\n{\n  "preferred_countries": ["US", "GB", "CA"],\n  "enable_placeholder": true,\n  "phone_validation": true\n}\n',
           widget_options: null,
         },
         {

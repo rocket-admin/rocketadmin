@@ -106,7 +106,11 @@ export class DbTableWidgetsComponent implements OnInit {
 }`,
     String: `// No settings required`,
     Readonly: `// No settings required`,
-    Number: `// No settings required`,
+    Number: `// Configure number display with unit conversion
+// Example units: "bytes", "meters", "seconds", "grams"
+{
+  "unit": null
+}`,
     Select:
 `// provide array of options to map database value (key 'value') in human readable value (key 'label');
 // for example:
@@ -189,6 +193,8 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_negative": true
 }
 `,
+  Color: `// No settings required
+// You can use this field to display colors in hex format, like #FF5733 or #333.`,
   }
 
   constructor(

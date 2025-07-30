@@ -8,6 +8,7 @@ import { Subscription, take } from 'rxjs';
 
 import { AccessLevel } from 'src/app/models/user';
 import { AlertComponent } from '../ui-components/alert/alert.component';
+import { CassandraCredentialsFormComponent } from './db-credentials-forms/cassandra-credentials-form/cassandra-credentials-form.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
@@ -64,6 +65,7 @@ import isIP from 'validator/lib/isIP';
     MatSlideToggleModule,
     Db2CredentialsFormComponent,
     DynamodbCredentialsFormComponent,
+    CassandraCredentialsFormComponent,
     MongodbCredentialsFormComponent,
     MssqlCredentialsFormComponent,
     MysqlCredentialsFormComponent,
@@ -95,6 +97,7 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.MSSQL]: '1433',
     [DBtype.Mongo]: '27017',
     [DBtype.Dynamo]: '',
+    [DBtype.Cassandra]: '9042',
     [DBtype.DB2]: '50000'
   }
 
