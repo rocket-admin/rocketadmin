@@ -1142,7 +1142,7 @@ Please provide a clear, concise, and conversational answer that directly address
       }
 
       if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
-        response.write(`:heartbeat`);
+        // response.write(`:heartbeat`);
       }
     }
 
@@ -1596,7 +1596,7 @@ Please provide a clear, concise, and conversational answer that directly address
     const updatedBuffer = this.processStreamTextChunk(typedChunk, response, buffer);
 
     if (typedChunk.type === 'response.created' || typedChunk.type === 'response.in_progress') {
-      response.write(`:heartbeat`);
+      // response.write(`:heartbeat`);
       if (typedChunk.type === 'response.created' && typedChunk.response?.id) {
         responseIdRef.id = typedChunk.response.id;
       }
