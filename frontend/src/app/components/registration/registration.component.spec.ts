@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RegistrationComponent } from './registration.component';
 import { of } from 'rxjs';
-import { IPasswordStrengthMeterService } from '@eresearchqut/angular-password-strength-meter';
+import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
