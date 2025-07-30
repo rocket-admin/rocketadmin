@@ -5,12 +5,12 @@
       [style.background-color]="normalizedColorForDisplay"
       [title]="value || 'No color'"
     ></div>
-    <span class="field-value">{{formattedColorValue || '—'}}</span>
+    <span class="field-value">{{value || '—'}}</span>
   </div>
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy"
-      [cdkCopyToClipboard]="formattedColorValue"
+      [cdkCopyToClipboard]="value"
       (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Color value was copied to clipboard.')"
       (click)="$event.stopPropagation()">
       <mat-icon>content_copy</mat-icon>

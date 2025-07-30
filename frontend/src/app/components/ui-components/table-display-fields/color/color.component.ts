@@ -30,33 +30,6 @@ export class ColorDisplayComponent extends BaseTableDisplayFieldComponent {
     return '#000000';
   }
 
-  get formattedColorValue(): string {
-    const parsed = this.parseColor(this.value);
-    if (!parsed) return this.value;
-
-    const format = this.widgetStructure?.widget_params?.format || 'hex_hash';
-    const [r, g, b, a] = parsed.value;
-
-    switch (format) {
-      case 'hex':
-        return colorString.to.hex(r, g, b, a).slice(1); // Remove # prefix
-      case 'hex_hash':
-        return colorString.to.hex(r, g, b, a);
-      case 'rgb':
-        return colorString.to.rgb(r, g, b, a);
-      case 'hsl':
-        // Convert RGB to HSL using built-in conversion
-        const hex = colorString.to.hex(r, g, b, a);
-        const hslParsed = colorString.get.hsl(hex);
-        if (hslParsed) {
-          const [h, s, l, alpha] = hslParsed;
-          return colorString.to.hsl(h, s, l, alpha);
-        }
-        return hex;
-      default:
-        return colorString.to.hex(r, g, b, a);
-    }
-  }
 
   private parseColor(color: string): any {
     if (!color) return null;
