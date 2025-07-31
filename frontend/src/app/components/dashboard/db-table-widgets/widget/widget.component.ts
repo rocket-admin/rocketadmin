@@ -3,12 +3,12 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, EventEmitter, Input, OnChanges, OnIn
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Widget } from 'src/app/models/table';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-widget',
@@ -57,6 +57,17 @@ export class WidgetComponent implements OnInit, OnChanges {
     automaticLayout: true,
     scrollBeyondLastLine: false,
     wordWrap: 'on',
+  };
+
+  public docsUrls = {
+    Boolean: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#boolean',
+    Textarea: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#textarea',
+    Select: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#select',
+    Password: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#password',
+    Code: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#code',
+    Image: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#image',
+    Foreign_key: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#foreign-key',
+    Phone: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#phone'
   };
 
   ngOnInit(): void {
