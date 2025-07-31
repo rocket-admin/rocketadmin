@@ -6,20 +6,36 @@
 
 .header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
     margin: 36px 70px 24px 0;
 }
 
+.header-actions-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+}
+
 .header-actions {
     display: flex;
-    gap: 20px;
+    gap: 16px;
+}
+
+.header-links {
+    display: flex;
+    gap: 16px;
 }
 
 .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.empty-state__actions {
+    display: flex;
+    gap: 12px;
 }
 
 .widgets-hint {

@@ -1,5 +1,13 @@
-<h1 mat-dialog-title>Permissions for <strong>{{ group.title }}</strong> group</h1>
 <form #addPermissionsForm="ngForm" class="permissions-form" (ngSubmit)="addPermissions()">
+    <h1 mat-dialog-title class="permissions-header">
+        <span>Permissions for <strong>{{ group.title }}</strong> group</span>
+        <a mat-stroked-button
+            href="https://docs.rocketadmin.com/Reference/permissions"
+            color="primary">
+            <mat-icon>open_in_new</mat-icon>
+            Docs
+        </a>
+    </h1>
     <mat-dialog-content>
         <app-alert *ngIf="connectionAccess === 'edit' && group.title === 'Admin'" [alert]="adminGroupAlert" class="permissions-alert"></app-alert>
         <app-alert *ngIf="connectionAccess === 'edit' && group.title !== 'Admin'" [alert]="connectionFullAccessAlert" class="permissions-alert"></app-alert>

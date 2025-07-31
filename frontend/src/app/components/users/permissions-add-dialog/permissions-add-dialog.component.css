@@ -1,5 +1,12 @@
-.mat-dialog-title {
-    margin-bottom: 12px;
+.permissions-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 16px 0;
+}
+
+.permissions-header::before {
+    display: none;
 }
 
 .permissions-alert {

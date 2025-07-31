@@ -5,22 +5,40 @@
     <header class="header">
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
 
-        <div *ngIf="widgets.length" class="header-actions">
-            <button  mat-stroked-button
-                type="button"
-                (click)="openClearAllConfirmation()"
-                [disabled]="fields.length === 0 && widgets.length === 0">
-                Clear All
-            </button>
-            <button mat-stroked-button color="accent"
-                type="button"
-                angulartics2On="click"
-                angularticsAction="Widgets: add widget is clicked"
-                (click)="addNewWidget()"
-                [disabled]="fields.length === 0 || widgets.length === fieldsCount">
-                <mat-icon>add</mat-icon>
-                Add UI widget
-            </button>
+        <div *ngIf="widgets.length" class="header-actions-box">
+            <div class="header-actions">
+                <button  mat-stroked-button
+                    type="button"
+                    (click)="openClearAllConfirmation()"
+                    [disabled]="fields.length === 0 && widgets.length === 0">
+                    Clear All
+                </button>
+                <button mat-stroked-button color="accent"
+                    type="button"
+                    angulartics2On="click"
+                    angularticsAction="Widgets: add widget is clicked"
+                    (click)="addNewWidget()"
+                    [disabled]="fields.length === 0 || widgets.length === fieldsCount">
+                    <mat-icon>add</mat-icon>
+                    Add UI widget
+                </button>
+            </div>
+            <div class="header-links">
+                <a mat-button color="primary"
+                    href="https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_definition"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    What are UI Widgets
+                    <mat-icon>open_in_new</mat-icon>
+                </a>
+                <a mat-button color="primary"
+                    href="https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    How to manage UI Widgets
+                    <mat-icon>open_in_new</mat-icon>
+                </a>
+            </div>
         </div>
 
     </header>
@@ -62,12 +80,21 @@
                 <span class="widgets-hint__text">Nothing will be changed in your data types, just better reflecting the nature of the data.</span>
             </p>
 
-            <button mat-flat-button color="accent"
-                angulartics2On="click"
-                angularticsAction="Widgets: add first widget is clicked"
-                (click)="addNewWidget()">
-                Create UI Widget
-            </button>
+            <div class="empty-state__actions">
+                <button mat-flat-button color="accent"
+                    angulartics2On="click"
+                    angularticsAction="Widgets: add first widget is clicked"
+                    (click)="addNewWidget()">
+                    Create UI Widget
+                </button>
+                <a mat-stroked-button color="primary"
+                    href="https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_definition"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    Read what UI Widgets are
+                    <mat-icon>open_in_new</mat-icon>
+                </a>
+            </div>
 
             <div class="widget-examples">
                 <div class="widget-example">
