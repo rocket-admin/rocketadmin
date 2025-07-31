@@ -30,11 +30,11 @@ export class TableRowService {
     })
       .pipe(
         map(res => res),
-        // catchError((err) => {
-        //   console.log(err);
-        //   this._notifications.showErrorSnackbar(err.error.message);
-        //   return EMPTY;
-        // })
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
       );
   }
 
