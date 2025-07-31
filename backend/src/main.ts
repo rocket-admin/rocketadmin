@@ -43,20 +43,23 @@ async function bootstrap() {
     app.use(cookieParser());
 
     const cookieDomain = process.env.ROCKETADMIN_COOKIE_DOMAIN || undefined;
-    app.use(
-      session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          secure: true,
-          domain: cookieDomain,
-          maxAge: 2 * 60 * 60 * 1000,
-          httpOnly: true,
-        },
-        name: 'rocketadmin.sid',
-      }),
-    );
+    const sessionSecret = process.env.SESSION_SECRET || undefined;
+    if (sessionSecret) {
+      app.use(
+        session({
+          secret: sessionSecret,
+          resave: false,
+          saveUninitialized: false,
+          cookie: {
+            secure: true,
+            domain: cookieDomain,
+            maxAge: 2 * 60 * 60 * 1000,
+            httpOnly: true,
+          },
+          name: 'rocketadmin.sid',
+        }),
+      );
+    }
 
     app.enableCors({
       origin: [

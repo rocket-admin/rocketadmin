@@ -4,12 +4,15 @@
     word-break: break-all;
 }
 
-/* ::ng-deep .CodeMirror {
-    border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.34);
-    height: auto;
-    margin-bottom: 20px;
-    min-height: 78px;
+.widget-type ::ng-deep .mat-mdc-form-field-hint-wrapper {
+    --mdc-outlined-button-container-height: 24px;
+    --mat-outlined-button-horizontal-padding: 12px;
+
+    padding: 8px 4px;
+}
+
+/* .widget-type__docs-link {
+    color: var(--color-accentedDarkPalette-500);
 } */
 
 .code-editor-box {

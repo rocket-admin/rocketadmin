@@ -11,15 +11,24 @@
     </mat-form-field>
 </ng-template>
 
-<mat-form-field appearance="outline">
-    <mat-label>Display type</mat-label>
-    <mat-select name="{{widget.field_name}}-field-type"
-        [(ngModel)]="widget.widget_type"
-        (ngModelChange)="onWidgetTypeChange.emit(widget.field_name)">
-        <mat-option *ngFor="let widgetType of widgetTypes"
-            [value]="widgetType">{{ widgetType }}</mat-option>
-    </mat-select>
-</mat-form-field>
+<div class="widget-type">
+    <mat-form-field appearance="outline">
+        <mat-label>Display type</mat-label>
+        <mat-select name="{{widget.field_name}}-field-type"
+            [(ngModel)]="widget.widget_type"
+            (ngModelChange)="onWidgetTypeChange.emit(widget.field_name)">
+            <mat-option *ngFor="let widgetType of widgetTypes"
+                [value]="widgetType">{{ widgetType }}</mat-option>
+        </mat-select>
+        <mat-hint *ngIf="docsUrls[widgetType]">
+            <a mat-stroked-button [href]="docsUrls[widgetType]" target="_blank" color="primary">
+                Docs
+                <mat-icon>open_in_new</mat-icon>
+            </a>
+        </mat-hint>
+    </mat-form-field>
+
+</div>
 
 <div class="code-editor-box">
     <ngs-code-editor

@@ -1,3 +1,10 @@
 .zapier-page {
+    display: flex;
+    flex-direction: column;
     padding: 32px max(calc(50vw - 325px), 10%);
+}
+
+.zapier-docs-button {
+    align-self: flex-end;
+    margin-bottom: -36px;
 }
