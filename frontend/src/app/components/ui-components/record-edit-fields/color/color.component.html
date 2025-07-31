@@ -5,12 +5,11 @@
         [required]="required" [disabled]="disabled" [readonly]="readonly"
         attr.data-testid="record-{{label}}-color"
         [(ngModel)]="value" (ngModelChange)="onTextInputChange()"
-        placeholder="#000000"
-        pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+        placeholder="e.g. #000000, rgb(0,0,0), hsl(0,0%,0%)">
     <div matSuffix class="color-picker-container">
       <input type="color" 
              class="color-picker-input"
-             [value]="isValidColor ? value : '#000000'"
+             [value]="normalizedColorForPicker"
              [disabled]="disabled || readonly"
              (change)="onColorPickerChange($event)"
              title="Choose color">

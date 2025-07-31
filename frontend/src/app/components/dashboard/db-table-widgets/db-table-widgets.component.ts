@@ -193,8 +193,19 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_negative": true
 }
 `,
-  Color: `// No settings required
-// You can use this field to display colors in hex format, like #FF5733 or #333.`,
+  Color: `// Optional: Specify output format for color values
+// Supported formats: "hex", "hex_hash" (default), "rgb", "hsl"
+// Example configuration:
+
+{
+  "format": "hex_hash"  // Will display colors as "#FF5733"
+}
+
+// Format options:
+// - "hex": Display as "FF5733" (no hash)
+// - "hex_hash": Display as "#FF5733" (default)
+// - "rgb": Display as "rgb(255, 87, 51)"
+// - "hsl": Display as "hsl(9, 100%, 60%)"`,
   }
 
   constructor(
