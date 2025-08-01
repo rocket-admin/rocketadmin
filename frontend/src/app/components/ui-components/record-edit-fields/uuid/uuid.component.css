@@ -1,0 +1,54 @@
+.uuid-field {
+  width: 100%;
+}
+
+.uuid-input {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+.regenerate-button {
+  cursor: pointer;
+}
+
+.regenerate-button:hover {
+  color: var(--mat-primary);
+}
+
+.uuid-config-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: -16px;
+  margin-bottom: 16px;
+  padding: 8px;
+  background-color: var(--mat-grey-100);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.info-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--mat-grey-600);
+}
+
+.info-text {
+  color: var(--mat-grey-700);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .uuid-config-info {
+    background-color: var(--mat-grey-800);
+  }
+  
+  .info-icon {
+    color: var(--mat-grey-400);
+  }
+  
+  .info-text {
+    color: var(--mat-grey-300);
+  }
+}

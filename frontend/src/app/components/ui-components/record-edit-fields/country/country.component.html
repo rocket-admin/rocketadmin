@@ -9,7 +9,7 @@
         <mat-option *ngFor="let country of filteredCountries | async"
             [value]="country"
             (onSelectionChange)="country && onCountrySelected(country)">
-            <span *ngIf="country.flag" class="country-flag">{{country.flag}}</span>
+            <span *ngIf="country.flag && showFlag" class="country-flag">{{country.flag}}</span>
             <span class="country-name">{{country.label}}</span>
             <span *ngIf="country.value" class="country-code">({{country.value}})</span>
         </mat-option>

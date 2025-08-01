@@ -21,6 +21,7 @@ import { TextDisplayComponent } from 'src/app/components/ui-components/table-dis
 import { TimeDisplayComponent } from '../components/ui-components/table-display-fields/time/time.component';
 import { TimeIntervalDisplayComponent } from '../components/ui-components/table-display-fields/time-interval/time-interval.component';
 import { UrlDisplayComponent } from '../components/ui-components/table-display-fields/url/url.component';
+import { UuidDisplayComponent } from '../components/ui-components/table-display-fields/uuid/uuid.component';
 
 export const UIwidgets = {
     Default: '',
@@ -44,6 +45,7 @@ export const UIwidgets = {
     Money: MoneyDisplayComponent,
     Foreign_key: ForeignKeyDisplayComponent,
     Color: ColorDisplayComponent,
+    UUID: UuidDisplayComponent,
 }
 
 export const tableDisplayTypes = {
@@ -75,7 +77,7 @@ export const tableDisplayTypes = {
         macaddr8: TextDisplayComponent,
         cidr: TextDisplayComponent,
         inet: TextDisplayComponent,
-        uuid: TextDisplayComponent,
+        uuid: UuidDisplayComponent,
 
         //long text (textarea)
         text: LongTextDisplayComponent,
@@ -200,7 +202,7 @@ export const tableDisplayTypes = {
         real: NumberDisplayComponent,
 
         // short text (text)
-        uniqueidentifier: IdDisplayComponent,
+        uniqueidentifier: UuidDisplayComponent,
         char: TextDisplayComponent,
         varchar: TextDisplayComponent,
 
@@ -284,7 +286,7 @@ export const tableDisplayTypes = {
         date: DateDisplayComponent,
         time: TimeDisplayComponent,
 
-        uuid: TextDisplayComponent,
+        uuid: UuidDisplayComponent,
         varchar: TextDisplayComponent,
         inet: TextDisplayComponent,
         ascii: TextDisplayComponent,

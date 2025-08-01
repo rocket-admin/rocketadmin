@@ -1,0 +1,45 @@
+<mat-form-field appearance="outline" class="uuid-field">
+  <mat-label>{{ normalizedLabel }}</mat-label>
+  <input 
+    matInput 
+    [(ngModel)]="value" 
+    [readonly]="readonly || disabled"
+    [required]="required"
+    (ngModelChange)="onFieldChange.emit($event)"
+    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    class="uuid-input"
+  />
+  
+  @if (!readonly && !disabled) {
+    <button 
+      mat-icon-button 
+      matSuffix 
+      (click)="generateUuid()"
+      matTooltip="Generate new UUID"
+      type="button"
+      class="regenerate-button"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
+  }
+  
+  @if (value && validateUuid(value)) {
+    <mat-hint align="end">
+      UUID {{ getUuidVersion(value) ? 'v' + getUuidVersion(value) : 'version unknown' }}
+    </mat-hint>
+  }
+  
+  @if (value && !validateUuid(value)) {
+    <mat-error>Invalid UUID format</mat-error>
+  }
+</mat-form-field>
+
+<!-- Widget configuration info for v3/v5 versions -->
+@if (!readonly && !disabled && (uuidVersion === 'v3' || uuidVersion === 'v5')) {
+  <div class="uuid-config-info">
+    <mat-icon class="info-icon">info</mat-icon>
+    <span class="info-text">
+      UUID {{ uuidVersion }} uses namespace/name hashing. Configure these in widget parameters.
+    </span>
+  </div>
+}
