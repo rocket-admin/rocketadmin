@@ -176,7 +176,13 @@ export class DbTableWidgetsComponent implements OnInit {
   "phone_validation": true
 }
 `,
-  Country: `// No settings required`,
+  Country: `// Configure country display options
+// Example:
+{
+  "show_flag": true,
+  "allow_null": false
+}
+`,
   Foreign_key: `// Provide settings for foreign key widget
 {
   "column_name": "", // copy the name of the column you selected
@@ -206,6 +212,15 @@ export class DbTableWidgetsComponent implements OnInit {
 // - "hex_hash": Display as "#FF5733" (default)
 // - "rgb": Display as "rgb(255, 87, 51)"
 // - "hsl": Display as "hsl(9, 100%, 60%)"`,
+  UUID: `// Configure UUID generation version and parameters
+// Available versions: "v1", "v3", "v4" (default), "v5", "v7"
+// For v3/v5: provide namespace and optionally name
+{
+  "version": "v4",
+  "namespace": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "name": ""
+}
+`
   }
 
   constructor(

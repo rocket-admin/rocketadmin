@@ -25,6 +25,7 @@ export class CountryEditComponent extends BaseEditFieldComponent {
   public countries: {value: string | null, label: string, flag: string}[] = [];
   public countryControl = new FormControl<{value: string | null, label: string, flag: string} | string>('');
   public filteredCountries: Observable<{value: string | null, label: string, flag: string}[]>;
+  public showFlag: boolean = true;
 
   originalOrder = () => { return 0; }
 
@@ -32,9 +33,26 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 
   ngOnInit(): void {
     super.ngOnInit();
+    this.parseWidgetParams();
     this.loadCountries();
     this.setupAutocomplete();
     this.setInitialValue();
+  }
+
+  private parseWidgetParams(): void {
+    if (this.widgetStructure?.widget_params) {
+      try {
+        const params = typeof this.widgetStructure.widget_params === 'string' 
+          ? JSON.parse(this.widgetStructure.widget_params) 
+          : this.widgetStructure.widget_params;
+        
+        if (params.show_flag !== undefined) {
+          this.showFlag = params.show_flag;
+        }
+      } catch (e) {
+        console.error('Error parsing country widget params:', e);
+      }
+    }
   }
 
   private setupAutocomplete(): void {

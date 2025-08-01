@@ -22,6 +22,7 @@ import { TextEditComponent } from 'src/app/components/ui-components/record-edit-
 import { TimeEditComponent } from '../components/ui-components/record-edit-fields/time/time.component';
 import { TimeIntervalEditComponent } from '../components/ui-components/record-edit-fields/time-interval/time-interval.component';
 import { UrlEditComponent } from '../components/ui-components/record-edit-fields/url/url.component';
+import { UuidEditComponent } from '../components/ui-components/record-edit-fields/uuid/uuid.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time', 'datetime', 'date time', 'datetime2', 'datetimeoffset', 'curdate', 'curtime', 'now', 'localtime', 'localtimestamp'];
 export const defaultTimestampValues = {
@@ -51,6 +52,7 @@ export const UIwidgets = {
     Money: MoneyEditComponent,
     Foreign_key: ForeignKeyEditComponent,
     Color: ColorEditComponent,
+    UUID: UuidEditComponent,
 }
 
 export const recordEditTypes = {
@@ -82,7 +84,7 @@ export const recordEditTypes = {
         macaddr8: TextEditComponent, //to do regexp
         cidr: TextEditComponent, //to do regexp
         inet: TextEditComponent, //to do regexp
-        uuid: TextEditComponent, //to do regexp
+        uuid: UuidEditComponent,
 
         //long text (textarea)
         text: LongTextEditComponent,
@@ -207,7 +209,7 @@ export const recordEditTypes = {
         real: NumberEditComponent,
 
         // short text (text)
-        uniqueidentifier: IdEditComponent,
+        uniqueidentifier: UuidEditComponent,
         char: TextEditComponent,
         varchar: TextEditComponent,
 
@@ -291,7 +293,7 @@ export const recordEditTypes = {
         date: DateEditComponent,
         time: TimeEditComponent,
 
-        uuid: TextEditComponent,
+        uuid: UuidEditComponent,
         varchar: TextEditComponent,
         inet: TextEditComponent,
         ascii: TextEditComponent,

@@ -242,6 +242,15 @@ export const filterTypes = {
 
         "foreign key": ForeignKeyFilterComponent
     },
+    dynamodb: {
+        string: TextFilterComponent,
+        number: NumberFilterComponent,
+        boolean: BooleanFilterComponent,
+        null: StaticTextFilterComponent,
+        array: JsonEditorFilterComponent,
+        json: JsonEditorFilterComponent,
+        binary: FileFilterComponent,
+    },
     cassandra: {
         int: NumberFilterComponent,
         bigint: NumberFilterComponent,
