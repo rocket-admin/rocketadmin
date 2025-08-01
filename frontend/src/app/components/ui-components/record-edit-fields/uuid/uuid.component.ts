@@ -1,14 +1,15 @@
 import { Component, Injectable, Input, OnInit } from '@angular/core';
+import { validate as uuidValidate, version as uuidVersion, v1 as uuidv1, v3 as uuidv3, v4 as uuidv4, v5 as uuidv5, v7 as uuidv7 } from 'uuid';
+
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { v1 as uuidv1, v4 as uuidv4, v5 as uuidv5, v3 as uuidv3, v7 as uuidv7, validate as uuidValidate, version as uuidVersion } from 'uuid';
 
 @Injectable()
 
@@ -29,14 +30,14 @@ import { v1 as uuidv1, v4 as uuidv4, v5 as uuidv5, v3 as uuidv3, v7 as uuidv7, v
 })
 export class UuidEditComponent extends BaseEditFieldComponent implements OnInit {
   @Input() value: string;
-  
+
   static type = 'uuid';
-  
+
   public uuidVersion: string = 'v4';
   public isCreateMode: boolean = true;
   public namespace: string = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'; // Default DNS namespace
   public name: string = '';
-  
+
   // Available UUID versions
   public availableVersions = [
     { value: 'v1', label: 'v1 (timestamp + MAC)', description: 'Timestamp and MAC address based' },
@@ -45,7 +46,7 @@ export class UuidEditComponent extends BaseEditFieldComponent implements OnInit 
     { value: 'v5', label: 'v5 (SHA-1 hash)', description: 'SHA-1 hash of namespace and name' },
     { value: 'v7', label: 'v7 (timestamp)', description: 'Timestamp-based sortable UUID' }
   ];
-  
+
   // Standard namespaces for v3/v5
   public namespaces = [
     { value: '6ba7b810-9dad-11d1-80b4-00c04fd430c8', label: 'DNS' },
@@ -53,20 +54,20 @@ export class UuidEditComponent extends BaseEditFieldComponent implements OnInit 
     { value: '6ba7b812-9dad-11d1-80b4-00c04fd430c8', label: 'OID' },
     { value: '6ba7b814-9dad-11d1-80b4-00c04fd430c8', label: 'X500' }
   ];
-  
+
   ngOnInit(): void {
     super.ngOnInit();
-    
+
     // Determine if we're in create or update mode
     this.isCreateMode = !this.value || this.value === '';
-    
+
     // Parse widget parameters
     if (this.widgetStructure?.widget_params) {
       try {
-        const params = typeof this.widgetStructure.widget_params === 'string' 
-          ? JSON.parse(this.widgetStructure.widget_params) 
+        const params = typeof this.widgetStructure.widget_params === 'string'
+          ? JSON.parse(this.widgetStructure.widget_params)
           : this.widgetStructure.widget_params;
-        
+
         if (params.version) {
           this.uuidVersion = params.version;
         }
@@ -80,16 +81,16 @@ export class UuidEditComponent extends BaseEditFieldComponent implements OnInit 
         console.error('Error parsing UUID widget params:', e);
       }
     }
-    
+
     // Generate UUID on create
     if (this.isCreateMode) {
       this.generateUuid();
     }
   }
-  
+
   generateUuid(): void {
     let uuid = '';
-    
+
     try {
       switch (this.uuidVersion) {
         case 'v1':
@@ -118,7 +119,7 @@ export class UuidEditComponent extends BaseEditFieldComponent implements OnInit 
         default:
           uuid = uuidv4();
       }
-      
+
       this.value = uuid;
       this.onFieldChange.emit(this.value);
     } catch (error) {
@@ -128,11 +129,11 @@ export class UuidEditComponent extends BaseEditFieldComponent implements OnInit 
       this.onFieldChange.emit(this.value);
     }
   }
-  
+
   validateUuid(value: string): boolean {
     return uuidValidate(value);
   }
-  
+
   getUuidVersion(value: string): number | false {
     try {
       return uuidVersion(value);
