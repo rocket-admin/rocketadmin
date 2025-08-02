@@ -20,18 +20,18 @@ import { TimeIntervalFilterComponent } from '../components/ui-components/filter-
 export const UIwidgets = {
     Default: '',
     Boolean: BooleanFilterComponent,
+    Country: CountryFilterComponent,
     Date: DateFilterComponent,
-    Time: TimeFilterComponent,
     DateTime: DateTimeFilterComponent,
-    JSON: JsonEditorFilterComponent,
-    Textarea: LongTextFilterComponent,
-    String: TextFilterComponent,
-    Readonly: StaticTextFilterComponent,
-    Number: NumberFilterComponent,
-    Select: SelectFilterComponent,
-    Password: PasswordFilterComponent,
     File: FileFilterComponent,
-    Country: CountryFilterComponent
+    JSON: JsonEditorFilterComponent,
+    Number: NumberFilterComponent,
+    Password: PasswordFilterComponent,
+    Readonly: StaticTextFilterComponent,
+    Select: SelectFilterComponent,
+    String: TextFilterComponent,
+    Textarea: LongTextFilterComponent,
+    Time: TimeFilterComponent,
 }
 
 export const filterTypes = {
