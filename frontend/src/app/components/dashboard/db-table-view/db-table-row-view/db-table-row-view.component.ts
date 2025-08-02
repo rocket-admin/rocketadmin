@@ -14,7 +14,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { PlaceholderRecordViewComponent } from '../../skeletons/placeholder-record-view/placeholder-record-view.component';
+import { PlaceholderRecordViewComponent } from '../../../skeletons/placeholder-record-view/placeholder-record-view.component';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { formatFieldValue } from 'src/app/lib/format-field-value';

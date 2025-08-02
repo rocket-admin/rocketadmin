@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { Angulartics2Module } from 'angulartics2';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { DbTableComponent } from './db-table.component';
+import { DbTableViewComponent } from './db-table-view.component';
 import { FormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TablesDataSource } from '../db-tables-data-source';
-import { MatDialogModule } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { Angulartics2Module } from 'angulartics2';
 
-describe('DbTableComponent', () => {
-  let component: DbTableComponent;
-  let fixture: ComponentFixture<DbTableComponent>;
+describe('DbTableViewComponent', () => {
+  let component: DbTableViewComponent;
+  let fixture: ComponentFixture<DbTableViewComponent>;
 
   const mockWidgets = {
     "Region": {
@@ -81,14 +81,14 @@ describe('DbTableComponent', () => {
         FormsModule,
         MatDialogModule,
         Angulartics2Module.forRoot({}),
-        DbTableComponent
+        DbTableViewComponent
       ],
       providers: [provideHttpClient(), provideRouter([])]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DbTableComponent);
+    fixture = TestBed.createComponent(DbTableViewComponent);
     component = fixture.componentInstance;
     component.table = new TablesDataSource({} as any, {} as any, {} as any, {} as any);
     component.selection = new SelectionModel<any>(true, []);

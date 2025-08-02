@@ -7,16 +7,16 @@ import { first, map } from 'rxjs/operators';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
-import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
+import { BbBulkActionConfirmationDialogComponent } from './db-table-view/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { ContentLoaderComponent } from '../ui-components/content-loader/content-loader.component';
-import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
-import { DbTableAiPanelComponent } from './db-table-ai-panel/db-table-ai-panel.component';
-import { DbTableComponent } from './db-table/db-table.component';
-import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
-import { DbTableRowViewComponent } from './db-table-row-view/db-table-row-view.component';
+import { DbActionLinkDialogComponent } from './db-table-view/db-action-link-dialog/db-action-link-dialog.component';
+import { DbTableAiPanelComponent } from './db-table-view/db-table-ai-panel/db-table-ai-panel.component';
+import { DbTableFiltersDialogComponent } from './db-table-view/db-table-filters-dialog/db-table-filters-dialog.component';
+import { DbTableRowViewComponent } from './db-table-view/db-table-row-view/db-table-row-view.component';
+import { DbTableViewComponent } from './db-table-view/db-table-view.component';
 import { DbTablesListComponent } from './db-tables-list/db-tables-list.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import JsonURL from "@jsonurl/jsonurl";
@@ -58,7 +58,7 @@ interface DataToActivateActions {
     MatDialogModule,
     MatSidenavModule,
     DbTablesListComponent,
-    DbTableComponent,
+    DbTableViewComponent,
     DbTableAiPanelComponent,
     DbTableRowViewComponent,
     AlertComponent,
