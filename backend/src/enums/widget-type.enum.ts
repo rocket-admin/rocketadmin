@@ -19,5 +19,6 @@ export enum WidgetTypeEnum {
   Code = 'Code',
   Phone = 'Phone',
   Country = 'Country',
-  Color = 'Color'
+  Color = 'Color',
+  Range = 'Range'
 }
