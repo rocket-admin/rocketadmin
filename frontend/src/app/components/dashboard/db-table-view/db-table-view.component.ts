@@ -104,6 +104,8 @@ export class DbTableViewComponent implements OnInit {
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();
 
+  @Output() applyFilter = new EventEmitter();
+
   // public tablesSwitchControl = new FormControl('');
   public tableData: any;
   public filteredTables: TableProperties[];

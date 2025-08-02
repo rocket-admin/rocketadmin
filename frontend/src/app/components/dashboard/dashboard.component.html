@@ -89,7 +89,8 @@
                     (removeFilter)="removeFilter($event)"
                     (resetAllFilters)="clearAllFilters()"
                     (search)="search($event)"
-                    (activateActions)="activateActions($event)">
+                    (activateActions)="activateActions($event)"
+                    (applyFilter)="applyFilter($event)">
                 </app-db-table-view>
             </div>
             <app-db-table-row-view *ngIf="selectedRow"

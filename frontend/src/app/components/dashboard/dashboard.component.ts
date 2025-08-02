@@ -376,7 +376,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           shownColumns
         });
     });
+  }
 
+  applyFilter(filters: any) {
+    this.filters = filters.filters;
+    this.getRows();
   }
 
   openIntercome() {

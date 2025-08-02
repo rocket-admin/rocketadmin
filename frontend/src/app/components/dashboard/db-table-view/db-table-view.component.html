@@ -180,10 +180,10 @@
 </div>
 
 <app-saved-filters-panel
-
     [connectionID]="connectionID"
     [selectedTableName]="name"
     [selectedTableDisplayName]="displayName"
+    (filterSelected)="applyFilter.emit($event)"
 ></app-saved-filters-panel>
 
 <div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">

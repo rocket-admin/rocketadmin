@@ -20,10 +20,10 @@
             </mat-chip-option>
         </mat-chip-listbox>
 
-        <div class="filter-chips-container" *ngIf="savedFilterData[selectedFilterIndex]">
+        <div class="filter-chips-container" *ngIf="selectedFilterIndex !== -1 && savedFilterData[selectedFilterIndex]">
             <div class="filter-chips">
                 <mat-chip
-                        *ngFor="let entry of getFilterEntries(savedFilterData[selectedFilterIndex].filters)"
+                        *ngFor="let entry of getFilterEntries(savedFilterData[selectedFilterIndex]?.filters || {})"
                         class="filter-chip">
                     {{ getFilter(entry) }}
                 </mat-chip>

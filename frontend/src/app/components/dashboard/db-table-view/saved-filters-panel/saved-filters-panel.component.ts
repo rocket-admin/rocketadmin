@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import JsonURL from '@jsonurl/jsonurl';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
@@ -24,7 +26,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
   templateUrl: './saved-filters-panel.component.html',
   styleUrl: './saved-filters-panel.component.css'
 })
-export class SavedFiltersPanelComponent {
+export class SavedFiltersPanelComponent implements OnInit {
   @Input() connectionID: string;
   @Input() selectedTableName: string;
   @Input() selectedTableDisplayName: string;
@@ -32,7 +34,7 @@ export class SavedFiltersPanelComponent {
   @Output() filterSelected = new EventEmitter<any>();
 
   public savedFilterData: any[] = [];
-  public selectedFilterIndex: number = 0;
+  public selectedFilterIndex: number = -1;
     public displayedComparators = {
     eq: "=",
     gt: ">",
@@ -44,6 +46,8 @@ export class SavedFiltersPanelComponent {
   constructor(
     private dialog: MatDialog,
     private _tables: TablesService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -51,6 +55,25 @@ export class SavedFiltersPanelComponent {
       next: (data) => {
         this.savedFilterData = data;
         console.log('Saved filters data:', this.savedFilterData);
+
+        // Check if there's a saved_filter parameter in the URL
+        this.route.queryParams.subscribe(params => {
+          const savedFilterName = params['saved_filter'];
+
+          if (savedFilterName && this.savedFilterData.length > 0) {
+            // Find the index of the saved filter with the matching name
+            const filterIndex = this.savedFilterData.findIndex(filter => filter.name === savedFilterName);
+
+            // If found, select it
+            if (filterIndex !== -1) {
+              this.selectedFilterIndex = filterIndex;
+              this.filterSelected.emit(this.savedFilterData[filterIndex]);
+            }
+          } else {
+            // No filter specified in URL, keep selectedFilterIndex as -1 (none selected)
+            this.selectedFilterIndex = -1;
+          }
+        });
       },
       error: (error) => {
         console.error('Error fetching saved filters:', error);
@@ -101,7 +124,35 @@ export class SavedFiltersPanelComponent {
    */
   selectFilter(index: number): void {
     this.selectedFilterIndex = index;
-    this.filterSelected.emit(this.savedFilterData[index]);
+    const selectedFilter = this.savedFilterData[index];
+    this.filterSelected.emit(selectedFilter);
+
+    // Get the current query params
+    const currentParams = this.route.snapshot.queryParams;
+
+    // Update the URL with the filter data and saved filter name
+    const filters = JsonURL.stringify(selectedFilter.filters);
+
+    // Create query params object
+    const queryParams: any = {
+      filters,
+      page_index: 0,
+      page_size: currentParams['page_size'] || 30, // Use current page size or default
+      saved_filter: selectedFilter.name // Add the saved filter name to the URL
+    };
+
+    // Only add sorting params if they exist
+    if (currentParams['sort_active']) {
+      queryParams.sort_active = currentParams['sort_active'];
+    }
+
+    if (currentParams['sort_direction']) {
+      queryParams.sort_direction = currentParams['sort_direction'];
+    }
+
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+      queryParams
+    });
   }
 
   getFilter(activeFilter: {column: string, operator: string, value: any}) {
