@@ -1,5 +1,33 @@
-<button mat-button type="button"
-    (click)="handleOpenSavedFiltersDialog()">
-    <mat-icon>tune</mat-icon>
-    Setup custom filters
-</button>
+<div class="saved-filters-container">
+    <button mat-button type="button" (click)="handleOpenSavedFiltersDialog()">
+        <mat-icon>tune</mat-icon>
+        Setup custom filters
+    </button>
+
+    <div class="no-filters" *ngIf="savedFilterData && savedFilterData.length === 0">
+        <mat-icon>info</mat-icon>
+        <span>No saved filters. Create one by clicking the button above.</span>
+    </div>
+
+    <div class="saved-filters-tabs" *ngIf="savedFilterData && savedFilterData.length > 0">
+        <mat-chip-listbox [value]="selectedFilterIndex.toString()">
+            <mat-chip-option *ngFor="let filter of savedFilterData; let i = index"
+                      [value]="i.toString()"
+                      (click)="selectFilter(i)"
+                      [selected]="selectedFilterIndex === i"
+                      [matTooltip]="'Created: ' + (filter.createdAt | date:'medium') + (filter.updatedAt ? '\nUpdated: ' + (filter.updatedAt | date:'medium') : '')">
+                {{ filter.name }}
+            </mat-chip-option>
+        </mat-chip-listbox>
+
+        <div class="filter-chips-container" *ngIf="savedFilterData[selectedFilterIndex]">
+            <div class="filter-chips">
+                <mat-chip
+                        *ngFor="let entry of getFilterEntries(savedFilterData[selectedFilterIndex].filters)"
+                        class="filter-chip">
+                    {{ getFilter(entry) }}
+                </mat-chip>
+            </div>
+        </div>
+    </div>
+</div>

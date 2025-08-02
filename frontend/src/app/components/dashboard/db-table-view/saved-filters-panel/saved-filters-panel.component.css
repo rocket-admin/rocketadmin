@@ -1,0 +1,81 @@
+.saved-filters-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 8px 0;
+}
+
+.saved-filters-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.filter-chips-container {
+    margin-top: 8px;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-chip {
+    font-size: 13px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.filter-chip:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.column-name {
+    font-weight: 500;
+    margin-right: 4px;
+}
+
+.operator {
+    margin-right: 4px;
+    font-style: italic;
+    color: #666;
+}
+
+.value {
+    color: #3f51b5;
+    font-weight: 500;
+}
+
+/* Style for the tabs as chips */
+:host ::ng-deep .mat-mdc-chip-option.mdc-evolution-chip--selected .mdc-evolution-chip__text-label {
+    color: white;
+}
+
+:host ::ng-deep .mat-mdc-chip-option {
+    min-height: 36px;
+}
+
+.no-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.no-filters mat-icon {
+    color: #999;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}

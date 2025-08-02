@@ -511,6 +511,23 @@ export class TablesService {
       );
   }
 
+  getSavedFilters(connectionID: string, tableName: string) {
+    return this._http.get<any>(`/table-filters/${connectionID}/all`, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map((res) => {
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          return throwError(() => new Error(err.error.message));
+        })
+      );
+  }
+
   createSavedFilter(connectionID: string, tableName: string, filters: object) {
     return this._http.post<any>(`/table-filters/${connectionID}`, filters, {
       params: {

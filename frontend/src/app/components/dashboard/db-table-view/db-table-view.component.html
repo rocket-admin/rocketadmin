@@ -184,7 +184,6 @@
     [connectionID]="connectionID"
     [selectedTableName]="name"
     [selectedTableDisplayName]="displayName"
-    [savedFilterData]="tableData.savedFilters"
 ></app-saved-filters-panel>
 
 <div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">
