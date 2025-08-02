@@ -1,0 +1,247 @@
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { CommonModule } from '@angular/common';
+import { Component, Inject, Input, OnInit } from '@angular/core';
+import { DynamicModule } from 'ng-dynamic-component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterModule } from '@angular/router';
+import { ContentLoaderComponent } from 'src/app/components/ui-components/content-loader/content-loader.component';
+import { Observable, map, startWith } from 'rxjs';
+import { TablesService } from 'src/app/services/tables.service';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { filterTypes } from 'src/app/consts/filter-types';
+import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { TableField, TableForeignKey } from 'src/app/models/table';
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
+import { omitBy } from 'lodash';
+
+@Component({
+  selector: 'app-saved-filters-dialog',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    DynamicModule,
+    RouterModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    ContentLoaderComponent
+  ],
+  templateUrl: './saved-filters-dialog.component.html',
+  styleUrl: './saved-filters-dialog.component.css'
+})
+export class SavedFiltersDialogComponent implements OnInit {
+  @Input() connectionID: string;
+  @Input() tableName: string;
+  @Input() displayTableName: string;
+  @Input() savedFilterData: any;
+
+  public tableFilters = [];
+  public fieldSearchControl = new FormControl('');
+  public fields: string[];
+  public foundFields: Observable<string[]>;
+
+  public tableRowFields: Object;
+  public tableRowStructure: Object;
+  public tableRowFieldsShown: Object = {};
+  public tableRowFieldsComparator: Object = {};
+  public tableForeignKeys: {[key: string]: TableForeignKey};
+  public tableFiltersCount: number = 0;
+  public tableTypes: Object;
+  public tableWidgets: object;
+  public tableWidgetsList: string[] = [];
+  public UIwidgets = UIwidgets;
+
+  // Form for saving filters
+  public filterForm = new FormGroup({
+    filterName: new FormControl('', [Validators.required]),
+    filterDescription: new FormControl(''),
+    isDefault: new FormControl(false)
+  });
+
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private _tables: TablesService,
+    private _connections: ConnectionsService,
+    private dialogRef: MatDialogRef<SavedFiltersDialogComponent>,
+    private snackBar: MatSnackBar
+  ) {}
+
+  ngOnInit(): void {
+    this._tables.cast.subscribe();
+
+    // Load table structure
+    this._tables.fetchTableStructure(this.data.connectionID, this.data.tableName).subscribe({
+      next: (structure) => {
+        this.tableForeignKeys = {...structure.foreignKeys};
+        this.tableRowFields = Object.assign({}, ...structure.structure.map((field: TableField) => ({[field.column_name]: undefined})));
+        const foreignKeysList = structure.foreignKeys.map((fk: TableForeignKey) => fk.column_name);
+        this.tableTypes = getTableTypes(structure.structure, foreignKeysList);
+        this.fields = structure.structure
+          .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
+          .map((field: TableField) => field.column_name);
+
+        this.tableRowStructure = Object.assign({}, ...structure.structure.map((field: TableField) => {
+          return {[field.column_name]: field};
+        }));
+
+        // Setup widgets if available
+        if (structure.widgets && structure.widgets.length) {
+          this.setWidgets(structure.widgets);
+        }
+
+        this.foundFields = this.fieldSearchControl.valueChanges.pipe(
+          startWith(''),
+          map(value => this._filter(value || '')),
+        );
+      },
+      error: (err) => {
+        console.error('Error loading table structure:', err);
+      }
+    });
+  }
+
+  private _filter(value: string): string[] {
+    return this.fields.filter((field: string) => field.toLowerCase().includes(value.toLowerCase()));
+  }
+
+  get inputs() {
+    return filterTypes[this._connections.currentConnection.type];
+  }
+
+  setWidgets(widgets: any[]) {
+    this.tableWidgetsList = widgets.map((widget: any) => widget.field_name);
+    this.tableWidgets = Object.assign({}, ...widgets
+      .map((widget: any) => {
+        let params;
+        if (widget.widget_params !== '// No settings required') {
+          try {
+            params = JSON.parse(widget.widget_params);
+          } catch (e) {
+            params = '';
+          }
+        } else {
+          params = '';
+        }
+        return {
+          [widget.field_name]: {...widget, widget_params: params}
+        };
+      })
+    );
+  }
+
+  trackByFn(index: number, item: any) {
+    return item.key;
+  }
+
+  isWidget(columnName: string) {
+    return this.tableWidgetsList.includes(columnName);
+  }
+
+  updateField = (updatedValue: any, field: string) => {
+    this.tableRowFieldsShown[field] = updatedValue;
+    this.updateFiltersCount();
+  }
+
+  addFilter(e) {
+    const key = e.option.value;
+    this.tableRowFieldsShown = {...this.tableRowFieldsShown, [key]: this.tableRowFields[key]};
+    this.tableRowFieldsComparator = {...this.tableRowFieldsComparator, [key]: this.tableRowFieldsComparator[key] || 'eq'};
+    this.fieldSearchControl.setValue('');
+    this.updateFiltersCount();
+  }
+
+  updateComparator(event, fieldName: string) {
+    if (event === 'empty') this.tableRowFieldsShown[fieldName] = '';
+  }
+
+  resetFilters() {
+    this.tableFilters = [];
+    this.tableRowFieldsShown = {};
+    this.tableRowFieldsComparator = {};
+    this.updateFiltersCount();
+  }
+
+  getInputType(field: string) {
+    let widgetType;
+    if (this.isWidget(field)) {
+      widgetType = this.UIwidgets[this.tableWidgets[field].widget_type]?.type;
+    } else {
+      widgetType = this.inputs[this.tableTypes[field]]?.type;
+    }
+    return widgetType;
+  }
+
+  getComparatorType(typeOfComponent) {
+    if (typeOfComponent === 'text') {
+      return 'text';
+    } else if (typeOfComponent === 'number' || typeOfComponent === 'datetime') {
+      return 'number';
+    } else {
+      return 'nonComparable';
+    }
+  }
+
+  removeFilter(field) {
+    delete this.tableRowFieldsShown[field];
+    delete this.tableRowFieldsComparator[field];
+    this.updateFiltersCount();
+  }
+
+  updateFiltersCount() {
+    this.tableFiltersCount = Object.keys(this.tableRowFieldsShown).length;
+  }
+
+  saveFilter() {
+    if (!this.filterForm.valid || this.tableFiltersCount === 0) {
+      return;
+    }
+
+    // Prepare filter data to save
+    // const filterToSave = {
+    //   name: this.filterForm.get('filterName').value,
+    //   description: this.filterForm.get('filterDescription').value,
+    //   isDefault: this.filterForm.get('isDefault').value,
+    //   connectionId: this.data.connectionID,
+    //   tableName: this.data.tableName,
+    //   filters: this.tableRowFieldsShown,
+    //   comparators: this.tableRowFieldsComparator
+    // };
+
+    const nonEmptyFilters = omitBy(this.tableRowFieldsShown, (value) => value === undefined);
+
+    if (Object.keys(nonEmptyFilters).length) {
+      let filters = {};
+      for (const key in nonEmptyFilters) {
+          if (this.tableRowFieldsComparator[key] !== undefined) {
+            filters[key] = {
+                  [this.tableRowFieldsComparator[key]]: nonEmptyFilters[key]
+              };
+          }
+      }
+
+      // const filters = JsonURL.stringify( this.filters );
+
+      this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, {name: this.filterForm.get('filterName').value, filters})
+        .subscribe(() => {
+          this.dialogRef.close(true);
+        }, (error) => {
+          console.error('Error saving filter:', error);
+          this.snackBar.open('Error saving filter', 'Close', { duration: 3000 });
+        });
+    }
+  }
+}

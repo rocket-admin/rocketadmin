@@ -510,4 +510,30 @@ export class TablesService {
         })
       );
   }
+
+  createSavedFilter(connectionID: string, tableName: string, filters: object) {
+    return this._http.post<any>(`/table-filters/${connectionID}`, filters, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('saved filters');
+          this._notifications.showSuccessSnackbar('Saved filters have been updated.')
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      )
+    }
 }

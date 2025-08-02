@@ -31,7 +31,8 @@ export const UIwidgets = {
     Select: SelectFilterComponent,
     Password: PasswordFilterComponent,
     File: FileFilterComponent,
-    Country: CountryFilterComponent
+    Country: CountryFilterComponent,
+    Foreign_key: ForeignKeyFilterComponent,
 }
 
 export const filterTypes = {

@@ -36,6 +36,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RouterModule } from '@angular/router';
+import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-panel.component';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
@@ -77,6 +78,7 @@ interface Column {
     PlaceholderTableDataComponent,
     DynamicModule,
     ForeignKeyDisplayComponent,
+    SavedFiltersPanelComponent
   ]
 })
 
