@@ -124,14 +124,17 @@ export class SavedFiltersPanelComponent implements OnInit {
     });
   }
 
-  handleOpenSavedFiltersDialog() {
+  handleOpenSavedFiltersDialog(filtersSet: any = null) {
     this.dialog.open(SavedFiltersDialogComponent, {
       width: '56em',
       data: {
         connectionID: this.connectionID,
         tableName: this.selectedTableName,
         displayTableName: this.selectedTableDisplayName,
-        savedFilterData: this.savedFilterData
+        filtersSet: filtersSet ? filtersSet : {
+          name: '',
+          filters: {}
+        }
       }
     });
   }

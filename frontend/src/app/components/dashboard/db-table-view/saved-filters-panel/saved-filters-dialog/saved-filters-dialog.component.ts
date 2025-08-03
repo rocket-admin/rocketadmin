@@ -44,10 +44,10 @@ import { omitBy } from 'lodash';
   styleUrl: './saved-filters-dialog.component.css'
 })
 export class SavedFiltersDialogComponent implements OnInit {
-  @Input() connectionID: string;
-  @Input() tableName: string;
-  @Input() displayTableName: string;
-  @Input() savedFilterData: any;
+  // @Input() connectionID: string;
+  // @Input() tableName: string;
+  // @Input() displayTableName: string;
+  // @Input() filtersSet: any;
 
   public tableFilters = [];
   public fieldSearchControl = new FormControl('');
@@ -65,13 +65,6 @@ export class SavedFiltersDialogComponent implements OnInit {
   public tableWidgetsList: string[] = [];
   public UIwidgets = UIwidgets;
 
-  // Form for saving filters
-  public filterForm = new FormGroup({
-    filterName: new FormControl('', [Validators.required]),
-    filterDescription: new FormControl(''),
-    isDefault: new FormControl(false)
-  });
-
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _tables: TablesService,
@@ -82,6 +75,20 @@ export class SavedFiltersDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this._tables.cast.subscribe();
+
+    if (this.data.filtersSet) {
+      this.tableRowFieldsShown = Object.entries(this.data.filtersSet.filters).reduce((acc, [field, conditions]) => {
+        const [comparator, value] = Object.entries(conditions)[0];
+        acc[field] = value;
+        return acc;
+      }, {});
+
+      this.tableRowFieldsComparator = Object.entries(this.data.filtersSet.filters).reduce((acc, [field, conditions]) => {
+        const [comparator] = Object.keys(conditions);
+        acc[field] = comparator;
+        return acc;
+      }, {});
+    }
 
     // Load table structure
     this._tables.fetchTableStructure(this.data.connectionID, this.data.tableName).subscribe({
@@ -168,11 +175,16 @@ export class SavedFiltersDialogComponent implements OnInit {
     if (event === 'empty') this.tableRowFieldsShown[fieldName] = '';
   }
 
-  resetFilters() {
-    this.tableFilters = [];
-    this.tableRowFieldsShown = {};
-    this.tableRowFieldsComparator = {};
-    this.updateFiltersCount();
+  removeFilters() {
+    this._tables.deleteSavedFilter(this.data.connectionID, this.data.tableName, this.data.filtersSet.id).subscribe({
+      next: () => {
+        this.dialogRef.close(true);
+      },
+      error: (error) => {
+        console.error('Error removing filters:', error);
+        this.snackBar.open('Error removing filters', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   getInputType(field: string) {
@@ -206,9 +218,9 @@ export class SavedFiltersDialogComponent implements OnInit {
   }
 
   saveFilter() {
-    if (!this.filterForm.valid || this.tableFiltersCount === 0) {
-      return;
-    }
+    // if (!this.filterForm.valid || this.tableFiltersCount === 0) {
+    //   return;
+    // }
 
     // Prepare filter data to save
     // const filterToSave = {
@@ -235,7 +247,7 @@ export class SavedFiltersDialogComponent implements OnInit {
 
       // const filters = JsonURL.stringify( this.filters );
 
-      this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, {name: this.filterForm.get('filterName').value, filters})
+      this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, {name: this.data.filtersSet.name, filters})
         .subscribe(() => {
           this.dialogRef.close(true);
         }, (error) => {

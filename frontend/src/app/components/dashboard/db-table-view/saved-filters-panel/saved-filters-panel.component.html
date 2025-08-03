@@ -1,8 +1,27 @@
 <div class="saved-filters-container">
-    <button mat-button type="button" (click)="handleOpenSavedFiltersDialog()">
+    <button *ngIf="savedFilterData.length === 0"
+        mat-button type="button"
+        (click)="handleOpenSavedFiltersDialog()">
         <mat-icon>tune</mat-icon>
         Setup custom filters
     </button>
+
+    <button *ngIf="savedFilterData.length !== 0"
+        mat-button type="button"
+        [matMenuTriggerFor]="menu">
+        <mat-icon>tune</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="handleOpenSavedFiltersDialog()">
+            <mat-icon>add</mat-icon>
+            Create new filter
+        </button>
+        <button mat-menu-item
+            *ngFor="let filter of savedFilterData"
+            (click)="handleOpenSavedFiltersDialog(filter)">
+            {{ filter.name }}
+        </button>
+    </mat-menu>
 
     <div class="no-filters" *ngIf="savedFilterData && savedFilterData.length === 0">
         <mat-icon>info</mat-icon>

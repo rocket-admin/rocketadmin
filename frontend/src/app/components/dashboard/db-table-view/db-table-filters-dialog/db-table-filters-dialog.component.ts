@@ -95,6 +95,8 @@ export class DbTableFiltersDialogComponent implements OnInit {
     const filters = JsonURL.parse(queryParams.filters);
     const filtersValues = getFiltersFromUrl(filters);
 
+    console.log('Parsed filters from URL:', filtersValues);
+
     if (Object.keys(filtersValues).length) {
       this.tableFilters = Object.keys(filtersValues).map(key => key);
       this.tableRowFieldsShown = filtersValues;

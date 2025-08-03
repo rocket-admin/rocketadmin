@@ -13,8 +13,10 @@
             <!-- Filter Name and Description Fields -->
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Filter Name</mat-label>
-                <input matInput [formControl]="filterForm.controls.filterName" required>
-                <mat-error *ngIf="filterForm.controls.filterName.hasError('required')">
+                <input matInput required
+                    name="filters_set_name"
+                    [(ngModel)]="data.filtersSet.name">
+                <mat-error *ngIf="!data.filtersSet.name">
                     Filter name is required
                 </mat-error>
             </mat-form-field>
@@ -152,18 +154,17 @@
     </ng-template>
 
     <mat-dialog-actions align="end">
-        <button mat-flat-button color="warn"
+        <button *ngIf="data.filtersSet.id"
+            mat-flat-button color="warn"
             type="button"
             class="settings-form__reset-button"
-            [disabled]="tableFiltersCount === 0"
-            (click)="resetFilters()">
-            Reset Filters
+            (click)="removeFilters()">
+            Remove
         </button>
         <button mat-flat-button mat-dialog-close>
             Cancel
         </button>
         <button mat-flat-button color="primary" type="submit"
-            [disabled]="tableFiltersCount === 0 || !filterForm.valid"
             (click)="saveFilter()">
             Save Filter
         </button>
