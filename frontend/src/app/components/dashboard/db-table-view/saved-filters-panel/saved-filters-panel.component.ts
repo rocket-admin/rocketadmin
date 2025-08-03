@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filters-dialog.component';
@@ -22,6 +23,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     MatChipsModule,
     MatTabsModule,
     MatTooltipModule,
+    MatMenuModule
   ],
   templateUrl: './saved-filters-panel.component.html',
   styleUrl: './saved-filters-panel.component.css'
@@ -34,8 +36,13 @@ export class SavedFiltersPanelComponent implements OnInit {
   @Output() filterSelected = new EventEmitter<any>();
 
   public savedFilterData: any[] = [];
+  public savedFilterMap: { [key: string]: any } = {};
   public selectedFilterIndex: number = -1;
-    public displayedComparators = {
+
+  public selectedFilterSetId: string | null = null;
+  public selectedFilter: any = null;
+
+  public displayedComparators = {
     eq: "=",
     gt: ">",
     lt: "<",
@@ -54,7 +61,15 @@ export class SavedFiltersPanelComponent implements OnInit {
     this._tables.getSavedFilters(this.connectionID, this.selectedTableName).subscribe({
       next: (data) => {
         this.savedFilterData = data;
-        console.log('Saved filters data:', this.savedFilterData);
+        this.savedFilterMap = Object.assign({}, ...data.map((filter, index) => {
+          // Create a copy of the filter with transformed filters array
+          const transformedFilter = {
+            ...filter,
+            filterEntries: this.getFilterEntries(filter.filters)
+          };
+          return { [filter.id]: transformedFilter };
+        }));
+        console.log('Saved filters map:', this.savedFilterMap);
 
         // Check if there's a saved_filter parameter in the URL
         this.route.queryParams.subscribe(params => {
@@ -122,9 +137,10 @@ export class SavedFiltersPanelComponent implements OnInit {
    * Select a filter and emit the selection event
    * @param index Index of the selected filter
    */
-  selectFilter(index: number): void {
-    this.selectedFilterIndex = index;
-    const selectedFilter = this.savedFilterData[index];
+
+  selectFiltersSet(selectedFilterSetId: string): void {
+    this.selectedFilterSetId = selectedFilterSetId;
+    const selectedFilter = this.savedFilterMap[selectedFilterSetId];
     this.filterSelected.emit(selectedFilter);
 
     // Get the current query params
@@ -153,6 +169,10 @@ export class SavedFiltersPanelComponent implements OnInit {
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams
     });
+  }
+
+  selectFilter(entry) {
+    this.selectedFilter = entry;
   }
 
   getFilter(activeFilter: {column: string, operator: string, value: any}) {
