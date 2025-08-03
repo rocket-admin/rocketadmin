@@ -130,7 +130,7 @@ export class DbTableViewComponent implements OnInit {
   public tableRelatedRecords: any = null;
   public displayCellComponents;
   public UIwidgets = UIwidgets;
-  public tableTypes: object;
+  // public tableTypes: object;
 
   @Input() set table(value){
     if (value) this.tableData = value;

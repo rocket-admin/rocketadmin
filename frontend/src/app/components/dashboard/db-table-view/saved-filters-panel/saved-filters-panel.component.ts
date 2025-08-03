@@ -2,25 +2,38 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { DynamicModule } from 'ng-dynamic-component';
+import { FormsModule } from '@angular/forms';
 import JsonURL from '@jsonurl/jsonurl';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filters-dialog.component';
 import { TablesService } from 'src/app/services/tables.service';
+import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { filterTypes } from 'src/app/consts/filter-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 
 @Component({
   selector: 'app-saved-filters-panel',
   imports: [
     CommonModule,
+    FormsModule,
+    DynamicModule,
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
     MatTabsModule,
     MatTooltipModule,
     MatMenuModule
@@ -32,6 +45,7 @@ export class SavedFiltersPanelComponent implements OnInit {
   @Input() connectionID: string;
   @Input() selectedTableName: string;
   @Input() selectedTableDisplayName: string;
+  @Input() tableTypes: any;
   // @Input() savedFilterData: any;
   @Output() filterSelected = new EventEmitter<any>();
 
@@ -42,17 +56,31 @@ export class SavedFiltersPanelComponent implements OnInit {
   public selectedFilterSetId: string | null = null;
   public selectedFilter: any = null;
 
+  public tableStructure: any = null;
+  public tableRowFieldsShown: { [key: string]: any } = {};
+  public tableRowStructure: { [key: string]: any } = {};
+  public tableForeignKeys: any[] = [];
+  public tableWidgets: { [key: string]: any } = {};
+  public tableWidgetsList: string[] = [];
+  public UIwidgets = UIwidgets;
+
   public displayedComparators = {
     eq: "=",
     gt: ">",
     lt: "<",
     gte: ">=",
-    lte: "<="
+    lte: "<=",
+    startswith: "starts with",
+    endswith: "ends with",
+    contains: "contains",
+    icontains: "not contains",
+    empty: "is empty"
   }
 
   constructor(
     private dialog: MatDialog,
     private _tables: TablesService,
+    private _connections: ConnectionsService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -108,11 +136,6 @@ export class SavedFiltersPanelComponent implements OnInit {
     });
   }
 
-  /**
-   * Transform the filters object into an array of entries for display
-   * @param filters The filters object from saved filter data
-   * @returns Array of objects with column, operator, and value
-   */
   getFilterEntries(filters: any): { column: string; operator: string; value: string }[] {
     if (!filters) return [];
 
@@ -132,11 +155,6 @@ export class SavedFiltersPanelComponent implements OnInit {
 
     return entries;
   }
-
-  /**
-   * Select a filter and emit the selection event
-   * @param index Index of the selected filter
-   */
 
   selectFiltersSet(selectedFilterSetId: string): void {
     this.selectedFilterSetId = selectedFilterSetId;
@@ -171,7 +189,7 @@ export class SavedFiltersPanelComponent implements OnInit {
     });
   }
 
-  selectFilter(entry) {
+  selectFilter(entry: { column: string; operator: string; value: any }) {
     this.selectedFilter = entry;
   }
 
@@ -192,5 +210,76 @@ export class SavedFiltersPanelComponent implements OnInit {
     } else {
       return `${displayedName} ${this.displayedComparators[comparator]} ${filterValue}`
     }
+  }
+
+  get inputs() {
+    return filterTypes[this._connections.currentConnection.type];
+  }
+
+  isWidget(columnName: string) {
+    return this.tableWidgetsList.includes(columnName);
+  }
+
+  getInputType(field: string) {
+    let widgetType;
+    if (this.isWidget(field)) {
+      widgetType = this.UIwidgets[this.tableWidgets[field].widget_type]?.type;
+    } else {
+      widgetType = this.inputs[this.tableTypes[field]]?.type;
+    }
+    return widgetType;
+  }
+
+  getComparatorType(typeOfComponent) {
+    if (typeOfComponent === 'text') {
+      return 'text';
+    } else if (typeOfComponent === 'number' || typeOfComponent === 'datetime') {
+      return 'number';
+    } else {
+      return 'nonComparable';
+    }
+  }
+
+  updateField = (updatedValue: any, field: string) => {
+    this.selectedFilter.value = updatedValue;
+  }
+
+  updateComparator(event: string) {
+    this.selectedFilter.operator = event;
+  }
+
+  cancelEditFilter() {
+    this.selectedFilter = null;
+  }
+
+  setWidgets(widgets: any[]) {
+    this.tableWidgetsList = widgets.map((widget: any) => widget.field_name);
+    this.tableWidgets = Object.assign({}, ...widgets
+      .map((widget: any) => {
+        let params;
+        if (widget.widget_params !== '// No settings required') {
+          try {
+            params = JSON.parse(widget.widget_params);
+          } catch (e) {
+            params = '';
+          }
+        } else {
+          params = '';
+        }
+        return {
+          [widget.field_name]: {...widget, widget_params: params}
+        };
+      })
+    );
+  }
+
+  // Helper method to track objects in ngFor
+  trackByFn(index: number, item: any) {
+    return item.key;
+  }
+
+  // Save the edited filter
+  applyEditedFilter() {
+    console.log('Applying edited filter:', this.selectedFilter);
   }
 }

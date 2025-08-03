@@ -79,3 +79,59 @@
     width: 18px;
     height: 18px;
 }
+
+/* Single filter editor styles */
+.single-filter-editor {
+    margin-top: 20px;
+    padding: 16px;
+    background-color: #f5f7fa;
+    border-radius: 8px;
+    border: 1px solid #e0e4e8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e4e8;
+}
+
+.filter-editor-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.filter-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.filter-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.column-name {
+    min-width: 120px;
+    font-weight: 500;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.value-input {
+    min-width: 200px;
+    flex-grow: 1;
+}
