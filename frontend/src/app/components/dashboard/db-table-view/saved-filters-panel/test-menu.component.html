@@ -1,0 +1,18 @@
+<div class="debug-menu-test">
+    <h3>Test Menu Component</h3>
+    <button mat-button [matMenuTriggerFor]="testMenu">
+        Open Test Menu
+    </button>
+
+    <mat-menu #testMenu="matMenu">
+        <div (click)="$event.stopPropagation()">
+            <mat-form-field appearance="outline">
+                <input matInput placeholder="Test input">
+            </mat-form-field>
+            <div>
+                <button mat-button color="primary">Save</button>
+                <button mat-button>Cancel</button>
+            </div>
+        </div>
+    </mat-menu>
+</div>

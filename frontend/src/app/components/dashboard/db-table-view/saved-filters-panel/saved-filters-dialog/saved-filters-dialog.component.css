@@ -7,14 +7,14 @@
 
 .filters-content {
     display: grid;
-    grid-template-columns: auto 228px 0 1fr 32px;
+    grid-template-columns: auto 228px 0 1fr 160px 32px;
     grid-column-gap: 8px;
     align-content: flex-start;
     align-items: flex-start;
 }
 
 .filters-select {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 6;
     margin-bottom: 16px;
 }
 
@@ -22,16 +22,28 @@
     grid-column: 1 / span 4;
 }
 
+.dynamic-column-radio {
+    grid-column: 5;
+    margin-top: 14px;
+}
+
 .filter-save-form {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 6;
     margin-bottom: 24px;
 }
 
 .section-title {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 6;
     margin: 16px 0 8px 0;
     color: rgba(0, 0, 0, 0.87);
     font-weight: 500;
+}
+
+.section-description {
+    grid-column: 1 / span 6;
+    margin: 0 0 16px 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
 }
 
 .full-width {
@@ -75,7 +87,7 @@
 }
 
 .no-filters-message {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 6;
     color: rgba(0, 0, 0, 0.6);
     font-style: italic;
     margin: 16px 0;

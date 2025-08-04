@@ -36,29 +36,27 @@
         </mat-chip-option>
     </mat-chip-listbox>
 
-    <div>
-        <mat-chip *ngFor="let entry of savedFilterMap[selectedFilterSetId]?.filterEntries"
-            (click)="selectFilter(entry)">
-            {{ getFilter(entry) }}
-        </mat-chip>
+    <div class="filters-container">
+        <!-- Static filter chips (non-clickable) -->
+        <div class="static-filters">
+            <h4 *ngIf="savedFilterMap[selectedFilterSetId]?.staticFilters?.length">Filters:</h4>
+            <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip">
+                {{ getFilter(filter) }}
+            </mat-chip>
+        </div>
 
-        <div *ngIf="selectedFilter" class="single-filter-editor">
-            <div class="filter-editor-header">
-                <h3>Edit Filter: {{ selectedFilter.column }}</h3>
-                <button mat-icon-button (click)="cancelEditFilter()">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
-
-            <form class="filter-edit-form" #filterForm="ngForm">
+        <!-- Dynamic column section -->
+        <div *ngIf="savedFilterMap[selectedFilterSetId]?.dynamicColumn" class="dynamic-column-section">
+            <h4>Dynamic Column:</h4>
+            <div class="dynamic-column-editor">
                 <div class="filter-line">
-                    <span class="column-name">{{ selectedFilter.column }}</span>
+                    <span class="column-name">{{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}</span>
 
                     <!-- Text comparator options -->
-                    <mat-form-field *ngIf="getComparatorType(getInputType(selectedFilter.column)) === 'text'" appearance="outline">
-                        <mat-select [ngModel]="selectedFilter.operator"
+                    <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" appearance="outline">
+                        <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
                                     name="textComparator"
-                                    (ngModelChange)="updateComparator($event)">
+                                    (ngModelChange)="updateDynamicColumnComparator($event)">
                             <mat-option value="startswith">starts with</mat-option>
                             <mat-option value="endswith">ends with</mat-option>
                             <mat-option value="eq">equal</mat-option>
@@ -69,10 +67,10 @@
                     </mat-form-field>
 
                     <!-- Number comparator options -->
-                    <mat-form-field *ngIf="getComparatorType(getInputType(selectedFilter.column)) === 'number'" appearance="outline">
-                        <mat-select [ngModel]="selectedFilter.operator"
+                    <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'number'" appearance="outline">
+                        <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
                                     name="numberComparator"
-                                    (ngModelChange)="updateComparator($event)">
+                                    (ngModelChange)="updateDynamicColumnComparator($event)">
                             <mat-option value="eq">equal</mat-option>
                             <mat-option value="gt">greater than</mat-option>
                             <mat-option value="lt">less than</mat-option>
@@ -82,64 +80,68 @@
                     </mat-form-field>
 
                     <!-- Non-comparable field (uses ndc-dynamic) -->
-                    <div *ngIf="getComparatorType(getInputType(selectedFilter.column)) === 'nonComparable'">
-                        <div *ngIf="isWidget(selectedFilter.column); else defaultTableField">
-                            <ndc-dynamic [ndcDynamicComponent]="tableWidgets[selectedFilter.column].widget_type ? UIwidgets[tableWidgets[selectedFilter.column].widget_type] : inputs[tableTypes[selectedFilter.column]]"
+                    <div *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'nonComparable'">
+                        <div *ngIf="isWidget(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column); else defaultDynamicField">
+                            <ndc-dynamic [ndcDynamicComponent]="tableWidgets[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column].widget_type ? UIwidgets[tableWidgets[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column].widget_type] : inputs[tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column]]"
                                 [ndcDynamicInputs]="{
-                                    key: selectedFilter.column,
-                                    label: tableWidgets[selectedFilter.column].name || selectedFilter.column,
-                                    value: selectedFilter.value,
-                                    widgetStructure: tableWidgets[selectedFilter.column],
-                                    relations: tableTypes[selectedFilter.column] === 'foreign key' ? tableForeignKeys[selectedFilter.column] : undefined
+                                    key: savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
+                                    label: tableWidgets[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column].name || savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
+                                    value: savedFilterMap[selectedFilterSetId]?.dynamicColumn.value,
+                                    widgetStructure: tableWidgets[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column],
+                                    relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined
                                 }"
                                 [ndcDynamicOutputs]="{
-                                    onFieldChange: { handler: updateField, args: ['$event', selectedFilter.column] }
+                                    onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
                                 }"
                             ></ndc-dynamic>
                         </div>
 
-                        <ng-template #defaultTableField>
-                            <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[selectedFilter.column]]"
+                        <ng-template #defaultDynamicField>
+                            <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column]]"
                                 [ndcDynamicInputs]="{
-                                    key: selectedFilter.column,
-                                    label: selectedFilter.column,
-                                    value: selectedFilter.value,
-                                    structure: tableRowStructure[selectedFilter.column],
-                                    relations: tableTypes[selectedFilter.column] === 'foreign key' ? tableForeignKeys[selectedFilter.column] : undefined
+                                    key: savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
+                                    label: savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
+                                    value: savedFilterMap[selectedFilterSetId]?.dynamicColumn.value,
+                                    structure: tableRowStructure[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column],
+                                    relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined
                                 }"
                                 [ndcDynamicOutputs]="{
-                                    onFieldChange: { handler: updateField, args: ['$event', selectedFilter.column] }
+                                    onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
                                 }"
                             ></ndc-dynamic>
                         </ng-template>
                     </div>
 
                     <!-- Standard field value input for text and number types -->
-                    <div *ngIf="getComparatorType(getInputType(selectedFilter.column)) !== 'nonComparable'">
-                        <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[selectedFilter.column]]"
+                    <div *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
+                        <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column]]"
                             [ndcDynamicInputs]="{
-                                key: selectedFilter.column,
-                                label: selectedFilter.column,
-                                value: selectedFilter.value,
-                                readonly: selectedFilter.comparator === 'empty',
-                                structure: tableRowStructure[selectedFilter.column],
-                                relations: tableTypes[selectedFilter.column] === 'foreign key' ? tableForeignKeys[selectedFilter.column] : undefined
+                                key: savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
+                                label: savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
+                                value: savedFilterMap[selectedFilterSetId]?.dynamicColumn.value,
+                                readonly: savedFilterMap[selectedFilterSetId]?.dynamicColumn.operator === 'empty',
+                                structure: tableRowStructure[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column],
+                                relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', selectedFilter.column] }
+                                onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
                             }"
                         ></ndc-dynamic>
                     </div>
                 </div>
 
-                <div class="filter-actions">
-                    <button mat-button (click)="cancelEditFilter()">Cancel</button>
+                <div class="dynamic-column-actions">
                     <button mat-flat-button color="primary"
-                            (click)="applyEditedFilter()">
-                        Apply Filter
+                            (click)="applyDynamicColumnChanges()">
+                        Apply Changes
                     </button>
                 </div>
-            </form>
+            </div>
+        </div>
+
+        <!-- Empty state message when no filters selected -->
+        <div *ngIf="!savedFilterMap[selectedFilterSetId]?.staticFilters?.length && !savedFilterMap[selectedFilterSetId]?.dynamicColumn" class="no-filters-message">
+            No filters to display.
         </div>
     </div>
 </div>

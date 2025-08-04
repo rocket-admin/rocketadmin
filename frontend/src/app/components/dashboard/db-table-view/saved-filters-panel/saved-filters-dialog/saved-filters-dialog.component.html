@@ -21,7 +21,8 @@
                 </mat-error>
             </mat-form-field>
 
-            <h3 class="section-title">Define Filters</h3>
+            <h3 class="section-title">Define Filters and Dynamic Column</h3>
+            <p class="section-description">Select filters to apply and optionally mark one column as dynamic</p>
 
             <!-- Filter Selection -->
             <mat-form-field class="filters-select" appearance="outline">
@@ -139,6 +140,13 @@
                         }"
                     ></ndc-dynamic>
                 </ng-template>
+                <div class="dynamic-column-radio">
+                    <mat-checkbox
+                        [checked]="dynamicColumn === value.key"
+                        (change)="toggleDynamicColumn(value.key)">
+                        Dynamic column
+                    </mat-checkbox>
+                </div>
                 <button mat-icon-button type="button" class="filter-delete-button"
                     matTooltip="Remove"
                     (click)="removeFilter(value.key)">

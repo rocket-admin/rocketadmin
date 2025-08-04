@@ -5,6 +5,7 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { DynamicModule } from 'ng-dynamic-component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,6 +35,7 @@ import { omitBy } from 'lodash';
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
+    MatCheckboxModule,
     DynamicModule,
     RouterModule,
     MatDialogModule,
@@ -64,6 +66,7 @@ export class SavedFiltersDialogComponent implements OnInit {
   public tableWidgets: object;
   public tableWidgetsList: string[] = [];
   public UIwidgets = UIwidgets;
+  public dynamicColumn: string | null = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -88,6 +91,13 @@ export class SavedFiltersDialogComponent implements OnInit {
         acc[field] = comparator;
         return acc;
       }, {});
+
+      // Initialize dynamic column if it exists in the filters set
+      if (this.data.filtersSet.dynamic_column && this.data.filtersSet.dynamic_column.column_name) {
+        this.tableRowFieldsShown[this.data.filtersSet.dynamic_column.column_name] = null;
+        this.tableRowFieldsComparator[this.data.filtersSet.dynamic_column.column_name] = this.data.filtersSet.dynamic_column.comparator || '';
+        this.dynamicColumn = this.data.filtersSet.dynamic_column.column_name;
+      }
     }
 
     // this.tableForeignKeys = {...this.data.structure.foreignKeys};
@@ -203,11 +213,22 @@ export class SavedFiltersDialogComponent implements OnInit {
   removeFilter(field) {
     delete this.tableRowFieldsShown[field];
     delete this.tableRowFieldsComparator[field];
+    if (this.dynamicColumn === field) {
+      this.dynamicColumn = null;
+    }
     this.updateFiltersCount();
   }
 
   updateFiltersCount() {
     this.tableFiltersCount = Object.keys(this.tableRowFieldsShown).length;
+  }
+
+  toggleDynamicColumn(field: string) {
+    if (this.dynamicColumn === field) {
+      this.dynamicColumn = null;
+    } else {
+      this.dynamicColumn = field;
+    }
   }
 
   saveFilter() {
@@ -230,17 +251,40 @@ export class SavedFiltersDialogComponent implements OnInit {
 
     if (Object.keys(this.tableRowFieldsShown).length) {
       let filters = {};
+
       for (const key in this.tableRowFieldsShown) {
+        // Skip fields that are marked as dynamic column
+        if (key === this.dynamicColumn) {
+          continue;
+        }
+
         if (this.tableRowFieldsComparator[key] !== undefined) {
+          // If value is empty or undefined, use null
+          const value = this.tableRowFieldsShown[key] === '' || this.tableRowFieldsShown[key] === undefined ?
+            null : this.tableRowFieldsShown[key];
+
           filters[key] = {
-            [this.tableRowFieldsComparator[key]]: this.tableRowFieldsShown[key]
+            [this.tableRowFieldsComparator[key]]: value
           };
         }
       }
 
       // const filters = JsonURL.stringify( this.filters );
+      const payload = {
+        name: this.data.filtersSet.name,
+        filters
+      };
 
-      this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, {name: this.data.filtersSet.name, filters})
+      // Only add dynamic_column if one is selected
+      if (this.dynamicColumn) {
+        // Create object with column_name and comparator properties
+        payload['dynamic_column'] = {
+          column_name: this.dynamicColumn,
+          comparator: this.tableRowFieldsComparator[this.dynamicColumn] || ''
+        };
+      }
+
+      this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, payload)
         .subscribe(() => {
           this.dialogRef.close(true);
         }, (error) => {
