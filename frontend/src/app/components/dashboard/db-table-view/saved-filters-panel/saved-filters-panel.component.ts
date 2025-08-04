@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filters-dialog.component';
+import { TableForeignKey } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { filterTypes } from 'src/app/consts/filter-types';
@@ -46,6 +47,9 @@ export class SavedFiltersPanelComponent implements OnInit {
   @Input() selectedTableName: string;
   @Input() selectedTableDisplayName: string;
   @Input() tableTypes: any;
+  @Input() structure: any;
+  @Input() tableForeignKeys: TableForeignKey[] = [];
+  @Input() tableWidgets: any = {};
   // @Input() savedFilterData: any;
   @Output() filterSelected = new EventEmitter<any>();
 
@@ -59,8 +63,8 @@ export class SavedFiltersPanelComponent implements OnInit {
   public tableStructure: any = null;
   public tableRowFieldsShown: { [key: string]: any } = {};
   public tableRowStructure: { [key: string]: any } = {};
-  public tableForeignKeys: any[] = [];
-  public tableWidgets: { [key: string]: any } = {};
+  // public tableForeignKeys: any[] = [];
+  // public tableWidgets: { [key: string]: any } = {};
   public tableWidgetsList: string[] = [];
   public UIwidgets = UIwidgets;
 
@@ -131,6 +135,9 @@ export class SavedFiltersPanelComponent implements OnInit {
         connectionID: this.connectionID,
         tableName: this.selectedTableName,
         displayTableName: this.selectedTableDisplayName,
+        structure: this.structure,
+        tableForeignKeys: this.tableForeignKeys,
+        tableWidgets: this.tableWidgets,
         filtersSet: filtersSet ? filtersSet : {
           name: '',
           filters: {}
@@ -147,6 +154,8 @@ export class SavedFiltersPanelComponent implements OnInit {
     Object.keys(filters).forEach(column => {
       const operations = filters[column];
 
+      console.log('Operations for column:', column, operations);
+
       Object.keys(operations).forEach(operator => {
         entries.push({
           column,
@@ -156,6 +165,7 @@ export class SavedFiltersPanelComponent implements OnInit {
       });
     });
 
+    console.log('Filter entries:', entries);
     return entries;
   }
 

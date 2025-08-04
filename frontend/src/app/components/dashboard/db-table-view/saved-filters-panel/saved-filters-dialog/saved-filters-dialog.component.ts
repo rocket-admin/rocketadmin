@@ -58,7 +58,7 @@ export class SavedFiltersDialogComponent implements OnInit {
   public tableRowStructure: Object;
   public tableRowFieldsShown: Object = {};
   public tableRowFieldsComparator: Object = {};
-  public tableForeignKeys: {[key: string]: TableForeignKey};
+  // public tableForeignKeys: {[key: string]: TableForeignKey};
   public tableFiltersCount: number = 0;
   public tableTypes: Object;
   public tableWidgets: object;
@@ -90,35 +90,27 @@ export class SavedFiltersDialogComponent implements OnInit {
       }, {});
     }
 
-    // Load table structure
-    this._tables.fetchTableStructure(this.data.connectionID, this.data.tableName).subscribe({
-      next: (structure) => {
-        this.tableForeignKeys = {...structure.foreignKeys};
-        this.tableRowFields = Object.assign({}, ...structure.structure.map((field: TableField) => ({[field.column_name]: undefined})));
-        const foreignKeysList = structure.foreignKeys.map((fk: TableForeignKey) => fk.column_name);
-        this.tableTypes = getTableTypes(structure.structure, foreignKeysList);
-        this.fields = structure.structure
-          .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
-          .map((field: TableField) => field.column_name);
+    // this.tableForeignKeys = {...this.data.structure.foreignKeys};
+    this.tableRowFields = Object.assign({}, ...this.data.structure.map((field: TableField) => ({[field.column_name]: undefined})));
+    const foreignKeysList = Object.keys(this.data.tableForeignKeys);
+    this.tableTypes = getTableTypes(this.data.structure, foreignKeysList);
+    this.fields = this.data.structure
+      .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
+      .map((field: TableField) => field.column_name);
 
-        this.tableRowStructure = Object.assign({}, ...structure.structure.map((field: TableField) => {
-          return {[field.column_name]: field};
-        }));
+    this.tableRowStructure = Object.assign({}, ...this.data.structure.map((field: TableField) => {
+      return {[field.column_name]: field};
+    }));
 
-        // Setup widgets if available
-        if (structure.widgets && structure.widgets.length) {
-          this.setWidgets(structure.widgets);
-        }
+    // Setup widgets if available
+    if (this.data.tableWidgets && this.data.tableWidgets.length) {
+      this.setWidgets(this.data.tableWidgets);
+    }
 
-        this.foundFields = this.fieldSearchControl.valueChanges.pipe(
-          startWith(''),
-          map(value => this._filter(value || '')),
-        );
-      },
-      error: (err) => {
-        console.error('Error loading table structure:', err);
-      }
-    });
+    this.foundFields = this.fieldSearchControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
   }
 
   private _filter(value: string): string[] {
@@ -172,6 +164,7 @@ export class SavedFiltersDialogComponent implements OnInit {
   }
 
   updateComparator(event, fieldName: string) {
+    console.log('Updating comparator for field:', fieldName, 'obj', this.tableRowFieldsComparator);
     if (event === 'empty') this.tableRowFieldsShown[fieldName] = '';
   }
 
@@ -233,16 +226,16 @@ export class SavedFiltersDialogComponent implements OnInit {
     //   comparators: this.tableRowFieldsComparator
     // };
 
-    const nonEmptyFilters = omitBy(this.tableRowFieldsShown, (value) => value === undefined);
+    // const nonEmptyFilters = omitBy(this.tableRowFieldsShown, (value) => value === undefined);
 
-    if (Object.keys(nonEmptyFilters).length) {
+    if (Object.keys(this.tableRowFieldsShown).length) {
       let filters = {};
-      for (const key in nonEmptyFilters) {
-          if (this.tableRowFieldsComparator[key] !== undefined) {
-            filters[key] = {
-                  [this.tableRowFieldsComparator[key]]: nonEmptyFilters[key]
-              };
-          }
+      for (const key in this.tableRowFieldsShown) {
+        if (this.tableRowFieldsComparator[key] !== undefined) {
+          filters[key] = {
+            [this.tableRowFieldsComparator[key]]: this.tableRowFieldsShown[key]
+          };
+        }
       }
 
       // const filters = JsonURL.stringify( this.filters );

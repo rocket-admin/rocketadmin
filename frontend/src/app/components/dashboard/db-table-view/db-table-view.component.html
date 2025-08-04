@@ -183,6 +183,9 @@
     [connectionID]="connectionID"
     [selectedTableName]="name"
     [selectedTableDisplayName]="displayName"
+    [structure]="tableData.structure"
+    [tableWidgets]="tableData.widgets"
+    [tableForeignKeys]="tableData.foreignKeys"
     [tableTypes]="tableData.tableTypes"
     (filterSelected)="applyFilter.emit($event)"
 ></app-saved-filters-panel>
