@@ -305,10 +305,13 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         const { field, criteria, value } = filter;
         expressionAttributeNames[`#${field}`] = field;
         const uniquePlaceholder = `:${field}${index}`;
+        const fieldInfo = tableStructure.find((el) => el.column_name === field);
+        const isNumberField = fieldInfo?.data_type === 'number';
+
         switch (criteria) {
           case FilterCriteriaEnum.eq:
             filterExpression += ` AND #${field} = ${uniquePlaceholder}`;
-            expressionAttributeValues[uniquePlaceholder] = { S: value };
+            expressionAttributeValues[uniquePlaceholder] = isNumberField ? { N: String(value) } : { S: value };
             break;
           case FilterCriteriaEnum.contains:
             filterExpression += ` AND contains(#${field}, ${uniquePlaceholder})`;
@@ -316,19 +319,19 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
             break;
           case FilterCriteriaEnum.gt:
             filterExpression += ` AND #${field} > ${uniquePlaceholder}`;
-            expressionAttributeValues[uniquePlaceholder] = { N: value };
+            expressionAttributeValues[uniquePlaceholder] = isNumberField ? { N: String(value) } : { S: value };
             break;
           case FilterCriteriaEnum.lt:
             filterExpression += ` AND #${field} < ${uniquePlaceholder}`;
-            expressionAttributeValues[uniquePlaceholder] = { N: value };
+            expressionAttributeValues[uniquePlaceholder] = isNumberField ? { N: String(value) } : { S: value };
             break;
           case FilterCriteriaEnum.gte:
             filterExpression += ` AND #${field} >= ${uniquePlaceholder}`;
-            expressionAttributeValues[uniquePlaceholder] = { N: value };
+            expressionAttributeValues[uniquePlaceholder] = isNumberField ? { N: String(value) } : { S: value };
             break;
           case FilterCriteriaEnum.lte:
             filterExpression += ` AND #${field} <= ${uniquePlaceholder}`;
-            expressionAttributeValues[uniquePlaceholder] = { N: value };
+            expressionAttributeValues[uniquePlaceholder] = isNumberField ? { N: String(value) } : { S: value };
             break;
           case FilterCriteriaEnum.icontains:
             filterExpression += ` AND NOT contains(#${field}, ${uniquePlaceholder})`;
@@ -347,6 +350,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
             break;
           default:
             break;
+        }
+        if (index === 0) {
+          filterExpression = filterExpression.replace(/^ AND /, '');
         }
       });
     }
@@ -383,7 +389,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const result = await dynamoDb.scan(params);
 
       rows = rows.concat(result.Items);
-
       lastEvaluatedKey = result.LastEvaluatedKey;
     } while (lastEvaluatedKey);
 
