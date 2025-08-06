@@ -52,10 +52,10 @@ export class SavedFiltersPanelComponent implements OnInit {
   @Input() tableWidgets: any = {};
   // @Input() savedFilterData: any;
   @Output() filterSelected = new EventEmitter<any>();
+  @Input() resetSelection: boolean = false;
 
   public savedFilterData: any[] = [];
   public savedFilterMap: { [key: string]: any } = {};
-  public selectedFilterIndex: number = -1;
 
   public selectedFilterSetId: string | null = null;
   public selectedFilter: any = null;
@@ -97,17 +97,15 @@ export class SavedFiltersPanelComponent implements OnInit {
         }));
 
         this.route.queryParams.subscribe(params => {
-          const savedFilterName = params['saved_filter'];
+          const savedFilterId = params['saved_filter'];
 
-          if (savedFilterName && this.savedFilterData.length > 0) {
-            const filterIndex = this.savedFilterData.findIndex(filter => filter.name === savedFilterName);
-
-            if (filterIndex !== -1) {
-              this.selectedFilterIndex = filterIndex;
-              this.filterSelected.emit(this.savedFilterData[filterIndex]);
+          if (savedFilterId && this.savedFilterData.length > 0) {
+            if (savedFilterId) {
+              this.selectedFilterSetId = savedFilterId;
+              this.filterSelected.emit(this.savedFilterMap[savedFilterId]);
             }
           } else {
-            this.selectedFilterIndex = -1;
+            this.selectedFilterSetId = null;
           }
         });
       },
@@ -115,6 +113,12 @@ export class SavedFiltersPanelComponent implements OnInit {
         console.error('Error fetching saved filters:', error);
       }
     });
+  }
+
+  ngOnChanges() {
+    if (this.resetSelection) {
+      this.selectedFilterSetId = null;
+    }
   }
 
   handleOpenSavedFiltersDialog(filtersSet: any = null) {
@@ -182,30 +186,17 @@ export class SavedFiltersPanelComponent implements OnInit {
 
     return transformedFilter;
   }
-
-  selectFiltersSet(selectedFilterSetId: string): void {
-    this.selectedFilterSetId = selectedFilterSetId;
-    const selectedFilter = this.savedFilterMap[selectedFilterSetId];
-    this.filterSelected.emit(selectedFilter);
-
+  private buildQueryParams(additionalParams: any = {}): any {
     const currentParams = this.route.snapshot.queryParams;
 
-    const filters = JsonURL.stringify(selectedFilter.filters);
-
+    // Start with pagination parameters
     const queryParams: any = {
-      filters,
       page_index: 0,
       page_size: currentParams['page_size'] || 30,
-      saved_filter: selectedFilter.name
+      ...additionalParams
     };
 
-    if (selectedFilter.dynamicColumn) {
-      queryParams.dynamic_column = JsonURL.stringify({
-        column_name: selectedFilter.dynamicColumn.column,
-        comparator: selectedFilter.dynamicColumn.operator
-      });
-    }
-
+    // Preserve sort parameters if present
     if (currentParams['sort_active']) {
       queryParams.sort_active = currentParams['sort_active'];
     }
@@ -214,9 +205,43 @@ export class SavedFiltersPanelComponent implements OnInit {
       queryParams.sort_direction = currentParams['sort_direction'];
     }
 
-    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
-      queryParams
-    });
+    return queryParams;
+  }
+
+  selectFiltersSet(selectedFilterSetId: string): void {
+    if (this.selectedFilterSetId === selectedFilterSetId) {
+      // If the same filter is selected, clear the selection
+      this.selectedFilterSetId = null;
+      this.filterSelected.emit(null);
+
+      // Navigate without filters and saved_filter parameters
+      const queryParams = this.buildQueryParams();
+      this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
+      return;
+    }
+
+    // Apply new filter selection
+    this.selectedFilterSetId = selectedFilterSetId;
+    const selectedFilter = this.savedFilterMap[selectedFilterSetId];
+    this.filterSelected.emit(selectedFilter);
+
+    // Build filter-related params
+    const additionalParams: any = {
+      filters: JsonURL.stringify(selectedFilter.filters),
+      saved_filter: selectedFilterSetId
+    };
+
+    // Add dynamic column if present
+    if (selectedFilter.dynamicColumn) {
+      additionalParams.dynamic_column = JsonURL.stringify({
+        column_name: selectedFilter.dynamicColumn.column,
+        comparator: selectedFilter.dynamicColumn.operator
+      });
+    }
+
+    // Navigate with all parameters
+    const queryParams = this.buildQueryParams(additionalParams);
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
   }
 
   selectFilter(entry: { column: string; operator: string; value: any }) {
@@ -358,8 +383,6 @@ export class SavedFiltersPanelComponent implements OnInit {
 
     if (!selectedFilter || !selectedFilter.dynamicColumn) return;
 
-    const currentParams = this.route.snapshot.queryParams;
-
     const dynamicColumn = {
       column_name: selectedFilter.dynamicColumn.column,
       comparator: selectedFilter.dynamicColumn.operator
@@ -381,21 +404,14 @@ export class SavedFiltersPanelComponent implements OnInit {
       }
     }
 
-    const queryParams: any = {
+    // Build filter-related params using the helper method
+    const additionalParams: any = {
       filters: JsonURL.stringify(filters),
       dynamic_column: JsonURL.stringify(dynamicColumn),
-      page_index: 0, // Reset to first page
-      page_size: currentParams['page_size'] || 30,
-      saved_filter: selectedFilter.name
+      saved_filter: this.selectedFilterSetId
     };
 
-    if (currentParams['sort_active']) {
-      queryParams.sort_active = currentParams['sort_active'];
-    }
-
-    if (currentParams['sort_direction']) {
-      queryParams.sort_direction = currentParams['sort_direction'];
-    }
+    const queryParams = this.buildQueryParams(additionalParams);
 
     const updatedFilterData = {
       ...selectedFilter,
