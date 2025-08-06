@@ -101,6 +101,8 @@ export class DbTableViewComponent implements OnInit {
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
   // @Output() viewRow = new EventEmitter();
+
+  public hasSavedFilterActive: boolean = false;
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();
 
@@ -177,12 +179,27 @@ export class DbTableViewComponent implements OnInit {
 
   ngOnInit() {
     this.searchString = this.route.snapshot.queryParams.search;
+    this.hasSavedFilterActive = !!this.route.snapshot.queryParams.saved_filter;
 
     const connectionType = this._connections.currentConnection.type;
     this.displayCellComponents = tableDisplayTypes[connectionType];
 
     this._tableState.cast.subscribe(row => {
       this.selectedRow = row;
+    });
+
+    // Subscribe to route changes to update hasSavedFilterActive when URL parameters change
+    let previousHasSavedFilter = this.hasSavedFilterActive;
+    this.route.queryParams.subscribe(params => {
+      const currentHasSavedFilter = !!params.saved_filter;
+      this.hasSavedFilterActive = currentHasSavedFilter;
+
+      // If a saved filter was active but now it's not, reset all active filters
+      if (previousHasSavedFilter && !currentHasSavedFilter) {
+        this.resetAllFilters.emit();
+      }
+
+      previousHasSavedFilter = currentHasSavedFilter;
     });
   }
 

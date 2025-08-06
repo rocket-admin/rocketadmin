@@ -169,7 +169,7 @@
     </ng-template>
 </div>
 
-<div *ngIf="getFiltersCount(activeFilters) !== 0" class="active-filters">
+<div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
     <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
         (removed)="removeFilter.emit(activeFilter.key)">
         {{ getFilter(activeFilter) }}
