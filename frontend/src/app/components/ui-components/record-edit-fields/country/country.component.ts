@@ -85,7 +85,8 @@ export class CountryEditComponent extends BaseEditFieldComponent {
   }
 
   displayFn(country: any): string {
-    return country ? country.label : '';
+    if (!country) return '';
+    return this.showFlag && country.flag ? `${country.flag} ${country.label}` : country.label;
   }
 
   private loadCountries(): void {
@@ -93,7 +94,7 @@ export class CountryEditComponent extends BaseEditFieldComponent {
       value: country.code,
       label: country.name,
       flag: getCountryFlag(country.code)
-    }));
+    })).toSorted((a, b) => a.label.localeCompare(b.label));
 
     if (this.widgetStructure?.widget_params?.allow_null || this.structure?.allow_null) {
       this.countries = [{ value: null, label: '', flag: '' }, ...this.countries];

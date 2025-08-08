@@ -3,6 +3,14 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding-bottom: 16px;
+}
+
+.range-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 8px;
+  display: block;
 }
 
 .range-labels {
@@ -90,6 +98,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  .range-label {
+    color: rgba(255, 255, 255, 0.87);
+  }
+  
   .range-labels {
     color: rgba(255, 255, 255, 0.6);
   }
