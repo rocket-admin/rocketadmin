@@ -90,36 +90,36 @@ export class SavedFiltersPanelComponent implements OnInit {
   ngOnInit() {
     this._tables.getSavedFilters(this.connectionID, this.selectedTableName).subscribe({
       next: (data) => {
-        this.savedFilterData = data;
-        this.savedFilterMap = Object.assign({}, ...data.map((filter) => {
-          const transformedFilter = this.processFiltersData(filter);
-          return { [filter.id]: transformedFilter };
-        }));
+        if (data) {
+          this.savedFilterData = data;
+          this.savedFilterMap = Object.assign({}, ...data.map((filter) => {
+            const transformedFilter = this.processFiltersData(filter);
+            return { [filter.id]: transformedFilter };
+          }));
 
-        this.route.queryParams.subscribe(params => {
-          const savedFilterId = params['saved_filter'];
-          const dynamicColumn = JsonURL.parse(params['dynamic_column']);
+          this.route.queryParams.subscribe(params => {
+            const savedFilterId = params['saved_filter'];
+            const dynamicColumn = JsonURL.parse(params['dynamic_column']);
 
-          if (savedFilterId && this.savedFilterData.length > 0) {
-            if (savedFilterId) {
-              this.selectedFilterSetId = savedFilterId;
+            if (savedFilterId && this.savedFilterData.length > 0) {
+              if (savedFilterId) {
+                this.selectedFilterSetId = savedFilterId;
 
-              if (dynamicColumn) {
-                const filters = JsonURL.parse(params['filters']);
+                if (dynamicColumn) {
+                  const filters = JsonURL.parse(params['filters']);
 
-                this.savedFilterMap[savedFilterId].dynamicColumn = {
-                  column: dynamicColumn.column_name,
-                  operator: dynamicColumn.comparator,
-                  value: filters[dynamicColumn.column_name]?.[dynamicColumn.comparator] || null
-                };
+                  this.savedFilterMap[savedFilterId].dynamicColumn = {
+                    column: dynamicColumn.column_name,
+                    operator: dynamicColumn.comparator,
+                    value: filters[dynamicColumn.column_name]?.[dynamicColumn.comparator] || null
+                  };
+                }
               }
+            } else {
+              this.selectedFilterSetId = null;
             }
-          } else {
-            this.selectedFilterSetId = null;
-          }
-
-          console.log('savedFilterMap after dynamicColumn assignment:', this.savedFilterMap);
-        });
+          });
+        }
       },
       error: (error) => {
         console.error('Error fetching saved filters:', error);

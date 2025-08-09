@@ -151,6 +151,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
 
         this.getData();
+        console.log('getData from ngOnInit');
     });
   }
 
@@ -159,6 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async getData() {
+    console.log('getData');
     let tables;
     try {
       tables = await this.getTables();
@@ -185,6 +187,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
+              console.log('setTable from getData paramMap');
               this.title.setTitle(`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`);
               this.selection.clear();
             } else {
@@ -201,12 +204,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this._tableRow.cast.subscribe((arg) => {
           if (arg === 'delete row' && this.selectedTableName) {
             this.setTable(this.selectedTableName);
+            console.log('setTable from getData _tableRow cast');
             this.selection.clear();
           };
         });
         this._tables.cast.subscribe((arg) => {
           if ((arg === 'delete rows' || arg === 'import') && this.selectedTableName) {
             this.setTable(this.selectedTableName);
+            console.log('setTable from getData _tables cast');
             this.selection.clear();
           };
           if (arg === 'activate actions') {
@@ -217,6 +222,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getTables() {
+    console.log('getTables');
     return this._tables.fetchTables(this.connectionID).toPromise();
   }
 
@@ -243,18 +249,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   setTable(tableName: string) {
     this.selectedTableName = tableName;
-    this.route.queryParams.pipe(first()).subscribe((queryParams) => {
-      this.filters = JsonURL.parse( queryParams.filters );
-      this.comparators = getComparatorsFromUrl(this.filters);
-      this.pageIndex = parseInt(queryParams.page_index) || 0;
-      this.pageSize = parseInt(queryParams.page_size) || 30;
-      this.sortColumn = queryParams.sort_active;
-      this.sortOrder = queryParams.sort_direction;
+    const queryParams = this.route.snapshot.queryParams;
+    this.filters = JsonURL.parse(queryParams.filters);
+    this.comparators = getComparatorsFromUrl(this.filters);
+    this.pageIndex = parseInt(queryParams.page_index) || 0;
+    this.pageSize = parseInt(queryParams.page_size) || 30;
+    this.sortColumn = queryParams.sort_active;
+    this.sortOrder = queryParams.sort_direction;
 
-      const search = queryParams.search;
-      this.getRows(search);
-      console.log('getRows from setTable');
-    })
+    const search = queryParams.search;
+    this.getRows(search);
+    console.log('getRows from setTable');
 
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
     if (selectedTableProperties) {
