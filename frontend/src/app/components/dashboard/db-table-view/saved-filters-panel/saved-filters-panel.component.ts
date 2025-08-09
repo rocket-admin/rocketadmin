@@ -22,6 +22,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { filterTypes } from 'src/app/consts/filter-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { AccessLevel } from 'src/app/models/user';
 
 @Component({
   selector: 'app-saved-filters-panel',
@@ -53,6 +54,8 @@ export class SavedFiltersPanelComponent implements OnInit {
   // @Input() savedFilterData: any;
   @Output() filterSelected = new EventEmitter<any>();
   @Input() resetSelection: boolean = false;
+
+  @Input() accessLevel: AccessLevel;
 
   public savedFilterData: any[] = [];
   public savedFilterMap: { [key: string]: any } = {};
