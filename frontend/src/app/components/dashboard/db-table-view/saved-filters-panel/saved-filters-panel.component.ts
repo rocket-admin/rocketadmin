@@ -88,6 +88,20 @@ export class SavedFiltersPanelComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      const tableNameFromUrl = params.get('table-name');
+      if (tableNameFromUrl) {
+        this.selectedTableName = tableNameFromUrl;
+        this.loadSavedFilters();
+      }
+    });
+  }
+
+  loadSavedFilters() {
+    if (!this.connectionID || !this.selectedTableName) {
+      return;
+    }
+
     this._tables.getSavedFilters(this.connectionID, this.selectedTableName).subscribe({
       next: (data) => {
         if (data) {
@@ -97,28 +111,25 @@ export class SavedFiltersPanelComponent implements OnInit {
             return { [filter.id]: transformedFilter };
           }));
 
-          this.route.queryParams.subscribe(params => {
-            const savedFilterId = params['saved_filter'];
-            const dynamicColumn = JsonURL.parse(params['dynamic_column']);
+          const params = this.route.snapshot.queryParams;
+          const savedFilterId = params['saved_filter'];
+          const dynamicColumn = params['dynamic_column'] ? JsonURL.parse(params['dynamic_column']) : null;
 
-            if (savedFilterId && this.savedFilterData.length > 0) {
-              if (savedFilterId) {
-                this.selectedFilterSetId = savedFilterId;
+          if (savedFilterId && this.savedFilterData.length > 0) {
+            this.selectedFilterSetId = savedFilterId;
 
-                if (dynamicColumn) {
-                  const filters = JsonURL.parse(params['filters']);
+            if (dynamicColumn && this.savedFilterMap[savedFilterId]) {
+              const filters = params['filters'] ? JsonURL.parse(params['filters']) : {};
 
-                  this.savedFilterMap[savedFilterId].dynamicColumn = {
-                    column: dynamicColumn.column_name,
-                    operator: dynamicColumn.comparator,
-                    value: filters[dynamicColumn.column_name]?.[dynamicColumn.comparator] || null
-                  };
-                }
-              }
-            } else {
-              this.selectedFilterSetId = null;
+              this.savedFilterMap[savedFilterId].dynamicColumn = {
+                column: dynamicColumn.column_name,
+                operator: dynamicColumn.comparator,
+                value: filters[dynamicColumn.column_name]?.[dynamicColumn.comparator] || null
+              };
             }
-          });
+          } else {
+            this.selectedFilterSetId = null;
+          }
         }
       },
       error: (error) => {
