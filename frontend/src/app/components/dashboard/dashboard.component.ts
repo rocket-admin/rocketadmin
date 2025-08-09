@@ -253,6 +253,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       const search = queryParams.search;
       this.getRows(search);
+      console.log('getRows from setTable');
     })
 
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
@@ -279,6 +280,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (action === 'filter') {
         const filtersFromDialog = {...filterDialodRef.componentInstance.tableRowFieldsShown};
 
+        console.log('Filters from dialog:', filtersFromDialog);
+
         const nonEmptyFilters = omitBy(filtersFromDialog, (value) => value === undefined);
         this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
@@ -292,7 +295,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
               }
           }
 
+          console.log('Filters to apply:', this.filters);
+
           const filters = JsonURL.stringify( this.filters );
+
+          console.log('Filters to navigate:', filters);
 
           this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
             queryParams: {
@@ -302,6 +309,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
           });
           this.getRows();
+          console.log('getRows from afterClosed');
+
 
           this.angulartics2.eventTrack.next({
             action: 'Dashboard: filter is applied',
@@ -310,6 +319,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       } else if (action === 'reset') {
         this.filters = {};
         this.getRows();
+        console.log('getRows from reset filters afterClosed');
         this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`]);
       }
     })
@@ -324,6 +334,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.selection.clear();
 
     this.getRows();
+    console.log('getRows from removeFilter');
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams: {
         filters,
@@ -337,6 +348,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.filters = {};
     this.comparators = {};
     this.getRows();
+    console.log('getRows from clearAllFilters');
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams: {
         page_index: 0,
@@ -347,6 +359,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   search(value: string) {
     this.getRows(value);
+    console.log('getRows from search');
     this.filters = {};
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams: {
@@ -358,6 +371,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getRows(search?: string) {
+    console.log('getRows, filters:', this.filters);
     this._uiSettings.getUiSettings()
       .subscribe ((settings: UiSettings) => {
         this.uiSettings = settings?.connections[this.connectionID];
@@ -379,8 +393,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   applyFilter(filters: any) {
-    this.filters = filters.filters;
+    console.log('applyFilter with filters:', filters);
+    this.filters = filters?.filters;
     this.getRows();
+    console.log('getRows from applyFilter');
   }
 
   openIntercome() {

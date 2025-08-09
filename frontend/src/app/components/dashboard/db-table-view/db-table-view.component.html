@@ -187,7 +187,7 @@
     [tableWidgets]="tableData.widgets"
     [tableForeignKeys]="tableData.foreignKeys"
     [tableTypes]="tableData.tableTypes"
-    (filterSelected)="applyFilter.emit($event)"
+    (filterSelected)="onFilterSelected($event)"
 ></app-saved-filters-panel>
 
 <div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">

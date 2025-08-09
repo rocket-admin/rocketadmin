@@ -92,21 +92,33 @@ export class DbTableFiltersDialogComponent implements OnInit {
     }));
 
     const queryParams = this.route.snapshot.queryParams;
-    const filters = JsonURL.parse(queryParams.filters);
-    const filtersValues = getFiltersFromUrl(filters);
 
-    console.log('Parsed filters from URL:', filtersValues);
-
-    if (Object.keys(filtersValues).length) {
-      this.tableFilters = Object.keys(filtersValues).map(key => key);
-      this.tableRowFieldsShown = filtersValues;
-      this.tableRowFieldsComparator = getComparatorsFromUrl(filters);
+    // If saved_filter is present in queryParams, show empty form without applying filters
+    if (queryParams.saved_filter) {
+      // Show empty form without filters
+      this.tableFilters = [];
+      this.tableRowFieldsShown = {};
+      this.tableRowFieldsComparator = {};
     } else {
-      const fieldsToSearch = this.data.structure.structure.filter((field: TableField) => field.isSearched);
-      if (fieldsToSearch.length) {
-        this.tableFilters = fieldsToSearch.map((field:TableField) => field.column_name);
-        this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: undefined})));
-        this.tableRowFieldsComparator = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: 'eq'})));
+      // Original behavior - parse and apply filters from URL
+      let filters = {};
+      if (queryParams.filters) filters = JsonURL.parse(queryParams.filters);
+      // const filters = JsonURL.parse(queryParams.filters || '{}');
+      const filtersValues = getFiltersFromUrl(filters);
+
+      console.log('Parsed filters from URL:', filtersValues);
+
+      if (Object.keys(filtersValues).length) {
+        this.tableFilters = Object.keys(filtersValues).map(key => key);
+        this.tableRowFieldsShown = filtersValues;
+        this.tableRowFieldsComparator = getComparatorsFromUrl(filters);
+      } else {
+        const fieldsToSearch = this.data.structure.structure.filter((field: TableField) => field.isSearched);
+        if (fieldsToSearch.length) {
+          this.tableFilters = fieldsToSearch.map((field:TableField) => field.column_name);
+          this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: undefined})));
+          this.tableRowFieldsComparator = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: 'eq'})));
+        }
       }
     }
 

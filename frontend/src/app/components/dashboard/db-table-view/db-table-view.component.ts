@@ -179,7 +179,7 @@ export class DbTableViewComponent implements OnInit {
 
   ngOnInit() {
     this.searchString = this.route.snapshot.queryParams.search;
-    this.hasSavedFilterActive = !!this.route.snapshot.queryParams.saved_filter;
+    // this.hasSavedFilterActive = !!this.route.snapshot.queryParams.saved_filter;
 
     const connectionType = this._connections.currentConnection.type;
     this.displayCellComponents = tableDisplayTypes[connectionType];
@@ -188,18 +188,9 @@ export class DbTableViewComponent implements OnInit {
       this.selectedRow = row;
     });
 
-    // Subscribe to route changes to update hasSavedFilterActive when URL parameters change
-    let previousHasSavedFilter = this.hasSavedFilterActive;
     this.route.queryParams.subscribe(params => {
-      const currentHasSavedFilter = !!params.saved_filter;
-      this.hasSavedFilterActive = currentHasSavedFilter;
-
-      // If a saved filter was active but now it's not, reset all active filters
-      if (previousHasSavedFilter && !currentHasSavedFilter) {
-        this.resetAllFilters.emit();
-      }
-
-      previousHasSavedFilter = currentHasSavedFilter;
+      this.hasSavedFilterActive = !!params.saved_filter;
+      if (this.hasSavedFilterActive ) this.searchString = '';
     });
   }
 
@@ -268,7 +259,7 @@ export class DbTableViewComponent implements OnInit {
   }
 
   getFiltersCount(activeFilters: object) {
-    if (activeFilters) return Object.keys(activeFilters).length;
+    if (activeFilters && !this.hasSavedFilterActive) return Object.keys(activeFilters).length;
     return 0;
   }
 
@@ -518,5 +509,10 @@ export class DbTableViewComponent implements OnInit {
 
   switchTable(e) {
 
+  }
+
+  onFilterSelected($event) {
+    console.log('table view fiers filterSelected:', $event)
+    this.applyFilter.emit($event);
   }
 }

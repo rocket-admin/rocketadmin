@@ -56,6 +56,7 @@ export class SavedFiltersPanelComponent implements OnInit {
 
   public savedFilterData: any[] = [];
   public savedFilterMap: { [key: string]: any } = {};
+  public initialFilterApplied: boolean = false;
 
   public selectedFilterSetId: string | null = null;
   public selectedFilter: any = null;
@@ -102,7 +103,11 @@ export class SavedFiltersPanelComponent implements OnInit {
           if (savedFilterId && this.savedFilterData.length > 0) {
             if (savedFilterId) {
               this.selectedFilterSetId = savedFilterId;
-              this.filterSelected.emit(this.savedFilterMap[savedFilterId]);
+              // Only emit when the filter is first loaded from URL, not when selectFiltersSet changes the URL
+              if (!this.initialFilterApplied) {
+                this.initialFilterApplied = true;
+                this.filterSelected.emit(this.savedFilterMap[savedFilterId]);
+              }
             }
           } else {
             this.selectedFilterSetId = null;
@@ -154,8 +159,6 @@ export class SavedFiltersPanelComponent implements OnInit {
         });
       });
     });
-
-    console.log('Filter entries:', entries);
     return entries;
   }
 
@@ -209,39 +212,40 @@ export class SavedFiltersPanelComponent implements OnInit {
   }
 
   selectFiltersSet(selectedFilterSetId: string): void {
+    console.log('selectFiltersSet ID:', selectedFilterSetId);
     if (this.selectedFilterSetId === selectedFilterSetId) {
       // If the same filter is selected, clear the selection
       this.selectedFilterSetId = null;
       this.filterSelected.emit(null);
+      this.initialFilterApplied = false;  // Reset flag when clearing filter
 
       // Navigate without filters and saved_filter parameters
       const queryParams = this.buildQueryParams();
       this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
-      return;
+    } else {
+      // Apply new filter selection
+      this.selectedFilterSetId = selectedFilterSetId;
+      const selectedFilter = this.savedFilterMap[selectedFilterSetId];
+      this.filterSelected.emit(selectedFilter);
+
+      // Build filter-related params
+      const additionalParams: any = {
+        filters: JsonURL.stringify(selectedFilter.filters),
+        saved_filter: selectedFilterSetId
+      };
+
+      // Add dynamic column if present
+      if (selectedFilter.dynamicColumn) {
+        additionalParams.dynamic_column = JsonURL.stringify({
+          column_name: selectedFilter.dynamicColumn.column,
+          comparator: selectedFilter.dynamicColumn.operator
+        });
+      }
+
+      // Navigate with all parameters
+      const queryParams = this.buildQueryParams(additionalParams);
+      this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
     }
-
-    // Apply new filter selection
-    this.selectedFilterSetId = selectedFilterSetId;
-    const selectedFilter = this.savedFilterMap[selectedFilterSetId];
-    this.filterSelected.emit(selectedFilter);
-
-    // Build filter-related params
-    const additionalParams: any = {
-      filters: JsonURL.stringify(selectedFilter.filters),
-      saved_filter: selectedFilterSetId
-    };
-
-    // Add dynamic column if present
-    if (selectedFilter.dynamicColumn) {
-      additionalParams.dynamic_column = JsonURL.stringify({
-        column_name: selectedFilter.dynamicColumn.column,
-        comparator: selectedFilter.dynamicColumn.operator
-      });
-    }
-
-    // Navigate with all parameters
-    const queryParams = this.buildQueryParams(additionalParams);
-    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
   }
 
   selectFilter(entry: { column: string; operator: string; value: any }) {
