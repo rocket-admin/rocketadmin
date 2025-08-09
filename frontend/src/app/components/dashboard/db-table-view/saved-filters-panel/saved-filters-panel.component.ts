@@ -95,6 +95,20 @@ export class SavedFiltersPanelComponent implements OnInit {
         this.loadSavedFilters();
       }
     });
+
+    this._tables.cast.subscribe((arg) => {
+      if (arg === 'saved filters') {
+        this.loadSavedFilters();
+      }
+
+      if (arg === 'delete saved filters') {
+        this.loadSavedFilters();
+        this.selectedFilterSetId = null;
+        this.filterSelected.emit(null);
+        const queryParams = this.buildQueryParams();
+        this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
+      }
+    });
   }
 
   loadSavedFilters() {
