@@ -231,24 +231,8 @@ export class SavedFiltersDialogComponent implements OnInit {
     }
   }
 
-  saveFilter() {
-    // if (!this.filterForm.valid || this.tableFiltersCount === 0) {
-    //   return;
-    // }
-
-    // Prepare filter data to save
-    // const filterToSave = {
-    //   name: this.filterForm.get('filterName').value,
-    //   description: this.filterForm.get('filterDescription').value,
-    //   isDefault: this.filterForm.get('isDefault').value,
-    //   connectionId: this.data.connectionID,
-    //   tableName: this.data.tableName,
-    //   filters: this.tableRowFieldsShown,
-    //   comparators: this.tableRowFieldsComparator
-    // };
-
-    // const nonEmptyFilters = omitBy(this.tableRowFieldsShown, (value) => value === undefined);
-
+  handleSaveFilters() {
+    let payload;
     if (Object.keys(this.tableRowFieldsShown).length) {
       let filters = {};
 
@@ -270,7 +254,7 @@ export class SavedFiltersDialogComponent implements OnInit {
       }
 
       // const filters = JsonURL.stringify( this.filters );
-      const payload = {
+      payload = {
         name: this.data.filtersSet.name,
         filters
       };
@@ -284,13 +268,35 @@ export class SavedFiltersDialogComponent implements OnInit {
         };
       }
 
-      this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, payload)
+      if (this.data.filtersSet.id) {
+        this._tables.updateSavedFilter(this.data.connectionID, this.data.tableName, this.data.filtersSet.id, payload)
+          .subscribe(() => {
+            this.dialogRef.close(true);
+          }, (error) => {
+            console.error('Error updating filter:', error);
+            this.snackBar.open('Error updating filter', 'Close', { duration: 3000 });
+          });
+      } else {
+        this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, payload)
         .subscribe(() => {
           this.dialogRef.close(true);
         }, (error) => {
           console.error('Error saving filter:', error);
           this.snackBar.open('Error saving filter', 'Close', { duration: 3000 });
         });
-    }
+      }
+  }
+
+  // saveFilter() {
+
+
+  //     this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, payload)
+  //       .subscribe(() => {
+  //         this.dialogRef.close(true);
+  //       }, (error) => {
+  //         console.error('Error saving filter:', error);
+  //         this.snackBar.open('Error saving filter', 'Close', { duration: 3000 });
+  //       });
+  //   }
   }
 }

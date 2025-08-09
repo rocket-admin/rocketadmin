@@ -554,6 +554,32 @@ export class TablesService {
       )
   }
 
+  updateSavedFilter(connectionID: string, tableName: string, filtersId: string, filters: object) {
+    return this._http.put<any>(`/table-filters/${connectionID}/${filtersId}`, filters, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('update filters');
+          this._notifications.showSuccessSnackbar('Saved filter has been updated.')
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
   deleteSavedFilter(connectionID: string, tableName: string, filterId: string) {
     return this._http.delete<any>(`/table-filters/${connectionID}/${filterId}`, {
       params: {

@@ -1,4 +1,4 @@
-<form #tableFiltersForm="ngForm" class="filters-form">
+<form #tableFiltersForm="ngForm" (ngSubmit)="handleSaveFilters()" class="filters-form">
     <h1 mat-dialog-title class="filters-header">
         <span>Save Filters for <strong>{{ data.displayTableName }}</strong> table</span>
         <a mat-icon-button mat-dialog-close
@@ -172,8 +172,7 @@
         <button mat-flat-button mat-dialog-close>
             Cancel
         </button>
-        <button mat-flat-button color="primary" type="submit"
-            (click)="saveFilter()">
+        <button mat-flat-button color="primary" type="submit">
             Save Filter
         </button>
     </mat-dialog-actions>

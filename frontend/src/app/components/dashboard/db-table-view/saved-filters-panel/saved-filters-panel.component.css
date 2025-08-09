@@ -1,8 +1,14 @@
 .saved-filters-container {
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.saved-filters-list {
+    display: flex;
+    align-items: center;
     gap: 16px;
-    margin: 8px 0;
 }
 
 .saved-filters-tabs {
@@ -63,24 +69,6 @@
     min-height: 36px;
 }
 
-.no-filters {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px;
-    background-color: rgba(0, 0, 0, 0.04);
-    border-radius: 4px;
-    color: rgba(0, 0, 0, 0.6);
-}
-
-.no-filters mat-icon {
-    color: #999;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-}
-
-/* Single filter editor styles */
 .single-filter-editor {
     margin-top: 20px;
     padding: 16px;
@@ -141,7 +129,6 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-top: 16px;
 }
 
 .static-filters {
@@ -179,7 +166,6 @@
 
 .dynamic-column-editor {
     display: flex;
-    flex-direction: column;
     gap: 16px;
 }
 
@@ -188,13 +174,4 @@
     justify-content: flex-end;
     gap: 8px;
     margin-top: 8px;
-}
-
-.no-filters-message {
-    padding: 16px;
-    color: rgba(0, 0, 0, 0.6);
-    font-style: italic;
-    background-color: #f5f7fa;
-    border-radius: 8px;
-    text-align: center;
 }
