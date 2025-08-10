@@ -1,19 +1,15 @@
 import { Component, Injectable } from '@angular/core';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import colorString from 'color-string';
+import { CommonModule } from '@angular/common';
 
 @Injectable()
 @Component({
-  selector: 'app-display-color',
+  selector: 'app-color-record-view',
   templateUrl: './color.component.html',
   styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './color.component.css'],
-  imports: [CommonModule, ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
+  imports: [CommonModule]
 })
 export class ColorRecordViewComponent extends BaseRecordViewFieldComponent {
   get isValidColor(): boolean {
@@ -33,16 +29,16 @@ export class ColorRecordViewComponent extends BaseRecordViewFieldComponent {
 
   private parseColor(color: string): any {
     if (!color) return null;
-    
+
     // Try parsing with color-string
     const parsed = colorString.get(color);
     if (parsed) return parsed;
-    
+
     // Try hex without hash
     if (/^[A-Fa-f0-9]{6}$|^[A-Fa-f0-9]{3}$/.test(color)) {
       return colorString.get('#' + color);
     }
-    
+
     return null;
   }
 

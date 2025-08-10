@@ -48,7 +48,7 @@ export const UIwidgets = {
     UUID: UuidRecordViewComponent,
 }
 
-export const tableDisplayTypes = {
+export const recordViewFieldTypes = {
     postgres: {
         // numbers (number)
         real: NumberRecordViewComponent,

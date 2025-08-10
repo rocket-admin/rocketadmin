@@ -1,27 +1,17 @@
-.foreign-key-button {
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  color: var(--color-accentedPalette-500);
-  cursor: pointer;
-  font-size: inherit;
-  padding: 2px 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  max-width: 100%;
-  transition: background 100ms, border-color 100ms;
+.foreign-key-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
 
-.foreign-key-button:hover{
-  background-color: var(--color-accentedPalette-100);
-  border: 1px solid var(--color-accentedPalette-300);
+@media (prefers-color-scheme: light) {
+  .foreign-key-link {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.64);
+  }
 }
 
-.foreign-key-button_selected {
-  background-color: var(--color-accentedPalette-100);
-  border-radius: 12px;
-  border: 1px solid var(--color-accentedPalette-300);
+@media (prefers-color-scheme: dark) {
+  .foreign-key-link {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.64);
+  }
 }
-
-

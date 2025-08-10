@@ -1,7 +1,3 @@
-.field-display {
-  padding-right: 24px;
-}
-
 .phone-content {
   display: flex;
   align-items: center;
@@ -15,6 +11,5 @@
 }
 
 .phone-link {
-  text-decoration: none;
   color: var(--primary-color);
 }

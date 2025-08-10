@@ -1,18 +1,14 @@
 import { Component, Injectable, OnInit } from '@angular/core';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Injectable()
 @Component({
-  selector: 'app-point-display',
+  selector: 'app-point-record-view',
   templateUrl: './point.component.html',
   styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './point.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
+  imports: [MatTooltipModule]
 })
 export class PointRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
   static type = 'point';

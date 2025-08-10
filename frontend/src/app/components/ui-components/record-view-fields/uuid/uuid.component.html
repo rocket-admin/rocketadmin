@@ -1,16 +1,1 @@
-<div class="field-value uuid-display">
-  @if (value) {
-    <span class="uuid-text">{{ value }}</span>
-    <button
-      mat-icon-button
-      [cdkCopyToClipboard]="value"
-      matTooltip="Copy UUID"
-      class="copy-button"
-    >
-      <mat-icon>content_copy</mat-icon>
-    </button>
-  }
-  @else {
-    <span class="null-value">NULL</span>
-  }
-</div>
+<span class="field-view-value uuid-text">{{ value || 'Null' }}</span>

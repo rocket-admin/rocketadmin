@@ -1,10 +1,5 @@
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
 import { Component, Injectable } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface Blob {
   type: string;
@@ -13,10 +8,10 @@ interface Blob {
 
 @Injectable()
 @Component({
-  selector: 'app-file-display',
+  selector: 'app-file-record-view',
   templateUrl: './file.component.html',
   styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './file.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
+  imports: []
 })
 export class FileRecordViewComponent extends BaseRecordViewFieldComponent {
   get isBlob(): boolean {

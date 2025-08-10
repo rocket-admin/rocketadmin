@@ -1,18 +1,13 @@
 import { Component, Injectable, OnInit } from '@angular/core';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Injectable()
 @Component({
-  selector: 'app-time-interval-display',
+  selector: 'app-time-interval-record-view',
   templateUrl: './time-interval.component.html',
   styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './time-interval.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
+  imports: []
 })
 export class TimeIntervalRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
 

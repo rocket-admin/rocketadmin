@@ -3,6 +3,7 @@
     align-items: center;
     gap: 4px;
     color: var(--color-primaryPalette-500);
+    word-break: break-all;
 }
 
 .url-link__icon {

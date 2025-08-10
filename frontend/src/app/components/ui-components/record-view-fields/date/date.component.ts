@@ -2,18 +2,13 @@ import { Component, Injectable, OnInit } from '@angular/core';
 import { format, parseISO } from 'date-fns';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Injectable()
 @Component({
-  selector: 'app-date-display',
+  selector: 'app-date-record-view',
   templateUrl: './date.component.html',
   styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './date.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
+  imports: []
 })
 export class DateRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
   static type = 'date';

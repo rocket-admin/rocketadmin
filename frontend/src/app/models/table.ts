@@ -48,6 +48,7 @@ export interface TableRow {
     foreignKeysList: string[],
     widgets: Widget[],
     widgetsList: string[],
+    fieldsTypes: { [key: string]: string },
     relatedRecords: {
         referenced_on_column_name: string,
 		referenced_by: []

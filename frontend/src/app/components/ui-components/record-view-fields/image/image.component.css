@@ -1,10 +1,4 @@
-.field-value {
-  font-style: italic;
-  color: #666;
-}
-
-.image-thumbnail {
-    display: block;
-    height: var(--height);
-    margin: 12px 0;
+.image-preview {
+  width: 100%;
+  height: auto;
 }

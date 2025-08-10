@@ -1,19 +1,14 @@
 import { Component, Injectable, OnInit } from '@angular/core';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { getCurrencyByCode } from 'src/app/consts/currencies';
 
 @Injectable()
 @Component({
-  selector: 'app-money-display',
+  selector: 'app-money-record-view',
   templateUrl: './money.component.html',
   styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './money.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
+  imports: []
 })
 export class MoneyRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
   public displayCurrency: string = '';

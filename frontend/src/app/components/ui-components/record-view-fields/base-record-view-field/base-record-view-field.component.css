@@ -1,26 +1,25 @@
-.field-display {
-  position: relative;
-  display: flex;
-  align-items: center;
+.field-view-value {
+  word-wrap: anywhere;
+  word-break: keep-all;
+  white-space: break-spaces;
+  max-width: 100%;
 }
 
-.field-value {
-  flex-grow: 1 0 auto;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+@media (prefers-color-scheme: light) {
+  .field-view-value {
+    color: rgba(0, 0, 0, 0.64);
+  }
 }
 
-.field-copy-button {
-  position: absolute;
-  right: -6px;
-  top: 50%;
-  background-color: var(--hover-color);
-  transform: translate(0, -50%) scale(0.85);
-  opacity: 0;
-  transition: opacity 0.1s ease-in-out;
+@media (prefers-color-scheme: dark) {
+  .field-view-value {
+    color: rgba(255, 255, 255, 0.64);
+  }
 }
 
-.field-display:hover .field-copy-button {
-  opacity: 1;
+.field-view-icon {
+  font-size: 16px;
+  height: 16px;
+  margin-left: 8px;
+  width: 16px;
 }
