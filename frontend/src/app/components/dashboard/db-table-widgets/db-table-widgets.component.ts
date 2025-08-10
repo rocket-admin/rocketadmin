@@ -122,8 +122,16 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_null": false
 }
 `,
-    Date: `// No settings required`,
-    DateTime: `// No settings required`,
+    Date: `// Configure date display options
+// formatDistance: Shows relative time (e.g., "2 hours ago") for dates within the last 24 hours
+{
+  "formatDistance": true
+}`,
+    DateTime: `// Configure datetime display options
+// formatDistance: Shows relative time (e.g., "2 hours ago") for dates within the last 24 hours
+{
+  "formatDistance": true
+}`,
     Default: `// No settings required`,
     File:
 `// provide type of file: 'hex', 'base64' or 'file'
@@ -141,7 +149,12 @@ export class DbTableWidgetsComponent implements OnInit {
 `,
     Image:
 `// provide image height in px to dispaly in table
+// prefix: optional URL prefix to prepend to image source
 // example:
+// {
+//   "height": 100,
+//   "prefix": "https://example.com/images/"
+// }
 {
   "height": 100
 }
@@ -218,7 +231,12 @@ export class DbTableWidgetsComponent implements OnInit {
   "rows": 5
 }`,
     Time: `// No settings required`,
-    URL: `// No settings required`,
+    URL: `// prefix: optional URL prefix to prepend to the href
+// example:
+// {
+//   "prefix": "https://example.com/"
+// }
+{}`,
     UUID: `// Configure UUID generation version and parameters
 // Available versions: "v1", "v3", "v4" (default), "v5", "v7"
 // For v3/v5: provide namespace and optionally name

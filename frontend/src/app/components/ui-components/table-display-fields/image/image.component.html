@@ -2,7 +2,7 @@
   <span *ngIf="!isUrl" class="field-value">[Image URL]</span>
   <img *ngIf="isUrl"
     class="image-thumbnail"
-    [src]="value" alt="Image"
+    [src]="srcValue" alt="Image"
     [style.--height.px]="widgetStructure.widget_params.height">
   <button type="button" mat-icon-button
       class="field-copy-button"

@@ -26,6 +26,7 @@ export class CountryEditComponent extends BaseEditFieldComponent {
   public countryControl = new FormControl<{value: string | null, label: string, flag: string} | string>('');
   public filteredCountries: Observable<{value: string | null, label: string, flag: string}[]>;
   public showFlag: boolean = true;
+  public selectedCountryFlag: string = '';
 
   originalOrder = () => { return 0; }
 
@@ -58,7 +59,16 @@ export class CountryEditComponent extends BaseEditFieldComponent {
   private setupAutocomplete(): void {
     this.filteredCountries = this.countryControl.valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(typeof value === 'string' ? value : (value?.label || '')))
+      map(value => {
+        // Update flag when value changes
+        if (typeof value === 'object' && value !== null) {
+          this.selectedCountryFlag = value.flag;
+        } else if (typeof value === 'string') {
+          // Clear flag if user is typing
+          this.selectedCountryFlag = '';
+        }
+        return this._filter(typeof value === 'string' ? value : (value?.label || ''));
+      })
     );
   }
 
@@ -67,6 +77,7 @@ export class CountryEditComponent extends BaseEditFieldComponent {
       const country = this.countries.find(c => c.value === this.value);
       if (country) {
         this.countryControl.setValue(country);
+        this.selectedCountryFlag = country.flag;
       }
     }
   }
@@ -81,12 +92,14 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 
   onCountrySelected(selectedCountry: {value: string | null, label: string, flag: string}): void {
     this.value = selectedCountry.value;
+    this.selectedCountryFlag = selectedCountry.flag;
     this.onFieldChange.emit(this.value);
   }
 
   displayFn(country: any): string {
     if (!country) return '';
-    return this.showFlag && country.flag ? `${country.flag} ${country.label}` : country.label;
+    // Only return the country label, flag is shown separately
+    return typeof country === 'string' ? country : country.label;
   }
 
   private loadCountries(): void {
