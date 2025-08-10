@@ -270,7 +270,7 @@ export class DbTableRowEditComponent implements OnInit {
                   chunkSize: 30,
                   filters
                 }).subscribe((res) => {
-
+                  const foreignKeysList = res.foreignKeys.map((foreignKey: TableForeignKey) => foreignKey.column_name);
                   this.relatedRecordsProperties = Object.assign({}, this.relatedRecordsProperties, {
                     [table.table_name]: {
                       connectionID: this.connectionID,
@@ -278,7 +278,7 @@ export class DbTableRowEditComponent implements OnInit {
                       columnsOrder: res.list_fields,
                       primaryColumns: res.primaryColumns,
                       foreignKeys: Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey}))),
-                      foreignKeysList: res.foreignKeys.map(fk => fk.column_name),
+                      foreignKeysList,
                       widgets: Object.assign({}, ...res.widgets.map((widget: Widget) => {
                           let parsedParams;
 
@@ -297,6 +297,7 @@ export class DbTableRowEditComponent implements OnInit {
                         })
                       ),
                       widgetsList: res.widgets.map(widget => widget.field_name),
+                      fieldsTypes: getTableTypes(res.structure, foreignKeysList),
                       relatedRecords: [],
                       link: `/dashboard/${this.connectionID}/${table.table_name}/entry`
                     }

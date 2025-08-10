@@ -1,0 +1,17 @@
+.foreign-key-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: light) {
+  .foreign-key-link {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.64);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .foreign-key-link {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.64);
+  }
+}

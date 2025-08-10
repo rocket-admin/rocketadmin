@@ -1,0 +1,8 @@
+<div class="color-display">
+  <div *ngIf="isValidColor"
+    class="color-swatch"
+    [style.background-color]="normalizedColorForDisplay"
+    [title]="value || 'No color'"
+  ></div>
+  <span class="field-view-value">{{value || '—'}}</span>
+</div>
