@@ -525,7 +525,7 @@ export async function createTestDynamoDBTable(
   } catch (error) {
     console.error(`Error creating dynamodb table: ${error.message}`);
   }
-
+  const insertedSearchedIds: Array<{ number: number; id: string }> = [];
   const documentClient = DynamoDBDocumentClient.from(dynamoDb);
   try {
     for (let i = 0; i < testEntitiesSeedsCount; i++) {
@@ -552,6 +552,13 @@ export async function createTestDynamoDBTable(
         binary_set_column: { BS: [Buffer.from('value1'), Buffer.from('value2')] },
       };
 
+      if (isSearchedUser) {
+        insertedSearchedIds.push({
+          number: i,
+          id: String(item.id.N),
+        });
+      }
+
       const params: PutItemCommandInput = {
         TableName: testTableName,
         Item: item as any,
@@ -568,6 +575,7 @@ export async function createTestDynamoDBTable(
     testTableColumnName: testTableColumnName,
     testTableSecondColumnName: testTableSecondColumnName,
     testEntitiesSeedsCount: testEntitiesSeedsCount,
+    insertedSearchedIds,
   };
 }
 
