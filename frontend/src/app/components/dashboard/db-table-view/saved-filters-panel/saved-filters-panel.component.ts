@@ -99,6 +99,15 @@ export class SavedFiltersPanelComponent implements OnInit {
       }
     });
 
+    this.route.queryParamMap.subscribe(params => {
+      const savedFilterId = params.get('saved_filter');
+      if (savedFilterId) {
+        this.selectedFilterSetId = savedFilterId;
+      } else {
+        this.selectedFilterSetId = null;
+      }
+    });
+
     this._tables.cast.subscribe((arg) => {
       if (arg === 'saved filters') {
         this.loadSavedFilters();
@@ -129,23 +138,18 @@ export class SavedFiltersPanelComponent implements OnInit {
           }));
 
           const params = this.route.snapshot.queryParams;
-          const savedFilterId = params['saved_filter'];
           const dynamicColumn = params['dynamic_column'] ? JsonURL.parse(params['dynamic_column']) : null;
 
-          if (savedFilterId && this.savedFilterData.length > 0) {
-            this.selectedFilterSetId = savedFilterId;
-
-            if (dynamicColumn && this.savedFilterMap[savedFilterId]) {
+          if (this.selectedFilterSetId && this.savedFilterData.length > 0) {
+            if (dynamicColumn && this.savedFilterMap[this.selectedFilterSetId]) {
               const filters = params['filters'] ? JsonURL.parse(params['filters']) : {};
 
-              this.savedFilterMap[savedFilterId].dynamicColumn = {
+              this.savedFilterMap[this.selectedFilterSetId].dynamicColumn = {
                 column: dynamicColumn.column_name,
                 operator: dynamicColumn.comparator,
                 value: filters[dynamicColumn.column_name]?.[dynamicColumn.comparator] || null
               };
             }
-          } else {
-            this.selectedFilterSetId = null;
           }
         }
       },

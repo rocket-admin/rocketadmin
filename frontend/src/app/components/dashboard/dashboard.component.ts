@@ -293,11 +293,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         if (Object.keys(nonEmptyFilters).length) {
           this.filters = {};
           for (const key in nonEmptyFilters) {
-              if (this.comparators[key] !== undefined) {
-                this.filters[key] = {
-                      [this.comparators[key]]: nonEmptyFilters[key]
-                  };
-              }
+            if (this.comparators[key] !== undefined) {
+              this.filters[key] = {
+                [this.comparators[key]]: nonEmptyFilters[key]
+              };
+            }
           }
 
           console.log('Filters to apply:', this.filters);
