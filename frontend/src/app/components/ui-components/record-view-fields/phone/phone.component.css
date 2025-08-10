@@ -1,0 +1,20 @@
+.field-display {
+  padding-right: 24px;
+}
+
+.phone-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.country-flag {
+  font-size: 16px;
+  cursor: help;
+  user-select: none;
+}
+
+.phone-link {
+  text-decoration: none;
+  color: var(--primary-color);
+}
