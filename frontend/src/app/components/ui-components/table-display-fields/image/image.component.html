@@ -7,7 +7,7 @@
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy image URL"
-      [cdkCopyToClipboard]="value"
+      [cdkCopyToClipboard]="srcValue"
       (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Field value was copied to clipboard.')"
       (click)="$event.stopPropagation()">
       <mat-icon>content_copy</mat-icon>
