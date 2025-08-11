@@ -23,6 +23,7 @@ export class RangeEditComponent extends BaseEditFieldComponent {
 
   public min: number = 0;
   public max: number = 100;
+  public step: number = 1;
 
   override ngOnInit(): void {
     super.ngOnInit();
@@ -47,6 +48,9 @@ export class RangeEditComponent extends BaseEditFieldComponent {
         }
         if (params.max !== undefined) {
           this.max = Number(params.max) || 100;
+        }
+        if (params.step !== undefined) {
+          this.step = Number(params.step) || 1;
         }
       } catch (error) {
         console.error('Failed to parse widget params:', error);

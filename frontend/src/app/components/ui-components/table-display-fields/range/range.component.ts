@@ -19,6 +19,7 @@ export class RangeDisplayComponent extends BaseTableDisplayFieldComponent implem
 
   public min: number = 0;
   public max: number = 100;
+  public step: number = 1;
   public displayValue: string = '';
 
   ngOnInit(): void {
@@ -49,6 +50,9 @@ export class RangeDisplayComponent extends BaseTableDisplayFieldComponent implem
         }
         if (params.max !== undefined) {
           this.max = Number(params.max) || 100;
+        }
+        if (params.step !== undefined) {
+          this.step = Number(params.step) || 1;
         }
       } catch (error) {
         console.error('Failed to parse widget params:', error);

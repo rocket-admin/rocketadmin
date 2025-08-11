@@ -123,14 +123,16 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
     Date: `// Configure date display options
-// formatDistance: Shows relative time (e.g., "2 hours ago") for dates within the last 24 hours
+// formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
+// Default: 48 hours. Set to 0 to disable relative time display
 {
-  "formatDistance": true
+  "formatDistanceWithinHours": 48
 }`,
     DateTime: `// Configure datetime display options
-// formatDistance: Shows relative time (e.g., "2 hours ago") for dates within the last 24 hours
+// formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
+// Default: 48 hours. Set to 0 to disable relative time display
 {
-  "formatDistance": true
+  "formatDistanceWithinHours": 48
 }`,
     Default: `// No settings required`,
     File:
@@ -194,11 +196,12 @@ export class DbTableWidgetsComponent implements OnInit {
   "phone_validation": true
 }
 `,
-    Range: `// Configure the minimum and maximum values for the range
-// Default: min = 0, max = 100
+    Range: `// Configure the minimum, maximum and step values for the range
+// Default: min = 0, max = 100, step = 1
 {
   "min": 0,
-  "max": 100
+  "max": 100,
+  "step": 1
 }
 `,
     Readonly: `// No settings required`,

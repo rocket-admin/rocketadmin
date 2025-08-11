@@ -17,7 +17,8 @@ export class DateDisplayComponent extends BaseTableDisplayFieldComponent impleme
   static type = 'date';
 
   public formattedDate: string;
-  public formatDistance: boolean = false;
+  public formatDistanceWithinHours: number = 48;
+  public fullDate: string;
 
   ngOnInit(): void {
     this.parseWidgetParams();
@@ -26,17 +27,22 @@ export class DateDisplayComponent extends BaseTableDisplayFieldComponent impleme
       try {
         const date = new Date(this.value);
         if (!isNaN(date.getTime())) {
-          // Check if formatDistance is enabled and date is within 24 hours from now
-          if (this.formatDistance && this.isWithin24Hours(date)) {
+          // Always store the full date format for tooltip
+          this.fullDate = format(date, "PPP"); // e.g., "April 29th, 2023"
+          
+          // Check if formatDistanceWithinHours is enabled and date is within specified hours from now
+          if (this.formatDistanceWithinHours > 0 && this.isWithinHours(date, this.formatDistanceWithinHours)) {
             this.formattedDate = formatDistanceToNow(date, { addSuffix: true });
           } else {
             this.formattedDate = format(date, "P");
           }
         } else {
           this.formattedDate = this.value;
+          this.fullDate = this.value;
         }
       } catch (error) {
         this.formattedDate = this.value;
+        this.fullDate = this.value;
       }
     }
   }
@@ -48,8 +54,8 @@ export class DateDisplayComponent extends BaseTableDisplayFieldComponent impleme
           ? JSON.parse(this.widgetStructure.widget_params) 
           : this.widgetStructure.widget_params;
         
-        if (params.formatDistance !== undefined) {
-          this.formatDistance = params.formatDistance;
+        if (params.formatDistanceWithinHours !== undefined) {
+          this.formatDistanceWithinHours = Number(params.formatDistanceWithinHours) || 48;
         }
       } catch (e) {
         console.error('Error parsing date widget params:', e);
@@ -57,9 +63,9 @@ export class DateDisplayComponent extends BaseTableDisplayFieldComponent impleme
     }
   }
 
-  private isWithin24Hours(date: Date): boolean {
+  private isWithinHours(date: Date, hours: number): boolean {
     const now = new Date();
     const hoursDifference = Math.abs(differenceInHours(date, now));
-    return hoursDifference <= 24;
+    return hoursDifference <= hours;
   }
 }
