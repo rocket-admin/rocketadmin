@@ -153,12 +153,10 @@ export class DbTableWidgetsComponent implements OnInit {
 `// provide image height in px to dispaly in table
 // prefix: optional URL prefix to prepend to image source
 // example:
-// {
-//   "height": 100,
-//   "prefix": "https://example.com/images/"
-// }
 {
-  "height": 100
+  "height": 100,
+  "prefix": "https://example.com/images/"
+}
 }
 `,
     JSON: `// No settings required`,
@@ -236,10 +234,10 @@ export class DbTableWidgetsComponent implements OnInit {
     Time: `// No settings required`,
     URL: `// prefix: optional URL prefix to prepend to the href
 // example:
-// {
-//   "prefix": "https://example.com/"
-// }
-{}`,
+{
+  "prefix": "https://example.com/"
+}
+`,
     UUID: `// Configure UUID generation version and parameters
 // Available versions: "v1", "v3", "v4" (default), "v5", "v7"
 // For v3/v5: provide namespace and optionally name
