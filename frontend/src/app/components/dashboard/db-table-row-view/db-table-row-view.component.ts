@@ -18,6 +18,9 @@ import { PlaceholderRecordViewComponent } from '../../skeletons/placeholder-reco
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
+import { ForeignKeyRecordViewComponent } from '../../ui-components/record-view-fields/foreign-key/foreign-key.component';
+import { UIwidgets, recordViewFieldTypes } from 'src/app/consts/record-view-types';
+import { DynamicModule } from 'ng-dynamic-component';
 
 @Component({
   selector: 'app-db-table-row-view',
@@ -33,7 +36,9 @@ import { formatFieldValue } from 'src/app/lib/format-field-value';
     MatListModule,
     RouterModule,
     CommonModule,
-    PlaceholderRecordViewComponent
+    PlaceholderRecordViewComponent,
+    ForeignKeyRecordViewComponent,
+    DynamicModule
   ]
 })
 export class DbTableRowViewComponent implements OnInit, OnDestroy {
@@ -48,19 +53,29 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
   public referencedTables: { table_name: string; displayTableName: string; columns: string[] }[] = [];
   public referencedTablesURLParams: any;
   public referencedRecords: {} = {};
+  public recordViewComponents;
+  public widgetsMap: { [key: string]: any } = {};
+  public UIwidgets = UIwidgets;
 
   constructor(
     private _tables: TablesService,
     private _tableState: TableStateService,
     private _notifications: NotificationsService,
+    private _connections: ConnectionsService,
     private route: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
     // this.connectionID = this._connections.connectionID;
 
+    const connectionType = this._connections.currentConnection.type;
+    this.recordViewComponents = recordViewFieldTypes[connectionType];
+
     this.selectedRowCast = this._tableState.cast.subscribe((row) => {
       this.selectedRow = row;
+
+      console.log('Selected row:', this.selectedRow);
+
       if (row && row.columnsOrder) {
         const columnsOrder = this.selectedRow.columnsOrder.length ? this.selectedRow.columnsOrder : Object.keys(this.selectedRow.record);
 

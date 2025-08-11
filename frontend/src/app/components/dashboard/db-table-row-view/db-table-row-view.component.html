@@ -80,26 +80,35 @@
     </mat-expansion-panel>
 
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
-        <div *ngFor="let column of columns" class="row-preview-sidebar__field">
+        <div *ngFor="let column of columns; let i = index" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <a *ngIf="isForeignKey(column.title); else recordContent"
-                routerLink="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
-                [queryParams]="getForeignKeyQueryParams(column.title)"
-                class="row-preview-sidebar__field-value row-preview-sidebar__field-value_foreign-key"
-                (click)="handleClose()">
-                <span>{{getForeignKeyValue(column.title)}}</span>
-                <mat-icon fontSet="material-icons-outlined" class="row-preview-sidebar__field-value-icon">edit</mat-icon>
-            </a>
+            <ng-container *ngIf="isForeignKey(column.title); else recordContent">
+                <app-foreign-key-record-view
+                    [key]="i"
+                    link="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
+                    [primaryKeysParams]="getForeignKeyQueryParams(column.title)"
+                    [displayValue]="getForeignKeyValue(column.title)"
+                    (onForeignKeyClick)="handleClose()">
+                </app-foreign-key-record-view>
+            </ng-container>
 
             <ng-template #recordContent>
-                <div *ngIf="isWidget(column.title); else stringValue">
-                    <div *ngIf="selectedRow.widgets[column.title].widget_type === 'Image'">
-                        <img [src]="selectedRow.record[column.title]" alt="Image" class="row-preview-sidebar__image">
-                    </div>
-                    <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
-                </div>
-                <ng-template #stringValue>
-                    <span class="row-preview-sidebar__field-value">{{selectedRow.record[column.title] || '—'}}</span>
+                <ndc-dynamic *ngIf="isWidget(column.title); else simpleValue"
+                    [ndcDynamicComponent]="UIwidgets[selectedRow.widgets[column.title].widget_type]"
+                    [ndcDynamicInputs]="{
+                        key: column.title,
+                        value: selectedRow.record[column.title],
+                        widgetStructure: selectedRow.widgets[column.title]
+                    }">
+                </ndc-dynamic>
+                <ng-template #simpleValue>
+                    <ndc-dynamic
+                        [ndcDynamicComponent]="recordViewComponents[selectedRow.fieldsTypes[column.title]]"
+                        [ndcDynamicInputs]="{
+                            key: column.title,
+                            value: selectedRow.record[column.title]
+                        }">
+                    </ndc-dynamic>
                 </ng-template>
             </ng-template>
         </div>

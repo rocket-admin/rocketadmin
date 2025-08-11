@@ -1,0 +1,17 @@
+.color-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  /* border: 1px solid #ccc; */
+  flex-shrink: 0;
+}
+
+.field-value {
+  font-family: monospace;
+}

@@ -451,6 +451,7 @@ export class DbTableComponent implements OnInit {
       foreignKeysList: this.tableData.foreignKeysList,
       widgets: this.tableData.widgets,
       widgetsList: this.tableData.widgetsList,
+      fieldsTypes: this.tableData.tableTypes,
       relatedRecords: this.tableData.relatedRecords || null,
       link: `/dashboard/${this.connectionID}/${this.name}/entry`
     });
@@ -469,16 +470,15 @@ export class DbTableComponent implements OnInit {
       foreignKeysList: null,
       widgets: null,
       widgetsList: null,
+      fieldsTypes: null,
       relatedRecords: null,
       link: null
     })
 
     this._tableRow.fetchTableRow(this.connectionID, foreignKeys.referenced_table_name, {[foreignKeys.referenced_column_name]: row[foreignKeys.referenced_column_name]})
       .subscribe(res => {
-        const filedsTypes = res.structure.reduce((acc, field) => {
-          acc[field.column_name	] = field.data_type;
-          return acc;
-        }, {});
+        const foreignKeysList = res.foreignKeys.map((foreignKey: TableForeignKey) => foreignKey.column_name);
+        const filedsTypes = getTableTypes(res.structure, foreignKeysList);
 
         const formattedRecord = Object.entries(res.row).reduce((acc, [key, value]) => {
           acc[key] = formatFieldValue(value, filedsTypes[key]);
@@ -494,7 +494,7 @@ export class DbTableComponent implements OnInit {
             [foreignKeys.referenced_column_name]: res.row[foreignKeys.referenced_column_name]
           },
           foreignKeys: Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey}))),
-          foreignKeysList: res.foreignKeys.map(fk => fk.column_name),
+          foreignKeysList,
           widgets: Object.assign({}, ...res.table_widgets.map((widget: Widget) => {
               let parsedParams;
 
@@ -513,6 +513,7 @@ export class DbTableComponent implements OnInit {
             })
           ),
           widgetsList: res.table_widgets.map(widget => widget.field_name),
+          fieldsTypes: filedsTypes,
           relatedRecords: res.referenced_table_names_and_columns[0],
           link: `/dashboard/${this.connectionID}/${foreignKeys.referenced_table_name}/entry`
         });

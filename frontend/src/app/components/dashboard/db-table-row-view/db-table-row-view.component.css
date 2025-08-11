@@ -67,50 +67,6 @@
     }
 }
 
-.row-preview-sidebar__field-value {
-    word-wrap: anywhere;
-    word-break: keep-all;
-    white-space: break-spaces;
-    max-width: 100%;
-}
-
-@media (prefers-color-scheme: light) {
-    .row-preview-sidebar__field-value {
-        color: rgba(0, 0, 0, 0.64);
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .row-preview-sidebar__field-value {
-        color: rgba(255, 255, 255, 0.64);
-    }
-}
-
-.row-preview-sidebar__field-value_foreign-key {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-}
-
-@media (prefers-color-scheme: light) {
-    .row-preview-sidebar__field-value_foreign-key {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.64);
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .row-preview-sidebar__field-value_foreign-key {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.64);
-    }
-}
-
-.row-preview-sidebar__field-value-icon {
-    font-size: 16px;
-    height: 16px;
-    margin-left: 8px;
-    width: 16px;
-}
-
 .row-preview-sidebar__image {
     width: 100%;
     margin-top: 8px;
