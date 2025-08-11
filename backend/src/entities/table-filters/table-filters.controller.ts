@@ -35,6 +35,7 @@ import {
   IUpdateTableFilterById,
 } from './use-cases/table-filters-use-cases.interface.js';
 import { UpdateTableFilterDs } from './application/data-structures/update-table-filters.ds.js';
+import { TableReadGuard } from '../../guards/table-read.guard.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('table-filters')
@@ -100,7 +101,7 @@ export class TableFiltersController {
   })
   @ApiQuery({ name: 'tableName', required: true })
   @ApiParam({ name: 'connectionId', required: true })
-  @UseGuards(ConnectionReadGuard)
+  @UseGuards(TableReadGuard)
   @Get('/:connectionId/all')
   async findTableFilters(
     @QueryTableName() tableName: string,
