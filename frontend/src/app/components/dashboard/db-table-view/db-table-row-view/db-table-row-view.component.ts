@@ -18,9 +18,9 @@ import { PlaceholderRecordViewComponent } from '../../../skeletons/placeholder-r
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
-import { ForeignKeyRecordViewComponent } from '../../ui-components/record-view-fields/foreign-key/foreign-key.component';
 import { UIwidgets, recordViewFieldTypes } from 'src/app/consts/record-view-types';
 import { DynamicModule } from 'ng-dynamic-component';
+import { ForeignKeyRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/foreign-key/foreign-key.component';
 
 @Component({
   selector: 'app-db-table-row-view',

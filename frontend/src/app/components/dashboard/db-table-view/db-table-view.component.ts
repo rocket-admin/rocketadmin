@@ -44,6 +44,7 @@ import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 
 interface Column {
   title: string,
