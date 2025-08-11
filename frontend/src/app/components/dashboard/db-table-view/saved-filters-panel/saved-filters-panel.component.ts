@@ -109,7 +109,7 @@ export class SavedFiltersPanelComponent implements OnInit {
     });
 
     this._tables.cast.subscribe((arg) => {
-      if (arg === 'saved filters') {
+      if (arg === 'filters set saved' || arg === 'filters set updated') {
         this.loadSavedFilters();
       }
 
@@ -131,7 +131,9 @@ export class SavedFiltersPanelComponent implements OnInit {
     this._tables.getSavedFilters(this.connectionID, this.selectedTableName).subscribe({
       next: (data) => {
         if (data) {
-          this.savedFilterData = data;
+          this.savedFilterData = data.sort((a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
           this.savedFilterMap = Object.assign({}, ...data.map((filter) => {
             const transformedFilter = this.processFiltersData(filter);
             return { [filter.id]: transformedFilter };

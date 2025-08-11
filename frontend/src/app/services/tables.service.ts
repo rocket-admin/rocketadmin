@@ -536,7 +536,7 @@ export class TablesService {
     })
       .pipe(
         map(res => {
-          this.tables.next('saved filters');
+          this.tables.next('filters set saved');
           this._notifications.showSuccessSnackbar('Saved filters have been updated.')
           return res
         }),
@@ -562,7 +562,7 @@ export class TablesService {
     })
       .pipe(
         map(res => {
-          this.tables.next('update filters');
+          this.tables.next('filters set updated');
           this._notifications.showSuccessSnackbar('Saved filter has been updated.')
           return res
         }),
