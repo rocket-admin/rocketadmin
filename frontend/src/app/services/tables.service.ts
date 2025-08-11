@@ -542,13 +542,7 @@ export class TablesService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
+          this._notifications.showErrorSnackbar(err.error.message);
           return EMPTY;
         })
       )
@@ -568,13 +562,7 @@ export class TablesService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
+          this._notifications.showErrorSnackbar(err.error.message);
           return EMPTY;
         })
       );
@@ -594,13 +582,7 @@ export class TablesService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
+          this._notifications.showErrorSnackbar(err.error.message);
           return EMPTY;
         })
       )
