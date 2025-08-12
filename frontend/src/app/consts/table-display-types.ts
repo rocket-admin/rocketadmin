@@ -15,6 +15,7 @@ import { NumberDisplayComponent } from '../components/ui-components/table-displa
 import { PasswordDisplayComponent } from '../components/ui-components/table-display-fields/password/password.component';
 import { PhoneDisplayComponent } from '../components/ui-components/table-display-fields/phone/phone.component';
 import { PointDisplayComponent } from '../components/ui-components/table-display-fields/point/point.component';
+import { RangeDisplayComponent } from '../components/ui-components/table-display-fields/range/range.component';
 import { SelectDisplayComponent } from '../components/ui-components/table-display-fields/select/select.component';
 import { StaticTextDisplayComponent } from '../components/ui-components/table-display-fields/static-text/static-text.component';
 import { TextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/text/text.component';
@@ -26,25 +27,26 @@ import { UuidDisplayComponent } from '../components/ui-components/table-display-
 export const UIwidgets = {
     Default: '',
     Boolean: BooleanDisplayComponent,
-    Date: DateDisplayComponent,
-    Time: TimeDisplayComponent,
-    DateTime: DateTimeDisplayComponent,
-    JSON: JsonEditorDisplayComponent,
-    Textarea: LongTextDisplayComponent,
-    String: TextDisplayComponent,
-    Readonly: StaticTextDisplayComponent,
-    Number: NumberDisplayComponent,
-    Select: SelectDisplayComponent,
-    Password: PasswordDisplayComponent,
-    File: FileDisplayComponent,
     Code: CodeDisplayComponent,
-    Image: ImageDisplayComponent,
-    URL: UrlDisplayComponent,
-    Country: CountryDisplayComponent,
-    Phone: PhoneDisplayComponent,
-    Money: MoneyDisplayComponent,
-    Foreign_key: ForeignKeyDisplayComponent,
     Color: ColorDisplayComponent,
+    Country: CountryDisplayComponent,
+    Date: DateDisplayComponent,
+    DateTime: DateTimeDisplayComponent,
+    File: FileDisplayComponent,
+    Foreign_key: ForeignKeyDisplayComponent,
+    Image: ImageDisplayComponent,
+    JSON: JsonEditorDisplayComponent,
+    Money: MoneyDisplayComponent,
+    Number: NumberDisplayComponent,
+    Password: PasswordDisplayComponent,
+    Phone: PhoneDisplayComponent,
+    Range: RangeDisplayComponent,
+    Readonly: StaticTextDisplayComponent,
+    Select: SelectDisplayComponent,
+    String: TextDisplayComponent,
+    Textarea: LongTextDisplayComponent,
+    Time: TimeDisplayComponent,
+    URL: UrlDisplayComponent,
     UUID: UuidDisplayComponent,
 }
 

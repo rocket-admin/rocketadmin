@@ -1,4 +1,4 @@
-import { Directive } from '@angular/core';
+import { Directive, Input } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from '@angular/forms';
 import { urlValidation } from '../validators/url.validator';
 
@@ -13,7 +13,9 @@ import { urlValidation } from '../validators/url.validator';
   ]
 })
 export class UrlValidatorDirective implements Validator {
+  @Input('urlPrefix') prefix: string = '';
+  
   validate(control: AbstractControl): ValidationErrors | null {
-    return urlValidation()(control);
+    return urlValidation(this.prefix)(control);
   }
 }

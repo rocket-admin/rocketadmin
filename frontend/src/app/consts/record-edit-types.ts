@@ -16,6 +16,7 @@ import { NumberEditComponent } from 'src/app/components/ui-components/record-edi
 import { PasswordEditComponent } from '../components/ui-components/record-edit-fields/password/password.component';
 import { PhoneEditComponent } from '../components/ui-components/record-edit-fields/phone/phone.component';
 import { PointEditComponent } from 'src/app/components/ui-components/record-edit-fields/point/point.component';
+import { RangeEditComponent } from '../components/ui-components/record-edit-fields/range/range.component';
 import { SelectEditComponent } from '../components/ui-components/record-edit-fields/select/select.component';
 import { StaticTextEditComponent } from '../components/ui-components/record-edit-fields/static-text/static-text.component';
 import { TextEditComponent } from 'src/app/components/ui-components/record-edit-fields/text/text.component';
@@ -33,25 +34,26 @@ export const defaultTimestampValues = {
 export const UIwidgets = {
     Default: '',
     Boolean: BooleanEditComponent,
-    Date: DateEditComponent,
-    Time: TimeEditComponent,
-    DateTime: DateTimeEditComponent,
-    JSON: JsonEditorEditComponent,
-    Textarea: LongTextEditComponent,
-    String: TextEditComponent,
-    Readonly: StaticTextEditComponent,
-    Number: NumberEditComponent,
-    Select: SelectEditComponent,
-    Password: PasswordEditComponent,
-    File: FileEditComponent,
     Code: CodeEditComponent,
-    Image: ImageEditComponent,
-    URL: UrlEditComponent,
-    Country: CountryEditComponent,
-    Phone: PhoneEditComponent,
-    Money: MoneyEditComponent,
-    Foreign_key: ForeignKeyEditComponent,
     Color: ColorEditComponent,
+    Country: CountryEditComponent,
+    Date: DateEditComponent,
+    DateTime: DateTimeEditComponent,
+    File: FileEditComponent,
+    Foreign_key: ForeignKeyEditComponent,
+    Image: ImageEditComponent,
+    JSON: JsonEditorEditComponent,
+    Money: MoneyEditComponent,
+    Number: NumberEditComponent,
+    Password: PasswordEditComponent,
+    Phone: PhoneEditComponent,
+    Range: RangeEditComponent,
+    Readonly: StaticTextEditComponent,
+    Select: SelectEditComponent,
+    String: TextEditComponent,
+    Textarea: LongTextEditComponent,
+    Time: TimeEditComponent,
+    URL: UrlEditComponent,
     UUID: UuidEditComponent,
 }
 
