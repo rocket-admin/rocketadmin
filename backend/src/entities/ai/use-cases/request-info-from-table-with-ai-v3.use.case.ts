@@ -11,6 +11,8 @@ import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-age
 import { IRequestInfoFromTableV2 } from '../ai-use-cases.interface.js';
 import { RequestInfoFromTableDSV2 } from '../application/data-structures/request-info-from-table.ds.js';
 import { getOpenAiTools } from './use-cases-utils/get-open-ai-tools.util.js';
+import Sentry from '@sentry/minimal';
+import { slackPostMessage } from '../../../helpers/index.js';
 
 declare module 'express-session' {
   interface Session {
@@ -60,11 +62,13 @@ export class RequestInfoFromTableWithAIUseCaseV3
 
         await this.processStream(stream, response, dao, tableName, userEmail, foundConnection, isMongoDb, user_message);
       } catch (streamError) {
+        Sentry.captureException(streamError);
         this.handleStreamError(streamError, response);
       }
 
       this.cleanupAndEnd(heartbeatInterval, response);
     } catch (error) {
+      Sentry.captureException(error);
       this.handleError(response, error, 'AI request processing');
       this.cleanupAndEnd(heartbeatInterval, response);
     }
@@ -280,6 +284,7 @@ Remember that all responses should be clear and user-friendly, explaining techni
           );
         }
       } catch (error) {
+        Sentry.captureException(error);
         this.handleError(response, error, 'processing your request');
       }
     }
@@ -334,10 +339,9 @@ Remember that all responses should be clear and user-friendly, explaining techni
         aiResponseBuffer,
       );
     } catch (innerStreamError) {
+      Sentry.captureException(innerStreamError);
       console.error('Error creating second OpenAI stream with table structure data:', innerStreamError);
-      response.write(
-        `Sorry, I encountered a problem analyzing your table information: ${innerStreamError.message}`,
-      );
+      response.write(`Sorry, I encountered a problem analyzing your table information: ${innerStreamError.message}`);
     }
   }
 
@@ -465,9 +469,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
     response.write(`Sorry, I'm having trouble connecting to the AI service: ${streamError.message}`);
 
     if (streamError.status === 401) {
-      response.write(
-        `This may be due to insufficient API permissions. Please check your API key configuration.`,
-      );
+      response.write(`This may be due to insufficient API permissions. Please check your API key configuration.`);
     } else if (streamError.status === 500) {
       response.write(`This appears to be a temporary issue with the AI service. Please try again later.`);
     }
@@ -637,6 +639,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
         JSON.parse(possibleJson);
         return possibleJson;
       } catch (_parseErr) {
+        Sentry.captureException(_parseErr);
         console.error('Could not sanitize JSON, returning empty object');
         return '{}';
       }
@@ -716,6 +719,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
             }
           }
         } catch (error) {
+          Sentry.captureException(error);
           console.error('Error executing SQL query:', error);
           response.write(`Sorry, I couldn't retrieve the data you requested: ${error.message}`);
         }
@@ -767,6 +771,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
             }
           }
         } catch (error) {
+          Sentry.captureException(error);
           console.error('Error executing MongoDB pipeline:', error);
           response.write(`Sorry, I couldn't complete the data analysis you requested: ${error.message}`);
         }
@@ -777,6 +782,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
         response.write(`Received unknown tool call: ${toolName}`);
       }
     } catch (error) {
+      Sentry.captureException(error);
       this.handleError(response, error, 'in processQueryToolCall');
     }
   }
@@ -798,6 +804,7 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
       const sample = results.slice(0, 5);
       return `${JSON.stringify(sample, null, 2)}\n\n(Showing 5 of ${results.length} results)`;
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error formatting query results:', error);
       return JSON.stringify(results);
     }
@@ -861,11 +868,13 @@ Remember: You MUST use the executeRawSql tool to run your query and show me the 
 
         return true;
       } catch (error) {
+        Sentry.captureException(error);
         console.error('Error auto-executing detected SQL query:', error);
         response.write(`Sorry, I couldn't retrieve that data for you: ${error.message}`);
         return true;
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error in detectAndExecuteSqlQueries:', error);
       return false;
     }
@@ -934,7 +943,11 @@ Please provide a clear, concise, and conversational answer that directly address
           console.log('No content returned from responses API, falling back to completions');
         }
       } catch (responsesError) {
+        Sentry.captureException(responsesError);
         console.error('Error using responses API:', responsesError);
+        await slackPostMessage(
+          `Error using responses API for query: ${query}\nError details: ${responsesError.message}`,
+        );
         if (responsesError instanceof Error) {
           console.error('Responses API error details:', responsesError.message);
           console.error('Responses API error stack:', responsesError.stack);
@@ -974,6 +987,7 @@ Please provide a clear, concise, and conversational answer that directly address
         return fallbackMessage;
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error generating human-readable answer:', error);
       return `There are ${this.extractResultCount(queryResult)} records in the results.`;
     }
@@ -993,6 +1007,7 @@ Please provide a clear, concise, and conversational answer that directly address
 
       return results;
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error getting first result:', error);
       return null;
     }
@@ -1012,6 +1027,7 @@ Please provide a clear, concise, and conversational answer that directly address
 
       return [results];
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error getting sample results:', error);
       return [];
     }
@@ -1053,6 +1069,7 @@ Please provide a clear, concise, and conversational answer that directly address
         return false;
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error in streamHumanReadableAnswer:', error);
       return false;
     }
@@ -1248,6 +1265,7 @@ Please provide a clear, concise, and conversational answer that directly address
             simplifiedResult.sample = JSON.parse(JSON.stringify(sampleRows));
           }
         } catch (innerError) {
+          Sentry.captureException(innerError);
           console.error('Error processing row data:', innerError);
           simplifiedResult['sample'] = results.rows.slice(0, 10).map((row) =>
             Object.keys(row).reduce((acc, key) => {
@@ -1271,6 +1289,7 @@ Please provide a clear, concise, and conversational answer that directly address
             sample: JSON.parse(JSON.stringify(results.slice(0, 10))),
           };
         } catch (jsonError) {
+          Sentry.captureException(jsonError);
           console.error('Error stringifying array results:', jsonError);
           return {
             type: 'array',
@@ -1289,6 +1308,8 @@ Please provide a clear, concise, and conversational answer that directly address
                   return String(item);
                 }
               } catch (_e) {
+                console.error('Error processing array item:', _e);
+                Sentry.captureException(_e);
                 return '[Complex Object]';
               }
             }),
@@ -1313,6 +1334,7 @@ Please provide a clear, concise, and conversational answer that directly address
             simplifiedResult.sample = JSON.parse(JSON.stringify(results.rows.slice(0, 10)));
           }
         } catch (jsonError) {
+          Sentry.captureException(jsonError);
           console.error('Error processing fieldset data:', jsonError);
           if (Array.isArray(results.fields)) {
             simplifiedResult.fields = results.fields.map((f) => String(f.name || f));
@@ -1345,6 +1367,7 @@ Please provide a clear, concise, and conversational answer that directly address
           }),
         );
       } catch (finalError) {
+        Sentry.captureException(finalError);
         console.error('Error serializing results:', finalError);
         return {
           type: 'unserializable',
@@ -1353,6 +1376,7 @@ Please provide a clear, concise, and conversational answer that directly address
         };
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error simplifying query results:', error);
       return {
         type: 'error',
@@ -1389,6 +1413,7 @@ Please provide a clear, concise, and conversational answer that directly address
 
       return 0;
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error extracting result count:', error);
       return 0;
     }
@@ -1407,6 +1432,7 @@ Please provide a clear, concise, and conversational answer that directly address
       try {
         return JSON.stringify(value);
       } catch (error) {
+        Sentry.captureException(error);
         console.error('Error stringifying object:', error);
         return '[Complex Object]';
       }
@@ -1444,6 +1470,7 @@ Please provide a clear, concise, and conversational answer that directly address
 
       return totalLength;
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error calculating content length:', error);
       return 0;
     }
@@ -1511,6 +1538,7 @@ Please provide a clear, concise, and conversational answer that directly address
           currentToolCall.function.arguments += typedChunk.delta;
         }
       } catch (error) {
+        Sentry.captureException(error);
         console.error('Error processing function call arguments delta:', error);
       }
       return currentToolCall;
