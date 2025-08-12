@@ -53,6 +53,13 @@ export class UpdateTableFiltersUseCase
     }
 
     const updatedFilterEntity = buildNewTableFiltersEntity(updatedTableFilterData);
+    for (const key in updatedFilterEntity) {
+      // eslint-disable-next-line security/detect-object-injection
+      if (updatedFilterEntity[key] === undefined) {
+        // eslint-disable-next-line security/detect-object-injection
+        delete updatedFilterEntity[key];
+      }
+    }
     const updatedFilters = Object.assign(filtersToUpdate, updatedFilterEntity);
     await this._dbContext.tableFiltersRepository.save(updatedFilters);
     return buildCreatedTableFilterRO(updatedFilters);
