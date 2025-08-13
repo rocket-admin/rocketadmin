@@ -1,0 +1,8 @@
+<div class="range-display-container">
+  <div class="range-value-label">{{ displayValue }}</div>
+  <mat-progress-bar 
+    mode="determinate" 
+    [value]="getProgressValue()"
+    class="range-progress-bar">
+  </mat-progress-bar>
+</div>

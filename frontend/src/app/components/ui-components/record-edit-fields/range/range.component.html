@@ -1,0 +1,19 @@
+<div class="range-edit-container">
+  <span class="range-label">{{ normalizedLabel }} {{ required ? '*' : '' }}</span>
+  <div class="range-labels">
+    <span class="range-min">{{ min }}</span>
+    <span class="range-current">{{ value || min }}</span>
+    <span class="range-max">{{ max }}</span>
+  </div>
+  <input 
+    #rangeInput
+    type="range"
+    class="range-input"
+    [min]="min"
+    [max]="max"
+    [step]="step"
+    [value]="value || min"
+    (input)="onValueChange(+rangeInput.value)"
+    [disabled]="false"
+  />
+</div>

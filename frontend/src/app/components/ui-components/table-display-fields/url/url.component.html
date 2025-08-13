@@ -1,7 +1,7 @@
 <div class="field-display">
   <span class="field-value">
     <a *ngIf="isValidUrl"
-        [href]="value" target="_blank"
+        [href]="hrefValue" target="_blank"
         class="url-link"
         (click)="$event.stopPropagation()">
         <mat-icon class="url-link__icon" fontSet="material-icons-outlined">link</mat-icon>

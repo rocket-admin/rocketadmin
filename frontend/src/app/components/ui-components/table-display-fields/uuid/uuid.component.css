@@ -7,9 +7,6 @@
 .uuid-text {
   font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
   font-stretch: condensed;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .copy-button {

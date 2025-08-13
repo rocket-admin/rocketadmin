@@ -10,10 +10,17 @@ import { Component, Injectable } from '@angular/core';
   imports: [CommonModule]
 })
 export class ImageRecordViewComponent extends BaseRecordViewFieldComponent {
+  get srcValue(): string {
+    if (!this.value) return '';
+    const prefix = this.widgetStructure?.widget_params?.prefix || '';
+    return prefix + this.value;
+  }
+  
   get isUrl(): boolean {
     if (!this.value) return false;
     try {
-      new URL(this.value);
+      // Check if the prefixed URL is valid
+      new URL(this.srcValue);
       return true;
     } catch {
       return false;

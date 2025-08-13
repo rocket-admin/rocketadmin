@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CommonModule } from '@angular/common';
@@ -19,6 +19,37 @@ import { UrlValidatorDirective } from 'src/app/directives/url-validator.directiv
     UrlValidatorDirective
   ]
 })
-export class ImageEditComponent extends BaseEditFieldComponent {
+export class ImageEditComponent extends BaseEditFieldComponent implements OnInit {
   @Input() value: string;
+  public prefix: string = '';
+
+  ngOnInit(): void {
+    super.ngOnInit();
+    this._parseWidgetParams();
+  }
+
+  ngOnChanges(): void {
+    this._parseWidgetParams();
+  }
+
+  private _parseWidgetParams(): void {
+    if (this.widgetStructure?.widget_params) {
+      try {
+        const params = typeof this.widgetStructure.widget_params === 'string' 
+          ? JSON.parse(this.widgetStructure.widget_params) 
+          : this.widgetStructure.widget_params;
+        
+        if (params.prefix !== undefined) {
+          this.prefix = params.prefix || '';
+        }
+      } catch (e) {
+        console.error('Error parsing Image widget params:', e);
+      }
+    }
+  }
+
+  get imageUrl(): string {
+    if (!this.value) return '';
+    return this.prefix + this.value;
+  }
 }

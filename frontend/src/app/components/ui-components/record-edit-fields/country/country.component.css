@@ -2,6 +2,25 @@
   width: 100%;
 }
 
+.country-input-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.country-flag-prefix {
+  font-size: 20px;
+  margin-right: 8px;
+  line-height: 1;
+}
+
+.country-input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
 .country-flag {
   margin-right: 8px;
   font-size: 16px;
