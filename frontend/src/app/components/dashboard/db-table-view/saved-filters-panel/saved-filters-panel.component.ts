@@ -1,6 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
+import { AccessLevel } from 'src/app/models/user';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DynamicModule } from 'ng-dynamic-component';
@@ -22,7 +23,6 @@ import { TablesService } from 'src/app/services/tables.service';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { filterTypes } from 'src/app/consts/filter-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { AccessLevel } from 'src/app/models/user';
 
 @Component({
   selector: 'app-saved-filters-panel',
@@ -43,7 +43,7 @@ import { AccessLevel } from 'src/app/models/user';
   templateUrl: './saved-filters-panel.component.html',
   styleUrl: './saved-filters-panel.component.css'
 })
-export class SavedFiltersPanelComponent implements OnInit {
+export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
   @Input() connectionID: string;
   @Input() selectedTableName: string;
   @Input() selectedTableDisplayName: string;
@@ -56,6 +56,8 @@ export class SavedFiltersPanelComponent implements OnInit {
   @Input() resetSelection: boolean = false;
 
   @Input() accessLevel: AccessLevel;
+
+  private dynamicColumnValueDebounceTimer: any = null;
 
   public savedFilterData: any[] = [];
   public savedFilterMap: { [key: string]: any } = {};
@@ -164,6 +166,12 @@ export class SavedFiltersPanelComponent implements OnInit {
   ngOnChanges() {
     if (this.resetSelection) {
       this.selectedFilterSetId = null;
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.dynamicColumnValueDebounceTimer) {
+      clearTimeout(this.dynamicColumnValueDebounceTimer);
     }
   }
 
@@ -408,7 +416,17 @@ export class SavedFiltersPanelComponent implements OnInit {
       return;
     }
 
+    console.log(value, 'value in updateDynamicColumnValue');
+
     selectedFilter.dynamicColumn.value = value;
+
+    if (this.dynamicColumnValueDebounceTimer) {
+      clearTimeout(this.dynamicColumnValueDebounceTimer);
+    }
+
+    this.dynamicColumnValueDebounceTimer = setTimeout(() => {
+      this.applyDynamicColumnChanges();
+    }, 800);
   }
 
   applyDynamicColumnChanges() {
