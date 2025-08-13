@@ -256,7 +256,7 @@
             </ng-container>
 
             <ng-container matColumnDef="actions" [stickyEnd]="true">
-                <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+                <mat-header-cell *matHeaderCellDef class="db-table-header-actions">Actions</mat-header-cell>
 
                 <mat-cell *matCellDef="let element; let i = index" class="db-table-cell-actions">
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
