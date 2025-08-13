@@ -24,7 +24,7 @@
 
 .dynamic-column-radio {
     grid-column: 5;
-    margin-top: 14px;
+    margin-top: 8px;
 }
 
 .filter-save-form {
@@ -47,7 +47,7 @@
 }
 
 .full-width {
-    width: 100%;
+    grid-column: 1 / -1;
 }
 
 .default-filter-checkbox {
@@ -75,7 +75,7 @@
 }
 
 .column-name {
-    margin-top: 18px;
+    margin-top: 12px;
 }
 
 .filter-delete-button {
