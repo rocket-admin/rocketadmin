@@ -1,0 +1,94 @@
+.filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.filters-content {
+    display: grid;
+    grid-template-columns: auto 228px 0 1fr 160px 32px;
+    grid-column-gap: 8px;
+    align-content: flex-start;
+    align-items: flex-start;
+}
+
+.filters-select {
+    grid-column: 1 / span 6;
+    margin-bottom: 16px;
+}
+
+.filter-line {
+    grid-column: 1 / span 4;
+}
+
+.dynamic-column-radio {
+    grid-column: 5;
+    margin-top: 8px;
+}
+
+.filter-save-form {
+    grid-column: 1 / span 6;
+    margin-bottom: 24px;
+}
+
+.section-title {
+    grid-column: 1 / span 6;
+    margin: 16px 0 8px 0;
+    color: rgba(0, 0, 0, 0.87);
+    font-weight: 500;
+}
+
+.section-description {
+    grid-column: 1 / span 6;
+    margin: 0 0 16px 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.default-filter-checkbox {
+    margin-bottom: 16px;
+}
+
+::ng-deep .mat-dialog-container > .ng-star-inserted {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.filters-form {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+::ng-deep .mat-dialog-container {
+    display: flex;
+}
+
+.filters-content {
+    flex: 1 0 auto;
+}
+
+.column-name {
+    margin-top: 12px;
+}
+
+.filter-delete-button {
+    margin-top: 4px;
+}
+
+.settings-form__reset-button {
+    margin-right: auto;
+}
+
+.no-filters-message {
+    grid-column: 1 / span 6;
+    color: rgba(0, 0, 0, 0.6);
+    font-style: italic;
+    margin: 16px 0;
+}

@@ -1,0 +1,66 @@
+.saved-filters-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 20px 0 4px;
+}
+
+.saved-filters-list {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* .saved-filters-tabs {
+    --mdc-chip-container-shape-radius: 4px;
+} */
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip {
+    --mdc-chip-container-shape-radius: 4px;
+    --mdc-chip-outline-width: 1px;
+    --mdc-chip-outline-color: rgba(0,0,0,0.24);
+    --mdc-chip-elevated-container-color: transparent !important;
+    --mdc-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
+    --mdc-chip-container-height: 32px;
+    --mdc-chip-label-text-color: rgba(0,0,0,0.64);
+}
+
+.filters-container {
+    display: flex;
+    gap: 20px;
+    transform: translateX(-10%) scale(0.8);
+}
+
+.dynamic-column-editor {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    /* transform: translateX(-20%) scale(0.8); */
+    /* transform-origin: center right; */
+}
+
+.column-name {
+    color: rgba(0,0,0,0.64);
+    margin-top: -8px;
+}
+
+.column-name strong {
+    margin-left: 8px;
+}
+
+.static-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    transform: translateX(5%) scale(1.1);
+    padding-bottom: 16px;
+}
+
+.static-filter-chip {
+    cursor: default;
+}
+
+/* .dynamic-column-editor + .static-filters {
+    margin-top: -16px;
+} */
