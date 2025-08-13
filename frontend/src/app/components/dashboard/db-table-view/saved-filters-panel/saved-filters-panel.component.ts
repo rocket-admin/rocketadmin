@@ -111,8 +111,64 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     });
 
     this._tables.cast.subscribe((arg) => {
-      if (arg === 'filters set saved' || arg === 'filters set updated') {
+      if (arg === 'filters set saved') {
         this.loadSavedFilters();
+      }
+
+      if (arg === 'filters set updated') {
+        // Get the current saved filter ID from URL
+        const savedFilterIdFromUrl = this.route.snapshot.queryParams['saved_filter'];
+
+        if (savedFilterIdFromUrl) {
+          // If we have a filter selected in URL, get latest data and update URL
+          this._tables.getSavedFilters(this.connectionID, this.selectedTableName).subscribe({
+            next: (data) => {
+              if (data) {
+                // Find the updated filter in the response
+                const updatedFilter = data.find(filter => filter.id === savedFilterIdFromUrl);
+                if (updatedFilter) {
+                  const processedFilter = this.processFiltersData(updatedFilter);
+
+                  // Update local state
+                  this.selectedFilterSetId = savedFilterIdFromUrl;
+                  this.filterSelected.emit(processedFilter);
+
+                  // Update URL with the refreshed filter data
+                  const additionalParams: any = {
+                    filters: JsonURL.stringify(updatedFilter.filters),
+                    saved_filter: savedFilterIdFromUrl
+                  };
+
+                  if (updatedFilter.dynamic_column) {
+                    additionalParams.dynamic_column = JsonURL.stringify({
+                      column_name: updatedFilter.dynamic_column.column_name,
+                      comparator: updatedFilter.dynamic_column.comparator
+                    });
+                  }
+
+                  const queryParams = this.buildQueryParams(additionalParams);
+                  this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
+                }
+
+                // Update the full filters map
+                this.savedFilterData = data.sort((a, b) =>
+                  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                );
+                this.savedFilterMap = Object.assign({}, ...data.map((filter) => {
+                  const transformedFilter = this.processFiltersData(filter);
+                  return { [filter.id]: transformedFilter };
+                }));
+              }
+            },
+            error: (error) => {
+              console.error('Error fetching updated filters:', error);
+              this.loadSavedFilters();
+            }
+          });
+        } else {
+          // Just refresh filters if no filter selected in URL
+          this.loadSavedFilters();
+        }
       }
 
       if (arg === 'delete saved filters') {
@@ -180,7 +236,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
   }
 
   handleOpenSavedFiltersDialog(filtersSet: any = null) {
-    this.dialog.open(SavedFiltersDialogComponent, {
+    const dialogRef = this.dialog.open(SavedFiltersDialogComponent, {
       width: '56em',
       data: {
         connectionID: this.connectionID,
@@ -195,6 +251,9 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    // No need to handle URL updates here - it's now handled in the tables.cast subscription
+    // when 'filters set updated' is received
   }
 
   getFilterEntries(filters: any): { column: string; operator: string; value: string }[] {
