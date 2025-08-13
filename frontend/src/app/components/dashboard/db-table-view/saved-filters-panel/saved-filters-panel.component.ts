@@ -1,5 +1,6 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { TableField, TableForeignKey } from 'src/app/models/table';
 
 import { AccessLevel } from 'src/app/models/user';
 import { CommonModule } from '@angular/common';
@@ -18,7 +19,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filters-dialog.component';
-import { TableForeignKey } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { filterTypes } from 'src/app/consts/filter-types';
@@ -123,6 +123,10 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
         this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
       }
     });
+
+    this.tableRowStructure = Object.assign({}, ...this.structure.map((field: TableField) => {
+      return {[field.column_name]: field};
+    }));
   }
 
   loadSavedFilters() {

@@ -44,6 +44,10 @@
     margin-top: -8px;
 }
 
+.column-name strong {
+    margin-left: 8px;
+}
+
 .static-filters {
     display: flex;
     flex-wrap: wrap;

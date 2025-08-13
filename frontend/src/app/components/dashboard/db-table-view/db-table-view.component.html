@@ -179,7 +179,7 @@
     </mat-chip-row>
 </div>
 
-<app-saved-filters-panel
+<app-saved-filters-panel *ngIf="tableData && tableData.structure && tableData.widgets"
     [connectionID]="connectionID"
     [selectedTableName]="name"
     [selectedTableDisplayName]="displayName"

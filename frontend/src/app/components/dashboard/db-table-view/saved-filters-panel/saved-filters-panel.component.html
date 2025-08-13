@@ -37,7 +37,11 @@
         <form *ngIf="savedFilterMap[selectedFilterSetId]?.dynamicColumn"
             class="dynamic-column-editor"
             (ngSubmit)="applyDynamicColumnChanges()">
-            <span class="column-name mat-body-1">where <strong>{{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}</strong></span>
+            <span class="column-name mat-body-1">where
+                <strong *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
+                    {{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}
+                </strong>
+            </span>
             <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" appearance="outline">
                 <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
                         name="textComparator"
