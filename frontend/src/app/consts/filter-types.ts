@@ -24,6 +24,7 @@ export const UIwidgets = {
     Date: DateFilterComponent,
     DateTime: DateTimeFilterComponent,
     File: FileFilterComponent,
+    Foreign_key: ForeignKeyFilterComponent,
     JSON: JsonEditorFilterComponent,
     Number: NumberFilterComponent,
     Password: PasswordFilterComponent,
@@ -32,6 +33,9 @@ export const UIwidgets = {
     String: TextFilterComponent,
     Textarea: LongTextFilterComponent,
     Time: TimeFilterComponent,
+    TimeInterval: TimeIntervalFilterComponent,
+    Point: PointFilterComponent,
+    ID: IdFilterComponent,
 }
 
 export const filterTypes = {

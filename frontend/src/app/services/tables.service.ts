@@ -510,4 +510,81 @@ export class TablesService {
         })
       );
   }
+
+  getSavedFilters(connectionID: string, tableName: string) {
+    return this._http.get<any>(`/table-filters/${connectionID}/all`, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map((res) => {
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          return throwError(() => new Error(err.error.message));
+        })
+      );
+  }
+
+  createSavedFilter(connectionID: string, tableName: string, filters: object) {
+    return this._http.post<any>(`/table-filters/${connectionID}`, filters, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('filters set saved');
+          this._notifications.showSuccessSnackbar('Saved filters have been updated.')
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      )
+  }
+
+  updateSavedFilter(connectionID: string, tableName: string, filtersId: string, filters: object) {
+    return this._http.put<any>(`/table-filters/${connectionID}/${filtersId}`, filters, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('filters set updated');
+          this._notifications.showSuccessSnackbar('Saved filter has been updated.')
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  deleteSavedFilter(connectionID: string, tableName: string, filterId: string) {
+    return this._http.delete<any>(`/table-filters/${connectionID}/${filterId}`, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('delete saved filters');
+          this._notifications.showSuccessSnackbar('Saved filter has been deleted.')
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      )
+  }
 }
