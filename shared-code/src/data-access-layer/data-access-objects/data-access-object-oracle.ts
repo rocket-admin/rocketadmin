@@ -148,7 +148,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
         .where(primaryKey)
         .del();
     } catch (error) {
-      console.error(`Error deleting row in table ${tableName}:`, error);
+      console.error('Error deleting row in table: %s', tableName, error);
       throw error;
     }
   }
