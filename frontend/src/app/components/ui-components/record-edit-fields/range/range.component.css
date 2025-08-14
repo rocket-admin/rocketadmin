@@ -1,0 +1,120 @@
+.range-edit-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 28px;
+}
+
+.range-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  padding: 0 2px;
+}
+
+.range-current {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.range-input {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+
+.range-input::-webkit-slider-track {
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.range-input::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #1976d2;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.range-input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #1976d2;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.range-input::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.range-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.range-input:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.range-input:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark) {
+  .range-label {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .range-labels {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .range-current {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .range-input::-webkit-slider-track {
+    background: #424242;
+  }
+
+  .range-input::-moz-range-track {
+    background: #424242;
+  }
+}

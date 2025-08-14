@@ -1,5 +1,5 @@
 <div class="field-display">
-  <span class="field-value">{{formattedDate || '—'}}</span>
+  <span class="field-value" [matTooltip]="fullDate || ''">{{formattedDate || '—'}}</span>
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy"

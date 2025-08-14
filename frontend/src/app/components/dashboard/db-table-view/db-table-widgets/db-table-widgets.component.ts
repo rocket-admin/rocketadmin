@@ -2,33 +2,33 @@ import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
-import { AlertComponent } from '../../ui-components/alert/alert.component';
-import { BreadcrumbsComponent } from '../../ui-components/breadcrumbs/breadcrumbs.component';
-import { CodeEditComponent } from '../../ui-components/record-edit-fields/code/code.component';
+import { AlertComponent } from '../../../ui-components/alert/alert.component';
+import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcrumbs.component';
+import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
-import { ImageEditComponent } from '../../ui-components/record-edit-fields/image/image.component';
+import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
 import { Location } from '@angular/common';
-import { LongTextEditComponent } from '../../ui-components/record-edit-fields/long-text/long-text.component';
+import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { PasswordEditComponent } from '../../ui-components/record-edit-fields/password/password.component';
-import { PlaceholderTableWidgetsComponent } from '../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
+import { PasswordEditComponent } from '../../../ui-components/record-edit-fields/password/password.component';
+import { PlaceholderTableWidgetsComponent } from '../../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
-import { SelectEditComponent } from '../../ui-components/record-edit-fields/select/select.component';
+import { SelectEditComponent } from '../../../ui-components/record-edit-fields/select/select.component';
 import { TablesService } from 'src/app/services/tables.service';
-import { TextEditComponent } from '../../ui-components/record-edit-fields/text/text.component';
+import { TextEditComponent } from '../../../ui-components/record-edit-fields/text/text.component';
 import { Title } from '@angular/platform-browser';
 import { UIwidgets } from "src/app/consts/record-edit-types";
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { UrlEditComponent } from '../../ui-components/record-edit-fields/url/url.component';
+import { UrlEditComponent } from '../../../ui-components/record-edit-fields/url/url.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
@@ -95,22 +95,114 @@ export class DbTableWidgetsComponent implements OnInit {
 		"allow_null": false
 	}
 }`,
-    Date: `// No settings required`,
-    Default: `// No settings required`,
-    Time: `// No settings required`,
-    DateTime: `// No settings required`,
-    JSON: `// No settings required`,
-    Textarea: `// provide number of strings to show.
+    Code:
+`// provide language of code to highlight: 'html', 'css', 'typescript', 'yaml', 'markdown'
+// example:
 {
-  "rows": 5
+  "language": "html"
+}
+`,
+    Color: `// Optional: Specify output format for color values
+// Supported formats: "hex", "hex_hash" (default), "rgb", "hsl"
+// Example configuration:
+
+{
+  "format": "hex_hash"  // Will display colors as "#FF5733"
+}
+
+// Format options:
+// - "hex": Display as "FF5733" (no hash)
+// - "hex_hash": Display as "#FF5733" (default)
+// - "rgb": Display as "rgb(255, 87, 51)"
+// - "hsl": Display as "hsl(9, 100%, 60%)"`,
+    Country: `// Configure country display options
+// Example:
+{
+  "show_flag": true,
+  "allow_null": false
+}
+`,
+    Date: `// Configure date display options
+// formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
+// Default: 48 hours. Set to 0 to disable relative time display
+{
+  "formatDistanceWithinHours": 48
 }`,
-    String: `// No settings required`,
-    Readonly: `// No settings required`,
+    DateTime: `// Configure datetime display options
+// formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
+// Default: 48 hours. Set to 0 to disable relative time display
+{
+  "formatDistanceWithinHours": 48
+}`,
+    Default: `// No settings required`,
+    File:
+`// provide type of file: 'hex', 'base64' or 'file'
+// example:
+{
+  "type": "hex"
+}
+`,
+    Foreign_key: `// Provide settings for foreign key widget
+{
+  "column_name": "", // copy the name of the column you selected
+  "referenced_column_name": "",
+  "referenced_table_name": ""
+}
+`,
+    Image:
+`// provide image height in px to dispaly in table
+// prefix: optional URL prefix to prepend to image source
+// example:
+{
+  "height": 100,
+  "prefix": "https://example.com/images/"
+}
+}
+`,
+    JSON: `// No settings required`,
+    Money: `// Configure money widget settings
+// example:
+{
+  "default_currency": "USD",
+  "show_currency_selector": false,
+  "decimal_places": 2,
+  "allow_negative": true
+}
+`,
     Number: `// Configure number display with unit conversion
 // Example units: "bytes", "meters", "seconds", "grams"
 {
   "unit": null
 }`,
+    Password:
+`// provide algorithm to encrypt your password, one of:
+//sha1, sha3, sha224, sha256, sha512, sha384, bcrypt, scrypt, argon2, pbkdf2.
+// example:
+
+{
+  "encrypt": true,
+  "algorithm": "sha256"
+}
+
+`,
+    Phone:
+`// Configure international phone number widget
+// example:
+{
+  "preferred_countries": ["US", "GB", "CA"],
+  "enable_placeholder": true,
+  "phone_validation": true
+}
+`,
+    Range: `// Configure the minimum, maximum and step values for the range
+// Default: min = 0, max = 100, step = 1
+{
+  "min": 0,
+  "max": 100,
+  "step": 1
+}
+`,
+    Readonly: `// No settings required`,
     Select:
 `// provide array of options to map database value (key 'value') in human readable value (key 'label');
 // for example:
@@ -134,85 +226,19 @@ export class DbTableWidgetsComponent implements OnInit {
     }
   ]
 }`,
-    Password:
-`// provide algorithm to encrypt your password, one of:
-//sha1, sha3, sha224, sha256, sha512, sha384, bcrypt, scrypt, argon2, pbkdf2.
-// example:
-
+    String: `// No settings required`,
+    Textarea: `// provide number of strings to show.
 {
-  "encrypt": true,
-  "algorithm": "sha256"
-}
-
-`,
-    File:
-`// provide type of file: 'hex', 'base64' or 'file'
+  "rows": 5
+}`,
+    Time: `// No settings required`,
+    URL: `// prefix: optional URL prefix to prepend to the href
 // example:
 {
-  "type": "hex"
+  "prefix": "https://example.com/"
 }
 `,
-  Code:
-`// provide language of code to highlight: 'html', 'css', 'typescript', 'yaml', 'markdown'
-// example:
-{
-  "language": "html"
-}
-`,
-    Image:
-`// provide image height in px to dispaly in table
-// example:
-{
-  "height": 100
-}
-`,
-  URL: `// No settings required`,
-  Phone:
-`// Configure international phone number widget
-// example:
-{
-  "preferred_countries": ["US", "GB", "CA"],
-  "enable_placeholder": true,
-  "phone_validation": true
-}
-`,
-  Country: `// Configure country display options
-// Example:
-{
-  "show_flag": true,
-  "allow_null": false
-}
-`,
-  Foreign_key: `// Provide settings for foreign key widget
-{
-  "column_name": "", // copy the name of the column you selected
-  "referenced_column_name": "",
-  "referenced_table_name": ""
-}
-`,
-  Money: `// Configure money widget settings
-// example:
-{
-  "default_currency": "USD",
-  "show_currency_selector": false,
-  "decimal_places": 2,
-  "allow_negative": true
-}
-`,
-  Color: `// Optional: Specify output format for color values
-// Supported formats: "hex", "hex_hash" (default), "rgb", "hsl"
-// Example configuration:
-
-{
-  "format": "hex_hash"  // Will display colors as "#FF5733"
-}
-
-// Format options:
-// - "hex": Display as "FF5733" (no hash)
-// - "hex_hash": Display as "#FF5733" (default)
-// - "rgb": Display as "rgb(255, 87, 51)"
-// - "hsl": Display as "hsl(9, 100%, 60%)"`,
-  UUID: `// Configure UUID generation version and parameters
+    UUID: `// Configure UUID generation version and parameters
 // Available versions: "v1", "v3", "v4" (default), "v5", "v7"
 // For v3/v5: provide namespace and optionally name
 {
@@ -220,7 +246,7 @@ export class DbTableWidgetsComponent implements OnInit {
   "namespace": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
   "name": ""
 }
-`
+`,
   }
 
   constructor(

@@ -15,10 +15,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class UrlDisplayComponent extends BaseTableDisplayFieldComponent {
   static type = 'url';
   
+  get hrefValue(): string {
+    if (!this.value) return '';
+    const prefix = this.widgetStructure?.widget_params?.prefix || '';
+    return prefix + this.value;
+  }
+  
   get isValidUrl(): boolean {
     if (!this.value) return false;
     try {
-      new URL(this.value);
+      // Check if the prefixed URL is valid
+      new URL(this.hrefValue);
       return true;
     } catch {
       return false;
