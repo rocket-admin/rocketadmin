@@ -74,7 +74,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
       userEmail,
       foundConnection,
     );
-    response.end('[END]');
+    response.end();
     try {
     } catch (error) {
       await slackPostMessage(error?.message);
