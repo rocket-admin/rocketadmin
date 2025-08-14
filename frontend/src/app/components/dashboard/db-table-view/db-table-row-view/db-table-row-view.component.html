@@ -93,7 +93,7 @@
             </ng-container>
 
             <ng-template #recordContent>
-                <ndc-dynamic *ngIf="isWidget(column.title); else simpleValue"
+                <ndc-dynamic *ngIf="isWidget(column.title) && selectedRow.widgets[column.title].widget_type; else simpleValue"
                     [ndcDynamicComponent]="UIwidgets[selectedRow.widgets[column.title].widget_type]"
                     [ndcDynamicInputs]="{
                         key: column.title,
