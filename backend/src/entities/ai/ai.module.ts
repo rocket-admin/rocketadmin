@@ -10,11 +10,11 @@ import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-wi
 import { DeleteThreadWithAIAssistantUseCase } from './use-cases/delete-thread-with-ai-assistant.use.case.js';
 import { FindAllMessagesInAiThreadUseCase } from './use-cases/find-all-messages-in-ai-thread.use.case.js';
 import { FindAllUserThreadsWithAssistantUseCase } from './use-cases/find-all-user-threads-with-assistant.use.case.js';
-import { RequestInfoFromTableWithAIUseCaseV3 } from './use-cases/request-info-from-table-with-ai-v3.use.case.js';
 import { RequestInfoFromTableWithAIUseCase } from './use-cases/request-info-from-table-with-ai.use.case.js';
 import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
 import { UserAIRequestsController } from './user-ai-requests.controller.js';
 import { UserAIThreadsController } from './user-ai-threads.controller.js';
+import { RequestInfoFromTableWithAIUseCaseV4 } from './use-cases/request-info-from-table-with-ai-v4.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -29,7 +29,7 @@ import { UserAIThreadsController } from './user-ai-threads.controller.js';
     },
     {
       provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V2,
-      useClass: RequestInfoFromTableWithAIUseCaseV3,
+      useClass: RequestInfoFromTableWithAIUseCaseV4,
     },
     {
       provide: UseCaseType.CREATE_THREAD_WITH_AI_ASSISTANT,
