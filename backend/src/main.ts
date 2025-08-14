@@ -55,6 +55,7 @@ async function bootstrap() {
             domain: cookieDomain,
             maxAge: 2 * 60 * 60 * 1000,
             httpOnly: true,
+            path: '/',
           },
           name: 'rocketadmin.sid',
         }),
