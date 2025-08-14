@@ -35,15 +35,38 @@
 .section-title {
     grid-column: 1 / span 6;
     margin: 16px 0 8px 0;
-    color: rgba(0, 0, 0, 0.87);
+
     font-weight: 500;
+}
+
+@media (prefers-color-scheme: light) {
+    .section-title {
+        color: rgba(0, 0, 0, 0.87);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .section-title {
+        color: rgba(255, 255, 255, 0.87);
+    }
 }
 
 .section-description {
     grid-column: 1 / span 6;
     margin: 0 0 16px 0;
-    color: rgba(0, 0, 0, 0.6);
     font-size: 14px;
+}
+
+@media (prefers-color-scheme: light) {
+    .section-description {
+        color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .section-description {
+        color: rgba(255, 255, 255, 0.6);
+    }
 }
 
 .full-width {
