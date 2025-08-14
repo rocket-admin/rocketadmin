@@ -235,7 +235,7 @@
 }
 
 .db-table_withActions {
-    grid-template-columns: 48px repeat(var(--colCount), auto) var(--lastColumnWidth);
+    grid-template-columns: 48px repeat(var(--colCount), fit-content(100%)) minmax(var(--lastColumnWidth), auto);
 }
 
 .db-table_withoutActions {
@@ -428,6 +428,10 @@ th.mat-header-cell, td.mat-cell {
         border-bottom: none;
         padding-left: 40px;
     }
+}
+
+.db-table-cell-actions, .db-table-header-actions {
+    justify-content: flex-end;
 }
 
 .table-cell-content {
