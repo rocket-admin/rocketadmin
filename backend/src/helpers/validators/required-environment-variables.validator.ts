@@ -3,10 +3,6 @@ import { Messages } from '../../exceptions/text/messages.js';
 export function requiredEnvironmentVariablesValidator(): void {
   const requiredParameterNames: Array<string> = ['DATABASE_URL', 'PRIVATE_KEY', 'JWT_SECRET'];
 
-  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.length) {
-    requiredParameterNames.push('SESSION_SECRET');
-  }
-
   const requiredParameters: Array<{ [k: string]: string | null }> = requiredParameterNames.map((paramName) => {
     const paramValue = getEnvironmentVariable(paramName);
     return {

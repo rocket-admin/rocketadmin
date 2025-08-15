@@ -19,13 +19,6 @@ import { Response } from 'express';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-
-declare module 'express-session' {
-  interface Session {
-    lastResponseId?: string | null;
-  }
-}
-
 @Injectable({ scope: Scope.REQUEST })
 export class RequestInfoFromTableWithAIUseCaseV4
   extends AbstractUseCase<RequestInfoFromTableDSV2, void>
@@ -41,8 +34,8 @@ export class RequestInfoFromTableWithAIUseCaseV4
   }
 
   public async implementation(inputData: RequestInfoFromTableDSV2): Promise<void> {
-    const { connectionId, tableName, user_message, master_password, user_id, response } = inputData;
-    this.initializeSession(response);
+    const { connectionId, tableName, user_message, master_password, user_id, response, previous_response_id } =
+      inputData;
     this.setupResponseHeaders(response);
 
     const { foundConnection, dataAccessObject, databaseType, isMongoDb, userEmail } = await this.setupConnection(
@@ -60,7 +53,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
       system_prompt,
       user_id,
       tools,
-      response,
+      previous_response_id,
     );
     const currentDepth = 0;
     await this.handleStreamRecursively(
@@ -230,7 +223,6 @@ export class RequestInfoFromTableWithAIUseCaseV4
         }
         response.write(chunk.delta);
       }
-      response.req.session.lastResponseId = current_response_id;
     }
   }
 
@@ -387,16 +379,6 @@ export class RequestInfoFromTableWithAIUseCaseV4
     response.setHeader('Connection', 'keep-alive');
   }
 
-  private initializeSession(response: any): void {
-    if (!response.req.session) {
-      (response.req as any).session = {
-        lastResponseId: null,
-      };
-    } else if (response.req.session.lastResponseId === undefined) {
-      response.req.session.lastResponseId = null;
-    }
-  }
-
   private async setupConnection(connectionId: string, master_password: string, user_id: string) {
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
@@ -481,7 +463,7 @@ Remember that all responses should be clear and user-friendly, explaining techni
     system_prompt: string,
     user_id: string,
     tools: any[],
-    response: any,
+    previous_response_id: string | null = null,
   ) {
     const openApiKey = getRequiredEnvVariable('OPENAI_API_KEY');
     const openai = new OpenAI({ apiKey: openApiKey });
@@ -493,7 +475,7 @@ Remember that all responses should be clear and user-friendly, explaining techni
       user: user_id,
       stream: true,
       tools: tools,
-      previous_response_id: response.req.session.lastResponseId || undefined,
+      previous_response_id: previous_response_id || undefined,
     });
   }
 

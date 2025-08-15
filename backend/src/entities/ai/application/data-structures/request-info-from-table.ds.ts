@@ -9,4 +9,5 @@ export class RequestInfoFromTableDS {
 
 export class RequestInfoFromTableDSV2 extends RequestInfoFromTableDS {
   response: Response;
+  previous_response_id?: string | null;
 }
