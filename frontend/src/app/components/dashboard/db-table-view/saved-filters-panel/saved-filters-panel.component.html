@@ -1,21 +1,27 @@
 <div class="saved-filters-container">
-    <div class="saved-filters-list">
+    <app-placeholder-saved-filters *ngIf="savedFilterData === null"></app-placeholder-saved-filters>
+    <div *ngIf="savedFilterData" class="saved-filters-list">
         <button *ngIf="accessLevel === 'edit' && savedFilterData?.length === 0"
             mat-button type="button"
+            angulartics2On="click"
+            angularticsAction="Saved filters: first time setup is clicked"
             (click)="handleOpenSavedFiltersDialog()">
             <mat-icon>tune</mat-icon>
-            Setup custom filters
+            Create Fast Filter
         </button>
 
         <button *ngIf="accessLevel === 'edit' && savedFilterData.length !== 0"
             mat-icon-button type="button"
-            [matMenuTriggerFor]="menu">
+            matTooltip="Set up, edit, or remove Fast Filters"
+            [matMenuTriggerFor]="menu"
+            angulartics2On="click"
+            angularticsAction="Saved filters: open menu is clicked">
             <mat-icon>tune</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="handleOpenSavedFiltersDialog()">
                 <mat-icon>add</mat-icon>
-                Create new filter
+                New Fast Filter
             </button>
             <button mat-menu-item
                 *ngFor="let filter of savedFilterData"

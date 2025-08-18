@@ -22,6 +22,7 @@ import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { TableField, TableForeignKey } from 'src/app/models/table';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { omitBy } from 'lodash';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 
 @Component({
   selector: 'app-saved-filters-dialog',
@@ -40,7 +41,8 @@ import { omitBy } from 'lodash';
     RouterModule,
     MatDialogModule,
     MatSnackBarModule,
-    ContentLoaderComponent
+    ContentLoaderComponent,
+    Angulartics2OnModule
   ],
   templateUrl: './saved-filters-dialog.component.html',
   styleUrl: './saved-filters-dialog.component.css'
@@ -73,7 +75,8 @@ export class SavedFiltersDialogComponent implements OnInit {
     private _tables: TablesService,
     private _connections: ConnectionsService,
     private dialogRef: MatDialogRef<SavedFiltersDialogComponent>,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private angulartics2: Angulartics2,
   ) {}
 
   ngOnInit(): void {
@@ -279,8 +282,14 @@ export class SavedFiltersDialogComponent implements OnInit {
       } else {
         this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, payload)
         .subscribe(() => {
+          this.angulartics2.eventTrack.next({
+            action: 'Saved filters: saved filter is created successfully',
+          });
           this.dialogRef.close(true);
         }, (error) => {
+          this.angulartics2.eventTrack.next({
+            action: 'Saved filters: error creating saved filter',
+          });
           console.error('Error saving filter:', error);
           this.snackBar.open('Error saving filter', 'Close', { duration: 3000 });
         });
