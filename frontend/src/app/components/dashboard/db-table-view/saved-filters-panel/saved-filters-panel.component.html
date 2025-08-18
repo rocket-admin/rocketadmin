@@ -1,5 +1,6 @@
 <div class="saved-filters-container">
-    <div class="saved-filters-list">
+    <app-placeholder-saved-filters *ngIf="savedFilterData === null"></app-placeholder-saved-filters>
+    <div *ngIf="savedFilterData" class="saved-filters-list">
         <button *ngIf="accessLevel === 'edit' && savedFilterData?.length === 0"
             mat-button type="button"
             (click)="handleOpenSavedFiltersDialog()">

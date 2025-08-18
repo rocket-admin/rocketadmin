@@ -18,6 +18,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { PlaceholderSavedFiltersComponent } from 'src/app/components/skeletons/placeholder-saved-filters/placeholder-saved-filters.component';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filters-dialog.component';
 import { TablesService } from 'src/app/services/tables.service';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
@@ -38,7 +39,8 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     MatSelectModule,
     MatTabsModule,
     MatTooltipModule,
-    MatMenuModule
+    MatMenuModule,
+    PlaceholderSavedFiltersComponent
   ],
   templateUrl: './saved-filters-panel.component.html',
   styleUrl: './saved-filters-panel.component.css'
@@ -59,7 +61,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 
   private dynamicColumnValueDebounceTimer: any = null;
 
-  public savedFilterData: any[] = [];
+  public savedFilterData = null;
   public savedFilterMap: { [key: string]: any } = {};
 
   public selectedFilterSetId: string | null = null;
@@ -96,6 +98,9 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       const tableNameFromUrl = params.get('table-name');
       if (tableNameFromUrl) {
+        this.savedFilterData = null;
+        this.selectedFilterSetId = null;
+        this.selectedFilter = null;
         this.selectedTableName = tableNameFromUrl;
         this.loadSavedFilters();
       }
