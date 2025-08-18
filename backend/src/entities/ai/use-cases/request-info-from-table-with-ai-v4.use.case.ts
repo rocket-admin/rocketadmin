@@ -19,6 +19,7 @@ import { Response } from 'express';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { AiResponsesToUserEntity } from '../ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
 @Injectable({ scope: Scope.REQUEST })
 export class RequestInfoFromTableWithAIUseCaseV4
   extends AbstractUseCase<RequestInfoFromTableDSV2, void>
@@ -34,8 +35,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
   }
 
   public async implementation(inputData: RequestInfoFromTableDSV2): Promise<void> {
-    const { connectionId, tableName, user_message, master_password, user_id, response, previous_response_id } =
-      inputData;
+    const { connectionId, tableName, user_message, master_password, user_id, response, ai_thread_id } = inputData;
     this.setupResponseHeaders(response);
 
     const { foundConnection, dataAccessObject, databaseType, isMongoDb, userEmail } = await this.setupConnection(
@@ -48,6 +48,31 @@ export class RequestInfoFromTableWithAIUseCaseV4
 
     const system_prompt = this.createSystemPrompt(tableName, databaseType, foundConnection);
 
+    let previous_response_id: string | null = null;
+    let foundUserAiResponse: AiResponsesToUserEntity | null = null;
+    let threadIdForHeader: string | null = null;
+
+    if (ai_thread_id) {
+      foundUserAiResponse = await this._dbContext.aiResponsesToUserRepository.findResponseByIdAndUserId(
+        ai_thread_id,
+        user_id,
+      );
+      if (foundUserAiResponse) {
+        previous_response_id = foundUserAiResponse.ai_response_id;
+        threadIdForHeader = foundUserAiResponse.id;
+      }
+    } else {
+      const newAiResponse = new AiResponsesToUserEntity();
+      newAiResponse.ai_response_id = null;
+      newAiResponse.user_id = user_id;
+      foundUserAiResponse = await this._dbContext.aiResponsesToUserRepository.save(newAiResponse);
+      previous_response_id = null;
+      threadIdForHeader = foundUserAiResponse.id;
+    }
+
+    if (threadIdForHeader) {
+      response.setHeader('X-OpenAI-Thread-ID', threadIdForHeader);
+    }
     const initialOpenAIStream = await this.createInitialOpenAIStream(
       user_message,
       system_prompt,
@@ -56,23 +81,30 @@ export class RequestInfoFromTableWithAIUseCaseV4
       previous_response_id,
     );
     const currentDepth = 0;
-    await this.handleStreamRecursively(
-      currentDepth,
-      tools,
-      user_id,
-      initialOpenAIStream,
-      response,
-      dataAccessObject,
-      tableName,
-      userEmail,
-      foundConnection,
-    );
-    response.end();
     try {
+      const lastResponseId = await this.handleStreamRecursively(
+        currentDepth,
+        tools,
+        user_id,
+        initialOpenAIStream,
+        response,
+        dataAccessObject,
+        tableName,
+        userEmail,
+        foundConnection,
+      );
+
+      if (foundUserAiResponse && lastResponseId) {
+        foundUserAiResponse.ai_response_id = lastResponseId;
+        await this._dbContext.aiResponsesToUserRepository.save(foundUserAiResponse);
+      }
+      response.end();
     } catch (error) {
       await slackPostMessage(error?.message);
       Sentry.captureException(error);
-      response.status(500).send({ error: 'An error occurred while processing your request.' });
+      if (!response.headersSent) {
+        response.status(500).send({ error: 'An error occurred while processing your request.' });
+      }
       return;
     }
   }
@@ -87,12 +119,12 @@ export class RequestInfoFromTableWithAIUseCaseV4
     inputTableName: string,
     userEmail: string,
     foundConnection: ConnectionEntity,
-  ) {
+  ): Promise<string | null> {
     if (currentDepth >= this.maxDepth) {
       response.write(
         'Your question is too complex to process at this time. Please try simplifying it or breaking it down into smaller parts.',
       );
-      return;
+      return null;
     }
     let current_response_id: string = null;
     for await (const chunk of stream) {
@@ -125,7 +157,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
             current_tool_call_id,
             current_tools_output,
           );
-          await this.handleStreamRecursively(
+          const nestedResponseId = await this.handleStreamRecursively(
             ++currentDepth,
             tools,
             user_id,
@@ -136,6 +168,9 @@ export class RequestInfoFromTableWithAIUseCaseV4
             userEmail,
             foundConnection,
           );
+          if (nestedResponseId) {
+            current_response_id = nestedResponseId;
+          }
         }
 
         if (chunk.item.name === 'executeRawSql') {
@@ -167,7 +202,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
             current_tool_call_id,
             current_tools_output,
           );
-          await this.handleStreamRecursively(
+          const nestedResponseId = await this.handleStreamRecursively(
             ++currentDepth,
             tools,
             user_id,
@@ -178,6 +213,9 @@ export class RequestInfoFromTableWithAIUseCaseV4
             userEmail,
             foundConnection,
           );
+          if (nestedResponseId) {
+            current_response_id = nestedResponseId;
+          }
         }
         if (chunk.item.name === 'executeAggregationPipeline') {
           const { pipeline } = JSON.parse(this.sanitizeJsonString(chunk.item.arguments));
@@ -204,7 +242,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
             current_tool_call_id,
             current_tools_output,
           );
-          await this.handleStreamRecursively(
+          const nestedResponseId = await this.handleStreamRecursively(
             ++currentDepth,
             tools,
             user_id,
@@ -215,6 +253,9 @@ export class RequestInfoFromTableWithAIUseCaseV4
             userEmail,
             foundConnection,
           );
+          if (nestedResponseId) {
+            current_response_id = nestedResponseId;
+          }
         }
       }
       if (chunk.type === 'response.output_text.delta') {
@@ -223,6 +264,9 @@ export class RequestInfoFromTableWithAIUseCaseV4
         }
         response.write(chunk.delta);
       }
+    }
+    if (current_response_id) {
+      return current_response_id;
     }
   }
 
@@ -377,6 +421,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
     response.setHeader('Content-Type', 'text/event-stream');
     response.setHeader('Cache-Control', 'no-cache');
     response.setHeader('Connection', 'keep-alive');
+    response.setHeader('Access-Control-Expose-Headers', 'X-OpenAI-Thread-ID');
   }
 
   private async setupConnection(connectionId: string, master_password: string, user_id: string) {
