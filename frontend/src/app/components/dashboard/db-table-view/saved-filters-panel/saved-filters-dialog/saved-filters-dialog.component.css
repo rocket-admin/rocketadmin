@@ -1,16 +1,10 @@
-.filters-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 16px;
-}
-
 .filters-content {
     display: grid;
     grid-template-columns: auto 228px 0 1fr 160px 32px;
     grid-column-gap: 8px;
     align-content: flex-start;
     align-items: flex-start;
+    padding-top: 4px !important;
 }
 
 .filters-select {
