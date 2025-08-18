@@ -1,32 +1,29 @@
 <form #tableFiltersForm="ngForm" (ngSubmit)="handleSaveFilters()" class="filters-form">
     <h1 mat-dialog-title class="filters-header">
-        <span>Save Filters for <strong>{{ data.displayTableName }}</strong> table</span>
-        <a mat-icon-button mat-dialog-close
-            routerLink="/dashboard/{{data.connectionID}}/{{data.tableName}}/settings"
-            matTooltip="Advanced settings">
-            <mat-icon>settings</mat-icon>
-        </a>
+        <span>New Fast Filter for <strong>{{ data.displayTableName }}</strong></span>
     </h1>
     <app-content-loader *ngIf="!fields || !tableTypes; else filterControls"></app-content-loader>
     <ng-template #filterControls>
         <mat-dialog-content class="filters-content">
             <!-- Filter Name and Description Fields -->
             <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Filter Name</mat-label>
+                <mat-label>Fast Filter name</mat-label>
                 <input matInput required
                     name="filters_set_name"
                     [(ngModel)]="data.filtersSet.name">
                 <mat-error *ngIf="!data.filtersSet.name">
-                    Filter name is required
+                    Fast filter name is required
                 </mat-error>
             </mat-form-field>
 
-            <h3 class="section-title">Define Filters and Dynamic Column</h3>
-            <p class="section-description">Select filters to apply and optionally mark one column as dynamic</p>
+            <h3 class="section-title">Conditions & Main column</h3>
+            <p class="section-description">
+                Select which conditions to add and choose a Main column. Main columns remain editable, while conditions are set.
+            </p>
 
             <!-- Filter Selection -->
             <mat-form-field class="filters-select" appearance="outline">
-                <mat-label>Add filter by...</mat-label>
+                <mat-label>Add condition</mat-label>
                 <input type="text" matInput name="filter_columns"
                     [matAutocomplete]="auto"
                     [formControl]="fieldSearchControl">
@@ -144,7 +141,7 @@
                     <mat-checkbox
                         [checked]="dynamicColumn === value.key"
                         (change)="toggleDynamicColumn(value.key)">
-                        Dynamic column
+                        Main column
                     </mat-checkbox>
                 </div>
                 <button mat-icon-button type="button" class="filter-delete-button"
