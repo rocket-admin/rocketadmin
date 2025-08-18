@@ -3,6 +3,8 @@
     <div *ngIf="savedFilterData" class="saved-filters-list">
         <button *ngIf="accessLevel === 'edit' && savedFilterData?.length === 0"
             mat-button type="button"
+            angulartics2On="click"
+            angularticsAction="Saved filters: first time setup is clicked"
             (click)="handleOpenSavedFiltersDialog()">
             <mat-icon>tune</mat-icon>
             Setup custom filters
@@ -10,7 +12,9 @@
 
         <button *ngIf="accessLevel === 'edit' && savedFilterData.length !== 0"
             mat-icon-button type="button"
-            [matMenuTriggerFor]="menu">
+            [matMenuTriggerFor]="menu"
+            angulartics2On="click"
+            angularticsAction="Saved filters: open menu is clicked">
             <mat-icon>tune</mat-icon>
         </button>
         <mat-menu #menu="matMenu">

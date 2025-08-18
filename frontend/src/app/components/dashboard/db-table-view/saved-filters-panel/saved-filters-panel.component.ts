@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { TableField, TableForeignKey } from 'src/app/models/table';
 
 import { AccessLevel } from 'src/app/models/user';
+import { Angulartics2OnModule } from 'angulartics2';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DynamicModule } from 'ng-dynamic-component';
@@ -40,7 +41,8 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     MatTabsModule,
     MatTooltipModule,
     MatMenuModule,
-    PlaceholderSavedFiltersComponent
+    PlaceholderSavedFiltersComponent,
+    Angulartics2OnModule
   ],
   templateUrl: './saved-filters-panel.component.html',
   styleUrl: './saved-filters-panel.component.css'
