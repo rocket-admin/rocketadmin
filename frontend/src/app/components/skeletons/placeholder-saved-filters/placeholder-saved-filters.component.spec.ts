@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlaceholderUserGroupComponent } from './placeholder-user-group.component';
+import { PlaceholderSavedFiltersComponent } from './placeholder-saved-filters.component';
 
-describe('PlaceholderUserGroupComponent', () => {
-  let component: PlaceholderUserGroupComponent;
-  let fixture: ComponentFixture<PlaceholderUserGroupComponent>;
+describe('PlaceholderSavedFiltersComponent', () => {
+  let component: PlaceholderSavedFiltersComponent;
+  let fixture: ComponentFixture<PlaceholderSavedFiltersComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [PlaceholderUserGroupComponent]
+    imports: [PlaceholderSavedFiltersComponent]
 })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PlaceholderUserGroupComponent);
+    fixture = TestBed.createComponent(PlaceholderSavedFiltersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

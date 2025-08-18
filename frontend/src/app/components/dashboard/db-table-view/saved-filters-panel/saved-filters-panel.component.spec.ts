@@ -1,6 +1,7 @@
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { Angulartics2Module } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,7 +15,7 @@ class JsonURLMock {
   static stringify(obj: any): string {
     return JSON.stringify(obj);
   }
-  
+
   static parse(str: string): any {
     try {
       return JSON.parse(str);
@@ -77,7 +78,8 @@ describe('SavedFiltersPanelComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         SavedFiltersPanelComponent,
-        HttpClientTestingModule
+        HttpClientTestingModule,
+        Angulartics2Module.forRoot(),
       ],
       providers: [
         { provide: TablesService, useValue: tablesServiceMock },
@@ -99,10 +101,10 @@ describe('SavedFiltersPanelComponent', () => {
     component.tableTypes = {};
     component.selectedTableDisplayName = 'Users';
     component.tableForeignKeys = [];
-    
+
     // Mock filterSelected event emitter
     spyOn(component.filterSelected, 'emit');
-    
+
     fixture.detectChanges();
   });
 
@@ -164,10 +166,10 @@ describe('SavedFiltersPanelComponent', () => {
         filters: { city: { eq: 'New York' } }
       }
     };
-    
+
     // Spy on applyDynamicColumnChanges to prevent it from executing
     spyOn(component, 'applyDynamicColumnChanges');
-    
+
     // Replace setTimeout with a function that executes immediately
     spyOn<any>(window, 'setTimeout').and.callFake((fn) => {
       // Execute function immediately instead of waiting
@@ -175,10 +177,10 @@ describe('SavedFiltersPanelComponent', () => {
       // Return a fake timer ID
       return 999;
     });
-    
+
     // Call the method under test
     component.updateDynamicColumnValue('Chicago');
-    
+
     // Verify the value was updated
     expect(component.savedFilterMap.filter1.dynamicColumn.value).toBe('Chicago');
     expect(component.applyDynamicColumnChanges).toHaveBeenCalled();
