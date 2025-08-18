@@ -90,6 +90,9 @@ import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-
 import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
 import { ITableFiltersCustomRepository } from '../../entities/table-filters/repository/table-filters-custom-repository.interface.js';
 import { tableFiltersCustomRepositoryExtension } from '../../entities/table-filters/repository/table-filters-custom-repository-extension.js';
+import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
+import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
+import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-reponses-to-user-repository.extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -128,6 +131,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
   private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
+  private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -216,6 +220,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._tableFiltersRepository = this.appDataSource
       .getRepository(TableFiltersEntity)
       .extend(tableFiltersCustomRepositoryExtension);
+    this._aiResponsesToUserRepository = this.appDataSource
+      .getRepository(AiResponsesToUserEntity)
+      .extend(aiResponsesToUserRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -348,6 +355,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableFiltersRepository(): Repository<TableFiltersEntity> & ITableFiltersCustomRepository {
     return this._tableFiltersRepository;
+  }
+
+  public get aiResponsesToUserRepository(): Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository {
+    return this._aiResponsesToUserRepository;
   }
 
   public startTransaction(): Promise<void> {

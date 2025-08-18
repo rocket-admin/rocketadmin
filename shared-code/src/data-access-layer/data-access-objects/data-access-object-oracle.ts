@@ -328,7 +328,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     datesColumnsNames: Array<string>,
   ) {
     const offset = (page - 1) * perPage;
-    const fastCount = await this.getFastRowsCount(knex, tableName, tableSchema);
+    const { rowsCount: fastCount } = await this.getRowsCount(knex, tableName, tableSchema);
     const applySearchFields = (builder: Knex.QueryBuilder) => {
       if (searchedFieldValue && searchedFields.length > 0) {
         for (const field of searchedFields) {
@@ -419,7 +419,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
   public async getRowsCount(knex: Knex<any, any[]>, tableName: string, tableSchema: string) {
     const fastCount = await this.getFastRowsCount(knex, tableName, tableSchema);
-    if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+    if (fastCount && fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
       return { rowsCount: fastCount, large_dataset: true };
     }
 
@@ -427,11 +427,18 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     return { rowsCount: rowsCount, large_dataset: false };
   }
 
-  public async getFastRowsCount(knex: Knex<any, any[]>, tableName: string, tableSchema: string) {
+  public async getFastRowsCount(
+    knex: Knex<any, any[]>,
+    tableName: string,
+    tableSchema: string,
+  ): Promise<number | null> {
     const fastCountQueryResult = await knex('ALL_TABLES')
       .select('NUM_ROWS')
       .where('TABLE_NAME', '=', tableName)
       .andWhere('OWNER', '=', tableSchema);
+    if (!fastCountQueryResult[0]) {
+      return null;
+    }
     const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
     return fastCount;
   }

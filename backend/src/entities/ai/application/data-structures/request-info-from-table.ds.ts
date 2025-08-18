@@ -9,4 +9,5 @@ export class RequestInfoFromTableDS {
 
 export class RequestInfoFromTableDSV2 extends RequestInfoFromTableDS {
   response: Response;
+  ai_thread_id?: string | null;
 }
