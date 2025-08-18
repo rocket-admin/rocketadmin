@@ -157,14 +157,12 @@ export class DbTableWidgetsComponent implements OnInit {
   "height": 100,
   "prefix": "https://example.com/images/"
 }
-}
 `,
     JSON: `// No settings required`,
     Money: `// Configure money widget settings
 // example:
 {
   "default_currency": "USD",
-  "show_currency_selector": false,
   "decimal_places": 2,
   "allow_negative": true
 }
