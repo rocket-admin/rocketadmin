@@ -59,7 +59,7 @@ export class AppComponent {
   public isSaas = (environment as any).saas;
   userActivity;
   userInactive: Subject<any> = new Subject();
-  currentFeatureNotificationId: string = 'full-white-label';
+  currentFeatureNotificationId: string = 'saved-filters';
   isFeatureNotificationShown: boolean = false;
 
   userLoggedIn = null;
