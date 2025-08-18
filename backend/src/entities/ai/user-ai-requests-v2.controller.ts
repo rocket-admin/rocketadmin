@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Injectable, Post, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Inject, Injectable, Post, Query, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
@@ -8,6 +8,7 @@ import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { TableReadGuard } from '../../guards/table-read.guard.js';
+import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IRequestInfoFromTableV2 } from './ai-use-cases.interface.js';
 import { RequestInfoFromTableDSV2 } from './application/data-structures/request-info-from-table.ds.js';
@@ -32,15 +33,23 @@ export class UserAIRequestsControllerV2 {
   @UseGuards(TableReadGuard)
   @ApiBody({ type: RequestInfoFromTableBodyDTO })
   @ApiQuery({ name: 'tableName', required: true, type: String })
+  @ApiQuery({ name: 'threadId', required: false, type: String })
   @Post('/ai/v2/request/:connectionId')
   public async requestInfoFromTableWithAI(
     @SlugUuid('connectionId') connectionId: string,
+    @Query('threadId') threadId: string,
     @QueryTableName() tableName: string,
     @MasterPassword() masterPassword: string,
     @UserId() userId: string,
     @Body() requestData: RequestInfoFromTableBodyDTO,
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
+    if (threadId) {
+      if (!ValidationHelper.isValidUUID(threadId)) {
+        response.status(400).send({ error: 'Invalid threadId format. It should be a valid UUID.' });
+        return;
+      }
+    }
     const inputData: RequestInfoFromTableDSV2 = {
       connectionId,
       tableName,
@@ -48,6 +57,7 @@ export class UserAIRequestsControllerV2 {
       master_password: masterPassword,
       user_id: userId,
       response,
+      ai_thread_id: threadId || null,
     };
     return await this.requestInfoFromTableWithAIUseCase.execute(inputData, InTransactionEnum.OFF);
   }
