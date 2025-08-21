@@ -35,4 +35,24 @@ export class NumberDisplayComponent extends BaseTableDisplayFieldComponent {
       return this.value.toString();
     }
   }
+
+  get isOutOfThreshold(): boolean {
+    if (this.value == null || this.value === '') {
+      return false;
+    }
+
+    const thresholdMin = this.widgetStructure?.widget_params?.threshold_min;
+    const thresholdMax = this.widgetStructure?.widget_params?.threshold_max;
+    const numValue = parseFloat(this.value);
+
+    if (thresholdMin !== undefined && numValue < thresholdMin) {
+      return true;
+    }
+
+    if (thresholdMax !== undefined && numValue > thresholdMax) {
+      return true;
+    }
+
+    return false;
+  }
 }

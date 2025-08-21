@@ -1,3 +1,9 @@
-<mat-icon *ngIf="value === true" class="boolean-icon boolean-icon-true">check_small</mat-icon>
-<mat-icon *ngIf="value === false" class="boolean-icon boolean-icon-false">close_small</mat-icon>
+<mat-icon *ngIf="value === true" 
+          [ngClass]="{'boolean-icon': true, 'boolean-icon-true': !invertColors, 'boolean-icon-false': invertColors}">
+  check_small
+</mat-icon>
+<mat-icon *ngIf="value === false" 
+          [ngClass]="{'boolean-icon': true, 'boolean-icon-false': !invertColors, 'boolean-icon-true': invertColors}">
+  close_small
+</mat-icon>
 <span *ngIf="value !== true && value !== false">—</span>

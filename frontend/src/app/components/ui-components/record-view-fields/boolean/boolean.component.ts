@@ -13,4 +13,7 @@ import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-rec
   imports: [MatIconModule, CommonModule]
 })
 export class BooleanRecordViewComponent extends BaseRecordViewFieldComponent {
+  get invertColors(): boolean {
+    return this.widgetStructure?.widget_params?.invertColors === true;
+  }
 }

@@ -169,10 +169,13 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_negative": true
 }
 `,
-    Number: `// Configure number display with unit conversion
+    Number: `// Configure number display with unit conversion and threshold validation
 // Example units: "bytes", "meters", "seconds", "grams"
+// threshold_min/threshold_max: Values outside these limits will be highlighted in red
 {
-  "unit": null
+  "unit": null,
+  "threshold_min": null,
+  "threshold_max": null
 }`,
     Password:
 `// provide algorithm to encrypt your password, one of:
@@ -226,7 +229,19 @@ export class DbTableWidgetsComponent implements OnInit {
     }
   ]
 }`,
-    String: `// No settings required`,
+    String: `// Optional validation for string values
+// validate: Any validator.js method (e.g., "isEmail", "isURL", "isUUID", "isJSON", "isAlpha", "isNumeric")
+// Full list: isEmail, isURL, isMACAddress, isIP, isIPRange, isFQDN, isBoolean, isIBAN, isBIC,
+// isAlpha, isAlphanumeric, isNumeric, isPort, isLowercase, isUppercase, isAscii, isBase64,
+// isHexadecimal, isHexColor, isRgbColor, isHSL, isMD5, isHash, isJWT, isJSON, isUUID,
+// isMongoId, isCreditCard, isISBN, isISSN, isMobilePhone, isPostalCode, isEthereumAddress,
+// isCurrency, isBtcAddress, isISO8601, isISO31661Alpha2, isISO31661Alpha3, isISO4217,
+// isDataURI, isMagnetURI, isMimeType, isLatLong, isSlug, isStrongPassword, isTaxID, isVAT
+// OR use "regex" with a regex parameter for custom pattern matching
+{
+  "validate": null,
+  "regex": null
+}`,
     Textarea: `// provide number of strings to show.
 {
   "rows": 5

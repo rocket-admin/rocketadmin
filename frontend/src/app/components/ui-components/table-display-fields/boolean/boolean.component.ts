@@ -15,4 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
 })
 export class BooleanDisplayComponent extends BaseTableDisplayFieldComponent {
+  get invertColors(): boolean {
+    return this.widgetStructure?.widget_params?.invertColors === true;
+  }
 }

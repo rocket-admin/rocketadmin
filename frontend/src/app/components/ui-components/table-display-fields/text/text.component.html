@@ -1,5 +1,5 @@
 <div class="field-display">
-  <span class="field-value">{{value || '—'}}</span>
+  <span class="field-value" [class.validation-error]="isInvalid" [title]="isInvalid ? validationErrorMessage : ''">{{value || '—'}}</span>
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy"
