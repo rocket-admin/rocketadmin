@@ -1,4 +1,4 @@
-<div *ngIf="isRadiogroup; else checkboxElement" class="radio-line">
+<div *ngIf="isRadiogroup; else checkboxElement" class="radio-line" [class.invert-colors]="invertColors">
     <label id="">{{normalizedLabel}}</label>
     <mat-button-toggle-group name="{{label}}-{{key}}"
         attr.data-testid="record-{{label}}-boolean-radio-group"
@@ -11,7 +11,7 @@
 </div>
 
 <ng-template #checkboxElement>
-    <div class="radio-line">
+    <div class="radio-line" [class.invert-colors]="invertColors">
         <label id="">{{normalizedLabel}}</label>
         <mat-button-toggle-group name="{{label}}-{{key}}"
             attr.data-testid="record-{{label}}-boolean-radio-group"

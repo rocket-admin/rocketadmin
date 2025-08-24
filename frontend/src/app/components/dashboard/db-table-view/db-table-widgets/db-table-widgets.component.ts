@@ -84,17 +84,20 @@ export class DbTableWidgetsComponent implements OnInit {
 <p class="post-paragraph">
   A well-designed <strong>admin panel</strong> isn’t just about managing data — it’s about making that data easier to understand and interact with. By customizing how each field is displayed, you can turn raw database values into meaningful, user-friendly interfaces that save time and reduce errors.
 </p>`;
+  // JSON5-formatted default params
   public defaultParams = {
     Boolean:
-`// Display "Yes/No" buttons and specify "allow_null" in field structure:
-// Use "false" to require that one of the buttons is selected;
-// Use "true" if the field might be left unspecified.
+`// Display "Yes/No" buttons with configurable options:
+// - allow_null: Use "false" to require selection, "true" if field can be left unspecified
+// - invert_colors: Swap the color scheme (typically green=Yes, red=No becomes red=Yes, green=No)
 
 {
 	"structure": {
 		"allow_null": false
+		"invert_colors": false,
 	}
-}`,
+}
+`,
     Code:
 `// provide language of code to highlight: 'html', 'css', 'typescript', 'yaml', 'markdown'
 // example:
