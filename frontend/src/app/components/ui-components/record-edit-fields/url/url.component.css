@@ -2,3 +2,13 @@
     margin-bottom: 12px;
     width: 100%;
 }
+
+/* Handle long URL prefixes with overflow */
+::ng-deep .mat-mdc-form-field-text-prefix {
+    max-width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}

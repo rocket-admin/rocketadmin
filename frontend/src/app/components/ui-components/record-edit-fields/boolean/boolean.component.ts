@@ -17,6 +17,7 @@ export class BooleanEditComponent extends BaseEditFieldComponent {
   @Input() value: boolean | number | string | null;
 
   public isRadiogroup: boolean;
+  public invertColors: boolean = false;
   private connectionType: DBtype;
 
   constructor(
@@ -40,6 +41,15 @@ export class BooleanEditComponent extends BaseEditFieldComponent {
     this.onFieldChange.emit(this.value);
 
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
+
+    // Parse widget parameters for invert_colors option
+    if (this.widgetStructure?.widget_params) {
+      const params = typeof this.widgetStructure.widget_params === 'string' 
+        ? JSON.parse(this.widgetStructure.widget_params) 
+        : this.widgetStructure.widget_params;
+      
+      this.invertColors = params.invert_colors === true;
+    }
   }
 
   onToggleChange(optionValue: boolean): void {
