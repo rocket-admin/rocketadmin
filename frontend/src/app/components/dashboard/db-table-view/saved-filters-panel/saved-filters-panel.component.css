@@ -10,6 +10,16 @@
     gap: 16px;
 }
 
+.saved-filters-list__first-time-button {
+    background: var(--color-accentedPalette-50);
+    border: 1px dashed var(--color-accentedPalette-300);
+    transition: background 0.3s ease;
+}
+
+.saved-filters-list__first-time-button:hover {
+    background: var(--color-accentedPalette-100) !important;
+}
+
 /* .saved-filters-tabs {
     --mdc-chip-container-shape-radius: 4px;
 } */

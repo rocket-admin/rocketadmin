@@ -2,6 +2,7 @@
     <app-placeholder-saved-filters *ngIf="savedFilterData === null"></app-placeholder-saved-filters>
     <div *ngIf="savedFilterData" class="saved-filters-list">
         <button *ngIf="accessLevel === 'edit' && savedFilterData?.length === 0"
+            class="saved-filters-list__first-time-button"
             mat-button type="button"
             angulartics2On="click"
             angularticsAction="Saved filters: first time setup is clicked"
