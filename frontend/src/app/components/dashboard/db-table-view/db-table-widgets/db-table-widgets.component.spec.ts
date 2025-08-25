@@ -158,8 +158,8 @@ describe('DbTableWidgetsComponent', () => {
       },
       {
         field_name: '',
-        widget_type: '',
-        widget_params: '',
+        widget_type: 'Default',
+        widget_params: '// No settings required',
         name: '',
         description: ''
       }
@@ -171,44 +171,6 @@ describe('DbTableWidgetsComponent', () => {
     component.selectWidgetField('first_name');
 
     expect(component.fields).toEqual(['user_id', 'last_name', 'email']);
-  });
-
-  it('should set empty string in widget_type if widget does not need another appearance', () => {
-    component.widgets = [
-      {
-        field_name: 'user_id',
-        widget_type: 'textarea',
-        widget_params: '',
-        name: '',
-        description: ''
-      },
-      {
-        field_name: 'user_name',
-        widget_type: 'Default',
-        widget_params: '// No settings required',
-        name: 'name',
-        description: ''
-      }
-    ];
-
-    component.widgetTypeChange('user_name');
-
-    expect(component.widgets).toEqual([
-      {
-        field_name: 'user_id',
-        widget_type: 'textarea',
-        widget_params: '',
-        name: '',
-        description: ''
-      },
-      {
-        field_name: 'user_name',
-        widget_type: '',
-        widget_params: '// No settings required',
-        name: 'name',
-        description: ''
-      }
-    ])
   });
 
   xit('should open dialog to confirm deletion of widget', () => {

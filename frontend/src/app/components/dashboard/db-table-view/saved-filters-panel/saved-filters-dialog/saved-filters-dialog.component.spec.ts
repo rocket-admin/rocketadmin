@@ -8,6 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog.component';
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('SavedFiltersDialogComponent', () => {
   let component: SavedFiltersDialogComponent;
@@ -26,7 +27,8 @@ describe('SavedFiltersDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         SavedFiltersDialogComponent,
-        RouterTestingModule
+        RouterTestingModule,
+        Angulartics2Module.forRoot(),
       ],
       providers: [
         { provide: TablesService, useValue: tableSpy },

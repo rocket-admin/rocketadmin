@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { T } from '@angular/cdk/portal-directives.d-BoG39gYN';
 import { Widget } from 'src/app/models/table';
 
 @Component({
@@ -67,7 +68,16 @@ export class WidgetComponent implements OnInit, OnChanges {
     Code: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#code',
     Image: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#image',
     Foreign_key: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#foreign-key',
-    Phone: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#phone'
+    Phone: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#phone',
+    Color: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#color',
+    Money: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#money',
+    Country: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#country',
+    UUID: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#uuid',
+    Range: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#range',
+    Date: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
+    DateTime: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
+    Time: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
+
   };
 
   ngOnInit(): void {

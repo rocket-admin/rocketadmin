@@ -2,13 +2,22 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin: 20px 0 4px;
 }
 
 .saved-filters-list {
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+.saved-filters-list__first-time-button {
+    background: var(--color-accentedPalette-50);
+    border: 1px dashed var(--color-accentedPalette-300);
+    transition: background 0.3s ease;
+}
+
+.saved-filters-list__first-time-button:hover {
+    background: var(--color-accentedPalette-100) !important;
 }
 
 /* .saved-filters-tabs {
@@ -71,6 +80,17 @@
 
 .column-name strong {
     margin-left: 8px;
+}
+
+.dynamic-column-editor ::ng-deep .foreign-key {
+    display: block;
+    min-width: 280px;
+    margin-bottom: 16px;
+}
+
+.dynamic-column-editor ::ng-deep .foreign-key .mat-mdc-form-field-subscript-wrapper,
+.dynamic-column-editor ::ng-deep .foreign-key .foreign-key__link {
+    display: none;
 }
 
 .static-filters {

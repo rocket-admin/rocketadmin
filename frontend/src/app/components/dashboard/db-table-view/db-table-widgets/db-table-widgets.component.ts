@@ -160,14 +160,12 @@ export class DbTableWidgetsComponent implements OnInit {
   "height": 100,
   "prefix": "https://example.com/images/"
 }
-}
 `,
     JSON: `// No settings required`,
     Money: `// Configure money widget settings
 // example:
 {
   "default_currency": "USD",
-  "show_currency_selector": false,
   "decimal_places": 2,
   "allow_negative": true
 }
@@ -326,8 +324,8 @@ export class DbTableWidgetsComponent implements OnInit {
   addNewWidget() {
     this.widgets.push({
       field_name: '',
-      widget_type: '',
-      widget_params: '',
+      widget_type: 'Default',
+      widget_params: '// No settings required',
       name: '',
       description: ''
     });
@@ -339,8 +337,6 @@ export class DbTableWidgetsComponent implements OnInit {
 
   widgetTypeChange(fieldName) {
     let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
-
-    if (currentWidget.widget_type === 'Default') currentWidget.widget_type = '';
     currentWidget.widget_params = this.defaultParams[currentWidget.widget_type || 'Default'];
 
     this.widgetParamsChange({fieldName: currentWidget.field_name, value: currentWidget.widget_params});
@@ -393,12 +389,20 @@ export class DbTableWidgetsComponent implements OnInit {
       .subscribe(res => {
         const currentWidgetTypes = res.map((widget: Widget) => widget.field_name);
         this.fields = difference(this.fields, currentWidgetTypes);
+        res.forEach((widget: Widget) => {
+          if (widget.widget_type === '') widget.widget_type = 'Default';
+        })
         this.widgets = res;
       });
   }
 
   updateWidgets(afterDeleteAll?: boolean) {
     this.submitting = true;
+
+    this.widgets.forEach(widget => {
+      if (widget.widget_type === 'Default') widget.widget_type = '';
+    });
+
     this._tables.updateTableWidgets(this.connectionID, this.tableName, this.widgets)
       .subscribe(() => {
         this.submitting = false;
