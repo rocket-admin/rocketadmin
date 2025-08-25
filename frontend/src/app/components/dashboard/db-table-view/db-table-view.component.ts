@@ -41,10 +41,10 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
-import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 
 interface Column {
   title: string,
@@ -163,9 +163,14 @@ export class DbTableViewComponent implements OnInit {
           tap(() => {
 
             const filters = JsonURL.stringify( this.activeFilters );
+            const saved_filter = this.route.snapshot.queryParams.saved_filter;
+            const dynamic_column = this.route.snapshot.queryParams.dynamic_column;
+
             this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
               queryParams: {
                 filters,
+                saved_filter,
+                dynamic_column,
                 sort_active: this.sort.active,
                 sort_direction: this.sort.direction.toUpperCase(),
                 page_index: this.paginator.pageIndex,
