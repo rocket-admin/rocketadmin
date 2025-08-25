@@ -1,13 +1,13 @@
 <form #tableFiltersForm="ngForm" (ngSubmit)="handleSaveFilters()" class="filters-form">
     <h1 mat-dialog-title class="filters-header">
-        <span>New Fast Filter for <strong>{{ data.displayTableName }}</strong></span>
+        <span>New fast filter for <strong>{{ data.displayTableName }}</strong></span>
     </h1>
     <app-content-loader *ngIf="!fields || !tableTypes; else filterControls"></app-content-loader>
     <ng-template #filterControls>
         <mat-dialog-content class="filters-content">
             <!-- Filter Name and Description Fields -->
             <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Fast Filter name</mat-label>
+                <mat-label>Fast filter name</mat-label>
                 <input matInput required
                     name="filters_set_name"
                     [(ngModel)]="data.filtersSet.name">
@@ -16,9 +16,9 @@
                 </mat-error>
             </mat-form-field>
 
-            <h3 class="section-title">Conditions & Main column</h3>
+            <h3 class="section-title">Conditions & main column</h3>
             <p class="section-description">
-                Select which conditions to add and choose a Main column. Main columns remain editable, while conditions are set.
+                Select which conditions to add and choose a main column. Main columns remain editable, while conditions are set.
             </p>
 
             <!-- Filter Selection -->
@@ -165,7 +165,7 @@
             Cancel
         </button>
         <button mat-flat-button color="primary" type="submit">
-            Save Filter
+            Save filter
         </button>
     </mat-dialog-actions>
 </form>
