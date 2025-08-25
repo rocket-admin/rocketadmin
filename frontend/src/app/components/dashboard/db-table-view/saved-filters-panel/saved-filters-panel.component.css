@@ -72,6 +72,17 @@
     margin-left: 8px;
 }
 
+.dynamic-column-editor ::ng-deep .foreign-key {
+    display: block;
+    min-width: 280px;
+    margin-bottom: 16px;
+}
+
+.dynamic-column-editor ::ng-deep .foreign-key .mat-mdc-form-field-subscript-wrapper,
+.dynamic-column-editor ::ng-deep .foreign-key .foreign-key__link {
+    display: none;
+}
+
 .static-filters {
     display: flex;
     flex-wrap: wrap;
