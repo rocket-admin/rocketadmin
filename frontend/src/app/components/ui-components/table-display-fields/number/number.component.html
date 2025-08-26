@@ -1,5 +1,9 @@
 <div class="field-display">
-  <span class="field-value" [class.out-of-threshold]="isOutOfThreshold">{{displayValue}}</span>
+  <span class="field-value" [class.out-of-threshold]="!!isOutOfThreshold">
+    {{displayValue}}
+    <mat-icon *ngIf="isOutOfThreshold === 'down'" class="out-of-threshold__icon">south</mat-icon>
+    <mat-icon *ngIf="isOutOfThreshold === 'up'" class="out-of-threshold__icon">north</mat-icon>
+  </span>
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy"

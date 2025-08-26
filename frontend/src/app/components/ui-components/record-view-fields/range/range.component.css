@@ -14,6 +14,7 @@
 .range-progress-bar {
   height: 8px;
   border-radius: 4px;
+  min-width: 160px;
 }
 
 /* Material progress bar specific styles */

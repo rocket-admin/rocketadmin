@@ -15,11 +15,12 @@ import { NumberRecordViewComponent } from '../components/ui-components/record-vi
 import { PasswordRecordViewComponent } from '../components/ui-components/record-view-fields/password/password.component';
 import { PhoneRecordViewComponent } from '../components/ui-components/record-view-fields/phone/phone.component';
 import { PointRecordViewComponent } from '../components/ui-components/record-view-fields/point/point.component';
+import { RangeRecordViewComponent } from '../components/ui-components/record-view-fields/range/range.component';
 import { SelectRecordViewComponent } from '../components/ui-components/record-view-fields/select/select.component';
 import { StaticTextRecordViewComponent } from '../components/ui-components/record-view-fields/static-text/static-text.component';
 import { TextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/text/text.component';
-import { TimeRecordViewComponent } from '../components/ui-components/record-view-fields/time/time.component';
 import { TimeIntervalRecordViewComponent } from '../components/ui-components/record-view-fields/time-interval/time-interval.component';
+import { TimeRecordViewComponent } from '../components/ui-components/record-view-fields/time/time.component';
 import { UrlRecordViewComponent } from '../components/ui-components/record-view-fields/url/url.component';
 import { UuidRecordViewComponent } from '../components/ui-components/record-view-fields/uuid/uuid.component';
 
@@ -46,6 +47,7 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyRecordViewComponent,
     Color: ColorRecordViewComponent,
     UUID: UuidRecordViewComponent,
+    Range: RangeRecordViewComponent
 }
 
 export const recordViewFieldTypes = {

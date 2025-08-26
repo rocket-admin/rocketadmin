@@ -1,5 +1,8 @@
 import { Component, Injectable } from '@angular/core';
+
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 import convert from 'convert';
 
 @Injectable()
@@ -7,7 +10,7 @@ import convert from 'convert';
   selector: 'app-number-record-view',
   templateUrl: './number.component.html',
   styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './number.component.css'],
-  imports: []
+  imports: [CommonModule, MatIconModule]
 })
 export class NumberRecordViewComponent extends BaseRecordViewFieldComponent {
 
@@ -33,7 +36,7 @@ export class NumberRecordViewComponent extends BaseRecordViewFieldComponent {
     }
   }
 
-  get isOutOfThreshold(): boolean {
+  get isOutOfThreshold(): 'up' | 'down' | false {
     if (this.value == null || this.value === '') {
       return false;
     }
@@ -43,11 +46,11 @@ export class NumberRecordViewComponent extends BaseRecordViewFieldComponent {
     const numValue = parseFloat(this.value);
 
     if (thresholdMin !== undefined && numValue < thresholdMin) {
-      return true;
+      return 'down';
     }
 
     if (thresholdMax !== undefined && numValue > thresholdMax) {
-      return true;
+      return 'up';
     }
 
     return false;
