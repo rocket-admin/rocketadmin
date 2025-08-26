@@ -813,8 +813,8 @@ export class MockFactory {
     return {
       hidden_tables: [tableName],
       logo_url: faker.internet.url(),
-      primary_color: faker.internet.color(),
-      secondary_color: faker.internet.color(),
+      primary_color: faker.color.rgb(),
+      secondary_color: faker.color.rgb(),
       hostname: faker.internet.url(),
       company_name: faker.company.name(),
       tables_audit: tables_audit,
