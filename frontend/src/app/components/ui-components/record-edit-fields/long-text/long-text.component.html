@@ -2,6 +2,7 @@
     <mat-label>{{normalizedLabel}}</mat-label>
     <textarea matInput name="{{label}}-{{key}}"
         #textareaField="ngModel"
+        class="long-textarea"
         [rows]="rowsCount"
         [maxlength]="maxLength"
         textValidator
@@ -11,8 +12,8 @@
         [required]="required" [disabled]="disabled" [readonly]="readonly"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
     </textarea>
+    <div *ngIf="maxLength && value" class="counter">{{value.length}} / {{maxLength}}</div>
     <mat-error *ngIf="textareaField.errors?.['required']">This field is required.</mat-error>
     <mat-error *ngIf="textareaField.errors?.['maxlength']">Maximum length is {{maxLength}} characters.</mat-error>
     <mat-error *ngIf="textareaField.errors?.['invalidPattern'] || textareaField.errors?.[('invalid' + validateType)]">{{getValidationErrorMessage()}}</mat-error>
-    <mat-hint *ngIf="maxLength && value" align="end">{{value.length}} / {{maxLength}}</mat-hint>
 </mat-form-field>
