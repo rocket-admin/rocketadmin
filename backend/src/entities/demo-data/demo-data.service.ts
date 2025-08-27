@@ -95,6 +95,7 @@ export class DemoDataService {
         await this.createTestTableSettingsMySQL(createdMySQLConnection);
         await this.createConnectionPropertiesForMySQLDemoData(createdMySQLConnection);
         await this.createMySQLDemoTableActions(createdMySQLConnection);
+        await this.createMySQLPostgresSavedTableFilters(createdMySQLConnection);
       }
     }
 
@@ -688,6 +689,63 @@ export class DemoDataService {
     };
     const connectionProperties = buildConnectionPropertiesEntity(createPropertiesData, connection);
     return await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(connectionProperties);
+  }
+
+  private async createMySQLPostgresSavedTableFilters(connection: ConnectionEntity): Promise<void> {
+    const savedFiltersData: Array<CreateTableFilterDs> = [
+      {
+        filters: { type: { eq: 'event_stage' } },
+        table_name: 'space',
+        connection_id: connection.id,
+        filter_name: 'Stage capacity',
+        dynamic_filtered_column: { column_name: 'capacity', comparator: FilterCriteriaEnum.gt },
+        masterPwd: null,
+      },
+      {
+        filters: { type: { eq: 'hot_desk' } },
+        table_name: 'space',
+        connection_id: connection.id,
+        filter_name: 'Hot desks',
+        dynamic_filtered_column: { column_name: 'location_id', comparator: FilterCriteriaEnum.eq },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'member' } },
+        table_name: 'user',
+        connection_id: connection.id,
+        filter_name: 'Members',
+        dynamic_filtered_column: { column_name: 'email', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'admin' } },
+        table_name: 'user',
+        connection_id: connection.id,
+        filter_name: 'Admins',
+        dynamic_filtered_column: { column_name: 'name', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { organizer_id: { eq: 6 } },
+        table_name: 'event',
+        connection_id: connection.id,
+        filter_name: "Fiona's events",
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { organizer_id: { eq: 3 } },
+        table_name: 'event',
+        connection_id: connection.id,
+        filter_name: "Charlie's events",
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+    ];
+    const filterEntities = savedFiltersData.map((dto) => {
+      return buildNewTableFiltersEntity(dto);
+    });
+    await this._dbContext.tableFiltersRepository.save(filterEntities);
   }
 
   private async createTestTableSettingsPostgres(connection: ConnectionEntity): Promise<Array<TableSettingsEntity>> {
