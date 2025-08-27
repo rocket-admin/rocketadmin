@@ -92,10 +92,8 @@ export class DbTableWidgetsComponent implements OnInit {
 // - invert_colors: Swap the color scheme (typically green=Yes, red=No becomes red=Yes, green=No)
 
 {
-	"structure": {
-		"allow_null": false
-		"invert_colors": false,
-	}
+	"allow_null": false,
+	"invert_colors": false
 }
 `,
     Code:

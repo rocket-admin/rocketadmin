@@ -40,16 +40,19 @@ export class BooleanEditComponent extends BaseEditFieldComponent {
 
     this.onFieldChange.emit(this.value);
 
-    this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
-
-    // Parse widget parameters for invert_colors option
+    // Parse widget parameters if available
+    let parsedParams = null;
     if (this.widgetStructure?.widget_params) {
-      const params = typeof this.widgetStructure.widget_params === 'string' 
+      parsedParams = typeof this.widgetStructure.widget_params === 'string' 
         ? JSON.parse(this.widgetStructure.widget_params) 
         : this.widgetStructure.widget_params;
-      
-      this.invertColors = params.invert_colors === true;
     }
+
+    // Check allow_null from either structure or widget params
+    this.isRadiogroup = (this.structure?.allow_null) || !!(parsedParams?.allow_null);
+
+    // Check invert_colors from widget params
+    this.invertColors = parsedParams?.invert_colors === true;
   }
 
   onToggleChange(optionValue: boolean): void {
