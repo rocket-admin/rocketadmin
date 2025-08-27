@@ -2,6 +2,17 @@
     <mat-label>{{normalizedLabel}}</mat-label>
     <input matInput type="text" name="{{label}}-{{key}}"
         [required]="required" [disabled]="disabled" [readonly]="readonly"
+<<<<<<< Updated upstream
+=======
+        [maxlength]="maxLength"
+        textValidator
+        [validateType]="validateType"
+        [regexPattern]="regexPattern"
+        fieldValidation
+        [fieldKey]="key"
+        [fieldLabel]="label"
+        [fieldRequired]="required"
+>>>>>>> Stashed changes
         attr.data-testid="record-{{label}}-text"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
 </mat-form-field>
