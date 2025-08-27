@@ -173,7 +173,7 @@
                         *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
                         class="actions__continue"
                         data-testid="record-save-and-continue-editing-button"
-                        [disabled]="submitting || editRowForm.form.invalid"
+                        [disabled]="submitting || !isFormValid"
                         (click)="handleRowSubmitting(true)">
                         Save and continue editing
                     </button>
@@ -181,20 +181,20 @@
                     <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
                         type="submit" mat-flat-button color="primary"
                         data-testid="record-edit-button"
-                        [disabled]="submitting || editRowForm.form.invalid">
+                        [disabled]="submitting || !isFormValid">
                         Save
                     </button>
 
                     <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
                         type="submit" mat-flat-button color="primary"
                         data-testid="record-duplicate-button"
-                        [disabled]="submitting || editRowForm.form.invalid">
+                        [disabled]="submitting || !isFormValid">
                         Duplicate
                     </button>
 
                     <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"
                         data-testid="record-add-button"
-                        [disabled]="submitting || editRowForm.form.invalid">
+                        [disabled]="submitting || !isFormValid">
                         Add
                     </button>
                 </div>
