@@ -9,7 +9,7 @@
         [regexPattern]="regexPattern"
         attr.data-testid="record-{{label}}-text"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
-    <div matSuffix *ngIf="maxLength && value && (maxLength - value.length) < 100" class="counter">{{value.length}} / {{maxLength}}</div>
+    <div matSuffix *ngIf="maxLength && maxLength > 0 && value && (maxLength - value.length) < 100" class="counter">{{value.length}} / {{maxLength}}</div>
     <mat-error *ngIf="textField.errors?.['required']">This field is required.</mat-error>
     <mat-error *ngIf="textField.errors?.['maxlength']">Maximum length is {{maxLength}} characters.</mat-error>
     <mat-error *ngIf="textField.errors?.['invalidPattern'] || textField.errors?.[('invalid' + validateType)]">{{getValidationErrorMessage()}}</mat-error>
