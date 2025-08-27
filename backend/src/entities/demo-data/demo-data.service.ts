@@ -28,6 +28,9 @@ import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-group
 import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
+import { CreateTableFilterDs } from '../table-filters/application/data-structures/create-table-filters.ds.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { buildNewTableFiltersEntity } from '../table-filters/utils/build-new-table-filters-entity.util.js';
 
 @Injectable()
 export class DemoDataService {
@@ -83,6 +86,7 @@ export class DemoDataService {
         await this.createTestTableSettingsPostgres(createdPostgresConnection);
         await this.createConnectionPropertiesForPostgresDemoData(createdPostgresConnection);
         await this.createPostgresDemoTableActions(createdPostgresConnection);
+        await this.createDemoPostgresSavedTableFilters(createdPostgresConnection);
       }
       const createdMySQLConnection = createdTestConnections.find(
         (connection) => connection.type === ConnectionTypesEnum.mysql || connection.type === ConnectionTypesEnum.mysql2,
@@ -1200,5 +1204,54 @@ export class DemoDataService {
       });
       await this._dbContext.tableWidgetsRepository.save(newWidgets);
     }
+  }
+
+  private async createDemoPostgresSavedTableFilters(connection: ConnectionEntity): Promise<void> {
+    const savedFiltersData: Array<CreateTableFilterDs> = [
+      {
+        filters: { completed: { eq: true } },
+        table_name: 'enrollments',
+        connection_id: connection.id,
+        filter_name: 'Completed courses',
+        dynamic_filtered_column: { column_name: 'course_id', comparator: FilterCriteriaEnum.eq },
+        masterPwd: null,
+      },
+      {
+        filters: { price: { gt: 100 }, is_published: { eq: true } },
+        table_name: 'courses',
+        connection_id: connection.id,
+        filter_name: 'Expensive published',
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { language: { eq: 'en' }, is_published: { eq: true } },
+        table_name: 'courses',
+        connection_id: connection.id,
+        filter_name: 'Published in English',
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'student' } },
+        table_name: 'users',
+        connection_id: connection.id,
+        filter_name: 'Students',
+        dynamic_filtered_column: { column_name: 'full_name', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'mentor' } },
+        table_name: 'users',
+        connection_id: connection.id,
+        filter_name: 'Mentors',
+        dynamic_filtered_column: { column_name: 'email', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+    ];
+    const tableFilterEntities = savedFiltersData.map((dto) => {
+      return buildNewTableFiltersEntity(dto);
+    });
+    await this._dbContext.tableFiltersRepository.save(tableFilterEntities);
   }
 }
