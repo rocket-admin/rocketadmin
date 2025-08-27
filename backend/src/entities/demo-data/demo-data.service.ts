@@ -113,7 +113,7 @@ export class DemoDataService {
         sortable_by: [],
         autocomplete_columns: ['title', 'description'],
         identification_fields: [],
-        columns_view: ['organizer_id', 'space_id', 'title', 'description', 'start_time', 'end_time'],
+        columns_view: ['space_id', 'title', 'start_time', 'end_time', 'image_url'],
         identity_column: 'title',
         can_delete: true,
         can_update: true,
@@ -354,11 +354,20 @@ export class DemoDataService {
           widget_options: null,
         },
         {
+          field_name: 'title',
+          widget_type: '' as any,
+          name: 'Event name',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
           field_name: 'image_url',
           widget_type: 'Image' as any,
           name: 'Poster',
           description: '',
-          widget_params: '// provide image height in px to dispaly in table\n// example:\n{\n  "height": 100\n}\n',
+          widget_params:
+            '// provide image height in px to dispaly in table\n// prefix: optional URL prefix to prepend to image source\n// example:\n{\n  "height": 100,\n  "prefix": "https://demo-data.rocketadmin.com/mysql-demo-images/"\n}\n',
           widget_options: null,
         },
       ];
@@ -406,6 +415,27 @@ export class DemoDataService {
       await this._dbContext.tableWidgetsRepository.save(newWidgets);
     }
 
+    const foundLocationTableSettings = tableSettings.find((settings) => settings.table_name === 'location');
+    if (foundLocationTableSettings) {
+      const createLocationWidgetsData: Array<CreateTableWidgetDs> = [
+        {
+          field_name: 'country',
+          widget_type: 'Country' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure country display options\n// Example:\n{\n  "show_flag": true,\n  "allow_null": false\n}\n',
+          widget_options: null,
+        },
+      ];
+      const newWidgets = createLocationWidgetsData.map((widget) => {
+        const newWidget = buildNewTableWidgetEntity(widget);
+        newWidget.settings = foundLocationTableSettings;
+        return newWidget;
+      });
+      await this._dbContext.tableWidgetsRepository.save(newWidgets);
+    }
+
     const foundMembershipTableSettings = tableSettings.find((settings) => settings.table_name === 'membership');
     if (foundMembershipTableSettings) {
       const createMembershipWidgetsData: Array<CreateTableWidgetDs> = [
@@ -438,21 +468,29 @@ export class DemoDataService {
     if (foundSpaceTableSettings) {
       const createSpaceWidgetsData: Array<CreateTableWidgetDs> = [
         {
-          field_name: 'price_per_hour',
-          widget_type: 'Money' as any,
-          name: '',
-          description: '',
-          widget_params:
-            '// Configure money widget settings\n// example:\n{\n  "default_currency": "USD",\n  "show_currency_selector": false,\n  "decimal_places": 2,\n  "allow_negative": false\n}\n',
-          widget_options: null,
-        },
-        {
           field_name: 'type',
           widget_type: 'Select' as any,
           name: '',
           description: '',
           widget_params:
             '// provide array of options to map database value (key \'value\') in human readable value (key \'label\');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  "allow_null": false,\n  "options": [\n    {\n      "value": "private_office",\n      "label": "Private office"\n    },\n    {\n      "value": "meeting_room",\n      "label": "Meeting room"\n    },\n    {\n      "value": "conference_room",\n      "label": "Conference room"\n    },\n    {\n      "value": "event_stage",\n      "label": "Event stage"\n    },\n    {\n      "value": "hot_desk",\n      "label": "Hot desk"\n    }\n  ]\n}',
+          widget_options: null,
+        },
+        {
+          field_name: 'location_id',
+          widget_type: '' as any,
+          name: 'Location',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'price_per_hour',
+          widget_type: 'Money' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure money widget settings\n// example:\n{\n  "default_currency": "USD",\n  "decimal_places": 2,\n  "allow_negative": true\n}\n',
           widget_options: null,
         },
       ];
@@ -467,21 +505,21 @@ export class DemoDataService {
     if (foundUserTableSettings) {
       const createUserWidgetsData: Array<CreateTableWidgetDs> = [
         {
-          field_name: 'phone',
-          widget_type: 'Phone' as any,
-          name: '',
-          description: '',
-          widget_params:
-            '// Configure international phone number widget\n// example:\n{\n  "preferred_countries": ["US", "GB", "CA"],\n  "enable_placeholder": true,\n  "phone_validation": true\n}\n',
-          widget_options: null,
-        },
-        {
           field_name: 'role',
           widget_type: 'Select' as any,
           name: '',
           description: '',
           widget_params:
             '// provide array of options to map database value (key \'value\') in human readable value (key \'label\');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  "allow_null": false,\n  "options": [\n    {\n      "value": "admin",\n      "label": "👑 Admin"\n    },\n    {\n      "value": "organizer",\n      "label": "👩‍💻 Organizer"\n    },\n    {\n      "value": "member",\n      "label": "🙍🏻‍♂️ Member"\n    }\n  ]\n}',
+          widget_options: null,
+        },
+        {
+          field_name: 'phone',
+          widget_type: 'Phone' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure international phone number widget\n// example:\n{\n  "preferred_countries": ["US", "GB", "CA"],\n  "enable_placeholder": true,\n  "phone_validation": true\n}\n',
           widget_options: null,
         },
       ];
