@@ -3,14 +3,23 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-acce
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
+import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { slackPostMessage } from '../../helpers/index.js';
 import { CreateConnectionPropertiesDs } from '../connection-properties/application/data-structures/create-connection-properties.ds.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { buildConnectionPropertiesEntity } from '../connection-properties/utils/build-connection-properties-entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { PermissionEntity } from '../permission/permission.entity.js';
+import { buildActionEventWithRule } from '../table-actions/table-action-events-module/utils/build-action-event-with-rule.util.js';
+import {
+  CreateRuleDataDs,
+  CreateTableActionEventDS,
+} from '../table-actions/table-action-rules-module/application/data-structures/create-action-rules.ds.js';
+import { buildEmptyActionRule } from '../table-actions/table-action-rules-module/utils/build-empty-action-rule.util.js';
 import { CreateTableSettingsDs } from '../table-settings/application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
@@ -18,17 +27,7 @@ import { buildConnectionEntitiesFromTestDtos } from '../user/utils/build-connect
 import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
-import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
-import { buildEmptyActionRule } from '../table-actions/table-action-rules-module/utils/build-empty-action-rule.util.js';
-import {
-  CreateRuleDataDs,
-  CreateTableActionEventDS,
-} from '../table-actions/table-action-rules-module/application/data-structures/create-action-rules.ds.js';
-import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
-import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
-import { buildActionEventWithRule } from '../table-actions/table-action-events-module/utils/build-action-event-with-rule.util.js';
-import { slackPostMessage } from '../../helpers/index.js';
 
 @Injectable()
 export class DemoDataService {
@@ -679,7 +678,7 @@ export class DemoDataService {
       connectionId: 'JeVyEzZY',
       human_readable_table_names: true,
       allow_ai_requests: true,
-      default_showing_table: 'users',
+      default_showing_table: 'enrollments',
       userId: connection?.author?.id || null,
       master_password: null,
     };
@@ -956,19 +955,20 @@ export class DemoDataService {
           widget_options: null,
         },
         {
+          field_name: 'certificate_url',
+          widget_type: 'URL' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// prefix: optional URL prefix to prepend to the href\n// example:\n{\n  "prefix": "https://certificates.example.com/"\n}\n',
+          widget_options: null,
+        },
+        {
           field_name: 'course_id',
           widget_type: '' as any,
           name: 'Course',
           description: "hi i'm a description",
-          widget_params: '',
-          widget_options: null,
-        },
-        {
-          field_name: 'certificate_url',
-          widget_type: WidgetTypeEnum.URL,
-          name: '',
-          description: '',
-          widget_params: '// No settings required',
+          widget_params: null,
           widget_options: null,
         },
       ];
@@ -1052,19 +1052,28 @@ export class DemoDataService {
     if (foundEnrollmentsTableSettings) {
       const createEnrollmentsWidgetsData: Array<CreateTableWidgetDs> = [
         {
-          field_name: 'course_id',
-          widget_type: '' as any,
-          name: 'Course',
-          description: '',
-          widget_params: '',
-          widget_options: null,
-        },
-        {
           field_name: 'user_id',
           widget_type: '' as any,
           name: 'User',
           description: '',
           widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'course_id',
+          widget_type: '' as any,
+          name: 'Course',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'progress',
+          widget_type: 'Range' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure the minimum, maximum and step values for the range\n// Default: min = 0, max = 100, step = 1\n{\n  "min": 0,\n  "max": 100,\n  "step": 0.01\n}\n',
           widget_options: null,
         },
       ];
@@ -1081,10 +1090,11 @@ export class DemoDataService {
       const createLessonsWidgetsData: Array<CreateTableWidgetDs> = [
         {
           field_name: 'video_url',
-          widget_type: WidgetTypeEnum.URL,
+          widget_type: 'URL' as any,
           name: '',
           description: '',
-          widget_params: '// No settings required',
+          widget_params:
+            '// prefix: optional URL prefix to prepend to the href\n// example:\n{\n  "prefix": "https://videos.example.com/"\n}\n',
           widget_options: null,
         },
         {
@@ -1093,6 +1103,15 @@ export class DemoDataService {
           name: 'Module',
           description: '',
           widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'content_url',
+          widget_type: 'URL' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// prefix: optional URL prefix to prepend to the href\n// example:\n{\n  "prefix": "https://content.example.com/"\n}\n',
           widget_options: null,
         },
       ];
@@ -1166,7 +1185,7 @@ export class DemoDataService {
         },
         {
           field_name: 'password_hash',
-          widget_type: WidgetTypeEnum.Password,
+          widget_type: 'Password' as any,
           name: 'Password',
           description: '',
           widget_params:
