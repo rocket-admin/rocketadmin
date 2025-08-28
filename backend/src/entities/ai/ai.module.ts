@@ -10,9 +10,7 @@ import { CreateThreadWithAIAssistantUseCase } from './use-cases/create-thread-wi
 import { DeleteThreadWithAIAssistantUseCase } from './use-cases/delete-thread-with-ai-assistant.use.case.js';
 import { FindAllMessagesInAiThreadUseCase } from './use-cases/find-all-messages-in-ai-thread.use.case.js';
 import { FindAllUserThreadsWithAssistantUseCase } from './use-cases/find-all-user-threads-with-assistant.use.case.js';
-import { RequestInfoFromTableWithAIUseCase } from './use-cases/request-info-from-table-with-ai.use.case.js';
 import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
-import { UserAIRequestsController } from './user-ai-requests.controller.js';
 import { UserAIThreadsController } from './user-ai-threads.controller.js';
 import { RequestInfoFromTableWithAIUseCaseV4 } from './use-cases/request-info-from-table-with-ai-v4.use.case.js';
 
@@ -22,10 +20,6 @@ import { RequestInfoFromTableWithAIUseCaseV4 } from './use-cases/request-info-fr
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
       useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI,
-      useClass: RequestInfoFromTableWithAIUseCase,
     },
     {
       provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V2,
@@ -52,14 +46,13 @@ import { RequestInfoFromTableWithAIUseCaseV4 } from './use-cases/request-info-fr
       useClass: DeleteThreadWithAIAssistantUseCase,
     },
   ],
-  controllers: [UserAIRequestsController, UserAIThreadsController, UserAIRequestsControllerV2],
+  controllers: [UserAIThreadsController, UserAIRequestsControllerV2],
 })
 export class AIModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): any {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/ai/request/:connectionId', method: RequestMethod.POST },
         { path: '/ai/v2/request/:connectionId', method: RequestMethod.POST },
         { path: '/ai/thread/:connectionId', method: RequestMethod.POST },
         { path: '/ai/thread/message/:connectionId/:threadId', method: RequestMethod.POST },
