@@ -84,17 +84,18 @@ export class DbTableWidgetsComponent implements OnInit {
 <p class="post-paragraph">
   A well-designed <strong>admin panel</strong> isn’t just about managing data — it’s about making that data easier to understand and interact with. By customizing how each field is displayed, you can turn raw database values into meaningful, user-friendly interfaces that save time and reduce errors.
 </p>`;
+  // JSON5-formatted default params
   public defaultParams = {
     Boolean:
-`// Display "Yes/No" buttons and specify "allow_null" in field structure:
-// Use "false" to require that one of the buttons is selected;
-// Use "true" if the field might be left unspecified.
+`// Display "Yes/No" buttons with configurable options:
+// - allow_null: Use "false" to require selection, "true" if field can be left unspecified
+// - invert_colors: Swap the color scheme (typically green=Yes, red=No becomes red=Yes, green=No)
 
 {
-	"structure": {
-		"allow_null": false
-	}
-}`,
+	"allow_null": false,
+	"invert_colors": false
+}
+`,
     Code:
 `// provide language of code to highlight: 'html', 'css', 'typescript', 'yaml', 'markdown'
 // example:
@@ -167,10 +168,13 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_negative": true
 }
 `,
-    Number: `// Configure number display with unit conversion
+    Number: `// Configure number display with unit conversion and threshold validation
 // Example units: "bytes", "meters", "seconds", "grams"
+// threshold_min/threshold_max: Values outside these limits will be highlighted in red
 {
-  "unit": null
+  "unit": null,
+  "threshold_min": null,
+  "threshold_max": null
 }`,
     Password:
 `// provide algorithm to encrypt your password, one of:
@@ -224,7 +228,19 @@ export class DbTableWidgetsComponent implements OnInit {
     }
   ]
 }`,
-    String: `// No settings required`,
+    String: `// Optional validation for string values
+// validate: Any validator.js method (e.g., "isEmail", "isURL", "isUUID", "isJSON", "isAlpha", "isNumeric")
+// Full list: isEmail, isURL, isMACAddress, isIP, isIPRange, isFQDN, isBoolean, isIBAN, isBIC,
+// isAlpha, isAlphanumeric, isNumeric, isPort, isLowercase, isUppercase, isAscii, isBase64,
+// isHexadecimal, isHexColor, isRgbColor, isHSL, isMD5, isHash, isJWT, isJSON, isUUID,
+// isMongoId, isCreditCard, isISBN, isISSN, isMobilePhone, isPostalCode, isEthereumAddress,
+// isCurrency, isBtcAddress, isISO8601, isISO31661Alpha2, isISO31661Alpha3, isISO4217,
+// isDataURI, isMagnetURI, isMimeType, isLatLong, isSlug, isStrongPassword, isTaxID, isVAT
+// OR use "regex" with a regex parameter for custom pattern matching
+{
+  "validate": null,
+  "regex": null
+}`,
     Textarea: `// provide number of strings to show.
 {
   "rows": 5

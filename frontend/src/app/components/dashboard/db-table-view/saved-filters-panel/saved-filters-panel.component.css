@@ -11,13 +11,29 @@
 }
 
 .saved-filters-list__first-time-button {
-    background: var(--color-accentedPalette-50);
-    border: 1px dashed var(--color-accentedPalette-300);
     transition: background 0.3s ease;
 }
 
-.saved-filters-list__first-time-button:hover {
-    background: var(--color-accentedPalette-100) !important;
+@media (prefers-color-scheme: light) {
+    .saved-filters-list__first-time-button {
+        background: var(--color-accentedPalette-50);
+        border: 1px dashed var(--color-accentedPalette-300);
+    }
+
+    .saved-filters-list__first-time-button:hover {
+        background: var(--color-accentedPalette-100) !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .saved-filters-list__first-time-button {
+        background: var(--color-accentedPalette-900);
+        border: 1px dashed var(--color-accentedPalette-600);
+    }
+
+    .saved-filters-list__first-time-button:hover {
+        background: var(--color-accentedPalette-800) !important;
+    }
 }
 
 /* .saved-filters-tabs {

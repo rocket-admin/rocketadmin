@@ -30,7 +30,17 @@ export class BooleanFilterComponent extends BaseFilterFieldComponent {
     super.ngOnInit();
     this.connectionType = this._connections.currentConnection.type;
     this.setBooleanValue();
-    this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
+    
+    // Parse widget parameters if available
+    let parsedParams = null;
+    if (this.widgetStructure?.widget_params) {
+      parsedParams = typeof this.widgetStructure.widget_params === 'string' 
+        ? JSON.parse(this.widgetStructure.widget_params) 
+        : this.widgetStructure.widget_params;
+    }
+    
+    // Check allow_null from either structure or widget params
+    this.isRadiogroup = (this.structure?.allow_null) || !!(parsedParams?.allow_null);
   }
 
   setBooleanValue() {

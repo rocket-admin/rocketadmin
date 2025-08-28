@@ -11,10 +11,6 @@
     padding: 8px 4px;
 }
 
-/* .widget-type__docs-link {
-    color: var(--color-accentedDarkPalette-500);
-} */
-
 .code-editor-box {
     display: block;
     border: 1px solid rgba(0, 0, 0, 0.38);

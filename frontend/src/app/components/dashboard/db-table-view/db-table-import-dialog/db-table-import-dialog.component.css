@@ -21,7 +21,18 @@
 }
 
 .form__warning {
-    color: var(--color-warnPalette-500);
     margin-top: -12px;
     margin-bottom: 20px;
+}
+
+@media (prefers-color-scheme: light) {
+    .form__warning {
+        color: var(--color-warnPalette-500);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .form__warning {
+        color: var(--color-warnDarkPalette-500);
+    }
 }

@@ -123,11 +123,23 @@
 }
 
 .ai-error-message {
-    background-color: var(--color-warnPalette-100);
-    color: var(--color-warnPalette-100-contrast);
     border-radius: 8px;
     padding: 8px 8px 0;
     margin: 4px 0;
+}
+
+@media (prefers-color-scheme: light) {
+    .ai-error-message {
+        background-color: var(--color-warnPalette-100);
+        color: var(--color-warnPalette-100-contrast);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-error-message {
+        background-color: var(--color-warnDarkPalette-200);
+        color: var(--color-warnDarkPalette-200-contrast);
+    }
 }
 
 .ai-message ::ng-deep ol,
