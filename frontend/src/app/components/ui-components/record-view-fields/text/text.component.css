@@ -1,6 +1,17 @@
 .validation-error {
-  color: #f44336;
   text-decoration: underline;
   text-decoration-style: wavy;
   text-underline-offset: 2px;
+}
+
+@media (prefers-color-scheme: light) {
+  .validation-error {
+    color: var(--color-warnPalette-500);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+    .validation-error {
+        color: var(--color-warnDarkPalette-500);
+    }
 }

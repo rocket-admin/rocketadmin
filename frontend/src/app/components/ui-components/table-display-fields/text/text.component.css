@@ -1,5 +1,5 @@
 .validation-error {
-  color: #f44336;
+  color: var(--color-warnPalette-500);
   text-decoration: underline;
   text-decoration-style: wavy;
   text-underline-offset: 2px;
