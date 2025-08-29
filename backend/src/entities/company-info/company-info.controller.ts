@@ -21,6 +21,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
@@ -204,6 +205,7 @@ export class CompanyInfoController {
     type: FoundUserFullCompanyInfoDs,
   })
   @UseGuards(CompanyUserGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Get('my/full')
   async getUserCompanies(@UserId() userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
     return await this.getUserFullCompanyInfoUseCase.execute(userId);
