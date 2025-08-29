@@ -9,7 +9,6 @@ import {
   parseTestMSSQLConnectionString,
   parseTestOracleDBConnectionString,
   parseTestMongoDBConnectionString,
-  parseTestIbmDB2ConnectionString,
   parseTestDynamoDBConnectionString,
 } from '../parsers/string-connection-to-database-parsers.js';
 import { isTest } from '../app/is-test.js';
@@ -273,9 +272,9 @@ export const Constants = {
           case type.toLowerCase().includes('mongo'):
             connection = parseTestMongoDBConnectionString(connection_string) as CreateConnectionDto;
             break;
-          case type.toLowerCase().includes('ibmdb2'):
-            connection = parseTestIbmDB2ConnectionString(connection_string) as CreateConnectionDto;
-            break;
+          // case type.toLowerCase().includes('ibmdb2'):
+          //   connection = parseTestIbmDB2ConnectionString(connection_string) as CreateConnectionDto;
+          //   break;
           case type.toLowerCase().includes('dynamodb'):
             connection = parseTestDynamoDBConnectionString(connection_string) as CreateConnectionDto;
           default:

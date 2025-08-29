@@ -44,6 +44,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     const connectionQb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
+      .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
       .andWhere('user.id = :userId', { userId: userId })
       .andWhere('connection.isTestConnection = :isTest', { isTest: true });
     return await connectionQb.getMany();
