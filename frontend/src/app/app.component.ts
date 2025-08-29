@@ -6,6 +6,7 @@ import { catchError, filter, map } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from './services/company.service';
+import { Connection } from './models/connection';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
@@ -65,7 +66,6 @@ export class AppComponent {
   userLoggedIn = null;
   isDemo = false;
   redirect_uri = `${location.origin}/loader`;
-  connections = [];
   token = null;
   routePathParam;
   authBarTheme;
@@ -81,6 +81,7 @@ export class AppComponent {
     logo: '',
     favicon: ''
   }
+  public connections: Connection[] = [];
 
   constructor (
     private changeDetector: ChangeDetectorRef,
@@ -219,6 +220,10 @@ export class AppComponent {
     return this._connections.connectionID;
   }
 
+  get currentConnectionName() {
+    return this._connections.currentConnectionName;
+  }
+
   get visibleTabs() {
     return this._connections.visibleTabs;
   }
@@ -229,7 +234,7 @@ export class AppComponent {
 
   initializeUserSession() {
     this._user.fetchUser()
-    .subscribe((res: User) => {
+      .subscribe((res: User) => {
         this.currentUser = res;
         this.isDemo = this.currentUser.email.startsWith('demo_') && this.currentUser.email.endsWith('@rocketadmin.com');
         this._user.setIsDemo(this.isDemo);
@@ -247,6 +252,12 @@ export class AppComponent {
         if (this.isDemo) window.hj?.('identify', this.currentUser.id, {
           'mode': 'demo'
         });
+
+        this._connections.fetchConnections()
+          .subscribe((res: any) => {
+            this.connections = res.connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
+          })
+
         this._company.getWhiteLabelProperties(res.company.id).subscribe( whiteLabelSettings => {
           this.whiteLabelSettings.logo = whiteLabelSettings.logo;
           this.whiteLabelSettingsLoaded = true;

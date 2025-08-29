@@ -95,6 +95,10 @@ export class ConnectionsService {
     return this.connectionID;
   }
 
+  get currentConnectionName() {
+    return this.connection.title || this.connection.database;
+  }
+
   get logo() {
     return this.connectionLogo;
   }

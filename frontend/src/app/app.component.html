@@ -81,17 +81,23 @@
                         <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
                     </picture>
                 </a>
+                <span class="nav-bar__slash">/</span>
+                <button mat-button type="button" class="nav-bar__button"
+                    [matMenuTriggerFor]="connectionsListMenu">
+                    {{connectionID ? currentConnectionName : 'Open connection'}}
+                    <mat-icon iconPositionEnd style="margin-left: 4px">arrow_drop_down</mat-icon>
+                </button>
+                <mat-menu #connectionsListMenu="matMenu">
+                    <a mat-menu-item *ngFor="let connection of connections"
+                        routerLink="/dashboard/{{connection.connection.id}}"
+                        [ngClass]="{'connection_active': connectionID === connection.connection.id}">
+                        {{connection.connection.title || connection.connection.database}}
+                    </a>
+                </mat-menu>
                 <span *ngIf="isDemo" class="logo__demo-mark">demo</span>
             </div>
 
             <div *ngIf="connectionID" class="menu">
-                <a mat-button data-testid="connections-list-header-link"
-                    routerLink="/connections-list"
-                    routerLinkActive="nav-bar__button_active"
-                    class="nav-bar__button">
-                    Connections
-                </a>
-                <mat-icon class="nav-bar__button">chevron_right</mat-icon>
                 <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
                     routerLink="{{tab}}/{{connectionID}}"
                     routerLinkActive="nav-bar__button_active"
