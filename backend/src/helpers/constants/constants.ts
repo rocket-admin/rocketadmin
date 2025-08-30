@@ -280,7 +280,9 @@ export const Constants = {
           default:
             break;
         }
-        testConnectionsArr.push(connection);
+        if (connection) {
+          testConnectionsArr.push(connection);
+        }
       }
       return testConnectionsArr;
     } catch (e) {
