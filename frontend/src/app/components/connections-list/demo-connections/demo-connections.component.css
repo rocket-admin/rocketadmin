@@ -23,16 +23,15 @@
 .testConnectionLink {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
     border-radius: 4px;
     box-shadow:
         0px 1px 3px 0px rgba(0, 0, 0, 0.2),
         0px 2px 2px 0px rgba(0, 0, 0, 0.12),
         0px 0px 2px 0px rgba(0, 0, 0, 0.14);
     color: inherit;
-    font-weight: 600;
     height: 48px;
-    padding: 0 16px;
+    padding: 0 12px;
     text-decoration: none;
     transition: box-shadow 200ms, background 200ms, border 200ms;
 }
@@ -88,22 +87,20 @@
     background: rgba(0, 0, 0, 0.16);
 }
 
-.testConnectionLink__iconBox {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image: radial-gradient(#fff 1em, var(--color-accentedPalette-500) 1em);
-    border-radius: 4px;
-    height: 36px;
-    margin-right: 12px;
-    width: 36px;
-}
-
 .testConnectionLink__icon {
     flex-shrink: 0;
-    height: 20px;
-    width: 20px;
+    height: 28px;
+    width: 28px;
+}
+
+@media(prefers-color-scheme: dark) {
+    .testConnectionLink__icon {
+        filter: brightness(0) invert(1);
+    }
+}
+
+.connection__goIcon {
+    margin-left: auto;
 }
 
 @media (width <= 600px) {
@@ -115,4 +112,14 @@
 .testConnectionLink:hover .connection__goIcon,
 .connection:hover  .connection__goIcon{
     opacity: 1;
+}
+
+.testConnectionLink__info {
+    display: flex;
+    flex-direction: column;
+}
+
+.testConnectionLink__type {
+    font-size: 12px;
+    margin-top: -2px;
 }

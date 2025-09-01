@@ -9,19 +9,98 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
 .empty-state_bottom {
     margin-top: auto;
 }
 
+@media (prefers-color-scheme: light) {
+    .empty-state_bottom {
+        color: rgba(0, 0, 0, 0.64)
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .empty-state_bottom {
+        color: rgba(255, 255, 255, 0.64)
+    }
+}
+
 .empty-state__text {
     font-size: 12px !important;
     font-weight: 500 !important;
-    margin-top: 56px !important;
     margin-bottom: 0 !important;
     text-align: center;
     text-transform: uppercase;
+}
+
+.supportedDatabases {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-gap: 20px;
+    justify-items: center;
+    margin-top: 24px;
+}
+
+.addConnectionLink {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 4px;
+    box-shadow:
+        0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+        0px 2px 2px 0px rgba(0, 0, 0, 0.12),
+        0px 0px 2px 0px rgba(0, 0, 0, 0.14);
+    color: inherit;
+    font-weight: 600;
+    height: 48px;
+    padding: 0 6px;
+    text-decoration: none;
+    transition: box-shadow 200ms, background 200ms, border 200ms;
+    min-width: 154px;
+}
+
+.addConnectionLink:hover {
+    box-shadow:
+        0px 1px 5px 0px rgba(0, 0, 0, 0.2),
+        0px 3px 4px 0px rgba(0, 0, 0, 0.12),
+        0px 2px 4px 0px rgba(0, 0, 0, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+    .addConnectionLink {
+        background: #404040;
+        border: 1px solid #404040;
+    }
+
+    .addConnectionLink:hover {
+        background: #212121;
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        box-shadow:
+            0px 1px 3px 0px rgba(255, 255, 255, 0.1),
+            0px 2px 2px 0px rgba(255, 255, 255, 0.08),
+            0px 0px 2px 0px rgba(255, 255, 255, 0.12);
+    }
+}
+
+.addConnectionLink__iconBox {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-radius: 4px;
+    height: 36px;
+    width: 36px;
+}
+
+.addConnectionLink__icon {
+    flex-shrink: 0;
+    height: 20px;
+    width: 20px;
 }
 
 .showAllButton {
@@ -64,6 +143,12 @@
     height: 48px;
     padding: 8px;
     width: 140px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .zapier-link {
+        background: #212121;
+    }
 }
 
 .zapier-link__caption {

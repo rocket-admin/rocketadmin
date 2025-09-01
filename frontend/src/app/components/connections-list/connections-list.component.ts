@@ -46,7 +46,6 @@ export class ConnectionsListComponent implements OnInit {
   public companyName: string;
   public currentUser: User;
 
-
   constructor(
     private _connectionsServise: ConnectionsService,
     public deleteDialog: MatDialog,

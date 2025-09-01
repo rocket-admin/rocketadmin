@@ -81,10 +81,11 @@
                         <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
                     </picture>
                 </a>
-                <span class="nav-bar__slash">/</span>
-                <button mat-button type="button" class="nav-bar__button"
+                <span *ngIf="connectionID" class="nav-bar__slash">/</span>
+                <button *ngIf="connectionID"
+                    mat-button type="button" class="nav-bar__button"
                     [matMenuTriggerFor]="connectionsListMenu">
-                    {{connectionID ? currentConnectionName : 'Open connection'}}
+                    {{currentConnectionName}}
                     <mat-icon iconPositionEnd style="margin-left: 4px">arrow_drop_down</mat-icon>
                 </button>
                 <mat-menu #connectionsListMenu="matMenu">

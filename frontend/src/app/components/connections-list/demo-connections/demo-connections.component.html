@@ -8,10 +8,14 @@
             angulartics2On="click"
             angularticsAction="Connections: open test db is clicked"
             [angularticsProperties]="{'dbType': testConnectionItem.connection.type}">
-            <div class="testConnectionLink__iconBox">
-                <mat-icon [svgIcon]="testConnectionItem.connection.type" class="testConnectionLink__icon"></mat-icon>
+            <img [src]="testDatabasesIcons[testConnectionItem.connection.type]"
+                class="testConnectionLink__icon"
+                [alt]="testConnectionItem.connection.type">
+            <div class="testConnectionLink__info">
+                <strong>{{ testConnectionItem.connection.title }}</strong>
+                <span class="testConnectionLink__type">{{ testDatabasesNames[testConnectionItem.connection.type] }}</span>
             </div>
-            {{ testConnectionItem.connection.title }}
+
             <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
         </a>
     </li>

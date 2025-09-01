@@ -99,13 +99,14 @@ export class AppComponent {
     private domSanitizer: DomSanitizer,
     private matIconRegistry: MatIconRegistry,
   ) {
-    this.matIconRegistry.addSvgIcon("mysql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mysql_logo.svg"));
-    this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mssql_logo.svg"));
-    this.matIconRegistry.addSvgIcon("oracledb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/oracle_logo.svg"));
-    this.matIconRegistry.addSvgIcon("postgres", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/postgres_logo.svg"));
-    this.matIconRegistry.addSvgIcon("mongodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mongodb_logo.svg"));
-    this.matIconRegistry.addSvgIcon("dynamodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/dynamodb_logo.svg"));
-    this.matIconRegistry.addSvgIcon("ibmdb2", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db2.svg"));
+    this.matIconRegistry.addSvgIcon("mysql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/mysql_logo.svg"));
+    this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/mssql_logo.svg"));
+    this.matIconRegistry.addSvgIcon("oracledb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/oracle_logo.svg"));
+    this.matIconRegistry.addSvgIcon("postgres", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/postgres_logo.svg"));
+    this.matIconRegistry.addSvgIcon("mongodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/mongodb_logo.svg"));
+    this.matIconRegistry.addSvgIcon("dynamodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/dynamodb_logo.svg"));
+    this.matIconRegistry.addSvgIcon("ibmdb2", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/db2_logo.svg"));
+    this.matIconRegistry.addSvgIcon("cassandra", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/сassandra_logo.svg"));
     this.matIconRegistry.addSvgIcon("github", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/github.svg"));
     this.matIconRegistry.addSvgIcon("google", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/google.svg"));
     this.matIconRegistry.addSvgIcon("ai_rocket", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/ai-rocket.svg"));
