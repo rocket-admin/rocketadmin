@@ -19,7 +19,7 @@ import { RouterModule } from '@angular/router';
   styleUrl: './demo-connections.component.css'
 })
 export class DemoConnectionsComponent implements OnInit {
-  @Input() testConnections: ConnectionItem[] = null;
+  @Input() testConnections: ConnectionItem[] = [];
   @Input() isDemo: boolean = false;
 
   public testDatabasesNames = supportedDatabasesTitles;
@@ -34,15 +34,25 @@ export class DemoConnectionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.testConnections = this.orderTestDatabases();
+    if (this.testConnections && this.testConnections.length > 0) {
+      this.testConnections = this.orderTestDatabases();
+    }
   }
 
   orderTestDatabases() {
+  if (!this.testConnections || !Array.isArray(this.testConnections) || this.testConnections.length === 0) {
+    return [];
+  }
+
   const orderMap = new Map(supportedOrderedDatabases.map((db, index) => [db, index]));
 
   return [...this.testConnections].sort((a, b) => {
-    const typeA = a.connection.type;
-    const typeB = b.connection.type;
+    const typeA = a.connection?.type;
+    const typeB = b.connection?.type;
+
+    if (!typeA || !typeB) {
+      return 0;
+    }
 
     const indexA = orderMap.has(typeA) ? orderMap.get(typeA) : Infinity;
     const indexB = orderMap.has(typeB) ? orderMap.get(typeB) : Infinity;
