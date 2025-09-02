@@ -44,26 +44,32 @@ export class GetUserCompanyFullInfoUseCase
       foundCompanyInfoByUserId.id,
     );
 
-    let foundFullUserCoreCompanyInfo: CompanyInfoEntity;
+    const foundFullUserCoreCompanyInfo: CompanyInfoEntity =
+      await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
 
-    if (foundUser.role === UserRoleEnum.ADMIN) {
-      //todo will be reworked in architecture refactoring
-      const companyId = foundCompanyInfoByUserId.id;
+      //todo deprecated code, will be removed in future
+    // if (foundUser.role === UserRoleEnum.ADMIN) {
 
-      const [companyInfoWithoutConnections, companyInfoWithUsers] = await Promise.all([
-        this._dbContext.companyInfoRepository.findCompanyInfoByCompanyIdWithoutConnections(companyId),
-        this._dbContext.companyInfoRepository.findAllCompanyWithConnectionsUsersJoining(companyId),
-      ]);
+    //   const companyId = foundCompanyInfoByUserId.id;
 
-      const uniqueConnections = companyInfoWithUsers.users
-        .flatMap((user) => user.groups.map((group) => group.connection))
-        .filter((connection, index, self) => index === self.findIndex((t) => t.id === connection.id));
+    //   const [companyInfoWithoutConnections, companyInfoWithUsers] = await Promise.all([
+    //     this._dbContext.companyInfoRepository.findCompanyInfoByCompanyIdWithoutConnections(companyId),
+    //     this._dbContext.companyInfoRepository.findAllCompanyWithConnectionsUsersJoining(companyId),
+    //   ]);
 
-      companyInfoWithoutConnections.connections = uniqueConnections;
-      foundFullUserCoreCompanyInfo = companyInfoWithoutConnections;
-    } else {
-      foundFullUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
-    }
+    //   const uniqueConnections = companyInfoWithUsers.users
+    //     .flatMap((user) => user.groups.map((group) => group.connection))
+    //     .filter((connection, index, self) => index === self.findIndex((t) => t.id === connection.id));
+
+    //   companyInfoWithoutConnections.connections = uniqueConnections;
+    //   foundFullUserCoreCompanyInfo = companyInfoWithoutConnections;
+    //   console.log(
+    //     '🚀 ~ GetUserCompanyFullInfoUseCase ~ implementation ~ foundFullUserCoreCompanyInfo:',
+    //     foundFullUserCoreCompanyInfo,
+    //   );
+    // } else {
+    //   foundFullUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
+    // }
 
     let foundUserCompanySaasInfo = null;
 
