@@ -82,6 +82,7 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -651,6 +652,7 @@ export class ConnectionController {
     type: Boolean,
   })
   @ApiQuery({ name: 'token', required: true })
+  @SkipThrottle()
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<TokenValidationResult> {
     if (!token || typeof token !== 'string' || token.length === 0) {
