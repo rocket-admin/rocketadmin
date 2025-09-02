@@ -28,8 +28,10 @@ import {
   ISaasSAMLRegisterUser,
   ISuspendUsers,
 } from './use-cases/saas-use-cases.interface.js';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @UseInterceptors(SentryInterceptor)
+@SkipThrottle()
 @Controller('saas')
 @ApiBearerAuth()
 @ApiTags('saas')
@@ -228,7 +230,7 @@ export class SaasController {
       companyId,
       samlConfigId,
       samlNameId,
-      samlAttributes
+      samlAttributes,
     });
   }
 }

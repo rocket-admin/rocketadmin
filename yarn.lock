@@ -2524,6 +2524,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/throttler@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@nestjs/throttler@npm:6.4.0"
+  peerDependencies:
+    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    reflect-metadata: ^0.1.13 || ^0.2.0
+  checksum: 056d7d2874ab02303af02239661257a291edef9b57e75e99686b48eae376d88d513211f21d68655e4d673838c7c46d85a5fb1575ce7945a5c08a7d05a1ce46fe
+  languageName: node
+  linkType: hard
+
 "@nestjs/typeorm@npm:^11.0.0":
   version: 11.0.0
   resolution: "@nestjs/typeorm@npm:11.0.0"
@@ -5631,6 +5642,7 @@ __metadata:
     "@nestjs/schematics": 11.0.7
     "@nestjs/swagger": ^11.2.0
     "@nestjs/testing": ^11.1.6
+    "@nestjs/throttler": ^6.4.0
     "@nestjs/typeorm": ^11.0.0
     "@nestjsx/crud": 4.6.2
     "@rocketadmin/shared-code": "workspace:*"

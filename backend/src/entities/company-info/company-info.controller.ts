@@ -21,6 +21,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
@@ -84,6 +85,7 @@ import { AddCompanyTabTitleDto } from './application/data-structures/add-company
 import { FoundCompanyTabTitleRO } from './application/data-structures/found-company-tab-title.ro.js';
 import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-company-white-label-properties.ro.js';
 import { PaidFeatureGuard } from '../../guards/paid-feature.guard.js';
+import { isTest } from '../../helpers/app/is-test.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -204,6 +206,7 @@ export class CompanyInfoController {
     type: FoundUserFullCompanyInfoDs,
   })
   @UseGuards(CompanyUserGuard)
+  @Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
   @Get('my/full')
   async getUserCompanies(@UserId() userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
     return await this.getUserFullCompanyInfoUseCase.execute(userId);
