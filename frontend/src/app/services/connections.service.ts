@@ -101,7 +101,7 @@ export class ConnectionsService {
   }
 
   get currentConnectionName() {
-    return this.connection.title || this.connection.database;
+    return this.defineConnectionTitle(this.connection);
   }
 
   get logo() {
@@ -205,13 +205,21 @@ export class ConnectionsService {
     return connection;
   }
 
+  defineConnectionTitle(connection: Connection) {
+    if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection';
+    if (!connection.title && !connection.database) return 'Untitled connection';
+    return connection.title || connection.database;
+  }
+
   fetchConnections() {
     return this._http.get<any>('/connections')
       .pipe(
         map(res => {
           const connections = res.connections.map(connectionItem => {
             const connection = this.defineConnectionType(connectionItem.connection);
-            return {...connectionItem, connection};
+            const displayTitle = this.defineConnectionTitle(connectionItem.connection);
+            console.log('displayTitle', displayTitle);
+            return {...connectionItem, connection, displayTitle};
           });
           this.ownConnections = connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
           this.testConnections = connections.filter(connectionItem => connectionItem.connection.isTestConnection);
@@ -343,6 +351,7 @@ export class ConnectionsService {
       map(res => {
         this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection has been updated successfully.');
+        this.connectionsSubject.next(null);
         return res;
       }),
       catchError((err) => {

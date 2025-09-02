@@ -24,36 +24,20 @@
         <a routerLink="/dashboard/{{connectionItem.connection.id}}" class="connection"
             angulartics2On="click"
             angularticsAction="Connections: open own db is clicked">
-            <div *ngIf="connectionItem.connection.connection_properties?.logo_url && connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <img [src]="connectionItem.connection.connection_properties?.logo_url"
+            <div  class="connectionLogoPreview">
+                <img *ngIf="connectionItem.connection.connection_properties?.logo_url; else noLogo"
+                    [src]="connectionItem.connection.connection_properties?.logo_url"
                     class="connectionLogoPreview__logo"
                     [alt]="connectionItem.connection.connection_properties?.company_name">
-                <span class="mat-body-1 connectionLogoPreview__name">
-                    {{connectionItem.connection.connection_properties?.company_name}}
-                </span>
-            </div>
-            <div *ngIf="connectionItem.connection.connection_properties?.logo_url && !connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <img [src]="connectionItem.connection.connection_properties?.logo_url"
-                    class="connectionLogoPreview__logo"
-                    [alt]="connectionItem.connection.connection_properties?.company_name">
-            </div>
-            <div *ngIf="!connectionItem.connection.connection_properties?.logo_url && connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <span class="mat-body-1 connectionLogoPreview__name">
-                    {{connectionItem.connection.connection_properties?.company_name}}
-                </span>
-            </div>
-            <div *ngIf="!connectionItem.connection.connection_properties?.logo_url && !connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <img src="../../assets/rocketadmin_logo_white-short.svg"
-                    class="connectionLogoPreview__logo"
-                    alt="Rocketadmin connection">
-                <span class="mat-body-1 connectionLogoPreview__name">
-                    Rocketadmin
-                </span>
-            </div>
-            <div class="connectionInfo">
-                <h2 class="connectionInfo__connectionTitle">{{ connectionItem.connection.title }}</h2>
-                <span class="mat-body-2">{{ connectionItem.connection.type }}</span>
-                <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
+                <ng-template #noLogo>
+                    <img src="../../assets/rocketadmin_logo_white-short.svg"
+                        class="connectionLogoPreview__logo"
+                        alt="Rocketadmin connection">
+                </ng-template>
+                <div class="connectionInfo">
+                    <h2 class="connectionInfo__connectionTitle">{{ connectionItem.displayTitle }}</h2>
+                    <span class="mat-body-2">{{ connectionItem.connection.type }}</span>
+                </div>
             </div>
         </a>
     </li>

@@ -80,24 +80,5 @@ export class ConnectionsListComponent implements OnInit {
         this.companyName = res.name;
       })
     });
-
-    // this._connectionsServise.cast.subscribe((connections) => {
-    //   // this.setConnections(connections);
-    //   console.log('ConnectionsListComponent connections', connections);
-    //   this.connections = connections.filter(connectionItem => !connectionItem.isTestConnection);
-    //   this.testConnections = connections.filter(connectionItem => connectionItem.isTestConnection);
-    //   this.titles = Object.assign({}, ...connections.map((connectionItem) => ({[connectionItem.id]: this.getTitle(connectionItem)})));
-    // });
-  }
-
-  // setConnections(connections: Connection[]) {
-  //   this.connections = connections.filter(connectionItem => !connectionItem.isTestConnection);
-  //   this.testConnections = connections.filter(connectionItem => connectionItem.isTestConnection);
-  //   this.titles = Object.assign({}, ...connections.map((connectionItem) => ({[connectionItem.id]: this.getTitle(connectionItem)})));
-  // }
-
-  getTitle(connection: Connection) {
-    if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection'
-    return connection.title || connection.database
   }
 }

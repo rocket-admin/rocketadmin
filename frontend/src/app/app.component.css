@@ -57,6 +57,7 @@
 
 .nav-bar__slash {
     color: #fff;
+    margin-bottom: -4px;
 }
 
 .nav-bar__button{
@@ -77,6 +78,10 @@
     .nav-bar__button {
         color: #fff;
     }
+}
+
+.nav-bar__buttonConnectionsMenu {
+    margin-bottom: -4px;
 }
 
 .nav-bar__account-button ::ng-deep .mat-badge-content {

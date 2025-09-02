@@ -227,6 +227,10 @@ export class AppComponent {
     return this._connections.currentConnectionName;
   }
 
+  get isTestConnection() {
+    return this._connections.currentConnection.isTestConnection;
+  }
+
   get visibleTabs() {
     return this._connections.visibleTabs;
   }
