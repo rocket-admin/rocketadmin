@@ -168,12 +168,13 @@ export class AppComponent {
       if (!res.isTemporary && res.expires) {
         const expirationTime = new Date(res.expires);
         if (expirationTime) {
-		localStorage.setItem('token_expiration', expirationTime.toISOString());
-		expirationToken = expirationTime.toISOString();
-	}
+          localStorage.setItem('token_expiration', expirationTime.toISOString());
+          expirationToken = expirationTime.toISOString();
+        }
 
         this.router.navigate(['/connections-list']);
 
+        console.log('App component, user logged in, initializing app');
         this.initializeUserSession();
 
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
@@ -184,7 +185,7 @@ export class AppComponent {
 
       }
       // app initialization if user is logged in (session restoration)
-      if (expirationToken) {
+      else if (expirationToken) {
         const expirationTime = expirationToken ? new Date(expirationToken) : null;
         const currantTime = new Date();
 
@@ -192,6 +193,7 @@ export class AppComponent {
           const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
           console.log('expirationInterval', expirationInterval);
           if (expirationInterval > 0) {
+            console.log('App component, session restoration');
             this.initializeUserSession();
 
             setTimeout(() => {
@@ -233,6 +235,10 @@ export class AppComponent {
     return this._connections.currentTab;
   }
 
+  get ownUserConnections() {
+    return this._connections.ownConnectionsList;
+  }
+
   initializeUserSession() {
     this._user.fetchUser()
       .subscribe((res: User) => {
@@ -254,10 +260,14 @@ export class AppComponent {
           'mode': 'demo'
         });
 
-        this._connections.fetchConnections()
-          .subscribe((res: any) => {
-            this.connections = res.connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
-          })
+        // this._connections.fetchConnections()
+        //   .subscribe((res: any) => {
+        //     this.connections = res.filter(connectionItem => !connectionItem.isTestConnection);
+        //   })
+
+        this._connections.cast.subscribe( () => {
+          this._connections.fetchConnections().subscribe();
+        });
 
         this._company.getWhiteLabelProperties(res.company.id).subscribe( whiteLabelSettings => {
           this.whiteLabelSettings.logo = whiteLabelSettings.logo;

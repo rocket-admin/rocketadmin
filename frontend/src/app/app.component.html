@@ -84,16 +84,24 @@
                 <span *ngIf="connectionID" class="nav-bar__slash">/</span>
                 <button *ngIf="connectionID"
                     mat-button type="button" class="nav-bar__button"
+                    [disabled]="ownUserConnections && ownUserConnections.length === 1"
                     [matMenuTriggerFor]="connectionsListMenu">
                     {{currentConnectionName}}
-                    <mat-icon iconPositionEnd style="margin-left: 4px">arrow_drop_down</mat-icon>
+                    <mat-icon iconPositionEnd *ngIf="ownUserConnections && ownUserConnections.length !== 1" style="margin-left: 4px">arrow_drop_down</mat-icon>
                 </button>
                 <mat-menu #connectionsListMenu="matMenu">
-                    <a mat-menu-item *ngFor="let connection of connections"
-                        routerLink="/dashboard/{{connection.connection.id}}"
-                        [ngClass]="{'connection_active': connectionID === connection.connection.id}">
-                        {{connection.connection.title || connection.connection.database}}
+                    <a *ngIf="ownUserConnections && ownUserConnections.length === 0; else connectionsList"
+                        mat-menu-item
+                        routerLink="/connect-db">
+                        Add your own connection
                     </a>
+                    <ng-template #connectionsList>
+                        <a mat-menu-item *ngFor="let connection of ownUserConnections"
+                            routerLink="/dashboard/{{connection.connection.id}}"
+                            [ngClass]="{'connection_active': connectionID === connection.connection.id}">
+                            {{connection.connection.title || connection.connection.database}}
+                        </a>
+                    </ng-template>
                 </mat-menu>
                 <span *ngIf="isDemo" class="logo__demo-mark">demo</span>
             </div>

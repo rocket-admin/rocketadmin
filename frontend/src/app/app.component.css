@@ -59,7 +59,7 @@
     color: #fff;
 }
 
-.nav-bar__button {
+.nav-bar__button{
     --mdc-text-button-label-text-color: rgba(255, 255, 255, 1) !important;
     --mat-mdc-button-persistent-ripple-color: transparent !important;
 
@@ -67,6 +67,11 @@
     outline: 2px solid transparent;
     transition: outline 0.2s;
 }
+
+.nav-bar__button[disabled="true"] {
+    --mdc-text-button-disabled-label-text-color: #fff;
+}
+
 
 @media (prefers-color-scheme: dark) {
     .nav-bar__button {
@@ -142,6 +147,12 @@
 
 .connection_active {
     background: var(--color-accentedPalette-100);
+}
+
+@media (prefers-color-scheme: dark) {
+    .connection_active {
+        background: var(--color-accentedPalette-800);
+    }
 }
 
 .menu {

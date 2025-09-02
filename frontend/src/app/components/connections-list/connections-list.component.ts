@@ -38,8 +38,8 @@ import { take } from 'rxjs/operators';
 })
 export class ConnectionsListComponent implements OnInit {
 
-  public connections: ConnectionItem[] = null;
-  public testConnections: ConnectionItem[] = null;
+  public connections: Connection[] = null;
+  // public testConnections: Connection[] = null;
   public titles: Object;
   public displayedCardCount: number = 3;
   public connectionsListCollapsed: boolean = true;
@@ -58,6 +58,14 @@ export class ConnectionsListComponent implements OnInit {
     return this._userService.isDemo;
   }
 
+  get ownConnections() {
+    return this._connectionsServise.ownConnectionsList;
+  }
+
+  get testConnections() {
+    return this._connectionsServise.testConnectionsList;
+  }
+
   ngOnInit(): void {
     this._companyService.getCurrentTabTitle()
       .pipe(take(1))
@@ -72,17 +80,21 @@ export class ConnectionsListComponent implements OnInit {
         this.companyName = res.name;
       })
     });
-    this._connectionsServise.fetchConnections()
-      .subscribe((res: any) => {
-        this.setConnections(res);
-      })
+
+    // this._connectionsServise.cast.subscribe((connections) => {
+    //   // this.setConnections(connections);
+    //   console.log('ConnectionsListComponent connections', connections);
+    //   this.connections = connections.filter(connectionItem => !connectionItem.isTestConnection);
+    //   this.testConnections = connections.filter(connectionItem => connectionItem.isTestConnection);
+    //   this.titles = Object.assign({}, ...connections.map((connectionItem) => ({[connectionItem.id]: this.getTitle(connectionItem)})));
+    // });
   }
 
-  setConnections(res) {
-    this.connections = res.connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
-    this.testConnections = res.connections.filter(connectionItem => connectionItem.connection.isTestConnection);
-    this.titles = Object.assign({}, ...res.connections.map((connectionItem) => ({[connectionItem.connection.id]: this.getTitle(connectionItem.connection)})));
-  }
+  // setConnections(connections: Connection[]) {
+  //   this.connections = connections.filter(connectionItem => !connectionItem.isTestConnection);
+  //   this.testConnections = connections.filter(connectionItem => connectionItem.isTestConnection);
+  //   this.titles = Object.assign({}, ...connections.map((connectionItem) => ({[connectionItem.id]: this.getTitle(connectionItem)})));
+  // }
 
   getTitle(connection: Connection) {
     if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection'
