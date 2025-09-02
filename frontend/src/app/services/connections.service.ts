@@ -58,9 +58,14 @@ export class ConnectionsService {
   public companyName: string;
   public isCustomAccentedColor: boolean;
   public defaultDisplayTable: string;
+  public ownConnections: Connection[] = null;
+  public testConnections: Connection[] = null;
 
   private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
   private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  private connectionsSubject: BehaviorSubject<Connection[]> = new BehaviorSubject<Connection[]>([]);
+
+  public cast = this.connectionsSubject.asObservable();
 
   constructor(
     private _http: HttpClient,
@@ -93,6 +98,10 @@ export class ConnectionsService {
 
   get currentConnectionID() {
     return this.connectionID;
+  }
+
+  get currentConnectionName() {
+    return this.defineConnectionTitle(this.connection);
   }
 
   get logo() {
@@ -128,6 +137,14 @@ export class ConnectionsService {
     if (this.groupsAccessLevel) tabs.push('permissions');
     if (this.isPermitted(this.connectionAccessLevel)) tabs.push('connection-settings', 'edit-db');
     return tabs;
+  }
+
+  get ownConnectionsList() {
+    return this.ownConnections;
+  }
+
+  get testConnectionsList() {
+    return this.testConnections;
   }
 
   getCurrentConnectionTitle() {
@@ -178,7 +195,7 @@ export class ConnectionsService {
     return accessLevel === 'edit' || accessLevel === 'readonly'
   }
 
-  defineConnecrionType(connection) {
+  defineConnectionType(connection) {
     if (connection.type && connection.type.startsWith('agent_')) {
       connection.type = connection.type.slice(6);
       connection.connectionType = ConnectionType.Agent;
@@ -188,15 +205,25 @@ export class ConnectionsService {
     return connection;
   }
 
+  defineConnectionTitle(connection: Connection) {
+    if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection';
+    if (!connection.title && !connection.database) return 'Untitled connection';
+    return connection.title || connection.database;
+  }
+
   fetchConnections() {
     return this._http.get<any>('/connections')
       .pipe(
         map(res => {
           const connections = res.connections.map(connectionItem => {
-            const connection = this.defineConnecrionType(connectionItem.connection);
-            return {...connectionItem, connection};
-          })
-          return {... res, connections};
+            const connection = this.defineConnectionType(connectionItem.connection);
+            const displayTitle = this.defineConnectionTitle(connectionItem.connection);
+            console.log('displayTitle', displayTitle);
+            return {...connectionItem, connection, displayTitle};
+          });
+          this.ownConnections = connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
+          this.testConnections = connections.filter(connectionItem => connectionItem.connection.isTestConnection);
+          return connections;
         }),
         catchError((err) => {
           console.log(err);
@@ -218,7 +245,7 @@ export class ConnectionsService {
     return this._http.get<any>(`/connection/one/${id}`)
       .pipe(
         map(res => {
-          const connection = this.defineConnecrionType(res.connection);
+          const connection = this.defineConnectionType(res.connection);
           if (res.connectionProperties) {
             this.connectionLogo = res.connectionProperties.logo_url;
             this.companyName = res.connectionProperties.company_name;
@@ -287,6 +314,7 @@ export class ConnectionsService {
     })
     .pipe(
       map((res: any) => {
+        this.connectionsSubject.next(null);
         this._masterPassword.checkMasterPassword(connection.masterEncryption, res.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection was added successfully.');
         return res;
@@ -323,6 +351,7 @@ export class ConnectionsService {
       map(res => {
         this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection has been updated successfully.');
+        this.connectionsSubject.next(null);
         return res;
       }),
       catchError((err) => {
@@ -348,6 +377,7 @@ export class ConnectionsService {
     return this._http.put(`/connection/delete/${id}`, metadata)
     .pipe(
       map(() => {
+        this.connectionsSubject.next(null);
         this._notifications.showSuccessSnackbar('Connection has been deleted successfully.');
       }),
       catchError((err) => {

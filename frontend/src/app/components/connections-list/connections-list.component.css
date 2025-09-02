@@ -9,7 +9,7 @@
     background-position: left 125%, right -26%;
     background-size: 17%, 18%;
     height: 100%;
-    padding: 72px max(calc(50vw - 535px), 10%) 24px;
+    padding: 72px max(calc(50vw - 535px), 10%) 72px;
 }
 
 
