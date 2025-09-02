@@ -258,6 +258,7 @@
     font-size: 20px;
     font-weight: 900;
     height: 72px;
+    overflow: hidden;
     padding: 8px;
 }
 
