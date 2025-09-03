@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LogOperationTypeEnum, OperationResultStatusEnum, UserActionEnum } from '../../../enums/index.js';
-import { getUniqArrayStrings } from '../../../helpers/index.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { TableLogsEntity } from '../../table-logs/table-logs.entity.js';
 import { UserActionEntity } from '../user-action.entity.js';
@@ -18,14 +17,17 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
   ) {}
   public async execute(): Promise<void> {
     console.info('Updating actions started');
-    const foundActions: Array<UserActionEntity> = await this.findAllNonFinishedActionsTwoWeeksOld();
-    const userIdsFromActions: Array<string> = foundActions.map((action: UserActionEntity) => action.user.id);
-    const filteredIds: Array<string> = getUniqArrayStrings(userIdsFromActions);
-    await Promise.allSettled(
-      filteredIds.map(async (id: string) => {
-        await this.checkUserLogsAndUpdateAction(id);
-      }),
-    );
+    const uniqueUserIds: Array<string> = await this.findDistinctUserIdsWithNonFinishedActions();
+
+    const batchSize = 10;
+    for (let i = 0; i < uniqueUserIds.length; i += batchSize) {
+      const batch = uniqueUserIds.slice(i, i + batchSize);
+      await Promise.allSettled(
+        batch.map(async (id: string) => {
+          await this.checkUserLogsAndUpdateAction(id);
+        }),
+      );
+    }
   }
 
   private async checkUserLogsAndUpdateAction(userId: string): Promise<void> {
@@ -49,6 +51,19 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
       .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
       .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
     return await notFinishedActionsQb.getMany();
+  }
+
+  private async findDistinctUserIdsWithNonFinishedActions(): Promise<Array<string>> {
+    const result = await this.userActionRepository
+      .createQueryBuilder('user_action')
+      .select('DISTINCT user.id', 'userId')
+      .leftJoin('user_action.user', 'user')
+      .where('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
+      .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
+      .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED })
+      .getRawMany();
+
+    return result.map((item) => item.userId);
   }
 
   private async findSuccessfulTableReceivingUserLogs(userId: string): Promise<Array<TableLogsEntity>> {
