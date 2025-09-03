@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Inject, Injectable, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Injectable,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
@@ -29,6 +41,7 @@ import {
   ISuspendUsers,
 } from './use-cases/saas-use-cases.interface.js';
 import { SkipThrottle } from '@nestjs/throttler';
+import { Messages } from '../../exceptions/text/messages.js';
 
 @UseInterceptors(SentryInterceptor)
 @SkipThrottle()
@@ -122,7 +135,9 @@ export class SaasController {
     @Body('companyId') companyId: string,
     @Body('companyName') companyName: string,
   ): Promise<FoundUserDto> {
-    companyId = companyId ? companyId : null;
+    if (!companyId) {
+      throw new BadRequestException(Messages.COMPANY_ID_MISSING);
+    }
     return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
   }
 
