@@ -218,7 +218,6 @@ export class ConnectionsService {
           const connections = res.connections.map(connectionItem => {
             const connection = this.defineConnectionType(connectionItem.connection);
             const displayTitle = this.defineConnectionTitle(connectionItem.connection);
-            console.log('displayTitle', displayTitle);
             return {...connectionItem, connection, displayTitle};
           });
           this.ownConnections = connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
@@ -330,7 +329,6 @@ export class ConnectionsService {
   }
 
   updateConnection(connection: Connection, masterKey: string) {
-    console.log('updateConnection');
     let dbCredentials;
     dbCredentials = {
       ...connection,
