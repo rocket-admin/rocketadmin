@@ -20,7 +20,8 @@ export interface ICompanyInfoRepository {
 
   findUserCompanyWithUsers(userId: string): Promise<CompanyInfoEntity>;
 
-  findAllCompanyWithConnectionsUsersJoining(companyId: string): Promise<CompanyInfoEntity>;
+  //todo deprecated code, will be removed in future
+  // findAllCompanyWithConnectionsUsersJoining(companyId: string): Promise<CompanyInfoEntity>;
 
   findFullCompanyInfoByCompanyId(companyId: string): Promise<CompanyInfoEntity>;
 
