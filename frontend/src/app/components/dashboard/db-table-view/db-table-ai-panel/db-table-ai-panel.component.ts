@@ -95,7 +95,11 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         });
       } else {
         event.preventDefault();
-        this.createThread();
+        if (this.threadID) {
+          this.sendMessage();
+        } else {
+          this.createThread();
+        }
       }
     }
   }
@@ -152,10 +156,10 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const messageCopy = this.message;
     this.message = '';
     this.charactrsNumber = 0;
-    this._tables.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy).subscribe((response) => {
+    this._tables.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy).subscribe((response_message) => {
       this.messagesChain.push({
         type: 'ai',
-        text: this.markdownService.parse(response.response_message) as string
+        text: this.markdownService.parse(response_message) as string
       });
       this.submitting = false;
 
