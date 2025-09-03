@@ -79,9 +79,7 @@ export class CronJobsService {
 
   @Cron(CronExpression.EVERY_DAY_AT_NOON)
   public async clearJobList(): Promise<void> {
-    await slackPostMessage(`clearing cron job list at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
     await this.jobListRepository.clear();
-    await slackPostMessage(`cron job list cleared at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
   }
 
   private async insertMidnightJob(): Promise<boolean> {
