@@ -32,15 +32,9 @@ export class CronJobsService {
       if (!isJobAdded) {
         return;
       }
-      await slackPostMessage(
-        `midnight cron started at ${Constants.CURRENT_TIME_FORMATTED()}`,
-        Constants.EXCEPTIONS_CHANNELS,
-      );
+      await slackPostMessage(`midnight cron started at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
       await this.checkUsersLogsAndUpdateActionsUseCase.execute();
-      await slackPostMessage(
-        `midnight cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
-        Constants.EXCEPTIONS_CHANNELS,
-      );
+      await slackPostMessage(`midnight cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
@@ -55,10 +49,7 @@ export class CronJobsService {
         return;
       }
 
-      await slackPostMessage(
-        `email cron started at ${Constants.CURRENT_TIME_FORMATTED()}`,
-        Constants.EXCEPTIONS_CHANNELS,
-      );
+      await slackPostMessage(`email cron started at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 
       let emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
       emails = emails.filter((email) => {
@@ -73,17 +64,11 @@ export class CronJobsService {
       if (mailingResults.length === 0) {
         const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
         await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
-        await slackPostMessage(
-          `morning cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
-          Constants.EXCEPTIONS_CHANNELS,
-        );
+        await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
       } else {
         await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
         // await this.sendEmailResultsToSlack(mailingResults, emails);
-        await slackPostMessage(
-          `morning cron finished at ${Constants.CURRENT_TIME_FORMATTED()}`,
-          Constants.EXCEPTIONS_CHANNELS,
-        );
+        await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
       }
     } catch (e) {
       await slackPostMessage(`Error in morning cron: ${e.message}`, Constants.EXCEPTIONS_CHANNELS);
@@ -158,5 +143,10 @@ export class CronJobsService {
       const fullTimedOutMessage = `${timedOutMessage}${timedOutEmailsMessage}`;
       await slackPostMessage(fullTimedOutMessage, Constants.EXCEPTIONS_CHANNELS);
     }
+  }
+
+  private getCurrentTime(): string {
+    const now = new Date();
+    return `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
   }
 }

@@ -20,24 +20,32 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
   ) {}
   public async execute(): Promise<Array<string>> {
     try {
-      const nonFinishedUsersActions = await this.findAllNonFinishedActionsTwoWeeksOld();
-      const usersWithoutLogs = await this.findUsersWithoutLogs();
-      const usersFromActions: Array<UserEntity> = nonFinishedUsersActions.map(
-        (action: UserActionEntity) => action.user,
-      );
-      const allUsersArray: Array<UserEntity> = usersWithoutLogs.concat(usersFromActions);
-      const filteredUsers: Array<{ id: string; email: string }> = Array.from(
-        new Set(allUsersArray.map((u) => u.id)),
-      ).map((id) => {
-        return {
-          id: id,
-          email: allUsersArray.find((u) => u.id === id).email,
-        };
-      });
+      const distinctUsers = await this.findDistinctUsersForProcessing();
+      const batchSize = 10;
       const queue = new PQueue({ concurrency: 3 });
-      await Promise.all(filteredUsers.map((u) => queue.add(() => this.updateOrCreateActionForUser(u))));
-      const userEmails = filteredUsers.map((u) => u.email?.toLowerCase());
-      return getUniqArrayStrings(userEmails);
+      const emails: string[] = [];
+
+      try {
+        for (let i = 0; i < distinctUsers.length; i += batchSize) {
+          const batch = distinctUsers.slice(i, i + batchSize);
+          await Promise.all(
+            batch.map((user) =>
+              queue.add(async () => {
+                await this.updateOrCreateActionForUser(user);
+                if (user.email) {
+                  emails.push(user.email.toLowerCase());
+                }
+              }),
+            ),
+          );
+        }
+
+        await queue.onIdle();
+      } finally {
+        queue.clear();
+      }
+
+      return getUniqArrayStrings(emails);
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
@@ -60,31 +68,6 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
     await this.userActionRepository.save(newUserActionEntity);
   }
 
-  private async findAllNonFinishedActionsTwoWeeksOld(): Promise<Array<UserActionEntity>> {
-    const notFinishedActionsQb = this.userActionRepository
-      .createQueryBuilder('user_action')
-      .leftJoinAndSelect('user_action.user', 'user')
-      .andWhere('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
-      .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
-      .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
-      .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
-    return await notFinishedActionsQb.getMany();
-  }
-
-  private async findUsersWithoutLogs(): Promise<Array<UserEntity>> {
-    const usersQb = this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.groups', 'group')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .leftJoinAndSelect('connection.logs', 'tableLogs')
-      .leftJoinAndSelect('user.user_action', 'user_action')
-      .andWhere('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
-      .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
-      .orWhere('user_action.id is null')
-      .andWhere('tableLogs.id is null');
-    return await usersQb.getMany();
-  }
-
   private async findUserActionWithoutSentMail(userId: string): Promise<UserActionEntity> {
     const actionQb = this.userActionRepository
       .createQueryBuilder('user_action')
@@ -92,5 +75,41 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
       .andWhere('user.id = :user_id', { user_id: userId })
       .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false });
     return await actionQb.getOne();
+  }
+
+  private async findDistinctUsersForProcessing(): Promise<Array<{ id: string; email: string }>> {
+    const nonFinishedActionsQuery = this.userActionRepository
+      .createQueryBuilder('user_action')
+      .select(['user.id as id', 'user.email as email'])
+      .innerJoin('user_action.user', 'user')
+      .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
+      .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
+      .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
+      .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
+
+    const usersWithoutLogsQuery = this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.id as id', 'user.email as email'])
+      .leftJoin('user.groups', 'group')
+      .leftJoin('group.connection', 'connection')
+      .leftJoin('connection.logs', 'tableLogs')
+      .leftJoin('user.user_action', 'user_action')
+      .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
+      .andWhere('(user_action.mail_sent = :mail_sent OR user_action.id is null)', { mail_sent: false })
+      .andWhere('tableLogs.id is null');
+
+    const nonFinishedUsersResult = await nonFinishedActionsQuery.getRawMany();
+    const usersWithoutLogsResult = await usersWithoutLogsQuery.getRawMany();
+
+    const combinedUsers = [...nonFinishedUsersResult, ...usersWithoutLogsResult];
+    const uniqueUsersMap = new Map<string, { id: string; email: string }>();
+
+    combinedUsers.forEach((user) => {
+      if (!uniqueUsersMap.has(user.id)) {
+        uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
+      }
+    });
+
+    return Array.from(uniqueUsersMap.values());
   }
 }
