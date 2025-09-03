@@ -174,7 +174,7 @@ describe('ConnectionsService', () => {
   })
 
   it('should define a type of connections without agent_ prefix', () => {
-    const connection = service.defineConnecrionType(connectionCredsNetwork);
+    const connection = service.defineConnectionType(connectionCredsNetwork);
 
     expect(connection).toEqual({
       "title": "Test connection via SSH tunnel to mySQL",
@@ -200,7 +200,7 @@ describe('ConnectionsService', () => {
   })
 
   it('should define a type of connections with agent_ prefix', () => {
-    const connection = service.defineConnecrionType({
+    const connection = service.defineConnectionType({
       "title": "Test connection via SSH tunnel to mySQL",
       "masterEncryption": false,
       "type": "agent_mysql",
@@ -287,7 +287,8 @@ describe('ConnectionsService', () => {
             "cert": null,
             "isTestConnection": true
           },
-          "accessLevel": "edit"
+          "accessLevel": "edit",
+          "displayTitle": "Test connection to OracleDB"
         },
         {
           "connection": {
@@ -311,14 +312,15 @@ describe('ConnectionsService', () => {
             "cert": null,
             "isTestConnection": true
           },
-          "accessLevel": "readonly"
+          "accessLevel": "readonly",
+          "displayTitle": "Test connection via SSH tunnel to mySQL"
         }
       ],
       "connectionsCount": 2
     }
 
     service.fetchConnections().subscribe(connectionData => {
-      expect(connectionData).toEqual(connectionsList);
+      expect(connectionData).toEqual(connectionsList.connections);
       isSubscribeCalled = true;
     });
 
