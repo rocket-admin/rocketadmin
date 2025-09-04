@@ -21,7 +21,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
   public async execute(): Promise<Array<string>> {
     try {
       const distinctUsers = await this.findDistinctUsersForProcessing();
-      const batchSize = 10;
+      const batchSize = 2;
       const queue = new PQueue({ concurrency: 3 });
       const emails: string[] = [];
 
