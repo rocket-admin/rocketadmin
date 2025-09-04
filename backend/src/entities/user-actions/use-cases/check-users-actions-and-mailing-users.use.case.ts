@@ -21,34 +21,34 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
   public async execute(): Promise<Array<string>> {
     try {
       const distinctUsers = await this.findDistinctUsersForProcessing();
-      const batchSize = 2;
-      const queue = new PQueue({ concurrency: 3 });
+      const batchSize = 10;
       const emails: string[] = [];
-
-      try {
-        for (let i = 0; i < distinctUsers.length; i += batchSize) {
-          const batch = distinctUsers.slice(i, i + batchSize);
-          await Promise.all(
-            batch.map((user) =>
-              queue.add(async () => {
-                await this.updateOrCreateActionForUser(user);
-                if (user.email) {
-                  emails.push(user.email.toLowerCase());
-                }
-              }),
-            ),
-          );
+      const queue = new PQueue({ concurrency: 2 });
+      for (let i = 0; i < distinctUsers.length; i += batchSize) {
+        const batch = distinctUsers.slice(i, i + batchSize);
+        for (const user of batch) {
+          try {
+            await queue.add(async () => {
+              await this.updateOrCreateActionForUser(user);
+              if (user.email) {
+                emails.push(user.email.toLowerCase());
+              }
+            });
+          } catch (error) {
+            console.error(`Error processing user ${user.id}: ${error.message}`);
+            Sentry.captureException(error);
+          }
         }
-
         await queue.onIdle();
-      } finally {
-        queue.clear();
+        if (i + batchSize < distinctUsers.length) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
       }
-
+      queue.clear();
       return getUniqArrayStrings(emails);
     } catch (e) {
+      console.error('Error in CheckUsersActionsAndMailingUsersUseCase.execute():', e);
       Sentry.captureException(e);
-      console.error(e);
       return [];
     }
   }
@@ -78,38 +78,65 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
   }
 
   private async findDistinctUsersForProcessing(): Promise<Array<{ id: string; email: string }>> {
-    const nonFinishedActionsQuery = this.userActionRepository
-      .createQueryBuilder('user_action')
-      .select(['user.id as id', 'user.email as email'])
-      .innerJoin('user_action.user', 'user')
-      .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
-      .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
-      .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
-      .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
-
-    const usersWithoutLogsQuery = this.userRepository
-      .createQueryBuilder('user')
-      .select(['user.id as id', 'user.email as email'])
-      .leftJoin('user.groups', 'group')
-      .leftJoin('group.connection', 'connection')
-      .leftJoin('connection.logs', 'tableLogs')
-      .leftJoin('user.user_action', 'user_action')
-      .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
-      .andWhere('(user_action.mail_sent = :mail_sent OR user_action.id is null)', { mail_sent: false })
-      .andWhere('tableLogs.id is null');
-
-    const nonFinishedUsersResult = await nonFinishedActionsQuery.getRawMany();
-    const usersWithoutLogsResult = await usersWithoutLogsQuery.getRawMany();
-
-    const combinedUsers = [...nonFinishedUsersResult, ...usersWithoutLogsResult];
-    const uniqueUsersMap = new Map<string, { id: string; email: string }>();
-
-    combinedUsers.forEach((user) => {
-      if (!uniqueUsersMap.has(user.id)) {
-        uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
+    try {
+      const nonFinishedActionsQuery = this.userActionRepository
+        .createQueryBuilder('user_action')
+        .select(['user.id as id', 'user.email as email'])
+        .innerJoin('user_action.user', 'user')
+        .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
+        .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
+        .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
+        .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
+      const pageSize = 100;
+      let page = 0;
+      let hasMore = true;
+      const uniqueUsersMap = new Map<string, { id: string; email: string }>();
+      while (hasMore) {
+        const paginatedQuery = nonFinishedActionsQuery.skip(page * pageSize).take(pageSize);
+        const batch = await paginatedQuery.getRawMany();
+        if (batch.length === 0) {
+          hasMore = false;
+        } else {
+          batch.forEach((user) => {
+            if (!uniqueUsersMap.has(user.id)) {
+              uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
+            }
+          });
+          page++;
+        }
       }
-    });
+      page = 0;
+      hasMore = true;
+      const usersWithoutLogsQuery = this.userRepository
+        .createQueryBuilder('user')
+        .select(['user.id as id', 'user.email as email'])
+        .leftJoin('user.groups', 'group')
+        .leftJoin('group.connection', 'connection')
+        .leftJoin('connection.logs', 'tableLogs')
+        .leftJoin('user.user_action', 'user_action')
+        .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
+        .andWhere('(user_action.mail_sent = :mail_sent OR user_action.id is null)', { mail_sent: false })
+        .andWhere('tableLogs.id is null');
+      while (hasMore) {
+        const paginatedQuery = usersWithoutLogsQuery.skip(page * pageSize).take(pageSize);
+        const batch = await paginatedQuery.getRawMany();
+        if (batch.length === 0) {
+          hasMore = false;
+        } else {
+          batch.forEach((user) => {
+            if (!uniqueUsersMap.has(user.id)) {
+              uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
+            }
+          });
+          page++;
+        }
+      }
 
-    return Array.from(uniqueUsersMap.values());
+      return Array.from(uniqueUsersMap.values());
+    } catch (error) {
+      console.error('Error in findDistinctUsersForProcessing:', error);
+      Sentry.captureException(error);
+      return [];
+    }
   }
 }
