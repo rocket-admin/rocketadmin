@@ -54,9 +54,8 @@ export const Constants = {
 
   CURRENT_TIME_FORMATTED: (): string => {
     const now = new Date();
-    return now.toISOString();
-    // const padString = (n: number) => n.toString().padStart(2, '0');
-    // return `${padString(now.getHours())}:${padString(now.getMinutes())}:${padString(now.getSeconds())}`;
+    const padString = (n: number) => n.toString().padStart(2, '0');
+    return `${padString(now.getHours())}:${padString(now.getMinutes())}:${padString(now.getSeconds())}`;
   },
 
   ONE_WEEK_AGO: (): Date => {

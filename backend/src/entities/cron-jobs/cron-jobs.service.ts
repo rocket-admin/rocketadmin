@@ -146,7 +146,6 @@ export class CronJobsService {
   }
 
   private getCurrentTime(): string {
-    const now = new Date();
-    return `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+    return Constants.CURRENT_TIME_FORMATTED();
   }
 }
