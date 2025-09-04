@@ -50,13 +50,12 @@ export class CronJobsService {
         return;
       }
 
-      await slackPostMessage(`email cron started at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
+      await slackPostMessage(`Email cron started at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 
       try {
         let emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
-        console.log(`Retrieved ${emails.length} email addresses from use case`);
         await slackPostMessage(
-          `Successfully retrieved ${emails.length} email addresses from use case`,
+          `Retrieved ${emails.length} email addresses from database`,
           Constants.EXCEPTIONS_CHANNELS,
         );
 
@@ -64,24 +63,21 @@ export class CronJobsService {
         emails = emails.filter((email) => {
           return ValidationHelper.isValidEmail(email);
         });
-        console.log(`Filtered out ${emailsBefore - emails.length} invalid or demo emails`);
+
+        const filteredOutEmailsCount = emailsBefore - emails.length;
 
         await slackPostMessage(
-          `Found ${emails.length} valid emails. starting messaging`,
+          `Found ${emails.length} valid emails${filteredOutEmailsCount ? `. Filtered out ${filteredOutEmailsCount} invalid or demo emails` : ``}. Starting messaging`,
           Constants.EXCEPTIONS_CHANNELS,
         );
+
         const batchSize = 10;
         let allMailingResults = [];
 
         for (let i = 0; i < emails.length; i += batchSize) {
           const emailsBatch = emails.slice(i, i + batchSize);
-          console.log(
-            `Processing email batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(emails.length / batchSize)}, with ${emailsBatch.length} emails`,
-          );
-
           try {
             const batchResults = await this.emailService.sendRemindersToUsers(emailsBatch);
-            console.log(`Batch ${Math.floor(i / batchSize) + 1} completed with ${batchResults.length} results`);
             allMailingResults = [...allMailingResults, ...batchResults];
           } catch (error) {
             console.error(`Error processing batch ${Math.floor(i / batchSize) + 1}: ${error.message}`);
@@ -90,15 +86,12 @@ export class CronJobsService {
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
 
-        console.log(`Email sending completed. Total results: ${allMailingResults.length}`);
-
         if (allMailingResults.length === 0) {
           const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
           await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
           await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
         } else {
-          await slackPostMessage(`Sent ${allMailingResults.length} emails successfully`, Constants.EXCEPTIONS_CHANNELS);
-          // await this.sendEmailResultsToSlack(allMailingResults, emails);
+          await this.sendEmailResultsToSlack(allMailingResults, emails);
           await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
         }
       } catch (innerError) {

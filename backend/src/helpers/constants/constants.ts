@@ -65,6 +65,15 @@ export const Constants = {
     return today;
   },
 
+  ONE_MONTH_AND_A_WEEK_AGO: (): Date => {
+    const today = new Date();
+    const oneMonthAgo = today.getMonth() - 1;
+    const oneWeekAgo = today.getDate() - 7;
+    today.setMonth(oneMonthAgo);
+    today.setDate(oneWeekAgo);
+    return today;
+  },
+
   TWO_WEEKS_AGO: (): Date => {
     const currentDate = Date.now();
     const twoWeeksInMs = 1209600000;

@@ -16,7 +16,6 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
     private readonly tableLogsRepository: Repository<TableLogsEntity>,
   ) {}
   public async execute(): Promise<void> {
-    console.info('Updating actions started');
     const uniqueUserIds: Array<string> = await this.findDistinctUserIdsWithNonFinishedActions();
 
     const batchSize = 3;
@@ -31,8 +30,8 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
   }
 
   private async checkUserLogsAndUpdateAction(userId: string): Promise<void> {
-    const successFullTableReceivingUserLogs = await this.findSuccessfulTableReceivingUserLogs(userId);
-    if (!successFullTableReceivingUserLogs || successFullTableReceivingUserLogs.length === 0) {
+    const hasSuccessfulTableReceivingLogs = await this.findSuccessfulTableReceivingUserLogs(userId);
+    if (!hasSuccessfulTableReceivingLogs) {
       return;
     }
     const foundUserAction = await this.findNonFinishedConnectionCreationUserAction(userId);
@@ -41,16 +40,6 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
     }
     foundUserAction.message = UserActionEnum.CONNECTION_CREATION_FINISHED;
     await this.userActionRepository.save(foundUserAction);
-  }
-
-  private async findAllNonFinishedActionsTwoWeeksOld(): Promise<Array<UserActionEntity>> {
-    const notFinishedActionsQb = this.userActionRepository
-      .createQueryBuilder('user_action')
-      .leftJoinAndSelect('user_action.user', 'user')
-      .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
-      .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
-      .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
-    return await notFinishedActionsQb.getMany();
   }
 
   private async findDistinctUserIdsWithNonFinishedActions(): Promise<Array<string>> {
@@ -66,24 +55,27 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
     return result.map((item) => item.userId);
   }
 
-  private async findSuccessfulTableReceivingUserLogs(userId: string): Promise<Array<TableLogsEntity>> {
-    const userLogsQB = this.tableLogsRepository
+  private async findSuccessfulTableReceivingUserLogs(userId: string): Promise<boolean> {
+    const userLogsCount = await this.tableLogsRepository
       .createQueryBuilder('tableLogs')
-      .leftJoinAndSelect('tableLogs.connection_id', 'connection')
-      .leftJoinAndSelect('connection.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .andWhere('user.id = :user_id', { user_id: userId })
+      .leftJoin('tableLogs.connection_id', 'connection')
+      .leftJoin('connection.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .where('user.id = :user_id', { user_id: userId })
       .andWhere('tableLogs.operationType = :operationType', { operationType: LogOperationTypeEnum.rowsReceived })
       .andWhere('tableLogs.operationStatusResult = :operationStatusResult', {
         operationStatusResult: OperationResultStatusEnum.successfully,
-      });
-    return await userLogsQB.getMany();
+      })
+      .select('1')
+      .limit(1)
+      .getRawOne();
+    return !!userLogsCount;
   }
 
   private async findNonFinishedConnectionCreationUserAction(userId: string): Promise<UserActionEntity> {
     const actionQb = this.userActionRepository
       .createQueryBuilder('user_action')
-      .leftJoinAndSelect('user_action.user', 'user')
+      .leftJoin('user_action.user', 'user')
       .andWhere('user.id = :user_id', { user_id: userId })
       .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
     return await actionQb.getOne();
