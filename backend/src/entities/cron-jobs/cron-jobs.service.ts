@@ -46,34 +46,76 @@ export class CronJobsService {
     try {
       const isJobAdded = await this.insertMorningJob();
       if (!isJobAdded) {
+        console.log('Job already in progress, exiting');
         return;
       }
 
       await slackPostMessage(`email cron started at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 
-      let emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
-      emails = emails.filter((email) => {
-        if (email && /^demo_.*@rocketadmin\.com$/i.test(email)) {
-          return false;
-        }
-        return ValidationHelper.isValidEmail(email);
-      });
+      try {
+        let emails = await this.checkUsersActionsAndMailingUsersUseCase.execute();
+        console.log(`Retrieved ${emails.length} email addresses from use case`);
+        await slackPostMessage(
+          `Successfully retrieved ${emails.length} email addresses from use case`,
+          Constants.EXCEPTIONS_CHANNELS,
+        );
 
-      await slackPostMessage(`found ${emails.length} valid emails. starting messaging`, Constants.EXCEPTIONS_CHANNELS);
-      const mailingResults = await this.emailService.sendRemindersToUsers(emails);
-      if (mailingResults.length === 0) {
-        const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
-        await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
-        await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
-      } else {
-        await slackPostMessage(JSON.stringify(mailingResults), Constants.EXCEPTIONS_CHANNELS);
-        // await this.sendEmailResultsToSlack(mailingResults, emails);
-        await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
+        const emailsBefore = emails.length;
+        emails = emails.filter((email) => {
+          return ValidationHelper.isValidEmail(email);
+        });
+        console.log(`Filtered out ${emailsBefore - emails.length} invalid or demo emails`);
+
+        await slackPostMessage(
+          `Found ${emails.length} valid emails. starting messaging`,
+          Constants.EXCEPTIONS_CHANNELS,
+        );
+        const batchSize = 10;
+        let allMailingResults = [];
+
+        for (let i = 0; i < emails.length; i += batchSize) {
+          const emailsBatch = emails.slice(i, i + batchSize);
+          console.log(
+            `Processing email batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(emails.length / batchSize)}, with ${emailsBatch.length} emails`,
+          );
+
+          try {
+            const batchResults = await this.emailService.sendRemindersToUsers(emailsBatch);
+            console.log(`Batch ${Math.floor(i / batchSize) + 1} completed with ${batchResults.length} results`);
+            allMailingResults = [...allMailingResults, ...batchResults];
+          } catch (error) {
+            console.error(`Error processing batch ${Math.floor(i / batchSize) + 1}: ${error.message}`);
+            Sentry.captureException(error);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+
+        console.log(`Email sending completed. Total results: ${allMailingResults.length}`);
+
+        if (allMailingResults.length === 0) {
+          const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
+          await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
+          await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
+        } else {
+          await slackPostMessage(`Sent ${allMailingResults.length} emails successfully`, Constants.EXCEPTIONS_CHANNELS);
+          // await this.sendEmailResultsToSlack(allMailingResults, emails);
+          await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
+        }
+      } catch (innerError) {
+        console.error('Detailed error in email processing:', innerError);
+        const errorMessage = innerError.stack
+          ? `${innerError.message}\n${innerError.stack.split('\n').slice(0, 5).join('\n')}`
+          : innerError.message;
+        await slackPostMessage(`Error in email processing: ${errorMessage}`, Constants.EXCEPTIONS_CHANNELS);
+        Sentry.captureException(innerError);
       }
     } catch (e) {
-      await slackPostMessage(`Error in morning cron: ${e.message}`, Constants.EXCEPTIONS_CHANNELS);
+      console.error('Main cron handler error:', e);
+      const errorMessage = e.stack ? `${e.message}\n${e.stack.split('\n').slice(0, 5).join('\n')}` : e.message;
+      await slackPostMessage(`Error in morning cron: ${errorMessage}`, Constants.EXCEPTIONS_CHANNELS);
       Sentry.captureException(e);
-      console.error(e);
+    } finally {
+      console.log('Cron job completed at', new Date().toISOString());
     }
   }
 
@@ -126,9 +168,16 @@ export class CronJobsService {
     const filteredResults = results.filter((result) => !!result);
     const nullResultsCount = results.length - filteredResults.length;
     const chunkSize = 20;
-    const emailsNonFoundInResults = allFoundEmails.filter(
-      (email) => !filteredResults.some((result) => result?.accepted?.includes(email)),
-    );
+
+    const foundEmails = new Set();
+    filteredResults.forEach((result) => {
+      if (result?.accepted) {
+        result.accepted.forEach((email) => foundEmails.add(email));
+      }
+    });
+
+    const emailsNonFoundInResults = allFoundEmails.filter((email) => !foundEmails.has(email));
+
     for (let i = 0; i < filteredResults.length; i += chunkSize) {
       const chunk = filteredResults.slice(i, i + chunkSize);
       const message = this.emailCronResultToSlackString(chunk);
@@ -136,12 +185,25 @@ export class CronJobsService {
         continue;
       }
       await slackPostMessage(message, Constants.EXCEPTIONS_CHANNELS);
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
+
     if (nullResultsCount > 0) {
       const timedOutMessage = `The system timed out while sending results to ${nullResultsCount} email addresses`;
-      const timedOutEmailsMessage = `: \n${emailsNonFoundInResults.join(', ')}\n`;
-      const fullTimedOutMessage = `${timedOutMessage}${timedOutEmailsMessage}`;
-      await slackPostMessage(fullTimedOutMessage, Constants.EXCEPTIONS_CHANNELS);
+      if (emailsNonFoundInResults.length > 100) {
+        await slackPostMessage(timedOutMessage, Constants.EXCEPTIONS_CHANNELS);
+        for (let i = 0; i < emailsNonFoundInResults.length; i += 100) {
+          const emailsChunk = emailsNonFoundInResults.slice(i, i + 100);
+          await slackPostMessage(
+            `Failed emails (chunk ${i / 100 + 1}): ${emailsChunk.join(', ')}`,
+            Constants.EXCEPTIONS_CHANNELS,
+          );
+        }
+      } else {
+        const timedOutEmailsMessage = `: \n${emailsNonFoundInResults.join(', ')}\n`;
+        const fullTimedOutMessage = `${timedOutMessage}${timedOutEmailsMessage}`;
+        await slackPostMessage(fullTimedOutMessage, Constants.EXCEPTIONS_CHANNELS);
+      }
     }
   }
 
