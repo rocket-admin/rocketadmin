@@ -19,7 +19,7 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
     console.info('Updating actions started');
     const uniqueUserIds: Array<string> = await this.findDistinctUserIdsWithNonFinishedActions();
 
-    const batchSize = 10;
+    const batchSize = 3;
     for (let i = 0; i < uniqueUserIds.length; i += batchSize) {
       const batch = uniqueUserIds.slice(i, i + batchSize);
       await Promise.allSettled(
