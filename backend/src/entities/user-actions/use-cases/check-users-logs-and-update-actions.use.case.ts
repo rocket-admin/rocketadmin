@@ -16,7 +16,6 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
     private readonly tableLogsRepository: Repository<TableLogsEntity>,
   ) {}
   public async execute(): Promise<void> {
-    console.info('Updating actions started');
     const uniqueUserIds: Array<string> = await this.findDistinctUserIdsWithNonFinishedActions();
 
     const batchSize = 3;
@@ -41,16 +40,6 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
     }
     foundUserAction.message = UserActionEnum.CONNECTION_CREATION_FINISHED;
     await this.userActionRepository.save(foundUserAction);
-  }
-
-  private async findAllNonFinishedActionsTwoWeeksOld(): Promise<Array<UserActionEntity>> {
-    const notFinishedActionsQb = this.userActionRepository
-      .createQueryBuilder('user_action')
-      .leftJoinAndSelect('user_action.user', 'user')
-      .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
-      .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
-      .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
-    return await notFinishedActionsQb.getMany();
   }
 
   private async findDistinctUserIdsWithNonFinishedActions(): Promise<Array<string>> {
