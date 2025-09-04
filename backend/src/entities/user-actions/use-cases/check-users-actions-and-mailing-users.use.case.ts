@@ -23,7 +23,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
       const distinctUsers = await this.findDistinctUsersForProcessing();
       const batchSize = 10;
       const emails: string[] = [];
-      const queue = new PQueue({ concurrency: 2 });
+      const queue = new PQueue({ concurrency: 5 });
       for (let i = 0; i < distinctUsers.length; i += batchSize) {
         const batch = distinctUsers.slice(i, i + batchSize);
         for (const user of batch) {
@@ -81,35 +81,28 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
     try {
       const nonFinishedActionsQuery = this.userActionRepository
         .createQueryBuilder('user_action')
-        .select(['user.id as id', 'user.email as email'])
+        .select('DISTINCT user.id as id')
+        .addSelect('user.email as email')
         .innerJoin('user_action.user', 'user')
         .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
         .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
         .andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
         .andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
-      const pageSize = 100;
-      let page = 0;
-      let hasMore = true;
+
       const uniqueUsersMap = new Map<string, { id: string; email: string }>();
-      while (hasMore) {
-        const paginatedQuery = nonFinishedActionsQuery.skip(page * pageSize).take(pageSize);
-        const batch = await paginatedQuery.getRawMany();
-        if (batch.length === 0) {
-          hasMore = false;
-        } else {
-          batch.forEach((user) => {
-            if (!uniqueUsersMap.has(user.id)) {
-              uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
-            }
-          });
-          page++;
+
+      const nonFinishedUsers = await nonFinishedActionsQuery.getRawMany();
+
+      nonFinishedUsers.forEach((user) => {
+        if (!uniqueUsersMap.has(user.id)) {
+          uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
         }
-      }
-      page = 0;
-      hasMore = true;
+      });
+
       const usersWithoutLogsQuery = this.userRepository
         .createQueryBuilder('user')
-        .select(['user.id as id', 'user.email as email'])
+        .select('DISTINCT user.id as id')
+        .addSelect('user.email as email')
         .leftJoin('user.groups', 'group')
         .leftJoin('group.connection', 'connection')
         .leftJoin('connection.logs', 'tableLogs')
@@ -117,20 +110,14 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
         .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
         .andWhere('(user_action.mail_sent = :mail_sent OR user_action.id is null)', { mail_sent: false })
         .andWhere('tableLogs.id is null');
-      while (hasMore) {
-        const paginatedQuery = usersWithoutLogsQuery.skip(page * pageSize).take(pageSize);
-        const batch = await paginatedQuery.getRawMany();
-        if (batch.length === 0) {
-          hasMore = false;
-        } else {
-          batch.forEach((user) => {
-            if (!uniqueUsersMap.has(user.id)) {
-              uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
-            }
-          });
-          page++;
+
+      const usersWithoutLogs = await usersWithoutLogsQuery.getRawMany();
+
+      usersWithoutLogs.forEach((user) => {
+        if (!uniqueUsersMap.has(user.id)) {
+          uniqueUsersMap.set(user.id, { id: user.id, email: user.email });
         }
-      }
+      });
 
       return Array.from(uniqueUsersMap.values());
     } catch (error) {
