@@ -124,7 +124,7 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
   }
 
   fetchSuggestions() {
-    const currentRow = this.suggestions.find(suggestion => suggestion.displayString === this.currentDisplayedString);
+    const currentRow = this.suggestions?.find(suggestion => suggestion.displayString === this.currentDisplayedString);
     if (currentRow !== undefined) {
       this.currentFieldValue = currentRow.fieldValue;
       // this.currentFieldQueryParams = Object.assign({}, ...this.primaeyKeys.map((primaeyKey) => ({[primaeyKey.column_name]: currentRow[primaeyKey.column_name]})));
