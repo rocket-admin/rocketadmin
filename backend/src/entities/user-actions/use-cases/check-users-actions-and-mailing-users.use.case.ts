@@ -109,7 +109,8 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
         .leftJoin('user.user_action', 'user_action')
         .where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
         .andWhere('(user_action.mail_sent = :mail_sent OR user_action.id is null)', { mail_sent: false })
-        .andWhere('tableLogs.id is null');
+        .andWhere('tableLogs.id is null')
+        .limit(500);
 
       const usersWithoutLogs = await usersWithoutLogsQuery.getRawMany();
 
