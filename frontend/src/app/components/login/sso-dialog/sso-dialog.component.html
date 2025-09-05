@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Single Sign-On</h1>
+<form #ssoForm="ngForm" (ngSubmit)="loginWithSSO()">
+    <mat-dialog-content>
+        <mat-form-field appearance="outline">
+            <mat-label>Enter company SSO ID</mat-label>
+            <input matInput [(ngModel)]="companySsoId" name="companyId" #companyId="ngModel" required data-testid="company-id-input">
+            <mat-error *ngIf="companyId.errors?.required && (companyId.invalid && companyId.touched)">Company ID should not be empty.</mat-error>
+        </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-flat-button mat-dialog-close>Cancel</button>
+        <button mat-flat-button color="primary">
+            Login
+        </button>
+    </mat-dialog-actions>
+</form>

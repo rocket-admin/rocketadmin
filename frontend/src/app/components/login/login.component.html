@@ -82,13 +82,13 @@
                 <span class="login-form__github-caption">Continue with GitHub</span>
             </button>
 
-            <div *ngIf="!isCustomDomain" class="login-form__sso-button-box"
-                matTooltip="Coming soon"
-                matTooltipPosition="above">
-                <button disabled type="button" mat-stroked-button color="primary" data-testid="login-github-button"
+            <div *ngIf="!isCustomDomain" class="login-form__sso-button-box">
+                <button type="button" mat-stroked-button color="primary"
+                    data-testid="login-sso-button"
                     class="login-form__sso-button"
                     angulartics2On="click"
-                    angularticsAction="Login: login with github is clicked">
+                    angularticsAction="Login: login with sso is clicked"
+                    (click)="openLoginWithSSOdialog()">
                     <svg class="login-form__sso-icon" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15.75 8.21393H14.625V5.96393C14.625 2.85893 12.105 0.338928 9 0.338928C5.895 0.338928 3.375 2.85893 3.375 5.96393V8.21393H2.25C1.0125 8.21393 0 9.22643 0 10.4639V21.7139C0 22.9514 1.0125 23.9639 2.25 23.9639H15.75C16.9875 23.9639 18 22.9514 18 21.7139V10.4639C18 9.22643 16.9875 8.21393 15.75 8.21393ZM9 18.3389C7.7625 18.3389 6.75 17.3264 6.75 16.0889C6.75 14.8514 7.7625 13.8389 9 13.8389C10.2375 13.8389 11.25 14.8514 11.25 16.0889C11.25 17.3264 10.2375 18.3389 9 18.3389ZM12.4875 8.21393H5.5125V5.96393C5.5125 4.04018 7.07625 2.47643 9 2.47643C10.9237 2.47643 12.4875 4.04018 12.4875 5.96393V8.21393Z" fill="#212121"/>
                     </svg>
