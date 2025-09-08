@@ -146,10 +146,32 @@
 }
 
 .plansTable {
+    --mat-table-header-container-height: 28px;
+    --mat-table-header-headline-size: 12px;
+    --mat-table-header-headline-color: rgba(0,0,0,0.64);
+
     border-radius: 12px;
     overflow: hidden;
     margin-top: -8px;
     margin-bottom: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .plansTable {
+        --mat-table-header-headline-color: rgba(255,255,255,0.64);
+    }
+}
+
+.databases-header-cell__users {
+    text-align: center;
+}
+
+.person-icon {
+    font-size: 20px;
+    height: 20px;
+    margin-bottom: -4px;
+    margin-left: 2px;
+    width: 20px;
 }
 
 /* .plansTable :ng-deep.mdc-data-table__cell {
