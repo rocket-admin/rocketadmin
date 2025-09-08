@@ -18,9 +18,9 @@ import { MatInputModule } from '@angular/material/input';
   styleUrl: './sso-dialog.component.css'
 })
 export class SsoDialogComponent {
-  public companySsoId: string;
+  public companySsoIdentifier: string = '';
 
   loginWithSSO() {
-    window.location.href = `https://app.rocketadmin.com/saas/saml/login/${this.companySsoId}`;
+    window.location.href = `https://app.rocketadmin.com/saas/saml/login-by-slug/${this.companySsoIdentifier}`;
   }
 }

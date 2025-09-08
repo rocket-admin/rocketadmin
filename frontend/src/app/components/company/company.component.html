@@ -57,22 +57,35 @@
 
     <div class="tableHeader">
         <h2 class="heading-2 tableHeader__heading">Members <span *ngIf="currentPlan === 'free' && isSaas" data-testid="company-members-max-string">(max 3)</span></h2>
-        <div data-testid="company-invitation-button-wrapper"
-            [matTooltip]="currentPlan === 'free' && usersCount >= 3 && isSaas ? 'To add more members please upgrade your plan.' : null">
-            <button *ngIf="currentUser && currentUser.role === 'ADMIN'"
-                mat-flat-button type="button"
-                data-testid="company-invitation-button"
-                angulartics2On="click"
-                angularticsAction="Company: invite member is clicked"
-                class="tableHeader__button" color="primary"
-                (click)="handleAddMemberDialogOpen()"
-                [disabled]="currentPlan === 'free' && usersCount >= 3 && isSaas">
-                Invite member
-                <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3 && isSaas">
-                    info_outline
-                </mat-icon>
-            </button>
+        <div class="tableHeader__actions">
+            <div data-testid="sso-button-wrapper"
+                [matTooltip]="currentPlan !== 'enterprise' && isSaas ? 'To turn on SAML SSO upgrade your plan to Enterprise.' : null">
+                <a *ngIf="currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'DB_ADMIN')"
+                    mat-button
+                    routerLink="/sso/{{company.id}}"
+                    [disabled]="currentPlan !== 'enterprise' && isSaas"
+                    angulartics2On="click"
+                    angularticsAction="Dashboard: add row is clicked">
+                    Configure SAML
+                </a>
+            </div>
+            <div data-testid="company-invitation-button-wrapper"
+                [matTooltip]="currentPlan === 'free' && usersCount >= 3 && isSaas ? 'To add more members please upgrade your plan.' : null">
+                <button *ngIf="currentUser && currentUser.role === 'ADMIN'"
+                    mat-flat-button type="button" color="primary"
+                    data-testid="company-invitation-button"
+                    angulartics2On="click"
+                    angularticsAction="Company: invite member is clicked"
+                    (click)="handleAddMemberDialogOpen()"
+                    [disabled]="currentPlan === 'free' && usersCount >= 3 && isSaas">
+                    Invite member
+                    <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3 && isSaas">
+                        info_outline
+                    </mat-icon>
+                </button>
+            </div>
         </div>
+
     </div>
 
     <app-placeholder-table-data *ngIf="submittingUsersChange"></app-placeholder-table-data>
