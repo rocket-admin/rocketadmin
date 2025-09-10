@@ -44,6 +44,7 @@ import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
+import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 
 @Component({
   selector: 'app-connect-db',
@@ -90,6 +91,8 @@ export class ConnectDBComponent implements OnInit {
     message: null
   }
 
+  public supportedOrderedDatabases = supportedOrderedDatabases;
+  public supportedDatabasesTitles = supportedDatabasesTitles;
   public ports = {
     [DBtype.MySQL]: '3306',
     [DBtype.Postgres]: '5432',

@@ -16,6 +16,6 @@ export const supportedDatabasesTitles = {
     dynamodb: "DynamoDB",
     cassandra: "Cassandra",
     oracledb: "OracleDB",
-    mssql: "MSSQL",
+    mssql: "SQL Server",
     ibmdb2: "IBM DB2"
   }

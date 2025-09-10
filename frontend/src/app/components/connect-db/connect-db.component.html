@@ -30,14 +30,9 @@
                 [disabled]="submitting"
                 [(ngModel)]="db.type"
                 (ngModelChange)="dbTypeChange()" >
-                <mat-option value="mysql">MySQL</mat-option>
-                <mat-option value="postgres">PostgreSQL</mat-option>
-                <mat-option value="mongodb">MongoDB</mat-option>
-                <mat-option value="dynamodb" *ngIf="db.connectionType === 'direct'">DynamoDB</mat-option>
-                <mat-option value="cassandra">Cassandra</mat-option>
-                <mat-option value="oracledb">Oracle</mat-option>
-                <mat-option value="mssql">MS SQL</mat-option>
-                <mat-option value="ibmdb2">IBM DB2</mat-option>
+                <mat-option *ngFor="let dbType of supportedOrderedDatabases" [value]="dbType">
+                    {{supportedDatabasesTitles[dbType]}}
+                </mat-option>
             </mat-select>
         </mat-form-field>
 
