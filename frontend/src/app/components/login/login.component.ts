@@ -19,6 +19,8 @@ import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { accounts } from 'google-one-tap';
 import { environment } from 'src/environments/environment';
+import { MatDialog } from '@angular/material/dialog';
+import { SsoDialogComponent } from './sso-dialog/sso-dialog.component';
 
 declare var google: any;
 
@@ -68,6 +70,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private ngZone: NgZone,
     private _notifications: NotificationsService,
     public _company: CompanyService,
+    public dialog: MatDialog,
+
   ) { }
 
   ngOnInit(): void {
@@ -147,6 +151,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this._auth.loginWithGithub();
     this.angulartics2.eventTrack.next({
       action: 'Login: github login redirect'
+    });
+  }
+
+  openLoginWithSSOdialog() {
+    this.dialog.open(SsoDialogComponent, {
+      width: '32em'
     });
   }
 

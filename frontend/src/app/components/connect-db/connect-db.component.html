@@ -2,7 +2,7 @@
 <app-alert *ngIf="isDemo" [alert]="isDemoConnectionWarning"></app-alert>
 
 <div class="connectPage">
-    <form action="" #connectForm="ngForm" class="form"
+    <form #connectForm="ngForm" class="form"
         (ngSubmit)="handleCredentialsSubmitting(connectForm)">
         <h1 class="mat-h1 connectForm__fullLine">
             {{ connectionID ? 'Edit credentials' : 'Connect database' }}

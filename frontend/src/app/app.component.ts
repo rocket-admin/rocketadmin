@@ -29,6 +29,7 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
+import { version } from './version';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -58,6 +59,7 @@ amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
 export class AppComponent {
 
   public isSaas = (environment as any).saas;
+  public appVersion = version;
   userActivity;
   userInactive: Subject<any> = new Subject();
   currentFeatureNotificationId: string = 'saved-filters';

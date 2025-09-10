@@ -1,16 +1,17 @@
 {
   "name": "dissendium-v0",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "node scripts/update-version.js && ng serve",
+    "build": "node scripts/update-version.js && ng build",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "analyze": "webpack-bundle-analyzer dist/dissendium-v0/stats.json",
-    "build:stats": "ng build --stats-json"
+    "build:stats": "node scripts/update-version.js && ng build --stats-json",
+    "update-version": "node scripts/update-version.js"
   },
   "private": true,
   "dependencies": {
