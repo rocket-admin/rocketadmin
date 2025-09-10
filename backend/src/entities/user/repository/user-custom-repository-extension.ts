@@ -118,7 +118,8 @@ export const userCustomRepositoryExtension: IUserRepository = {
     const dateTwoWeeksAgo = Constants.TWO_WEEKS_AGO();
     const usersQB = this.createQueryBuilder('user')
       .where('user.createdAt > :date', { date: dateTwoWeeksAgo })
-      .andWhere('user.gclid IS NOT NULL');
+      .andWhere('user.gclid IS NOT NULL')
+      .andWhere('user.isDemoAccount = :isDemo', { isDemo: false });
     return await usersQB.getMany();
   },
 
