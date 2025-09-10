@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SsoComponent } from './sso.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router, RouterLink, RouterModule } from '@angular/router';
 import { CompanyService } from 'src/app/services/company.service';
 import { of } from 'rxjs';
 
-fdescribe('SsoComponent', () => {
+describe('SsoComponent', () => {
   let component: SsoComponent;
   let fixture: ComponentFixture<SsoComponent>;
   let companyServiceSpy: jasmine.SpyObj<CompanyService>;
@@ -31,7 +31,11 @@ fdescribe('SsoComponent', () => {
         }
       }
     },
-    navigate: jasmine.createSpy('navigate')
+    navigate: jasmine.createSpy('navigate'),
+    events: of(null),
+    url: '/company',
+    createUrlTree: jasmine.createSpy('createUrlTree').and.returnValue({}),
+    serializeUrl: jasmine.createSpy('serializeUrl').and.returnValue('company')
   };
 
   beforeEach(async () => {
@@ -41,10 +45,10 @@ fdescribe('SsoComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         SsoComponent,
-        HttpClientTestingModule
+        HttpClientTestingModule,
+        RouterModule.forRoot([])
       ],
       providers: [
-        provideRouter([]),
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: Router, useValue: mockRouter },
         { provide: CompanyService, useValue: companyServiceSpy }
