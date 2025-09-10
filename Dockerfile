@@ -1,4 +1,6 @@
 FROM node:22-slim AS front_builder
+ARG VERSION
+ARG SAAS
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
@@ -7,8 +9,17 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 RUN yarn install --immutable --network-timeout 1000000 --silent
+COPY frontend/scripts /app/frontend/scripts
 COPY frontend/src /app/frontend/src
-ARG SAAS
+
+# Update version if VERSION build arg is provided
+RUN if [[ -n $VERSION ]]; then \
+    cd frontend; \
+    echo "Updating package.json version to $VERSION" && \
+    npm version $VERSION --no-git-tag-version && \
+    yarn update-version; \
+    fi
+
 RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-production; \
     else API_ROOT=/api yarn build --configuration=production; fi
 RUN ls /app/frontend/dist/dissendium-v0
@@ -21,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     tini nginx \
     make gcc g++ python3 \
     libxml2 \
-    && rm -rf /var/lib/apt/lists/* 
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY package.json .yarnrc.yml yarn.lock /app/
