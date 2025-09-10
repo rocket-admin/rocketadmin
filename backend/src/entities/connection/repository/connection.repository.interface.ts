@@ -20,8 +20,6 @@ export interface IConnectionRepository {
 
   findConnectionWithGroups(connectionId: string): Promise<ConnectionEntity>;
 
-  getConnectionsWithNonNullUsersGCLIDs(): Promise<Array<ConnectionEntity>>;
-
   getWorkedConnectionsInTwoWeeks(): Promise<Array<ConnectionEntity>>;
 
   getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId: string): Promise<ConnectionEntity>;

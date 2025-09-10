@@ -18,11 +18,12 @@ export class FreezeConnectionsInCompanyUseCase
     super();
   }
 
-  protected async implementation(inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse> {
-    const { companyIds } = inputData;
-    const companyPaidConnections = await this._dbContext.companyInfoRepository.findCompaniesPaidConnections(companyIds);
-    const connectionsIds = companyPaidConnections.map((connection) => connection.id);
-    await this._dbContext.connectionRepository.freezeConnections(connectionsIds);
+  protected async implementation(_inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse> {
     return { success: true };
+    // const { companyIds } = inputData;
+    // const companyPaidConnections = await this._dbContext.companyInfoRepository.findCompaniesPaidConnections(companyIds);
+    // const connectionsIds = companyPaidConnections.map((connection) => connection.id);
+    // await this._dbContext.connectionRepository.freezeConnections(connectionsIds);
+    // return { success: true };
   }
 }
