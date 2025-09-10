@@ -211,6 +211,7 @@
 @media (width <= 600px) {
     .connectionItem {
         flex: initial;
+        max-width: 100%;
     }
 }
 
