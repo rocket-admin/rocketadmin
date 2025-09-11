@@ -76,7 +76,9 @@ if ((environment as any).saas) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(), CodeEditorModule.forRoot(),
+        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(), CodeEditorModule.forRoot({
+		editorVersion: '0.44.0'
+	}),
         // ...saasExtraModules,
         NgxThemeModule.forRoot(colorConfig, {
             frameworks: ['material'], // optional, default : ['tailwind', 'material']
