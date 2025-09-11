@@ -4550,13 +4550,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "@types/trusted-types@npm:1.0.6"
-  checksum: 22b8efcb6116ab80d07542047135618ee282f2060c481e472126604d838c09e7dad33c9462d88c130aef2c3133aece516f00d6af7ff814f0612f7d19db720e6d
-  languageName: node
-  linkType: hard
-
 "@types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
@@ -6693,7 +6686,7 @@ __metadata:
     karma-jasmine-html-reporter: ^2.1.0
     libphonenumber-js: ^1.12.9
     lodash: ^4.17.21
-    monaco-editor: ^0.53.0
+    monaco-editor: 0.44.0
     ng-dynamic-component: ^10.7.0
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.0.0
@@ -9517,12 +9510,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.53.0":
-  version: 0.53.0
-  resolution: "monaco-editor@npm:0.53.0"
-  dependencies:
-    "@types/trusted-types": ^1.0.6
-  checksum: 353eca219334b62bdf825f4602aa2b98570c60e7059d257b0567da63fbb79b8eee8bea8448a597e297d0c96c9da3be9eb5153c1e8f279e5450d31c83f02125aa
+"monaco-editor@npm:0.44.0":
+  version: 0.44.0
+  resolution: "monaco-editor@npm:0.44.0"
+  checksum: 6e561b23e5e9090cbdbb820dae5895a8bf9d537acc09281756a8c428960da0481461c72f387cc9a2e14bff69ab4359186c98df2dd29d6d109f1ab7189b573a35
   languageName: node
   linkType: hard
 
