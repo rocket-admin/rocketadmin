@@ -170,7 +170,7 @@ export class DbTableWidgetsComponent implements OnInit {
 `,
     Number: `// Configure number display with unit conversion and threshold validation
 // Example units: "bytes", "meters", "seconds", "grams"
-// threshold_min/threshold_max: Values outside these limits will be highlighted in red
+// threshold_min/threshold_max: Values outside these limits will be highlighted
 {
   "unit": null,
   "threshold_min": null,
