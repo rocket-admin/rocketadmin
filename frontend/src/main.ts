@@ -12,7 +12,7 @@ import { Angulartics2Module } from "angulartics2";
 import { AppComponent } from "./app/app.component";
 import { AppRoutingModule } from "./app/app-routing.module";
 import { ClipboardModule } from "@angular/cdk/clipboard";
-import { CodeEditorModule } from "@ngstack/code-editor";
+import { provideCodeEditor } from "@ngstack/code-editor";
 import { ConfigModule } from "./app/modules/config.module";
 import { ConnectionsService } from "./app/services/connections.service";
 import { CookieService } from "ngx-cookie-service";
@@ -76,13 +76,14 @@ if ((environment as any).saas) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(), CodeEditorModule.forRoot({
-		editorVersion: '0.44.0'
-	}),
+        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(),
         // ...saasExtraModules,
         NgxThemeModule.forRoot(colorConfig, {
             frameworks: ['material'], // optional, default : ['tailwind', 'material']
         }), NgxStripeModule.forRoot(stripeKey), ConfigModule.buildForConfigUrl('/config.json')),
+        provideCodeEditor({
+          baseUrl: 'assets/monaco'
+        }),
         PasswordStrengthMeterComponent,
         ConnectionsService,
         UsersService,
