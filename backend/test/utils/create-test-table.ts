@@ -379,7 +379,8 @@ export async function createTestOracleTable(
     table.integer(pColumnName);
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
-    table.timestamps();
+    table.timestamp('created_at');
+    table.date('updated_at');
   });
   await Knex.schema.alterTable(testTableName, function (t) {
     t.primary([pColumnName], primaryKeyConstraintName);
