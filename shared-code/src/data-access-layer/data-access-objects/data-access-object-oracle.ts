@@ -921,6 +921,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   }
 
   private formatDate(date: Date) {
+    if (!date) {
+      return date as any;
+    }
     const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     const day = date.getDate();
     const monthIndex = date.getMonth();
@@ -930,6 +933,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   }
 
   private formatTimestamp(timestamp: string | number | Date): string {
+    if (!timestamp) {
+      return timestamp as any;
+    }
     const date = new Date(timestamp);
 
     const day = `0${date.getDate()}`.slice(-2);
