@@ -69,10 +69,16 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const keys = Object.keys(row);
 
     const values = keys.map((key) => {
-      if (timestampColumnNames.includes(key) && row[key]) {
+      if (timestampColumnNames.includes(key)) {
+        if (!row[key]) {
+          return row[key];
+        }
         return this.formatTimestamp(row[key] as string);
       }
-      if (dateColumnNames.includes(key) && row[key]) {
+      if (dateColumnNames.includes(key)) {
+        if (!row[key]) {
+          return row[key];
+        }
         return this.formatDate(new Date(row[key] as string));
       }
       return `${row[key]}`;
@@ -353,11 +359,11 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       if (filteringFields && filteringFields.length > 0) {
         // eslint-disable-next-line prefer-const
         for (let { field, criteria, value } of filteringFields) {
-          if (datesColumnsNames.includes(field)) {
+          if (datesColumnsNames.includes(field) && value) {
             const valueToDate = new Date(String(value));
             value = this.formatDate(valueToDate);
           }
-          if (timestampColumnNames.includes(field)) {
+          if (timestampColumnNames.includes(field) && value) {
             value = this.formatTimestamp(String(value));
           }
           const operators = {
