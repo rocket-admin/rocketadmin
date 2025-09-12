@@ -6,6 +6,8 @@ import parse from 'pg-connection-string';
 import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp';
+import { PGliteDriver } from 'typeorm-pglite';
 
 dotenv.config();
 
@@ -40,7 +42,21 @@ class ConfigService {
   }
 
   public getTypeOrmConfig(): DataSourceOptions {
-    const connectionParams = this.parseTypeORMUrl(this.getValue('DATABASE_URL'));
+
+    const pgLiteFolderPath = process.env.PGLITE_FOLDER_PATH;
+
+    let pgLiteDriver = null;
+    let connectionParams = {};
+
+    if (pgLiteFolderPath && pgLiteFolderPath.length > 0) {
+      pgLiteDriver = new PGliteDriver({
+        extensions: { uuid_ossp },
+        dataDir: path.resolve(pgLiteFolderPath),
+      }).driver;
+    } else {
+      connectionParams = this.parseTypeORMUrl(this.getValue('DATABASE_URL'));
+    }
+
     const newTypeOrmProdConfig: DataSourceOptions = {
       type: 'postgres',
       ...connectionParams,
@@ -52,6 +68,7 @@ class ConfigService {
         max: 20,
         idle_in_transaction_session_timeout: 20 * 1000,
       },
+      driver: pgLiteDriver ? pgLiteDriver : undefined,
     };
 
     const newTypeOrmTestConfig: DataSourceOptions = {
@@ -66,6 +83,7 @@ class ConfigService {
         max: 2,
       },
       logger: 'advanced-console',
+      driver: pgLiteDriver ? pgLiteDriver : undefined,
     };
 
     return this.isTestEnvironment() ? newTypeOrmTestConfig : newTypeOrmProdConfig;
@@ -93,6 +111,6 @@ class ConfigService {
   }
 }
 
-const configService = new ConfigService(process.env).ensureValues(['DATABASE_URL']);
+const configService = new ConfigService(process.env).ensureValues([]);
 
 export { configService };

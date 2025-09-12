@@ -24,13 +24,13 @@ export class ConnectionPropertiesEntity {
   @Column({ default: null })
   company_name: string;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   tables_audit: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   human_readable_table_names: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   allow_ai_requests: boolean;
 
   @Column({ default: null })
