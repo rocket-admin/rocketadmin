@@ -37,7 +37,7 @@
                     {{action.title}}
                 </button>
             </ng-container>
-            <button mat-button
+            <button mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.delete"
                 (click)="handleActions({title: 'Delete rows', type: 'multiple',  require_confirmation: true})">
                 Delete
             </button>
