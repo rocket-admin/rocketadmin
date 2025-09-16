@@ -5,14 +5,14 @@
     <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
     <form #tableSettingsForm="ngForm" class="settings-form" (ngSubmit)="updateSettings()">
         <div class="settings-fields">
-            <h2 class="mat-heading-2 settings-fields__heading">General</h2>
+            <h2 class="mat-heading-2 settings-fields__heading">General settings</h2>
 
             <div class="settings-table-display">
                 <mat-form-field appearance="outline" class="settings-table-display__title">
-                    <mat-label>Table display name</mat-label>
+                    <mat-label>Displayed table name</mat-label>
                     <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
                     <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
-                    <mat-hint>Enter table name to be displayed in the interface.</mat-hint>
+                    <mat-hint>Change the name of your table. This will not override your database.</mat-hint>
                 </mat-form-field>
                 <app-icon-picker class="icon-picker" [resetButtonShown]="true"
                     [icon]="tableSettings.icon"
@@ -29,7 +29,7 @@
                     [(ngModel)]="tableSettings.sensitive_fields">
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
-                <mat-hint>Define sensitive fields to hide them from Audit logs.</mat-hint>
+                <mat-hint>Choose the fields you want hidden in the "Audit" tab. They won't be logged on our servers.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -43,22 +43,22 @@
                 <mat-hint>Select a column you want to display as a foreign key field.</mat-hint>
             </mat-form-field>
 
-            <mat-slide-toggle name="allow_export"
-                color="primary"
-                [(ngModel)]="tableSettings.allow_csv_export">
-                Allow export
-            </mat-slide-toggle>
-
             <mat-slide-toggle name="allow_import"
                 color="primary"
                 [(ngModel)]="tableSettings.allow_csv_import">
-                Allow import
+                Allow importing rows from CSV
+            </mat-slide-toggle>
+
+            <mat-slide-toggle name="allow_export"
+                color="primary"
+                [(ngModel)]="tableSettings.allow_csv_export">
+                Allow table export to CSV
             </mat-slide-toggle>
 
             <mat-slide-toggle name="can_delete"
                 color="primary"
                 [(ngModel)]="tableSettings.can_delete">
-                Allow records deletion
+                Allow row deletion
             </mat-slide-toggle>
 
             <h2 class="mat-heading-2 settings-fields__heading">Table view</h2>
