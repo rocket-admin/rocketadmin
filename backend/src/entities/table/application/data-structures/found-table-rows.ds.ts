@@ -9,6 +9,34 @@ import { TablePermissionDs } from '../../../permission/application/data-structur
 import { FoundActionEventDTO } from '../../../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { CreatedTableFilterRO } from '../../../table-filters/application/response-objects/created-table-filters.ro.js';
 
+export class TableSettingsInRowsDS {
+  @ApiProperty({ isArray: true })
+  sortable_by: Array<string>;
+
+  @ApiProperty({ enum: QueryOrderingEnum })
+  ordering: QueryOrderingEnum;
+
+  @ApiProperty()
+  identity_column: string;
+
+  @ApiProperty({ isArray: true })
+  list_fields: Array<string>;
+
+  @ApiProperty()
+  allow_csv_export: boolean;
+
+  @ApiProperty()
+  allow_csv_import: boolean;
+
+  @ApiProperty()
+  can_delete: boolean;
+
+  @ApiProperty()
+  can_update: boolean;
+
+  @ApiProperty()
+  can_add: boolean;
+}
 export class FoundTableRowsDs {
   @ApiProperty({ isArray: true })
   rows: Array<Record<string, unknown>>;
@@ -61,8 +89,20 @@ export class FoundTableRowsDs {
   @ApiProperty()
   allow_csv_import: boolean;
 
+  @ApiProperty()
+  can_delete: boolean;
+
+  @ApiProperty()
+  can_update: boolean;
+
+  @ApiProperty()
+  can_add: boolean;
+
   @ApiProperty({ type: CreatedTableFilterRO, isArray: true })
   saved_filters: Array<CreatedTableFilterRO>;
+
+  @ApiProperty({ type: TableSettingsInRowsDS })
+  table_settings: TableSettingsInRowsDS;
 }
 
 export class OrderingFiledDs {
