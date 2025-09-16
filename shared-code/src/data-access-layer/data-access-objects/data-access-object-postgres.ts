@@ -350,19 +350,30 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     let result = await knex('information_schema.columns')
-      .select('column_name', 'column_default', 'data_type', 'udt_name', 'is_nullable', 'character_maximum_length')
+      .select(
+        'column_name',
+        'column_default',
+        'data_type',
+        'udt_name',
+        'is_nullable',
+        'character_maximum_length',
+        'is_identity',
+        'identity_generation',
+      )
       .orderBy('dtd_identifier')
       .where(`table_name`, tableName)
       .andWhere('table_schema', this.connection.schema ? this.connection.schema : 'public');
 
+    const generatedIdentities: Array<string> = ['BY DEFAULT', 'ALWAYS'];
     const customTypeIndexes: Array<number> = [];
     result = result.map((element, i) => {
-      const { is_nullable, data_type } = element;
+      const { is_nullable, data_type, identity_generation } = element;
       element.allow_null = is_nullable === 'YES';
       delete element.is_nullable;
       if (data_type === 'USER-DEFINED') {
         customTypeIndexes.push(i);
       }
+      element.extra = generatedIdentities.includes(identity_generation) ? 'auto_increment' : undefined;
       return element;
     });
 
