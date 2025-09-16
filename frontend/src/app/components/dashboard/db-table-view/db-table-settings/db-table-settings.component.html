@@ -55,6 +55,12 @@
                 Allow import
             </mat-slide-toggle>
 
+            <mat-slide-toggle name="can_delete"
+                color="primary"
+                [(ngModel)]="tableSettings.can_delete">
+                Allow records deletion
+            </mat-slide-toggle>
+
             <h2 class="mat-heading-2 settings-fields__heading">Table view</h2>
             <mat-form-field appearance="outline">
                 <mat-label>Columns visible by default</mat-label>
