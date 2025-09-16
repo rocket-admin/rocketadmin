@@ -502,6 +502,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       column.NULLABLE = column.NULLABLE === 'Y';
       renameObjectKeyName(column, 'NULLABLE', 'allow_null');
       renameObjectKeyName(column, 'DATA_LENGTH', 'character_maximum_length');
+      if (typeof column.column_default === 'string' && column.column_default.includes('SYS_GUID()')) {
+        column.extra = 'auto_increment';
+      }
       return objectKeysToLowercase(column);
     }) as TableStructureDS[];
     LRUStorage.setTableStructureCache(this.connection, tableName, resultColumns);
