@@ -5,14 +5,14 @@
     <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
     <form #tableSettingsForm="ngForm" class="settings-form" (ngSubmit)="updateSettings()">
         <div class="settings-fields">
-            <h2 class="mat-heading-2 settings-fields__heading">General</h2>
+            <h2 class="mat-heading-2 settings-fields__heading">General settings</h2>
 
             <div class="settings-table-display">
                 <mat-form-field appearance="outline" class="settings-table-display__title">
-                    <mat-label>Table display name</mat-label>
+                    <mat-label>Displayed table name</mat-label>
                     <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
                     <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
-                    <mat-hint>Enter table name to be displayed in the interface.</mat-hint>
+                    <mat-hint>Change the name of your table. This will not override your database.</mat-hint>
                 </mat-form-field>
                 <app-icon-picker class="icon-picker" [resetButtonShown]="true"
                     [icon]="tableSettings.icon"
@@ -29,7 +29,7 @@
                     [(ngModel)]="tableSettings.sensitive_fields">
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
-                <mat-hint>Define sensitive fields to hide them from Audit logs.</mat-hint>
+                <mat-hint>Choose the fields you want hidden in the "Audit" tab. They won't be logged on our servers.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -43,16 +43,22 @@
                 <mat-hint>Select a column you want to display as a foreign key field.</mat-hint>
             </mat-form-field>
 
-            <mat-slide-toggle name="allow_export"
-                color="primary"
-                [(ngModel)]="tableSettings.allow_csv_export">
-                Allow export
-            </mat-slide-toggle>
-
             <mat-slide-toggle name="allow_import"
                 color="primary"
                 [(ngModel)]="tableSettings.allow_csv_import">
-                Allow import
+                Allow importing rows from CSV
+            </mat-slide-toggle>
+
+            <mat-slide-toggle name="allow_export"
+                color="primary"
+                [(ngModel)]="tableSettings.allow_csv_export">
+                Allow table export to CSV
+            </mat-slide-toggle>
+
+            <mat-slide-toggle name="can_delete"
+                color="primary"
+                [(ngModel)]="tableSettings.can_delete">
+                Allow row deletion
             </mat-slide-toggle>
 
             <h2 class="mat-heading-2 settings-fields__heading">Table view</h2>
@@ -63,7 +69,7 @@
                     [(ngModel)]="tableSettings.columns_view">
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
-                <mat-hint>Select the columns you always want to see when you open this table.</mat-hint>
+                <mat-hint>Choose the columns you want users to see when they first open this table. Changes made to a table's Columns view are saved over the default values.</mat-hint>
             </mat-form-field>
 
             <div class="order-settings">
@@ -100,18 +106,18 @@
             </div>
 
             <mat-form-field appearance="outline">
-                <mat-label>Fields to search</mat-label>
+                <mat-label>Searchable columns</mat-label>
                 <mat-select multiple
                     name="search_fields"
                     [(ngModel)]="tableSettings.search_fields">
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
-                <mat-hint>Select the columns you often use as filters.</mat-hint>
+                <mat-hint>Choose the columns Rocketadmin scans when using the Search bar.</mat-hint>
             </mat-form-field>
 
             <div class="form-group-ordering">
                 <mat-form-field appearance="outline" class="form-group-ordering__ordering-by">
-                    <mat-label>Ordering by field</mat-label>
+                    <mat-label>Order by</mat-label>
                     <mat-select name="ordering_field" [(ngModel)]="tableSettings.ordering_field">
                         <mat-option value="">None</mat-option>
                         <mat-option *ngFor="let field of fields" [value]="field">
@@ -129,33 +135,35 @@
             </div>
 
             <mat-form-field appearance="outline">
-                <mat-label>Sort fields by</mat-label>
+                <mat-label>Sortable columns</mat-label>
                 <mat-select multiple
                     name="sortable_by"
                     [(ngModel)]="tableSettings.sortable_by">
-                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
-                </mat-select>
+                <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+            </mat-select>
+            <mat-hint>Choose which columns allow you to sort their values by pressing the arrow next to the column's name. Columns which aren't selected will not be sortable.</mat-hint>
             </mat-form-field>
 
-            <h2 class="mat-heading-2" style="margin-bottom: -4px;">Record view</h2>
+            <h2 class="mat-heading-2" style="margin-bottom: -4px; margin-top: 12px">"Edit row" behavior</h2>
+            <p class="mat-body-1" style="margin-top: -16px; margin-bottom: 0; color: rgba(0,0,0,0.64)">You can edit a row by clicking on the "pencil" icon on the right.</p>
             <mat-form-field appearance="outline">
-                <mat-label>Foreign key search fields</mat-label>
+                <mat-label>Searchable foreign key columns</mat-label>
                 <mat-select multiple
                     name="autocomplete_columns"
                     [(ngModel)]="tableSettings.autocomplete_columns">
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
-                <mat-hint>Select the columns you want to search by when you look for the record as a foreign key.</mat-hint>
+                <mat-hint>Choose the columns Rocketadmin scans within a related table when using the foreign keys box.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-                <mat-label>Fields to exclude</mat-label>
+                <mat-label>Columns to hide</mat-label>
                 <mat-select multiple
                     name="excluded_fields"
                     [(ngModel)]="tableSettings.excluded_fields">
                     <mat-option *ngFor="let field of fields_to_exclude" [value]="field">{{field}}</mat-option>
                 </mat-select>
-                <mat-hint>Select the columns you want to hide and protect from editing.</mat-hint>
+                <mat-hint>Choose the columns you want to hide from the "Table" view and the "Edit row" view. This also removes the option to edit them.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -165,7 +173,7 @@
                     [(ngModel)]="tableSettings.readonly_fields">
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
-                <mat-hint>Select the columns you want to display and protect from editing.</mat-hint>
+                <mat-hint>Choose columns that will be visible in "Table" view but not editable in "Edit row" view.</mat-hint>
             </mat-form-field>
         </div>
 

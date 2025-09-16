@@ -99,7 +99,8 @@ describe('DbTableSettingsComponent', () => {
     sensitive_fields: [],
     connection_id: "63f804e4-8588-4957-8d7f-655e2309fef7",
     allow_csv_export: true,
-    allow_csv_import: true
+    allow_csv_import: true,
+    can_delete: true,
   }
 
   beforeEach(async () => {

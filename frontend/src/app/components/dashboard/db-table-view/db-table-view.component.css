@@ -137,10 +137,6 @@
     }
 }
 
-.actions__action {
-    transform: scale(0.85);
-}
-
 .action_active {
     position: relative;
 }

@@ -51,6 +51,8 @@
 
 .order-settings__panel {
     flex-grow: 1;
+    position: relative;
+    margin-top: 16px;
     margin-bottom: 8px;
 }
 

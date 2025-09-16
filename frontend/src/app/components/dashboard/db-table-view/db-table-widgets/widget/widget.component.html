@@ -13,7 +13,7 @@
 
 <div class="widget-type">
     <mat-form-field appearance="outline">
-        <mat-label>Display type</mat-label>
+        <mat-label>Displayed field type</mat-label>
         <mat-select name="{{widget.field_name}}-field-type"
             [(ngModel)]="widget.widget_type"
             (ngModelChange)="onWidgetTypeChange.emit(widget.field_name)">
@@ -43,12 +43,12 @@
 </div>
 
 <mat-form-field appearance="outline">
-    <mat-label>Display field name</mat-label>
+    <mat-label>Displayed field name</mat-label>
     <input matInput [(ngModel)]="widget.name" name="{{widget.field_name}}-field-new-name">
 </mat-form-field>
 
 <mat-form-field appearance="outline">
-    <mat-label>Display description</mat-label>
+    <mat-label>Displayed field description</mat-label>
     <textarea matInput [(ngModel)]="widget.description" name="{{widget.field_name}}-field-description"></textarea>
 </mat-form-field>
 
