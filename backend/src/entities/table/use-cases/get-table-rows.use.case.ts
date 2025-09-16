@@ -241,6 +241,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         allow_csv_export: allowCsvExport,
         allow_csv_import: allowCsvImport,
         saved_filters: savedTableFilters.map((el) => buildCreatedTableFilterRO(el)),
+        can_delete: tableSettings ? tableSettings.can_delete : true,
+        can_update: tableSettings ? tableSettings.can_update : true,
+        can_add: tableSettings ? tableSettings.can_add : true,
       };
 
       const identitiesMap = new Map<string, any[]>();

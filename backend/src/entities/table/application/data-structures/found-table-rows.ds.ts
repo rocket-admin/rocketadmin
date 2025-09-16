@@ -61,6 +61,15 @@ export class FoundTableRowsDs {
   @ApiProperty()
   allow_csv_import: boolean;
 
+  @ApiProperty()
+  can_delete: boolean;
+
+  @ApiProperty()
+  can_update: boolean;
+
+  @ApiProperty()
+  can_add: boolean;
+
   @ApiProperty({ type: CreatedTableFilterRO, isArray: true })
   saved_filters: Array<CreatedTableFilterRO>;
 }
