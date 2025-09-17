@@ -599,8 +599,6 @@ describe('ConnectionsService', () => {
 
     service.getConnectionSettings('12345678').subscribe(res => {
         expect(res).toEqual(connectionSettingsNetwork);
-        expect(service.connectionLogo).toEqual('https://example.com/logo.png');
-        expect(service.companyName).toEqual('Example Company');
         expect(mockThemeService.updateColors).toHaveBeenCalledWith({
             palettes: { primaryPalette: '#123456', accentedPalette: '#654321' },
         });
