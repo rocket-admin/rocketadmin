@@ -224,7 +224,21 @@ export class GetRowByPrimaryKeyUseCase
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,
       table_access_level: tableAccessLevel.accessLevel,
       excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
-    } as any;
+      can_delete: tableSettings ? tableSettings.can_delete : true,
+      can_update: tableSettings ? tableSettings.can_update : true,
+      can_add: tableSettings ? tableSettings.can_add : true,
+      table_settings: {
+        sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+        ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+        identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+        list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+        allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
+        allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
+        can_delete: tableSettings ? tableSettings.can_delete : true,
+        can_update: tableSettings ? tableSettings.can_update : true,
+        can_add: tableSettings ? tableSettings.can_add : true,
+      },
+    };
   }
 
   private async attachForeignColumnNames(
