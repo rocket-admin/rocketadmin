@@ -27,15 +27,14 @@ export class UpdateConnectionPropertiesUseCase
   }
 
   protected async implementation(inputData: CreateConnectionPropertiesDs): Promise<FoundConnectionPropertiesDs> {
-    const { connectionId, master_password } = inputData;
+    const { connectionId, master_password, table_categories } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
       master_password,
     );
     await validateCreateConnectionPropertiesDs(inputData, foundConnection);
-    const connectionPropertiesToUpdate = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(
-      connectionId,
-    );
+    const connectionPropertiesToUpdate =
+      await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
     if (!connectionPropertiesToUpdate) {
       throw new HttpException(
         {
@@ -46,7 +45,29 @@ export class UpdateConnectionPropertiesUseCase
     }
     const updatePropertiesObject: IUpdateConnectionPropertiesObject = buildUpdateConnectionPropertiesObject(inputData);
     const updated = Object.assign(connectionPropertiesToUpdate, updatePropertiesObject);
+
+    const categoriesToRemove = await this._dbContext.tableCategoriesRepository.find({
+      where: { connection_properties_id: connectionPropertiesToUpdate.id },
+    });
+
+    if (categoriesToRemove && categoriesToRemove.length > 0) {
+      await this._dbContext.tableCategoriesRepository.remove(categoriesToRemove);
+      updated.table_categories = [];
+    }
+
     const updatedProperties = await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(updated);
+    if (table_categories && table_categories.length) {
+      const createdCategories = table_categories.map((category) => {
+        const newCategory = this._dbContext.tableCategoriesRepository.create({
+          category_name: category.category_name,
+          tables: category.tables,
+        });
+        newCategory.connection_properties = updatedProperties;
+        return newCategory;
+      });
+      const savedCategories = await this._dbContext.tableCategoriesRepository.save(createdCategories);
+      updatedProperties.table_categories = savedCategories;
+    }
     return buildFoundConnectionPropertiesDs(updatedProperties);
   }
 }

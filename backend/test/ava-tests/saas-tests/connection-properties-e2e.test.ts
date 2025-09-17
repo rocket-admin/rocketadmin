@@ -146,6 +146,175 @@ test.serial(`${currentTest} should return created connection properties`, async 
   }
 });
 
+test.serial(`${currentTest} should return created connection properties with table categories`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+
+    const connectionPropertiesWithCategories = {
+      hidden_tables: [],
+      logo_url: faker.internet.url(),
+      primary_color: faker.color.rgb(),
+      secondary_color: faker.color.rgb(),
+      hostname: faker.internet.url(),
+      company_name: faker.company.name(),
+      tables_audit: true,
+      human_readable_table_names: faker.datatype.boolean(),
+      allow_ai_requests: faker.datatype.boolean(),
+      default_showing_table: null,
+      table_categories: [{ category_name: 'Category 1', tables: [testTableName] }],
+    };
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createConnectionPropertiesResponse = await request(app.getHttpServer())
+      .post(`/connection/properties/${createConnectionRO.id}`)
+      .send(connectionPropertiesWithCategories)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+    t.is(createConnectionPropertiesResponse.status, 201);
+    t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+    t.is(createConnectionPropertiesRO.allow_ai_requests, connectionPropertiesWithCategories.allow_ai_requests);
+    t.is(createConnectionPropertiesRO.default_showing_table, connectionPropertiesWithCategories.default_showing_table);
+    t.is(createConnectionPropertiesRO.table_categories.length, 1);
+    t.is(createConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
+    t.is(createConnectionPropertiesRO.table_categories[0].tables.length, 1);
+    t.is(createConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+
+    // should recreated categories on update
+    const updatedConnectionPropertiesWithCategories = {
+      hidden_tables: [],
+      logo_url: faker.internet.url(),
+      primary_color: faker.color.rgb(),
+      secondary_color: faker.color.rgb(),
+      hostname: faker.internet.url(),
+      company_name: faker.company.name(),
+      tables_audit: true,
+      human_readable_table_names: faker.datatype.boolean(),
+      allow_ai_requests: faker.datatype.boolean(),
+      default_showing_table: null,
+      table_categories: [{ category_name: 'Updated Category', tables: [testTableName] }],
+    };
+
+    const updateConnectionPropertiesResponse = await request(app.getHttpServer())
+      .put(`/connection/properties/${createConnectionRO.id}`)
+      .send(updatedConnectionPropertiesWithCategories)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const updateConnectionPropertiesRO = JSON.parse(updateConnectionPropertiesResponse.text);
+    t.is(updateConnectionPropertiesResponse.status, 200);
+    t.is(updateConnectionPropertiesRO.connectionId, createConnectionRO.id);
+    t.is(updateConnectionPropertiesRO.allow_ai_requests, updatedConnectionPropertiesWithCategories.allow_ai_requests);
+    t.is(
+      updateConnectionPropertiesRO.default_showing_table,
+      updatedConnectionPropertiesWithCategories.default_showing_table,
+    );
+    t.is(updateConnectionPropertiesRO.table_categories.length, 1);
+    t.is(updateConnectionPropertiesRO.table_categories[0].category_name, 'Updated Category');
+    t.is(updateConnectionPropertiesRO.table_categories[0].tables.length, 1);
+    t.is(updateConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+
+    // should delete categories on update with empty categories
+
+    const updatedConnectionPropertiesWithOutCategories = {
+      hidden_tables: [],
+      logo_url: faker.internet.url(),
+      primary_color: faker.color.rgb(),
+      secondary_color: faker.color.rgb(),
+      hostname: faker.internet.url(),
+      company_name: faker.company.name(),
+      tables_audit: true,
+      human_readable_table_names: faker.datatype.boolean(),
+      allow_ai_requests: faker.datatype.boolean(),
+      default_showing_table: null,
+    };
+    const updateConnectionPropertiesResponseWithoutCategories = await request(app.getHttpServer())
+      .put(`/connection/properties/${createConnectionRO.id}`)
+      .send(updatedConnectionPropertiesWithOutCategories)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const updateConnectionPropertiesROWithoutCategories = JSON.parse(
+      updateConnectionPropertiesResponseWithoutCategories.text,
+    );
+    t.is(updateConnectionPropertiesResponseWithoutCategories.status, 200);
+    t.is(updateConnectionPropertiesROWithoutCategories.connectionId, createConnectionRO.id);
+    t.is(
+      updateConnectionPropertiesROWithoutCategories.allow_ai_requests,
+      updatedConnectionPropertiesWithOutCategories.allow_ai_requests,
+    );
+    t.is(
+      updateConnectionPropertiesROWithoutCategories.default_showing_table,
+      updatedConnectionPropertiesWithOutCategories.default_showing_table,
+    );
+    t.is(updateConnectionPropertiesROWithoutCategories.table_categories.length, 0);
+  } catch (e) {
+    throw e;
+  }
+});
+
+test.only(`${currentTest} should return created connection properties with table categories and return created categories in get tables request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+
+    const connectionPropertiesWithCategories = {
+      hidden_tables: [],
+      logo_url: faker.internet.url(),
+      primary_color: faker.color.rgb(),
+      secondary_color: faker.color.rgb(),
+      hostname: faker.internet.url(),
+      company_name: faker.company.name(),
+      tables_audit: true,
+      human_readable_table_names: faker.datatype.boolean(),
+      allow_ai_requests: faker.datatype.boolean(),
+      default_showing_table: null,
+      table_categories: [{ category_name: 'Category 1', tables: [testTableName] }],
+    };
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createConnectionPropertiesResponse = await request(app.getHttpServer())
+      .post(`/connection/properties/${createConnectionRO.id}`)
+      .send(connectionPropertiesWithCategories)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+    t.is(createConnectionPropertiesResponse.status, 201);
+    t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+    t.is(createConnectionPropertiesRO.allow_ai_requests, connectionPropertiesWithCategories.allow_ai_requests);
+    t.is(createConnectionPropertiesRO.default_showing_table, connectionPropertiesWithCategories.default_showing_table);
+    t.is(createConnectionPropertiesRO.table_categories.length, 1);
+    t.is(createConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
+    t.is(createConnectionPropertiesRO.table_categories[0].tables.length, 1);
+    t.is(createConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+
+   
+  } catch (e) {
+    throw e;
+  }
+});
+
 test.serial(`${currentTest} should return connection without excluded tables`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();

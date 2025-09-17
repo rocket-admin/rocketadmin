@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableCategoriesEntity } from '../table-categories/table-categories.entity.js';
 
 @Entity('connectionProperties')
 export class ConnectionPropertiesEntity {
@@ -41,4 +42,7 @@ export class ConnectionPropertiesEntity {
   })
   @JoinColumn()
   connection: Relation<ConnectionEntity>;
+
+  @OneToMany(() => TableCategoriesEntity, (table_categories) => table_categories.connection_properties)
+  table_categories: Relation<TableCategoriesEntity[]>;
 }
