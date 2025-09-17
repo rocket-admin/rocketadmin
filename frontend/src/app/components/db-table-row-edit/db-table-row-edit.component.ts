@@ -103,6 +103,7 @@ export class DbTableRowEditComponent implements OnInit {
   public referencedTablesURLParams: any;
   public isDesktop: boolean = true;
   public permissions: TablePermissions;
+  public canDelete: boolean;
   public pageAction: string;
   public tableFiltersUrlString: string;
   public backUrlParams: object;
@@ -214,6 +215,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
             this.permissions = res.table_access_level;
+            this.canDelete = res.can_delete;
             this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
 
             this.nonModifyingFields = res.structure
