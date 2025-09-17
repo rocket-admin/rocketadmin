@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { FoundTableCategoryRo } from '../../../table-categories/dto/found-table-category.ro.js';
 
 export class FoundConnectionPropertiesDs {
   @ApiProperty()
@@ -36,4 +37,7 @@ export class FoundConnectionPropertiesDs {
 
   @ApiProperty()
   default_showing_table: string;
+
+  @ApiProperty({ isArray: true })
+  table_categories: Array<FoundTableCategoryRo>;
 }

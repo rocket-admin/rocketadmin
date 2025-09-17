@@ -17,5 +17,14 @@ export function buildFoundConnectionPropertiesDs(
     human_readable_table_names: connectionProperties.human_readable_table_names,
     allow_ai_requests: connectionProperties.allow_ai_requests,
     default_showing_table: connectionProperties.default_showing_table,
+    table_categories: connectionProperties.table_categories
+      ? connectionProperties.table_categories.map((c) => {
+          return {
+            id: c.id,
+            category_name: c.category_name,
+            tables: c.tables,
+          };
+        })
+      : [],
   };
 }

@@ -617,6 +617,7 @@ export class DemoDataService {
       default_showing_table: 'event',
       userId: connection?.author?.id || null,
       master_password: null,
+      table_categories: null,
     };
     const connectionProperties = buildConnectionPropertiesEntity(createPropertiesData, connection);
     await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(connectionProperties);
@@ -686,6 +687,7 @@ export class DemoDataService {
       default_showing_table: 'enrollments',
       userId: connection?.author?.id || null,
       master_password: null,
+      table_categories: null,
     };
     const connectionProperties = buildConnectionPropertiesEntity(createPropertiesData, connection);
     return await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(connectionProperties);

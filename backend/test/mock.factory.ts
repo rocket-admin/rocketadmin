@@ -821,6 +821,7 @@ export class MockFactory {
       human_readable_table_names: faker.datatype.boolean(),
       allow_ai_requests: faker.datatype.boolean(),
       default_showing_table: null,
+      table_categories: null,
     };
   }
 
