@@ -10,6 +10,14 @@ export const customConnectionPropertiesRepositoryExtension = {
     return await qb.getOne();
   },
 
+  async findConnectionPropertiesWithTablesCategories(connectionId: string): Promise<ConnectionPropertiesEntity> {
+    const qb = this.createQueryBuilder('connectionProperties')
+      .leftJoin('connectionProperties.connection', 'connection')
+      .leftJoinAndSelect('connectionProperties.table_categories', 'table_categories');
+    qb.where('connectionProperties.connection.id = :connection_id', { connection_id: connectionId });
+    return await qb.getOne();
+  },
+
   async saveNewConnectionProperties(
     connectionProperties: ConnectionPropertiesEntity,
   ): Promise<ConnectionPropertiesEntity> {

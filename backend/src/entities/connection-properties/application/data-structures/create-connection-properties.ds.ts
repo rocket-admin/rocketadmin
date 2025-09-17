@@ -12,4 +12,8 @@ export class CreateConnectionPropertiesDs {
   human_readable_table_names: boolean;
   allow_ai_requests: boolean;
   default_showing_table: string;
+  table_categories: Array<{
+    category_name: string;
+    tables: Array<string>;
+  }>;
 }

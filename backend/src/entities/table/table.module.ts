@@ -28,6 +28,7 @@ import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use
 import { BulkUpdateRowsInTableUseCase } from './use-cases/bulk-update-rows-in-table.use.case.js';
 import { ImportCSVInTableUseCase } from './use-cases/import-csv-in-table-user.case.js';
 import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
+import { FindTablesInConnectionV2UseCase } from './use-cases/find-tables-in-connection-v2.use.case.js';
 
 @Module({
   imports: [
@@ -55,6 +56,10 @@ import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middlew
     {
       provide: UseCaseType.FIND_TABLES_IN_CONNECTION,
       useClass: FindTablesInConnectionUseCase,
+    },
+    {
+      provide: UseCaseType.FIND_TABLES_IN_CONNECTION_V2,
+      useClass: FindTablesInConnectionV2UseCase,
     },
     {
       provide: UseCaseType.GET_ALL_TABLE_ROWS,
@@ -108,6 +113,7 @@ export class TableModule {
         { path: '/table/rows/:connectionId', method: RequestMethod.GET },
         { path: '/table/:connectionId', method: RequestMethod.GET },
         { path: '/connection/tables/:connectionId', method: RequestMethod.GET },
+        { path: '/connection/tables/v2/:connectionId', method: RequestMethod.GET },
         { path: '/table/rows/:connectionId', method: RequestMethod.GET },
         { path: '/table/rows/find/:connectionId', method: RequestMethod.POST },
         { path: '/table/structure/:connectionId', method: RequestMethod.GET },

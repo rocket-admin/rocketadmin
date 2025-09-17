@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { CreateTableCategoryDto } from '../../table-categories/dto/create-table-category.dto.js';
 
 export class CreateConnectionPropertiesDto {
   @IsOptional()
@@ -52,4 +53,10 @@ export class CreateConnectionPropertiesDto {
   @MaxLength(255)
   @ApiProperty({ required: false })
   default_showing_table: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @ApiProperty({ isArray: true, type: CreateTableCategoryDto, required: false })
+  table_categories: Array<CreateTableCategoryDto>;
 }

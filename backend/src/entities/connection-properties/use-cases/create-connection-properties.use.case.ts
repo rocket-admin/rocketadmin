@@ -23,7 +23,7 @@ export class CreateConnectionPropertiesUseCase
   }
 
   protected async implementation(inputData: CreateConnectionPropertiesDs): Promise<FoundConnectionPropertiesDs> {
-    const { connectionId, master_password } = inputData;
+    const { connectionId, master_password, table_categories } = inputData;
     let foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
       master_password,
@@ -32,6 +32,20 @@ export class CreateConnectionPropertiesUseCase
     const newConnectionProperties = buildConnectionPropertiesEntity(inputData, foundConnection);
     const createdConnectionProperties =
       await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(newConnectionProperties);
+
+    if (table_categories && table_categories.length > 0) {
+      const createdCategories = table_categories.map((category) => {
+        const newCategory = this._dbContext.tableCategoriesRepository.create({
+          category_name: category.category_name,
+          tables: category.tables,
+        });
+        newCategory.connection_properties = createdConnectionProperties;
+        return newCategory;
+      });
+      const savedCategories = await this._dbContext.tableCategoriesRepository.save(createdCategories);
+      createdConnectionProperties.table_categories = savedCategories;
+    }
+
     if (foundConnection.masterEncryption && master_password) {
       foundConnection = Encryptor.encryptConnectionCredentials(foundConnection, master_password);
     }

@@ -93,6 +93,7 @@ import { tableFiltersCustomRepositoryExtension } from '../../entities/table-filt
 import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
 import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
 import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-reponses-to-user-repository.extension.js';
+import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -132,6 +133,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
+  private _tableCategoriesRepository: Repository<TableCategoriesEntity>;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -223,6 +225,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._aiResponsesToUserRepository = this.appDataSource
       .getRepository(AiResponsesToUserEntity)
       .extend(aiResponsesToUserRepositoryExtension);
+    this._tableCategoriesRepository = this.appDataSource.getRepository(TableCategoriesEntity);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -359,6 +362,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get aiResponsesToUserRepository(): Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository {
     return this._aiResponsesToUserRepository;
+  }
+
+  public get tableCategoriesRepository(): Repository<TableCategoriesEntity> {
+    return this._tableCategoriesRepository;
   }
 
   public startTransaction(): Promise<void> {
