@@ -8,7 +8,7 @@ import {
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds.js';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
-import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
+import { FoundTableDs, FoundTablesWithCategoriesDS } from '../application/data-structures/found-table.ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
@@ -20,6 +20,10 @@ import { ImportCSVInTableDs } from '../application/data-structures/import-scv-in
 
 export interface IFindTablesInConnection {
   execute(inputData: FindTablesDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableDs>>;
+}
+
+export interface IFindTablesInConnectionV2 {
+  execute(inputData: FindTablesDs, inTransaction: InTransactionEnum): Promise<FoundTablesWithCategoriesDS>;
 }
 
 export interface IGetTableRows {
