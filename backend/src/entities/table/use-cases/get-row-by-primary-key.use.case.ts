@@ -24,6 +24,7 @@ import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/
 import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -216,7 +217,7 @@ export class GetRowByPrimaryKeyUseCase
       structure: formedTableStructure,
       table_widgets: tableWidgets,
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-      list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+      list_fields: findAvailableFields(tableSettings, tableStructure),
       action_events: customActionEvents.map((event) => buildActionEventDto(event)),
       table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
