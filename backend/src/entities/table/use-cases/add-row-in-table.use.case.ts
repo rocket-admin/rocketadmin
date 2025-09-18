@@ -30,6 +30,7 @@ import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.u
 import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
 import { IAddRowInTable } from './table-use-cases.interface.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, TableRowRODs> implements IAddRowInTable {
@@ -213,7 +214,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         operationResult = OperationResultStatusEnum.successfully;
         addedRow = await dao.getRowByPrimaryKey(tableName, addedRowPrimaryKey, tableSettings, userEmail);
         addedRow = removePasswordsFromRowsUtil(addedRow, tableWidgets);
-
+        addedRow = convertBinaryDataInRowUtil(addedRow, tableStructure);
         return {
           row: addedRow,
           foreignKeys: foreignKeysWithAutocompleteColumns,
@@ -225,6 +226,21 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
           list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
           identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
           referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
+          excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
+          can_delete: tableSettings ? tableSettings.can_delete : true,
+          can_update: tableSettings ? tableSettings.can_update : true,
+          can_add: tableSettings ? tableSettings.can_add : true,
+          table_settings: {
+            sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+            ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+            identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+            list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+            allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
+            allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
+            can_delete: tableSettings ? tableSettings.can_delete : true,
+            can_update: tableSettings ? tableSettings.can_update : true,
+            can_add: tableSettings ? tableSettings.can_add : true,
+          },
         };
       }
     } catch (e) {

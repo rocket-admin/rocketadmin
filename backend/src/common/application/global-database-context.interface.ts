@@ -49,6 +49,7 @@ import { UserEntity } from '../../entities/user/user.entity.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { IDatabaseContext } from '../database-context.interface.js';
+import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -85,4 +86,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
+  tableCategoriesRepository: Repository<TableCategoriesEntity>;
 }

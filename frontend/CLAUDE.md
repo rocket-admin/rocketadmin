@@ -1,58 +1,58 @@
-# Auto-Admin Frontend Development Guide
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 🚀 Project Overview
 
 This is the frontend for Auto-Admin, a database administration tool built with Angular 19. The application provides a comprehensive interface for managing database connections, tables, and data with customizable widgets and user permissions.
 
-## 🛠 Technologies & Frameworks
+## 🔧 Development Commands
+
+### Build & Development
+```bash
+yarn start                    # Start development server (ng serve)
+yarn build                    # Production build (ng build)
+yarn build --configuration=development  # Development build
+yarn build --configuration=saas         # SaaS build 
+yarn build --configuration=saas-production  # SaaS production build
+yarn build:stats             # Build with webpack bundle analyzer stats
+yarn analyze                 # Analyze bundle size
+```
+
+### Testing
+```bash
+yarn test                     # Run tests in watch mode (ng test)
+yarn test:ci                  # Run tests once for CI (--watch=false --browsers=ChromeHeadlessCustom)
+yarn test --browsers=ChromeHeadlessCustom --no-watch --no-progress  # Run tests headlessly without watch
+```
+
+### Linting
+```bash
+yarn lint                     # Run TSLint (deprecated - needs ESLint migration)
+ng lint                       # Alternative lint command
+```
+
+### Package Management
+```bash
+yarn add package-name         # Add dependency
+yarn add -D package-name      # Add dev dependency  
+yarn install                  # Install dependencies
+```
+
+## 🏗 Architecture Overview
 
 ### Core Technologies
-- **Angular**: v19.0.4 (Latest with standalone components)
-- **TypeScript**: v5.6.0 (ES2022 target)
-- **RxJS**: v7.4.0 (Reactive programming)
-- **Node.js**: Modern versions supported
+- **Angular 19** with standalone components architecture
+- **TypeScript 5.6** targeting ES2022
+- **Angular Material 19** for UI components  
+- **RxJS 7.4** for reactive programming
+- **SCSS** with Material Design theming
+- **Jasmine/Karma** for testing
 
-### UI/UX Stack
-- **Angular Material**: v19.0.3 (Primary UI library)
-- **Angular CDK**: v19.0.3 (Component Development Kit)
-- **@brumeilde/ngx-theme**: v1.2.1 (Custom theming)
-- **SCSS**: Material Design theming
-- **ngx-bootstrap**: v19.0.2 (Additional components)
+### Key Architecture Patterns
 
-### Additional Libraries
-- **@ngstack/code-editor**: v9.0.0 (Code editing)
-- **ngx-markdown**: v19.0.0 (Markdown rendering)
-- **ngx-stripe**: v19.0.0 (Payment integration)
-- **angulartics2**: v14.1.0 (Analytics)
-- **@sentry/angular-ivy**: v7.116.0 (Error monitoring)
-
-## 📁 Project Structure
-
-```
-src/app/
-├── components/
-│   ├── dashboard/           # Main data interface
-│   ├── ui-components/       # Reusable UI components
-│   │   ├── row-fields/      # Widget components (text, date, select, etc.)
-│   │   ├── filter-fields/   # Filter components
-│   │   └── alert/           # Common UI elements
-│   ├── login/               # Authentication
-│   ├── registration/        # User registration
-│   ├── connect-db/          # Database connection setup
-│   ├── company/             # Company management
-│   └── skeletons/           # Loading placeholders
-├── services/                # Business logic & API calls
-├── models/                  # TypeScript interfaces
-├── consts/                  # Constants & configurations
-├── lib/                     # Utility functions
-├── validators/              # Form validation
-└── directives/              # Custom directives
-```
-
-## 🏗 Architecture Patterns
-
-### Standalone Components
-Uses Angular 19's standalone component architecture:
+#### Standalone Components
+Uses Angular 19's standalone component architecture without NgModules:
 
 ```typescript
 @Component({
@@ -66,8 +66,8 @@ export class ExampleComponent implements OnInit {
 }
 ```
 
-### Service-Based State Management
-No NgRx - uses BehaviorSubject pattern for state:
+#### Service-Based State Management
+No NgRx - uses BehaviorSubject pattern for state management:
 
 ```typescript
 @Injectable({ providedIn: 'root' })
@@ -81,21 +81,64 @@ export class DataService {
 }
 ```
 
-### Dynamic Widget System
-Highly flexible widget system for different data types:
+#### Multi-Environment Support
+The app supports multiple deployment environments:
+- `environment.ts` - Development
+- `environment.prod.ts` - Production  
+- `environment.saas.ts` - SaaS development
+- `environment.saas-prod.ts` - SaaS production
 
-```typescript
-export const UIwidgets = {
-  String: TextRowComponent,
-  Number: NumberRowComponent,
-  Date: DateRowComponent,
-  Boolean: BooleanRowComponent,
-  Phone: PhoneRowComponent,
-  // ... more widgets
-};
+Each environment uses different file replacements and build configurations.
+
+### Project Structure
+
+```
+src/app/
+├── components/
+│   ├── dashboard/           # Main data interface
+│   ├── ui-components/       # Reusable UI components
+│   ├── login/               # Authentication
+│   ├── registration/        # User registration
+│   ├── connect-db/          # Database connection setup
+│   ├── company/             # Company management
+│   └── skeletons/           # Loading placeholders
+├── services/                # Business logic & API calls
+│   ├── auth.service.ts      # Authentication service
+│   ├── connections.service.ts # Database connections
+│   ├── tables.service.ts    # Table operations
+│   └── user.service.ts      # User management
+├── models/                  # TypeScript interfaces
+├── consts/                  # Constants & configurations
+│   ├── databases.ts         # Supported databases config
+│   └── plans.ts            # Subscription plans
+├── lib/                     # Utility functions
+├── validators/              # Form validation
+└── directives/              # Custom directives
 ```
 
-## 📝 Code Style & Conventions
+### Database Support
+
+The application supports multiple database types:
+- MySQL
+- PostgreSQL  
+- MongoDB
+- DynamoDB
+- Cassandra
+- OracleDB
+- MSSQL
+- IBM DB2
+
+Database configurations are defined in `src/app/consts/databases.ts`.
+
+### Authentication & User Management
+
+- JWT token-based authentication with expiration handling
+- Google OAuth integration
+- Demo account functionality
+- Session restoration on app initialization
+- Automatic logout on token expiration
+
+## 📝 Code Conventions
 
 ### Naming Conventions
 - **Files**: `kebab-case.component.ts`
@@ -105,6 +148,18 @@ export const UIwidgets = {
 - **Constants**: `UPPER_SNAKE_CASE`
 - **Private members**: Prefixed with `_` (e.g., `_privateMethod`)
 - **Selectors**: `app-` prefix with kebab-case
+
+### Import Organization
+```typescript
+// External libraries first
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
+
+// Internal imports second  
+import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
+import { DataService } from 'src/app/services/data.service';
+```
 
 ### Component Structure
 ```typescript
@@ -142,59 +197,12 @@ export class WidgetNameComponent implements OnInit {
 }
 ```
 
-### Import Organization
-```typescript
-// External libraries first
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
+## 🧪 Testing Configuration
 
-// Internal imports second  
-import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
-import { DataService } from 'src/app/services/data.service';
-```
-
-## 🎨 Styling Guidelines
-
-### Material Design Implementation
-- Uses Material Design 2 (M2) APIs
-- Custom theme with light/dark mode support
-- Noto Sans font family
-
-### SCSS Structure
-```scss
-// Component-specific styles
-.component-name {
-  &__element {
-    // BEM methodology
-  }
-  
-  &--modifier {
-    // State variations
-  }
-}
-
-// Use Material Design spacing
-.mat-form-field {
-  width: 100%;
-  margin-bottom: 16px;
-}
-```
-
-### Theme Configuration
-```scss
-$custom-palette-primary: mat.m2-define-palette(mat.$m2-blue-palette);
-$custom-light-theme: mat.m2-define-light-theme((
-  color: (
-    primary: $custom-palette-primary,
-    accent: $custom-palette-accent,
-    warn: $custom-palette-warn,
-  ),
-  density: -3,
-));
-```
-
-## 🧪 Testing Guidelines
+### Test Framework
+- **Jasmine** as testing framework
+- **Karma** as test runner
+- **ChromeHeadless** for CI environments
 
 ### Test Structure
 ```typescript
@@ -215,195 +223,76 @@ describe('ComponentName', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
-  it('should handle user input', () => {
-    // Test user interactions
-  });
 });
 ```
 
-### Test Commands
-```bash
-npm test          # Run tests in watch mode
-npm run test:ci   # Run tests once for CI
-```
+### Karma Configuration
+Custom launcher `ChromeHeadlessCustom` is configured for CI with flags `--no-sandbox --disable-gpu`.
 
-## 🔧 Development Workflow
+## 🎨 Styling & Theming
 
-### Development Commands
-```bash
-npm start         # Start development server
-npm run build     # Build for production
-npm test          # Run tests
-npm run lint      # Run linting (TSLint - needs ESLint migration)
-```
+### Material Design
+- Uses Material Design 2 (M2) APIs
+- Custom theme with light/dark mode support  
+- SCSS preprocessing with Material theme presets
+- Custom theme files: `src/custom-theme.scss`, `src/styles.scss`
 
-### Environment Configuration
-- `environment.ts` - Development
-- `environment.prod.ts` - Production
-- `environment.saas.ts` - SaaS development
-- `environment.saas-prod.ts` - SaaS production
-
-## 🎯 Widget Development Guide
-
-### Creating New Widgets
-
-1. **Create Component Files**:
-```bash
-mkdir src/app/components/ui-components/row-fields/your-widget
-```
-
-2. **Extend Base Component**:
-```typescript
-export class YourWidgetComponent extends BaseRowFieldComponent {
-  @Input() value: any;
-  static type = 'your-widget';
-  
-  // Widget-specific logic
-}
-```
-
-3. **Add to Widget Registry**:
-```typescript
-// In src/app/consts/field-types.ts
-export const UIwidgets = {
-  // ... existing widgets
-  YourWidget: YourWidgetComponent,
-};
-```
-
-4. **Add to Enums**:
-```typescript
-// Backend: src/enums/widget-type.enum.ts
-// Shared: shared-code/src/data-access-layer/shared/enums/table-widget-type.enum.ts
-export enum WidgetTypeEnum {
-  // ... existing types
-  YourWidget = 'YourWidget',
-}
-```
-
-5. **Configure Default Parameters**:
-```typescript
-// In db-table-widgets.component.ts
-public defaultParams = {
-  // ... existing params
-  YourWidget: `// Widget configuration documentation
-{
-  "param1": "value1",
-  "param2": true
-}`,
-};
-```
-
-## 🚨 Common Patterns & Best Practices
-
-### Error Handling
-```typescript
-this.service.getData().subscribe({
-  next: (data) => {
-    // Handle success
-  },
-  error: (error) => {
-    console.error('Error occurred:', error);
-    // Show user-friendly error message
+### SCSS Structure
+```scss
+// Component-specific styles using BEM methodology
+.component-name {
+  &__element {
+    // Element styles
   }
-});
-```
-
-### Loading States
-```typescript
-export class ExampleComponent {
-  public loading = false;
   
-  async loadData() {
-    this.loading = true;
-    try {
-      const data = await this.service.getData().toPromise();
-      // Process data
-    } finally {
-      this.loading = false;
-    }
+  &--modifier {
+    // State variations
   }
 }
 ```
 
-### Form Validation
-```typescript
-// Use Angular's reactive forms with Material Design
-import { FormBuilder, Validators } from '@angular/forms';
+## 📦 Third-Party Integrations
 
-constructor(private fb: FormBuilder) {
-  this.form = this.fb.group({
-    field: ['', [Validators.required, Validators.minLength(3)]]
-  });
-}
-```
+### Analytics & Monitoring
+- **Angulartics2** with Amplitude integration
+- **@sentry/angular-ivy** for error monitoring
+- **Hotjar** for user behavior tracking (demo accounts)
+- **Intercom** for customer support
 
-## 📦 Package Management
+### Payment Processing
+- **@stripe/stripe-js** and **ngx-stripe** for payment processing
 
-### Using Yarn
-```bash
-yarn add package-name          # Add dependency
-yarn add -D package-name       # Add dev dependency  
-yarn install                   # Install dependencies
-```
+### Additional Libraries
+- **@ngstack/code-editor** for code editing capabilities
+- **ngx-markdown** for markdown rendering
+- **libphonenumber-js** for phone number handling
+- **date-fns** for date manipulation
+- **lodash** for utility functions
 
-### Important: Peer Dependencies
-When adding new packages, check for peer dependency warnings and install missing dependencies:
-```bash
-yarn add ngx-intl-tel-input intl-tel-input google-libphonenumber
-```
+## 🔧 Build Configuration
 
-## 🔄 Migration Notes
+### Angular Build Targets
+- **Default**: Development configuration
+- **Production**: Optimized build with source maps
+- **Development**: Explicit development configuration
+- **SaaS/SaaS-Production**: Specialized SaaS builds with different index files
 
-### Recommended Upgrades
-- **TSLint → ESLint**: Current linting setup uses deprecated TSLint
-- **Material Design 3**: Consider upgrading from M2 to M3 APIs
-- **Standalone Migration**: Already using standalone components (✅)
+### Bundle Size Limits
+- Initial bundle: Warning at 2MB, error at 5MB
+- Component styles: Warning at 6KB, error at 10KB
 
-### Breaking Changes to Watch
-- Angular Material API changes between versions
-- RxJS operator deprecations
-- TypeScript strict mode compliance
+## 🚨 Important Notes
 
-## 🎯 Performance Considerations
+### Migration Recommendations
+- **TSLint → ESLint**: Current linting uses deprecated TSLint
+- **Material Design 3**: Consider upgrading from M2 to M3 APIs  
 
-### Bundle Optimization
+### Performance Considerations
 - Tree-shaking enabled in production builds
 - Lazy loading for route-based features
-- OnPush change detection where applicable
+- Memory leak prevention with proper subscription management using `takeUntil` pattern
 
-### Memory Management
-```typescript
-export class ExampleComponent implements OnDestroy {
-  private destroy$ = new Subject<void>();
-  
-  ngOnInit() {
-    this.service.data$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(data => {
-      // Handle data
-    });
-  }
-  
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-}
-```
-
----
-
-## 🤝 Contributing
-
-When contributing to this project:
-
-1. Follow the established naming conventions
-2. Extend `BaseRowFieldComponent` for new widgets
-3. Add comprehensive tests for new features
-4. Update this CLAUDE.md file when adding new patterns
-5. Ensure builds pass with `npm run build`
-6. Follow the widget development guide for UI components
-
-For questions about implementation patterns, refer to existing similar components in the codebase as examples.
+### Security
+- Token-based authentication with automatic expiration
+- XSS protection through Angular's built-in sanitization
+- Sentry integration for error monitoring and security alerts

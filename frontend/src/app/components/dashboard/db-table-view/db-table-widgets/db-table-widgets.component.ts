@@ -125,15 +125,15 @@ export class DbTableWidgetsComponent implements OnInit {
 `,
     Date: `// Configure date display options
 // formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
-// Default: 48 hours. Set to 0 to disable relative time display
+// Default: 0 hours. Set to 0 to disable relative time display
 {
-  "formatDistanceWithinHours": 48
+  "formatDistanceWithinHours": 0
 }`,
     DateTime: `// Configure datetime display options
 // formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
-// Default: 48 hours. Set to 0 to disable relative time display
+// Default: 0 hours. Set to 0 to disable relative time display
 {
-  "formatDistanceWithinHours": 48
+  "formatDistanceWithinHours": 0
 }`,
     Default: `// No settings required`,
     File:
@@ -170,7 +170,7 @@ export class DbTableWidgetsComponent implements OnInit {
 `,
     Number: `// Configure number display with unit conversion and threshold validation
 // Example units: "bytes", "meters", "seconds", "grams"
-// threshold_min/threshold_max: Values outside these limits will be highlighted in red
+// threshold_min/threshold_max: Values outside these limits will be highlighted
 {
   "unit": null,
   "threshold_min": null,

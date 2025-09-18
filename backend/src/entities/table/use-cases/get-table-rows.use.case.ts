@@ -118,6 +118,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       const allowCsvExport = tableSettings ? tableSettings.allow_csv_export : true;
       const allowCsvImport = tableSettings ? tableSettings.allow_csv_import : true;
+      const can_delete = tableSettings ? tableSettings.can_delete : true;
+      const can_update = tableSettings ? tableSettings.can_update : true;
+      const can_add = tableSettings ? tableSettings.can_add : true;
 
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
@@ -241,6 +244,20 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         allow_csv_export: allowCsvExport,
         allow_csv_import: allowCsvImport,
         saved_filters: savedTableFilters.map((el) => buildCreatedTableFilterRO(el)),
+        can_delete: can_delete,
+        can_update: can_update,
+        can_add: can_add,
+        table_settings: {
+          sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+          ordering: tableSettings.ordering ? tableSettings.ordering : undefined,
+          identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
+          list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+          allow_csv_export: allowCsvExport,
+          allow_csv_import: allowCsvImport,
+          can_delete: can_delete,
+          can_update: can_update,
+          can_add: can_add,
+        },
       };
 
       const identitiesMap = new Map<string, any[]>();

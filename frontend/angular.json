@@ -21,7 +21,12 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/config.json"
+              "src/config.json",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/monaco-editor/min",
+                "output": "./assets/monaco"
+              }
             ],
             "styles": [
               "src/custom-theme.scss",

@@ -1,16 +1,17 @@
 {
   "name": "dissendium-v0",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "node scripts/update-version.js && ng serve",
+    "build": "node scripts/update-version.js && ng build",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "analyze": "webpack-bundle-analyzer dist/dissendium-v0/stats.json",
-    "build:stats": "ng build --stats-json"
+    "build:stats": "node scripts/update-version.js && ng build --stats-json",
+    "update-version": "node scripts/update-version.js"
   },
   "private": true,
   "dependencies": {
@@ -45,6 +46,7 @@
     "json5": "^2.2.3",
     "libphonenumber-js": "^1.12.9",
     "lodash": "^4.17.21",
+    "monaco-editor": "0.44.0",
     "ng-dynamic-component": "^10.7.0",
     "ngx-cookie-service": "^19.0.0",
     "ngx-markdown": "^19.0.0",

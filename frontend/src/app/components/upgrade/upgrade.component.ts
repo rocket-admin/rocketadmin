@@ -10,6 +10,7 @@ import { PaymentService } from 'src/app/services/payment.service';
 import { PlanKey } from 'src/app/models/plans';
 import { RouterModule } from '@angular/router';
 import plans from '../../consts/plans';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-upgrade',
@@ -17,6 +18,7 @@ import plans from '../../consts/plans';
   imports: [
     CommonModule,
     MatButtonModule,
+    MatIconModule,
     MatTableModule,
     MatChipsModule,
     RouterModule,
@@ -37,59 +39,65 @@ export class UpgradeComponent implements OnInit {
   databases = [
     {
       title: 'MySQL',
-      free: true,
-      team: true,
-      enterprise: true
+      free: '3',
+      team: '∞',
+      enterprise: '∞'
     },
     {
       title: 'PostgreSQL',
-      free: true,
-      team: true,
-      enterprise: true
+      free: 3,
+      team: '∞',
+      enterprise: '∞'
     },
     {
       title: 'MongoDB',
-      free: true,
-      team: true,
-      enterprise: true
+      free: 3,
+      team: '∞',
+      enterprise: '∞'
     },
     {
       title: 'DynamoDB',
-      free: true,
-      team: true,
-      enterprise: true
+      free: 3,
+      team: '∞',
+      enterprise: '∞'
     },
     {
       title: 'IBM DB2',
-      free: true,
-      team: true,
-      enterprise: true
+      free: 3,
+      team: '∞',
+      enterprise: '∞'
     },
     {
       title: 'Oracle',
-      free: '',
-      team: '',
-      enterprise: true
+      free: 1,
+      team: 1,
+      enterprise: '∞'
     },
     {
       title: 'Microsoft SQL',
-      free: '',
-      team: '',
-      enterprise: true
+      free: 1,
+      team: 1,
+      enterprise: '∞'
+    },
+    {
+      title: 'Cassandra',
+      free: 1,
+      team: 1,
+      enterprise: '∞'
     }
   ]
 
   users = [
     {
-      title:'User limit',
-      free: 'up to 3',
-      team: 'unlimited',
-      enterprise: 'unlimited'
-    },
-    {
       title: 'Priority support',
       free: '',
       team: true,
+      enterprise: true
+    },
+    {
+      title:'SAML SSO',
+      free: '',
+      team: '',
       enterprise: true
     },
     {

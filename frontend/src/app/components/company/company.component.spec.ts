@@ -16,6 +16,7 @@ import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
 describe('CompanyComponent', () => {
   let component: CompanyComponent;
@@ -128,6 +129,7 @@ describe('CompanyComponent', () => {
         CompanyComponent
     ],
     providers: [
+        provideRouter([]),
         provideHttpClient(),
         { provide: CompanyService, useValue: fakeCompanyService },
         { provide: UserService, useValue: fakeUserService }

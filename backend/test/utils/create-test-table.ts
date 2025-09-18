@@ -379,7 +379,8 @@ export async function createTestOracleTable(
     table.integer(pColumnName);
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
-    table.timestamps();
+    table.timestamp('created_at');
+    table.date('updated_at');
   });
   await Knex.schema.alterTable(testTableName, function (t) {
     t.primary([pColumnName], primaryKeyConstraintName);
@@ -435,6 +436,108 @@ export async function createTestOracleTable(
     testTableName: testTableName,
     testTableColumnName: testTableColumnName,
     testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+  };
+}
+
+export async function createTestOracleTableWithDifferentData(
+  connectionParams,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+) {
+  const primaryKeyConstraintName = getRandomConstraintName();
+  const pColumnName = 'id';
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+  const { shema, username } = connectionParams;
+  const testTableName = getRandomTestTableName().toUpperCase();
+  const Knex = getTestKnex(connectionParams);
+  await Knex.schema.dropTableIfExists(testTableName);
+
+  await Knex.schema.createTable(testTableName, function (table) {
+    table.specificType('patient_id', 'RAW(16) DEFAULT SYS_GUID()').primary();
+    table.string('first_name', 100).notNullable();
+    table.string('last_name', 100).notNullable();
+    table.date('date_of_birth').notNullable();
+    table.specificType('gender', 'CHAR(1)');
+    table.string('phone_number', 40);
+    table.string('email', 150).unique();
+    table.string('address', 300);
+    table.specificType('insurance_info', 'CLOB'); // Using specificType for CLOB
+    table.timestamp('created_at').defaultTo(Knex.raw('SYSTIMESTAMP'));
+  });
+
+  try {
+    await Knex.raw(
+      `ALTER TABLE ${testTableName} ADD CONSTRAINT chk_gender_${testTableName} CHECK ("gender" IN ('M','F','O'))`,
+    );
+  } catch (error) {
+    console.log('Warning: Could not add CHECK constraint for gender field');
+  }
+
+  let counter = 0;
+
+  if (shema) {
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName)
+          .withSchema(username.toUpperCase())
+          .insert({
+            first_name: testSearchedUserName,
+            last_name: faker.person.lastName(),
+            date_of_birth: faker.date.past(),
+            gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+            phone_number: faker.phone.number(),
+            email: faker.internet.email(),
+            address: faker.location.streetAddress(),
+            insurance_info: faker.lorem.sentence(),
+          });
+      } else {
+        await Knex(testTableName)
+          .withSchema(username.toUpperCase())
+          .insert({
+            first_name: faker.person.firstName(),
+            last_name: faker.person.lastName(),
+            date_of_birth: faker.date.past(),
+            gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+            phone_number: faker.phone.number(),
+            email: faker.internet.email(),
+            address: faker.location.streetAddress(),
+            insurance_info: faker.lorem.sentence(),
+          });
+      }
+    }
+  } else {
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName).insert({
+          first_name: testSearchedUserName,
+          last_name: faker.person.lastName(),
+          date_of_birth: faker.date.past(),
+          gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+          phone_number: faker.phone.number(),
+          email: faker.internet.email(),
+          address: faker.location.streetAddress(),
+          insurance_info: faker.lorem.sentence(),
+        });
+      } else {
+        await Knex(testTableName).insert({
+          first_name: faker.person.firstName(),
+          last_name: faker.person.lastName(),
+          date_of_birth: faker.date.past(),
+          gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+          phone_number: faker.phone.number(),
+          email: faker.internet.email(),
+          address: faker.location.streetAddress(),
+          insurance_info: faker.lorem.sentence(),
+        });
+      }
+    }
+  }
+  return {
+    testTableName: testTableName,
+    testTableColumnName: 'first_name',
+    testTableSecondColumnName: 'email',
     testEntitiesSeedsCount: testEntitiesSeedsCount,
   };
 }

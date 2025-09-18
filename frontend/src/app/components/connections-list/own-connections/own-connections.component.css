@@ -39,16 +39,22 @@
 .supportedDatabases {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
     grid-gap: 20px;
-    justify-items: center;
     margin-top: 24px;
+    width: 77%;
+}
+
+@media (width <= 600px) {
+    .supportedDatabases {
+        width: 100%;
+    }
 }
 
 .addConnectionLink {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     border-radius: 4px;
     box-shadow:
         0px 1px 3px 0px rgba(0, 0, 0, 0.2),
@@ -57,10 +63,9 @@
     color: inherit;
     font-weight: 600;
     height: 48px;
-    padding: 0 6px;
+    padding-left: 6px;
     text-decoration: none;
     transition: box-shadow 200ms, background 200ms, border 200ms;
-    min-width: 154px;
 }
 
 .addConnectionLink:hover {
@@ -188,22 +193,22 @@
 
 .connections {
     list-style: none;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, calc(33.33% - 14px)));
     justify-content: center;
     gap: 20px;
     margin-top: 24px;
     width: 100%;
 }
 
-@media (width <= 600px) {
+/* @media (width <= 600px) {
     .connections {
         flex-direction: column;
         flex-wrap: nowrap;
     }
-}
+} */
 
-.connectionItem {
+/* .connectionItem {
     flex: 0 0 calc((100% - 40px)/3);
     max-width: calc((100% - 40px)/3);
 }
@@ -211,8 +216,9 @@
 @media (width <= 600px) {
     .connectionItem {
         flex: initial;
+        max-width: 100%;
     }
-}
+} */
 
 .connection {
     display: flex;
