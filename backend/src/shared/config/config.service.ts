@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp';
 import { PGliteDriver } from 'typeorm-pglite';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -42,16 +43,29 @@ class ConfigService {
   }
 
   public getTypeOrmConfig(): DataSourceOptions {
-
     const pgLiteFolderPath = process.env.PGLITE_FOLDER_PATH;
 
     let pgLiteDriver = null;
     let connectionParams = {};
 
     if (pgLiteFolderPath && pgLiteFolderPath.length > 0) {
+      const resolvedPath = path.resolve(pgLiteFolderPath);
+      try {
+        fs.accessSync(resolvedPath, fs.constants.F_OK);
+        console.log('PGLite directory exists');
+        try {
+          fs.accessSync(resolvedPath, fs.constants.W_OK);
+          console.log('PGLite directory is writable');
+        } catch (writeError) {
+          console.warn('PGLite directory exists but may not be writable:', writeError.message);
+        }
+      } catch (error) {
+        console.log('PGLite directory does not exist, will be created by PGLite', error);
+      }
+
       pgLiteDriver = new PGliteDriver({
         extensions: { uuid_ossp },
-        dataDir: path.resolve(pgLiteFolderPath),
+        dataDir: path.resolve(resolvedPath),
       }).driver;
     } else {
       connectionParams = this.parseTypeORMUrl(this.getValue('DATABASE_URL'));

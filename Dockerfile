@@ -50,6 +50,8 @@ RUN chown -R appuser:appuser /app
 RUN chown -R appuser:appuser  /var/lib/nginx
 RUN chown -R appuser:appuser  /var/log/nginx
 RUN chown -R appuser:appuser  /run
+RUN mkdir -p /app/backend/data && chown -R appuser:appuser /app/backend/data
+RUN chmod 755 /app/backend/data
 
 USER appuser
 
