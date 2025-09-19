@@ -54,5 +54,5 @@ RUN chown -R appuser:appuser  /run
 USER appuser
 
 WORKDIR /app/backend
-CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
+CMD [ "/app/backend/runner.sh" ]

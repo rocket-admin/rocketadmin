@@ -42,10 +42,10 @@ export class UserEntity {
   @Column({ default: null })
   name: string;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   suspended: boolean;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   isDemoAccount: boolean;
 
   @BeforeInsert()
@@ -78,7 +78,7 @@ export class UserEntity {
   @Column({ default: null })
   gclid: string;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   isOTPEnabled: boolean;
 
   @Column({ default: null })
@@ -123,7 +123,7 @@ export class UserEntity {
   @OneToMany((_) => AiResponsesToUserEntity, (response) => response.user)
   ai_responses: Relation<AiResponsesToUserEntity>[];
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   isActive: boolean;
 
   @Column('enum', {
@@ -143,7 +143,7 @@ export class UserEntity {
   @Column({ default: null })
   samlNameId: string;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   showTestConnections: boolean;
 
   private emailToLowerCase() {

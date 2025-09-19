@@ -1362,6 +1362,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@electric-sql/pglite@npm:^0.3.8":
+  version: 0.3.8
+  resolution: "@electric-sql/pglite@npm:0.3.8"
+  checksum: 0329f79f2b0fd0dcab48853a9db2d314f88e5e52569ec87c7ce8d30ab60c2b334aca8e90ac863ad3f54e92f7f12726f4bf79d80a02550448f83aeac2d1b5e590
+  languageName: node
+  linkType: hard
+
 "@emnapi/core@npm:^1.4.3":
   version: 1.4.3
   resolution: "@emnapi/core@npm:1.4.3"
@@ -5638,6 +5645,7 @@ __metadata:
     "@amplitude/node": 1.10.2
     "@ava/typescript": 6.0.0
     "@aws-sdk/lib-dynamodb": ^3.873.0
+    "@electric-sql/pglite": ^0.3.8
     "@faker-js/faker": ^10.0.0
     "@nestjs/cli": ^11.0.10
     "@nestjs/common": 11.1.6
@@ -5726,6 +5734,7 @@ __metadata:
     ts-node: ^10.9.2
     tsconfig-paths: ^4.2.0
     typeorm: 0.3.26
+    typeorm-pglite: ^0.3.2
     typescript: 5.9.2
     uuid: ^11.1.0
     validator: ^13.15.15
@@ -14037,6 +14046,15 @@ __metadata:
   version: 0.0.6
   resolution: "typedarray@npm:0.0.6"
   checksum: 33b39f3d0e8463985eeaeeacc3cb2e28bc3dfaf2a5ed219628c0b629d5d7b810b0eb2165f9f607c34871d5daa92ba1dc69f49051cf7d578b4cbd26c340b9d1b1
+  languageName: node
+  linkType: hard
+
+"typeorm-pglite@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "typeorm-pglite@npm:0.3.2"
+  peerDependencies:
+    "@electric-sql/pglite": ">= 0.2.12"
+  checksum: 0b3a21f5ca166bc2af675e9d282340c0e2e259ad4715dbecdab8365d8b961df9b3b4f6af7604cf98f413707f9c79271f116b524a573117405c0903e543c9a512
   languageName: node
   linkType: hard
 

@@ -58,19 +58,19 @@ export class TableSettingsEntity {
   @Column('varchar', { array: true, default: null })
   columns_view: string[];
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   can_delete: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   can_update: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   can_add: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   allow_csv_export: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   allow_csv_import: boolean;
 
   @Column('varchar', { array: true, default: null })
