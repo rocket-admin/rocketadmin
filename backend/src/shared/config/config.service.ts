@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp';
 import { PGliteDriver } from 'typeorm-pglite';
 import fs from 'fs';
+import { isTest } from '../../helpers/app/is-test.js';
 
 dotenv.config();
 
@@ -49,7 +50,11 @@ class ConfigService {
     let connectionParams = {};
 
     if (pgLiteFolderPath && pgLiteFolderPath.length > 0) {
-      const resolvedPath = path.resolve(pgLiteFolderPath);
+      const fullPath = isTest()
+        ? path.join(process.cwd(), ...pgLiteFolderPath.split('/'))
+        : path.join(__dirname, '..', '..', '..', pgLiteFolderPath);
+        
+      const resolvedPath = path.resolve(fullPath);
       try {
         fs.accessSync(resolvedPath, fs.constants.F_OK);
         console.log('PGLite directory exists');
