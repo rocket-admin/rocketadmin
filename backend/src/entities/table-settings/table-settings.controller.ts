@@ -65,6 +65,7 @@ export class TableSettingsController {
   async findAll(
     @QueryUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
     if (!connectionId) {
       throw new HttpException(
@@ -78,6 +79,7 @@ export class TableSettingsController {
     const inputData: FindTableSettingsDs = {
       connectionId: connectionId,
       tableName: tableName,
+      masterPassword: masterPwd,
     };
     return await this.findTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
   }

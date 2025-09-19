@@ -17,7 +17,7 @@ export class DateTimeDisplayComponent extends BaseTableDisplayFieldComponent imp
   static type = 'datetime';
 
   public formattedDateTime: string;
-  public formatDistanceWithinHours: number = 48;
+  public formatDistanceWithinHours: number = 0;
   public fullDateTime: string;
 
   ngOnInit(): void {
@@ -55,7 +55,7 @@ export class DateTimeDisplayComponent extends BaseTableDisplayFieldComponent imp
           : this.widgetStructure.widget_params;
         
         if (params.formatDistanceWithinHours !== undefined) {
-          this.formatDistanceWithinHours = Number(params.formatDistanceWithinHours) || 48;
+          this.formatDistanceWithinHours = Number(params.formatDistanceWithinHours) || 0;
         }
       } catch (e) {
         console.error('Error parsing datetime widget params:', e);
