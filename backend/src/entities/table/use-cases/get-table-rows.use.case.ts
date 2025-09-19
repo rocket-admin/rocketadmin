@@ -40,6 +40,7 @@ import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -237,7 +238,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         widgets: tableWidgets,
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
         table_permissions: userTablePermissions,
-        list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
+        list_fields: findAvailableFields(tableSettings, tableStructure),
         action_events: customActionEvents.map((el) => buildActionEventDto(el)),
         table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
         large_dataset: largeDataset,
