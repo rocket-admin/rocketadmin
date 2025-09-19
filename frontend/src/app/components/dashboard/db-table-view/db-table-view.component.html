@@ -79,7 +79,8 @@
                     Add row
                 </a>
 
-                <button mat-button type="button" [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                <button mat-button type="button" *ngIf="tableData && tableData.structure"
+                    [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
                     angularticsAction="Dashboard: filters is clicked"
                     (click)="handleOpenFilters()">
