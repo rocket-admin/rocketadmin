@@ -3255,6 +3255,51 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redis/bloom@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/bloom@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 0d3ee59c2ebf0fc1927c1f66dcd38e34342d9a14cc5cda6e725b3f7f16b707dfd72c972fef64df05a03d46d80d91576e84f396c67543936114cb1ff7339db478
+  languageName: node
+  linkType: hard
+
+"@redis/client@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/client@npm:5.8.2"
+  dependencies:
+    cluster-key-slot: 1.1.2
+  checksum: c083e22de7d42222d9547959f5561a04efed03ab9e23c3ad7afbcc85193ad02c92a1fb493bf4a7e308b99b6d5a8c529ae6a46d6441fd85ababa40a9bcd09d6f8
+  languageName: node
+  linkType: hard
+
+"@redis/json@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/json@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 2cb6fdfc8940a811fb3897b8a06995d573c89243565d8291289a21e3d47388ab4b81a9f8928b5a60c471e257ad0c496e25dbfd713899ecd37a0fffc1bc097139
+  languageName: node
+  linkType: hard
+
+"@redis/search@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/search@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 89fe5409aacc7fef26b157c1fd14d73bfed86c6ff48c370b7fdc37dddee83ec975ef0813f075b8d23b2eb6f13ec65d2f6c1ea809becd325a15c9f7b4e97d63ff
+  languageName: node
+  linkType: hard
+
+"@redis/time-series@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/time-series@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 91d0fe3320289da94e4159c4639d68e287b3e0dfe4228ed0e5c77c53f30f43393d6f6ecd0e8d1f155b280b43fe5dbc3e65a946674f9eb4f658e472ca02b7ab44
+  languageName: node
+  linkType: hard
+
 "@rocketadmin/shared-code@workspace:*, @rocketadmin/shared-code@workspace:shared-code":
   version: 0.0.0-use.local
   resolution: "@rocketadmin/shared-code@workspace:shared-code"
@@ -3286,6 +3331,7 @@ __metadata:
     pg-copy-streams: ^7.0.0
     pg-query-stream: ^4.10.3
     prettier: ^3.6.2
+    redis: ^5.8.2
     ssh2: ^1.17.0
     tedious: ^18.6.1
     tunnel-ssh: 5.2.0
@@ -6551,6 +6597,13 @@ __metadata:
   version: 1.0.4
   resolution: "clone@npm:1.0.4"
   checksum: d06418b7335897209e77bdd430d04f882189582e67bd1f75a04565f3f07f5b3f119a9d670c943b6697d0afb100f03b866b3b8a1f91d4d02d72c4ecf2bb64b5dd
+  languageName: node
+  linkType: hard
+
+"cluster-key-slot@npm:1.1.2":
+  version: 1.1.2
+  resolution: "cluster-key-slot@npm:1.1.2"
+  checksum: be0ad2d262502adc998597e83f9ded1b80f827f0452127c5a37b22dfca36bab8edf393f7b25bb626006fb9fb2436106939ede6d2d6ecf4229b96a47f27edd681
   languageName: node
   linkType: hard
 
@@ -12320,6 +12373,19 @@ __metadata:
   dependencies:
     resolve: ^1.20.0
   checksum: ad3caed8afdefbc33fbc30e6d22b86c35b3d51c2005546f4e79bcc03c074df804b3640ad18945e6bef9ed12caedc035655ec1082f64a5e94c849ff939dc0a788
+  languageName: node
+  linkType: hard
+
+"redis@npm:^5.8.2":
+  version: 5.8.2
+  resolution: "redis@npm:5.8.2"
+  dependencies:
+    "@redis/bloom": 5.8.2
+    "@redis/client": 5.8.2
+    "@redis/json": 5.8.2
+    "@redis/search": 5.8.2
+    "@redis/time-series": 5.8.2
+  checksum: 5d02118e863dabbe07ae7d780b51f6e42f7a34e80187eb14f44bdcab6222cee3264f3ade7b11df9abf7ad6505e7d39dd162500783c39a72a7ff80fc0a686b63f
   languageName: node
   linkType: hard
 
