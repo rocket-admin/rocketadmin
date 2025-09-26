@@ -709,7 +709,8 @@ export class ConnectionController {
         return errors;
       }
 
-      if (!connectionData.username) errors.push(Messages.USERNAME_MISSING);
+      if (!connectionData.username && connectionData.type !== ConnectionTypesEnum.redis)
+        errors.push(Messages.USERNAME_MISSING);
 
       if (
         connectionData.type === ConnectionTypesEnum.dynamodb ||
@@ -718,7 +719,8 @@ export class ConnectionController {
         return errors;
       }
 
-      if (!connectionData.database) errors.push(Messages.DATABASE_MISSING);
+      if (!connectionData.database && connectionData.type !== ConnectionTypesEnum.redis)
+        errors.push(Messages.DATABASE_MISSING);
       if (process.env.NODE_ENV !== 'test' && !connectionData.ssh) {
         if (!this.isMongoHost(connectionData.host)) {
           if (!validator.isFQDN(connectionData.host) && !validator.isIP(connectionData.host))

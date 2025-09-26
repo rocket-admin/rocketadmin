@@ -10,6 +10,7 @@ import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb
 import { Client } from '@elastic/elasticsearch';
 import * as cassandra from 'cassandra-driver';
 import { v4 as uuidv4 } from 'uuid';
+import { createClient } from 'redis';
 
 export async function createTestTable(
   connectionParams: any,
@@ -34,6 +35,10 @@ export async function createTestTable(
 
   if (connectionParams.type === ConnectionTypesEnum.dynamodb) {
     return createTestDynamoDBTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
+  if (connectionParams.type === ConnectionTypesEnum.redis) {
+    return createTestRedisTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
 
   const testTableName = getRandomTestTableName();
@@ -766,4 +771,73 @@ export async function createTestCassandraTable(
   } finally {
     await client.shutdown().catch((err) => console.error('Error shutting down Cassandra client:', err));
   }
+}
+
+async function createTestRedisTable(
+  connectionParams: any,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName().toLowerCase();
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+
+  const redisClient = createClient({
+    socket: {
+      host: connectionParams.host,
+      port: connectionParams.port,
+      ca: connectionParams.cert || undefined,
+      cert: connectionParams.cert || undefined,
+      rejectUnauthorized: connectionParams.ssl === false ? false : true,
+    },
+    password: connectionParams.password || undefined,
+  });
+
+  await redisClient.connect();
+
+  const existingKeys = await redisClient.keys(`${testTableName}:*`);
+  if (existingKeys.length > 0) {
+    await redisClient.del(existingKeys);
+  }
+
+  const insertedSearchedIds: Array<{ number: number; id: string }> = [];
+
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+    const key = `user_${i}`;
+    const rowKey = `${testTableName}:${key}`;
+
+    const data = {
+      [testTableColumnName]: isSearchedUser ? testSearchedUserName : faker.person.firstName(),
+      [testTableSecondColumnName]: faker.internet.email(),
+      age: isSearchedUser
+        ? i === 0
+          ? 14
+          : i === testEntitiesSeedsCount - 21
+            ? 90
+            : 95
+        : faker.number.int({ min: 16, max: 80 }),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    await redisClient.set(rowKey, JSON.stringify(data));
+
+    if (isSearchedUser) {
+      insertedSearchedIds.push({
+        number: i,
+        id: key,
+      });
+    }
+  }
+
+  await redisClient.quit();
+
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+    insertedSearchedIds,
+  };
 }
