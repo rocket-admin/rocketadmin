@@ -125,7 +125,7 @@
             </div>
         </form>
         <div class="static-filters">
-            <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip">
+            <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip" data-hj-suppress>
                 {{ getFilter(filter) }}
             </mat-chip>
         </div>
