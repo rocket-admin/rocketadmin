@@ -187,6 +187,17 @@ export class DbTablesListComponent implements OnInit {
     if (collection.name !== 'All Tables') {
       event.stopPropagation();
       this.startEditCollection(collection);
+      
+      // Close any open menus after starting edit
+      setTimeout(() => {
+        const menus = document.querySelectorAll('.mat-mdc-menu-content');
+        menus.forEach(menu => {
+          const menuElement = menu as HTMLElement;
+          if (menuElement.style.display !== 'none') {
+            menuElement.style.display = 'none';
+          }
+        });
+      }, 0);
     }
   }
 
