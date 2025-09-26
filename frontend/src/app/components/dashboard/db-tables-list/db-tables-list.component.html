@@ -1,3 +1,10 @@
+<div class="sidenav-header">
+    <mat-icon *ngIf="collapsed; else tableHeader">table_view</mat-icon>
+    <ng-template #tableHeader>
+        <h1 class="mat-h2 connection-title">{{connectionTitle}}</h1>
+    </ng-template>
+</div>
+
 <app-content-loader *ngIf="tables === null; else tablesList"></app-content-loader>
 
 <ng-template #tablesList>
@@ -9,6 +16,92 @@
                 (keyup)="searchSubstring()">
             <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
         </mat-form-field>
+
+        <div *ngIf="!collapsed" class="add-collection-button-container">
+            <button mat-stroked-button color="primary" class="add-collection-button" (click)="onAddCollection()">
+                <mat-icon>add</mat-icon>
+                Add Collection
+            </button>
+        </div>
+
+        <!-- Collections Section -->
+        <div *ngIf="!collapsed && collections.length > 0" class="collections-section">
+            <ng-container *ngFor="let collection of collections; trackBy: trackByCollectionId">
+                <div *ngIf="shouldShowCollection(collection)"
+                     class="collection-item" 
+                     [class.expanded]="collection.expanded"
+                     [class.drag-over]="dragOverCollection === collection.id"
+                     (dragover)="onCollectionDragOver($event, collection.id)"
+                     (dragleave)="onCollectionDragLeave($event, collection.id)"
+                     (drop)="onCollectionDrop($event, collection)">
+                    <div class="collection-header" (click)="toggleCollection(collection.id)">
+                        <mat-icon class="collection-expand-icon" [class.expanded]="collection.expanded">
+                            chevron_right
+                        </mat-icon>
+                        <div class="collection-name" 
+                             [class.editing]="collection.editing"
+                             *ngIf="!collection.editing; else collectionNameEdit"
+                             (dblclick)="$event.stopPropagation(); startEditCollection(collection)">
+                            {{collection.name}}
+                        </div>
+                        <div class="collection-actions">
+                            <button *ngIf="getAvailableTables(collection).length > 0" 
+                                    mat-icon-button class="add-table-button header-add" 
+                                    (click)="$event.stopPropagation(); showAddTableDialog(collection)" 
+                                    matTooltip="Add table to collection">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            <button mat-icon-button class="edit-collection-button" 
+                                    (click)="$event.stopPropagation(); startEditCollection(collection)" 
+                                    matTooltip="Edit collection name">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        </div>
+                        <ng-template #collectionNameEdit>
+                            <div class="collection-name-edit-container">
+                                <input class="collection-name editing"
+                                       [(ngModel)]="collection.name"
+                                       (blur)="finishEditCollection(collection)"
+                                       (keyup.enter)="finishEditCollection(collection)"
+                                       (keyup.escape)="cancelEditCollection(collection)"
+                                       #collectionNameInput
+                                       (click)="$event.stopPropagation()">
+                                <mat-icon class="enter-icon" (click)="finishEditCollection(collection)">keyboard_return</mat-icon>
+                            </div>
+                        </ng-template>
+                    </div>
+                    <div *ngIf="collection.expanded" class="collection-tables">
+                        <div *ngIf="getCollectionTables(collection).length > 0; else noTablesInCollection" 
+                             class="selected-tables-list">
+                            <div *ngFor="let table of getCollectionTables(collection)" class="selected-table-item">
+                                <a class="table-link" 
+                                   routerLink="/dashboard/{{connectionID}}/{{table.table}}"
+                                   [queryParams]="{page_index: 0, page_size: 30}"
+                                   [ngClass]="{'table-link_active': selectedTable === table.table}"
+                                   (click)="closeSidebar()">
+                                    <span class="table-name">{{getTableName(table)}}</span>
+                                </a>
+                                <button mat-icon-button class="remove-table-button" 
+                                        (click)="removeTableFromCollection(collection, table, $event)"
+                                        matTooltip="Remove from collection">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <ng-template #noTablesInCollection>
+                            <div class="no-tables-message">
+                                <p>No tables in this collection</p>
+                                <button mat-stroked-button color="primary" (click)="showAddTableDialog(collection)">
+                                    <mat-icon>add</mat-icon>
+                                    Add Table
+                                </button>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+
         <mat-nav-list data-testid="tables-list">
             <a mat-list-item *ngFor="let tableItem of foundTables" attr.data-testid="table-{{tableItem.table}}-list-item"
                 routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
@@ -19,6 +112,9 @@
                 matTooltipPosition="right"
                 routerLinkActive="list-item_active"
                 class="table-list-item"
+                [draggable]="true"
+                (dragstart)="onTableDragStart($event, tableItem)"
+                (dragend)="onTableDragEnd($event)"
                 (click)="closeSidebar()">
                 <div *ngIf="collapsed; else fullTableName"
                     class="table-list-initials"
@@ -47,4 +143,29 @@
             Rocketadmin do not provide adding and deleting database tables, only editing ones. You can add a table with SQL editor.
         </p>
     </ng-template>
-</ng-template>
+
+<!-- Add Table Dialog -->
+<div class="add-table-dialog" *ngIf="showAddTableDialogFlag" (click)="closeAddTableDialog($event)">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h3>Add Tables to {{currentCollection?.name}}</h3>
+            <button mat-icon-button (click)="closeAddTableDialog()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <div class="dialog-body">
+            <div *ngFor="let table of getAvailableTables(currentCollection)" class="available-table-item">
+                <mat-checkbox [checked]="selectedTablesForAdd.includes(table.table)" 
+                              (change)="toggleTableSelection(table.table, $event)">
+                    <span class="table-name">{{getTableName(table)}}</span>
+                </mat-checkbox>
+            </div>
+        </div>
+        <div class="dialog-actions">
+            <button mat-button (click)="closeAddTableDialog()">Cancel</button>
+            <button mat-raised-button color="primary" (click)="addSelectedTablesToCollection()">
+                Add Selected
+            </button>
+        </div>
+    </div>
+</div>
