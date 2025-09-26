@@ -41,7 +41,7 @@
                         <div class="collection-name" 
                              [class.editing]="collection.editing"
                              *ngIf="!collection.editing; else collectionNameEdit"
-                             (dblclick)="$event.stopPropagation(); startEditCollection(collection)">
+                             (dblclick)="onCollectionNameDoubleClick($event, collection)">
                             {{collection.name}}
                         </div>
                         <div class="collection-actions">
@@ -51,11 +51,23 @@
                                     matTooltip="Add table to collection">
                                 <mat-icon>add</mat-icon>
                             </button>
-                            <button mat-icon-button class="edit-collection-button" 
-                                    (click)="$event.stopPropagation(); startEditCollection(collection)" 
-                                    matTooltip="Edit collection name">
-                                <mat-icon>edit</mat-icon>
+                            <button *ngIf="collection.name !== 'All Tables'" 
+                                    mat-icon-button class="more-collection-button" 
+                                    [matMenuTriggerFor]="collectionMenu"
+                                    (click)="$event.stopPropagation()" 
+                                    matTooltip="Collection options">
+                                <mat-icon>more_vert</mat-icon>
                             </button>
+                            <mat-menu #collectionMenu="matMenu" (closed)="onMenuClosed()">
+                                <button mat-menu-item (click)="onCollectionNameDoubleClick($event, collection); closeMenu(collectionMenu)">
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Rename</span>
+                                </button>
+                                <button mat-menu-item (click)="deleteCollection(collection); closeMenu(collectionMenu)">
+                                    <mat-icon>delete</mat-icon>
+                                    <span>Delete</span>
+                                </button>
+                            </mat-menu>
                         </div>
                         <ng-template #collectionNameEdit>
                             <div class="collection-name-edit-container">
@@ -65,7 +77,8 @@
                                        (keyup.enter)="finishEditCollection(collection)"
                                        (keyup.escape)="cancelEditCollection(collection)"
                                        #collectionNameInput
-                                       (click)="$event.stopPropagation()">
+                                       (click)="$event.stopPropagation()"
+                                       (focus)="collectionNameInput.select()">
                                 <mat-icon class="enter-icon" (click)="finishEditCollection(collection)">keyboard_return</mat-icon>
                             </div>
                         </ng-template>
@@ -73,7 +86,11 @@
                     <div *ngIf="collection.expanded" class="collection-tables">
                         <div *ngIf="getCollectionTables(collection).length > 0; else noTablesInCollection" 
                              class="selected-tables-list">
-                            <div *ngFor="let table of getCollectionTables(collection)" class="selected-table-item">
+                            <div *ngFor="let table of getCollectionTables(collection)" 
+                                 class="selected-table-item"
+                                 [draggable]="true"
+                                 (dragstart)="onTableDragStart($event, table)"
+                                 (dragend)="onTableDragEnd($event)">
                                 <a class="table-link" 
                                    routerLink="/dashboard/{{connectionID}}/{{table.table}}"
                                    [queryParams]="{page_index: 0, page_size: 30}"
@@ -81,7 +98,8 @@
                                    (click)="closeSidebar()">
                                     <span class="table-name">{{getTableName(table)}}</span>
                                 </a>
-                                <button mat-icon-button class="remove-table-button" 
+                                <button *ngIf="collection.name !== 'All Tables'" 
+                                        mat-icon-button class="remove-table-button" 
                                         (click)="removeTableFromCollection(collection, table, $event)"
                                         matTooltip="Remove from collection">
                                     <mat-icon>close</mat-icon>
@@ -102,35 +120,6 @@
             </ng-container>
         </div>
 
-        <mat-nav-list data-testid="tables-list">
-            <a mat-list-item *ngFor="let tableItem of foundTables" attr.data-testid="table-{{tableItem.table}}-list-item"
-                routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
-                [queryParams]="{page_index: 0, page_size: 30}"
-                [ngClass]="{'list-item_active': selectedTable === tableItem.table}"
-                [matTooltip]="getTableName(tableItem)"
-                [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 30 || collapsed"
-                matTooltipPosition="right"
-                routerLinkActive="list-item_active"
-                class="table-list-item"
-                [draggable]="true"
-                (dragstart)="onTableDragStart($event, tableItem)"
-                (dragend)="onTableDragEnd($event)"
-                (click)="closeSidebar()">
-                <div *ngIf="collapsed; else fullTableName"
-                    class="table-list-initials"
-                    [matTooltip]="getTableName(tableItem)">
-                    <mat-icon *ngIf="tableItem.icon; else tableNameInitials" class="table-list-icon">
-                        {{tableItem.icon}}
-                    </mat-icon>
-                    <ng-template #tableNameInitials>
-                        {{tableItem.initials}}
-                    </ng-template>
-                </div>
-                <ng-template #fullTableName>
-                    {{getTableName(tableItem)}}
-                </ng-template>
-            </a>
-        </mat-nav-list>
     </div>
 
 

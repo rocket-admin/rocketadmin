@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { TableProperties } from 'src/app/models/table';
 import { TableStateService } from 'src/app/services/table-state.service';
@@ -36,6 +37,7 @@ export interface Collection {
     MatInputModule,
     MatListModule,
     MatTooltipModule,
+    MatMenuModule,
     RouterModule,
     ContentLoaderComponent
   ]
@@ -146,10 +148,21 @@ export class DbTablesListComponent implements OnInit {
   }
 
   startEditCollection(collection: Collection) {
+    console.log('startEditCollection called for:', collection.name);
     // Cancel any other editing
     this.collections.forEach(c => c.editing = false);
     collection.editing = true;
     this.editingCollectionName = collection.name;
+    console.log('Collection editing state:', collection.editing);
+    
+    // Focus and select the input after the view updates
+    setTimeout(() => {
+      const input = document.querySelector('.collection-name.editing') as HTMLInputElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 0);
   }
 
   finishEditCollection(collection: Collection) {
@@ -158,6 +171,33 @@ export class DbTablesListComponent implements OnInit {
       collection.name = this.editingCollectionName;
     }
     this.saveCollections();
+  }
+
+  deleteCollection(collection: Collection) {
+    if (confirm(`Are you sure you want to delete the collection "${collection.name}"?`)) {
+      const index = this.collections.findIndex(c => c.id === collection.id);
+      if (index > -1) {
+        this.collections.splice(index, 1);
+        this.saveCollections();
+      }
+    }
+  }
+
+  onCollectionNameDoubleClick(event: Event, collection: Collection) {
+    if (collection.name !== 'All Tables') {
+      event.stopPropagation();
+      this.startEditCollection(collection);
+    }
+  }
+
+  onMenuClosed() {
+    // Menu closed, no action needed
+  }
+
+  closeMenu(menu: any) {
+    if (menu && menu.close) {
+      menu.close();
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -283,6 +323,20 @@ export class DbTablesListComponent implements OnInit {
       }
     } else {
       console.log('No saved collections found for key:', key);
+    }
+    
+    // Create "All Tables" collection if it doesn't exist
+    const allTablesCollection = this.collections.find(c => c.name === 'All Tables');
+    if (!allTablesCollection) {
+      const allTablesCollection: Collection = {
+        id: this.generateCollectionId(),
+        name: 'All Tables',
+        expanded: true,
+        editing: false,
+        tableIds: this.tables.map(table => table.table)
+      };
+      this.collections.unshift(allTablesCollection); // Add to beginning
+      this.saveCollections();
     }
   }
 
