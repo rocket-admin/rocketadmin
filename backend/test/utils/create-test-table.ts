@@ -16,6 +16,7 @@ export async function createTestTable(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
+  withJsonField = false,
 ): Promise<CreatedTableInfo> {
   if (connectionParams.type === ConnectionTypesEnum.ibmdb2) {
     return createTestTableIbmDb2(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
@@ -58,6 +59,13 @@ export async function createTestTable(
     table.string(testTableSecondColumnName);
     table.timestamps();
   });
+
+  if(withJsonField) {
+    await Knex.schema.table(testTableName, function (table) {
+      table.json('json_field');
+      table.jsonb('jsonb_field');
+    })
+  }
 
   for (let i = 0; i < testEntitiesSeedsCount; i++) {
     if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
