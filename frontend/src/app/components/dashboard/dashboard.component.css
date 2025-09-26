@@ -48,14 +48,9 @@
     padding: 0 24px;
 }
 
-.toggle-button-position {
-    display: flex;
-    justify-content: center;
-    margin-top: 24px;
-}
-
-.toggle-button_opened {
-    width: calc(100% - 32px);
+.toggle-button {
+    margin-top: 8px;
+    margin-left: 12px;
 }
 
 .dashboard {

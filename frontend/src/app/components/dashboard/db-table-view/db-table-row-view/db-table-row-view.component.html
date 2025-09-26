@@ -82,7 +82,7 @@
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns; let i = index" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <ng-container *ngIf="isForeignKey(column.title); else recordContent">
+            <ng-container *ngIf="isForeignKey(column.title); else recordContent" data-hj-suppress>
                 <app-foreign-key-record-view
                     [key]="i"
                     link="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
@@ -92,7 +92,7 @@
                 </app-foreign-key-record-view>
             </ng-container>
 
-            <ng-template #recordContent>
+            <ng-template #recordContent data-hj-suppress>
                 <ndc-dynamic *ngIf="isWidget(column.title) && selectedRow.widgets[column.title].widget_type; else simpleValue"
                     [ndcDynamicComponent]="UIwidgets[selectedRow.widgets[column.title].widget_type]"
                     [ndcDynamicInputs]="{
