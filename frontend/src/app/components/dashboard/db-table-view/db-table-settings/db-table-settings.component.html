@@ -144,6 +144,16 @@
             <mat-hint>Choose which columns allow you to sort their values by pressing the arrow next to the column's name. Columns which aren't selected will not be sortable.</mat-hint>
             </mat-form-field>
 
+            <mat-form-field appearance="outline" class="mat-form-field_excludedFields">
+                <mat-label>Columns to hide</mat-label>
+                <mat-select multiple
+                    name="excluded_fields"
+                    [(ngModel)]="tableSettings.excluded_fields">
+                    <mat-option *ngFor="let field of fields_to_exclude" [value]="field">{{field}}</mat-option>
+                </mat-select>
+                <mat-hint>Choose the columns you want to hide from the "Table" view and the "Edit row" view. This also removes the option to edit them.</mat-hint>
+            </mat-form-field>
+
             <h2 class="mat-heading-2" style="margin-bottom: -4px; margin-top: 12px">"Edit row" behavior</h2>
             <p class="mat-body-1" style="margin-top: -16px; margin-bottom: 0; color: rgba(0,0,0,0.64)">You can edit a row by clicking on the "pencil" icon on the right.</p>
             <mat-form-field appearance="outline">
@@ -154,16 +164,6 @@
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
                 <mat-hint>Choose the columns Rocketadmin scans within a related table when using the foreign keys box.</mat-hint>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Columns to hide</mat-label>
-                <mat-select multiple
-                    name="excluded_fields"
-                    [(ngModel)]="tableSettings.excluded_fields">
-                    <mat-option *ngFor="let field of fields_to_exclude" [value]="field">{{field}}</mat-option>
-                </mat-select>
-                <mat-hint>Choose the columns you want to hide from the "Table" view and the "Edit row" view. This also removes the option to edit them.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
