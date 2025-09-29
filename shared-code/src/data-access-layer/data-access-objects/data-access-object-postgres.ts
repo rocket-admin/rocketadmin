@@ -40,7 +40,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     ]);
 
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const processedRow = { ...row };
@@ -449,7 +449,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedRow = { ...row };
@@ -474,7 +474,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>[]> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedValues = { ...newValues };
