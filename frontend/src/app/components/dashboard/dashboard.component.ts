@@ -124,6 +124,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._connections.currentConnection.isTestConnection
   }
 
+  get connectionTitle() {
+    return this._connections.currentConnection?.title || 'Database';
+  }
+
   get defaultTableToOpen () {
     return this._connections.defaultTableToOpen;
   }

@@ -76,6 +76,34 @@
     width: 20px;
 }
 
+/* Collapsed action buttons */
+.collapsed-search-button,
+.collapsed-add-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background-color: var(--color-primaryPalette-50);
+    color: var(--color-primaryPalette-50-contrast);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.collapsed-search-button:hover,
+.collapsed-add-button:hover {
+    background-color: var(--color-primaryPalette-100);
+}
+
+.collapsed-action-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+
 /* Collapsed table list styles */
 .collapsed-tables-list {
     position: relative;

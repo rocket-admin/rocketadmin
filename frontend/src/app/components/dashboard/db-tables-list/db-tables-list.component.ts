@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit, Output, EventEmitter } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
@@ -48,6 +48,8 @@ export class DbTablesListComponent implements OnInit {
   @Input() tables: TableProperties[];
   @Input() selectedTable: string;
   @Input() collapsed: boolean;
+  
+  @Output() expandSidebar = new EventEmitter<void>();
 
   public substringToSearch: string;
   public foundTables: TableProperties[];
@@ -214,6 +216,21 @@ export class DbTablesListComponent implements OnInit {
     // We just need to close the sidebar after navigation
     this.closeSidebar();
   }
+
+  toggleCollapsedSearch() {
+    // Open the sidebar and activate search
+    this.expandSidebar.emit();
+    // Focus on search input after sidebar expands
+    setTimeout(() => {
+      const input = document.querySelector('.search-input input') as HTMLInputElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 300); // Wait for sidebar animation to complete
+  }
+
+
 
   startEditCollection(collection: Collection) {
     console.log('startEditCollection called for:', collection.name);

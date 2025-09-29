@@ -1,5 +1,13 @@
 <div class="sidenav-header">
     <div *ngIf="collapsed; else tableHeader" class="collapsed-content">
+        <!-- Search button -->
+        <div class="collapsed-search-button" 
+             (click)="toggleCollapsedSearch()"
+             matTooltip="Search"
+             matTooltipPosition="right">
+            <mat-icon class="collapsed-action-icon">search</mat-icon>
+        </div>
+        
         <!-- Show collections in collapsed state -->
         <div *ngIf="collections.length > 0" class="collapsed-collections">
             <div *ngFor="let collection of collections" 
@@ -13,6 +21,14 @@
         </div>
         <!-- Fallback to table_view if no collections -->
         <mat-icon *ngIf="collections.length === 0" class="collapsed-collection-icon">table_view</mat-icon>
+        
+        <!-- Add collection button -->
+        <div class="collapsed-add-button" 
+             (click)="onAddCollection()"
+             matTooltip="Add Collection"
+             matTooltipPosition="right">
+            <mat-icon class="collapsed-action-icon">add</mat-icon>
+        </div>
     </div>
     <ng-template #tableHeader>
         <h1 class="mat-h2 connection-title">{{connectionTitle}}</h1>
@@ -23,6 +39,8 @@
 
 <ng-template #tablesList>
     <div *ngIf="tables && tables.length; else noTables" class="tables-list">
+        
+        
         
         
         <!-- Collapsed table list for All Tables -->
