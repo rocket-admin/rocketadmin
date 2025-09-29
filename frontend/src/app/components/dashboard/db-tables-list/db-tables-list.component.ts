@@ -188,10 +188,19 @@ export class DbTablesListComponent implements OnInit {
 
   onCollapsedCollectionClick(collection: Collection) {
     console.log('Clicked on collection:', collection.name);
-    // For all collections, toggle the collapsed table list
-    this.showCollapsedTableList = !this.showCollapsedTableList;
-    this.currentCollapsedCollection = this.showCollapsedTableList ? collection : null;
+    
+    // If clicking on the same collection that's already open, close it
+    if (this.currentCollapsedCollection?.id === collection.id) {
+      this.showCollapsedTableList = false;
+      this.currentCollapsedCollection = null;
+    } else {
+      // If clicking on a different collection, open it immediately
+      this.showCollapsedTableList = true;
+      this.currentCollapsedCollection = collection;
+    }
+    
     console.log('showCollapsedTableList is now:', this.showCollapsedTableList);
+    console.log('currentCollapsedCollection is now:', this.currentCollapsedCollection?.name);
   }
 
   getCollapsedTableList(): TableProperties[] {

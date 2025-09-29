@@ -18,13 +18,14 @@
             <div *ngIf="collections.length > 0" class="collapsed-collections">
                 <div *ngFor="let collection of collections" 
                      class="collapsed-collection-item"
+                     [class.collapsed-collection-item_active]="currentCollapsedCollection?.id === collection.id"
                      [matTooltip]="collection.name"
                      matTooltipPosition="right"
                      (click)="onCollapsedCollectionClick(collection)">
                     <mat-icon *ngIf="collection.name === 'All Tables'" 
                               class="collapsed-collection-icon">table_view</mat-icon>
-                    <mat-icon *ngIf="collection.name !== 'All Tables'" 
-                              class="collapsed-collection-icon">folder</mat-icon>
+                    <span *ngIf="collection.name !== 'All Tables'" 
+                          class="material-icons-outlined collapsed-collection-icon">folder</span>
                 </div>
             </div>
             <!-- Fallback to table_view if no collections -->
@@ -47,12 +48,6 @@
         
         <!-- Collapsed table list for any collection -->
         <div *ngIf="collapsed && showCollapsedTableList" class="collapsed-tables-list">
-            <div *ngIf="currentCollapsedCollection?.name === 'All Tables'" class="collapsed-tables-header">
-                <button mat-icon-button class="close-collapsed-list" 
-                        (click)="showCollapsedTableList = false; currentCollapsedCollection = null">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
             <a *ngFor="let table of getCollapsedTableList()" 
                class="collapsed-table-item"
                routerLink="/dashboard/{{connectionID}}/{{table.table}}"
