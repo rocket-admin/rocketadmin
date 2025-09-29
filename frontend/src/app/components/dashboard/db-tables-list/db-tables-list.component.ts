@@ -82,6 +82,10 @@ export class DbTablesListComponent implements OnInit {
   searchSubstring() {
     if (!this.substringToSearch || this.substringToSearch.trim() === '') {
       this.foundTables = this.tables;
+      // Collapse all collections when search is cleared
+      this.collections.forEach(collection => {
+        collection.expanded = false;
+      });
       return;
     }
 
@@ -112,6 +116,20 @@ export class DbTablesListComponent implements OnInit {
     this.foundTables = this.foundTables.filter((table, index, self) => 
       index === self.findIndex(t => t.table === table.table)
     );
+
+    // Expand all collections that contain matching tables
+    this.collections.forEach(collection => {
+      const collectionTables = this.getCollectionTables(collection);
+      const hasMatchingTables = collectionTables.some(table => 
+        this.foundTables.some(foundTable => foundTable.table === table.table)
+      );
+      
+      if (hasMatchingTables) {
+        collection.expanded = true;
+      } else {
+        collection.expanded = false;
+      }
+    });
   }
 
   getTableName(table: TableProperties) {
