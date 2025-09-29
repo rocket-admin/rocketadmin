@@ -3,7 +3,8 @@
     max-width: 240px;
     min-width: 240px;
     display: block;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
 }
 
 .sidenav-header {
@@ -13,6 +14,141 @@
     padding: 20px 16px 4px;
     width: 100%;
     box-sizing: border-box;
+}
+
+.collapsed-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.collapsed-collections {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.collapsed-collection-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background-color: var(--color-primaryPalette-50);
+    color: var(--color-primaryPalette-50-contrast);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.collapsed-collection-item:hover {
+    background-color: var(--color-primaryPalette-100);
+}
+
+.collapsed-collection-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+}
+
+.collapsed-collection-icon.fallback {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+}
+
+/* Collapsed table list styles */
+.collapsed-tables-list {
+    position: relative;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px;
+    margin-top: 8px;
+    border-radius: 4px;
+    width: 48px;
+    min-width: 48px;
+}
+
+.collapsed-table-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.collapsed-table-item:hover {
+    transform: translateY(-1px);
+}
+
+.collapsed-table-item:hover .collapsed-table-initials {
+    background: linear-gradient(135deg, var(--color-primaryPalette-200), var(--color-primaryPalette-300));
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+}
+
+.collapsed-table-item_active {
+    background-color: var(--color-accentedPalette-500);
+    color: var(--color-accentedPalette-500-contrast);
+}
+
+.collapsed-table-item_active:hover {
+    background-color: var(--color-accentedPalette-600);
+}
+
+.collapsed-table-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--color-primaryPalette-100), var(--color-primaryPalette-200));
+    color: var(--color-primaryPalette-800);
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.collapsed-table-item_active .collapsed-table-initials {
+    background: linear-gradient(135deg, var(--color-accentedPalette-500), var(--color-accentedPalette-600));
+    color: var(--color-accentedPalette-500-contrast);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+}
+
+.collapsed-table-text {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.collapsed-table-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
 }
 
 .connection-title {
@@ -40,6 +176,7 @@
 .tables-list {
     width: 100%;
     box-sizing: border-box;
+    min-height: 0;
 }
 
 .tables-list ::ng-deep .table-list-item .mat-list-item-content {
@@ -68,7 +205,7 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: 4px;
     background-color: var(--color-primaryPalette-50);
     color: var(--color-primaryPalette-50-contrast);
 }

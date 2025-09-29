@@ -62,6 +62,9 @@ export class DbTablesListComponent implements OnInit {
   // Drag and drop state
   public draggedTable: TableProperties | null = null;
   public dragOverCollection: string | null = null;
+  
+  // Collapsed state
+  public showCollapsedTableList: boolean = false;
 
   constructor(
     private _tableState: TableStateService,
@@ -70,6 +73,7 @@ export class DbTablesListComponent implements OnInit {
   ngOnInit() {
     this.foundTables = this.tables;
     this.loadCollections();
+    console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
   }
 
   searchSubstring() {
@@ -111,6 +115,38 @@ export class DbTablesListComponent implements OnInit {
     return table.display_name || table.normalizedTableName || table.table
   }
 
+  getTableInitials(table: TableProperties) {
+    const name = this.getTableName(table);
+    
+    // Remove common prefixes and suffixes for better initials
+    let cleanName = name
+      .replace(/^(tbl_|table_|tb_)/i, '') // Remove table prefixes
+      .replace(/_/g, ' ') // Replace underscores with spaces
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // Split camelCase
+      .trim();
+    
+    // Split into words and take first letters
+    const words = cleanName.split(/\s+/).filter(word => word.length > 0);
+    
+    if (words.length >= 2) {
+      // Take first letter of first two words
+      return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    } else if (words.length === 1) {
+      // For single word, take first two characters
+      const word = words[0];
+      if (word.length >= 2) {
+        return word.substring(0, 2).toUpperCase();
+      }
+      return word.toUpperCase();
+    }
+    
+    // Fallback to original logic
+    if (name.length >= 2) {
+      return name.substring(0, 2).toUpperCase();
+    }
+    return name.toUpperCase();
+  }
+
   getTableNameLength(tableName: string) {
     return tableName.length;
   }
@@ -145,6 +181,38 @@ export class DbTablesListComponent implements OnInit {
     if (collection) {
       collection.expanded = !collection.expanded;
     }
+  }
+
+  onCollapsedCollectionClick(collection: Collection) {
+    console.log('Clicked on collection:', collection.name);
+    if (collection.name === 'All Tables') {
+      // Toggle the collapsed table list for All Tables
+      this.showCollapsedTableList = !this.showCollapsedTableList;
+      console.log('showCollapsedTableList is now:', this.showCollapsedTableList);
+    } else {
+      // For other collections, just toggle them normally
+      this.toggleCollection(collection.id);
+    }
+  }
+
+  getCollapsedTableList(): TableProperties[] {
+    const allTablesCollection = this.collections.find(c => c.name === 'All Tables');
+    console.log('getCollapsedTableList - allTablesCollection:', allTablesCollection);
+    if (!allTablesCollection) {
+      console.log('No All Tables collection found');
+      return [];
+    }
+    
+    const tables = this.getCollectionTables(allTablesCollection);
+    console.log('getCollapsedTableList - tables:', tables);
+    return tables;
+  }
+
+  navigateToTable(table: TableProperties) {
+    // This method is called when clicking on a table in collapsed mode
+    // The actual navigation is handled by routerLink in the template
+    // We just need to close the sidebar after navigation
+    this.closeSidebar();
   }
 
   startEditCollection(collection: Collection) {
