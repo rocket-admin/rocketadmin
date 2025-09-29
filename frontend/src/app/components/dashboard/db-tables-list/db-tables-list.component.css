@@ -13,19 +13,6 @@
     min-width: 65px;
 }
 
-.sidenav-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 16px 4px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-:host-context(.side-bar_collapsed) .sidenav-header {
-    padding: 20px 8px 4px;
-    justify-content: center;
-}
 
 .collapsed-content {
     display: flex;
@@ -115,13 +102,42 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 4px;
     padding: 8px;
     margin-top: 8px;
     border-radius: 4px;
     width: 48px;
     min-width: 48px;
+}
+
+.collapsed-tables-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.close-collapsed-list {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    border: none;
+    border-radius: 0;
+    background-color: transparent !important;
+    color: #9e9e9e !important;
+    flex-shrink: 0;
+}
+
+.close-collapsed-list:hover {
+    color: #757575 !important;
+}
+
+.close-collapsed-list mat-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
 }
 
 :host-context(.side-bar_collapsed) .collapsed-tables-list {
@@ -197,19 +213,6 @@
     height: 16px;
 }
 
-.connection-title {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-height: 22px;
-    margin: 0 !important;
-    overflow: hidden;
-    padding-right: 36px;
-    padding-bottom: 4px;
-    text-overflow: ellipsis;
-    word-wrap: anywhere;
-}
 
 .mat-icon-button {
     margin-right: -8px;

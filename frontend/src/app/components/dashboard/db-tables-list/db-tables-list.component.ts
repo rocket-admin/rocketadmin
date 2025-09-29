@@ -67,6 +67,7 @@ export class DbTablesListComponent implements OnInit {
   
   // Collapsed state
   public showCollapsedTableList: boolean = false;
+  public currentCollapsedCollection: Collection | null = null;
 
   constructor(
     private _tableState: TableStateService,
@@ -187,25 +188,19 @@ export class DbTablesListComponent implements OnInit {
 
   onCollapsedCollectionClick(collection: Collection) {
     console.log('Clicked on collection:', collection.name);
-    if (collection.name === 'All Tables') {
-      // Toggle the collapsed table list for All Tables
-      this.showCollapsedTableList = !this.showCollapsedTableList;
-      console.log('showCollapsedTableList is now:', this.showCollapsedTableList);
-    } else {
-      // For other collections, just toggle them normally
-      this.toggleCollection(collection.id);
-    }
+    // For all collections, toggle the collapsed table list
+    this.showCollapsedTableList = !this.showCollapsedTableList;
+    this.currentCollapsedCollection = this.showCollapsedTableList ? collection : null;
+    console.log('showCollapsedTableList is now:', this.showCollapsedTableList);
   }
 
   getCollapsedTableList(): TableProperties[] {
-    const allTablesCollection = this.collections.find(c => c.name === 'All Tables');
-    console.log('getCollapsedTableList - allTablesCollection:', allTablesCollection);
-    if (!allTablesCollection) {
-      console.log('No All Tables collection found');
+    if (!this.currentCollapsedCollection) {
+      console.log('No current collapsed collection');
       return [];
     }
     
-    const tables = this.getCollectionTables(allTablesCollection);
+    const tables = this.getCollectionTables(this.currentCollapsedCollection);
     console.log('getCollapsedTableList - tables:', tables);
     return tables;
   }

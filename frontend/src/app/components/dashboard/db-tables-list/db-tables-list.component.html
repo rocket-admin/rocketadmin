@@ -1,50 +1,58 @@
-<div class="sidenav-header">
-    <div *ngIf="collapsed; else tableHeader" class="collapsed-content">
-        <!-- Search button -->
-        <div class="collapsed-search-button" 
-             (click)="toggleCollapsedSearch()"
-             matTooltip="Search"
-             matTooltipPosition="right">
-            <mat-icon class="collapsed-action-icon">search</mat-icon>
-        </div>
-        
-        <!-- Show collections in collapsed state -->
-        <div *ngIf="collections.length > 0" class="collapsed-collections">
-            <div *ngFor="let collection of collections" 
-                 class="collapsed-collection-item"
-                 (click)="onCollapsedCollectionClick(collection)">
-                <mat-icon *ngIf="collection.name === 'All Tables'" 
-                          class="collapsed-collection-icon">table_view</mat-icon>
-                <mat-icon *ngIf="collection.name !== 'All Tables'" 
-                          class="collapsed-collection-icon">folder</mat-icon>
-            </div>
-        </div>
-        <!-- Fallback to table_view if no collections -->
-        <mat-icon *ngIf="collections.length === 0" class="collapsed-collection-icon">table_view</mat-icon>
-        
-        <!-- Add collection button -->
-        <div class="collapsed-add-button" 
-             (click)="onAddCollection()"
-             matTooltip="Add Collection"
-             matTooltipPosition="right">
-            <mat-icon class="collapsed-action-icon">add</mat-icon>
-        </div>
-    </div>
-    <ng-template #tableHeader>
-        <h1 class="mat-h2 connection-title">{{connectionTitle}}</h1>
-    </ng-template>
-</div>
 
 <app-content-loader *ngIf="tables === null; else tablesList"></app-content-loader>
 
 <ng-template #tablesList>
     <div *ngIf="tables && tables.length; else noTables" class="tables-list">
         
+        <!-- Collapsed content when sidebar is collapsed -->
+        <div *ngIf="collapsed" class="collapsed-content">
+            <!-- Search button -->
+            <div class="collapsed-search-button" 
+                 (click)="toggleCollapsedSearch()"
+                 matTooltip="Search"
+                 matTooltipPosition="right">
+                <mat-icon class="collapsed-action-icon">search</mat-icon>
+            </div>
+            
+            <!-- Show collections in collapsed state -->
+            <div *ngIf="collections.length > 0" class="collapsed-collections">
+                <div *ngFor="let collection of collections" 
+                     class="collapsed-collection-item"
+                     [matTooltip]="collection.name"
+                     matTooltipPosition="right"
+                     (click)="onCollapsedCollectionClick(collection)">
+                    <mat-icon *ngIf="collection.name === 'All Tables'" 
+                              class="collapsed-collection-icon">table_view</mat-icon>
+                    <mat-icon *ngIf="collection.name !== 'All Tables'" 
+                              class="collapsed-collection-icon">folder</mat-icon>
+                </div>
+            </div>
+            <!-- Fallback to table_view if no collections -->
+            <mat-icon *ngIf="collections.length === 0" 
+                      class="collapsed-collection-icon"
+                      matTooltip="All Tables"
+                      matTooltipPosition="right">table_view</mat-icon>
+            
+            <!-- Add collection button -->
+            <div class="collapsed-add-button" 
+                 (click)="onAddCollection()"
+                 matTooltip="Create Collection"
+                 matTooltipPosition="right">
+                <mat-icon class="collapsed-action-icon">add</mat-icon>
+            </div>
+        </div>
         
         
         
-        <!-- Collapsed table list for All Tables -->
+        
+        <!-- Collapsed table list for any collection -->
         <div *ngIf="collapsed && showCollapsedTableList" class="collapsed-tables-list">
+            <div *ngIf="currentCollapsedCollection?.name === 'All Tables'" class="collapsed-tables-header">
+                <button mat-icon-button class="close-collapsed-list" 
+                        (click)="showCollapsedTableList = false; currentCollapsedCollection = null">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
             <a *ngFor="let table of getCollapsedTableList()" 
                class="collapsed-table-item"
                routerLink="/dashboard/{{connectionID}}/{{table.table}}"
