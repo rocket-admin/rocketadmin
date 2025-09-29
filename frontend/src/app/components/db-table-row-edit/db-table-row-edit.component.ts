@@ -105,6 +105,7 @@ export class DbTableRowEditComponent implements OnInit {
   public permissions: TablePermissions;
   public canDelete: boolean;
   public pageAction: string;
+  public pageMode: string = null;
   public tableFiltersUrlString: string;
   public backUrlParams: object;
 
@@ -202,9 +203,13 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
-        const { action, ...primaryKeys } = params;
+        const { action, mode, ...primaryKeys } = params;
         if (action) {
           this.pageAction = action;
+        };
+
+        if (mode) {
+          this.pageMode = mode;
         };
 
         this.keyAttributesFromURL = primaryKeys;
@@ -721,6 +726,15 @@ export class DbTableRowEditComponent implements OnInit {
         acc[column.column_name] = row[column.column_name];
         return acc;
       }, {}),
+    });
+  }
+
+  switchToEditMode() {
+    this.pageMode = null;
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], {
+      queryParams: {
+        ...this.keyAttributesFromURL
+      }
     });
   }
 }

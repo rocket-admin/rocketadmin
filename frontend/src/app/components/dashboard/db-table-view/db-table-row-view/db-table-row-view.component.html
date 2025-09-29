@@ -92,8 +92,9 @@
                 </app-foreign-key-record-view>
             </ng-container>
 
-            <ng-template #recordContent data-hj-suppress>
+            <ng-template #recordContent>
                 <ndc-dynamic *ngIf="isWidget(column.title) && selectedRow.widgets[column.title].widget_type; else simpleValue"
+                    data-hj-suppress
                     [ndcDynamicComponent]="UIwidgets[selectedRow.widgets[column.title].widget_type]"
                     [ndcDynamicInputs]="{
                         key: column.title,
@@ -102,7 +103,7 @@
                     }">
                 </ndc-dynamic>
                 <ng-template #simpleValue>
-                    <ndc-dynamic
+                    <ndc-dynamic data-hj-suppress
                         [ndcDynamicComponent]="recordViewComponents[selectedRow.fieldsTypes[column.title]]"
                         [ndcDynamicInputs]="{
                             key: column.title,
