@@ -7,6 +7,12 @@
     position: relative;
 }
 
+:host-context(.side-bar_collapsed) {
+    width: 65px;
+    max-width: 65px;
+    min-width: 65px;
+}
+
 .sidenav-header {
     display: flex;
     align-items: center;
@@ -14,6 +20,11 @@
     padding: 20px 16px 4px;
     width: 100%;
     box-sizing: border-box;
+}
+
+:host-context(.side-bar_collapsed) .sidenav-header {
+    padding: 20px 8px 4px;
+    justify-content: center;
 }
 
 .collapsed-content {
@@ -28,6 +39,12 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
+}
+
+:host-context(.side-bar_collapsed) .collapsed-collections {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
 }
 
 .collapsed-collection-item {
@@ -65,8 +82,7 @@
     background: white;
     border: 1px solid #e0e0e0;
     border-top: none;
-    max-height: 300px;
-    overflow-y: auto;
+    overflow: visible;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -78,6 +94,11 @@
     border-radius: 4px;
     width: 48px;
     min-width: 48px;
+}
+
+:host-context(.side-bar_collapsed) .collapsed-tables-list {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .collapsed-table-item {
@@ -100,8 +121,7 @@
 }
 
 .collapsed-table-item:hover .collapsed-table-initials {
-    background: linear-gradient(135deg, var(--color-primaryPalette-200), var(--color-primaryPalette-300));
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    background-color: var(--color-primaryPalette-100);
     transform: scale(1.02);
 }
 
@@ -120,20 +140,18 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, var(--color-primaryPalette-100), var(--color-primaryPalette-200));
-    color: var(--color-primaryPalette-800);
+    background-color: var(--color-primaryPalette-50);
+    color: var(--color-primaryPalette-50-contrast);
     border-radius: 6px;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
 }
 
 .collapsed-table-item_active .collapsed-table-initials {
-    background: linear-gradient(135deg, var(--color-accentedPalette-500), var(--color-accentedPalette-600));
+    background-color: var(--color-accentedPalette-500);
     color: var(--color-accentedPalette-500-contrast);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     transform: scale(1.05);
 }
 
