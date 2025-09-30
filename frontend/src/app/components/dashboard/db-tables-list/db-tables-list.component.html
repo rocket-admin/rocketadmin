@@ -14,30 +14,30 @@
                 <mat-icon class="collapsed-action-icon">search</mat-icon>
             </div>
             
-            <!-- Show collections in collapsed state -->
-            <div *ngIf="collections.length > 0" class="collapsed-collections">
-                <div *ngFor="let collection of collections" 
-                     class="collapsed-collection-item"
-                     [class.collapsed-collection-item_active]="currentCollapsedCollection?.id === collection.id"
-                     [matTooltip]="collection.name"
+            <!-- Show folders in collapsed state -->
+            <div *ngIf="folders.length > 0" class="collapsed-folders">
+                <div *ngFor="let folder of folders" 
+                     class="collapsed-folder-item"
+                     [class.collapsed-folder-item_active]="currentCollapsedFolder?.id === folder.id"
+                     [matTooltip]="folder.name"
                      matTooltipPosition="right"
-                     (click)="onCollapsedCollectionClick(collection)">
-                    <mat-icon *ngIf="collection.name === 'All Tables'" 
-                              class="collapsed-collection-icon">table_view</mat-icon>
-                    <span *ngIf="collection.name !== 'All Tables'" 
-                          class="material-icons-outlined collapsed-collection-icon">folder</span>
+                     (click)="onCollapsedFolderClick(folder)">
+                    <mat-icon *ngIf="folder.name === 'All Tables'" 
+                              class="collapsed-folder-icon">table_view</mat-icon>
+                    <span *ngIf="folder.name !== 'All Tables'" 
+                          class="material-icons-outlined collapsed-folder-icon">folder</span>
                 </div>
             </div>
-            <!-- Fallback to table_view if no collections -->
-            <mat-icon *ngIf="collections.length === 0" 
-                      class="collapsed-collection-icon"
+            <!-- Fallback to table_view if no folders -->
+            <mat-icon *ngIf="folders.length === 0" 
+                      class="collapsed-folder-icon"
                       matTooltip="All Tables"
                       matTooltipPosition="right">table_view</mat-icon>
             
-            <!-- Add collection button -->
+            <!-- Add folder button -->
             <div class="collapsed-add-button" 
-                 (click)="onAddCollection()"
-                 matTooltip="Create Collection"
+                 (click)="onAddFolder()"
+                 matTooltip="Add Folder"
                  matTooltipPosition="right">
                 <mat-icon class="collapsed-action-icon">add</mat-icon>
             </div>
@@ -46,7 +46,7 @@
         
         
         
-        <!-- Collapsed table list for any collection -->
+        <!-- Collapsed table list for any folder -->
         <div *ngIf="collapsed && showCollapsedTableList" class="collapsed-tables-list">
             <a *ngFor="let table of getCollapsedTableList()" 
                class="collapsed-table-item"
@@ -69,76 +69,76 @@
             <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
         </mat-form-field>
 
-        <div *ngIf="!collapsed" class="add-collection-button-container">
-            <button mat-stroked-button color="primary" class="add-collection-button" (click)="onAddCollection()">
+        <div *ngIf="!collapsed" class="add-folder-button-container">
+            <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
                 <mat-icon>add</mat-icon>
-                Add Collection
+                Add Folder
             </button>
         </div>
 
         <!-- Collections Section -->
-        <div *ngIf="!collapsed && collections.length > 0" class="collections-section">
-            <ng-container *ngFor="let collection of collections; trackBy: trackByCollectionId">
-                <div *ngIf="shouldShowCollection(collection)"
-                     class="collection-item" 
-                     [class.expanded]="collection.expanded"
-                     [class.drag-over]="dragOverCollection === collection.id"
-                     (dragover)="onCollectionDragOver($event, collection.id)"
-                     (dragleave)="onCollectionDragLeave($event, collection.id)"
-                     (drop)="onCollectionDrop($event, collection)">
-                    <div class="collection-header" (click)="toggleCollection(collection.id)">
-                        <mat-icon class="collection-expand-icon" [class.expanded]="collection.expanded">
+        <div *ngIf="!collapsed && folders.length > 0" class="folders-section">
+            <ng-container *ngFor="let folder of folders; trackBy: trackByFolderId">
+                <div *ngIf="shouldShowFolder(folder)"
+                     class="folder-item" 
+                     [class.expanded]="folder.expanded"
+                     [class.drag-over]="dragOverFolder === folder.id"
+                     (dragover)="onFolderDragOver($event, folder.id)"
+                     (dragleave)="onFolderDragLeave($event, folder.id)"
+                     (drop)="onFolderDrop($event, folder)">
+                    <div class="folder-header" (click)="toggleFolder(folder.id)">
+                        <mat-icon class="folder-expand-icon" [class.expanded]="folder.expanded">
                             chevron_right
                         </mat-icon>
-                        <div class="collection-name" 
-                             [class.editing]="collection.editing"
-                             *ngIf="!collection.editing; else collectionNameEdit"
-                             (dblclick)="onCollectionNameDoubleClick($event, collection)">
-                            {{collection.name}}
+                        <div class="folder-name" 
+                             [class.editing]="folder.editing"
+                             *ngIf="!folder.editing; else folderNameEdit"
+                             (dblclick)="onFolderNameDoubleClick($event, folder)">
+                            {{folder.name}}
                         </div>
-                        <div class="collection-actions">
-                            <button *ngIf="getAvailableTables(collection).length > 0" 
+                        <div class="folder-actions">
+                            <button *ngIf="getAvailableTables(folder).length > 0" 
                                     mat-icon-button class="add-table-button header-add" 
-                                    (click)="$event.stopPropagation(); showAddTableDialog(collection)" 
-                                    matTooltip="Add table to collection">
+                                    (click)="$event.stopPropagation(); showAddTableDialog(folder)" 
+                                    matTooltip="Add table to folder">
                                 <mat-icon>add</mat-icon>
                             </button>
-                            <button *ngIf="collection.name !== 'All Tables'" 
-                                    mat-icon-button class="more-collection-button" 
-                                    [matMenuTriggerFor]="collectionMenu"
+                            <button *ngIf="folder.name !== 'All Tables'" 
+                                    mat-icon-button class="more-folder-button" 
+                                    [matMenuTriggerFor]="folderMenu"
                                     (click)="$event.stopPropagation()" 
-                                    matTooltip="Collection options">
+                                    matTooltip="Folder options">
                                 <mat-icon>more_vert</mat-icon>
                             </button>
-                            <mat-menu #collectionMenu="matMenu" (closed)="onMenuClosed()">
-                                <button mat-menu-item (click)="onCollectionNameDoubleClick($event, collection); closeMenu(collectionMenu)">
+                            <mat-menu #folderMenu="matMenu" (closed)="onMenuClosed()">
+                                <button mat-menu-item (click)="onFolderNameDoubleClick($event, folder); closeMenu(folderMenu)">
                                     <mat-icon>edit</mat-icon>
                                     <span>Rename</span>
                                 </button>
-                                <button mat-menu-item (click)="deleteCollection(collection); closeMenu(collectionMenu)">
+                                <button mat-menu-item (click)="deleteFolder(folder); closeMenu(folderMenu)">
                                     <mat-icon>delete</mat-icon>
                                     <span>Delete</span>
                                 </button>
                             </mat-menu>
                         </div>
-                        <ng-template #collectionNameEdit>
-                            <div class="collection-name-edit-container">
-                                <input class="collection-name editing"
-                                       [(ngModel)]="collection.name"
-                                       (blur)="finishEditCollection(collection)"
-                                       (keyup.enter)="finishEditCollection(collection)"
-                                       (keyup.escape)="cancelEditCollection(collection)"
-                                       #collectionNameInput
+                        <ng-template #folderNameEdit>
+                            <div class="folder-name-edit-container">
+                                <input class="folder-name editing"
+                                       [(ngModel)]="folder.name"
+                                       (blur)="finishEditFolder(folder)"
+                                       (keyup.enter)="finishEditFolder(folder)"
+                                       (keyup.escape)="cancelEditFolder(folder)"
+                                       #folderNameInput
                                        (click)="$event.stopPropagation()"
-                                       (focus)="collectionNameInput.select()">
-                                <mat-icon class="enter-icon" (click)="finishEditCollection(collection)">keyboard_return</mat-icon>
+                                       (focus)="folderNameInput.select()">
+                                <mat-icon class="enter-icon" (click)="finishEditFolder(folder)">keyboard_return</mat-icon>
                             </div>
                         </ng-template>
                     </div>
-                    <div *ngIf="collection.expanded" class="collection-tables">
-                        <div *ngIf="getCollectionTables(collection).length > 0; else noTablesInCollection" 
+                    <div *ngIf="folder.expanded" class="folder-tables">
+                        <div *ngIf="getFolderTables(folder).length > 0; else noTablesInCollection" 
                              class="selected-tables-list">
-                            <div *ngFor="let table of getCollectionTables(collection)" 
+                            <div *ngFor="let table of getFolderTables(folder)" 
                                  class="selected-table-item"
                                  [draggable]="true"
                                  (dragstart)="onTableDragStart($event, table)"
@@ -150,18 +150,18 @@
                                    (click)="closeSidebar()">
                                     <span class="table-name">{{getTableName(table)}}</span>
                                 </a>
-                                <button *ngIf="collection.name !== 'All Tables'" 
+                                <button *ngIf="folder.name !== 'All Tables'" 
                                         mat-icon-button class="remove-table-button" 
-                                        (click)="removeTableFromCollection(collection, table, $event)"
-                                        matTooltip="Remove from collection">
+                                        (click)="removeTableFromFolder(folder, table, $event)"
+                                        matTooltip="Remove from folder">
                                     <mat-icon>close</mat-icon>
                                 </button>
                             </div>
                         </div>
                         <ng-template #noTablesInCollection>
                             <div class="no-tables-message">
-                                <p>No tables in this collection</p>
-                                <button mat-stroked-button color="primary" (click)="showAddTableDialog(collection)">
+                                <p>No tables in this folder</p>
+                                <button mat-stroked-button color="primary" (click)="showAddTableDialog(folder)">
                                     <mat-icon>add</mat-icon>
                                     Add Table
                                 </button>
@@ -189,13 +189,13 @@
 <div class="add-table-dialog" *ngIf="showAddTableDialogFlag" (click)="closeAddTableDialog($event)">
     <div class="dialog-content" (click)="$event.stopPropagation()">
         <div class="dialog-header">
-            <h3>Add Tables to {{currentCollection?.name}}</h3>
+            <h3>Add Tables to {{currentFolder?.name}}</h3>
             <button mat-icon-button (click)="closeAddTableDialog()">
                 <mat-icon>close</mat-icon>
             </button>
         </div>
         <div class="dialog-body">
-            <div *ngFor="let table of getAvailableTables(currentCollection)" class="available-table-item">
+            <div *ngFor="let table of getAvailableTables(currentFolder)" class="available-table-item">
                 <mat-checkbox [checked]="selectedTablesForAdd.includes(table.table)" 
                               (change)="toggleTableSelection(table.table, $event)">
                     <span class="table-name">{{getTableName(table)}}</span>
@@ -204,7 +204,7 @@
         </div>
         <div class="dialog-actions">
             <button mat-button (click)="closeAddTableDialog()">Cancel</button>
-            <button mat-raised-button color="primary" (click)="addSelectedTablesToCollection()">
+            <button mat-raised-button color="primary" (click)="addSelectedTablesToFolder()">
                 Add Selected
             </button>
         </div>

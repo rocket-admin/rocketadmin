@@ -15,7 +15,7 @@ import { RouterModule } from '@angular/router';
 import { TableProperties } from 'src/app/models/table';
 import { TableStateService } from 'src/app/services/table-state.service';
 
-export interface Collection {
+export interface Folder {
   id: string;
   name: string;
   expanded: boolean;
@@ -53,21 +53,21 @@ export class DbTablesListComponent implements OnInit {
 
   public substringToSearch: string;
   public foundTables: TableProperties[];
-  public collections: Collection[] = [];
-  private editingCollectionName: string = '';
+  public folders: Folder[] = [];
+  private editingFolderName: string = '';
   
   // Dialog state
   public showAddTableDialogFlag: boolean = false;
-  public currentCollection: Collection | null = null;
+  public currentFolder: Folder | null = null;
   public selectedTablesForAdd: string[] = [];
   
   // Drag and drop state
   public draggedTable: TableProperties | null = null;
-  public dragOverCollection: string | null = null;
+  public dragOverFolder: string | null = null;
   
   // Collapsed state
   public showCollapsedTableList: boolean = false;
-  public currentCollapsedCollection: Collection | null = null;
+  public currentCollapsedFolder: Folder | null = null;
 
   constructor(
     private _tableState: TableStateService,
@@ -75,32 +75,32 @@ export class DbTablesListComponent implements OnInit {
 
   ngOnInit() {
     this.foundTables = this.tables;
-    this.loadCollections();
+    this.loadFolders();
     console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
   }
 
   searchSubstring() {
     if (!this.substringToSearch || this.substringToSearch.trim() === '') {
       this.foundTables = this.tables;
-      // Collapse all collections when search is cleared
-      this.collections.forEach(collection => {
-        collection.expanded = false;
+      // Collapse all folders when search is cleared
+      this.folders.forEach(folder => {
+        folder.expanded = false;
       });
       return;
     }
 
     const searchTerm = this.substringToSearch.toLowerCase();
     
-    // Get all tables that match the search (including those in collections)
+    // Get all tables that match the search (including those in folders)
     const allTables = [...this.tables];
     
-    // Add tables from collections that might not be in the main tables list
-    this.collections.forEach(collection => {
-      collection.tableIds.forEach(tableId => {
+    // Add tables from folders that might not be in the main tables list
+    this.folders.forEach(folder => {
+      folder.tableIds.forEach(tableId => {
         // Find the table object by ID
-        const tableInCollection = this.tables.find(t => t.table === tableId);
-        if (tableInCollection && !allTables.find(t => t.table === tableId)) {
-          allTables.push(tableInCollection);
+        const tableInFolder = this.tables.find(t => t.table === tableId);
+        if (tableInFolder && !allTables.find(t => t.table === tableId)) {
+          allTables.push(tableInFolder);
         }
       });
     });
@@ -117,17 +117,17 @@ export class DbTablesListComponent implements OnInit {
       index === self.findIndex(t => t.table === table.table)
     );
 
-    // Expand all collections that contain matching tables
-    this.collections.forEach(collection => {
-      const collectionTables = this.getCollectionTables(collection);
-      const hasMatchingTables = collectionTables.some(table => 
+    // Expand all folders that contain matching tables
+    this.folders.forEach(folder => {
+      const folderTables = this.getFolderTables(folder);
+      const hasMatchingTables = folderTables.some(table => 
         this.foundTables.some(foundTable => foundTable.table === table.table)
       );
       
       if (hasMatchingTables) {
-        collection.expanded = true;
+        folder.expanded = true;
       } else {
-        collection.expanded = false;
+        folder.expanded = false;
       }
     });
   }
@@ -177,57 +177,57 @@ export class DbTablesListComponent implements OnInit {
     this._tableState.closeAIpanel();
   }
 
-  closeAllCollections() {
-    this.collections.forEach(collection => {
+  closeAllFolders() {
+    this.folders.forEach(collection => {
       collection.expanded = false;
     });
-    this.saveCollections();
+    this.saveFolders();
   }
 
-  onAddCollection() {
-    const newCollection: Collection = {
-      id: this.generateCollectionId(),
-      name: `Collection ${this.collections.length + 1}`,
+  onAddFolder() {
+    const newFolder: Folder = {
+      id: this.generateFolderId(),
+      name: `Folder ${this.folders.length}`,
       expanded: false,
       editing: false,
       tableIds: []
     };
-    this.collections.push(newCollection);
-    this.saveCollections();
-    this.startEditCollection(newCollection);
+    this.folders.push(newFolder);
+    this.saveFolders();
+    this.startEditFolder(newFolder);
   }
 
-  toggleCollection(collectionId: string) {
-    const collection = this.collections.find(c => c.id === collectionId);
-    if (collection) {
-      collection.expanded = !collection.expanded;
+  toggleFolder(folderId: string) {
+    const folder = this.folders.find(f => f.id === folderId);
+    if (folder) {
+      folder.expanded = !folder.expanded;
     }
   }
 
-  onCollapsedCollectionClick(collection: Collection) {
-    console.log('Clicked on collection:', collection.name);
+  onCollapsedFolderClick(folder: Folder) {
+    console.log('Clicked on folder:', folder.name);
     
-    // If clicking on the same collection that's already open, close it
-    if (this.currentCollapsedCollection?.id === collection.id) {
+    // If clicking on the same folder that's already open, close it
+    if (this.currentCollapsedFolder?.id === folder.id) {
       this.showCollapsedTableList = false;
-      this.currentCollapsedCollection = null;
+      this.currentCollapsedFolder = null;
     } else {
-      // If clicking on a different collection, open it immediately
+      // If clicking on a different folder, open it immediately
       this.showCollapsedTableList = true;
-      this.currentCollapsedCollection = collection;
+      this.currentCollapsedFolder = folder;
     }
     
     console.log('showCollapsedTableList is now:', this.showCollapsedTableList);
-    console.log('currentCollapsedCollection is now:', this.currentCollapsedCollection?.name);
+    console.log('currentCollapsedFolder is now:', this.currentCollapsedFolder?.name);
   }
 
   getCollapsedTableList(): TableProperties[] {
-    if (!this.currentCollapsedCollection) {
-      console.log('No current collapsed collection');
+    if (!this.currentCollapsedFolder) {
+      console.log('No current collapsed folder');
       return [];
     }
     
-    const tables = this.getCollectionTables(this.currentCollapsedCollection);
+    const tables = this.getFolderTables(this.currentCollapsedFolder);
     console.log('getCollapsedTableList - tables:', tables);
     return tables;
   }
@@ -254,17 +254,17 @@ export class DbTablesListComponent implements OnInit {
 
 
 
-  startEditCollection(collection: Collection) {
-    console.log('startEditCollection called for:', collection.name);
+  startEditFolder(folder: Folder) {
+    console.log('startEditFolder called for:', folder.name);
     // Cancel any other editing
-    this.collections.forEach(c => c.editing = false);
-    collection.editing = true;
-    this.editingCollectionName = collection.name;
-    console.log('Collection editing state:', collection.editing);
+    this.folders.forEach(f => f.editing = false);
+    folder.editing = true;
+    this.editingFolderName = folder.name;
+    console.log('Folder editing state:', folder.editing);
     
     // Focus and select the input after the view updates
     setTimeout(() => {
-      const input = document.querySelector('.collection-name.editing') as HTMLInputElement;
+      const input = document.querySelector('.folder-name.editing') as HTMLInputElement;
       if (input) {
         input.focus();
         input.select();
@@ -272,28 +272,28 @@ export class DbTablesListComponent implements OnInit {
     }, 0);
   }
 
-  finishEditCollection(collection: Collection) {
-    collection.editing = false;
-    if (collection.name.trim() === '') {
-      collection.name = this.editingCollectionName;
+  finishEditFolder(folder: Folder) {
+    folder.editing = false;
+    if (folder.name.trim() === '') {
+      folder.name = this.editingFolderName;
     }
-    this.saveCollections();
+    this.saveFolders();
   }
 
-  deleteCollection(collection: Collection) {
-    if (confirm(`Are you sure you want to delete the collection "${collection.name}"?`)) {
-      const index = this.collections.findIndex(c => c.id === collection.id);
+  deleteFolder(folder: Folder) {
+    if (confirm(`Are you sure you want to delete the folder "${folder.name}"?`)) {
+      const index = this.folders.findIndex(f => f.id === folder.id);
       if (index > -1) {
-        this.collections.splice(index, 1);
-        this.saveCollections();
+        this.folders.splice(index, 1);
+        this.saveFolders();
       }
     }
   }
 
-  onCollectionNameDoubleClick(event: Event, collection: Collection) {
-    if (collection.name !== 'All Tables') {
+  onFolderNameDoubleClick(event: Event, folder: Folder) {
+    if (folder.name !== 'All Tables') {
       event.stopPropagation();
-      this.startEditCollection(collection);
+      this.startEditFolder(folder);
       
       // Close any open menus after starting edit
       setTimeout(() => {
@@ -327,56 +327,56 @@ export class DbTablesListComponent implements OnInit {
     
     if (!isEditingInput && !isEditButton) {
       // Find any collection that is currently being edited
-      const editingCollection = this.collections.find(c => c.editing);
-      if (editingCollection) {
-        this.finishEditCollection(editingCollection);
+      const editingFolder = this.folders.find(c => c.editing);
+      if (editingFolder) {
+        this.finishEditFolder(editingFolder);
       }
     }
   }
 
-  cancelEditCollection(collection: Collection) {
-    collection.editing = false;
-    collection.name = this.editingCollectionName;
+  cancelEditFolder(folder: Folder) {
+    folder.editing = false;
+    folder.name = this.editingFolderName;
   }
 
-  getCollectionTables(collection: Collection): TableProperties[] {
-    const collectionTables = this.tables.filter(table => collection.tableIds.includes(table.table));
+  getFolderTables(folder: Folder): TableProperties[] {
+    const folderTables = this.tables.filter(table => folder.tableIds.includes(table.table));
     
     // If there's a search term, filter the collection tables too
     if (this.substringToSearch && this.substringToSearch.trim() !== '') {
       const searchTerm = this.substringToSearch.toLowerCase();
-      return collectionTables.filter(table => 
+      return folderTables.filter(table => 
         table.table.toLowerCase().includes(searchTerm) || 
         (table.display_name && table.display_name.toLowerCase().includes(searchTerm)) ||
         (table.normalizedTableName && table.normalizedTableName.toLowerCase().includes(searchTerm))
       );
     }
     
-    return collectionTables;
+    return folderTables;
   }
 
-  getAvailableTables(collection: Collection | null): TableProperties[] {
-    if (!collection) return [];
-    return this.tables.filter(table => !collection.tableIds.includes(table.table));
+  getAvailableTables(folder: Folder | null): TableProperties[] {
+    if (!folder) return [];
+    return this.tables.filter(table => !folder.tableIds.includes(table.table));
   }
 
-  isTableInAnyCollection(table: TableProperties): boolean {
-    return this.collections.some(collection => collection.tableIds.includes(table.table));
+  isTableInAnyFolder(table: TableProperties): boolean {
+    return this.folders.some(folder => folder.tableIds.includes(table.table));
   }
 
-  shouldShowCollection(collection: Collection): boolean {
-    // If no search term, show all collections
+  shouldShowFolder(folder: Folder): boolean {
+    // If no search term, show all folders
     if (!this.substringToSearch || this.substringToSearch.trim() === '') {
       return true;
     }
     
     // Show collection if it has tables matching the search
-    const matchingTables = this.getCollectionTables(collection);
+    const matchingTables = this.getFolderTables(folder);
     return matchingTables.length > 0;
   }
 
-  showAddTableDialog(collection: Collection) {
-    this.currentCollection = collection;
+  showAddTableDialog(folder: Folder) {
+    this.currentFolder = folder;
     this.selectedTablesForAdd = [];
     this.showAddTableDialogFlag = true;
   }
@@ -384,7 +384,7 @@ export class DbTablesListComponent implements OnInit {
   closeAddTableDialog(event?: Event) {
     if (event && event.target !== event.currentTarget) return;
     this.showAddTableDialogFlag = false;
-    this.currentCollection = null;
+    this.currentFolder = null;
     this.selectedTablesForAdd = [];
   }
 
@@ -399,72 +399,72 @@ export class DbTablesListComponent implements OnInit {
     }
   }
 
-  addSelectedTablesToCollection() {
-    if (!this.currentCollection) return;
+  addSelectedTablesToFolder() {
+    if (!this.currentFolder) return;
     
     this.selectedTablesForAdd.forEach(tableId => {
-      if (!this.currentCollection!.tableIds.includes(tableId)) {
-        this.currentCollection!.tableIds.push(tableId);
+      if (!this.currentFolder!.tableIds.includes(tableId)) {
+        this.currentFolder!.tableIds.push(tableId);
       }
     });
     
-    this.saveCollections();
+    this.saveFolders();
     this.closeAddTableDialog();
   }
 
-  removeTableFromCollection(collection: Collection, table: TableProperties, event: Event) {
+  removeTableFromFolder(folder: Folder, table: TableProperties, event: Event) {
     event.stopPropagation();
-    collection.tableIds = collection.tableIds.filter(id => id !== table.table);
-    this.saveCollections();
+    folder.tableIds = folder.tableIds.filter(id => id !== table.table);
+    this.saveFolders();
   }
 
-  trackByCollectionId(index: number, collection: Collection): string {
-    return collection.id;
+  trackByFolderId(index: number, folder: Folder): string {
+    return folder.id;
   }
 
-  private generateCollectionId(): string {
+  private generateFolderId(): string {
     return Date.now().toString();
   }
 
-  private loadCollections() {
-    const key = `collections_${this.connectionID}`;
+  private loadFolders() {
+    const key = `folders_${this.connectionID}`;
     const saved = localStorage.getItem(key);
     if (saved) {
       try {
-        this.collections = JSON.parse(saved);
+        this.folders = JSON.parse(saved);
         // Reset editing state only, keep expanded state
-        this.collections.forEach(c => c.editing = false);
-        console.log('Collections loaded:', this.collections.map(c => ({ name: c.name, expanded: c.expanded })));
+        this.folders.forEach(c => c.editing = false);
+        console.log('Folders loaded:', this.folders.map(c => ({ name: c.name, expanded: c.expanded })));
       } catch (e) {
-        console.error('Error loading collections:', e);
-        this.collections = [];
+        console.error('Error loading folders:', e);
+        this.folders = [];
       }
     } else {
-      console.log('No saved collections found for key:', key);
+      console.log('No saved folders found for key:', key);
     }
     
     // Create "All Tables" collection if it doesn't exist
-    const allTablesCollection = this.collections.find(c => c.name === 'All Tables');
-    if (!allTablesCollection) {
-      const allTablesCollection: Collection = {
-        id: this.generateCollectionId(),
+    const allTablesFolder = this.folders.find(c => c.name === 'All Tables');
+    if (!allTablesFolder) {
+      const allTablesFolder: Folder = {
+        id: this.generateFolderId(),
         name: 'All Tables',
         expanded: true,
         editing: false,
         tableIds: this.tables.map(table => table.table)
       };
-      this.collections.unshift(allTablesCollection); // Add to beginning
-      this.saveCollections();
+      this.folders.unshift(allTablesFolder); // Add to beginning
+      this.saveFolders();
     }
   }
 
-  private saveCollections() {
+  private saveFolders() {
     try {
-      const key = `collections_${this.connectionID}`;
-      localStorage.setItem(key, JSON.stringify(this.collections));
-      console.log('Collections saved:', this.collections.map(c => ({ name: c.name, expanded: c.expanded })));
+      const key = `folders_${this.connectionID}`;
+      localStorage.setItem(key, JSON.stringify(this.folders));
+      console.log('Folders saved:', this.folders.map(c => ({ name: c.name, expanded: c.expanded })));
     } catch (e) {
-      console.error('Error saving collections:', e);
+      console.error('Error saving folders:', e);
     }
   }
 
@@ -479,43 +479,43 @@ export class DbTablesListComponent implements OnInit {
 
   onTableDragEnd(event: DragEvent) {
     this.draggedTable = null;
-    this.dragOverCollection = null;
+    this.dragOverFolder = null;
   }
 
-  onCollectionDragOver(event: DragEvent, collectionId: string) {
+  onFolderDragOver(event: DragEvent, folderId: string) {
     event.preventDefault();
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
     }
-    this.dragOverCollection = collectionId;
+    this.dragOverFolder = folderId;
   }
 
-  onCollectionDragLeave(event: DragEvent, collectionId: string) {
+  onFolderDragLeave(event: DragEvent, folderId: string) {
     // Only clear if we're actually leaving the collection (not moving to a child element)
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX;
     const y = event.clientY;
     
     if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-      this.dragOverCollection = null;
+      this.dragOverFolder = null;
     }
   }
 
-  onCollectionDrop(event: DragEvent, collection: Collection) {
+  onFolderDrop(event: DragEvent, folder: Folder) {
     event.preventDefault();
     
     if (this.draggedTable) {
-      if (collection.tableIds.includes(this.draggedTable.table)) {
+      if (folder.tableIds.includes(this.draggedTable.table)) {
         // Show notification that table already exists
-        this.showTableExistsNotification(collection.name, this.getTableName(this.draggedTable));
+        this.showTableExistsNotification(folder.name, this.getTableName(this.draggedTable));
       } else {
-        collection.tableIds.push(this.draggedTable.table);
-        this.saveCollections();
+        folder.tableIds.push(this.draggedTable.table);
+        this.saveFolders();
       }
     }
     
     this.draggedTable = null;
-    this.dragOverCollection = null;
+    this.dragOverFolder = null;
   }
 
   private showTableExistsNotification(collectionName: string, tableName: string) {
