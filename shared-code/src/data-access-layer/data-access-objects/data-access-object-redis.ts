@@ -157,6 +157,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     const redisClient = await this.getClient();
 
@@ -234,7 +235,10 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     const offset = (page - 1) * perPage;
     const paginatedRows = allRows.slice(offset, offset + perPage);
 
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
+
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     const finalRows = paginatedRows.map((row) => {
@@ -465,6 +469,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       perPage,
       searchedFieldValue,
       filteringFields,
+      null,
       null,
     )) as any;
     return rowsResult.data;

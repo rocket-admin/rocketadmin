@@ -161,6 +161,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           searchingFieldValue,
           filteringFields,
           autocompleteFields,
+          tableStructure,
           userEmail,
         );
       } catch (e) {
