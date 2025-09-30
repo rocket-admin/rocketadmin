@@ -1,9 +1,11 @@
 /* eslint-disable security/detect-object-injection */
 import * as csv from 'csv';
+import getPort from 'get-port';
 import { nanoid } from 'nanoid';
 import { Readable, Stream } from 'node:stream';
 import { createClient, RedisClientType } from 'redis';
 import { LRUStorage } from '../../caching/lru-storage.js';
+import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
@@ -337,6 +339,9 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
+    if (!this.connection.id) {
+      this.connection.id = nanoid(6);
+    }
     try {
       const redisClient = await this.getClient();
       const response = await redisClient.ping();
@@ -357,6 +362,8 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         result: false,
         message: `Connection failed: ${error.message}`,
       };
+    } finally {
+      LRUStorage.delRedisClientCache(this.connection);
     }
   }
 
@@ -515,22 +522,10 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   }
 
   private async getClient(): Promise<RedisClientType> {
-    let client: RedisClientType = LRUStorage.getRedisClientCache(this.connection);
-    if (!client) {
-      client = createClient({
-        socket: {
-          host: this.connection.host,
-          port: this.connection.port,
-          ca: this.connection.cert || undefined,
-          cert: this.connection.cert || undefined,
-          rejectUnauthorized: this.connection.ssl === false ? false : true,
-        },
-        password: this.connection.password || undefined,
-      });
-      await client.connect();
-      LRUStorage.setRedisClientCache(this.connection, client);
+    if (this.connection.ssh) {
+      return await this.createTunneledConnection(this.connection);
     }
-    return client;
+    return await this.getUsualConnection();
   }
 
   private inferRedisDataType(value: any): string {
@@ -692,5 +687,68 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       if (!passesSearch) return false;
     }
     return true;
+  }
+
+  private async getUsualConnection(): Promise<RedisClientType> {
+    let client: RedisClientType = LRUStorage.getRedisClientCache(this.connection);
+    if (!client) {
+      client = createClient({
+        socket: {
+          host: this.connection.host,
+          port: this.connection.port,
+          ca: this.connection.cert || undefined,
+          cert: this.connection.cert || undefined,
+          rejectUnauthorized: this.connection.ssl === false ? false : true,
+        },
+        password: this.connection.password || undefined,
+      });
+      await client.connect();
+      LRUStorage.setRedisClientCache(this.connection, client);
+    }
+    return client;
+  }
+
+  private async createTunneledConnection(connection: ConnectionParams): Promise<RedisClientType> {
+    const connectionCopy = { ...connection };
+    return new Promise<RedisClientType>(async (resolve, reject): Promise<RedisClientType> => {
+      const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
+      if (cachedTnl && cachedTnl.redis && cachedTnl.server && cachedTnl.client) {
+        resolve(cachedTnl.redis);
+        return;
+      }
+
+      const freePort = await getPort();
+
+      try {
+        const [server, client] = await getTunnel(connectionCopy, freePort);
+        connection.host = '127.0.0.1';
+        connection.port = freePort;
+        const redisClient = await this.getUsualConnection();
+
+        const tnlCachedObj = {
+          server: server,
+          client: client,
+          redis: redisClient,
+        };
+        LRUStorage.setTunnelCache(connectionCopy, tnlCachedObj);
+        resolve(tnlCachedObj.redis);
+        client.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+          return;
+        });
+
+        server.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+          return;
+        });
+        return;
+      } catch (error) {
+        LRUStorage.delTunnelCache(connectionCopy);
+        reject(error);
+        return;
+      }
+    });
   }
 }

@@ -212,7 +212,7 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
-      retries: 3  
+      retries: 3
 
   rocketadmin-agent_mongo:
     build:
@@ -346,4 +346,24 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.cassandra_test_agent_config.txt
+    command: ["yarn", "start:dev"]
+
+  rocketadmin-agent_redis:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8138:8138
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+      - redis-e2e-testing
+    depends_on:
+      - autoadmin-ws-server
+      - redis-e2e-testing
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.redis_test_agent_config.txt
     command: ["yarn", "start:dev"]
