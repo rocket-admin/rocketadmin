@@ -106,15 +106,15 @@
                             </button>
                             <mat-menu #folderMenu="matMenu" (closed)="onMenuClosed()">
                                 <button mat-menu-item (click)="onFolderNameDoubleClick($event, folder); closeMenu(folderMenu)">
-                                    <mat-icon>edit</mat-icon>
+                                    <span class="material-icons-outlined">edit</span>
                                     <span>Rename</span>
                                 </button>
                                 <button mat-menu-item (click)="showEditTablesDialog(folder); closeMenu(folderMenu)">
-                                    <mat-icon>edit_note</mat-icon>
+                                    <span class="material-icons-outlined">edit_note</span>
                                     <span>Edit</span>
                                 </button>
                                 <button mat-menu-item (click)="deleteFolder(folder); closeMenu(folderMenu)">
-                                    <mat-icon>delete</mat-icon>
+                                    <span class="material-icons-outlined">delete</span>
                                     <span>Delete</span>
                                 </button>
                             </mat-menu>
@@ -149,6 +149,7 @@
                                     <span class="table-name">{{getTableName(table)}}</span>
                                 </a>
                             </div>
+                            
                         </div>
                         <ng-template #noTablesInCollection>
                             <div class="no-tables-message">

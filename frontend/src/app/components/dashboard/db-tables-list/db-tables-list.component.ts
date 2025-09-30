@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, OnInit, Output, EventEmitter, SimpleChanges } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
@@ -42,7 +42,7 @@ export interface Folder {
     ContentLoaderComponent
   ]
 })
-export class DbTablesListComponent implements OnInit {
+export class DbTablesListComponent implements OnInit, OnChanges {
   @Input() connectionID: string;
   @Input() connectionTitle: string;
   @Input() tables: TableProperties[];
@@ -67,6 +67,10 @@ export class DbTablesListComponent implements OnInit {
   // Collapsed state
   public showCollapsedTableList: boolean = false;
   public currentCollapsedFolder: Folder | null = null;
+  
+  // State preservation
+  private preservedFolderStates: { [key: string]: boolean } = {};
+  private preservedActiveFolder: string | null = null;
 
   constructor(
     private _tableState: TableStateService,
@@ -76,6 +80,18 @@ export class DbTablesListComponent implements OnInit {
     this.foundTables = this.tables;
     this.loadFolders();
     console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['collapsed']) {
+      if (changes['collapsed'].currentValue === true) {
+        // Sidebar is being collapsed - preserve current state
+        this.preserveFolderStates();
+      } else if (changes['collapsed'].currentValue === false) {
+        // Sidebar is being expanded - restore preserved state
+        this.restoreFolderStates();
+      }
+    }
   }
 
   searchSubstring() {
@@ -376,6 +392,8 @@ export class DbTablesListComponent implements OnInit {
 
   showEditTablesDialog(folder: Folder) {
     this.currentFolder = folder;
+    // Expand the folder if it's collapsed
+    folder.expanded = true;
     this.showEditTablesDialogFlag = true;
   }
 
@@ -394,6 +412,13 @@ export class DbTablesListComponent implements OnInit {
   isTableInFolder(table: TableProperties): boolean {
     return this.currentFolder ? this.currentFolder.tableIds.includes(table.table) : false;
   }
+
+  isTableInCurrentDraggedFolder(table: TableProperties, folder: Folder): boolean {
+    return this.draggedTable && 
+           this.draggedTable.table === table.table && 
+           folder.tableIds.includes(table.table);
+  }
+
 
   toggleTableInFolder(table: TableProperties) {
     if (!this.currentFolder) return;
@@ -421,6 +446,49 @@ export class DbTablesListComponent implements OnInit {
 
   trackByFolderId(index: number, folder: Folder): string {
     return folder.id;
+  }
+
+  private preserveFolderStates() {
+    // Save expanded states of all folders
+    this.folders.forEach(folder => {
+      this.preservedFolderStates[folder.id] = folder.expanded;
+    });
+    
+    // Find and save the currently active folder (the one that contains selected table)
+    const activeFolder = this.findActiveFolder();
+    this.preservedActiveFolder = activeFolder ? activeFolder.id : null;
+    
+    console.log('Preserved folder states:', this.preservedFolderStates);
+    console.log('Preserved active folder:', this.preservedActiveFolder);
+  }
+
+  private restoreFolderStates() {
+    // Restore expanded states of all folders
+    this.folders.forEach(folder => {
+      if (this.preservedFolderStates.hasOwnProperty(folder.id)) {
+        folder.expanded = this.preservedFolderStates[folder.id];
+      }
+    });
+    
+    // Restore the active folder state in collapsed view
+    if (this.preservedActiveFolder) {
+      const activeFolder = this.folders.find(f => f.id === this.preservedActiveFolder);
+      if (activeFolder) {
+        this.currentCollapsedFolder = activeFolder;
+        this.showCollapsedTableList = true;
+      }
+    }
+    
+    console.log('Restored folder states:', this.preservedFolderStates);
+    console.log('Restored active folder:', this.preservedActiveFolder);
+  }
+
+  private findActiveFolder(): Folder | null {
+    if (!this.selectedTable) return null;
+    
+    return this.folders.find(folder => 
+      folder.tableIds.includes(this.selectedTable)
+    ) || null;
   }
 
   private generateFolderId(): string {
@@ -506,10 +574,12 @@ export class DbTablesListComponent implements OnInit {
     event.preventDefault();
     
     if (this.draggedTable) {
+      // Check if table is already in this specific folder
       if (folder.tableIds.includes(this.draggedTable.table)) {
-        // Show notification that table already exists
-        this.showTableExistsNotification(folder.name, this.getTableName(this.draggedTable));
+        // Table already exists in this folder, do nothing (no notification)
+        return;
       } else {
+        // Simply add table to the target folder (don't remove from other folders)
         folder.tableIds.push(this.draggedTable.table);
         this.saveFolders();
       }
@@ -518,6 +588,7 @@ export class DbTablesListComponent implements OnInit {
     this.draggedTable = null;
     this.dragOverFolder = null;
   }
+
 
   private showTableExistsNotification(collectionName: string, tableName: string) {
     // Create a temporary notification element
