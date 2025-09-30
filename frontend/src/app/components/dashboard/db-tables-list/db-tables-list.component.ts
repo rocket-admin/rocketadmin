@@ -57,9 +57,8 @@ export class DbTablesListComponent implements OnInit {
   private editingFolderName: string = '';
   
   // Dialog state
-  public showAddTableDialogFlag: boolean = false;
+  public showEditTablesDialogFlag: boolean = false;
   public currentFolder: Folder | null = null;
-  public selectedTablesForAdd: string[] = [];
   
   // Drag and drop state
   public draggedTable: TableProperties | null = null;
@@ -375,42 +374,44 @@ export class DbTablesListComponent implements OnInit {
     return matchingTables.length > 0;
   }
 
-  showAddTableDialog(folder: Folder) {
+  showEditTablesDialog(folder: Folder) {
     this.currentFolder = folder;
-    this.selectedTablesForAdd = [];
-    this.showAddTableDialogFlag = true;
+    this.showEditTablesDialogFlag = true;
   }
 
-  closeAddTableDialog(event?: Event) {
-    if (event && event.target !== event.currentTarget) return;
-    this.showAddTableDialogFlag = false;
-    this.currentFolder = null;
-    this.selectedTablesForAdd = [];
-  }
-
-  toggleTableSelection(tableId: string, event: any) {
-    const isChecked = event.checked;
-    if (isChecked) {
-      if (!this.selectedTablesForAdd.includes(tableId)) {
-        this.selectedTablesForAdd.push(tableId);
-      }
-    } else {
-      this.selectedTablesForAdd = this.selectedTablesForAdd.filter(id => id !== tableId);
+  closeEditTablesDialog(event?: Event) {
+    if (event) {
+      event.stopPropagation();
     }
+    this.showEditTablesDialogFlag = false;
+    this.currentFolder = null;
   }
 
-  addSelectedTablesToFolder() {
-    if (!this.currentFolder) return;
-    
-    this.selectedTablesForAdd.forEach(tableId => {
-      if (!this.currentFolder!.tableIds.includes(tableId)) {
-        this.currentFolder!.tableIds.push(tableId);
-      }
-    });
-    
-    this.saveFolders();
-    this.closeAddTableDialog();
+  get allTables(): TableProperties[] {
+    return this.tables;
   }
+
+  isTableInFolder(table: TableProperties): boolean {
+    return this.currentFolder ? this.currentFolder.tableIds.includes(table.table) : false;
+  }
+
+  toggleTableInFolder(table: TableProperties) {
+    if (!this.currentFolder) return;
+
+    const tableId = table.table;
+    const isInFolder = this.currentFolder.tableIds.includes(tableId);
+
+    if (isInFolder) {
+      // Remove from folder
+      this.currentFolder.tableIds = this.currentFolder.tableIds.filter(id => id !== tableId);
+    } else {
+      // Add to folder
+      this.currentFolder.tableIds.push(tableId);
+    }
+
+    this.saveFolders();
+  }
+
 
   removeTableFromFolder(folder: Folder, table: TableProperties, event: Event) {
     event.stopPropagation();

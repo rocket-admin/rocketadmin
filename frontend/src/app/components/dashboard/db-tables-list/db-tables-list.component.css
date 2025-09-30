@@ -616,7 +616,7 @@
 }
 
 /* Add Table Dialog Styles */
-.add-table-dialog {
+.edit-tables-dialog {
     position: fixed;
     top: 0;
     left: 0;
@@ -667,6 +667,73 @@
 
 .available-table-item:last-child {
     border-bottom: none;
+}
+
+/* Edit Tables Dialog specific styles */
+.edit-tables-dialog .dialog-content {
+    max-width: 450px;
+    width: 90%;
+}
+
+.edit-tables-dialog .dialog-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.edit-tables-dialog .table-list {
+    margin-top: 16px;
+}
+
+.edit-tables-dialog .table-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s ease;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.edit-tables-dialog .table-item:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.edit-tables-dialog .table-item:last-child {
+    border-bottom: none;
+}
+
+.edit-tables-dialog .table-name {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.edit-tables-dialog .action-button {
+    min-width: 60px;
+    height: 32px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 4px;
+    border: none;
+}
+
+.edit-tables-dialog .add-button {
+    color: #4caf50;
+    background-color: transparent;
+}
+
+.edit-tables-dialog .add-button:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.edit-tables-dialog .remove-button {
+    color: #f44336;
+    background-color: transparent;
+}
+
+.edit-tables-dialog .remove-button:hover {
+    background-color: rgba(244, 67, 54, 0.1);
 }
 
 .dialog-actions {
