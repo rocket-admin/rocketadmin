@@ -39,7 +39,7 @@
     align-items: center;
     justify-content: center;
     width: 32px;
-    height: 32px;
+    height: 40px;
     border-radius: 4px;
     background-color: var(--color-primaryPalette-50);
     color: var(--color-primaryPalette-50-contrast);
@@ -130,7 +130,7 @@
     align-items: center;
     justify-content: center;
     width: 32px;
-    height: 32px;
+    height: 40px;
     text-decoration: none;
     color: inherit;
     cursor: pointer;
@@ -456,8 +456,22 @@
     color: #757575;
 }
 
+.folder-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #666;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
 .folder-expand-icon {
     transition: transform 0.2s ease;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #666;
+    margin-left: auto;
 }
 
 .folder-expand-icon.expanded {

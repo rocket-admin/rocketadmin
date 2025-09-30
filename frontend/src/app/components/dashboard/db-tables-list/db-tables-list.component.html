@@ -87,15 +87,19 @@
                      (dragleave)="onFolderDragLeave($event, folder.id)"
                      (drop)="onFolderDrop($event, folder)">
                     <div class="folder-header" (click)="toggleFolder(folder.id)">
-                        <mat-icon class="folder-expand-icon" [class.expanded]="folder.expanded">
-                            chevron_right
-                        </mat-icon>
+                        <!-- Folder icon on the left -->
+                        <mat-icon *ngIf="folder.name === 'All Tables'" 
+                                  class="folder-icon">table_view</mat-icon>
+                        <span *ngIf="folder.name !== 'All Tables'" 
+                              class="material-icons-outlined folder-icon">folder</span>
+                        
                         <div class="folder-name" 
                              [class.editing]="folder.editing"
                              *ngIf="!folder.editing; else folderNameEdit"
                              (dblclick)="onFolderNameDoubleClick($event, folder)">
                             {{folder.name}}
                         </div>
+                        
                         <div class="folder-actions">
                             <button *ngIf="folder.name !== 'All Tables'" 
                                     mat-icon-button class="more-folder-button" 
@@ -104,6 +108,11 @@
                                     matTooltip="Folder options">
                                 <mat-icon>more_vert</mat-icon>
                             </button>
+                            
+                            <!-- Expand/collapse icon on the right -->
+                            <mat-icon class="folder-expand-icon" [class.expanded]="folder.expanded">
+                                chevron_right
+                            </mat-icon>
                             <mat-menu #folderMenu="matMenu" (closed)="onMenuClosed()">
                                 <button mat-menu-item (click)="onFolderNameDoubleClick($event, folder); closeMenu(folderMenu)">
                                     <span class="material-icons-outlined">edit</span>
