@@ -25,9 +25,11 @@
                          matTooltipPosition="right"
                          (click)="onCollapsedFolderClick(folder)">
                     <span *ngIf="folder.name === 'All Tables'" 
-                          class="material-icons-outlined collapsed-folder-icon">dehaze</span>
+                          class="material-icons-outlined collapsed-folder-icon"
+                          [style.color]="getFolderIconColor(folder)">dehaze</span>
                         <span *ngIf="folder.name !== 'All Tables'" 
-                              class="material-icons-outlined collapsed-folder-icon">folder</span>
+                              class="material-icons-outlined collapsed-folder-icon"
+                              [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
                     </div>
                 </div>
                 <!-- Fallback to dehaze if no folders -->
@@ -47,7 +49,9 @@
                        matTooltipPosition="right"
                        (click)="closeSidebar()">
                         <!-- Show icon if available, otherwise show initials -->
-                        <mat-icon *ngIf="hasTableIcon(table)" class="collapsed-table-icon">{{getTableIcon(table)}}</mat-icon>
+                        <div *ngIf="hasTableIcon(table)" class="collapsed-table-icon-container">
+                            <mat-icon class="collapsed-table-icon">{{getTableIcon(table)}}</mat-icon>
+                        </div>
                         <div *ngIf="!hasTableIcon(table)" class="collapsed-table-initials">
                             <span class="collapsed-table-text">{{getTableInitials(table)}}</span>
                         </div>
@@ -97,9 +101,11 @@
                          (click)="toggleFolder(folder.id)">
                         <!-- Folder icon on the left -->
                         <span *ngIf="folder.name === 'All Tables'" 
-                              class="material-icons-outlined folder-icon">dehaze</span>
+                              class="material-icons-outlined folder-icon"
+                              [style.color]="getFolderIconColor(folder)">dehaze</span>
                         <span *ngIf="folder.name !== 'All Tables'" 
-                              class="material-icons-outlined folder-icon">folder</span>
+                              class="material-icons-outlined folder-icon"
+                              [style.color]="getFolderIconColor(folder)">folder</span>
                         
                         <div class="folder-name" 
                              [class.editing]="folder.editing"
@@ -202,8 +208,23 @@
             <h3>Edit Tables in {{currentFolder?.name}}</h3>
         </div>
         <div class="dialog-body">
-            <p>Manage tables in this folder:</p>
-            <div class="table-list">
+            <!-- Folder Color Section -->
+            <div class="folder-color-section">
+                <h4>Folder Icon Color</h4>
+                <div class="color-row">
+                    <button *ngFor="let color of folderIconColors" 
+                            class="color-option"
+                            [style.background-color]="color.value"
+                            [class.selected]="currentFolder && getFolderIconColor(currentFolder) === color.value"
+                            (click)="changeFolderIconColor(color.value)"
+                            [title]="color.name">
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tables-section">
+                <h4>Manage tables in this folder</h4>
+                <div class="table-list">
                 <div *ngFor="let table of allTables" class="table-item">
                     <span class="table-name">{{getTableName(table)}}</span>
                     <button mat-button 
@@ -215,6 +236,8 @@
                     </button>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 </div>
+

@@ -22,6 +22,7 @@ export interface Folder {
   expanded: boolean;
   editing: boolean;
   tableIds: string[];
+  iconColor?: string; // Optional color for folder icon
 }
 
 @Component({
@@ -75,6 +76,18 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   
   // Table icons cache
   private tableIcons: { [key: string]: string } = {};
+  
+  // Folder icon colors
+  public folderIconColors = [
+    { name: 'Default', value: '#212121' },
+    { name: 'Blue', value: '#2196F3' },
+    { name: 'Green', value: '#4CAF50' },
+    { name: 'Orange', value: '#FF9800' },
+    { name: 'Red', value: '#F44336' },
+    { name: 'Purple', value: '#9C27B0' },
+    { name: 'Teal', value: '#009688' },
+    { name: 'Pink', value: '#E91E63' }
+  ];
 
   constructor(
     private _tableState: TableStateService,
@@ -491,6 +504,22 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     this.showEditTablesDialogFlag = false;
     this.currentFolder = null;
   }
+
+
+  changeFolderIconColor(color: string) {
+    if (this.currentFolder) {
+      this.currentFolder.iconColor = color;
+      this.saveFolders();
+    }
+  }
+
+  getFolderIconColor(folder: Folder, isActive?: boolean): string {
+    if (isActive) {
+      return '#212121'; // Black for active folders
+    }
+    return folder.iconColor || '#212121'; // Default color
+  }
+
 
   get allTables(): TableProperties[] {
     return this.tables;
