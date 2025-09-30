@@ -12,8 +12,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
-import { TableProperties } from 'src/app/models/table';
+import { TableProperties, TableSettings } from 'src/app/models/table';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { TablesService } from 'src/app/services/tables.service';
 
 export interface Folder {
   id: string;
@@ -71,14 +72,19 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   // State preservation
   private preservedFolderStates: { [key: string]: boolean } = {};
   private preservedActiveFolder: string | null = null;
+  
+  // Table icons cache
+  private tableIcons: { [key: string]: string } = {};
 
   constructor(
     private _tableState: TableStateService,
+    private _tablesService: TablesService,
   ) { }
 
   ngOnInit() {
     this.foundTables = this.tables;
     this.loadFolders();
+    this.loadTableIcons();
     console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
   }
 
@@ -181,6 +187,54 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       return name.substring(0, 2).toUpperCase();
     }
     return name.toUpperCase();
+  }
+
+  getTableIcon(table: TableProperties): string | null {
+    const tableKey = `${this.connectionID}_${table.table}`;
+    
+    // Return cached icon if available
+    if (this.tableIcons[tableKey]) {
+      return this.tableIcons[tableKey];
+    }
+    
+    // Return null if no custom icon is set (will show initials instead)
+    return null;
+  }
+
+  hasTableIcon(table: TableProperties): boolean {
+    const tableKey = `${this.connectionID}_${table.table}`;
+    return !!this.tableIcons[tableKey];
+  }
+
+  loadTableIcon(table: TableProperties) {
+    const tableKey = `${this.connectionID}_${table.table}`;
+    
+    // Don't load if already cached
+    if (this.tableIcons[tableKey]) {
+      return;
+    }
+    
+    // Fetch table settings to get icon
+    this._tablesService.fetchTableSettings(this.connectionID, table.table).subscribe({
+      next: (settings: TableSettings) => {
+        if (settings && settings.icon) {
+          this.tableIcons[tableKey] = settings.icon;
+        }
+      },
+      error: (error) => {
+        // Silently fail and use default icon
+        console.log(`Could not load icon for table ${table.table}:`, error);
+      }
+    });
+  }
+
+  loadTableIcons() {
+    // Load icons for all tables
+    if (this.tables) {
+      this.tables.forEach(table => {
+        this.loadTableIcon(table);
+      });
+    }
   }
 
   getTableNameLength(tableName: string) {
@@ -460,6 +514,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     
     console.log('Preserved folder states:', this.preservedFolderStates);
     console.log('Preserved active folder:', this.preservedActiveFolder);
+    console.log('Expanded folders count:', Object.values(this.preservedFolderStates).filter(expanded => expanded).length);
   }
 
   private restoreFolderStates() {
@@ -470,17 +525,30 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       }
     });
     
-    // Restore the active folder state in collapsed view
-    if (this.preservedActiveFolder) {
-      const activeFolder = this.folders.find(f => f.id === this.preservedActiveFolder);
-      if (activeFolder) {
-        this.currentCollapsedFolder = activeFolder;
+    // In collapsed view, show the table list if any folder was expanded
+    const hasExpandedFolders = Object.values(this.preservedFolderStates).some(expanded => expanded);
+    if (hasExpandedFolders) {
+      // If there was an active folder, use it; otherwise use the first expanded folder
+      let targetFolder = null;
+      
+      if (this.preservedActiveFolder) {
+        targetFolder = this.folders.find(f => f.id === this.preservedActiveFolder);
+      }
+      
+      if (!targetFolder) {
+        // Find the first expanded folder
+        targetFolder = this.folders.find(f => this.preservedFolderStates[f.id]);
+      }
+      
+      if (targetFolder) {
+        this.currentCollapsedFolder = targetFolder;
         this.showCollapsedTableList = true;
       }
     }
     
     console.log('Restored folder states:', this.preservedFolderStates);
     console.log('Restored active folder:', this.preservedActiveFolder);
+    console.log('Has expanded folders:', hasExpandedFolders);
   }
 
   private findActiveFolder(): Folder | null {

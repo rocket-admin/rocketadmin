@@ -56,7 +56,9 @@
                [matTooltip]="getTableName(table)"
                matTooltipPosition="right"
                (click)="closeSidebar()">
-                <div class="collapsed-table-initials">
+                <!-- Show icon if available, otherwise show initials -->
+                <mat-icon *ngIf="hasTableIcon(table)" class="collapsed-table-icon">{{getTableIcon(table)}}</mat-icon>
+                <div *ngIf="!hasTableIcon(table)" class="collapsed-table-initials">
                     <span class="collapsed-table-text">{{getTableInitials(table)}}</span>
                 </div>
             </a>

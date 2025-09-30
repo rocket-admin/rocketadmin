@@ -130,7 +130,7 @@
     align-items: center;
     justify-content: center;
     width: 32px;
-    height: 40px;
+    height: 32px; /* Restored to 32px for square shape */
     text-decoration: none;
     color: inherit;
     cursor: pointer;
@@ -144,6 +144,10 @@
     transform: translateY(-1px);
 }
 
+.collapsed-table-item:hover .collapsed-table-icon {
+    transform: scale(1.02);
+}
+
 .collapsed-table-item:hover .collapsed-table-initials {
     background-color: var(--color-primaryPalette-100);
     transform: scale(1.02);
@@ -152,6 +156,12 @@
 .collapsed-table-item_active {
     background-color: var(--color-accentedPalette-500);
     color: var(--color-accentedPalette-500-contrast);
+}
+
+.collapsed-table-item_active .collapsed-table-initials {
+    background-color: var(--color-accentedPalette-500);
+    color: var(--color-accentedPalette-500-contrast);
+    transform: scale(1.05);
 }
 
 .collapsed-table-item_active:hover {
@@ -173,10 +183,23 @@
     transition: all 0.2s ease;
 }
 
-.collapsed-table-item_active .collapsed-table-initials {
-    background-color: var(--color-accentedPalette-500);
-    color: var(--color-accentedPalette-500-contrast);
-    transform: scale(1.05);
+.collapsed-table-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: inherit;
+}
+
+.collapsed-table-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background-color: var(--color-primaryPalette-50);
+    color: var(--color-primaryPalette-50-contrast);
+    transition: all 0.2s ease;
 }
 
 .collapsed-table-text {
