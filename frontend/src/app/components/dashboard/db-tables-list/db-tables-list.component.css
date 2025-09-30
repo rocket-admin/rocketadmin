@@ -18,7 +18,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100%;
+    min-height: calc(100vh - 120px); /* Adjust based on header height */
+}
+
+.collapsed-top-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 8px;
+    flex: 1;
+    justify-content: flex-start;
+    padding-top: 8px;
+}
+
+.collapsed-bottom-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: auto;
+    padding-bottom: 8px;
 }
 
 .collapsed-folders {
@@ -39,7 +58,7 @@
     align-items: center;
     justify-content: center;
     width: 32px;
-    height: 40px;
+    height: 32px; /* Restored to 32px for square shape */
     border-radius: 4px;
     background-color: var(--color-primaryPalette-50);
     color: var(--color-primaryPalette-50-contrast);
@@ -81,14 +100,25 @@
     width: 32px;
     height: 32px;
     border-radius: 4px;
-    background-color: var(--color-primaryPalette-50);
-    color: var(--color-primaryPalette-50-contrast);
     cursor: pointer;
     transition: background-color 0.2s ease;
     margin-bottom: 4px;
 }
 
-.collapsed-search-button:hover,
+.collapsed-search-button {
+    background-color: transparent;
+    color: var(--color-primaryPalette-500);
+}
+
+.collapsed-add-button {
+    background-color: var(--color-primaryPalette-50);
+    color: var(--color-primaryPalette-50-contrast);
+}
+
+.collapsed-search-button:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
 .collapsed-add-button:hover {
     background-color: var(--color-primaryPalette-100);
 }
@@ -408,6 +438,20 @@
     background: #f5f5f5;
 }
 
+.folder-header.expanded {
+    background-color: var(--color-primaryPalette-50);
+    color: var(--color-primaryPalette-50-contrast);
+    border-radius: 4px;
+}
+
+.folder-header.expanded .folder-icon {
+    color: var(--color-primaryPalette-50-contrast);
+}
+
+.folder-header.expanded .folder-expand-icon {
+    color: var(--color-primaryPalette-50-contrast);
+}
+
 .folder-actions {
     display: flex;
     align-items: center;
@@ -484,7 +528,7 @@
     width: 20px;
     height: 20px;
     color: #666;
-    margin-right: 8px;
+    margin-right: 16px; /* Changed from 8px to 16px (8px + 8px) */
     flex-shrink: 0;
 }
 

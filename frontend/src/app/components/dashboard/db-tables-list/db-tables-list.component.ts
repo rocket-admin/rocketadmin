@@ -85,6 +85,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     this.foundTables = this.tables;
     this.loadFolders();
     this.loadTableIcons();
+    this.loadCollapsedMenuState();
     console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
   }
 
@@ -237,6 +238,35 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
   }
 
+  saveCollapsedMenuState() {
+    const state = {
+      showCollapsedTableList: this.showCollapsedTableList,
+      currentCollapsedFolderId: this.currentCollapsedFolder?.id || null
+    };
+    const key = `collapsedMenuState_${this.connectionID}`;
+    localStorage.setItem(key, JSON.stringify(state));
+    console.log('Collapsed menu state saved:', state);
+  }
+
+  loadCollapsedMenuState() {
+    const key = `collapsedMenuState_${this.connectionID}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        this.showCollapsedTableList = state.showCollapsedTableList || false;
+        
+        if (state.currentCollapsedFolderId) {
+          this.currentCollapsedFolder = this.folders.find(f => f.id === state.currentCollapsedFolderId) || null;
+        }
+        
+        console.log('Collapsed menu state loaded:', state);
+      } catch (e) {
+        console.error('Error loading collapsed menu state:', e);
+      }
+    }
+  }
+
   getTableNameLength(tableName: string) {
     return tableName.length;
   }
@@ -285,6 +315,9 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       this.showCollapsedTableList = true;
       this.currentCollapsedFolder = folder;
     }
+    
+    // Save the collapsed menu state
+    this.saveCollapsedMenuState();
     
     console.log('showCollapsedTableList is now:', this.showCollapsedTableList);
     console.log('currentCollapsedFolder is now:', this.currentCollapsedFolder?.name);
@@ -549,6 +582,9 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     console.log('Restored folder states:', this.preservedFolderStates);
     console.log('Restored active folder:', this.preservedActiveFolder);
     console.log('Has expanded folders:', hasExpandedFolders);
+    
+    // Save the collapsed menu state after restoration
+    this.saveCollapsedMenuState();
   }
 
   private findActiveFolder(): Folder | null {

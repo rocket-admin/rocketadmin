@@ -6,63 +6,67 @@
         
         <!-- Collapsed content when sidebar is collapsed -->
         <div *ngIf="collapsed" class="collapsed-content">
-            <!-- Search button -->
-            <div class="collapsed-search-button" 
-                 (click)="toggleCollapsedSearch()"
-                 matTooltip="Search"
-                 matTooltipPosition="right">
-                <mat-icon class="collapsed-action-icon">search</mat-icon>
-            </div>
-            
-            <!-- Show folders in collapsed state -->
-            <div *ngIf="folders.length > 0" class="collapsed-folders">
-                <div *ngFor="let folder of folders" 
-                     class="collapsed-folder-item"
-                     [class.collapsed-folder-item_active]="currentCollapsedFolder?.id === folder.id"
-                     [matTooltip]="folder.name"
-                     matTooltipPosition="right"
-                     (click)="onCollapsedFolderClick(folder)">
-                    <mat-icon *ngIf="folder.name === 'All Tables'" 
-                              class="collapsed-folder-icon">table_view</mat-icon>
-                    <span *ngIf="folder.name !== 'All Tables'" 
-                          class="material-icons-outlined collapsed-folder-icon">folder</span>
+            <!-- Top section with search and folders -->
+            <div class="collapsed-top-section">
+                <!-- Search button -->
+                <div class="collapsed-search-button" 
+                     (click)="toggleCollapsedSearch()"
+                     matTooltip="Search"
+                     matTooltipPosition="right">
+                    <mat-icon class="collapsed-action-icon">search</mat-icon>
                 </div>
-            </div>
-            <!-- Fallback to table_view if no folders -->
-            <mat-icon *ngIf="folders.length === 0" 
-                      class="collapsed-folder-icon"
+                
+                <!-- Show folders in collapsed state -->
+                <div *ngIf="folders.length > 0" class="collapsed-folders">
+                    <div *ngFor="let folder of folders" 
+                         class="collapsed-folder-item"
+                         [class.collapsed-folder-item_active]="currentCollapsedFolder?.id === folder.id"
+                         [matTooltip]="folder.name"
+                         matTooltipPosition="right"
+                         (click)="onCollapsedFolderClick(folder)">
+                    <span *ngIf="folder.name === 'All Tables'" 
+                          class="material-icons-outlined collapsed-folder-icon">dehaze</span>
+                        <span *ngIf="folder.name !== 'All Tables'" 
+                              class="material-icons-outlined collapsed-folder-icon">folder</span>
+                    </div>
+                </div>
+                <!-- Fallback to dehaze if no folders -->
+                <span *ngIf="folders.length === 0" 
+                      class="material-icons-outlined collapsed-folder-icon"
                       matTooltip="All Tables"
-                      matTooltipPosition="right">table_view</mat-icon>
+                      matTooltipPosition="right">dehaze</span>
+                
+                <!-- Collapsed table list for any folder -->
+                <div *ngIf="showCollapsedTableList" class="collapsed-tables-list">
+                    <a *ngFor="let table of getCollapsedTableList()" 
+                       class="collapsed-table-item"
+                       routerLink="/dashboard/{{connectionID}}/{{table.table}}"
+                       [queryParams]="{page_index: 0, page_size: 30}"
+                       [ngClass]="{'collapsed-table-item_active': selectedTable === table.table}"
+                       [matTooltip]="getTableName(table)"
+                       matTooltipPosition="right"
+                       (click)="closeSidebar()">
+                        <!-- Show icon if available, otherwise show initials -->
+                        <mat-icon *ngIf="hasTableIcon(table)" class="collapsed-table-icon">{{getTableIcon(table)}}</mat-icon>
+                        <div *ngIf="!hasTableIcon(table)" class="collapsed-table-initials">
+                            <span class="collapsed-table-text">{{getTableInitials(table)}}</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
             
-            <!-- Add folder button -->
-            <div class="collapsed-add-button" 
-                 (click)="onAddFolder()"
-                 matTooltip="Add Folder"
-                 matTooltipPosition="right">
-                <mat-icon class="collapsed-action-icon">add</mat-icon>
+            <!-- Bottom section with add folder button (fixed at bottom) -->
+            <div class="collapsed-bottom-section">
+                <!-- Add folder button -->
+                <div class="collapsed-add-button" 
+                     (click)="onAddFolder()"
+                     matTooltip="Add Folder"
+                     matTooltipPosition="right">
+                    <mat-icon class="collapsed-action-icon">add</mat-icon>
+                </div>
             </div>
         </div>
         
-        
-        
-        
-        <!-- Collapsed table list for any folder -->
-        <div *ngIf="collapsed && showCollapsedTableList" class="collapsed-tables-list">
-            <a *ngFor="let table of getCollapsedTableList()" 
-               class="collapsed-table-item"
-               routerLink="/dashboard/{{connectionID}}/{{table.table}}"
-               [queryParams]="{page_index: 0, page_size: 30}"
-               [ngClass]="{'collapsed-table-item_active': selectedTable === table.table}"
-               [matTooltip]="getTableName(table)"
-               matTooltipPosition="right"
-               (click)="closeSidebar()">
-                <!-- Show icon if available, otherwise show initials -->
-                <mat-icon *ngIf="hasTableIcon(table)" class="collapsed-table-icon">{{getTableIcon(table)}}</mat-icon>
-                <div *ngIf="!hasTableIcon(table)" class="collapsed-table-initials">
-                    <span class="collapsed-table-text">{{getTableInitials(table)}}</span>
-                </div>
-            </a>
-        </div>
         <mat-form-field *ngIf="!collapsed" appearance="fill" class="search-input">
             <input matInput name="search" #search="ngModel"
                 placeholder="Search"
@@ -88,10 +92,12 @@
                      (dragover)="onFolderDragOver($event, folder.id)"
                      (dragleave)="onFolderDragLeave($event, folder.id)"
                      (drop)="onFolderDrop($event, folder)">
-                    <div class="folder-header" (click)="toggleFolder(folder.id)">
+                    <div class="folder-header" 
+                         [class.expanded]="folder.expanded"
+                         (click)="toggleFolder(folder.id)">
                         <!-- Folder icon on the left -->
-                        <mat-icon *ngIf="folder.name === 'All Tables'" 
-                                  class="folder-icon">table_view</mat-icon>
+                        <span *ngIf="folder.name === 'All Tables'" 
+                              class="material-icons-outlined folder-icon">dehaze</span>
                         <span *ngIf="folder.name !== 'All Tables'" 
                               class="material-icons-outlined folder-icon">folder</span>
                         
