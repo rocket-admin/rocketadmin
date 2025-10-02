@@ -24,7 +24,6 @@ export class CreateConnectionUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    // private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -33,18 +32,6 @@ export class CreateConnectionUseCase
       creation_info: { authorId, masterPwd },
     } = createConnectionData;
     const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
-
-    // if (isSaaS()) {
-    //   const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
-    //   const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
-    //   if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
-    //     if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(createConnectionData.connection_parameters.type)) {
-    //       throw new NonAvailableInFreePlanException(
-    //         Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(createConnectionData.connection_parameters.type),
-    //       );
-    //     }
-    //   }
-    // }
 
     if (!connectionAuthor) {
       throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
