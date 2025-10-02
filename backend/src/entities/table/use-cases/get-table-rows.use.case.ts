@@ -360,7 +360,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
   ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),
+        this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, foreignKey.referenced_table_name),
         dao.getTableStructure(foreignKey.referenced_table_name, userId),
       ]);
 
