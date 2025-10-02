@@ -86,25 +86,23 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       }
 
+      // eslint-disable-next-line prefer-const
+      let { tableSettings, tableCustomFields, tableWidgets } =
+        await this._dbContext.tableSettingsRepository.findTableCustoms(connectionId, tableName);
+
       /* eslint-disable */
       let [
-        tableSettings,
         tablePrimaryColumns,
         tableForeignKeys,
         tableStructure,
-        tableWidgets,
-        tableCustomFields,
         userTablePermissions,
         customActionEvents,
         savedTableFilters,
         /* eslint-enable */
       ] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, tableName),
         dao.getTablePrimaryColumns(tableName, userEmail),
         dao.getTableForeignKeys(tableName, userEmail),
         dao.getTableStructure(tableName, userEmail),
-        this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
-        this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
         this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
         this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(tableName, connectionId),
