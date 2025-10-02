@@ -175,6 +175,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -185,7 +186,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const knex = await this.configureKnex();
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields?.fields?.length > 0) {

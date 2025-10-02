@@ -9,6 +9,7 @@ import { DataAccessObjectMssql } from '../data-access-objects/data-access-object
 import { DataAccessObjectMysql } from '../data-access-objects/data-access-object-mysql.js';
 import { DataAccessObjectOracle } from '../data-access-objects/data-access-object-oracle.js';
 import { DataAccessObjectPostgres } from '../data-access-objects/data-access-object-postgres.js';
+import { DataAccessObjectRedis } from '../data-access-objects/data-access-object-redis.js';
 import { ConnectionAgentParams, ConnectionParams } from './data-structures/connections-params.ds.js';
 import { ConnectionTypesEnum } from './enums/connection-types-enum.js';
 import { IDataAccessObjectAgent } from './interfaces/data-access-object-agent.interface.js';
@@ -28,6 +29,7 @@ export function getDataAccessObject(
     ConnectionTypesEnum.agent_ibmdb2,
     ConnectionTypesEnum.agent_mongodb,
     ConnectionTypesEnum.agent_cassandra,
+    ConnectionTypesEnum.agent_redis,
   ];
   if (!connectionParams || connectionParams === null) {
     throw new Error(ERROR_MESSAGES.CONNECTION_PARAMS_SHOULD_BE_DEFINED);
@@ -63,6 +65,9 @@ export function getDataAccessObject(
     case ConnectionTypesEnum.cassandra:
       const connectionParamsCassandra = buildConnectionParams(connectionParams);
       return new DataAccessObjectCassandra(connectionParamsCassandra);
+    case ConnectionTypesEnum.redis:
+      const connectionParamsRedis = buildConnectionParams(connectionParams);
+      return new DataAccessObjectRedis(connectionParamsRedis);
     default:
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
@@ -87,11 +92,33 @@ function buildAgentConnectionParams(connectionParams: IUnknownConnectionParams):
 }
 
 function buildConnectionParams(connectionParams: IUnknownConnectionParams): ConnectionParams {
-  const requiredKeys =
-    connectionParams.type !== ConnectionTypesEnum.dynamodb &&
-    connectionParams.type !== ConnectionTypesEnum.elasticsearch
-      ? ['type', 'host', 'port', 'username', 'password', 'database']
-      : ['host', 'username', 'password'];
+  const requiredKeys = [];
+
+  const sqlAndMongoRequiredKeys = ['type', 'host', 'port', 'username', 'password', 'database'];
+  const elasticAndDynamoAndRedisRequiredKeys = ['host', 'username', 'password'];
+  const redisRequiredKeys = ['host', 'port', 'password'];
+
+  switch (connectionParams.type) {
+    case ConnectionTypesEnum.postgres:
+    case ConnectionTypesEnum.mysql2:
+    case ConnectionTypesEnum.mysql:
+    case ConnectionTypesEnum.mssql:
+    case ConnectionTypesEnum.oracledb:
+    case ConnectionTypesEnum.ibmdb2:
+    case ConnectionTypesEnum.mongodb:
+    case ConnectionTypesEnum.cassandra:
+      requiredKeys.push(...sqlAndMongoRequiredKeys);
+      break;
+    case ConnectionTypesEnum.dynamodb:
+    case ConnectionTypesEnum.elasticsearch:
+      requiredKeys.push(...elasticAndDynamoAndRedisRequiredKeys);
+      break;
+    case ConnectionTypesEnum.redis:
+      requiredKeys.push(...redisRequiredKeys);
+      break;
+    default:
+      throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
+  }
 
   if (connectionParams.ssh) {
     requiredKeys.push('sshHost', 'sshPort', 'sshUsername');

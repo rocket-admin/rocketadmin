@@ -8,7 +8,8 @@ export enum ConnectionTypeTestEnum {
   mongodb = 'mongodb',
   dynamodb = 'dynamodb',
   elasticsearch = 'elasticsearch',
- cassandra = 'cassandra',
+  cassandra = 'cassandra',
+  redis = 'redis',
   agent_postgres = 'agent_postgres',
   agent_mysql = 'agent_mysql',
   agent_oracledb = 'agent_oracledb',
@@ -17,4 +18,5 @@ export enum ConnectionTypeTestEnum {
   agent_mongodb = 'agent_mongodb',
   agent_elasticsearch = 'agent_elasticsearch',
   agent_cassandra = 'agent_cassandra',
+  agent_redis = 'agent_redis',
 }

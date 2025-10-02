@@ -43,6 +43,7 @@ export interface IDataAccessObject {
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS>;
 
   getTableForeignKeys(tableName: string): Promise<Array<ForeignKeyDS>>;
