@@ -23,6 +23,7 @@ export interface Folder {
   editing: boolean;
   tableIds: string[];
   iconColor?: string; // Optional color for folder icon
+  isEmpty?: boolean; // Flag to indicate if folder is newly created and empty
 }
 
 @Component({
@@ -302,7 +303,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       name: `Folder ${this.folders.length}`,
       expanded: false,
       editing: false,
-      tableIds: []
+      tableIds: [],
+      isEmpty: true // Mark as empty for special styling
     };
     this.folders.push(newFolder);
     this.saveFolders();
@@ -517,7 +519,15 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     if (isActive) {
       return '#212121'; // Black for active folders
     }
-    return folder.iconColor || '#212121'; // Default color
+    
+    // Check if we're in dark theme
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      // In dark theme, use white for folders without custom color
+      return folder.iconColor || '#ffffff';
+    }
+    
+    // In light theme, use default color
+    return folder.iconColor || '#212121';
   }
 
 
@@ -548,6 +558,10 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     } else {
       // Add to folder
       this.currentFolder.tableIds.push(tableId);
+      // Remove empty flag when adding tables
+      if (this.currentFolder.isEmpty) {
+        this.currentFolder.isEmpty = false;
+      }
     }
 
     this.saveFolders();
@@ -570,9 +584,21 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       this.preservedFolderStates[folder.id] = folder.expanded;
     });
     
-    // Find and save the currently active folder (the one that contains selected table)
-    const activeFolder = this.findActiveFolder();
-    this.preservedActiveFolder = activeFolder ? activeFolder.id : null;
+    // Check if there are only "All Tables" folder (no custom folders)
+    const hasCustomFolders = this.folders.some(folder => folder.name !== 'All Tables');
+    
+    // If no custom folders exist, ensure "All Tables" is always expanded
+    if (!hasCustomFolders) {
+      const allTablesFolder = this.folders.find(folder => folder.name === 'All Tables');
+      if (allTablesFolder) {
+        this.preservedFolderStates[allTablesFolder.id] = true;
+        this.preservedActiveFolder = allTablesFolder.id;
+      }
+    } else {
+      // Find and save the currently active folder (the one that contains selected table)
+      const activeFolder = this.findActiveFolder();
+      this.preservedActiveFolder = activeFolder ? activeFolder.id : null;
+    }
     
     console.log('Preserved folder states:', this.preservedFolderStates);
     console.log('Preserved active folder:', this.preservedActiveFolder);
@@ -580,6 +606,23 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   private restoreFolderStates() {
+    // Check if there are only "All Tables" folder (no custom folders)
+    const hasCustomFolders = this.folders.some(folder => folder.name !== 'All Tables');
+    
+    // If no custom folders exist, always expand "All Tables"
+    if (!hasCustomFolders) {
+      const allTablesFolder = this.folders.find(folder => folder.name === 'All Tables');
+      if (allTablesFolder) {
+        allTablesFolder.expanded = true;
+        this.currentCollapsedFolder = allTablesFolder;
+        this.showCollapsedTableList = true;
+        console.log('No custom folders - keeping All Tables expanded');
+        // Save the collapsed menu state after restoration
+        this.saveCollapsedMenuState();
+        return;
+      }
+    }
+    
     // Restore expanded states of all folders
     this.folders.forEach(folder => {
       if (this.preservedFolderStates.hasOwnProperty(folder.id)) {
@@ -714,6 +757,10 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       } else {
         // Simply add table to the target folder (don't remove from other folders)
         folder.tableIds.push(this.draggedTable.table);
+        // Remove empty flag when adding tables via drag and drop
+        if (folder.isEmpty) {
+          folder.isEmpty = false;
+        }
         this.saveFolders();
       }
     }

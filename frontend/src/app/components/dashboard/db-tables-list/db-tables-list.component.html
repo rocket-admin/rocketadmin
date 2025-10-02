@@ -25,16 +25,16 @@
                          matTooltipPosition="right"
                          (click)="onCollapsedFolderClick(folder)">
                     <span *ngIf="folder.name === 'All Tables'" 
-                          class="material-icons-outlined collapsed-folder-icon"
+                          class="material-icons collapsed-folder-icon"
                           [style.color]="getFolderIconColor(folder)">dehaze</span>
                         <span *ngIf="folder.name !== 'All Tables'" 
-                              class="material-icons-outlined collapsed-folder-icon"
+                              class="material-icons collapsed-folder-icon"
                               [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
                     </div>
                 </div>
                 <!-- Fallback to dehaze if no folders -->
                 <span *ngIf="folders.length === 0" 
-                      class="material-icons-outlined collapsed-folder-icon"
+                      class="material-icons collapsed-folder-icon"
                       matTooltip="All Tables"
                       matTooltipPosition="right">dehaze</span>
                 
@@ -101,10 +101,10 @@
                          (click)="toggleFolder(folder.id)">
                         <!-- Folder icon on the left -->
                         <span *ngIf="folder.name === 'All Tables'" 
-                              class="material-icons-outlined folder-icon"
+                              class="material-icons folder-icon"
                               [style.color]="getFolderIconColor(folder)">dehaze</span>
                         <span *ngIf="folder.name !== 'All Tables'" 
-                              class="material-icons-outlined folder-icon"
+                              class="material-icons folder-icon"
                               [style.color]="getFolderIconColor(folder)">folder</span>
                         
                         <div class="folder-name" 
@@ -175,11 +175,15 @@
                             
                         </div>
                         <ng-template #noTablesInCollection>
-                            <div class="no-tables-message">
-                                <p>No tables in this folder</p>
-                                <button mat-stroked-button color="primary" (click)="showEditTablesDialog(folder)">
+                            <div class="no-tables-message" [class.empty-folder-message]="folder.isEmpty">
+                                <p *ngIf="!folder.isEmpty">No tables in this folder</p>
+                                <p *ngIf="folder.isEmpty" class="empty-folder-text">This folder is empty</p>
+                                <button mat-stroked-button 
+                                        color="primary" 
+                                        [class.empty-folder-button]="folder.isEmpty"
+                                        (click)="showEditTablesDialog(folder)">
                                     <mat-icon>add</mat-icon>
-                                    Add Table
+                                    {{folder.isEmpty ? 'Add or drag and drop tables' : 'Add Table'}}
                                 </button>
                             </div>
                         </ng-template>
