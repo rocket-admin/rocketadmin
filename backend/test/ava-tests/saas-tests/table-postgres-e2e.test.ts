@@ -1901,10 +1901,9 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 400);
 
     const { message } = JSON.parse(getTableRowsResponse.text);
-
+    t.is(getTableRowsResponse.status, 400);
     t.is(message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
