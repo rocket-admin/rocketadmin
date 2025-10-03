@@ -301,7 +301,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     const newFolder: Folder = {
       id: this.generateFolderId(),
       name: `Folder ${this.folders.length}`,
-      expanded: false,
+      expanded: true, // Разворачиваем папку сразу после создания
       editing: false,
       tableIds: [],
       isEmpty: true // Mark as empty for special styling
@@ -583,8 +583,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     
     // Check if we're in dark theme
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      // In dark theme, use white for folders without custom color
-      return folder.iconColor || '#ffffff';
+      // In dark theme, use #212121 for folders without custom color
+      return folder.iconColor || '#212121';
     }
     
     // In light theme, use default color

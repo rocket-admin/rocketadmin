@@ -177,12 +177,10 @@
                         <ng-template #noTablesInCollection>
                             <div class="no-tables-message" [class.empty-folder-message]="folder.isEmpty">
                                 <p *ngIf="!folder.isEmpty">No tables in this folder</p>
-                                <p *ngIf="folder.isEmpty" class="empty-folder-text">This folder is empty</p>
                                 <button mat-stroked-button 
                                         color="primary" 
                                         [class.empty-folder-button]="folder.isEmpty"
                                         (click)="showEditTablesDialog(folder)">
-                                    <mat-icon>add</mat-icon>
                                     {{folder.isEmpty ? 'Add or drag and drop tables' : 'Add Table'}}
                                 </button>
                             </div>
