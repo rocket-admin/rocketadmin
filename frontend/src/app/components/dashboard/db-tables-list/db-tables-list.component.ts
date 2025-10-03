@@ -455,7 +455,18 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   onDocumentKeyDown(event: KeyboardEvent) {
     // Handle Escape key for closing dialogs
     if (event.key === 'Escape') {
+      // Check if the event originated from inside the dialog
+      const target = event.target as Element;
+      const isInsideDialog = target && target.closest('.edit-tables-dialog');
+      
+      if (this.showEditTablesDialogFlag && isInsideDialog) {
+        // If Escape was pressed inside dialog, let the dialog handle it
+        // Don't do anything here - the dialog's own handler will take care of it
+        return;
+      }
+      
       if (this.showEditTablesDialogFlag) {
+        // Escape pressed outside dialog - close it normally
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
@@ -531,6 +542,25 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     // Ensure dialog is properly closed
     this.showEditTablesDialogFlag = false;
     this.currentFolder = null;
+    
+    // Force change detection to update the UI immediately
+    setTimeout(() => {
+      this.showEditTablesDialogFlag = false;
+    }, 0);
+  }
+
+  closeEditTablesDialogOnly(event?: Event) {
+    // This method ONLY closes the dialog, without affecting the sidebar
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      event.stopImmediatePropagation(); // Double prevention for safety
+    }
+    
+    // Close only the dialog
+    this.showEditTablesDialogFlag = false;
+    // Don't reset currentFolder to preserve sidebar state
     
     // Force change detection to update the UI immediately
     setTimeout(() => {

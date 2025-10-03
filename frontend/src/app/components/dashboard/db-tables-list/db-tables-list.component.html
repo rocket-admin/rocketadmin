@@ -209,7 +209,7 @@
 <div class="edit-tables-dialog" 
      *ngIf="showEditTablesDialogFlag" 
      (click)="closeEditTablesDialog($event)"
-     (keydown.escape)="closeEditTablesDialog()"
+     (keydown.escape)="closeEditTablesDialogOnly($event)"
      tabindex="-1">
     <div class="dialog-content" (click)="$event.stopPropagation()">
         <div class="dialog-header">
