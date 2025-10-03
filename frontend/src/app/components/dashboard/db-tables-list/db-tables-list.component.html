@@ -206,10 +206,17 @@
     </ng-template>
 
 <!-- Edit Tables Dialog -->
-<div class="edit-tables-dialog" *ngIf="showEditTablesDialogFlag" (click)="closeEditTablesDialog($event)">
+<div class="edit-tables-dialog" 
+     *ngIf="showEditTablesDialogFlag" 
+     (click)="closeEditTablesDialog($event)"
+     (keydown.escape)="closeEditTablesDialog()"
+     tabindex="-1">
     <div class="dialog-content" (click)="$event.stopPropagation()">
         <div class="dialog-header">
             <h3>Edit Tables in {{currentFolder?.name}}</h3>
+            <button mat-icon-button class="close-button" (click)="closeEditTablesDialog()" title="Close">
+                <mat-icon>close</mat-icon>
+            </button>
         </div>
         <div class="dialog-body">
             <!-- Folder Color Section -->

@@ -451,6 +451,20 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeyDown(event: KeyboardEvent) {
+    // Handle Escape key for closing dialogs
+    if (event.key === 'Escape') {
+      if (this.showEditTablesDialogFlag) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        this.closeEditTablesDialog();
+        return false;
+      }
+    }
+  }
+
   cancelEditFolder(folder: Folder) {
     folder.editing = false;
     folder.name = this.editingFolderName;
@@ -497,14 +511,31 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     // Expand the folder if it's collapsed
     folder.expanded = true;
     this.showEditTablesDialogFlag = true;
+    
+    // Focus the dialog after it's rendered
+    setTimeout(() => {
+      const dialogElement = document.querySelector('.edit-tables-dialog') as HTMLElement;
+      if (dialogElement) {
+        dialogElement.focus();
+      }
+    }, 100);
   }
 
   closeEditTablesDialog(event?: Event) {
     if (event) {
+      event.preventDefault();
       event.stopPropagation();
+      event.stopImmediatePropagation();
     }
+    
+    // Ensure dialog is properly closed
     this.showEditTablesDialogFlag = false;
     this.currentFolder = null;
+    
+    // Force change detection to update the UI immediately
+    setTimeout(() => {
+      this.showEditTablesDialogFlag = false;
+    }, 0);
   }
 
 

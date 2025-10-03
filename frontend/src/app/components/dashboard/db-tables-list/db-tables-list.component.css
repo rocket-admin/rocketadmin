@@ -909,6 +909,10 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    outline: none;
 }
 
 .dialog-content {
@@ -920,6 +924,9 @@
     display: flex;
     flex-direction: column;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transform: scale(1);
+    transition: transform 0.2s ease;
+    position: relative;
 }
 
 .dialog-header {
@@ -934,6 +941,24 @@
     margin: 0;
     font-size: 18px;
     font-weight: 500;
+}
+
+.dialog-header .close-button {
+    color: #666;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+}
+
+.dialog-header .close-button:hover {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.dialog-header .close-button mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
 }
 
 .dialog-body {
