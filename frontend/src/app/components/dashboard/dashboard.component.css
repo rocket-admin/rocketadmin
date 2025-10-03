@@ -53,6 +53,22 @@
     margin-left: 12px;
 }
 
+.toggle-button-position button {
+    border-radius: 4px;
+}
+
+.toggle-button-position button mat-icon {
+    border-radius: 4px;
+}
+
+.toggle-button-position button:hover {
+    border-radius: 4px;
+}
+
+.toggle-button-position button:hover mat-icon {
+    border-radius: 4px;
+}
+
 .dashboard {
     display: flex;
     flex-direction: column;
