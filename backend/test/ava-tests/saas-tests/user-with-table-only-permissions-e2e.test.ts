@@ -1564,7 +1564,7 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
     t.is(primaryColumns[0].column_name, 'id');
     t.is(primaryColumns[0].data_type, 'integer');
     t.is(readonly_fields.length, 0);
-    t.is(table_widgets.length, 0);
+    t.is(table_widgets.length, 1);
     t.is(foreignKeys.length, 0);
   } catch (e) {
     console.error(e);
