@@ -1,6 +1,7 @@
 <mat-form-field class="form-field" appearance="outline">
     <mat-label>{{normalizedLabel}}</mat-label>
     <textarea matInput name="{{label}}-{{key}}"
+        #inputElement
         class="form-textarea" [rows]="rowsCount"
         attr.data-testid="record-{{label}}-long-text"
         [required]="required" [disabled]="disabled" [readonly]="readonly"

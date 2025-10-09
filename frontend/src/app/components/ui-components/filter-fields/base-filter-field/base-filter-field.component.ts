@@ -17,6 +17,7 @@ export class BaseFilterFieldComponent implements OnInit {
   @Input() disabled: boolean;
   @Input() widgetStructure: WidgetStructure;
   @Input() relations: TableForeignKey;
+  @Input() autofocus: boolean = false;
 
   @Output() onFieldChange = new EventEmitter<any>();
 

@@ -1,1 +1,4 @@
-<span class="field-view-value">{{formattedDateTime || '—'}}</span>
+<span class="field-view-value">
+  {{formattedDateTime || '—'}}
+  <span class="timezone-abbr" *ngIf="displayTimezone && timezoneAbbr"> {{timezoneAbbr}}</span>
+</span>

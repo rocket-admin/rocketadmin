@@ -68,6 +68,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 
   public selectedFilterSetId: string | null = null;
   public selectedFilter: any = null;
+  public shouldAutofocus: boolean = false;
 
   public tableStructure: any = null;
   public tableRowFieldsShown: { [key: string]: any } = {};
@@ -335,10 +336,12 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     if (this.selectedFilterSetId === selectedFilterSetId) {
       this.selectedFilterSetId = null;
       this.filterSelected.emit(null);
+      this.shouldAutofocus = false;
       const queryParams = this.buildQueryParams();
       this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
     } else {
       this.selectedFilterSetId = selectedFilterSetId;
+      this.shouldAutofocus = true;
       const selectedFilter = this.savedFilterMap[selectedFilterSetId];
       this.filterSelected.emit(selectedFilter);
 
@@ -356,6 +359,11 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 
       const queryParams = this.buildQueryParams(additionalParams);
       this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
+
+      // Reset autofocus after the component has been rendered
+      setTimeout(() => {
+        this.shouldAutofocus = false;
+      }, 500);
     }
   }
 
