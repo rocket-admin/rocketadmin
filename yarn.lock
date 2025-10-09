@@ -5752,6 +5752,7 @@ __metadata:
     express-rate-limit: 8.0.1
     fetch-blob: ^4.0.0
     helmet: 8.1.0
+    i18n-iso-countries: ^7.14.0
     ibm_db: ^3.3.0
     ip-range-check: 0.2.0
     json2csv: ^5.0.7
@@ -7303,6 +7304,13 @@ __metadata:
     asap: ^2.0.0
     wrappy: 1
   checksum: 895389c6aead740d2ab5da4d3466d20fa30f738010a4d3f4dcccc9fc645ca31c9d10b7e1804ae489b1eb02c7986f9f1f34ba132d409b043082a86d9a4e745624
+  languageName: node
+  linkType: hard
+
+"diacritics@npm:1.3.0":
+  version: 1.3.0
+  resolution: "diacritics@npm:1.3.0"
+  checksum: ef7552c36e221879be22bc977281d1ae644f0eb94a24b380d654bf3aeae76c8096e533059732980bb3b5cb77ce7de4178f038f79415ee715f6d3eea7025cadea
   languageName: node
   linkType: hard
 
@@ -8961,6 +8969,15 @@ __metadata:
   dependencies:
     ms: ^2.0.0
   checksum: 9c7a74a2827f9294c009266c82031030eae811ca87b0da3dceb8d6071b9bde22c9f3daef0469c3c533cc67a97d8a167cd9fc0389350e5f415f61a79b171ded16
+  languageName: node
+  linkType: hard
+
+"i18n-iso-countries@npm:^7.14.0":
+  version: 7.14.0
+  resolution: "i18n-iso-countries@npm:7.14.0"
+  dependencies:
+    diacritics: 1.3.0
+  checksum: 8f0e43401a9a58f3368a999495053023e46dd54459c5a5159f805739939164de83c47a19f359d7cc63a54976805b0c60d759a0fd625a9fff282f12b7e5bde36a
   languageName: node
   linkType: hard
 
