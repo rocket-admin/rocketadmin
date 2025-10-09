@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { CommonModule } from '@angular/common';
@@ -13,8 +13,9 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./password.component.css'],
   imports: [CommonModule, FormsModule, MatCheckboxModule, MatFormFieldModule, MatInputModule]
 })
-export class PasswordFilterComponent extends BaseFilterFieldComponent {
+export class PasswordFilterComponent extends BaseFilterFieldComponent implements AfterViewInit {
   @Input() value: string;
+  @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
 
   public clearPassword: boolean;
 
@@ -22,6 +23,14 @@ export class PasswordFilterComponent extends BaseFilterFieldComponent {
     super.ngOnInit();
     if (this.value === '***') this.value = '';
     this.onFieldChange.emit(this.value);
+  }
+
+  ngAfterViewInit(): void {
+    if (this.autofocus && this.inputElement) {
+      setTimeout(() => {
+        this.inputElement.nativeElement.focus();
+      }, 100);
+    }
   }
 
   onClearPasswordChange() {

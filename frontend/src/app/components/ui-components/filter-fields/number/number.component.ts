@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { CommonModule } from '@angular/common';
@@ -12,7 +12,17 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./number.component.css'],
   imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule]
 })
-export class NumberFilterComponent extends BaseFilterFieldComponent {
+export class NumberFilterComponent extends BaseFilterFieldComponent implements AfterViewInit {
   @Input() value: number;
+  @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
+
   static type = 'number';
+
+  ngAfterViewInit(): void {
+    if (this.autofocus && this.inputElement) {
+      setTimeout(() => {
+        this.inputElement.nativeElement.focus();
+      }, 100);
+    }
+  }
 }

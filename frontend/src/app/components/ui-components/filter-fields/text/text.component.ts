@@ -1,4 +1,4 @@
-import { Component, Injectable, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injectable, Input, ViewChild } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { CommonModule } from '@angular/common';
@@ -14,7 +14,17 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./text.component.css'],
   imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule]
 })
-export class TextFilterComponent extends BaseFilterFieldComponent {
+export class TextFilterComponent extends BaseFilterFieldComponent implements AfterViewInit {
   @Input() value: string;
+  @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
+
   static type = 'text';
+
+  ngAfterViewInit(): void {
+    if (this.autofocus && this.inputElement) {
+      setTimeout(() => {
+        this.inputElement.nativeElement.focus();
+      }, 100);
+    }
+  }
 }

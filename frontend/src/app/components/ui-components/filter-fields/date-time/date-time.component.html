@@ -2,6 +2,7 @@
     <mat-form-field class="" appearance="outline">
         <mat-label>{{normalizedLabel}} (date)</mat-label>
         <input type="date" matInput name="{{label}}-{{key}}-date"
+            #dateInputElement
             [required]="required" [disabled]="disabled" [readonly]="readonly"
             attr.data-testid="record-{{label}}-date"
             [(ngModel)]="date" (change)="onDateChange()">
