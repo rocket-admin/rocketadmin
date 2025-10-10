@@ -97,57 +97,60 @@ test.serial(`${currentTest} should return empty array, table widgets not created
   t.is(getTableWidgetsRO.length, 2);
 });
 
-test.serial(`${currentTest} should return automatically created widgets array, if table contains specific data`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName } = await createTestTable(connectionToTestDB, undefined, undefined, false, true);
-  const createdConnection = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should return automatically created widgets array, if table contains specific data`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName } = await createTestTable(connectionToTestDB, undefined, undefined, false, true);
+    const createdConnection = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(createdConnection.status, 201);
-  const connectionId = JSON.parse(createdConnection.text).id;
+    t.is(createdConnection.status, 201);
+    const connectionId = JSON.parse(createdConnection.text).id;
 
-  // wait 3 seconds to let the system create widgets automatically in the background
+    // wait 3 seconds to let the system create widgets automatically in the background
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  const getTableWidgets = await request(app.getHttpServer())
-    .get(`/widgets/${connectionId}?tableName=${testTableName}`)
-    .set('Content-Type', 'application/json')
-    .set('Cookie', firstUserToken)
-    .set('Accept', 'application/json');
+    const getTableWidgets = await request(app.getHttpServer())
+      .get(`/widgets/${connectionId}?tableName=${testTableName}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', firstUserToken)
+      .set('Accept', 'application/json');
 
-  const foundRows = await request(app.getHttpServer())
-    .get(`/table/rows/${connectionId}?tableName=${testTableName}`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  t.is(foundRows.status, 200);
-  const foundRowsRO = JSON.parse(foundRows.text);
-  console.log('🚀 ~ foundRowsRO:', foundRowsRO);
+    const foundRows = await request(app.getHttpServer())
+      .get(`/table/rows/${connectionId}?tableName=${testTableName}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(foundRows.status, 200);
+    const foundRowsRO = JSON.parse(foundRows.text);
 
-  const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-  t.is(typeof getTableWidgetsRO, 'object');
-  t.is(getTableWidgets.status, 200);
-  console.log('🚀 ~ getTableWidgetsRO:', getTableWidgetsRO);
-  t.is(getTableWidgetsRO.length, 5);
-  const phoneWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.Phone);
-  t.truthy(phoneWidget);
-  const uuidWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.UUID);
-  t.truthy(uuidWidget);
-  const countryCodeWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.Country);
-  t.truthy(countryCodeWidget);
-  const emailWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.String);
-  t.truthy(emailWidget);
-  t.is(emailWidget.widget_params.includes('"validate": "isEmail"'), true);
-  const urlWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.URL);
-  t.truthy(urlWidget);
-});
+    const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+    t.is(typeof getTableWidgetsRO, 'object');
+    t.is(getTableWidgets.status, 200);
+    t.is(getTableWidgetsRO.length, 8);
+    const phoneWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.Phone);
+    t.truthy(phoneWidget);
+    const uuidWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.UUID);
+    t.truthy(uuidWidget);
+    const countryCodeWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.Country);
+    t.truthy(countryCodeWidget);
+    const emailWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.String);
+    t.truthy(emailWidget);
+    t.is(emailWidget.widget_params.includes('"validate": "isEmail"'), true);
+    const urlWidget = getTableWidgetsRO.find((w) => w.widget_type === WidgetTypeEnum.URL);
+    t.truthy(urlWidget);
+    const foundColorWIdgets = getTableWidgetsRO.filter((w) => w.widget_type === WidgetTypeEnum.Color);
+    t.is(foundColorWIdgets.length, 3);
+  },
+);
 
 test.serial(`${currentTest} should return array of table widgets for table`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);

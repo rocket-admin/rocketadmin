@@ -25,6 +25,18 @@ export class ValidationHelper {
     return validator.isMobilePhone(phoneNumber, 'any', { strictMode: false });
   }
 
+  public static isValidRgbColor(rgbColor: string): boolean {
+    return validator.isRgbColor(rgbColor);
+  }
+
+  public static isValidHexColor(hexColor: string): boolean {
+    return validator.isHexColor(hexColor);
+  }
+
+  public static isValidHslColor(hslColor: string): boolean {
+    return validator.isHSL(hslColor);
+  }
+
   public static isValidJSON(jsonString: string): boolean {
     if (typeof jsonString !== 'string') {
       return false;

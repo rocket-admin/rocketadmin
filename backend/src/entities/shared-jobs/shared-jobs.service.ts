@@ -66,6 +66,9 @@ export class SharedJobsService {
         countryCode: new Set<string>(),
         email: new Set<string>(),
         url: new Set<string>(),
+        rgbColor: new Set<string>(),
+        hexColor: new Set<string>(),
+        hslColor: new Set<string>(),
       };
 
       for (const column of columnsArray) {
@@ -95,7 +98,15 @@ export class SharedJobsService {
           case sampleValues.every((value) => this.isValueURL(value)):
             widgetColumnNames.url.add(column);
             break;
-
+          case sampleValues.every((value) => this.isValueRgbColor(value)):
+            widgetColumnNames.rgbColor.add(column);
+            break;
+          case sampleValues.every((value) => this.isValueHexColor(value)):
+            widgetColumnNames.hexColor.add(column);
+            break;
+          case sampleValues.every((value) => this.isHslColor(value)):
+            widgetColumnNames.hslColor.add(column);
+            break;
           default:
             break;
         }
@@ -106,8 +117,20 @@ export class SharedJobsService {
       const countryCodeColumns = Array.from(widgetColumnNames.countryCode);
       const emailColumns = Array.from(widgetColumnNames.email);
       const urlColumns = Array.from(widgetColumnNames.url);
+      const rgbColorColumns = Array.from(widgetColumnNames.rgbColor);
+      const hexColorColumns = Array.from(widgetColumnNames.hexColor);
+      const hslColorColumns = Array.from(widgetColumnNames.hslColor);
 
-      const allColumns = [telephoneColumns, uuidColumns, countryCodeColumns, emailColumns, urlColumns];
+      const allColumns = [
+        telephoneColumns,
+        uuidColumns,
+        countryCodeColumns,
+        emailColumns,
+        urlColumns,
+        rgbColorColumns,
+        hexColorColumns,
+        hslColorColumns,
+      ];
       if (allColumns.every((columns) => columns.length === 0)) {
         return;
       }
@@ -172,11 +195,65 @@ export class SharedJobsService {
           await this._dbContext.tableWidgetsRepository.save(newWidget);
         }
       }
+      if (rgbColorColumns.length) {
+        for (const column of rgbColorColumns) {
+          const newWidget = new TableWidgetEntity();
+          newWidget.field_name = column;
+          newWidget.widget_type = WidgetTypeEnum.Color;
+          newWidget.widget_options =
+            '// Optional: Specify output format for color values\n// Supported formats: "hex", "hex_hash" (default), "rgb", "hsl"\n// Example configuration:\n\n{\n  "format": "rgb"  // Will display colors as "#FF5733"\n}\n\n// Format options:\n// - "hex": Display as "FF5733" (no hash)\n// - "hex_hash": Display as "#FF5733" (default)\n// - "rgb": Display as "rgb(255, 87, 51)"\n// - "hsl": Display as "hsl(9, 100%, 60%)"';
+          newWidget.settings = savedTableSettings;
+          await this._dbContext.tableWidgetsRepository.save(newWidget);
+        }
+      }
+      if (hexColorColumns.length) {
+        for (const column of hexColorColumns) {
+          const newWidget = new TableWidgetEntity();
+          newWidget.field_name = column;
+          newWidget.widget_type = WidgetTypeEnum.Color;
+          newWidget.widget_options =
+            '// Optional: Specify output format for color values\n// Supported formats: "hex", "hex_hash" (default), "rgb", "hsl"\n// Example configuration:\n\n{\n  "format": "hex_hash"  // Will display colors as "#FF5733"\n}\n\n// Format options:\n// - "hex": Display as "FF5733" (no hash)\n// - "hex_hash": Display as "#FF5733" (default)\n// - "rgb": Display as "rgb(255, 87, 51)"\n// - "hsl": Display as "hsl(9, 100%, 60%)"';
+          newWidget.settings = savedTableSettings;
+          await this._dbContext.tableWidgetsRepository.save(newWidget);
+        }
+      }
+      if (hslColorColumns.length) {
+        for (const column of hslColorColumns) {
+          const newWidget = new TableWidgetEntity();
+          newWidget.field_name = column;
+          newWidget.widget_type = WidgetTypeEnum.Color;
+          newWidget.widget_options =
+            '// Optional: Specify output format for color values\n// Supported formats: "hex", "hex_hash" (default), "rgb", "hsl"\n// Example configuration:\n\n{\n  "format": "hsl"  // Will display colors as "#FF5733"\n}\n\n// Format options:\n// - "hex": Display as "FF5733" (no hash)\n// - "hex_hash": Display as "#FF5733" (default)\n// - "rgb": Display as "rgb(255, 87, 51)"\n// - "hsl": Display as "hsl(9, 100%, 60%)"';
+          newWidget.settings = savedTableSettings;
+          await this._dbContext.tableWidgetsRepository.save(newWidget);
+        }
+      }
     }
   }
 
   private isValueTelephoneNumber(value: unknown): boolean {
     return ValidationHelper.isValidPhoneNumber(String(value));
+  }
+
+  private isValueRgbColor(value: unknown): boolean {
+    if (typeof value !== 'string') {
+      return false;
+    }
+    return ValidationHelper.isValidRgbColor(value);
+  }
+
+  private isValueHexColor(value: unknown): boolean {
+    if (typeof value !== 'string') {
+      return false;
+    }
+    return ValidationHelper.isValidHexColor(value);
+  }
+
+  private isHslColor(value: unknown): boolean {
+    if (typeof value !== 'string') {
+      return false;
+    }
+    return ValidationHelper.isValidHslColor(value);
   }
 
   private isValueUUID(value: unknown): boolean {
