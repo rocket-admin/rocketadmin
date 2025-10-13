@@ -2,6 +2,7 @@ import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import validator from 'validator';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Constants } from '../constants/constants.js';
+import countries from 'i18n-iso-countries';
 
 export class ValidationHelper {
   public static isValidUrl(url: string): boolean {
@@ -20,12 +21,43 @@ export class ValidationHelper {
     return validator.isWhitelisted(verificationString, Constants.VERIFICATION_STRING_WHITELIST());
   }
 
+  public static isValidPhoneNumber(phoneNumber: string): boolean {
+    return validator.isMobilePhone(phoneNumber, 'any', { strictMode: false });
+  }
+
+  public static isValidRgbColor(rgbColor: string): boolean {
+    return validator.isRgbColor(rgbColor);
+  }
+
+  public static isValidHexColor(hexColor: string): boolean {
+    return validator.isHexColor(hexColor);
+  }
+
+  public static isValidHslColor(hslColor: string): boolean {
+    return validator.isHSL(hslColor);
+  }
+
+  public static isValidJSON(jsonString: string): boolean {
+    if (typeof jsonString !== 'string') {
+      return false;
+    }
+    validator.isJSON(jsonString);
+  }
+
   public static isValidJWT(token: string): boolean {
     return validator.isJWT(token);
   }
 
   public static isValidDomain(domain: string): boolean {
     return validator.isFQDN(domain, { require_tld: true });
+  }
+
+  public static isValidCountryCode(countryCode: string): boolean {
+    return countries.isValid(countryCode);
+  }
+
+  public isValidUrl(url: string): boolean {
+    return validator.isURL(url);
   }
 
   public static validateOrThrowHttpExceptionEmail(email: string): boolean {

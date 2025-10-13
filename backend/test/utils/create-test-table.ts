@@ -17,6 +17,7 @@ export async function createTestTable(
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
   withJsonField = false,
+  withWidgetsData = false,
 ): Promise<CreatedTableInfo> {
   if (connectionParams.type === ConnectionTypesEnum.ibmdb2) {
     return createTestTableIbmDb2(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
@@ -60,20 +61,51 @@ export async function createTestTable(
     table.timestamps();
   });
 
-  if(withJsonField) {
+  if (withJsonField) {
     await Knex.schema.table(testTableName, function (table) {
       table.json('json_field');
       table.jsonb('jsonb_field');
-    })
+    });
+  }
+
+  // telephoneColumns,
+  // uuidColumns,
+  // countryCodeColumns,
+  // urlColumns,
+  // rgbColorColumns,
+  // hexColorColumns,
+  // hslColorColumns,
+  // email columns already exists as some of the test columns
+  if (withWidgetsData) {
+    await Knex.schema.table(testTableName, function (table) {
+      table.string('telephone');
+      table.string('uuid');
+      table.string('countryCode');
+      table.string('url');
+      table.string('rgbColor');
+      table.string('hexColor');
+      table.string('hslColor');
+    });
   }
 
   for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    const widgetsDataObject: any = {};
+    if (withWidgetsData) {
+      widgetsDataObject.telephone = faker.phone.number({ style: 'international' });
+      widgetsDataObject.uuid = faker.string.uuid();
+      widgetsDataObject.countryCode = faker.location.countryCode();
+      widgetsDataObject.url = faker.internet.url();
+      widgetsDataObject.rgbColor = faker.color.rgb();
+      widgetsDataObject.hexColor = faker.color.rgb({ format: 'hex', casing: 'lower' });
+      widgetsDataObject.hslColor = faker.color.hsl({ format: 'css' });
+    }
     if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
       await Knex(testTableName).insert({
         [testTableColumnName]: testSearchedUserName,
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
+        ...widgetsDataObject,
       });
     } else {
       await Knex(testTableName).insert({
@@ -81,6 +113,7 @@ export async function createTestTable(
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
+        ...widgetsDataObject,
       });
     }
   }

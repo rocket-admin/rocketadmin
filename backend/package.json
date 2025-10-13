@@ -74,6 +74,7 @@
     "express-rate-limit": "8.0.1",
     "fetch-blob": "^4.0.0",
     "helmet": "8.1.0",
+    "i18n-iso-countries": "^7.14.0",
     "ip-range-check": "0.2.0",
     "json2csv": "^5.0.7",
     "jsonwebtoken": "^9.0.2",
