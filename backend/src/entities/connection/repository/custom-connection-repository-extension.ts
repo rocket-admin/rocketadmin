@@ -148,15 +148,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return await qb.getOne();
   },
 
-  async getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string> {
-    const connectionQb = this.createQueryBuilder('connection')
-      .leftJoinAndSelect('connection.groups', 'group')
-      .leftJoinAndSelect('connection.author', 'author')
-      .andWhere('group.id = :id', { id: groupId });
-    const connection: ConnectionEntity = await connectionQb.getOne();
-    return connection.author.id;
-  },
-
   async findOneById(connectionId: string): Promise<ConnectionEntity> {
     return await this.findOne({ where: { id: connectionId } });
   },
