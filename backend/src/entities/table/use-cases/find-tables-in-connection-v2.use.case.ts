@@ -136,21 +136,9 @@ export class FindTablesInConnectionV2UseCase
     }
 
     const sortedTables = tablesRO.sort((tableRO1, tableRO2) => {
-      const display_name1 = tableRO1.display_name;
-      const display_name2 = tableRO2.display_name;
-      if (display_name1 && display_name2) {
-        return display_name1.localeCompare(display_name2);
-      }
-      if (!display_name1 && !display_name2) {
-        return tableRO1.table.localeCompare(tableRO2.table);
-      }
-      if (!display_name1 && display_name2) {
-        return tableRO1.table.localeCompare(display_name2);
-      }
-      if (display_name1 && !display_name2) {
-        return display_name1.localeCompare(tableRO2.table);
-      }
-      return 0;
+      const name1 = tableRO1.display_name || tableRO1.table;
+      const name2 = tableRO2.display_name || tableRO2.table;
+      return name1.localeCompare(name2);
     });
 
     const tableCategories = foundConnectionProperties?.table_categories || [];
