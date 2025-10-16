@@ -6,18 +6,18 @@ import { Angulartics2Module } from 'angulartics2';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DemoConnectionsComponent } from './demo-connections/demo-connections.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { OwnConnectionsComponent } from './own-connections/own-connections.component';
 import { PlaceholderConnectionsComponent } from '../skeletons/placeholder-connections/placeholder-connections.component';
 import { RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { take } from 'rxjs/operators';
-import { OwnConnectionsComponent } from './own-connections/own-connections.component';
-import { DemoConnectionsComponent } from './demo-connections/demo-connections.component';
 
 @Component({
   selector: 'app-connections-list',
@@ -38,14 +38,13 @@ import { DemoConnectionsComponent } from './demo-connections/demo-connections.co
 })
 export class ConnectionsListComponent implements OnInit {
 
-  public connections: ConnectionItem[] = null;
-  public testConnections: ConnectionItem[] = null;
+  public connections: Connection[] = null;
+  // public testConnections: Connection[] = null;
   public titles: Object;
   public displayedCardCount: number = 3;
   public connectionsListCollapsed: boolean = true;
   public companyName: string;
   public currentUser: User;
-
 
   constructor(
     private _connectionsServise: ConnectionsService,
@@ -57,6 +56,14 @@ export class ConnectionsListComponent implements OnInit {
 
   get isDemo() {
     return this._userService.isDemo;
+  }
+
+  get ownConnections() {
+    return this._connectionsServise.ownConnectionsList;
+  }
+
+  get testConnections() {
+    return this._connectionsServise.testConnectionsList;
   }
 
   ngOnInit(): void {
@@ -73,20 +80,5 @@ export class ConnectionsListComponent implements OnInit {
         this.companyName = res.name;
       })
     });
-    this._connectionsServise.fetchConnections()
-      .subscribe((res: any) => {
-        this.setConnections(res);
-      })
-  }
-
-  setConnections(res) {
-    this.connections = res.connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
-    this.testConnections = res.connections.filter(connectionItem => connectionItem.connection.isTestConnection);
-    this.titles = Object.assign({}, ...res.connections.map((connectionItem) => ({[connectionItem.connection.id]: this.getTitle(connectionItem.connection)})));
-  }
-
-  getTitle(connection: Connection) {
-    if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection'
-    return connection.title || connection.database
   }
 }

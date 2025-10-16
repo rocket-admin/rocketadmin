@@ -80,14 +80,25 @@ export class EmailService {
   }
 
   public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults | null>> {
-    const queue = new PQueue({ concurrency: 8 });
-    const mailingResults: Array<SMTPTransport.SentMessageInfo | void> = await Promise.all(
-      userEmails.map(async (email: string) => {
-        return await queue.add(async () => {
+    const queue = new PQueue({ concurrency: 3 });
+
+    const mailingResults: Array<SMTPTransport.SentMessageInfo | void> = [];
+
+    for (const email of userEmails) {
+      try {
+        const result = await queue.add(async () => {
           return await this.sendReminderToUser(email);
         });
-      }),
-    );
+        mailingResults.push(result);
+      } catch (error) {
+        this.logger.error(`Failed to send reminder to ${email}: ${error.message}`);
+        Sentry.captureException(error);
+        mailingResults.push(null);
+      }
+    }
+
+    await queue.onIdle();
+
     return this.buildMailingResults(mailingResults);
   }
 

@@ -6686,6 +6686,7 @@ __metadata:
     karma-jasmine-html-reporter: ^2.1.0
     libphonenumber-js: ^1.12.9
     lodash: ^4.17.21
+    monaco-editor: 0.44.0
     ng-dynamic-component: ^10.7.0
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.0.0
@@ -9506,6 +9507,13 @@ __metadata:
     pkg-types: ^1.2.1
     ufo: ^1.5.4
   checksum: 60d309c7ce2ac162224a087fcd683a891260511f57011b2f436b54dfef146b8aae7473013958a58d5b6039f2a8692c32a2599c8390c5b307d1119ad0d917b414
+  languageName: node
+  linkType: hard
+
+"monaco-editor@npm:0.44.0":
+  version: 0.44.0
+  resolution: "monaco-editor@npm:0.44.0"
+  checksum: 6e561b23e5e9090cbdbb820dae5895a8bf9d537acc09281756a8c428960da0481461c72f387cc9a2e14bff69ab4359186c98df2dd29d6d109f1ab7189b573a35
   languageName: node
   linkType: hard
 

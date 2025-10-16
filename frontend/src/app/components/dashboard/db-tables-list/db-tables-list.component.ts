@@ -30,7 +30,6 @@ import { TableStateService } from 'src/app/services/table-state.service';
 })
 export class DbTablesListComponent {
   @Input() connectionID: string;
-  @Input() connectionTitle: string;
   @Input() tables: TableProperties[];
   @Input() selectedTable: string;
   @Input() collapsed: boolean;

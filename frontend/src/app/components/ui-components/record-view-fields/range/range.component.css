@@ -1,0 +1,64 @@
+.range-display-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.range-value-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: 500;
+}
+
+.range-progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  min-width: 160px;
+}
+
+/* Material progress bar specific styles */
+.range-progress-bar.mat-mdc-progress-bar {
+  height: 8px;
+}
+
+/* Light theme progress bar styles */
+.range-progress-bar {
+  --mdc-linear-progress-active-indicator-color: var(--color-accentedPalette-300);
+  --mdc-linear-progress-track-color: #e0e0e0;
+  --mdc-linear-progress-active-indicator-height: 8px;
+  --mdc-linear-progress-track-height: 8px;
+}
+
+/* Override Material default styles */
+.range-progress-bar ::ng-deep .mdc-linear-progress {
+  height: 8px !important;
+}
+
+.range-progress-bar ::ng-deep .mdc-linear-progress__bar {
+  height: 8px !important;
+}
+
+.range-progress-bar ::ng-deep .mdc-linear-progress__bar-inner {
+  border-top-width: 8px !important;
+}
+
+.range-progress-bar ::ng-deep .mdc-linear-progress__buffer {
+  height: 8px !important;
+}
+
+.range-progress-bar ::ng-deep .mdc-linear-progress__buffer-bar {
+  height: 8px !important;
+}
+
+/* Dark theme styles */
+@media (prefers-color-scheme: dark) {
+  .range-value-label {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .range-progress-bar {
+    --mdc-linear-progress-active-indicator-color: var(--color-accentedPalette-700);
+    --mdc-linear-progress-track-color: rgba(255, 255, 255, 0.12);
+  }
+}

@@ -452,18 +452,19 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
       return false;
     }
 
-    for (const permission of allUserPermissions) {
-      if (
+    const hasReadPermission = allUserPermissions.some(
+      (permission) =>
         (permission.type === PermissionTypeEnum.Connection && permission.accessLevel === AccessLevelEnum.edit) ||
         (permission.type === PermissionTypeEnum.Table &&
           permission.tableName === tableName &&
           [AccessLevelEnum.visibility, AccessLevelEnum.add, AccessLevelEnum.delete, AccessLevelEnum.edit].includes(
             permission.accessLevel as AccessLevelEnum,
-          ))
-      ) {
-        Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, true);
-        return true;
-      }
+          )),
+    );
+
+    if (hasReadPermission) {
+      Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, true);
+      return true;
     }
 
     Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, false);

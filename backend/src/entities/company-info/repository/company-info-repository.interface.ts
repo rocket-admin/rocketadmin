@@ -20,10 +20,6 @@ export interface ICompanyInfoRepository {
 
   findUserCompanyWithUsers(userId: string): Promise<CompanyInfoEntity>;
 
-  findAllCompanyWithConnectionsUsersJoining(companyId: string): Promise<CompanyInfoEntity>;
-
-  findFullCompanyInfoByCompanyId(companyId: string): Promise<CompanyInfoEntity>;
-
   findCompaniesPaidConnections(companyIds: Array<string>): Promise<ConnectionEntity[]>;
 
   findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>>;

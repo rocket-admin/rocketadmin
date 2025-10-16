@@ -2,10 +2,6 @@ import { Repository } from 'typeorm';
 import { IAgentRepository } from '../../entities/agent/repository/agent.repository.interface.js';
 import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
 import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
-import { IAiUserFilesRepository } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files-repository.interface.js';
-import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files.entity.js';
-import { IAiUserThreadsRepository } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.interface.js';
-import { AiUserThreadEntity } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads.entity.js';
 import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
@@ -49,6 +45,7 @@ import { UserEntity } from '../../entities/user/user.entity.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { IDatabaseContext } from '../database-context.interface.js';
+import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -78,11 +75,10 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
   actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
   userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
-  aiUserThreadsRepository: Repository<AiUserThreadEntity> & IAiUserThreadsRepository;
-  aiUserFilesRepository: Repository<AiUserFileEntity> & IAiUserFilesRepository;
   companyLogoRepository: Repository<CompanyLogoEntity>;
   companyFaviconRepository: Repository<CompanyFaviconEntity>;
   companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
+  tableCategoriesRepository: Repository<TableCategoriesEntity>;
 }

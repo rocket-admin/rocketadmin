@@ -62,7 +62,9 @@ export const customAgentRepositoryExtension = {
       case ConnectionTypeTestEnum.elasticsearch:
         return 'ELASTICSEARCH-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_cassandra:
-        return 'CASSANDRA-TEST-AGENT-TOKEN';  
+        return 'CASSANDRA-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_redis:
+        return 'REDIS-TEST-AGENT-TOKEN';
     }
   },
 };

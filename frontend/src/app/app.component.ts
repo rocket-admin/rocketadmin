@@ -6,6 +6,7 @@ import { catchError, filter, map } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from './services/company.service';
+import { Connection } from './models/connection';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
@@ -28,6 +29,7 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
+import { version } from './version';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -57,6 +59,7 @@ amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
 export class AppComponent {
 
   public isSaas = (environment as any).saas;
+  public appVersion = version;
   userActivity;
   userInactive: Subject<any> = new Subject();
   currentFeatureNotificationId: string = 'saved-filters';
@@ -65,7 +68,6 @@ export class AppComponent {
   userLoggedIn = null;
   isDemo = false;
   redirect_uri = `${location.origin}/loader`;
-  connections = [];
   token = null;
   routePathParam;
   authBarTheme;
@@ -81,6 +83,7 @@ export class AppComponent {
     logo: '',
     favicon: ''
   }
+  public connections: Connection[] = [];
 
   constructor (
     private changeDetector: ChangeDetectorRef,
@@ -98,13 +101,14 @@ export class AppComponent {
     private domSanitizer: DomSanitizer,
     private matIconRegistry: MatIconRegistry,
   ) {
-    this.matIconRegistry.addSvgIcon("mysql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mysql_logo.svg"));
-    this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mssql_logo.svg"));
-    this.matIconRegistry.addSvgIcon("oracledb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/oracle_logo.svg"));
-    this.matIconRegistry.addSvgIcon("postgres", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/postgres_logo.svg"));
-    this.matIconRegistry.addSvgIcon("mongodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mongodb_logo.svg"));
-    this.matIconRegistry.addSvgIcon("dynamodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/dynamodb_logo.svg"));
-    this.matIconRegistry.addSvgIcon("ibmdb2", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db2.svg"));
+    this.matIconRegistry.addSvgIcon("mysql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/mysql_logo.svg"));
+    this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/mssql_logo.svg"));
+    this.matIconRegistry.addSvgIcon("oracledb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/oracle_logo.svg"));
+    this.matIconRegistry.addSvgIcon("postgres", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/postgres_logo.svg"));
+    this.matIconRegistry.addSvgIcon("mongodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/mongodb_logo.svg"));
+    this.matIconRegistry.addSvgIcon("dynamodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/dynamodb_logo.svg"));
+    this.matIconRegistry.addSvgIcon("ibmdb2", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/db2_logo.svg"));
+    this.matIconRegistry.addSvgIcon("cassandra", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/сassandra_logo.svg"));
     this.matIconRegistry.addSvgIcon("github", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/github.svg"));
     this.matIconRegistry.addSvgIcon("google", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/google.svg"));
     this.matIconRegistry.addSvgIcon("ai_rocket", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/ai-rocket.svg"));
@@ -166,12 +170,13 @@ export class AppComponent {
       if (!res.isTemporary && res.expires) {
         const expirationTime = new Date(res.expires);
         if (expirationTime) {
-		localStorage.setItem('token_expiration', expirationTime.toISOString());
-		expirationToken = expirationTime.toISOString();
-	}
+          localStorage.setItem('token_expiration', expirationTime.toISOString());
+          expirationToken = expirationTime.toISOString();
+        }
 
         this.router.navigate(['/connections-list']);
 
+        console.log('App component, user logged in, initializing app');
         this.initializeUserSession();
 
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
@@ -182,7 +187,7 @@ export class AppComponent {
 
       }
       // app initialization if user is logged in (session restoration)
-      if (expirationToken) {
+      else if (expirationToken) {
         const expirationTime = expirationToken ? new Date(expirationToken) : null;
         const currantTime = new Date();
 
@@ -190,6 +195,7 @@ export class AppComponent {
           const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
           console.log('expirationInterval', expirationInterval);
           if (expirationInterval > 0) {
+            console.log('App component, session restoration');
             this.initializeUserSession();
 
             setTimeout(() => {
@@ -219,6 +225,14 @@ export class AppComponent {
     return this._connections.connectionID;
   }
 
+  get currentConnectionName() {
+    return this._connections.currentConnectionName;
+  }
+
+  get isTestConnection() {
+    return this._connections.currentConnection?.isTestConnection || false;
+  }
+
   get visibleTabs() {
     return this._connections.visibleTabs;
   }
@@ -227,9 +241,13 @@ export class AppComponent {
     return this._connections.currentTab;
   }
 
+  get ownUserConnections() {
+    return this._connections.ownConnectionsList;
+  }
+
   initializeUserSession() {
     this._user.fetchUser()
-    .subscribe((res: User) => {
+      .subscribe((res: User) => {
         this.currentUser = res;
         this.isDemo = this.currentUser.email.startsWith('demo_') && this.currentUser.email.endsWith('@rocketadmin.com');
         this._user.setIsDemo(this.isDemo);
@@ -247,6 +265,16 @@ export class AppComponent {
         if (this.isDemo) window.hj?.('identify', this.currentUser.id, {
           'mode': 'demo'
         });
+
+        // this._connections.fetchConnections()
+        //   .subscribe((res: any) => {
+        //     this.connections = res.filter(connectionItem => !connectionItem.isTestConnection);
+        //   })
+
+        this._connections.cast.subscribe( () => {
+          this._connections.fetchConnections().subscribe();
+        });
+
         this._company.getWhiteLabelProperties(res.company.id).subscribe( whiteLabelSettings => {
           this.whiteLabelSettings.logo = whiteLabelSettings.logo;
           this.whiteLabelSettingsLoaded = true;

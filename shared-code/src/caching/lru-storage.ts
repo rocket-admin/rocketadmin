@@ -19,7 +19,21 @@ const cassandraClientCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CASSANDRA_CL
 const tableStructureCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tableForeignKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tablePrimaryKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
+const redisClientCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_REDIS_CLIENT_CACHE_OPTIONS);
 export class LRUStorage {
+  public static getRedisClientCache(connection: ConnectionParams): any | null {
+    const cachedClient = redisClientCache.get(this.getConnectionIdentifier(connection));
+    return cachedClient ? cachedClient : null;
+  }
+
+  public static setRedisClientCache(connection: ConnectionParams, client: any): void {
+    redisClientCache.set(this.getConnectionIdentifier(connection), client);
+  }
+
+  public static delRedisClientCache(connection: ConnectionParams): void {
+    redisClientCache.delete(this.getConnectionIdentifier(connection));
+  }
+
   public static setCassandraClientCache(connection: ConnectionParams, client: Client): void {
     cassandraClientCache.set(this.getConnectionIdentifier(connection), client);
   }

@@ -16,7 +16,6 @@ export class ActionEventsEntity {
   })
   event!: TableActionEventEnum;
 
-
   @Column('enum', {
     nullable: false,
     enum: TableActionTypeEnum,
@@ -33,7 +32,7 @@ export class ActionEventsEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   require_confirmation: boolean;
 
   @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })

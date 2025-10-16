@@ -1,8 +1,8 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Angulartics2Module } from 'angulartics2';
 
+import { Angulartics2Module } from 'angulartics2';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from './notifications.service';
 import { TableOrdering } from '../models/table';
 import { TablesService } from './tables.service';
@@ -166,7 +166,8 @@ describe('TablesService', () => {
     "table_name": "contacts_with_uuid",
     "sensitive_fields": [],
     "allow_csv_export": true,
-    "allow_csv_import": true
+    "allow_csv_import": true,
+    "can_delete": true,
   };
 
   const tableWidgetsNetwork = [

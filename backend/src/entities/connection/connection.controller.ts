@@ -82,6 +82,7 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -651,6 +652,7 @@ export class ConnectionController {
     type: Boolean,
   })
   @ApiQuery({ name: 'token', required: true })
+  @SkipThrottle()
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<TokenValidationResult> {
     if (!token || typeof token !== 'string' || token.length === 0) {
@@ -707,7 +709,8 @@ export class ConnectionController {
         return errors;
       }
 
-      if (!connectionData.username) errors.push(Messages.USERNAME_MISSING);
+      if (!connectionData.username && connectionData.type !== ConnectionTypesEnum.redis)
+        errors.push(Messages.USERNAME_MISSING);
 
       if (
         connectionData.type === ConnectionTypesEnum.dynamodb ||
@@ -716,7 +719,8 @@ export class ConnectionController {
         return errors;
       }
 
-      if (!connectionData.database) errors.push(Messages.DATABASE_MISSING);
+      if (!connectionData.database && connectionData.type !== ConnectionTypesEnum.redis)
+        errors.push(Messages.DATABASE_MISSING);
       if (process.env.NODE_ENV !== 'test' && !connectionData.ssh) {
         if (!this.isMongoHost(connectionData.host)) {
           if (!validator.isFQDN(connectionData.host) && !validator.isIP(connectionData.host))

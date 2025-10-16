@@ -120,10 +120,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._connections.currentConnectionAccessLevel
   }
 
-  get currentConnectionTitle () {
-    return this._connections.currentConnection.title || this._connections.currentConnection.database || 'Tables'
-  }
-
   get currentConnectionIsTest () {
     return this._connections.currentConnection.isTestConnection
   }

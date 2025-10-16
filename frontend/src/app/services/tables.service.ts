@@ -480,7 +480,7 @@ export class TablesService {
     })
       .pipe(
         map((res) => {
-          const threadId = res.headers.get('x-openai-thread-id');
+          const threadId = res.headers.get('X-OpenAI-Thread-ID');
           this.angulartics2.eventTrack.next({
             action: 'AI: thread created'
           });
@@ -495,14 +495,18 @@ export class TablesService {
   }
 
   requestAImessage(connectionID: string, tableName: string, threadId: string, message: string) {
-    return this._http.post<any>(`/ai/thread/message/${connectionID}/${threadId}`, {user_message: message}, {
+    console.log('threadId', threadId);
+    return this._http.post<any>(`/ai/v2/request/${connectionID}`, {user_message: message}, {
+      responseType: 'text' as 'json',
+      observe: 'response',
       params: {
-        tableName
+        tableName,
+        threadId
       }
     })
       .pipe(
         map((res) => {
-          return res
+          return res.body as string;
         }),
         catchError((err) => {
           console.log(err);

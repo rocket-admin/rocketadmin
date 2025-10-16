@@ -104,7 +104,9 @@ export class DbTableRowEditComponent implements OnInit {
   public referencedTablesURLParams: any;
   public isDesktop: boolean = true;
   public permissions: TablePermissions;
+  public canDelete: boolean;
   public pageAction: string;
+  public pageMode: string = null;
   public tableFiltersUrlString: string;
   public backUrlParams: object;
 
@@ -206,9 +208,13 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
-        const { action, ...primaryKeys } = params;
+        const { action, mode, ...primaryKeys } = params;
         if (action) {
           this.pageAction = action;
+        };
+
+        if (mode) {
+          this.pageMode = mode;
         };
 
         this.keyAttributesFromURL = primaryKeys;
@@ -219,6 +225,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
             this.permissions = res.table_access_level;
+            this.canDelete = res.can_delete;
             this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
 
             this.nonModifyingFields = res.structure
@@ -740,6 +747,15 @@ export class DbTableRowEditComponent implements OnInit {
         acc[column.column_name] = row[column.column_name];
         return acc;
       }, {}),
+    });
+  }
+
+  switchToEditMode() {
+    this.pageMode = null;
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], {
+      queryParams: {
+        ...this.keyAttributesFromURL
+      }
     });
   }
 }

@@ -48,36 +48,9 @@
     padding: 0 24px;
 }
 
-.toggle-button-position {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: -48px;
-    margin-top: 24px;
-}
-
 .toggle-button {
-    background-color: var(--mat-sidenav-content-background-color);
-    border-radius: 4px 0 0 4px !important;
-    color: inherit;
-    line-height: 24px;
-    min-width: 52px !important;
-    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.1),0px 6px 8px 0px rgba(0, 0, 0, 0.07),0px 1px 8px 0px rgba(0, 0, 0, 0.06);
-}
-
-.toggle-button::ng-deep .mat-button-wrapper {
-    padding: 0;
-}
-
-.toggle-button::ng-deep .material-icons {
-    line-height: 22px;
-}
-
-.toggle-button-position__opened::ng-deep .material-icons {
-    margin-left: -2px;
-}
-
-.toggle-button-position__closed::ng-deep .material-icons {
-    margin-left: 2px;
+    margin-top: 8px;
+    margin-left: 12px;
 }
 
 .dashboard {

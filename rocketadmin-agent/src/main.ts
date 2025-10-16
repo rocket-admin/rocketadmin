@@ -152,10 +152,14 @@ async function bootstrap() {
       connectionCredentials.type = CLIQuestionUtility.askConnectionType();
       connectionCredentials.host = CLIQuestionUtility.askConnectionHost();
       connectionCredentials.port = CLIQuestionUtility.askConnectionPort();
-      connectionCredentials.username = CLIQuestionUtility.askConnectionUserName();
+      if (connectionCredentials.type !== ConnectionTypesEnum.redis) {
+        connectionCredentials.username = CLIQuestionUtility.askConnectionUserName();
+      }
       connectionCredentials.password = CLIQuestionUtility.askConnectionPassword();
-      connectionCredentials.database = CLIQuestionUtility.askConnectionDatabase();
-      connectionCredentials.schema = CLIQuestionUtility.askConnectionSchema();
+      if (connectionCredentials.type !== ConnectionTypesEnum.redis) {
+        connectionCredentials.database = CLIQuestionUtility.askConnectionDatabase();
+        connectionCredentials.schema = CLIQuestionUtility.askConnectionSchema();
+      }
       if (connectionCredentials.type === ConnectionTypesEnum.oracledb) {
         connectionCredentials.sid = CLIQuestionUtility.askConnectionSid();
       }

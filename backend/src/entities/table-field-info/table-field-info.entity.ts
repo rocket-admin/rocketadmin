@@ -6,7 +6,7 @@ export class TableFieldInfoEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ default: null })
+  @Column({ default: null, type: 'boolean' })
   allow_null: boolean;
 
   @Column({ default: null })

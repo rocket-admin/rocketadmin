@@ -83,7 +83,8 @@
                             label: tableWidgets[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column].name || savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
                             value: savedFilterMap[selectedFilterSetId]?.dynamicColumn.value,
                             widgetStructure: tableWidgets[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column],
-                            relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined
+                            relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined,
+                            autofocus: shouldAutofocus
                         }"
                         [ndcDynamicOutputs]="{
                             onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
@@ -98,7 +99,8 @@
                             label: savedFilterMap[selectedFilterSetId]?.dynamicColumn.column,
                             value: savedFilterMap[selectedFilterSetId]?.dynamicColumn.value,
                             structure: tableRowStructure[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column],
-                            relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined
+                            relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined,
+                            autofocus: shouldAutofocus
                         }"
                         [ndcDynamicOutputs]="{
                             onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
@@ -116,7 +118,8 @@
                         value: savedFilterMap[selectedFilterSetId]?.dynamicColumn.value,
                         readonly: savedFilterMap[selectedFilterSetId]?.dynamicColumn.operator === 'empty',
                         structure: tableRowStructure[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column],
-                        relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined
+                        relations: tableTypes[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] === 'foreign key' ? tableForeignKeys[savedFilterMap[selectedFilterSetId]?.dynamicColumn.column] : undefined,
+                        autofocus: shouldAutofocus
                     }"
                     [ndcDynamicOutputs]="{
                         onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
@@ -125,7 +128,7 @@
             </div>
         </form>
         <div class="static-filters">
-            <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip">
+            <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip" data-hj-suppress>
                 {{ getFilter(filter) }}
             </mat-chip>
         </div>

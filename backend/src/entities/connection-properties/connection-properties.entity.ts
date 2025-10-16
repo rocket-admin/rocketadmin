@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableCategoriesEntity } from '../table-categories/table-categories.entity.js';
 
 @Entity('connectionProperties')
 export class ConnectionPropertiesEntity {
@@ -24,13 +25,13 @@ export class ConnectionPropertiesEntity {
   @Column({ default: null })
   company_name: string;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   tables_audit: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   human_readable_table_names: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, type: 'boolean' })
   allow_ai_requests: boolean;
 
   @Column({ default: null })
@@ -41,4 +42,7 @@ export class ConnectionPropertiesEntity {
   })
   @JoinColumn()
   connection: Relation<ConnectionEntity>;
+
+  @OneToMany(() => TableCategoriesEntity, (table_categories) => table_categories.connection_properties)
+  table_categories: Relation<TableCategoriesEntity[]>;
 }

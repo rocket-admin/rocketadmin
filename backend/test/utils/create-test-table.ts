@@ -10,11 +10,14 @@ import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb
 import { Client } from '@elastic/elasticsearch';
 import * as cassandra from 'cassandra-driver';
 import { v4 as uuidv4 } from 'uuid';
+import { createClient } from 'redis';
 
 export async function createTestTable(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
+  withJsonField = false,
+  withWidgetsData = false,
 ): Promise<CreatedTableInfo> {
   if (connectionParams.type === ConnectionTypesEnum.ibmdb2) {
     return createTestTableIbmDb2(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
@@ -36,6 +39,10 @@ export async function createTestTable(
     return createTestDynamoDBTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
 
+  if (connectionParams.type === ConnectionTypesEnum.redis) {
+    return createTestRedisTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
   const testTableName = getRandomTestTableName();
   const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
   const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
@@ -54,13 +61,51 @@ export async function createTestTable(
     table.timestamps();
   });
 
+  if (withJsonField) {
+    await Knex.schema.table(testTableName, function (table) {
+      table.json('json_field');
+      table.jsonb('jsonb_field');
+    });
+  }
+
+  // telephoneColumns,
+  // uuidColumns,
+  // countryCodeColumns,
+  // urlColumns,
+  // rgbColorColumns,
+  // hexColorColumns,
+  // hslColorColumns,
+  // email columns already exists as some of the test columns
+  if (withWidgetsData) {
+    await Knex.schema.table(testTableName, function (table) {
+      table.string('telephone');
+      table.string('uuid');
+      table.string('countryCode');
+      table.string('url');
+      table.string('rgbColor');
+      table.string('hexColor');
+      table.string('hslColor');
+    });
+  }
+
   for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    const widgetsDataObject: any = {};
+    if (withWidgetsData) {
+      widgetsDataObject.telephone = faker.phone.number({ style: 'international' });
+      widgetsDataObject.uuid = faker.string.uuid();
+      widgetsDataObject.countryCode = faker.location.countryCode();
+      widgetsDataObject.url = faker.internet.url();
+      widgetsDataObject.rgbColor = faker.color.rgb();
+      widgetsDataObject.hexColor = faker.color.rgb({ format: 'hex', casing: 'lower' });
+      widgetsDataObject.hslColor = faker.color.hsl({ format: 'css' });
+    }
     if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
       await Knex(testTableName).insert({
         [testTableColumnName]: testSearchedUserName,
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
+        ...widgetsDataObject,
       });
     } else {
       await Knex(testTableName).insert({
@@ -68,6 +113,7 @@ export async function createTestTable(
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
+        ...widgetsDataObject,
       });
     }
   }
@@ -379,7 +425,8 @@ export async function createTestOracleTable(
     table.integer(pColumnName);
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
-    table.timestamps();
+    table.timestamp('created_at');
+    table.date('updated_at');
   });
   await Knex.schema.alterTable(testTableName, function (t) {
     t.primary([pColumnName], primaryKeyConstraintName);
@@ -435,6 +482,108 @@ export async function createTestOracleTable(
     testTableName: testTableName,
     testTableColumnName: testTableColumnName,
     testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+  };
+}
+
+export async function createTestOracleTableWithDifferentData(
+  connectionParams,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+) {
+  const primaryKeyConstraintName = getRandomConstraintName();
+  const pColumnName = 'id';
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+  const { shema, username } = connectionParams;
+  const testTableName = getRandomTestTableName().toUpperCase();
+  const Knex = getTestKnex(connectionParams);
+  await Knex.schema.dropTableIfExists(testTableName);
+
+  await Knex.schema.createTable(testTableName, function (table) {
+    table.specificType('patient_id', 'RAW(16) DEFAULT SYS_GUID()').primary();
+    table.string('first_name', 100).notNullable();
+    table.string('last_name', 100).notNullable();
+    table.date('date_of_birth').notNullable();
+    table.specificType('gender', 'CHAR(1)');
+    table.string('phone_number', 40);
+    table.string('email', 150).unique();
+    table.string('address', 300);
+    table.specificType('insurance_info', 'CLOB'); // Using specificType for CLOB
+    table.timestamp('created_at').defaultTo(Knex.raw('SYSTIMESTAMP'));
+  });
+
+  try {
+    await Knex.raw(
+      `ALTER TABLE ${testTableName} ADD CONSTRAINT chk_gender_${testTableName} CHECK ("gender" IN ('M','F','O'))`,
+    );
+  } catch (error) {
+    console.log('Warning: Could not add CHECK constraint for gender field');
+  }
+
+  let counter = 0;
+
+  if (shema) {
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName)
+          .withSchema(username.toUpperCase())
+          .insert({
+            first_name: testSearchedUserName,
+            last_name: faker.person.lastName(),
+            date_of_birth: faker.date.past(),
+            gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+            phone_number: faker.phone.number(),
+            email: faker.internet.email(),
+            address: faker.location.streetAddress(),
+            insurance_info: faker.lorem.sentence(),
+          });
+      } else {
+        await Knex(testTableName)
+          .withSchema(username.toUpperCase())
+          .insert({
+            first_name: faker.person.firstName(),
+            last_name: faker.person.lastName(),
+            date_of_birth: faker.date.past(),
+            gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+            phone_number: faker.phone.number(),
+            email: faker.internet.email(),
+            address: faker.location.streetAddress(),
+            insurance_info: faker.lorem.sentence(),
+          });
+      }
+    }
+  } else {
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName).insert({
+          first_name: testSearchedUserName,
+          last_name: faker.person.lastName(),
+          date_of_birth: faker.date.past(),
+          gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+          phone_number: faker.phone.number(),
+          email: faker.internet.email(),
+          address: faker.location.streetAddress(),
+          insurance_info: faker.lorem.sentence(),
+        });
+      } else {
+        await Knex(testTableName).insert({
+          first_name: faker.person.firstName(),
+          last_name: faker.person.lastName(),
+          date_of_birth: faker.date.past(),
+          gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+          phone_number: faker.phone.number(),
+          email: faker.internet.email(),
+          address: faker.location.streetAddress(),
+          insurance_info: faker.lorem.sentence(),
+        });
+      }
+    }
+  }
+  return {
+    testTableName: testTableName,
+    testTableColumnName: 'first_name',
+    testTableSecondColumnName: 'email',
     testEntitiesSeedsCount: testEntitiesSeedsCount,
   };
 }
@@ -663,4 +812,73 @@ export async function createTestCassandraTable(
   } finally {
     await client.shutdown().catch((err) => console.error('Error shutting down Cassandra client:', err));
   }
+}
+
+async function createTestRedisTable(
+  connectionParams: any,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName().toLowerCase();
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+
+  const redisClient = createClient({
+    socket: {
+      host: connectionParams.host,
+      port: connectionParams.port,
+      ca: connectionParams.cert || undefined,
+      cert: connectionParams.cert || undefined,
+      rejectUnauthorized: connectionParams.ssl === false ? false : true,
+    },
+    password: connectionParams.password || undefined,
+  });
+
+  await redisClient.connect();
+
+  const existingKeys = await redisClient.keys(`${testTableName}:*`);
+  if (existingKeys.length > 0) {
+    await redisClient.del(existingKeys);
+  }
+
+  const insertedSearchedIds: Array<{ number: number; id: string }> = [];
+
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+    const key = `user_${i}`;
+    const rowKey = `${testTableName}:${key}`;
+
+    const data = {
+      [testTableColumnName]: isSearchedUser ? testSearchedUserName : faker.person.firstName(),
+      [testTableSecondColumnName]: faker.internet.email(),
+      age: isSearchedUser
+        ? i === 0
+          ? 14
+          : i === testEntitiesSeedsCount - 21
+            ? 90
+            : 95
+        : faker.number.int({ min: 16, max: 80 }),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    await redisClient.set(rowKey, JSON.stringify(data));
+
+    if (isSearchedUser) {
+      insertedSearchedIds.push({
+        number: i,
+        id: key,
+      });
+    }
+  }
+
+  await redisClient.quit();
+
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+    insertedSearchedIds,
+  };
 }

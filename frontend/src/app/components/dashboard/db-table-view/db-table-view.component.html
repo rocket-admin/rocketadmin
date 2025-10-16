@@ -32,12 +32,12 @@
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
             <ng-container *ngIf="tableData.tableBulkActions && tableData.tableBulkActions.length">
-                <button type="button" mat-button class="actions__action" *ngFor="let action of tableData.tableBulkActions"
+                <button type="button" mat-button *ngFor="let action of tableData.tableBulkActions"
                 (click)="handleActions(action)">
                     {{action.title}}
                 </button>
             </ng-container>
-            <button mat-button
+            <button mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.delete && tableData.canDelete"
                 (click)="handleActions({title: 'Delete rows', type: 'multiple',  require_confirmation: true})">
                 Delete
             </button>
@@ -79,7 +79,8 @@
                     Add row
                 </a>
 
-                <button mat-button type="button" [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                <button mat-button type="button" *ngIf="tableData && tableData.structure"
+                    [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
                     angularticsAction="Dashboard: filters is clicked"
                     (click)="handleOpenFilters()">
@@ -170,7 +171,7 @@
 </div>
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
-    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
+    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue" data-hj-suppress
         (removed)="removeFilter.emit(activeFilter.key)">
         {{ getFilter(activeFilter) }}
         <button matChipRemove>
@@ -304,7 +305,7 @@
                         (click)="stashUrlParams()">
                         <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
                     </a>
-                    <button type="button" mat-icon-button *ngIf="tableData.permissions.delete"
+                    <button type="button" mat-icon-button *ngIf="tableData.permissions.delete && tableData.canDelete"
                         attr.data-testid="table-delete-record-{{i}}-button"
                         angulartics2On="click"
                         angularticsAction="Dashboard: delete row is clicked"

@@ -1,10 +1,9 @@
-import { KnexManager } from '../../knex-manager/knex-manager.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { Knex } from 'knex';
 import { isObjectEmpty } from '../../helpers/is-object-empty.js';
-import { comparePrimitiveArrayElements } from '../../helpers/compate-primitive-array-elements.js';
-import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { KnexManager } from '../../knex-manager/knex-manager.js';
+import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
+import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 
 export class BasicDataAccessObject {
   protected connection: ConnectionParams;
@@ -32,15 +31,15 @@ export class BasicDataAccessObject {
     const excludedFields = settings.excluded_fields;
 
     if (settings.list_fields && settings.list_fields.length > 0) {
-      if (!comparePrimitiveArrayElements(settings.list_fields, fieldsFromStructure)) {
-        availableFields = [...settings.list_fields, ...fieldsFromStructure];
-        availableFields = [...new Set(availableFields)];
-        availableFields = availableFields.filter((fieldName) => {
-          return fieldsFromStructure.includes(fieldName);
-        });
-      } else {
-        availableFields = settings.list_fields;
-      }
+      const validListFields = settings.list_fields.filter((fieldName) => {
+        return fieldsFromStructure.includes(fieldName);
+      });
+
+      const additionalFields = fieldsFromStructure.filter((fieldName) => {
+        return !settings.list_fields.includes(fieldName);
+      });
+
+      availableFields = [...validListFields, ...additionalFields];
     } else {
       availableFields = tableStructure.map((el) => {
         return el.column_name;

@@ -54,6 +54,7 @@ export interface IDataAccessObjectAgent {
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
     userEmail: string,
   ): Promise<FoundRowsDS>;
 

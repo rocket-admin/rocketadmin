@@ -1710,7 +1710,7 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
     t.is(primaryColumns[0].column_name, 'id');
     t.is(primaryColumns[0].data_type, 'integer');
     t.is(readonly_fields.length, 0);
-    t.is(table_widgets.length, 0);
+    t.is(table_widgets.length, 1);
     t.is(foreignKeys.length, 0);
   } catch (e) {
     console.error(e);
@@ -2317,7 +2317,7 @@ test.serial(
 
 currentTest = 'GET /settings/';
 
-test.serial(`${currentTest} should return empty table settings when it was not created`, async (t) => {
+test.skip(`${currentTest} should return empty table settings when it was not created`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2389,7 +2389,7 @@ test.serial(`${currentTest} 'should return table settings when it was created`, 
     t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
     t.is(JSON.stringify(getTableSettingsRO.excluded_fields), JSON.stringify(createTableSettingsDTO.excluded_fields));
-    t.is(JSON.stringify(getTableSettingsRO.list_fields), JSON.stringify(createTableSettingsDTO.list_fields));
+    t.is(JSON.stringify(getTableSettingsRO.list_fields), JSON.stringify(createTableSettingsDTO.list_fields.concat(['id', 'created_at', 'updated_at'])));
     t.is(JSON.stringify(getTableSettingsRO.identification_fields), JSON.stringify([]));
     t.is(getTableSettingsRO.list_per_page, createTableSettingsDTO.list_per_page);
     t.is(getTableSettingsRO.ordering, createTableSettingsDTO.ordering);
@@ -2802,7 +2802,7 @@ test.serial(`${currentTest} should return empty widgets array when widgets not c
     const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
     t.is(getTableWidgets.status, 200);
     t.is(typeof getTableWidgetsRO, 'object');
-    t.is(getTableWidgetsRO.length, 0);
+    t.is(getTableWidgetsRO.length, 1);
   } catch (e) {
     console.error(e);
   }

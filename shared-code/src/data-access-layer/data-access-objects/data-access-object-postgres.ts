@@ -40,7 +40,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     ]);
 
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const processedRow = { ...row };
@@ -144,6 +144,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -155,7 +156,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
@@ -350,19 +353,30 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     let result = await knex('information_schema.columns')
-      .select('column_name', 'column_default', 'data_type', 'udt_name', 'is_nullable', 'character_maximum_length')
+      .select(
+        'column_name',
+        'column_default',
+        'data_type',
+        'udt_name',
+        'is_nullable',
+        'character_maximum_length',
+        'is_identity',
+        'identity_generation',
+      )
       .orderBy('dtd_identifier')
       .where(`table_name`, tableName)
       .andWhere('table_schema', this.connection.schema ? this.connection.schema : 'public');
 
+    const generatedIdentities: Array<string> = ['BY DEFAULT', 'ALWAYS'];
     const customTypeIndexes: Array<number> = [];
     result = result.map((element, i) => {
-      const { is_nullable, data_type } = element;
+      const { is_nullable, data_type, identity_generation } = element;
       element.allow_null = is_nullable === 'YES';
       delete element.is_nullable;
       if (data_type === 'USER-DEFINED') {
         customTypeIndexes.push(i);
       }
+      element.extra = generatedIdentities.includes(identity_generation) ? 'auto_increment' : undefined;
       return element;
     });
 
@@ -438,7 +452,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedRow = { ...row };
@@ -463,7 +477,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>[]> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedValues = { ...newValues };

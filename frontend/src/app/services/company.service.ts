@@ -2,7 +2,7 @@ import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { CompanyMemberRole } from '../models/company';
+import { CompanyMemberRole, SamlConfig } from '../models/company';
 import { ConfigurationService } from './configuration.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -477,6 +477,42 @@ export class CompanyService {
             tab_title: res.tab_title,
           }
         }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  fetchSamlConfiguration(companyId: string) {
+    return this._http.get<any>(`/saas/saml/company/full/${companyId}`)
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  createSamlConfiguration(companyId: string, config: SamlConfig) {
+    return this._http.post<any>(`/saas/saml/company/${companyId}`, config)
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  updateSamlConfiguration(config: SamlConfig) {
+    return this._http.put<any>(`/saas/saml/${config.id}`, config)
+      .pipe(
+        map(res => res),
         catchError((err) => {
           console.log(err);
           this._notifications.showErrorSnackbar(err.error.message || err.message);

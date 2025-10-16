@@ -36,6 +36,7 @@ export interface TableSettings {
     sensitive_fields: string[],
     allow_csv_export: boolean,
     allow_csv_import: boolean,
+    can_delete: boolean,
 }
 
 export interface TableRow {

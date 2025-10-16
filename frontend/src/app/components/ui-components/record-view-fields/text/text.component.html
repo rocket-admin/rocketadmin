@@ -1,1 +1,1 @@
-<span class="field-view-value">{{value || '—'}}</span>
+<span class="field-view-value" [class.validation-error]="isInvalid" [title]="isInvalid ? validationErrorMessage : ''">{{value || '—'}}</span>

@@ -76,6 +76,7 @@ export class TablesDataSource implements DataSource<Object> {
   public permissions;
   public isExportAllowed: boolean;
   public isImportAllowed: boolean;
+  public canDelete: boolean;
   public isEmptyTable: boolean;
   public tableActions: CustomAction[];
   public tableBulkActions: CustomAction[];
@@ -280,6 +281,7 @@ export class TablesDataSource implements DataSource<Object> {
 
           this.isExportAllowed = res.allow_csv_export;
           this.isImportAllowed = res.allow_csv_import;
+          this.canDelete = res.can_delete;
 
           this.sortByColumns = res.sortable_by;
 
@@ -313,9 +315,10 @@ export class TablesDataSource implements DataSource<Object> {
   }
 
   getActionsColumnWidth(actions, permissions) {
-    const defaultActionsCount = permissions.edit + permissions.add + permissions.delete;
-    const lendthValue = (((actions.length + defaultActionsCount) * 36) + 32);
-    return `${lendthValue}px`
+    const defaultActionsCount = permissions.edit + permissions.add + (!!permissions.delete && !!this.canDelete);
+    const totalActionsCount = actions.length + defaultActionsCount;
+    const lengthValue = ((totalActionsCount * 36) + 32);
+    return totalActionsCount === 0 ? '0' : `${lengthValue}px`
   }
 
   changleColumnList(connectionId: string, tableName: string) {

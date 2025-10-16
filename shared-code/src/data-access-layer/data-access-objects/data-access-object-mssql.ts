@@ -125,6 +125,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -135,10 +136,11 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const knex = await this.configureKnex();
-    const [tableStructure, tableSchema] = await Promise.all([
-      this.getTableStructure(receivedTableName),
-      this.getSchemaName(receivedTableName),
-    ]);
+
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(receivedTableName);
+    }
+    const tableSchema = await this.getSchemaName(receivedTableName);
 
     const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const tableNameWithoutSchema = receivedTableName;

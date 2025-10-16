@@ -43,9 +43,17 @@ export class CreateTableSettingsUseCase
       );
     }
     const newTableSettingEntity = buildNewTableSettingsEntity(inputData, foundConnection);
-    const savedTableSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(
-      newTableSettingEntity,
+
+    const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+      connection_id,
+      table_name,
     );
+    if (foundTableSettings) {
+      await this._dbContext.tableSettingsRepository.remove(foundTableSettings);
+    }
+
+    const savedTableSettings =
+      await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(newTableSettingEntity);
     return buildFoundTableSettingsDs(savedTableSettings);
   }
 }

@@ -12,15 +12,11 @@ export interface IConnectionRepository {
 
   findOneConnection(connectionId: string): Promise<ConnectionEntity>;
 
-  getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string>;
-
   findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity>;
 
   removeConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;
 
   findConnectionWithGroups(connectionId: string): Promise<ConnectionEntity>;
-
-  getConnectionsWithNonNullUsersGCLIDs(): Promise<Array<ConnectionEntity>>;
 
   getWorkedConnectionsInTwoWeeks(): Promise<Array<ConnectionEntity>>;
 

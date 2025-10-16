@@ -1,12 +1,20 @@
 <mat-form-field class="text-form-field" appearance="outline">
     <mat-label>{{normalizedLabel}}</mat-label>
     <input matInput type="text" name="{{label}}-{{key}}"
+        #textField="ngModel"
         [required]="required" [disabled]="disabled" [readonly]="readonly"
+        [maxlength]="maxLength"
         textValidator
+        [validateType]="validateType"
+        [regexPattern]="regexPattern"
         fieldValidation
         [fieldKey]="key"
         [fieldLabel]="label"
         [fieldRequired]="required"
         attr.data-testid="record-{{label}}-text"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
+    <div matSuffix *ngIf="maxLength && maxLength > 0 && value && (maxLength - value.length) < 100" class="counter">{{value.length}} / {{maxLength}}</div>
+    <mat-error *ngIf="textField.errors?.['required']">This field is required.</mat-error>
+    <mat-error *ngIf="textField.errors?.['maxlength']">Maximum length is {{maxLength}} characters.</mat-error>
+    <mat-error *ngIf="textField.errors?.['invalidPattern'] || textField.errors?.[('invalid' + validateType)]">{{getValidationErrorMessage()}}</mat-error>
 </mat-form-field>

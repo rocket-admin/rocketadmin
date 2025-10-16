@@ -40,6 +40,7 @@ import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -85,25 +86,23 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       }
 
+      // eslint-disable-next-line prefer-const
+      let { tableSettings, tableCustomFields, tableWidgets } =
+        await this._dbContext.tableSettingsRepository.findTableCustoms(connectionId, tableName);
+
       /* eslint-disable */
       let [
-        tableSettings,
         tablePrimaryColumns,
         tableForeignKeys,
         tableStructure,
-        tableWidgets,
-        tableCustomFields,
         userTablePermissions,
         customActionEvents,
         savedTableFilters,
         /* eslint-enable */
       ] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, tableName),
         dao.getTablePrimaryColumns(tableName, userEmail),
         dao.getTableForeignKeys(tableName, userEmail),
         dao.getTableStructure(tableName, userEmail),
-        this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
-        this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
         this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
         this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(tableName, connectionId),
@@ -118,6 +117,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       const allowCsvExport = tableSettings ? tableSettings.allow_csv_export : true;
       const allowCsvImport = tableSettings ? tableSettings.allow_csv_import : true;
+      const can_delete = tableSettings ? tableSettings.can_delete : true;
+      const can_update = tableSettings ? tableSettings.can_update : true;
+      const can_add = tableSettings ? tableSettings.can_add : true;
 
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
@@ -157,6 +159,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           searchingFieldValue,
           filteringFields,
           autocompleteFields,
+          tableStructure,
           userEmail,
         );
       } catch (e) {
@@ -234,13 +237,27 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         widgets: tableWidgets,
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
         table_permissions: userTablePermissions,
-        list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
+        list_fields: findAvailableFields(tableSettings, tableStructure),
         action_events: customActionEvents.map((el) => buildActionEventDto(el)),
         table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
         large_dataset: largeDataset,
         allow_csv_export: allowCsvExport,
         allow_csv_import: allowCsvImport,
         saved_filters: savedTableFilters.map((el) => buildCreatedTableFilterRO(el)),
+        can_delete: can_delete,
+        can_update: can_update,
+        can_add: can_add,
+        table_settings: {
+          sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+          ordering: tableSettings.ordering ? tableSettings.ordering : undefined,
+          identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
+          list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+          allow_csv_export: allowCsvExport,
+          allow_csv_import: allowCsvImport,
+          can_delete: can_delete,
+          can_update: can_update,
+          can_add: can_add,
+        },
       };
 
       const identitiesMap = new Map<string, any[]>();
@@ -343,7 +360,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
   ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),
+        this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, foreignKey.referenced_table_name),
         dao.getTableStructure(foreignKey.referenced_table_name, userId),
       ]);
 

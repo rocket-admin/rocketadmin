@@ -61,15 +61,22 @@ describe('AppComponent', () => {
   };
 
   const mockUiSettingsService = {
-    getUiSettings: jasmine.createSpy('getUiSettings'),
-    updateGlobalSetting: jasmine.createSpy('updateGlobalSetting')
+    getUiSettings: jasmine.createSpy('getUiSettings').and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'default-id'}})),
+    updateGlobalSetting: jasmine.createSpy('updateGlobalSetting').and.returnValue(of({}))
   };
+
+  const connectionsCast = new Subject<any>();
 
   const mockConnectionsService = {
     isCustomAccentedColor: true,
     connectionID: '123',
     visibleTabs: ['dashboard'],
-    currentTab: 'dashboard'
+    currentTab: 'dashboard',
+    currentConnection: {
+      isTestConnection: false
+    },
+    cast: connectionsCast,
+    fetchConnections: jasmine.createSpy('fetchConnections').and.returnValue(of([]))
   };
 
   const mockTablesService = {
@@ -139,7 +146,7 @@ describe('AppComponent', () => {
 
   it('should set userLoggedIn and logo on user session initialization', fakeAsync(() => {
     mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: 'data:png;base64,some-base64-data'}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
@@ -151,7 +158,7 @@ describe('AppComponent', () => {
 
   it('should render custom logo in navbar if it is set', fakeAsync(() => {
     mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: 'data:png;base64,some-base64-data'}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
@@ -165,7 +172,7 @@ describe('AppComponent', () => {
 
   it('should render the link to Connetions list that contains the custom logo in the navbar', fakeAsync(() => {
     mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: null}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({settings: {globalSettings: {lastFeatureNotificationId: 'old-id'}}}));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
@@ -246,6 +253,7 @@ describe('AppComponent', () => {
 
   it('should handle user login flow when cast emits user with expires', fakeAsync(() => {
     mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: '', favicon: ''}));
+    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
 
     const expirationDate = new Date(Date.now() + 10_000); // 10s from now
     app['currentFeatureNotificationId'] = 'some-id';

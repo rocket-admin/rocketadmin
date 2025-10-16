@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
 import { AppController } from './app.controller.js';
@@ -36,10 +36,20 @@ import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
 import { DatabaseModule } from './shared/database/database.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { SharedJobsModule } from './entities/shared-jobs/shared-jobs.module.js';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 200,
+        },
+      ],
+    }),
     ConnectionModule,
     ConnectionPropertiesModule,
     ConversionModule,
@@ -68,12 +78,17 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
     TableFiltersModule,
     DemoDataModule,
     LoggingModule,
+    SharedJobsModule,
   ],
   controllers: [AppController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: TimeoutInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

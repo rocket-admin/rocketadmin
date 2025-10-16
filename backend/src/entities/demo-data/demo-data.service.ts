@@ -3,14 +3,23 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-acce
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
+import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { slackPostMessage } from '../../helpers/index.js';
 import { CreateConnectionPropertiesDs } from '../connection-properties/application/data-structures/create-connection-properties.ds.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { buildConnectionPropertiesEntity } from '../connection-properties/utils/build-connection-properties-entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { PermissionEntity } from '../permission/permission.entity.js';
+import { buildActionEventWithRule } from '../table-actions/table-action-events-module/utils/build-action-event-with-rule.util.js';
+import {
+  CreateRuleDataDs,
+  CreateTableActionEventDS,
+} from '../table-actions/table-action-rules-module/application/data-structures/create-action-rules.ds.js';
+import { buildEmptyActionRule } from '../table-actions/table-action-rules-module/utils/build-empty-action-rule.util.js';
 import { CreateTableSettingsDs } from '../table-settings/application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
@@ -18,17 +27,10 @@ import { buildConnectionEntitiesFromTestDtos } from '../user/utils/build-connect
 import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
-import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
-import { buildEmptyActionRule } from '../table-actions/table-action-rules-module/utils/build-empty-action-rule.util.js';
-import {
-  CreateRuleDataDs,
-  CreateTableActionEventDS,
-} from '../table-actions/table-action-rules-module/application/data-structures/create-action-rules.ds.js';
-import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
-import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
-import { buildActionEventWithRule } from '../table-actions/table-action-events-module/utils/build-action-event-with-rule.util.js';
-import { slackPostMessage } from '../../helpers/index.js';
+import { CreateTableFilterDs } from '../table-filters/application/data-structures/create-table-filters.ds.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { buildNewTableFiltersEntity } from '../table-filters/utils/build-new-table-filters-entity.util.js';
 
 @Injectable()
 export class DemoDataService {
@@ -84,6 +86,7 @@ export class DemoDataService {
         await this.createTestTableSettingsPostgres(createdPostgresConnection);
         await this.createConnectionPropertiesForPostgresDemoData(createdPostgresConnection);
         await this.createPostgresDemoTableActions(createdPostgresConnection);
+        await this.createDemoPostgresSavedTableFilters(createdPostgresConnection);
       }
       const createdMySQLConnection = createdTestConnections.find(
         (connection) => connection.type === ConnectionTypesEnum.mysql || connection.type === ConnectionTypesEnum.mysql2,
@@ -92,6 +95,7 @@ export class DemoDataService {
         await this.createTestTableSettingsMySQL(createdMySQLConnection);
         await this.createConnectionPropertiesForMySQLDemoData(createdMySQLConnection);
         await this.createMySQLDemoTableActions(createdMySQLConnection);
+        await this.createMySQLPostgresSavedTableFilters(createdMySQLConnection);
       }
     }
 
@@ -113,7 +117,7 @@ export class DemoDataService {
         sortable_by: [],
         autocomplete_columns: ['title', 'description'],
         identification_fields: [],
-        columns_view: ['organizer_id', 'space_id', 'title', 'description', 'start_time', 'end_time'],
+        columns_view: ['space_id', 'title', 'start_time', 'end_time', 'image_url'],
         identity_column: 'title',
         can_delete: true,
         can_update: true,
@@ -354,11 +358,20 @@ export class DemoDataService {
           widget_options: null,
         },
         {
+          field_name: 'title',
+          widget_type: '' as any,
+          name: 'Event name',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
           field_name: 'image_url',
           widget_type: 'Image' as any,
           name: 'Poster',
           description: '',
-          widget_params: '// provide image height in px to dispaly in table\n// example:\n{\n  "height": 100\n}\n',
+          widget_params:
+            '// provide image height in px to dispaly in table\n// prefix: optional URL prefix to prepend to image source\n// example:\n{\n  "height": 100,\n  "prefix": "https://demo-data.rocketadmin.com/mysql-demo-images/"\n}\n',
           widget_options: null,
         },
       ];
@@ -406,6 +419,27 @@ export class DemoDataService {
       await this._dbContext.tableWidgetsRepository.save(newWidgets);
     }
 
+    const foundLocationTableSettings = tableSettings.find((settings) => settings.table_name === 'location');
+    if (foundLocationTableSettings) {
+      const createLocationWidgetsData: Array<CreateTableWidgetDs> = [
+        {
+          field_name: 'country',
+          widget_type: 'Country' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure country display options\n// Example:\n{\n  "show_flag": true,\n  "allow_null": false\n}\n',
+          widget_options: null,
+        },
+      ];
+      const newWidgets = createLocationWidgetsData.map((widget) => {
+        const newWidget = buildNewTableWidgetEntity(widget);
+        newWidget.settings = foundLocationTableSettings;
+        return newWidget;
+      });
+      await this._dbContext.tableWidgetsRepository.save(newWidgets);
+    }
+
     const foundMembershipTableSettings = tableSettings.find((settings) => settings.table_name === 'membership');
     if (foundMembershipTableSettings) {
       const createMembershipWidgetsData: Array<CreateTableWidgetDs> = [
@@ -438,21 +472,29 @@ export class DemoDataService {
     if (foundSpaceTableSettings) {
       const createSpaceWidgetsData: Array<CreateTableWidgetDs> = [
         {
-          field_name: 'price_per_hour',
-          widget_type: 'Money' as any,
-          name: '',
-          description: '',
-          widget_params:
-            '// Configure money widget settings\n// example:\n{\n  "default_currency": "USD",\n  "show_currency_selector": false,\n  "decimal_places": 2,\n  "allow_negative": false\n}\n',
-          widget_options: null,
-        },
-        {
           field_name: 'type',
           widget_type: 'Select' as any,
           name: '',
           description: '',
           widget_params:
             '// provide array of options to map database value (key \'value\') in human readable value (key \'label\');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  "allow_null": false,\n  "options": [\n    {\n      "value": "private_office",\n      "label": "Private office"\n    },\n    {\n      "value": "meeting_room",\n      "label": "Meeting room"\n    },\n    {\n      "value": "conference_room",\n      "label": "Conference room"\n    },\n    {\n      "value": "event_stage",\n      "label": "Event stage"\n    },\n    {\n      "value": "hot_desk",\n      "label": "Hot desk"\n    }\n  ]\n}',
+          widget_options: null,
+        },
+        {
+          field_name: 'location_id',
+          widget_type: '' as any,
+          name: 'Location',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'price_per_hour',
+          widget_type: 'Money' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure money widget settings\n// example:\n{\n  "default_currency": "USD",\n  "decimal_places": 2,\n  "allow_negative": true\n}\n',
           widget_options: null,
         },
       ];
@@ -467,21 +509,21 @@ export class DemoDataService {
     if (foundUserTableSettings) {
       const createUserWidgetsData: Array<CreateTableWidgetDs> = [
         {
-          field_name: 'phone',
-          widget_type: 'Phone' as any,
-          name: '',
-          description: '',
-          widget_params:
-            '// Configure international phone number widget\n// example:\n{\n  "preferred_countries": ["US", "GB", "CA"],\n  "enable_placeholder": true,\n  "phone_validation": true\n}\n',
-          widget_options: null,
-        },
-        {
           field_name: 'role',
           widget_type: 'Select' as any,
           name: '',
           description: '',
           widget_params:
             '// provide array of options to map database value (key \'value\') in human readable value (key \'label\');\n// for example:\n// AK => Alaska,\n// CA => California\n\n{\n  "allow_null": false,\n  "options": [\n    {\n      "value": "admin",\n      "label": "👑 Admin"\n    },\n    {\n      "value": "organizer",\n      "label": "👩‍💻 Organizer"\n    },\n    {\n      "value": "member",\n      "label": "🙍🏻‍♂️ Member"\n    }\n  ]\n}',
+          widget_options: null,
+        },
+        {
+          field_name: 'phone',
+          widget_type: 'Phone' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure international phone number widget\n// example:\n{\n  "preferred_countries": ["US", "GB", "CA"],\n  "enable_placeholder": true,\n  "phone_validation": true\n}\n',
           widget_options: null,
         },
       ];
@@ -575,6 +617,7 @@ export class DemoDataService {
       default_showing_table: 'event',
       userId: connection?.author?.id || null,
       master_password: null,
+      table_categories: null,
     };
     const connectionProperties = buildConnectionPropertiesEntity(createPropertiesData, connection);
     await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(connectionProperties);
@@ -641,12 +684,70 @@ export class DemoDataService {
       connectionId: 'JeVyEzZY',
       human_readable_table_names: true,
       allow_ai_requests: true,
-      default_showing_table: 'users',
+      default_showing_table: 'enrollments',
       userId: connection?.author?.id || null,
       master_password: null,
+      table_categories: null,
     };
     const connectionProperties = buildConnectionPropertiesEntity(createPropertiesData, connection);
     return await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(connectionProperties);
+  }
+
+  private async createMySQLPostgresSavedTableFilters(connection: ConnectionEntity): Promise<void> {
+    const savedFiltersData: Array<CreateTableFilterDs> = [
+      {
+        filters: { type: { eq: 'event_stage' } },
+        table_name: 'space',
+        connection_id: connection.id,
+        filter_name: 'Stage capacity',
+        dynamic_filtered_column: { column_name: 'capacity', comparator: FilterCriteriaEnum.gt },
+        masterPwd: null,
+      },
+      {
+        filters: { type: { eq: 'hot_desk' } },
+        table_name: 'space',
+        connection_id: connection.id,
+        filter_name: 'Hot desks',
+        dynamic_filtered_column: { column_name: 'location_id', comparator: FilterCriteriaEnum.eq },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'member' } },
+        table_name: 'user',
+        connection_id: connection.id,
+        filter_name: 'Members',
+        dynamic_filtered_column: { column_name: 'email', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'admin' } },
+        table_name: 'user',
+        connection_id: connection.id,
+        filter_name: 'Admins',
+        dynamic_filtered_column: { column_name: 'name', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { organizer_id: { eq: 6 } },
+        table_name: 'event',
+        connection_id: connection.id,
+        filter_name: "Fiona's events",
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { organizer_id: { eq: 3 } },
+        table_name: 'event',
+        connection_id: connection.id,
+        filter_name: "Charlie's events",
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+    ];
+    const filterEntities = savedFiltersData.map((dto) => {
+      return buildNewTableFiltersEntity(dto);
+    });
+    await this._dbContext.tableFiltersRepository.save(filterEntities);
   }
 
   private async createTestTableSettingsPostgres(connection: ConnectionEntity): Promise<Array<TableSettingsEntity>> {
@@ -918,19 +1019,20 @@ export class DemoDataService {
           widget_options: null,
         },
         {
+          field_name: 'certificate_url',
+          widget_type: 'URL' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// prefix: optional URL prefix to prepend to the href\n// example:\n{\n  "prefix": "https://certificates.example.com/"\n}\n',
+          widget_options: null,
+        },
+        {
           field_name: 'course_id',
           widget_type: '' as any,
           name: 'Course',
           description: "hi i'm a description",
-          widget_params: '',
-          widget_options: null,
-        },
-        {
-          field_name: 'certificate_url',
-          widget_type: WidgetTypeEnum.URL,
-          name: '',
-          description: '',
-          widget_params: '// No settings required',
+          widget_params: null,
           widget_options: null,
         },
       ];
@@ -1014,19 +1116,28 @@ export class DemoDataService {
     if (foundEnrollmentsTableSettings) {
       const createEnrollmentsWidgetsData: Array<CreateTableWidgetDs> = [
         {
-          field_name: 'course_id',
-          widget_type: '' as any,
-          name: 'Course',
-          description: '',
-          widget_params: '',
-          widget_options: null,
-        },
-        {
           field_name: 'user_id',
           widget_type: '' as any,
           name: 'User',
           description: '',
           widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'course_id',
+          widget_type: '' as any,
+          name: 'Course',
+          description: '',
+          widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'progress',
+          widget_type: 'Range' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// Configure the minimum, maximum and step values for the range\n// Default: min = 0, max = 100, step = 1\n{\n  "min": 0,\n  "max": 100,\n  "step": 0.01\n}\n',
           widget_options: null,
         },
       ];
@@ -1043,10 +1154,11 @@ export class DemoDataService {
       const createLessonsWidgetsData: Array<CreateTableWidgetDs> = [
         {
           field_name: 'video_url',
-          widget_type: WidgetTypeEnum.URL,
+          widget_type: 'URL' as any,
           name: '',
           description: '',
-          widget_params: '// No settings required',
+          widget_params:
+            '// prefix: optional URL prefix to prepend to the href\n// example:\n{\n  "prefix": "https://videos.example.com/"\n}\n',
           widget_options: null,
         },
         {
@@ -1055,6 +1167,15 @@ export class DemoDataService {
           name: 'Module',
           description: '',
           widget_params: null,
+          widget_options: null,
+        },
+        {
+          field_name: 'content_url',
+          widget_type: 'URL' as any,
+          name: '',
+          description: '',
+          widget_params:
+            '// prefix: optional URL prefix to prepend to the href\n// example:\n{\n  "prefix": "https://content.example.com/"\n}\n',
           widget_options: null,
         },
       ];
@@ -1128,7 +1249,7 @@ export class DemoDataService {
         },
         {
           field_name: 'password_hash',
-          widget_type: WidgetTypeEnum.Password,
+          widget_type: 'Password' as any,
           name: 'Password',
           description: '',
           widget_params:
@@ -1143,5 +1264,54 @@ export class DemoDataService {
       });
       await this._dbContext.tableWidgetsRepository.save(newWidgets);
     }
+  }
+
+  private async createDemoPostgresSavedTableFilters(connection: ConnectionEntity): Promise<void> {
+    const savedFiltersData: Array<CreateTableFilterDs> = [
+      {
+        filters: { completed: { eq: true } },
+        table_name: 'enrollments',
+        connection_id: connection.id,
+        filter_name: 'Completed courses',
+        dynamic_filtered_column: { column_name: 'course_id', comparator: FilterCriteriaEnum.eq },
+        masterPwd: null,
+      },
+      {
+        filters: { price: { gt: 100 }, is_published: { eq: true } },
+        table_name: 'courses',
+        connection_id: connection.id,
+        filter_name: 'Expensive published',
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { language: { eq: 'en' }, is_published: { eq: true } },
+        table_name: 'courses',
+        connection_id: connection.id,
+        filter_name: 'Published in English',
+        dynamic_filtered_column: { column_name: 'title', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'student' } },
+        table_name: 'users',
+        connection_id: connection.id,
+        filter_name: 'Students',
+        dynamic_filtered_column: { column_name: 'full_name', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+      {
+        filters: { role: { eq: 'mentor' } },
+        table_name: 'users',
+        connection_id: connection.id,
+        filter_name: 'Mentors',
+        dynamic_filtered_column: { column_name: 'email', comparator: FilterCriteriaEnum.contains },
+        masterPwd: null,
+      },
+    ];
+    const tableFilterEntities = savedFiltersData.map((dto) => {
+      return buildNewTableFiltersEntity(dto);
+    });
+    await this._dbContext.tableFiltersRepository.save(tableFilterEntities);
   }
 }

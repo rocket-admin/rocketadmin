@@ -3,13 +3,8 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
@@ -20,6 +15,8 @@ import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.j
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { ICreateConnection } from './use-cases.interfaces.js';
+import { SharedJobsService } from '../../shared-jobs/shared-jobs.service.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionUseCase
@@ -29,7 +26,7 @@ export class CreateConnectionUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly sharedJobsService: SharedJobsService,
   ) {
     super();
   }
@@ -38,18 +35,6 @@ export class CreateConnectionUseCase
       creation_info: { authorId, masterPwd },
     } = createConnectionData;
     const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
-
-    if (isSaaS()) {
-      const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
-      const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
-      if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
-        if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(createConnectionData.connection_parameters.type)) {
-          throw new NonAvailableInFreePlanException(
-            Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(createConnectionData.connection_parameters.type),
-          );
-        }
-      }
-    }
 
     if (!connectionAuthor) {
       throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
@@ -65,55 +50,73 @@ export class CreateConnectionUseCase
     await validateCreateConnectionData(createConnectionData);
 
     createConnectionData = await processAWSConnection(createConnectionData);
-
+    let isConnectionTestedSuccessfully: boolean = false;
     if (!isConnectionTypeAgent(createConnectionData.connection_parameters.type)) {
       const connectionParamsCopy = { ...createConnectionData.connection_parameters };
       const dao = getDataAccessObject(connectionParamsCopy);
       try {
-        await dao.testConnect();
+        const testResult = await dao.testConnect();
+        isConnectionTestedSuccessfully = testResult.result;
       } catch (e) {
         const text: string = e.message.toLowerCase();
+        isConnectionTestedSuccessfully = false;
         if (text.includes('ssl required') || text.includes('ssl connection required')) {
           createConnectionData.connection_parameters.ssl = true;
           connectionParamsCopy.ssl = true;
           try {
             const updatedDao = getDataAccessObject(connectionParamsCopy);
-            await updatedDao.testConnect();
+            const sslTestResult = await updatedDao.testConnect();
+            isConnectionTestedSuccessfully = sslTestResult.result;
           } catch (_e) {
+            isConnectionTestedSuccessfully = false;
             createConnectionData.connection_parameters.ssl = false;
             connectionParamsCopy.ssl = false;
           }
         }
       }
     }
+    let connectionCopy: ConnectionEntity = null;
+    try {
+      const createdConnection: ConnectionEntity = await buildConnectionEntity(createConnectionData, connectionAuthor);
+      const savedConnection: ConnectionEntity =
+        await this._dbContext.connectionRepository.saveNewConnection(createdConnection);
 
-    const createdConnection: ConnectionEntity = await buildConnectionEntity(createConnectionData, connectionAuthor);
+      connectionCopy = { ...savedConnection } as ConnectionEntity;
+      if (savedConnection.masterEncryption && masterPwd && !isConnectionTypeAgent(savedConnection.type)) {
+        connectionCopy = Encryptor.decryptConnectionCredentials(connectionCopy, masterPwd);
+      }
 
-    const savedConnection: ConnectionEntity =
-      await this._dbContext.connectionRepository.saveNewConnection(createdConnection);
-    let token: string;
-    if (isConnectionTypeAgent(savedConnection.type)) {
-      token = await this._dbContext.agentRepository.createNewAgentForConnectionAndReturnToken(savedConnection);
+      let token: string;
+      if (isConnectionTypeAgent(savedConnection.type)) {
+        token = await this._dbContext.agentRepository.createNewAgentForConnectionAndReturnToken(savedConnection);
+      }
+      const createdAdminGroup = await this._dbContext.groupRepository.createdAdminGroupInConnection(
+        savedConnection,
+        connectionAuthor,
+      );
+      await this._dbContext.permissionRepository.createdDefaultAdminPermissionsInGroup(createdAdminGroup);
+      delete createdAdminGroup.connection;
+      await this._dbContext.userRepository.saveUserEntity(connectionAuthor);
+      createdConnection.groups = [createdAdminGroup];
+      const foundUserCompany = await this._dbContext.companyInfoRepository.findOneCompanyInfoByUserIdWithConnections(
+        connectionAuthor.id,
+      );
+      if (foundUserCompany) {
+        const connection = await this._dbContext.connectionRepository.findOne({ where: { id: savedConnection.id } });
+        connection.company = foundUserCompany;
+        await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+      }
+      await slackPostMessage(
+        Messages.USER_CREATED_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),
+      );
+      const connectionRO = buildCreatedConnectionDs(savedConnection, token, masterPwd);
+      return connectionRO;
+    } catch (e) {
+      throw e;
+    } finally {
+      if (isConnectionTestedSuccessfully && !isConnectionTypeAgent(connectionCopy.type)) {
+        await this.sharedJobsService.scanDatabaseAndCreateWidgets(connectionCopy);
+      }
     }
-    const createdAdminGroup = await this._dbContext.groupRepository.createdAdminGroupInConnection(
-      savedConnection,
-      connectionAuthor,
-    );
-    await this._dbContext.permissionRepository.createdDefaultAdminPermissionsInGroup(createdAdminGroup);
-    delete createdAdminGroup.connection;
-    await this._dbContext.userRepository.saveUserEntity(connectionAuthor);
-    createdConnection.groups = [createdAdminGroup];
-    const foundUserCompany = await this._dbContext.companyInfoRepository.findOneCompanyInfoByUserIdWithConnections(
-      connectionAuthor.id,
-    );
-    if (foundUserCompany) {
-      const connection = await this._dbContext.connectionRepository.findOne({ where: { id: savedConnection.id } });
-      connection.company = foundUserCompany;
-      await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
-    }
-    await slackPostMessage(
-      Messages.USER_CREATED_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),
-    );
-    return buildCreatedConnectionDs(savedConnection, token, masterPwd);
   }
 }

@@ -4,7 +4,6 @@ import { Knex } from 'knex';
 import { nanoid } from 'nanoid';
 import { Readable, Stream } from 'node:stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
-import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import {
@@ -48,14 +47,16 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     tableName: string,
     row: Record<string, unknown>,
   ): Promise<number | Record<string, unknown>> {
+    const knex = await this.configureKnex();
+
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
 
-    const primaryKey = primaryColumns[0];
-    const primaryKeyStructure =
-      primaryColumns?.length > 0 ? tableStructure.find((e) => e.column_name === primaryKey.column_name) : undefined;
+    const primaryKeys: Array<string> = primaryColumns.map(({ column_name }) => column_name);
+
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
 
     const timestampColumnNames = tableStructure
       .filter(({ data_type }) => isOracleTimeType(data_type))
@@ -65,76 +66,21 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       .filter(({ data_type }) => isOracleDateType(data_type))
       .map(({ column_name }) => column_name);
 
-    const knex = await this.configureKnex();
-    const keys = Object.keys(row);
-
-    const values = keys.map((key) => {
+    Object.keys(row).forEach((key) => {
       if (timestampColumnNames.includes(key) && row[key]) {
-        return this.formatTimestamp(row[key] as string);
+        row[key] = this.formatTimestamp(row[key] as string);
       }
       if (dateColumnNames.includes(key) && row[key]) {
-        return this.formatDate(new Date(row[key] as string));
+        row[key] = this.formatDate(new Date(row[key] as string));
       }
-      return `${row[key]}`;
     });
 
-    const primaryKeysInStructure = tableStructure.filter((el) =>
-      tableStructure.some((structureEl) => structureEl.column_name === el.column_name),
-    );
-
-    const autoIncrementPrimaryKey = primaryKeysInStructure.find((key) =>
-      checkFieldAutoincrement(key.column_default, key.extra),
-    );
-
-    let result: Record<string, unknown> | number;
-    tableName = this.attachSchemaNameToTableName(tableName);
-
-    const insertRow = async () => {
-      try {
-        await knex.transaction((trx) =>
-          knex
-            .raw(
-              `insert INTO ${tableName} (${keys.map((_) => '??').join(', ')})
-             VALUES (${values.map((_) => '?').join(', ')})`,
-              [...keys, ...values],
-            )
-            .transacting(trx)
-            .then(trx.commit)
-            .catch(trx.rollback),
-        );
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
-    };
-
-    if (primaryColumns?.length > 0) {
-      if (autoIncrementPrimaryKey) {
-        await insertRow();
-        const queryResult = await knex()
-          .select(knex.raw(`${primaryKeyStructure.column_default.replace(/nextval/gi, 'currval')}`))
-          .from(knex.raw(`${tableName}`))
-          .catch((e) => {
-            console.error(e);
-            throw e;
-          });
-
-        const resultObj = {};
-        for (const [index, el] of primaryColumns.entries()) {
-          resultObj[el.column_name] = queryResult[index]['CURRVAL'].toString();
-        }
-        result = resultObj;
-      } else {
-        await insertRow();
-        const primaryKeys = primaryColumns.map((column) => column.column_name);
-        const resultsArray = primaryKeys.map((key) => [key, row[key]]);
-        result = Object.fromEntries(resultsArray);
-      }
-    } else {
-      await insertRow();
-      result = 1;
-    }
-    return result;
+    const insertResult = await knex(tableName).withSchema(schema).returning(primaryKeys).insert(row);
+    const responseObject = {};
+    primaryKeys.forEach((key) => {
+      responseObject[key] = insertResult[0][key];
+    });
+    return responseObject;
   }
 
   public async deleteRowInTable(
@@ -241,6 +187,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     const knex = await this.configureKnex();
 
@@ -283,7 +230,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           ? settings.list_per_page
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
     const timestampColumnNames = tableStructure
       .filter(({ data_type }) => isOracleTimeType(data_type))
@@ -353,11 +302,11 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       if (filteringFields && filteringFields.length > 0) {
         // eslint-disable-next-line prefer-const
         for (let { field, criteria, value } of filteringFields) {
-          if (datesColumnsNames.includes(field)) {
+          if (datesColumnsNames.includes(field) && value) {
             const valueToDate = new Date(String(value));
             value = this.formatDate(valueToDate);
           }
-          if (timestampColumnNames.includes(field)) {
+          if (timestampColumnNames.includes(field) && value) {
             value = this.formatTimestamp(String(value));
           }
           const operators = {
@@ -556,6 +505,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       column.NULLABLE = column.NULLABLE === 'Y';
       renameObjectKeyName(column, 'NULLABLE', 'allow_null');
       renameObjectKeyName(column, 'DATA_LENGTH', 'character_maximum_length');
+      if (typeof column.column_default === 'string' && column.column_default.includes('SYS_GUID()')) {
+        column.extra = 'auto_increment';
+      }
       return objectKeysToLowercase(column);
     }) as TableStructureDS[];
     LRUStorage.setTableStructureCache(this.connection, tableName, resultColumns);
@@ -921,6 +873,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   }
 
   private formatDate(date: Date) {
+    if (!date) {
+      return date as any;
+    }
     const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     const day = date.getDate();
     const monthIndex = date.getMonth();
@@ -930,6 +885,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   }
 
   private formatTimestamp(timestamp: string | number | Date): string {
+    if (!timestamp) {
+      return timestamp as any;
+    }
     const date = new Date(timestamp);
 
     const day = `0${date.getDate()}`.slice(-2);

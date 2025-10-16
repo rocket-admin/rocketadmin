@@ -16,8 +16,8 @@ export class UsualRegisterUserDs {
 }
 
 export class SaasUsualUserRegisterDS extends UsualRegisterUserDs {
-  @ApiProperty({ required: false })
-  companyId?: string;
+  @ApiProperty({ required: true })
+  companyId: string;
 
   @ApiProperty({ required: false, enum: UserRoleEnum })
   userRole?: UserRoleEnum;

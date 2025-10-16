@@ -1362,6 +1362,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@electric-sql/pglite@npm:^0.3.8":
+  version: 0.3.8
+  resolution: "@electric-sql/pglite@npm:0.3.8"
+  checksum: 0329f79f2b0fd0dcab48853a9db2d314f88e5e52569ec87c7ce8d30ab60c2b334aca8e90ac863ad3f54e92f7f12726f4bf79d80a02550448f83aeac2d1b5e590
+  languageName: node
+  linkType: hard
+
 "@emnapi/core@npm:^1.4.3":
   version: 1.4.3
   resolution: "@emnapi/core@npm:1.4.3"
@@ -2524,6 +2531,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/throttler@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@nestjs/throttler@npm:6.4.0"
+  peerDependencies:
+    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    reflect-metadata: ^0.1.13 || ^0.2.0
+  checksum: 056d7d2874ab02303af02239661257a291edef9b57e75e99686b48eae376d88d513211f21d68655e4d673838c7c46d85a5fb1575ce7945a5c08a7d05a1ce46fe
+  languageName: node
+  linkType: hard
+
 "@nestjs/typeorm@npm:^11.0.0":
   version: 11.0.0
   resolution: "@nestjs/typeorm@npm:11.0.0"
@@ -3237,6 +3255,51 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redis/bloom@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/bloom@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 0d3ee59c2ebf0fc1927c1f66dcd38e34342d9a14cc5cda6e725b3f7f16b707dfd72c972fef64df05a03d46d80d91576e84f396c67543936114cb1ff7339db478
+  languageName: node
+  linkType: hard
+
+"@redis/client@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/client@npm:5.8.2"
+  dependencies:
+    cluster-key-slot: 1.1.2
+  checksum: c083e22de7d42222d9547959f5561a04efed03ab9e23c3ad7afbcc85193ad02c92a1fb493bf4a7e308b99b6d5a8c529ae6a46d6441fd85ababa40a9bcd09d6f8
+  languageName: node
+  linkType: hard
+
+"@redis/json@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/json@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 2cb6fdfc8940a811fb3897b8a06995d573c89243565d8291289a21e3d47388ab4b81a9f8928b5a60c471e257ad0c496e25dbfd713899ecd37a0fffc1bc097139
+  languageName: node
+  linkType: hard
+
+"@redis/search@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/search@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 89fe5409aacc7fef26b157c1fd14d73bfed86c6ff48c370b7fdc37dddee83ec975ef0813f075b8d23b2eb6f13ec65d2f6c1ea809becd325a15c9f7b4e97d63ff
+  languageName: node
+  linkType: hard
+
+"@redis/time-series@npm:5.8.2":
+  version: 5.8.2
+  resolution: "@redis/time-series@npm:5.8.2"
+  peerDependencies:
+    "@redis/client": ^5.8.2
+  checksum: 91d0fe3320289da94e4159c4639d68e287b3e0dfe4228ed0e5c77c53f30f43393d6f6ecd0e8d1f155b280b43fe5dbc3e65a946674f9eb4f658e472ca02b7ab44
+  languageName: node
+  linkType: hard
+
 "@rocketadmin/shared-code@workspace:*, @rocketadmin/shared-code@workspace:shared-code":
   version: 0.0.0-use.local
   resolution: "@rocketadmin/shared-code@workspace:shared-code"
@@ -3268,6 +3331,7 @@ __metadata:
     pg-copy-streams: ^7.0.0
     pg-query-stream: ^4.10.3
     prettier: ^3.6.2
+    redis: ^5.8.2
     ssh2: ^1.17.0
     tedious: ^18.6.1
     tunnel-ssh: 5.2.0
@@ -4554,6 +4618,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/trusted-types@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@types/trusted-types@npm:1.0.6"
+  checksum: 22b8efcb6116ab80d07542047135618ee282f2060c481e472126604d838c09e7dad33c9462d88c130aef2c3133aece516f00d6af7ff814f0612f7d19db720e6d
+  languageName: node
+  linkType: hard
+
 "@types/uuid@npm:^10.0.0":
   version: 10.0.0
   resolution: "@types/uuid@npm:10.0.0"
@@ -5620,6 +5691,7 @@ __metadata:
     "@amplitude/node": 1.10.2
     "@ava/typescript": 6.0.0
     "@aws-sdk/lib-dynamodb": ^3.873.0
+    "@electric-sql/pglite": ^0.3.8
     "@faker-js/faker": ^10.0.0
     "@nestjs/cli": ^11.0.10
     "@nestjs/common": 11.1.6
@@ -5631,6 +5703,7 @@ __metadata:
     "@nestjs/schematics": 11.0.7
     "@nestjs/swagger": ^11.2.0
     "@nestjs/testing": ^11.1.6
+    "@nestjs/throttler": ^6.4.0
     "@nestjs/typeorm": ^11.0.0
     "@nestjsx/crud": 4.6.2
     "@rocketadmin/shared-code": "workspace:*"
@@ -5679,6 +5752,7 @@ __metadata:
     express-rate-limit: 8.0.1
     fetch-blob: ^4.0.0
     helmet: 8.1.0
+    i18n-iso-countries: ^7.14.0
     ibm_db: ^3.3.0
     ip-range-check: 0.2.0
     json2csv: ^5.0.7
@@ -5707,6 +5781,7 @@ __metadata:
     ts-node: ^10.9.2
     tsconfig-paths: ^4.2.0
     typeorm: 0.3.26
+    typeorm-pglite: ^0.3.2
     typescript: 5.9.2
     uuid: ^11.1.0
     validator: ^13.15.15
@@ -6526,6 +6601,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cluster-key-slot@npm:1.1.2":
+  version: 1.1.2
+  resolution: "cluster-key-slot@npm:1.1.2"
+  checksum: be0ad2d262502adc998597e83f9ded1b80f827f0452127c5a37b22dfca36bab8edf393f7b25bb626006fb9fb2436106939ede6d2d6ecf4229b96a47f27edd681
+  languageName: node
+  linkType: hard
+
 "co@npm:^4.6.0":
   version: 4.6.0
   resolution: "co@npm:4.6.0"
@@ -7222,6 +7304,13 @@ __metadata:
     asap: ^2.0.0
     wrappy: 1
   checksum: 895389c6aead740d2ab5da4d3466d20fa30f738010a4d3f4dcccc9fc645ca31c9d10b7e1804ae489b1eb02c7986f9f1f34ba132d409b043082a86d9a4e745624
+  languageName: node
+  linkType: hard
+
+"diacritics@npm:1.3.0":
+  version: 1.3.0
+  resolution: "diacritics@npm:1.3.0"
+  checksum: ef7552c36e221879be22bc977281d1ae644f0eb94a24b380d654bf3aeae76c8096e533059732980bb3b5cb77ce7de4178f038f79415ee715f6d3eea7025cadea
   languageName: node
   linkType: hard
 
@@ -8880,6 +8969,15 @@ __metadata:
   dependencies:
     ms: ^2.0.0
   checksum: 9c7a74a2827f9294c009266c82031030eae811ca87b0da3dceb8d6071b9bde22c9f3daef0469c3c533cc67a97d8a167cd9fc0389350e5f415f61a79b171ded16
+  languageName: node
+  linkType: hard
+
+"i18n-iso-countries@npm:^7.14.0":
+  version: 7.14.0
+  resolution: "i18n-iso-countries@npm:7.14.0"
+  dependencies:
+    diacritics: 1.3.0
+  checksum: 8f0e43401a9a58f3368a999495053023e46dd54459c5a5159f805739939164de83c47a19f359d7cc63a54976805b0c60d759a0fd625a9fff282f12b7e5bde36a
   languageName: node
   linkType: hard
 
@@ -10973,6 +11071,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"monaco-editor@npm:^0.53.0":
+  version: 0.53.0
+  resolution: "monaco-editor@npm:0.53.0"
+  dependencies:
+    "@types/trusted-types": ^1.0.6
+  checksum: 353eca219334b62bdf825f4602aa2b98570c60e7059d257b0567da63fbb79b8eee8bea8448a597e297d0c96c9da3be9eb5153c1e8f279e5450d31c83f02125aa
+  languageName: node
+  linkType: hard
+
 "mongodb-connection-string-url@npm:^3.0.0":
   version: 3.0.0
   resolution: "mongodb-connection-string-url@npm:3.0.0"
@@ -12286,6 +12393,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"redis@npm:^5.8.2":
+  version: 5.8.2
+  resolution: "redis@npm:5.8.2"
+  dependencies:
+    "@redis/bloom": 5.8.2
+    "@redis/client": 5.8.2
+    "@redis/json": 5.8.2
+    "@redis/search": 5.8.2
+    "@redis/time-series": 5.8.2
+  checksum: 5d02118e863dabbe07ae7d780b51f6e42f7a34e80187eb14f44bdcab6222cee3264f3ade7b11df9abf7ad6505e7d39dd162500783c39a72a7ff80fc0a686b63f
+  languageName: node
+  linkType: hard
+
 "reflect-metadata@npm:0.2.2, reflect-metadata@npm:^0.2.2":
   version: 0.2.2
   resolution: "reflect-metadata@npm:0.2.2"
@@ -12555,6 +12675,8 @@ __metadata:
 "root@workspace:.":
   version: 0.0.0-use.local
   resolution: "root@workspace:."
+  dependencies:
+    monaco-editor: ^0.53.0
   languageName: unknown
   linkType: soft
 
@@ -14007,6 +14129,15 @@ __metadata:
   version: 0.0.6
   resolution: "typedarray@npm:0.0.6"
   checksum: 33b39f3d0e8463985eeaeeacc3cb2e28bc3dfaf2a5ed219628c0b629d5d7b810b0eb2165f9f607c34871d5daa92ba1dc69f49051cf7d578b4cbd26c340b9d1b1
+  languageName: node
+  linkType: hard
+
+"typeorm-pglite@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "typeorm-pglite@npm:0.3.2"
+  peerDependencies:
+    "@electric-sql/pglite": ">= 0.2.12"
+  checksum: 0b3a21f5ca166bc2af675e9d282340c0e2e259ad4715dbecdab8365d8b961df9b3b4f6af7604cf98f413707f9c79271f116b524a573117405c0903e543c9a512
   languageName: node
   linkType: hard
 

@@ -54,13 +54,16 @@ export class ConnectionsService {
   public connectionAccessLevel: AccessLevel;
   public groupsAccessLevel: boolean;
   public currentPage: string;
-  public connectionLogo: string;
-  public companyName: string;
   public isCustomAccentedColor: boolean;
   public defaultDisplayTable: string;
+  public ownConnections: Connection[] = null;
+  public testConnections: Connection[] = null;
 
   private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
   private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  private connectionsSubject: BehaviorSubject<Connection[]> = new BehaviorSubject<Connection[]>([]);
+
+  public cast = this.connectionsSubject.asObservable();
 
   constructor(
     private _http: HttpClient,
@@ -95,12 +98,8 @@ export class ConnectionsService {
     return this.connectionID;
   }
 
-  get logo() {
-    return this.connectionLogo;
-  }
-
-  get name() {
-    return this.companyName;
+  get currentConnectionName() {
+    return this.defineConnectionTitle(this.connection);
   }
 
   get defaultTableToOpen() {
@@ -130,6 +129,14 @@ export class ConnectionsService {
     return tabs;
   }
 
+  get ownConnectionsList() {
+    return this.ownConnections;
+  }
+
+  get testConnectionsList() {
+    return this.testConnections;
+  }
+
   getCurrentConnectionTitle() {
     return this.connectionNameSubject.asObservable();
   }
@@ -143,6 +150,7 @@ export class ConnectionsService {
   }
 
   setConnectionInfo(id: string) {
+    this.defaultDisplayTable = null;
     if (id) {
       this.fetchConnection(id).subscribe(res => {
         this.connection = res.connection;
@@ -151,34 +159,29 @@ export class ConnectionsService {
         this.connectionNameSubject.next(res.connection.title || res.connection.database);
         this.connectionSigningKeySubject.next(res.connection.signing_key);
         if (res.connectionProperties) {
-          this.connectionLogo = res.connectionProperties.logo_url;
-          this.companyName = res.connectionProperties.company_name;
           this.defaultDisplayTable = res.connectionProperties.default_showing_table;
           this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
           this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
-          this.connectionLogo = null;
-          this.companyName = null;
-          this.defaultDisplayTable = null;
           this.isCustomAccentedColor = false;
           this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
         }
       });
     } else {
       this.connection = {...this.connectionInitialState};
-      this.connectionLogo = null;
-      this.companyName = null;
-      this.defaultDisplayTable = null;
       this.isCustomAccentedColor = false;
       this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
     }
+
+    console.log('this.defaultDisplayTable');
+    console.log(this.defaultDisplayTable);
   }
 
   isPermitted(accessLevel: AccessLevel) {
     return accessLevel === 'edit' || accessLevel === 'readonly'
   }
 
-  defineConnecrionType(connection) {
+  defineConnectionType(connection) {
     if (connection.type && connection.type.startsWith('agent_')) {
       connection.type = connection.type.slice(6);
       connection.connectionType = ConnectionType.Agent;
@@ -188,15 +191,61 @@ export class ConnectionsService {
     return connection;
   }
 
+  defineConnectionTitle(connection: Connection) {
+    if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection';
+    if (!connection.title && !connection.database) return 'Untitled connection';
+    return connection.title || connection.database;
+  }
+
+  private checkAndSendConversion() {
+    const now = new Date();
+    const firstVisitTime = localStorage.getItem('first_visit_time');
+
+    if (!firstVisitTime) {
+      // First visit - record the current date
+      localStorage.setItem('first_visit_time', now.toISOString());
+      return;
+    }
+
+    const firstVisit = new Date(firstVisitTime);
+    const daysDifference = Math.floor((now.getTime() - firstVisit.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysDifference >= 7) {
+      const repeatConversionSent = localStorage.getItem('repeat_conversion_sent');
+
+      if (!repeatConversionSent) {
+        localStorage.setItem('repeat_conversion_sent', 'true');
+
+        // Send conversion event
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'conversion', {
+            'send_to': 'AW-419937947/jqGyCJWo4qobEJv9nsgB',
+            'value': 1.0,
+            'currency': 'USD',
+            'event_callback': () => {
+              console.log('Conversion event sent successfully');
+            }
+          });
+        }
+      }
+    }
+  }
+
   fetchConnections() {
+    // Check for first visit and send conversion if needed
+    this.checkAndSendConversion();
+
     return this._http.get<any>('/connections')
       .pipe(
         map(res => {
           const connections = res.connections.map(connectionItem => {
-            const connection = this.defineConnecrionType(connectionItem.connection);
-            return {...connectionItem, connection};
-          })
-          return {... res, connections};
+            const connection = this.defineConnectionType(connectionItem.connection);
+            const displayTitle = this.defineConnectionTitle(connectionItem.connection);
+            return {...connectionItem, connection, displayTitle};
+          });
+          this.ownConnections = connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
+          this.testConnections = connections.filter(connectionItem => connectionItem.connection.isTestConnection);
+          return connections;
         }),
         catchError((err) => {
           console.log(err);
@@ -218,11 +267,13 @@ export class ConnectionsService {
     return this._http.get<any>(`/connection/one/${id}`)
       .pipe(
         map(res => {
-          const connection = this.defineConnecrionType(res.connection);
+          const connection = this.defineConnectionType(res.connection);
           if (res.connectionProperties) {
-            this.connectionLogo = res.connectionProperties.logo_url;
-            this.companyName = res.connectionProperties.company_name;
+            this.defaultDisplayTable = res.connectionProperties.default_showing_table;
             this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
+          } else {
+            this.defaultDisplayTable = null;
+            this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
           }
           return {...res, connection};
         }),
@@ -287,6 +338,7 @@ export class ConnectionsService {
     })
     .pipe(
       map((res: any) => {
+        this.connectionsSubject.next(null);
         this._masterPassword.checkMasterPassword(connection.masterEncryption, res.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection was added successfully.');
         return res;
@@ -302,7 +354,6 @@ export class ConnectionsService {
   }
 
   updateConnection(connection: Connection, masterKey: string) {
-    console.log('updateConnection');
     let dbCredentials;
     dbCredentials = {
       ...connection,
@@ -323,6 +374,7 @@ export class ConnectionsService {
       map(res => {
         this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection has been updated successfully.');
+        this.connectionsSubject.next(null);
         return res;
       }),
       catchError((err) => {
@@ -348,6 +400,7 @@ export class ConnectionsService {
     return this._http.put(`/connection/delete/${id}`, metadata)
     .pipe(
       map(() => {
+        this.connectionsSubject.next(null);
         this._notifications.showSuccessSnackbar('Connection has been deleted successfully.');
       }),
       catchError((err) => {
@@ -388,8 +441,6 @@ export class ConnectionsService {
     .pipe(
       map((res: any) => {
         if (res) {
-          this.connectionLogo = res.logo_url;
-          this.companyName = res.company_name;
           this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
         }
         return res;
