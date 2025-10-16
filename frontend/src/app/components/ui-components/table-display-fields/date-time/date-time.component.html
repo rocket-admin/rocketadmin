@@ -1,8 +1,5 @@
 <div class="field-display">
-  <span class="field-value" [matTooltip]="fullDateTime || ''">
-    {{formattedDateTime || '—'}}
-    <span class="timezone-abbr" *ngIf="displayTimezone && timezoneAbbr"> {{timezoneAbbr}}</span>
-  </span>
+  <span class="field-value" [matTooltip]="fullDateTime || ''">{{formattedDateTime || '—'}}</span>
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy"
