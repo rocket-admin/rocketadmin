@@ -78,12 +78,6 @@ import { actionEventsCustomRepositoryExtension } from '../../entities/table-acti
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { userApiRepositoryExtension } from '../../entities/api-key/repository/user-api-key-repository.extension.js';
-import { AiUserThreadEntity } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads.entity.js';
-import { IAiUserThreadsRepository } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.interface.js';
-import { IAiUserFilesRepository } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files-repository.interface.js';
-import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files.entity.js';
-import { aiUserThreadRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.extension.js';
-import { aiUserFileRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-file-repository.extension.js';
 import { CompanyLogoEntity } from '../../entities/company-logo/company-logo.entity.js';
 import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
 import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-tab-title.entity.js';
@@ -126,8 +120,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
   private _actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
   private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
-  private _aiUserThreadsRepository: Repository<AiUserThreadEntity> & IAiUserThreadsRepository;
-  private _aiUserFilesRepository: Repository<AiUserFileEntity> & IAiUserFilesRepository;
   private _companyLogoRepository: Repository<CompanyLogoEntity>;
   private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
   private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
@@ -210,12 +202,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
       .getRepository(ActionEventsEntity)
       .extend(actionEventsCustomRepositoryExtension);
     this._userApiKeysRepository = this.appDataSource.getRepository(UserApiKeyEntity).extend(userApiRepositoryExtension);
-    this._aiUserThreadsRepository = this.appDataSource
-      .getRepository(AiUserThreadEntity)
-      .extend(aiUserThreadRepositoryExtension);
-    this._aiUserFilesRepository = this.appDataSource
-      .getRepository(AiUserFileEntity)
-      .extend(aiUserFileRepositoryExtension);
     this._companyLogoRepository = this.appDataSource.getRepository(CompanyLogoEntity);
     this._companyFaviconRepository = this.appDataSource.getRepository(CompanyFaviconEntity);
     this._companyTabTitleRepository = this.appDataSource.getRepository(CompanyTabTitleEntity);
@@ -334,14 +320,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get userApiKeysRepository(): Repository<UserApiKeyEntity> & IUserApiKeyRepository {
     return this._userApiKeysRepository;
-  }
-
-  public get aiUserThreadsRepository(): Repository<AiUserThreadEntity> & IAiUserThreadsRepository {
-    return this._aiUserThreadsRepository;
-  }
-
-  public get aiUserFilesRepository(): Repository<AiUserFileEntity> & IAiUserFilesRepository {
-    return this._aiUserFilesRepository;
   }
 
   public get companyLogoRepository(): Repository<CompanyLogoEntity> {
