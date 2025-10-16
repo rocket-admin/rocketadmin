@@ -6443,15 +6443,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns-tz@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "date-fns-tz@npm:3.2.0"
-  peerDependencies:
-    date-fns: ^3.0.0 || ^4.0.0
-  checksum: c49289a3944fc1eacaa08649c2c1adc1652456d405841f2093fdd365596dac46553a303629b5d528c3f5e4c49919fc3d3ff98da93ad32a1a193243aa04cc0987
-  languageName: node
-  linkType: hard
-
 "date-fns@npm:^4.1.0":
   version: 4.1.0
   resolution: "date-fns@npm:4.1.0"
@@ -6683,7 +6674,6 @@ __metadata:
     color-string: ^2.0.1
     convert: ^5.12.0
     date-fns: ^4.1.0
-    date-fns-tz: ^3.2.0
     ipaddr.js: ^2.2.0
     jasmine-core: ~5.5.0
     jasmine-spec-reporter: ~7.0.0
