@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { CommonModule } from '@angular/common';
@@ -12,8 +12,9 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./long-text.component.css'],
   imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule]
 })
-export class LongTextFilterComponent extends BaseFilterFieldComponent {
+export class LongTextFilterComponent extends BaseFilterFieldComponent implements AfterViewInit {
   @Input() value: string;
+  @ViewChild('inputElement') inputElement: ElementRef<HTMLTextAreaElement>;
 
   static type = 'text';
   public rowsCount: string;
@@ -25,6 +26,14 @@ export class LongTextFilterComponent extends BaseFilterFieldComponent {
     } else {
       this.rowsCount = '4'
     };
+  }
+
+  ngAfterViewInit(): void {
+    if (this.autofocus && this.inputElement) {
+      setTimeout(() => {
+        this.inputElement.nativeElement.focus();
+      }, 100);
+    }
   }
 
 }
