@@ -330,17 +330,20 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
         if (!identityForCurrentTable) continue;
 
-        if (!identityLookupMaps.has(element.referencedTableName)) {
+        const lookupKey = `${element.referencedTableName}:${element.realFKeyName}`;
+        if (!identityLookupMaps.has(lookupKey)) {
           const identityColumnsMap = new Map(
             identityForCurrentTable.identity_columns.map((col) => [col[element.realFKeyName], col]),
           );
-          identityLookupMaps.set(element.referencedTableName, identityColumnsMap);
+          identityLookupMaps.set(lookupKey, identityColumnsMap);
         }
       }
 
       for (const row of rowsRO.rows) {
         for (const element of foreignKeysConformity) {
-          const identityColumnsMap = identityLookupMaps.get(element.referencedTableName);
+          const lookupKey = `${element.referencedTableName}:${element.realFKeyName}`;
+          const identityColumnsMap = identityLookupMaps.get(lookupKey);
+
           if (!identityColumnsMap) continue;
 
           const identityForCurrentValue = identityColumnsMap.get(row[element.currentFKeyName]);
