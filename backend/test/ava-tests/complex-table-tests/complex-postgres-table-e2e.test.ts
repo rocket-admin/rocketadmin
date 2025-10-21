@@ -28,7 +28,7 @@ import { getRandomTestTableName } from '../../utils/get-random-test-table-name.j
 import {
   createTestTablesWithComplexPFKeys,
   createTestTablesWithSimplePFKeys,
-} from './test-utilities/create-test-postgres-tables.js';
+} from '../../utils/test-utilities/create-test-postgres-tables.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,76 +98,79 @@ export type TableCreationResult = {
 
 // GET /connection/tables/:slug
 
-test.serial(`GET /connection/tables/:slug - Should return list of table rows with referenced columns, when primary and foreign keys has composite structure`, async (t) => {
-  try {
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+test.serial(
+  `GET /connection/tables/:slug - Should return list of table rows with referenced columns, when primary and foreign keys has composite structure`,
+  async (t) => {
+    try {
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestDB)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
 
-    const { main_table, first_referenced_table, second_referenced_table } = testTablesCompositeKeysData;
+      const { main_table, first_referenced_table, second_referenced_table } = testTablesCompositeKeysData;
 
-    const getMainTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${main_table.table_name}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const getMainTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${main_table.table_name}`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    const getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
-    t.is(getMainTableRowsResponse.status, 200);
+      const getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
+      t.is(getMainTableRowsResponse.status, 200);
 
-    const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${first_referenced_table.table_name}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${first_referenced_table.table_name}`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    const getFirstReferencedTableRowsRO = JSON.parse(getFirstReferencedTableRowsResponse.text);
-    t.is(getFirstReferencedTableRowsResponse.status, 200);
+      const getFirstReferencedTableRowsRO = JSON.parse(getFirstReferencedTableRowsResponse.text);
+      t.is(getFirstReferencedTableRowsResponse.status, 200);
 
-    const firstReturnedRows = getFirstReferencedTableRowsRO.rows;
+      const firstReturnedRows = getFirstReferencedTableRowsRO.rows;
 
-    for (const row of firstReturnedRows) {
-      t.is(typeof row.order_id, 'object');
-      t.truthy(row.order_id.hasOwnProperty('order_id'));
-      t.truthy(row.order_id.order_id);
-      t.truthy(typeof row.order_id.order_id === 'number');
-      t.is(typeof row.customer_id, 'object');
-      t.truthy(row.customer_id.hasOwnProperty('customer_id'));
-      t.truthy(row.customer_id.customer_id);
-      t.truthy(typeof row.customer_id.customer_id === 'number');
+      for (const row of firstReturnedRows) {
+        t.is(typeof row.order_id, 'object');
+        t.truthy(row.order_id.hasOwnProperty('order_id'));
+        t.truthy(row.order_id.order_id);
+        t.truthy(typeof row.order_id.order_id === 'number');
+        t.is(typeof row.customer_id, 'object');
+        t.truthy(row.customer_id.hasOwnProperty('customer_id'));
+        t.truthy(row.customer_id.customer_id);
+        t.truthy(typeof row.customer_id.customer_id === 'number');
+      }
+
+      const getSecondReferencedTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${second_referenced_table.table_name}`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const getSecondReferencedTableRowsRO = JSON.parse(getSecondReferencedTableRowsResponse.text);
+      t.is(getSecondReferencedTableRowsResponse.status, 200);
+      const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
+      for (const row of secondReturnedRows) {
+        t.is(typeof row.order_id, 'object');
+        t.truthy(row.order_id.hasOwnProperty('order_id'));
+        t.truthy(row.order_id.order_id);
+        t.truthy(typeof row.order_id.order_id === 'number');
+        t.is(typeof row.customer_id, 'object');
+        t.truthy(row.customer_id.hasOwnProperty('customer_id'));
+        t.truthy(row.customer_id.customer_id);
+        t.truthy(typeof row.customer_id.customer_id === 'number');
+      }
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
-
-    const getSecondReferencedTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${second_referenced_table.table_name}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    const getSecondReferencedTableRowsRO = JSON.parse(getSecondReferencedTableRowsResponse.text);
-    t.is(getSecondReferencedTableRowsResponse.status, 200);
-    const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
-    for (const row of secondReturnedRows) {
-      t.is(typeof row.order_id, 'object');
-      t.truthy(row.order_id.hasOwnProperty('order_id'));
-      t.truthy(row.order_id.order_id);
-      t.truthy(typeof row.order_id.order_id === 'number');
-      t.is(typeof row.customer_id, 'object');
-      t.truthy(row.customer_id.hasOwnProperty('customer_id'));
-      t.truthy(row.customer_id.customer_id);
-      t.truthy(typeof row.customer_id.customer_id === 'number');
-    }
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+  },
+);
 
 test.serial(
   `GET /connection/tables/:slug - Should return list of table rows with referenced columns, when primary and foreign keys has simple structure`,

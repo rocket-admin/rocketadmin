@@ -1,4 +1,4 @@
-import { getTestKnex } from '../../../utils/get-test-knex.js';
+import { getTestKnex } from '../get-test-knex.js';
 import { faker } from '@faker-js/faker';
 
 export const createTestTablesWithComplexPFKeys = async (connectionParams: any) => {
