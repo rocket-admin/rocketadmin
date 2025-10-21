@@ -29,7 +29,7 @@ const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
 const testSearchedUserName = 'Vasia';
-const connectionToTestDB = getTestData(mockFactory).connectionToTestMSSQL;
+const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
 
 let testTablesCompositeKeysData: TableCreationResult;
 let testTablesSimpleKeysData: TableCreationResult;

@@ -43,7 +43,6 @@ export const createTestTablesWithComplexPFKeys = async (connectionParams: any) =
       .inTable(mainTableName)
       .onDelete('CASCADE');
   });
-  console.log('SQL Query for first_referenced_table:', firstReferencedTableQuery.toString());
   await firstReferencedTableQuery;
 
   // Create second_referenced_table
