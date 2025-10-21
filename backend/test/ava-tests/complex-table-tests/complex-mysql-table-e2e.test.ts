@@ -17,9 +17,9 @@ import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import {
-  createTestTablesWithComplexPFKeys,
-  createTestTablesWithSimplePFKeys,
-} from '../../utils/test-utilities/create-test-postgres-tables.js';
+  createTestMySQLTablesWithComplexPFKeys,
+  createTestMySQLTablesWithSimplePFKeys,
+} from '../../utils/test-utilities/create-test-mysql-tables.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +29,7 @@ const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
 const testSearchedUserName = 'Vasia';
-const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
 
 let testTablesCompositeKeysData: TableCreationResult;
 let testTablesSimpleKeysData: TableCreationResult;
@@ -54,8 +54,8 @@ test.before(async () => {
   await app.init();
   app.getHttpServer().listen(0);
 
-  testTablesCompositeKeysData = await createTestTablesWithComplexPFKeys(connectionToTestDB);
-  testTablesSimpleKeysData = await createTestTablesWithSimplePFKeys(connectionToTestDB);
+  testTablesCompositeKeysData = await createTestMySQLTablesWithComplexPFKeys(connectionToTestDB);
+  testTablesSimpleKeysData = await createTestMySQLTablesWithSimplePFKeys(connectionToTestDB);
 });
 
 test.after(async () => {
