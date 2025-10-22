@@ -88,6 +88,8 @@ import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities
 import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
 import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-reponses-to-user-repository.extension.js';
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
+import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
+import { tableCategoriesCustomRepositoryExtension } from '../../entities/table-categories/repository/table-categories-repository.extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -104,7 +106,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _passwordResetRepository: IPasswordResetRepository;
   private _emailChangeRepository: IEmailChangeRepository;
   private _userInvitationRepository: IUserInvitationRepository;
-  private _connectionPropertiesRepository: IConnectionPropertiesRepository;
+  private _connectionPropertiesRepository: Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository;
   private _customFieldsRepository: ICustomFieldsRepository;
   private _tableLogsRepository: ITableLogsRepository;
   private _userActionRepository: IUserActionRepository;
@@ -125,7 +127,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
-  private _tableCategoriesRepository: Repository<TableCategoriesEntity>;
+  private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -211,7 +213,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._aiResponsesToUserRepository = this.appDataSource
       .getRepository(AiResponsesToUserEntity)
       .extend(aiResponsesToUserRepositoryExtension);
-    this._tableCategoriesRepository = this.appDataSource.getRepository(TableCategoriesEntity);
+    this._tableCategoriesRepository = this.appDataSource
+      .getRepository(TableCategoriesEntity)
+      .extend(tableCategoriesCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -258,7 +262,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userInvitationRepository;
   }
 
-  public get connectionPropertiesRepository(): IConnectionPropertiesRepository {
+  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository {
     return this._connectionPropertiesRepository;
   }
 
@@ -342,7 +346,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._aiResponsesToUserRepository;
   }
 
-  public get tableCategoriesRepository(): Repository<TableCategoriesEntity> {
+  public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
     return this._tableCategoriesRepository;
   }
 

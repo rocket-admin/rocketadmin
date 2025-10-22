@@ -46,6 +46,8 @@ import { ITableWidgetsRepository } from '../../entities/widget/repository/table-
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { IDatabaseContext } from '../database-context.interface.js';
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
+import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
+import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -59,7 +61,7 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   passwordResetRepository: IPasswordResetRepository;
   emailChangeRepository: IEmailChangeRepository;
   userInvitationRepository: IUserInvitationRepository;
-  connectionPropertiesRepository: IConnectionPropertiesRepository;
+  connectionPropertiesRepository: Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository;
   customFieldsRepository: ICustomFieldsRepository;
   tableLogsRepository: ITableLogsRepository;
   userActionRepository: IUserActionRepository;
@@ -80,5 +82,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
-  tableCategoriesRepository: Repository<TableCategoriesEntity>;
+  tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
 }
