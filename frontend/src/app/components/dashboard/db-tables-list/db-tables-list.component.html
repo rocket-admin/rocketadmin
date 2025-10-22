@@ -40,21 +40,21 @@
 
                 <!-- Collapsed table list for any folder -->
                 <div *ngIf="showCollapsedTableList" class="collapsed-tables-list">
-                    <a *ngFor="let table of getCollapsedTableList()"
+                    <a *ngFor="let tableItem of getCollapsedTableList()"
                         class="collapsed-table-item"
-                        routerLink="/dashboard/{{connectionID}}/{{table.table}}"
+                        routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
                         [queryParams]="{page_index: 0, page_size: 30}"
-                        [ngClass]="{'collapsed-table-item_active': selectedTable === table.table}"
-                        [matTooltip]="getTableName(table)"
+                        [ngClass]="{'collapsed-table-item_active': selectedTable === tableItem.table}"
+                        [matTooltip]="getTableName(tableItem)"
                         matTooltipPosition="right"
                         (click)="closeSidebar()">
                         <!-- Show icon if available, otherwise show initials -->
-                        <div *ngIf="hasTableIcon(table)" class="collapsed-table-icon-container">
-                            <mat-icon class="collapsed-table-icon">{{getTableIcon(table)}}</mat-icon>
-                        </div>
-                        <div *ngIf="!hasTableIcon(table)" class="collapsed-table-initials">
-                            <span class="collapsed-table-text">{{getTableInitials(table)}}</span>
-                        </div>
+                        <mat-icon *ngIf="tableItem.icon; else tableNameInitials" class="table-list-icon">
+                            {{tableItem.icon}}
+                        </mat-icon>
+                        <ng-template #tableNameInitials>
+                            {{tableItem.initials}}
+                        </ng-template>
                     </a>
                 </div>
             </div>
