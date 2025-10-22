@@ -1,7 +1,7 @@
 import { getTestKnex } from '../get-test-knex.js';
 import { faker } from '@faker-js/faker';
 
-export const createTestTablesWithComplexPFKeys = async (connectionParams: any) => {
+export const createTestMySQLTablesWithComplexPFKeys = async (connectionParams: any) => {
   const connectionParamsCopy = {
     ...connectionParams,
   };
@@ -19,7 +19,6 @@ export const createTestTablesWithComplexPFKeys = async (connectionParams: any) =
   await knex.schema.dropTableIfExists(firstReferencedTableName);
   await knex.schema.dropTableIfExists(mainTableName);
 
-  // Create main_table
   await knex.schema.createTable(mainTableName, (table) => {
     table.integer('order_id').notNullable();
     table.integer('customer_id').notNullable();
@@ -29,7 +28,6 @@ export const createTestTablesWithComplexPFKeys = async (connectionParams: any) =
     table.primary(['order_id', 'customer_id']);
   });
 
-  // Create first_referenced_table
   const firstReferencedTableQuery = knex.schema.createTable(firstReferencedTableName, (table) => {
     table.integer('order_id').notNullable();
     table.integer('customer_id').notNullable();
@@ -43,9 +41,9 @@ export const createTestTablesWithComplexPFKeys = async (connectionParams: any) =
       .inTable(mainTableName)
       .onDelete('CASCADE');
   });
+  console.log('SQL Query for first_referenced_table:', firstReferencedTableQuery.toString());
   await firstReferencedTableQuery;
 
-  // Create second_referenced_table
   await knex.schema.createTable(referencedOnTableName, (table) => {
     table.increments('shipment_id').primary();
     table.integer('order_id');
@@ -105,8 +103,6 @@ export const createTestTablesWithComplexPFKeys = async (connectionParams: any) =
   await knex(firstReferencedTableName).insert(firstReferencedTableInserts);
   await knex(referencedOnTableName).insert(secondReferencedTableInserts);
 
-  // Fetch column info
-
   const mainTableColumnData = await knex(mainTableName).columnInfo();
   const firstReferencedTableColumnData = await knex(firstReferencedTableName).columnInfo();
   const secondReferencedTableColumnData = await knex(referencedOnTableName).columnInfo();
@@ -133,7 +129,7 @@ export const createTestTablesWithComplexPFKeys = async (connectionParams: any) =
   };
 };
 
-export const createTestTablesWithSimplePFKeys = async (connectionParams: any) => {
+export const createTestMySQLTablesWithSimplePFKeys = async (connectionParams: any) => {
   const connectionParamsCopy = {
     ...connectionParams,
   };
@@ -183,7 +179,6 @@ export const createTestTablesWithSimplePFKeys = async (connectionParams: any) =>
   await knex.schema.dropTableIfExists(firstReferencedTableName);
   await knex.schema.dropTableIfExists(mainTableName);
 
-  // Create main_table
   await knex.schema.createTable(mainTableName, (table) => {
     table.increments('customer_id').primary();
     table.string('name', 100);
@@ -191,20 +186,18 @@ export const createTestTablesWithSimplePFKeys = async (connectionParams: any) =>
     table.timestamp('created_at').defaultTo(knex.fn.now());
   });
 
-  // Create first_referenced_table
   await knex.schema.createTable(firstReferencedTableName, (table) => {
     table.increments('order_id').primary();
-    table.integer('customer_id').notNullable();
+    table.integer('customer_id').unsigned().notNullable();
     table.date('order_date');
     table.string('status', 20);
     table.decimal('total_amount', 10, 2);
     table.foreign('customer_id').references('customer_id').inTable(mainTableName).onDelete('CASCADE');
   });
 
-  // Create second_referenced_table
   await knex.schema.createTable(secondReferencedTableName, (table) => {
     table.increments('shipment_id').primary();
-    table.integer('order_id');
+    table.integer('order_id').unsigned();
     table.date('shipped_date');
     table.string('carrier', 50);
     table.string('tracking_number', 100);
@@ -215,32 +208,27 @@ export const createTestTablesWithSimplePFKeys = async (connectionParams: any) =>
 
   const testEntitiesCount = 42;
 
-  const mainTableInserts = [];
-  const firstReferencedTableInserts = [];
   const secondReferencedTableInserts = [];
 
+  const insertedCustomerIds = [];
   for (let i = 0; i < testEntitiesCount; i++) {
-    mainTableInserts.push({
+    const [customerId] = await knex(mainTableName).insert({
       name: faker.person.fullName(),
       email: faker.internet.email(),
     });
+    insertedCustomerIds.push(customerId);
   }
 
-  const insertedCustomerIds = await knex(mainTableName).insert(mainTableInserts).returning('customer_id');
-
+  const insertedOrderIds = [];
   for (let i = 0; i < testEntitiesCount; i++) {
-    const customerId = Array.isArray(insertedCustomerIds)
-      ? typeof insertedCustomerIds[i] === 'object'
-        ? (insertedCustomerIds[i] as any).customer_id
-        : insertedCustomerIds[i]
-      : insertedCustomerIds;
-    const orderId = i + 1;
-    firstReferencedTableInserts.push({
+    const customerId = insertedCustomerIds[i];
+    const [orderId] = await knex(firstReferencedTableName).insert({
       customer_id: customerId,
       order_date: faker.date.past({ years: 1 }),
       status: faker.helpers.arrayElement(['Pending', 'Shipped', 'Delivered', 'Cancelled']),
       total_amount: parseFloat(faker.commerce.price({ min: 20, max: 500, dec: 2 })),
     });
+    insertedOrderIds.push(orderId);
 
     if (faker.datatype.boolean()) {
       secondReferencedTableInserts.push({
@@ -252,24 +240,9 @@ export const createTestTablesWithSimplePFKeys = async (connectionParams: any) =>
     }
   }
 
-  const insertedOrderIds = await knex(firstReferencedTableName)
-    .insert(firstReferencedTableInserts)
-    .returning('order_id');
-
-  // Adjust order_id in shipments to match inserted orders
-  for (let i = 0; i < secondReferencedTableInserts.length; i++) {
-    if (insertedOrderIds[i]) {
-      secondReferencedTableInserts[i].order_id = Array.isArray(insertedOrderIds)
-        ? typeof insertedOrderIds[i] === 'object'
-          ? (insertedOrderIds[i] as any).order_id
-          : insertedOrderIds[i]
-        : insertedOrderIds;
-    }
+  if (secondReferencedTableInserts.length > 0) {
+    await knex(secondReferencedTableName).insert(secondReferencedTableInserts);
   }
-
-  await knex(secondReferencedTableName).insert(secondReferencedTableInserts);
-
-  // Fetch column info
 
   const mainTableColumnData = await knex(mainTableName).columnInfo();
   const firstReferencedTableColumnData = await knex(firstReferencedTableName).columnInfo();
