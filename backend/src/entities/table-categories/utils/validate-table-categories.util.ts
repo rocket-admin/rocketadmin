@@ -7,6 +7,17 @@ export async function validateTableCategories(
   tableCategoriesData: Array<TableCategoryDS>,
   connection: ConnectionEntity,
 ): Promise<boolean> {
+  tableCategoriesData.forEach((category) => {
+    if (!category.category_name || category.category_name.trim() === '') {
+      throw new BadRequestException('Table category name cannot be empty.');
+    }
+    if (!Array.isArray(category.tables)) {
+      throw new BadRequestException('Tables must be an array of table names.');
+    }
+    if (category.category_id === undefined || category.category_id.trim() === '') {
+      throw new BadRequestException('Table category ID cannot be empty.');
+    }
+  });
   const dao = getDataAccessObject(connection);
   const tablesInConnection = (await dao.getTablesFromDB()).map((table) => table.tableName);
   const tables = tableCategoriesData.map((category) => category.tables).flat();

@@ -1,5 +1,7 @@
 export class TableCategoryDS {
   category_name: string;
+  category_color: string;
+  category_id: string;
   tables: Array<string>;
 }
 

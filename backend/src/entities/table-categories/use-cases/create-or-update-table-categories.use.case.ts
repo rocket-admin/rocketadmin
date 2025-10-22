@@ -49,6 +49,8 @@ export class CreateOrUpdateTableCategoriesUseCase
       const newCategory = this._dbContext.tableCategoriesRepository.create({
         category_name: category.category_name,
         tables: category.tables,
+        category_color: category.category_color,
+        category_id: category.category_id,
       });
       newCategory.connection_properties = connectionProperties;
       return newCategory;
