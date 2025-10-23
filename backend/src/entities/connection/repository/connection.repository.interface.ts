@@ -41,4 +41,6 @@ export interface IConnectionRepository {
   freezeConnections(connectionsIds: Array<string>): Promise<void>;
 
   unFreezeConnections(connectionsIds: Array<string>): Promise<void>;
+
+  foundUserTestConnectionsWithoutCompany(userId: string): Promise<Array<ConnectionEntity>>;
 }
