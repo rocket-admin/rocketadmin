@@ -7,6 +7,10 @@
         textValidator
         [validateType]="validateType"
         [regexPattern]="regexPattern"
+        fieldValidation
+        [fieldKey]="key"
+        [fieldLabel]="label"
+        [fieldRequired]="required"
         attr.data-testid="record-{{label}}-text"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
     <div matSuffix *ngIf="maxLength && maxLength > 0 && value && (maxLength - value.length) < 100" class="counter">{{value.length}} / {{maxLength}}</div>
