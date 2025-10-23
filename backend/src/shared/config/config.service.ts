@@ -53,7 +53,7 @@ class ConfigService {
       const fullPath = isTest()
         ? path.join(process.cwd(), ...pgLiteFolderPath.split('/'))
         : path.join(__dirname, '..', '..', '..', pgLiteFolderPath);
-        
+      console.info('\nPg Lite Folder Patch: ', pgLiteFolderPath, '\n');
       const resolvedPath = path.resolve(fullPath);
       try {
         fs.accessSync(resolvedPath, fs.constants.F_OK);
