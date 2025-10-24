@@ -324,10 +324,13 @@ FROM
     syscat.keycoluse pk
     ON
         ref.refkeyname = pk.constname AND
-        ref.reftabschema = pk.tabschema
+        ref.reftabschema = pk.tabschema AND
+        col.colseq = pk.colseq
 WHERE
     ref.tabname = ? AND
     ref.tabschema = ?
+ORDER BY
+    ref.constname, col.colseq
   `;
     const foreignKeys = await connectionToDb.query(query, [
       tableName.toUpperCase(),
