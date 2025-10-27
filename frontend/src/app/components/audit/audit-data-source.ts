@@ -70,7 +70,7 @@ export class AuditDataSource implements DataSource<Object> {
           }
           const formattedLogs = res.logs.map(log => {
             const date = new Date(log.createdAt);
-            const formattedDate = format(date, "P p")
+            const formattedDate = format(date, "d MMM yyyy 'at' h:mm a")
             return {
               ['Table']: log.table_name,
               ['User']: log.email,

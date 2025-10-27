@@ -111,3 +111,14 @@ th.mat-header-cell, td.mat-cell {
 .hidden {
     display: none;
 }
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+.status-succeed {
+    background-color: #EBF9EB;
+    color: #1A5E20;
+}
