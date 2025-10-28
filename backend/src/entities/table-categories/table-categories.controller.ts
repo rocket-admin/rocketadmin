@@ -10,6 +10,7 @@ import { CreateOrUpdateTableCategoriesDS } from './data-sctructures/create-or-up
 import { CreateTableCategoryDto } from './dto/create-table-category.dto.js';
 import { FoundTableCategoryRo } from './dto/found-table-category.ro.js';
 import { ICreateTableCategories, IFindTableCategories } from './use-cases/table-categories-use-cases.interface.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('table-categories')
@@ -45,7 +46,7 @@ export class TableCategoriesController {
       master_password: masterPwd,
       table_categories: requestBody,
     };
-    return await this.createTableCategoriesUseCase.execute(inputData);
+    return await this.createTableCategoriesUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Find table categories' })
