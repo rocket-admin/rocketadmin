@@ -18,7 +18,6 @@ import { TableCategory } from 'src/app/models/connection';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { expand } from 'rxjs';
 
 export interface Folder {
   id: string;
@@ -55,6 +54,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   @Input() tables: TableProperties[];
   @Input() selectedTable: string;
   @Input() collapsed: boolean;
+  @Input() uiSettings: any;
 
   @Output() expandSidebar = new EventEmitter<void>();
 
@@ -105,7 +105,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.foundTables = this.tables;
     this.loadFolders();
-    this.loadAndSetExpandedFolders();
     console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
   }
 
@@ -188,16 +187,9 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   //   console.log('Collapsed menu state saved:', state);
   // }
 
-  loadAndSetExpandedFolders() {
-    this._uiSettingsService.getUiSettings().subscribe(settings => {
-      const expandedFolders = settings?.connections?.[this.connectionID].tableFoldersExpanded;
-      if (expandedFolders && expandedFolders.length > 0) {
-        this.folders.forEach(folder => {
-          folder.expanded = expandedFolders.includes(folder.id);
-        });
-      }
-    });
-  }
+  // loadAndSetExpandedFolders() {
+
+  // }
 
   getTableNameLength(tableName: string) {
     return tableName.length;
@@ -206,13 +198,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   closeSidebar() {
     this._tableState.clearSelection();
     this._tableState.closeAIpanel();
-  }
-
-  closeAllFolders() {
-    this.folders.forEach(collection => {
-      collection.expanded = false;
-    });
-    this.saveFolders();
   }
 
   onAddFolder() {
@@ -225,12 +210,13 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       isEmpty: true // Mark as empty for special styling
     };
     this.folders.push(newFolder);
+    console.log('onAddFolder');
     this.saveFolders();
     this.startEditFolder(newFolder);
   }
 
   toggleFolder(folderId: string) {
-    const folder = this.folders.find(f => f.id === folderId);
+    const folder = this.folders.find (f => f.id === folderId);
     if (folder) {
       folder.expanded = !folder.expanded;
       const expandedFolders = this.folders.filter(f => f.expanded).map(f => f.id);
@@ -314,6 +300,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     if (folder.name.trim() === '') {
       folder.name = this.editingFolderName;
     }
+    console.log('finishEditFolder');
     this.saveFolders();
   }
 
@@ -330,6 +317,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   onFolderNameDoubleClick(event: Event, folder: Folder) {
     if (folder.name !== 'All Tables') {
       event.stopPropagation();
+      event.preventDefault();
+      console.log('onFolderNameDoubleClick for:', folder.name);
       this.startEditFolder(folder);
 
       // Close any open menus after starting edit
@@ -492,6 +481,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   changeFolderIconColor(color: string) {
     if (this.currentFolder) {
       this.currentFolder.iconColor = color;
+      console.log('changeFolderIconColor', color);
       this.saveFolders();
     }
   }
@@ -522,10 +512,9 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 
   isTableInCurrentDraggedFolder(table: TableProperties, folder: Folder): boolean {
     return this.draggedTable &&
-           this.draggedTable.table === table.table &&
-           folder.tableIds.includes(table.table);
+      this.draggedTable.table === table.table &&
+      folder.tableIds.includes(table.table);
   }
-
 
   toggleTableInFolder(table: TableProperties) {
     if (!this.currentFolder) return;
@@ -545,6 +534,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       }
     }
 
+    console.log('toggleTableInFolder');
     this.saveFolders();
   }
 
@@ -552,6 +542,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   removeTableFromFolder(folder: Folder, table: TableProperties, event: Event) {
     event.stopPropagation();
     folder.tableIds = folder.tableIds.filter(id => id !== table.table);
+    console.log('removeTableFromFolder');
     this.saveFolders();
   }
 
@@ -653,54 +644,67 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   private loadFolders() {
-    const key = `folders_${this.connectionID}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        this.folders = JSON.parse(saved);
-        // Reset editing state only, keep expanded state
-        this.folders.forEach(c => c.editing = false);
-        console.log('Folders loaded:', this.folders.map(c => ({ name: c.name, expanded: c.expanded })));
-      } catch (e) {
-        console.error('Error loading folders:', e);
-        this.folders = [];
-      }
-    } else {
-      console.log('No saved folders found for key:', key);
-    }
+    this._connectionsService.getTablesFolders(this.connectionID).subscribe({
+      next: (categories: TableCategory[]) => {
+        if (categories && categories.length > 0) {
+          this.tableCategories = categories;
+          this.folders = categories.map(cat => ({
+            id: cat.category_id,
+            name: cat.category_name,
+            expanded: false,
+            editing: false,
+            tableIds: cat.tables,
+            iconColor: cat.category_color
+          }));
+          console.log('Folders loaded from connection settings:', this.folders.map(c => ({ name: c.name, expanded: c.expanded })));
+        } else {
+          console.log('No folders found in connection settings.');
+          this.folders = [];
+        }
 
-    // Create "All Tables" collection if it doesn't exist
-    const allTablesFolder = this.folders.find(c => c.name === 'All Tables');
-    if (!allTablesFolder) {
-      const allTablesFolder: Folder = {
-        id: this.generateFolderId(),
-        name: 'All Tables',
-        expanded: true,
-        editing: false,
-        tableIds: this.tables.map(table => table.table)
-      };
-      this.folders.unshift(allTablesFolder); // Add to beginning
-      this.saveFolders();
-    }
+        const expandedFolders = this.uiSettings.tableFoldersExpanded;
+        if (expandedFolders && expandedFolders.length > 0) {
+          this.folders.forEach(folder => {
+            folder.expanded = expandedFolders.includes(folder.id);
+          });
+        }
+
+        const allTablesFolder: Folder = {
+          id: '0',
+          name: 'All Tables',
+          expanded: expandedFolders && expandedFolders.length === 0 ? false : expandedFolders.includes('0'),
+          editing: false,
+          tableIds: this.tables.map(table => table.table)
+        };
+        this.folders.unshift(allTablesFolder);
+      },
+      error: (error) => {
+        console.error('Error fetching folders from connection settings:', error);
+        this.folders = [];
+        // Ensure "All Tables" collection exists even on error
+        // this.ensureAllTablesCollection();
+      }
+    });
   }
 
   private saveFolders() {
     try {
-      const key = `folders_${this.connectionID}`;
-      localStorage.setItem(key, JSON.stringify(this.folders));
-      console.log('Folders saved:', this.folders.map(c => ({ name: c.name, expanded: c.expanded })));
-      this.tableCategories = this.folders.map(folder => ({
-        category_name: folder.name,
-        tables: folder.tableIds
-      }));
-      // this._connectionsService.updateConnectionSettings(this.connectionID, { table_categories: this.tableCategories, hidden_tables: null }).subscribe({
-      //   next: () => {
-      //     console.log('Connection settings updated with folders.');
-      //   },
-      //   error: (error) => {
-      //     console.error('Error updating connection settings with folders:', error);
-      //   }
-      // });
+      this.tableCategories = this.folders
+        .filter(folder => folder.name !== 'All Tables') // Exclude "All Tables" from saving
+        .map(folder => ({
+          category_id: folder.id,
+          category_name: folder.name,
+          category_color: folder.iconColor,
+          tables: folder.tableIds
+        }));
+      this._connectionsService.updateTablesFolders(this.connectionID, this.tableCategories).subscribe({
+        next: () => {
+          console.log('Connection settings updated with folders.');
+        },
+        error: (error) => {
+          console.error('Error updating connection settings with folders:', error);
+        }
+      });
     } catch (e) {
       console.error('Error saving folders:', e);
     }
@@ -754,6 +758,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
         if (folder.isEmpty) {
           folder.isEmpty = false;
         }
+        console.log('onFolderDrop');
         this.saveFolders();
       }
     }
@@ -763,55 +768,55 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
 
-  private showTableExistsNotification(collectionName: string, tableName: string) {
-    // Create a temporary notification element
-    const notification = document.createElement('div');
-    notification.className = 'table-exists-notification';
-    notification.textContent = `"${tableName}" already exists in "${collectionName}"`;
+  // private showTableExistsNotification(collectionName: string, tableName: string) {
+  //   // Create a temporary notification element
+  //   const notification = document.createElement('div');
+  //   notification.className = 'table-exists-notification';
+  //   notification.textContent = `"${tableName}" already exists in "${collectionName}"`;
 
-    // Style the notification
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #ff9800;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      z-index: 10000;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      animation: slideIn 0.3s ease;
-    `;
+  //   // Style the notification
+  //   notification.style.cssText = `
+  //     position: fixed;
+  //     top: 20px;
+  //     right: 20px;
+  //     background: #ff9800;
+  //     color: white;
+  //     padding: 12px 16px;
+  //     border-radius: 4px;
+  //     font-size: 14px;
+  //     z-index: 10000;
+  //     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  //     animation: slideIn 0.3s ease;
+  //   `;
 
-    // Add animation styles
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-      @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
+  //   // Add animation styles
+  //   const style = document.createElement('style');
+  //   style.textContent = `
+  //     @keyframes slideIn {
+  //       from { transform: translateX(100%); opacity: 0; }
+  //       to { transform: translateX(0); opacity: 1; }
+  //     }
+  //     @keyframes slideOut {
+  //       from { transform: translateX(0); opacity: 1; }
+  //       to { transform: translateX(100%); opacity: 0; }
+  //     }
+  //   `;
+  //   document.head.appendChild(style);
 
-    // Add to DOM
-    document.body.appendChild(notification);
+  //   // Add to DOM
+  //   document.body.appendChild(notification);
 
-    // Remove after 3 seconds
-    setTimeout(() => {
-      notification.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-        if (style.parentNode) {
-          style.parentNode.removeChild(style);
-        }
-      }, 300);
-    }, 3000);
-  }
+  //   // Remove after 3 seconds
+  //   setTimeout(() => {
+  //     notification.style.animation = 'slideOut 0.3s ease';
+  //     setTimeout(() => {
+  //       if (notification.parentNode) {
+  //         notification.parentNode.removeChild(notification);
+  //       }
+  //       if (style.parentNode) {
+  //         style.parentNode.removeChild(style);
+  //       }
+  //     }, 300);
+  //   }, 3000);
+  // }
 }

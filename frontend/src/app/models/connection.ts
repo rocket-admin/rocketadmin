@@ -56,8 +56,10 @@ export interface TestConnection {
 }
 
 export interface TableCategory {
+    category_id: string,
     category_name: string,
-    tables: string[]
+    tables: string[],
+    category_color?: string
 }
 
 export interface ConnectionSettings {

@@ -129,15 +129,15 @@
                             </mat-icon>
                             <mat-menu #folderMenu="matMenu" (closed)="onMenuClosed()">
                                 <button mat-menu-item (click)="onFolderNameDoubleClick($event, folder); closeMenu(folderMenu)">
-                                    <span class="material-icons-outlined">edit</span>
+                                    <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
                                     <span>Rename</span>
                                 </button>
                                 <button mat-menu-item (click)="showEditTablesDialog(folder); closeMenu(folderMenu)">
-                                    <span class="material-icons-outlined">edit_note</span>
+                                    <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
                                     <span>Edit</span>
                                 </button>
                                 <button mat-menu-item (click)="deleteFolder(folder); closeMenu(folderMenu)">
-                                    <span class="material-icons-outlined">delete</span>
+                                    <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
                                     <span>Delete</span>
                                 </button>
                             </mat-menu>
@@ -234,7 +234,7 @@
             <div class="tables-section">
                 <h4>Manage tables in this folder</h4>
                 <div class="table-list">
-                <div *ngFor="let table of allTables" class="table-item">
+                <div *ngFor="let table of tables" class="table-item">
                     <span class="table-name">{{getTableName(table)}}</span>
                     <button mat-button
                             class="action-button"
