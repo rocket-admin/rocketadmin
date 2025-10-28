@@ -267,6 +267,35 @@ test.serial(`${currentTest} find table categories`, async (t) => {
     t.is(findTableCategoriesRO[2].category_color, '#3357FF');
     t.is(findTableCategoriesRO[2].category_id, 'cat-003');
     t.deepEqual(findTableCategoriesRO[2].tables, [firstTesTableName, secondTesTableName]);
+
+    // should recreate categories on the new request
+    const recreateTableCategoriesResponse = await request(app.getHttpServer())
+      .put(`/table-categories/${createConnectionRO.id}`)
+      .send([categoriesDTO[0]])
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const recreateTableCategoriesRO = JSON.parse(recreateTableCategoriesResponse.text);
+
+    t.is(recreateTableCategoriesResponse.status, 200);
+
+    // get should return updated categories
+    const getAfterRecreateTableCategoriesResponse = await request(app.getHttpServer())
+      .get(`/table-categories/${createConnectionRO.id}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getAfterRecreateTableCategoriesRO = JSON.parse(getAfterRecreateTableCategoriesResponse.text);
+
+    t.is(getAfterRecreateTableCategoriesResponse.status, 200);
+
+    t.is(getAfterRecreateTableCategoriesRO.length, 1);
+    t.is(getAfterRecreateTableCategoriesRO[0].category_name, 'Category 1');
+    t.is(getAfterRecreateTableCategoriesRO[0].category_color, '#FF5733');
+    t.is(getAfterRecreateTableCategoriesRO[0].category_id, 'cat-001');
+    t.deepEqual(getAfterRecreateTableCategoriesRO[0].tables, [firstTesTableName]);
   } catch (e) {
     console.error(e);
     t.fail();
