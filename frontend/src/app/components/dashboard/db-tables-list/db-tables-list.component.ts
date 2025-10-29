@@ -23,7 +23,6 @@ export interface Folder {
   id: string;
   name: string;
   expanded: boolean;
-  editing: boolean;
   tableIds: string[];
   iconColor?: string; // Optional color for folder icon
   isEmpty?: boolean; // Flag to indicate if folder is newly created and empty
@@ -62,7 +61,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   public substringToSearch: string;
   public foundTables: TableProperties[];
   public folders: Folder[] = [];
-  private editingFolderName: string = '';
 
   // Dialog state
   public showEditTablesDialogFlag: boolean = false;
@@ -205,14 +203,12 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       id: this.generateFolderId(),
       name: `Folder ${this.folders.length}`,
       expanded: true, // Разворачиваем папку сразу после создания
-      editing: false,
       tableIds: [],
       isEmpty: true // Mark as empty for special styling
     };
     this.folders.push(newFolder);
     console.log('onAddFolder');
     this.saveFolders();
-    this.startEditFolder(newFolder);
   }
 
   toggleFolder(folderId: string) {
@@ -275,35 +271,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }, 300); // Wait for sidebar animation to complete
   }
 
-
-
-  startEditFolder(folder: Folder) {
-    console.log('startEditFolder called for:', folder.name);
-    // Cancel any other editing
-    this.folders.forEach(f => f.editing = false);
-    folder.editing = true;
-    this.editingFolderName = folder.name;
-    console.log('Folder editing state:', folder.editing);
-
-    // Focus and select the input after the view updates
-    setTimeout(() => {
-      const input = document.querySelector('.folder-name.editing') as HTMLInputElement;
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    }, 0);
-  }
-
-  finishEditFolder(folder: Folder) {
-    folder.editing = false;
-    if (folder.name.trim() === '') {
-      folder.name = this.editingFolderName;
-    }
-    console.log('finishEditFolder');
-    this.saveFolders();
-  }
-
   deleteFolder(folder: Folder) {
     if (confirm(`Are you sure you want to delete the folder "${folder.name}"?`)) {
       const index = this.folders.findIndex(f => f.id === folder.id);
@@ -314,25 +281,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
   }
 
-  onFolderNameDoubleClick(event: Event, folder: Folder) {
-    if (folder.name !== 'All Tables') {
-      event.stopPropagation();
-      event.preventDefault();
-      console.log('onFolderNameDoubleClick for:', folder.name);
-      this.startEditFolder(folder);
-
-      // Close any open menus after starting edit
-      setTimeout(() => {
-        const menus = document.querySelectorAll('.mat-mdc-menu-content');
-        menus.forEach(menu => {
-          const menuElement = menu as HTMLElement;
-          if (menuElement.style.display !== 'none') {
-            menuElement.style.display = 'none';
-          }
-        });
-      }, 0);
-    }
-  }
 
   onMenuClosed() {
     // Menu closed, no action needed
@@ -344,21 +292,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
-    // Check if click is outside any editing collection
-    const target = event.target as HTMLElement;
-    const isEditingInput = target.closest('.collection-name-edit-container');
-    const isEditButton = target.closest('.edit-collection-button');
-
-    if (!isEditingInput && !isEditButton) {
-      // Find any collection that is currently being edited
-      const editingFolder = this.folders.find(c => c.editing);
-      if (editingFolder) {
-        this.finishEditFolder(editingFolder);
-      }
-    }
-  }
 
   @HostListener('document:keydown', ['$event'])
   onDocumentKeyDown(event: KeyboardEvent) {
@@ -385,10 +318,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
   }
 
-  cancelEditFolder(folder: Folder) {
-    folder.editing = false;
-    folder.name = this.editingFolderName;
-  }
 
   getFolderTables(folder: Folder): TableProperties[] {
     const folderTables = this.tables.filter(table => folder.tableIds.includes(table.table));
@@ -652,7 +581,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
             id: cat.category_id,
             name: cat.category_name,
             expanded: false,
-            editing: false,
             tableIds: cat.tables,
             iconColor: cat.category_color
           }));
@@ -673,7 +601,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
           id: '0',
           name: 'All Tables',
           expanded: expandedFolders && expandedFolders.length === 0 ? false : expandedFolders.includes('0'),
-          editing: false,
           tableIds: this.tables.map(table => table.table)
         };
         this.folders.unshift(allTablesFolder);

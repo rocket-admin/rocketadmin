@@ -107,10 +107,7 @@
                             class="material-icons folder-icon"
                             [style.color]="getFolderIconColor(folder)">folder</span>
 
-                        <div class="folder-name"
-                            [class.editing]="folder.editing"
-                            *ngIf="!folder.editing; else folderNameEdit"
-                            (dblclick)="onFolderNameDoubleClick($event, folder)">
+                        <div class="folder-name">
                             {{folder.name}}
                         </div>
 
@@ -128,10 +125,6 @@
                                 chevron_right
                             </mat-icon>
                             <mat-menu #folderMenu="matMenu" (closed)="onMenuClosed()">
-                                <button mat-menu-item (click)="onFolderNameDoubleClick($event, folder); closeMenu(folderMenu)">
-                                    <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
-                                    <span>Rename</span>
-                                </button>
                                 <button mat-menu-item (click)="showEditTablesDialog(folder); closeMenu(folderMenu)">
                                     <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
                                     <span>Edit</span>
@@ -142,19 +135,6 @@
                                 </button>
                             </mat-menu>
                         </div>
-                        <ng-template #folderNameEdit>
-                            <div class="folder-name-edit-container">
-                                <input class="folder-name editing"
-                                    [(ngModel)]="folder.name"
-                                    (blur)="finishEditFolder(folder)"
-                                    (keyup.enter)="finishEditFolder(folder)"
-                                    (keyup.escape)="cancelEditFolder(folder)"
-                                    #folderNameInput
-                                    (click)="$event.stopPropagation()"
-                                    (focus)="folderNameInput.select()">
-                                <mat-icon class="enter-icon" (click)="finishEditFolder(folder)">keyboard_return</mat-icon>
-                            </div>
-                        </ng-template>
                     </div>
                     <div *ngIf="folder.expanded" class="folder-tables">
                         <div *ngIf="getFolderTables(folder).length > 0; else noTablesInCollection"
