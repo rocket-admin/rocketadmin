@@ -63,5 +63,7 @@ export interface IUserRepository {
 
   countUsersInCompany(companyId: string): Promise<number>;
 
+  findUsersInCompany(companyId: string, orderByRole: boolean): Promise<Array<UserEntity>>;
+
   suspendNewestUsersInCompany(companyId: string, unsuspendedUsersLeft: number): Promise<Array<UserEntity>>;
 }
