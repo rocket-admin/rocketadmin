@@ -1,4 +1,6 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { DbFolderEditDialogComponent, DbFolderEditDialogData } from './db-folder-edit-dialog/db-folder-edit-dialog.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TableProperties, TableSettings } from 'src/app/models/table';
 
 import { CommonModule } from '@angular/common';
@@ -43,6 +45,7 @@ export interface Folder {
     MatListModule,
     MatTooltipModule,
     MatMenuModule,
+    MatDialogModule,
     RouterModule,
     ContentLoaderComponent
   ]
@@ -63,7 +66,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   public folders: Folder[] = [];
 
   // Dialog state
-  public showEditTablesDialogFlag: boolean = false;
   public currentFolder: Folder | null = null;
 
   // Drag and drop state
@@ -97,7 +99,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     private _tableState: TableStateService,
     private _tablesService: TablesService,
     private _connectionsService: ConnectionsService,
-    private _uiSettingsService: UiSettingsService
+    private _uiSettingsService: UiSettingsService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -293,30 +296,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
 
-  @HostListener('document:keydown', ['$event'])
-  onDocumentKeyDown(event: KeyboardEvent) {
-    // Handle Escape key for closing dialogs
-    if (event.key === 'Escape') {
-      // Check if the event originated from inside the dialog
-      const target = event.target as Element;
-      const isInsideDialog = target && target.closest('.edit-tables-dialog');
-
-      if (this.showEditTablesDialogFlag && isInsideDialog) {
-        // If Escape was pressed inside dialog, let the dialog handle it
-        // Don't do anything here - the dialog's own handler will take care of it
-        return;
-      }
-
-      if (this.showEditTablesDialogFlag) {
-        // Escape pressed outside dialog - close it normally
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        this.closeEditTablesDialog();
-        return false;
-      }
-    }
-  }
 
 
   getFolderTables(folder: Folder): TableProperties[] {
@@ -356,64 +335,33 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   showEditTablesDialog(folder: Folder) {
-    this.currentFolder = folder;
     // Expand the folder if it's collapsed
     folder.expanded = true;
-    this.showEditTablesDialogFlag = true;
 
-    // Focus the dialog after it's rendered
-    setTimeout(() => {
-      const dialogElement = document.querySelector('.edit-tables-dialog') as HTMLElement;
-      if (dialogElement) {
-        dialogElement.focus();
+    const dialogData: DbFolderEditDialogData = {
+      folder: folder,
+      tables: this.tables,
+      folderIconColors: this.folderIconColors
+    };
+
+    const dialogRef = this.dialog.open(DbFolderEditDialogComponent, {
+      width: '32em',
+      data: dialogData,
+      panelClass: 'db-folder-edit-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result: Folder | undefined) => {
+      if (result) {
+        // Update the folder with the result from dialog
+        const index = this.folders.findIndex(f => f.id === result.id);
+        if (index !== -1) {
+          this.folders[index] = result;
+          this.saveFolders();
+        }
       }
-    }, 100);
+    });
   }
 
-  closeEditTablesDialog(event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-    }
-
-    // Ensure dialog is properly closed
-    this.showEditTablesDialogFlag = false;
-    this.currentFolder = null;
-
-    // Force change detection to update the UI immediately
-    setTimeout(() => {
-      this.showEditTablesDialogFlag = false;
-    }, 0);
-  }
-
-  closeEditTablesDialogOnly(event?: Event) {
-    // This method ONLY closes the dialog, without affecting the sidebar
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      event.stopImmediatePropagation(); // Double prevention for safety
-    }
-
-    // Close only the dialog
-    this.showEditTablesDialogFlag = false;
-    // Don't reset currentFolder to preserve sidebar state
-
-    // Force change detection to update the UI immediately
-    setTimeout(() => {
-      this.showEditTablesDialogFlag = false;
-    }, 0);
-  }
-
-
-  changeFolderIconColor(color: string) {
-    if (this.currentFolder) {
-      this.currentFolder.iconColor = color;
-      console.log('changeFolderIconColor', color);
-      this.saveFolders();
-    }
-  }
 
   getFolderIconColor(folder: Folder, isActive?: boolean): string {
     if (isActive) {
@@ -608,8 +556,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       error: (error) => {
         console.error('Error fetching folders from connection settings:', error);
         this.folders = [];
-        // Ensure "All Tables" collection exists even on error
-        // this.ensureAllTablesCollection();
       }
     });
   }
@@ -693,57 +639,4 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     this.draggedTable = null;
     this.dragOverFolder = null;
   }
-
-
-  // private showTableExistsNotification(collectionName: string, tableName: string) {
-  //   // Create a temporary notification element
-  //   const notification = document.createElement('div');
-  //   notification.className = 'table-exists-notification';
-  //   notification.textContent = `"${tableName}" already exists in "${collectionName}"`;
-
-  //   // Style the notification
-  //   notification.style.cssText = `
-  //     position: fixed;
-  //     top: 20px;
-  //     right: 20px;
-  //     background: #ff9800;
-  //     color: white;
-  //     padding: 12px 16px;
-  //     border-radius: 4px;
-  //     font-size: 14px;
-  //     z-index: 10000;
-  //     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  //     animation: slideIn 0.3s ease;
-  //   `;
-
-  //   // Add animation styles
-  //   const style = document.createElement('style');
-  //   style.textContent = `
-  //     @keyframes slideIn {
-  //       from { transform: translateX(100%); opacity: 0; }
-  //       to { transform: translateX(0); opacity: 1; }
-  //     }
-  //     @keyframes slideOut {
-  //       from { transform: translateX(0); opacity: 1; }
-  //       to { transform: translateX(100%); opacity: 0; }
-  //     }
-  //   `;
-  //   document.head.appendChild(style);
-
-  //   // Add to DOM
-  //   document.body.appendChild(notification);
-
-  //   // Remove after 3 seconds
-  //   setTimeout(() => {
-  //     notification.style.animation = 'slideOut 0.3s ease';
-  //     setTimeout(() => {
-  //       if (notification.parentNode) {
-  //         notification.parentNode.removeChild(notification);
-  //       }
-  //       if (style.parentNode) {
-  //         style.parentNode.removeChild(style);
-  //       }
-  //     }, 300);
-  //   }, 3000);
-  // }
 }
