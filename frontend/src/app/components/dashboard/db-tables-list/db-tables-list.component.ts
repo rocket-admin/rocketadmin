@@ -1,4 +1,5 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { DbFolderDeleteDialogComponent, DbFolderDeleteDialogData } from './db-folder-delete-dialog/db-folder-delete-dialog.component';
 import { DbFolderEditDialogComponent, DbFolderEditDialogData } from './db-folder-edit-dialog/db-folder-edit-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TableProperties, TableSettings } from 'src/app/models/table';
@@ -275,13 +276,26 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   deleteFolder(folder: Folder) {
-    if (confirm(`Are you sure you want to delete the folder "${folder.name}"?`)) {
-      const index = this.folders.findIndex(f => f.id === folder.id);
-      if (index > -1) {
-        this.folders.splice(index, 1);
-        this.saveFolders();
+    const dialogData: DbFolderDeleteDialogData = {
+      folderName: folder.name,
+      tableCount: folder.tableIds.length
+    };
+
+    const dialogRef = this.dialog.open(DbFolderDeleteDialogComponent, {
+      width: '24em',
+      data: dialogData,
+      panelClass: 'db-folder-delete-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        const index = this.folders.findIndex(f => f.id === folder.id);
+        if (index > -1) {
+          this.folders.splice(index, 1);
+          this.saveFolders();
+        }
       }
-    }
+    });
   }
 
 
