@@ -3,14 +3,14 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } 
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
-import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
+import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CreateOrUpdateTableCategoriesDS } from './data-sctructures/create-or-update-table-categories.ds.js';
 import { CreateTableCategoryDto } from './dto/create-table-category.dto.js';
 import { FoundTableCategoryRo } from './dto/found-table-category.ro.js';
 import { ICreateTableCategories, IFindTableCategories } from './use-cases/table-categories-use-cases.interface.js';
-import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('table-categories')
@@ -57,7 +57,7 @@ export class TableCategoriesController {
     isArray: true,
   })
   @ApiParam({ name: 'connectionId', required: true })
-  @UseGuards(ConnectionReadGuard)
+  @UseGuards(TablesReceiveGuard)
   @Get('/:connectionId')
   async findTableCategories(@SlugUuid('connectionId') connectionId: string): Promise<Array<FoundTableCategoryRo>> {
     return await this.findTableCategoriesUseCase.execute(connectionId);
