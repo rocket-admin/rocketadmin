@@ -8,6 +8,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { Messages } from '../../../exceptions/text/messages.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
+import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class RegisteredCompanyWebhookUseCase
@@ -50,6 +51,20 @@ export class RegisteredCompanyWebhookUseCase
     foundUser.company = savedCompanyInfo;
     foundUser.role = UserRoleEnum.ADMIN;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
+
+    try {
+      const userTestConnectionsWithoutCompany =
+        await this._dbContext.connectionRepository.foundUserTestConnectionsWithoutCompany(registrarUserId);
+      if (userTestConnectionsWithoutCompany.length) {
+        userTestConnectionsWithoutCompany.forEach((connection) => {
+          connection.company = savedCompanyInfo;
+        });
+        await this._dbContext.connectionRepository.save(userTestConnectionsWithoutCompany);
+      }
+    } catch (error) {
+      Sentry.captureException(error);
+    }
+
     return {
       userId: savedUser.id,
       companyId: savedCompanyInfo.id,

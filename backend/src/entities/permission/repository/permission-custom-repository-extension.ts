@@ -143,9 +143,9 @@ export const permissionCustomRepositoryExtension = {
     connectionId: string,
   ): Promise<Array<PermissionEntity>> {
     const qb = this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
       .andWhere('user.id = :userId', { userId: userId })
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table });

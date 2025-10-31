@@ -5,6 +5,7 @@ import { OperationTypeEnum } from '../enums/operation-type.enum.js';
 import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
 import { FilteringFieldsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/filtering-fields.ds.js';
 import { AutocompleteFieldsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/autocomplete-fields.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export interface IAutocompleteFields {
   fields: Array<string>;
@@ -79,6 +80,7 @@ export interface IMessageDataInfo {
   identityColumnName: string;
   referencedFieldName: string;
   email: string;
+  tableStructure: TableStructureDS[] | null;
 }
 
 export interface IPaginationRO {

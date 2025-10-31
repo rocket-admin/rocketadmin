@@ -172,6 +172,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -185,7 +186,9 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
 
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
@@ -440,6 +443,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       perPage,
       searchedFieldValue,
       filteringFields,
+      null,
       null,
     );
     return result.data as any;

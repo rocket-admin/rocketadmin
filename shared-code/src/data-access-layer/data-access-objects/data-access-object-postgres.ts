@@ -40,7 +40,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     ]);
 
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const processedRow = { ...row };
@@ -144,6 +144,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -155,7 +156,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
@@ -271,10 +274,10 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       column_name: string;
     }> = await knex(tableName)
       .select(
-        knex.raw(`tc.constraint_name,
+        knex.raw(`kcu.constraint_name,
       kcu.column_name,
-      ccu.table_name AS foreign_table_name,
-      ccu.column_name AS foreign_column_name`),
+      kcu2.table_name AS foreign_table_name,
+      kcu2.column_name AS foreign_column_name`),
       )
       .from(
         knex.raw(
@@ -282,11 +285,15 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       JOIN ??.information_schema.key_column_usage AS kcu
       ON tc.constraint_name = kcu.constraint_name
       AND tc.table_schema = kcu.table_schema
-      JOIN ??.information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
-      AND ccu.table_schema = tc.table_schema
+      JOIN ??.information_schema.referential_constraints AS rc
+      ON tc.constraint_name = rc.constraint_name
+      AND tc.table_schema = rc.constraint_schema
+      JOIN ??.information_schema.key_column_usage AS kcu2
+      ON rc.unique_constraint_name = kcu2.constraint_name
+      AND rc.unique_constraint_schema = kcu2.table_schema
+      AND kcu.ordinal_position = kcu2.ordinal_position
       WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=? AND tc.table_schema =?;`,
-          [database, database, database, tableName, tableSchema],
+          [database, database, database, database, tableName, tableSchema],
         ),
       );
     const resultKeys = foreignKeys.map((key) => {
@@ -449,7 +456,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedRow = { ...row };
@@ -474,7 +481,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>[]> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedValues = { ...newValues };

@@ -270,6 +270,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
+    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
     t.is(createTableSettingsResponse.status, 201);
 
     const searchedDescription = '25';

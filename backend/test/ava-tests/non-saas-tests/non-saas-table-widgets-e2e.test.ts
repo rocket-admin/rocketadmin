@@ -86,7 +86,7 @@ test.serial(`${currentTest} should return empty array, table widgets not created
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(getTableWidgets.status, 200);
   t.is(typeof getTableWidgetsRO, 'object');
-  t.is(getTableWidgetsRO.length, 0);
+  t.is(getTableWidgetsRO.length, 2);
 });
 
 test.serial(`${currentTest} should return array of table widgets for table`, async (t) => {

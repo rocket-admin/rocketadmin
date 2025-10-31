@@ -11,7 +11,8 @@ export function isConnectionEntityAgent(connection: ConnectionEntity | CreateCon
     ConnectionTypesEnum.agent_mssql,
     ConnectionTypesEnum.agent_ibmdb2,
     ConnectionTypesEnum.agent_mongodb,
-    ConnectionTypeTestEnum.agent_cassandra,
+    ConnectionTypesEnum.agent_cassandra,
+    ConnectionTypesEnum.agent_redis,
   ];
 
   return agentTypes.includes(connection.type as ConnectionTypesEnum);
@@ -26,6 +27,7 @@ export function isConnectionTypeAgent(type: ConnectionTypesEnum | string): boole
     ConnectionTypeTestEnum.agent_ibmdb2,
     ConnectionTypeTestEnum.agent_mongodb,
     ConnectionTypeTestEnum.agent_cassandra,
+    ConnectionTypesEnum.agent_redis,
   ];
 
   return connectionTypes.includes(type as ConnectionTypeTestEnum);

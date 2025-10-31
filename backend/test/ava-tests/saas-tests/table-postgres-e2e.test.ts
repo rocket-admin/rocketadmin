@@ -1901,10 +1901,9 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 400);
 
     const { message } = JSON.parse(getTableRowsResponse.text);
-
+    t.is(getTableRowsResponse.status, 400);
     t.is(message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
@@ -2511,6 +2510,164 @@ test.serial(`${currentTest} should update row in table and return result`, async
   t.is(rows.length, 42);
   t.is(rows[updateRowIndex][testTableColumnName], row[testTableColumnName]);
   t.is(rows[updateRowIndex][testTableSecondColumnName], row[testTableSecondColumnName]);
+});
+
+test.serial(`${currentTest} should update row in table and return result, when table has json field`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB, undefined, undefined, true);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTableSecondColumnName]: fakeMail,
+    ['json_field']: [
+      {
+        id: 'PgSAwanAwptE',
+        url: 'www.example.com',
+        name: 'test',
+        type: 'test type',
+        metadata: {},
+        reference: null,
+        created_at: '2025-09-25T18:51:09.188Z',
+        updated_at: '2025-09-25T18:51:09.188Z',
+        description: 'some test field',
+      },
+    ],
+    ['jsonb_field']: [
+      {
+        id: 'PgSAwanAwptE',
+        url: 'www.example.com',
+        name: 'test',
+        type: 'test type',
+        metadata: {},
+        reference: null,
+        created_at: '2025-09-25T18:51:09.188Z',
+        updated_at: '2025-09-25T18:51:09.188Z',
+        description: 'some test field',
+      },
+    ],
+  };
+  const rowToUpdate = JSON.stringify(row);
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+    .send(rowToUpdate)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
+  t.is(updateRowInTableResponse.status, 200);
+  t.is(updateRowInTableRO.hasOwnProperty('row'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('structure'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('foreignKeys'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('primaryColumns'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('readonly_fields'), true);
+  t.is(updateRowInTableRO.row[testTableColumnName], row[testTableColumnName]);
+  t.is(updateRowInTableRO.row[testTableSecondColumnName], row[testTableSecondColumnName]);
+
+  //checking that the line was updated
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  const updateRowIndex = rows.map((row) => row.id).indexOf(1);
+  t.is(rows.length, 42);
+  t.is(rows[updateRowIndex][testTableColumnName], row[testTableColumnName]);
+  t.is(rows[updateRowIndex][testTableSecondColumnName], row[testTableSecondColumnName]);
+
+  // add row with json field
+  const newRow = {
+    [testTableColumnName]: faker.person.firstName(),
+    [testTableSecondColumnName]: faker.internet.email(),
+    ['json_field']: {
+      id: 'newRowId',
+      url: 'www.newrow.com',
+      name: 'new row',
+      type: 'new type',
+      metadata: {},
+      reference: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      description: 'new row description',
+    },
+  };
+  const addRowInTableResponse = await request(app.getHttpServer())
+    .post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(JSON.stringify(newRow))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
+  t.is(addRowInTableResponse.status, 201);
+  t.is(addRowInTableRO.hasOwnProperty('row'), true);
+  t.is(typeof addRowInTableRO.row['json_field'], 'object');
+
+  // update the added row
+
+  const updatedNewRow = {
+    [testTableColumnName]: faker.person.firstName(),
+    [testTableSecondColumnName]: faker.internet.email(),
+    ['json_field']: [
+      {
+        id: 'updatedNewRowId',
+        url: 'www.updatednewrow.com',
+        name: 'updated new row',
+        type: 'updated new type',
+        metadata: {},
+        reference: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        description: 'updated new row description',
+      },
+    ],
+  };
+
+  const updateNewRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${addRowInTableRO.row.id}`)
+    .send(updatedNewRow)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateNewRowInTableRO = JSON.parse(updateNewRowInTableResponse.text);
+  t.is(updateNewRowInTableResponse.status, 200);
+  t.is(updateNewRowInTableRO.hasOwnProperty('row'), true);
+  t.is(updateNewRowInTableRO.hasOwnProperty('structure'), true);
+  t.is(updateNewRowInTableRO.hasOwnProperty('foreignKeys'), true);
+  t.is(updateNewRowInTableRO.hasOwnProperty('primaryColumns'), true);
+  t.is(updateNewRowInTableRO.hasOwnProperty('readonly_fields'), true);
+  t.is(updateNewRowInTableRO.row[testTableColumnName], updatedNewRow[testTableColumnName]);
+  t.is(updateNewRowInTableRO.row[testTableSecondColumnName], updatedNewRow[testTableSecondColumnName]);
+  t.is(typeof updateNewRowInTableRO.row['json_field'], 'object');
+  t.is(Array.isArray(updateNewRowInTableRO.row['json_field']), true);
+  t.is(updateNewRowInTableRO.row['json_field'][0].id, 'updatedNewRowId');
 });
 
 test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {

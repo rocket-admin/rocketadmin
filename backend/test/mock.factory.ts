@@ -284,6 +284,24 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestRedisInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to Redis in Docker';
+    dto.type = ConnectionTypesEnum.redis;
+    dto.host = 'redis-e2e-testing';
+    dto.port = 6379;
+    dto.password = 'SuperSecretRedisPassword';
+    dto.ssh = false;
+    return dto;
+  }
+
+  generateConnectionToTestRedisAgent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to redis agent db';
+    dto.type = ConnectionTypesEnum.agent_redis;
+    return dto;
+  }
+
   generateKnexConfigAgentTests(db_type = 'postgres') {
     switch (db_type) {
       case 'postgres':

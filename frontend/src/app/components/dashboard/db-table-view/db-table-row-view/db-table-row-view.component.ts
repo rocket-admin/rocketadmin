@@ -1,11 +1,14 @@
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { TableField, TableRow, Widget } from 'src/app/models/table';
+import { UIwidgets, recordViewFieldTypes } from 'src/app/consts/record-view-types';
 import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DynamicModule } from 'ng-dynamic-component';
+import { ForeignKeyRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/foreign-key/foreign-key.component';
 import JsonURL from "@jsonurl/jsonurl";
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -18,9 +21,6 @@ import { PlaceholderRecordViewComponent } from '../../../skeletons/placeholder-r
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
-import { UIwidgets, recordViewFieldTypes } from 'src/app/consts/record-view-types';
-import { DynamicModule } from 'ng-dynamic-component';
-import { ForeignKeyRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/foreign-key/foreign-key.component';
 
 @Component({
   selector: 'app-db-table-row-view',
@@ -220,7 +220,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
                       keys[column.column_name] = row[column.column_name];
                     }
                     return keys;
-                  }, {})
+                  }, {mode: 'view'})
                 }),
                 identityColumn,
                 fieldsOrder
