@@ -4,6 +4,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ISuspendUsersOverLimit } from './saas-use-cases.interface.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { slackPostMessage } from '../../../helpers/index.js';
 
 @Injectable()
 export class SuspendUsersOverLimitUseCase extends AbstractUseCase<string, void> implements ISuspendUsersOverLimit {
@@ -22,5 +23,8 @@ export class SuspendUsersOverLimitUseCase extends AbstractUseCase<string, void> 
       const userIdsToSuspend = usersToSuspend.map((user) => user.id);
       await this._dbContext.userRepository.suspendUsers(userIdsToSuspend);
     }
+    await slackPostMessage(
+      `SuspendUsersOverLimitUseCase: Company ID ${companyId} - Suspended ${usersToSuspend.length} user(s).`,
+    );
   }
 }
