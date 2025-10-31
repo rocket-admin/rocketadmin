@@ -162,7 +162,14 @@ test.serial(`${currentTest} should return created connection properties with tab
       human_readable_table_names: faker.datatype.boolean(),
       allow_ai_requests: faker.datatype.boolean(),
       default_showing_table: null,
-      table_categories: [{ category_name: 'Category 1', tables: [testTableName] }],
+      table_categories: [
+        {
+          category_name: 'Category 1',
+          category_id: 'cat-001',
+          category_color: '#FF5733',
+          tables: [testTableName],
+        },
+      ],
     };
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -202,7 +209,14 @@ test.serial(`${currentTest} should return created connection properties with tab
       human_readable_table_names: faker.datatype.boolean(),
       allow_ai_requests: faker.datatype.boolean(),
       default_showing_table: null,
-      table_categories: [{ category_name: 'Updated Category', tables: [testTableName] }],
+      table_categories: [
+        {
+          category_name: 'Updated Category',
+          tables: [testTableName],
+          category_color: '#33FF57',
+          category_id: 'cat-002',
+        },
+      ],
     };
 
     const updateConnectionPropertiesResponse = await request(app.getHttpServer())
@@ -283,7 +297,9 @@ test.serial(
         human_readable_table_names: faker.datatype.boolean(),
         allow_ai_requests: faker.datatype.boolean(),
         default_showing_table: null,
-        table_categories: [{ category_name: 'Category 1', tables: [testTableName] }],
+        table_categories: [
+          { category_name: 'Category 1', tables: [testTableName], category_color: '#FF5733', category_id: 'cat-001' },
+        ],
       };
 
       const createConnectionResponse = await request(app.getHttpServer())

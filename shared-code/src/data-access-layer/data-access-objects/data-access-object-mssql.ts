@@ -125,6 +125,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -135,10 +136,11 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const knex = await this.configureKnex();
-    const [tableStructure, tableSchema] = await Promise.all([
-      this.getTableStructure(receivedTableName),
-      this.getSchemaName(receivedTableName),
-    ]);
+
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(receivedTableName);
+    }
+    const tableSchema = await this.getSchemaName(receivedTableName);
 
     const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const tableNameWithoutSchema = receivedTableName;
@@ -257,17 +259,18 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     const knex = await this.configureKnex();
     const schema = await this.getSchemaNameWithoutBrackets(tableName);
     const foreignKeys = await knex.raw(
-      `SELECT ccu.constraint_name AS constraint_name
-            , ccu.column_name     AS column_name
-            , kcu.table_name      AS referenced_table_name
-            , kcu.column_name     AS referenced_column_name
-       FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu
+      `SELECT fk_kcu.constraint_name AS constraint_name
+            , fk_kcu.column_name     AS column_name
+            , pk_kcu.table_name      AS referenced_table_name
+            , pk_kcu.column_name     AS referenced_column_name
+       FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE fk_kcu
                 INNER JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc
-                           ON ccu.CONSTRAINT_NAME = rc.CONSTRAINT_NAME
-                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
-                           ON kcu.CONSTRAINT_NAME = rc.UNIQUE_CONSTRAINT_NAME
-       WHERE ccu.TABLE_NAME = ?
-         AND ccu.TABLE_SCHEMA = ?`,
+                           ON fk_kcu.CONSTRAINT_NAME = rc.CONSTRAINT_NAME
+                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE pk_kcu
+                           ON pk_kcu.CONSTRAINT_NAME = rc.UNIQUE_CONSTRAINT_NAME
+                           AND pk_kcu.ORDINAL_POSITION = fk_kcu.ORDINAL_POSITION
+       WHERE fk_kcu.TABLE_NAME = ?
+         AND fk_kcu.TABLE_SCHEMA = ?`,
       [tableName, schema],
     );
 

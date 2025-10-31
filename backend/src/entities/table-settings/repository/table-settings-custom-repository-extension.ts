@@ -4,11 +4,28 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings.entity.js';
 import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
-import { ITableSettingsRepository } from './table-settings.repository.interface.js';
+import { FoundTableSettingsData, ITableSettingsRepository } from './table-settings.repository.interface.js';
 
 export const tableSettingsCustomRepositoryExtension: ITableSettingsRepository = {
   async saveNewOrUpdatedSettings(settings: TableSettingsEntity): Promise<TableSettingsEntity> {
     return await this.save(settings);
+  },
+
+  async findTableCustoms(connectionId: string, tableName: string): Promise<FoundTableSettingsData> {
+    const qb = this.createQueryBuilder('tableSettings')
+      .leftJoinAndSelect('tableSettings.custom_fields', 'custom_fields')
+      .leftJoinAndSelect('tableSettings.table_widgets', 'table_widgets')
+      .where('tableSettings.connection_id = :connection_id', {
+        connection_id: connectionId,
+      })
+      .andWhere('tableSettings.table_name = :table_name', { table_name: tableName });
+
+    const foundTableSettings = await qb.getOne();
+    return {
+      tableSettings: foundTableSettings || null,
+      tableCustomFields: foundTableSettings ? foundTableSettings.custom_fields : [],
+      tableWidgets: foundTableSettings ? foundTableSettings.table_widgets : [],
+    };
   },
 
   async createNewTableSettings(settings: CreateTableSettingsDs): Promise<TableSettingsEntity> {

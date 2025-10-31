@@ -16,6 +16,7 @@ import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-saml-use.case.js';
+import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
 
 @Module({
   imports: [],
@@ -76,6 +77,10 @@ import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-
       provide: UseCaseType.SAAS_REGISTER_USER_WITH_SAML,
       useClass: SaaSRegisterUserWIthSamlUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_SUSPEND_USERS_OVER_LIMIT,
+      useClass: SuspendUsersOverLimitUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -92,6 +97,7 @@ export class SaasModule {
         { path: 'saas/user/google/login', method: RequestMethod.POST },
         { path: 'saas/user/github/login', method: RequestMethod.POST },
         { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
+        { path: 'saas/company/:companyId/users/suspend-above-limit', method: RequestMethod.PUT },
         { path: 'saas/user/:userId/company', method: RequestMethod.GET },
         { path: 'saas/company/:companyId/users/count', method: RequestMethod.GET },
         { path: 'saas/company/freeze-connections', method: RequestMethod.PUT },

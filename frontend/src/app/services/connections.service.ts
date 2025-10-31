@@ -197,7 +197,44 @@ export class ConnectionsService {
     return connection.title || connection.database;
   }
 
+  private checkAndSendConversion() {
+    const now = new Date();
+    const firstVisitTime = localStorage.getItem('first_visit_time');
+
+    if (!firstVisitTime) {
+      // First visit - record the current date
+      localStorage.setItem('first_visit_time', now.toISOString());
+      return;
+    }
+
+    const firstVisit = new Date(firstVisitTime);
+    const daysDifference = Math.floor((now.getTime() - firstVisit.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysDifference >= 7) {
+      const repeatConversionSent = localStorage.getItem('repeat_conversion_sent');
+
+      if (!repeatConversionSent) {
+        localStorage.setItem('repeat_conversion_sent', 'true');
+
+        // Send conversion event
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'conversion', {
+            'send_to': 'AW-419937947/jqGyCJWo4qobEJv9nsgB',
+            'value': 1.0,
+            'currency': 'USD',
+            'event_callback': () => {
+              console.log('Conversion event sent successfully');
+            }
+          });
+        }
+      }
+    }
+  }
+
   fetchConnections() {
+    // Check for first visit and send conversion if needed
+    this.checkAndSendConversion();
+
     return this._http.get<any>('/connections')
       .pipe(
         map(res => {

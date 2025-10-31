@@ -148,15 +148,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return await qb.getOne();
   },
 
-  async getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string> {
-    const connectionQb = this.createQueryBuilder('connection')
-      .leftJoinAndSelect('connection.groups', 'group')
-      .leftJoinAndSelect('connection.author', 'author')
-      .andWhere('group.id = :id', { id: groupId });
-    const connection: ConnectionEntity = await connectionQb.getOne();
-    return connection.author.id;
-  },
-
   async findOneById(connectionId: string): Promise<ConnectionEntity> {
     return await this.findOne({ where: { id: connectionId } });
   },
@@ -214,6 +205,15 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       .set({ is_frozen: false })
       .where('id IN (:...connectionsIds)', { connectionsIds })
       .execute();
+  },
+
+  async foundUserTestConnectionsWithoutCompany(userId: string): Promise<Array<ConnectionEntity>> {
+    const qb = this.createQueryBuilder('connection')
+      .leftJoin('connection.author', 'user')
+      .where('user.id = :userId', { userId: userId })
+      .andWhere('connection.isTestConnection = :isTest', { isTest: true })
+      .andWhere('connection.company IS NULL');
+    return await qb.getMany();
   },
 
   decryptConnectionField(field: string): string {

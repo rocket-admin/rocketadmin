@@ -24,6 +24,4 @@ export interface IGroupRepository {
   findGroupWithPermissionsById(groupId: string): Promise<GroupEntity>;
 
   findAllUsersInGroupsWhereUserIsAdmin(userId: string, connectionId: string): Promise<Array<UserEntity>>;
-
-  countAllUserGroups(userId: string): Promise<number>;
 }

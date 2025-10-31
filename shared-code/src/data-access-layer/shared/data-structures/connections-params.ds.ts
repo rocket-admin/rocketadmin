@@ -12,7 +12,8 @@ export class ConnectionParams {
     | 'mongodb'
     | 'dynamodb'
     | 'elasticsearch'
-    | 'cassandra';
+    | 'cassandra'
+    | 'redis';
 
   host: string;
 

@@ -37,6 +37,8 @@ import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger
 import { DatabaseModule } from './shared/database/database.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { SharedJobsModule } from './entities/shared-jobs/shared-jobs.module.js';
+import { TableCategoriesModule } from './entities/table-categories/table-categories.module.js';
 
 @Module({
   imports: [
@@ -77,6 +79,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
     TableFiltersModule,
     DemoDataModule,
     LoggingModule,
+    SharedJobsModule,
+    TableCategoriesModule,
   ],
   controllers: [AppController],
   providers: [

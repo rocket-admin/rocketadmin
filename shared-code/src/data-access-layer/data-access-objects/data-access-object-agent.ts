@@ -239,6 +239,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
     userEmail: string,
   ): Promise<FoundRowsDS> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
@@ -256,6 +257,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
           filteringFields,
           autocompleteFields,
           email: userEmail,
+          tableStructure,
         });
 
         if (commandResult instanceof Error) {

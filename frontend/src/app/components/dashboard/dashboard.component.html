@@ -47,27 +47,26 @@
         <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles"
             class="table-list-sidenav"
             [ngClass]="{'side-bar_collapsed': !shownTableTitles}">
-            <div class="toggle-button-position">
-                <button mat-button type="button" *ngIf="shownTableTitles; else collapsedButton"
-                    class="toggle-button_opened"
+            <button mat-button type="button" *ngIf="shownTableTitles; else collapsedButton"
+                class="toggle-button"
+                (click)="toggleSideBar()"
+                angulartics2On="click"
+                angularticsAction="Dashboard: toggle sidebar"
+                [angularticsProperties]="{'collapsed': !shownTableTitles}">
+                Collapse
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+
+            <ng-template #collapsedButton>
+                <button mat-icon-button type="button"
+                    class="toggle-button"
                     (click)="toggleSideBar()"
                     angulartics2On="click"
                     angularticsAction="Dashboard: toggle sidebar"
                     [angularticsProperties]="{'collapsed': !shownTableTitles}">
-                    Collapse
-                    <mat-icon>chevron_left</mat-icon>
+                    <mat-icon>chevron_right</mat-icon>
                 </button>
-
-                <ng-template #collapsedButton>
-                    <button mat-icon-button type="button"
-                        (click)="toggleSideBar()"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: toggle sidebar"
-                        [angularticsProperties]="{'collapsed': !shownTableTitles}">
-                        <mat-icon>chevron_right</mat-icon>
-                    </button>
-                </ng-template>
-            </div>
+            </ng-template>
             <app-db-tables-list
                 [collapsed]="!shownTableTitles"
                 [connectionTitle]="connectionTitle"

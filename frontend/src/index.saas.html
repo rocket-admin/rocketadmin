@@ -52,6 +52,26 @@
     })(window,document,'script','dataLayer','GTM-W64RBP8');</script>
   <!-- End Google Tag Manager -->
 
+  <!-- Event snippet for Page view conversion page
+  In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+  <script>
+  function gtag_report_conversion(url) {
+    var callback = function () {
+      if (typeof(url) != 'undefined') {
+        window.location = url;
+      }
+    };
+    gtag('event', 'conversion', {
+        'send_to': 'AW-419937947/jqGyCJWo4qobEJv9nsgB',
+        'value': 1.0,
+        'currency': 'USD',
+        'event_callback': callback
+    });
+    return false;
+  }
+  </script>
+
+
   <!-- Facebook Pixel Code -->
   <script>
     !function(f,b,e,v,n,t,s)

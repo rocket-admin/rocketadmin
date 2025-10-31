@@ -179,6 +179,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -189,7 +190,9 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
     try {
       const client = await this.getCassandraClient();
-      const tableStructure = await this.getTableStructure(tableName);
+      if (!tableStructure) {
+        tableStructure = await this.getTableStructure(tableName);
+      }
       const availableFields = this.findAvailableFields(settings, tableStructure);
 
       if (autocompleteFields?.value && autocompleteFields?.fields?.length > 0) {
@@ -660,6 +663,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
         perPage,
         searchedFieldValue,
         filteringFields,
+        null,
         null,
       );
       const readable = new Readable({

@@ -41,7 +41,7 @@ docker run -d \
 
 The provided Docker command example includes several environment variables. Here's a documentation outline for each of these variables:
 
-1. **DATABASE_URL**: This environment variable is used to set the internal rocketadmin database connection string. The format is `postgresql://username:password@host/database[?ssl_mode=require]`, where:
+1. **PGLITE_FOLDER_PATH** or **DATABASE_URL**: This environment variable is used to set the internal rocketadmin database connection string. The DATABASE_URL format is `postgresql://username:password@host/database[?ssl_mode=require]`, where:
 
    - `username`: Your database username.
    - `password`: Your database password.

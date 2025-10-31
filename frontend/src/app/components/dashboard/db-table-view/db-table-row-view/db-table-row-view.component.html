@@ -82,35 +82,37 @@
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns; let i = index" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <ng-container *ngIf="isForeignKey(column.title); else recordContent">
-                <app-foreign-key-record-view
-                    [key]="i"
-                    link="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
-                    [primaryKeysParams]="getForeignKeyQueryParams(column.title)"
-                    [displayValue]="getForeignKeyValue(column.title)"
-                    (onForeignKeyClick)="handleClose()">
-                </app-foreign-key-record-view>
-            </ng-container>
+            <div data-hj-suppress>
+                <ng-container *ngIf="isForeignKey(column.title); else recordContent">
+                    <app-foreign-key-record-view
+                        [key]="i"
+                        link="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
+                        [primaryKeysParams]="getForeignKeyQueryParams(column.title)"
+                        [displayValue]="getForeignKeyValue(column.title)"
+                        (onForeignKeyClick)="handleClose()">
+                    </app-foreign-key-record-view>
+                </ng-container>
 
-            <ng-template #recordContent>
-                <ndc-dynamic *ngIf="isWidget(column.title) && selectedRow.widgets[column.title].widget_type; else simpleValue"
-                    [ndcDynamicComponent]="UIwidgets[selectedRow.widgets[column.title].widget_type]"
-                    [ndcDynamicInputs]="{
-                        key: column.title,
-                        value: selectedRow.record[column.title],
-                        widgetStructure: selectedRow.widgets[column.title]
-                    }">
-                </ndc-dynamic>
-                <ng-template #simpleValue>
-                    <ndc-dynamic
-                        [ndcDynamicComponent]="recordViewComponents[selectedRow.fieldsTypes[column.title]]"
+                <ng-template #recordContent>
+                    <ndc-dynamic *ngIf="isWidget(column.title) && selectedRow.widgets[column.title].widget_type; else simpleValue"
+                        [ndcDynamicComponent]="UIwidgets[selectedRow.widgets[column.title].widget_type]"
                         [ndcDynamicInputs]="{
                             key: column.title,
-                            value: selectedRow.record[column.title]
+                            value: selectedRow.record[column.title],
+                            widgetStructure: selectedRow.widgets[column.title]
                         }">
                     </ndc-dynamic>
+                    <ng-template #simpleValue>
+                        <ndc-dynamic
+                            [ndcDynamicComponent]="recordViewComponents[selectedRow.fieldsTypes[column.title]]"
+                            [ndcDynamicInputs]="{
+                                key: column.title,
+                                value: selectedRow.record[column.title]
+                            }">
+                        </ndc-dynamic>
+                    </ng-template>
                 </ng-template>
-            </ng-template>
+            </div>
         </div>
     </ng-container>
 

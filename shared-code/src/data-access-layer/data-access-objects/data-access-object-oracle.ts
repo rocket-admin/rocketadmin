@@ -187,6 +187,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     const knex = await this.configureKnex();
 
@@ -229,7 +230,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           ? settings.list_per_page
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
     const timestampColumnNames = tableStructure
       .filter(({ data_type }) => isOracleTimeType(data_type))

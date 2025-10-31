@@ -20,9 +20,10 @@ export function buildFoundConnectionPropertiesDs(
     table_categories: connectionProperties.table_categories
       ? connectionProperties.table_categories.map((c) => {
           return {
-            id: c.id,
+            category_id: c.category_id,
             category_name: c.category_name,
             tables: c.tables,
+            category_color: c.category_color,
           };
         })
       : [],

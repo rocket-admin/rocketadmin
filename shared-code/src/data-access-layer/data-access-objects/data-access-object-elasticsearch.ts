@@ -179,6 +179,7 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     const client = this.getElasticClient();
 
@@ -216,7 +217,9 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
       searchQuery.size = DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT;
     }
 
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
 
     let { search_fields } = settings;
     if ((!search_fields || search_fields.length === 0) && searchedFieldValue) {
@@ -562,6 +565,7 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
       perPage,
       searchedFieldValue,
       filteringFields,
+      null,
       null,
     );
     return result.data as any;
