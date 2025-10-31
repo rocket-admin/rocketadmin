@@ -14,6 +14,7 @@ import { Log } from 'src/app/models/logs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
@@ -40,6 +41,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
     MatTableModule,
     MatPaginatorModule,
     FormsModule,
@@ -100,7 +102,17 @@ export class AuditComponent implements OnInit {
     this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
     this.dataColumns = ['Table', 'User', 'Action', 'Date', 'Status'];
     this.dataSource = new AuditDataSource(this._connections);
-    this.loadLogsPage();
+    
+    if (this.accesLevel !== 'none') {
+      this._users.fetchConnectionUsers(this.connectionID)
+        .subscribe(res => {
+          this.usersList = res;
+          this.dataSource.usersList = res;
+          this.loadLogsPage();
+        });
+    } else {
+      this.loadLogsPage();
+    }
 
     this._tables.fetchTables(this.connectionID)
       .subscribe(
@@ -116,11 +128,6 @@ export class AuditComponent implements OnInit {
       (err) => {
         this.isServerError = true;
         this.serverError = {abstract: err.error.message, details: err.error.originalMessage};
-      })
-
-    if (this.accesLevel !== 'none') this._users.fetchConnectionUsers(this.connectionID)
-      .subscribe(res => {
-        this.usersList = res;
       })
   }
 

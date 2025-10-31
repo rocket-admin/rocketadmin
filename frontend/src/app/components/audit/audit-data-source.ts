@@ -27,6 +27,7 @@ export class AuditDataSource implements DataSource<Object> {
 
   public loading$ = this.loadingSubject.asObservable();
   public paginator: MatPaginator;
+  public usersList: any[] = [];
 
   constructor(private _connections: ConnectionsService) {}
 
@@ -68,15 +69,32 @@ export class AuditDataSource implements DataSource<Object> {
             rowReceived: 'received row',
             rowsReceived: 'received rows'
           }
+          const statuses = {
+            successfully: 'successfully',
+            unsuccessfully: 'failed',
+            unknown: 'unknown'
+          }
           const formattedLogs = res.logs.map(log => {
             const date = new Date(log.createdAt);
-            const formattedDate = format(date, "d MMM yyyy 'at' h:mm a")
+            const formattedDateOnly = format(date, "d MMM yyyy")
+            const formattedTimeOnly = format(date, "h:mm a")
+            const user = this.usersList.find(u => u.email === log.email);
+            const isViewAction = log.operationType === 'rowReceived' || log.operationType === 'rowsReceived';
+            const isEditAction = log.operationType === 'updateRow';
+            const isDeleteAction = log.operationType === 'deleteRow';
             return {
               ['Table']: log.table_name,
               ['User']: log.email,
+              ['UserName']: user?.name || null,
+              ['UserEmail']: log.email,
               ['Action']: actions[log.operationType],
-              ['Date']: formattedDate,
-              ['Status']: log.operationStatusResult,
+              ['IsViewAction']: isViewAction,
+              ['IsEditAction']: isEditAction,
+              ['IsDeleteAction']: isDeleteAction,
+              ['Date']: formattedDateOnly,
+              ['DateOnly']: formattedDateOnly,
+              ['TimeOnly']: formattedTimeOnly,
+              ['Status']: statuses[log.operationStatusResult] || log.operationStatusResult,
               operationType: log.operationType,
               createdAt: log.createdAt,
               prevValue: log.old_data,
