@@ -69,9 +69,13 @@
             </ng-template>
             <app-db-tables-list
                 [collapsed]="!shownTableTitles"
+                [connectionTitle]="connectionTitle"
                 [tables]="tablesList"
                 [connectionID]="connectionID"
-                [selectedTable]="selectedTableName">
+                [selectedTable]="selectedTableName"
+                [uiSettings]="uiSettings"
+                [accessLevel]="currentConnectionAccessLevel"
+                (expandSidebar)="toggleSideBar()">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">

@@ -504,4 +504,35 @@ export class ConnectionsService {
       )
     );
   }
+
+  getTablesFolders(connectionID: string) {
+    return this._http.get(`/table-categories/${connectionID}`)
+    .pipe(
+      map(res => {
+        return res;
+      }),
+      catchError((err) => {
+        console.log(err);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(`${errorMessage}.`);
+        return EMPTY;
+      })
+    );
+  }
+
+  updateTablesFolders(connectionID: string, tablesFolders: any){
+    return this._http.put(`/table-categories/${connectionID}`, tablesFolders)
+    .pipe(
+      map(res => {
+        // this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');
+        return res;
+      }),
+      catchError((err) => {
+        console.log(err);
+        const errorMessage = err.error?.message || 'Unknown error';
+        this._notifications.showErrorSnackbar(`${errorMessage}.`);
+        return EMPTY;
+      })
+    );
+  }
 }

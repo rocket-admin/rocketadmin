@@ -55,12 +55,20 @@ export interface TestConnection {
     message: string
 }
 
+export interface TableCategory {
+    category_id: string,
+    category_name: string,
+    tables: string[],
+    category_color?: string
+}
+
 export interface ConnectionSettings {
     hidden_tables?: string[],
-    default_showing_table: string,
+    default_showing_table?: string,
     primary_color?: string,
     secondary_color?: string,
     logo_url?: string,
     company_name?: string,
     tables_audit?: boolean,
+    table_categories?: TableCategory[]
 }

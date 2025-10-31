@@ -1,0 +1,35 @@
+<h1 mat-dialog-title>
+    Delete Folder
+</h1>
+
+<mat-dialog-content>
+    <p class="confirmation-message">
+        Are you sure you want to delete the folder <strong>"{{data.folderName}}"</strong>?
+    </p>
+
+    <div class="folder-info" *ngIf="data.tableCount > 0">
+        <mat-icon class="info-icon">info</mat-icon>
+        <p class="info-text">
+            This folder contains {{data.tableCount}} table{{data.tableCount > 1 ? 's' : ''}}.
+            The tables will not be deleted, only removed from this folder.
+        </p>
+    </div>
+
+    <div class="warning-note">
+        <p><strong>Note:</strong> This action cannot be undone.</p>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button
+            (click)="onCancel()"
+            class="cancel-button">
+        Cancel
+    </button>
+    <button mat-flat-button
+            color="warn"
+            (click)="onDelete()"
+            class="delete-button">
+        Delete Folder
+    </button>
+</mat-dialog-actions>
