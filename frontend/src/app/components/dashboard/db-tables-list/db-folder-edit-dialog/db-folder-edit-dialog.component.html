@@ -27,18 +27,18 @@
         <div class="color-radio-group" role="radiogroup" aria-label="Folder Icon Color">
             <div class="color-row">
                 <label *ngFor="let color of folderIconColors; let i = index"
-                       class="color-radio-label"
-                       [class.selected]="folder.iconColor === color.value">
+                        class="color-radio-label"
+                        [class.selected]="folder.iconColor === color.value">
                     <input type="radio"
-                           class="color-radio-input"
-                           name="folderColor"
-                           [value]="color.value"
-                           [(ngModel)]="folder.iconColor"
-                           (change)="onColorChange(color.value)"
-                           [attr.aria-label]="color.name">
+                        class="color-radio-input"
+                        name="folderColor"
+                        [value]="color.value"
+                        [(ngModel)]="folder.iconColor"
+                        (change)="onColorChange(color.value)"
+                        [attr.aria-label]="color.name">
                     <div class="color-swatch"
-                         [style.background-color]="color.value"
-                         [title]="color.name">
+                        [style.background-color]="color.value"
+                        [title]="color.name">
                     </div>
                 </label>
             </div>

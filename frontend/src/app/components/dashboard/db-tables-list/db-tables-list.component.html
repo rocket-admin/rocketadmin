@@ -60,7 +60,7 @@
             </div>
 
             <!-- Bottom section with add folder button (fixed at bottom) -->
-            <div class="collapsed-bottom-section">
+            <div class="collapsed-bottom-section" *ngIf="accessLevel === 'edit'">
                 <!-- Add folder button -->
                 <div class="collapsed-add-button"
                     (click)="onAddFolder()"
@@ -79,7 +79,7 @@
             <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
         </mat-form-field>
 
-        <div *ngIf="!collapsed" class="add-folder-button-container">
+        <div *ngIf="!collapsed && accessLevel === 'edit'" class="add-folder-button-container">
             <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
                 <mat-icon>add</mat-icon>
                 Add Folder
@@ -112,7 +112,7 @@
                         </div>
 
                         <div class="folder-actions">
-                            <button *ngIf="folder.name !== 'All Tables'"
+                            <button *ngIf="folder.name !== 'All Tables' && accessLevel === 'edit'"
                                 mat-icon-button class="more-folder-button"
                                 [matMenuTriggerFor]="folderMenu"
                                 (click)="$event.stopPropagation()"

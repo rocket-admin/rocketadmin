@@ -4,6 +4,7 @@ import { DbFolderEditDialogComponent, DbFolderEditDialogData } from './db-folder
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TableProperties, TableSettings } from 'src/app/models/table';
 
+import { AccessLevel } from 'src/app/models/user';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
@@ -58,6 +59,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   @Input() selectedTable: string;
   @Input() collapsed: boolean;
   @Input() uiSettings: any;
+  @Input() accessLevel: AccessLevel;
 
   @Output() expandSidebar = new EventEmitter<void>();
 
