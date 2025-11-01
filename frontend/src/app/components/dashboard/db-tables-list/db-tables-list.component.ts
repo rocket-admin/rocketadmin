@@ -300,20 +300,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     });
   }
 
-
-  onMenuClosed() {
-    // Menu closed, no action needed
-  }
-
-  closeMenu(menu: any) {
-    if (menu && menu.close) {
-      menu.close();
-    }
-  }
-
-
-
-
   getFolderTables(folder: Folder): TableProperties[] {
     const folderTables = this.tables.filter(table => folder.tableIds.includes(table.table));
 

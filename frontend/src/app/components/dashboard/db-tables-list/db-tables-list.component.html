@@ -125,11 +125,11 @@
                                 chevron_right
                             </mat-icon>
                             <mat-menu #folderMenu="matMenu" (closed)="onMenuClosed()">
-                                <button mat-menu-item (click)="showEditTablesDialog(folder); closeMenu(folderMenu)">
+                                <button mat-menu-item (click)="showEditTablesDialog(folder)">
                                     <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
                                     <span>Edit</span>
                                 </button>
-                                <button mat-menu-item (click)="deleteFolder(folder); closeMenu(folderMenu)">
+                                <button mat-menu-item (click)="deleteFolder(folder)">
                                     <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
                                     <span>Delete</span>
                                 </button>
