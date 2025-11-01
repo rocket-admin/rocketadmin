@@ -124,7 +124,7 @@
                             <mat-icon class="folder-expand-icon" [class.expanded]="folder.expanded">
                                 chevron_right
                             </mat-icon>
-                            <mat-menu #folderMenu="matMenu" (closed)="onMenuClosed()">
+                            <mat-menu #folderMenu="matMenu">
                                 <button mat-menu-item (click)="showEditTablesDialog(folder)">
                                     <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
                                     <span>Edit</span>
