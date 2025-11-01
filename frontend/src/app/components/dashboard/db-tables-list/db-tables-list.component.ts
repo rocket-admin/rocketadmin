@@ -554,7 +554,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
           this.folders = [];
         }
 
-        const expandedFolders = this.uiSettings.tableFoldersExpanded;
+        const expandedFolders = this.uiSettings?.tableFoldersExpanded || ['0'];
         if (expandedFolders && expandedFolders.length > 0) {
           this.folders.forEach(folder => {
             folder.expanded = expandedFolders.includes(folder.id);
