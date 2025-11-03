@@ -82,6 +82,7 @@ export class AuditDataSource implements DataSource<Object> {
             const isViewAction = log.operationType === 'rowReceived' || log.operationType === 'rowsReceived';
             const isEditAction = log.operationType === 'updateRow';
             const isDeleteAction = log.operationType === 'deleteRow';
+            const isAddAction = log.operationType === 'addRow';
             return {
               ['Table']: log.table_name,
               ['User']: log.email,
@@ -91,6 +92,7 @@ export class AuditDataSource implements DataSource<Object> {
               ['IsViewAction']: isViewAction,
               ['IsEditAction']: isEditAction,
               ['IsDeleteAction']: isDeleteAction,
+              ['IsAddAction']: isAddAction,
               ['Date']: formattedDateOnly,
               ['DateOnly']: formattedDateOnly,
               ['TimeOnly']: formattedTimeOnly,
