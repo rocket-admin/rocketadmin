@@ -100,7 +100,7 @@
                         <div cdkDropList (cdkDropListDropped)="onColumnsMenuDrop($event)" class="columns-list">
                             <button mat-menu-item
                                 role="menuitemcheckbox"
-                                *ngFor="let column of tableData.columns"
+                                *ngFor="let column of sortedColumns"
                                 cdkDrag
                                 [cdkDragData]="column"
                                 class="draggable-column-item"
@@ -108,7 +108,7 @@
                                 <mat-icon class="drag-handle">drag_indicator</mat-icon>
                                 <mat-checkbox
                                     [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
-                                    (change)="tableData.changleColumnList(connectionID, name)"
+                                    (change)="onColumnVisibilityChange()"
                                     [(ngModel)]="column.selected">
                                     {{column.normalizedTitle}}
                                 </mat-checkbox>

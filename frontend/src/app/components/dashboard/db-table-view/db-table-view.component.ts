@@ -527,6 +527,22 @@ export class DbTableViewComponent implements OnInit {
     this.applyFilter.emit($event);
   }
 
+  get sortedColumns() {
+    if (!this.tableData || !this.tableData.columns) {
+      return [];
+    }
+    // Sort columns: visible (selected=true) first, then hidden (selected=false)
+    return [...this.tableData.columns].sort((a, b) => {
+      if (a.selected === b.selected) return 0;
+      return a.selected ? -1 : 1;
+    });
+  }
+
+  onColumnVisibilityChange() {
+    this.tableData.changleColumnList(this.connectionID, this.name);
+    this.cdr.detectChanges();
+  }
+
   onColumnsMenuDrop(event: CdkDragDrop<string[]>) {
     if (event.previousIndex === event.currentIndex) {
       return;
