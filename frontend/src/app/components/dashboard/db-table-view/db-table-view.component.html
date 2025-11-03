@@ -96,18 +96,24 @@
                             /
                             {{ tableData.columns.length }})
                     </button>
-                    <mat-menu #menu="matMenu">
-                        <button mat-menu-item
-                            role="menuitemcheckbox"
-                            *ngFor="let column of tableData.columns"
-                            (click)="$event.stopPropagation();">
-                            <mat-checkbox
-                                [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
-                                (change)="tableData.changleColumnList(connectionID, name)"
-                                [(ngModel)]="column.selected">
-                                {{column.normalizedTitle}}
-                            </mat-checkbox>
-                        </button>
+                    <mat-menu #menu="matMenu" class="columns-menu">
+                        <div cdkDropList (cdkDropListDropped)="onColumnsMenuDrop($event)" class="columns-list">
+                            <button mat-menu-item
+                                role="menuitemcheckbox"
+                                *ngFor="let column of tableData.columns"
+                                cdkDrag
+                                [cdkDragData]="column"
+                                class="draggable-column-item"
+                                (click)="$event.stopPropagation();">
+                                <mat-icon class="drag-handle">drag_indicator</mat-icon>
+                                <mat-checkbox
+                                    [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
+                                    (change)="tableData.changleColumnList(connectionID, name)"
+                                    [(ngModel)]="column.selected">
+                                    {{column.normalizedTitle}}
+                                </mat-checkbox>
+                            </button>
+                        </div>
                     </mat-menu>
                 </div>
                 <button mat-icon-button type="button"

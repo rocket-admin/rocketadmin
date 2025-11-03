@@ -1,7 +1,7 @@
 import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CustomAction, TableForeignKey, TablePermissions, TableProperties, TableRow, Widget } from 'src/app/models/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UIwidgets, tableDisplayTypes } from '../../../consts/table-display-types';
@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbTableExportDialogComponent } from './db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
 import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
 import JsonURL from "@jsonurl/jsonurl";
@@ -40,6 +40,7 @@ import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { TablesService } from 'src/app/services/tables.service';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { merge } from 'rxjs';
@@ -53,6 +54,7 @@ interface Column {
 
 @Component({
   selector: 'app-db-table-view',
+  standalone: true,
   templateUrl: './db-table-view.component.html',
   styleUrls: ['./db-table-view.component.css'],
   imports: [
@@ -147,9 +149,11 @@ export class DbTableViewComponent implements OnInit {
     private _notifications: NotificationsService,
     private _tableRow: TableRowService,
     private _connections: ConnectionsService,
+    private _tables: TablesService,
     private route: ActivatedRoute,
     public router: Router,
     public dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngAfterViewInit() {
@@ -521,5 +525,80 @@ export class DbTableViewComponent implements OnInit {
   onFilterSelected($event) {
     console.log('table view fiers filterSelected:', $event)
     this.applyFilter.emit($event);
+  }
+
+  onColumnsMenuDrop(event: CdkDragDrop<string[]>) {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+
+    // Reorder columns array in the menu
+    moveItemInArray(this.tableData.columns, event.previousIndex, event.currentIndex);
+    
+    // Update dataColumns array
+    this.tableData.dataColumns = this.tableData.columns.map(column => column.title);
+    
+    // Update displayedDataColumns to match the new order (only visible columns)
+    const newDisplayedOrder = this.tableData.columns
+      .filter(col => col.selected)
+      .map(col => col.title);
+    
+    this.tableData.displayedDataColumns = newDisplayedOrder;
+    
+    // Update full displayed columns list - THIS UPDATES THE TABLE IMMEDIATELY
+    if (this.tableData.keyAttributes && this.tableData.keyAttributes.length) {
+      this.tableData.displayedColumns = ['select', ...newDisplayedOrder, 'actions'];
+    } else {
+      this.tableData.displayedColumns = [...newDisplayedOrder];
+    }
+    
+    // Update normalized columns mapping to maintain consistency
+    this.updateNormalizedColumnsMapping();
+    
+    // Force Angular to detect changes and re-render the table immediately
+    this.cdr.detectChanges();
+    
+    // Save the new order to table settings (list_fields)
+    this.saveColumnsOrderToSettings(this.tableData.columns.map(col => col.title));
+    
+    console.log('Columns reordered in menu - table updated:', newDisplayedOrder);
+  }
+
+  private updateNormalizedColumnsMapping() {
+    // Rebuild normalized columns mapping to match new order
+    const newNormalizedColumns = {};
+    this.tableData.columns.forEach(column => {
+      if (this.tableData.dataNormalizedColumns[column.title]) {
+        newNormalizedColumns[column.title] = this.tableData.dataNormalizedColumns[column.title];
+      }
+    });
+    this.tableData.dataNormalizedColumns = newNormalizedColumns;
+  }
+
+  private saveColumnsOrderToSettings(columnsOrder: string[]) {
+    this._tables.fetchTableSettings(this.connectionID, this.name).subscribe({
+      next: (currentSettings) => {
+        const isSettingsExist = Object.keys(currentSettings).length !== 0;
+        
+        const updatedSettings = {
+          ...currentSettings,
+          connection_id: this.connectionID,
+          table_name: this.name,
+          list_fields: columnsOrder
+        };
+        
+        this._tables.updateTableSettings(isSettingsExist, this.connectionID, this.name, updatedSettings).subscribe({
+          next: () => {
+            console.log('Column order saved to table settings');
+          },
+          error: (error) => {
+            console.error('Error saving column order:', error);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error fetching table settings:', error);
+      }
+    });
   }
 }
