@@ -67,10 +67,9 @@
     }
 }
 
-.row-preview-sidebar__image {
+.row-preview-sidebar__value:has(app-json-editor-record-view),
+.row-preview-sidebar__value:has(app-code-record-view) {
     width: 100%;
-    margin-top: 8px;
-    margin-bottom: 16px;
 }
 
 .related-records-panel {
