@@ -383,7 +383,39 @@ th.mat-header-cell, td.mat-cell {
 }
 
 .db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-content {
-    text-align: left;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    display: flex !important;
+    width: 100%;
+}
+
+.db-table ::ng-deep .mat-sort-header-container {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    padding-top: 0 !important;
+    display: flex !important;
+}
+
+.db-table ::ng-deep .mat-mdc-header-cell {
+    vertical-align: top !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    display: flex !important;
+}
+
+.db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-content > div {
+    text-align: left !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    line-height: 1.2 !important;
+    align-self: flex-start !important;
+}
+
+.db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-arrow {
+    align-self: flex-start !important;
+    margin-top: 2px !important;
 }
 
 .db-table-cell-checkbox {
@@ -508,13 +540,17 @@ tr.mat-row:hover {
 .columns-list {
     max-height: 400px;
     overflow-y: auto;
+    padding: 8px 0;
 }
 
 .draggable-column-item {
     cursor: move;
     display: flex !important;
     align-items: center;
-    gap: 4px;
+    justify-content: flex-start;
+    gap: 0px;
+    padding: 8px 24px 8px 8px !important;
+    min-height: 48px !important;
     transition: background-color 0.2s ease;
 }
 
@@ -524,8 +560,21 @@ tr.mat-row:hover {
     font-size: 20px;
     width: 20px;
     height: 20px;
-    margin-left: -8px;
-    margin-right: -4px;
+    margin-right: 0px;
+    flex-shrink: 0;
+}
+
+.draggable-column-item ::ng-deep .mat-mdc-checkbox {
+    align-items: center !important;
+}
+
+.draggable-column-item ::ng-deep .mat-mdc-checkbox-label {
+    text-align: left;
+    line-height: 1.5;
+}
+
+.draggable-column-item ::ng-deep .mdc-form-field {
+    align-items: center !important;
 }
 
 .draggable-column-item:active .drag-handle {
