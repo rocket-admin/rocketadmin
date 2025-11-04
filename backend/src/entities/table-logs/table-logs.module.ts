@@ -4,7 +4,7 @@ import { AuthMiddleware } from '../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { TableLogsController } from './table-logs.controller.js';
 import { TableLogsEntity } from './table-logs.entity.js';

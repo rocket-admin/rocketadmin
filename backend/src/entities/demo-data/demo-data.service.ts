@@ -21,8 +21,8 @@ import {
 } from '../table-actions/table-action-rules-module/application/data-structures/create-action-rules.ds.js';
 import { buildEmptyActionRule } from '../table-actions/table-action-rules-module/utils/build-empty-action-rule.util.js';
 import { CreateTableSettingsDs } from '../table-settings/application/data-structures/create-table-settings.ds.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
-import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
+import { buildNewTableSettingsEntity } from '../table-settings/common-table-settings/utils/build-new-table-settings-entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';

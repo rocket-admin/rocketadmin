@@ -19,7 +19,7 @@ import { ConnectionPropertiesEntity } from '../connection-properties/connection-
 import { GroupEntity } from '../group/group.entity.js';
 import { TableInfoEntity } from '../table-info/table-info.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';

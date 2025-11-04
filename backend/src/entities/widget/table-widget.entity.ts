@@ -11,7 +11,7 @@ import {
   Relation,
 } from 'typeorm';
 import { WidgetTypeEnum } from '../../enums/index.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 
 @Entity('table_widget')
 export class TableWidgetEntity {

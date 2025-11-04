@@ -20,7 +20,7 @@ import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { TableInfoEntity } from '../../table-info/table-info.entity.js';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs, FoundTablesWithCategoriesDS } from '../application/data-structures/found-table.ds.js';
 import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';

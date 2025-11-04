@@ -11,7 +11,7 @@ import { GroupEntity } from '../group/group.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { PermissionEntity } from '../permission/permission.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { ChangeUserNameUseCase } from './use-cases/change-user-name-use.case.js';
 import { ChangeUsualPasswordUseCase } from './use-cases/change-usual-password-use.case.js';

@@ -28,7 +28,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { buildCreatedTableFilterRO } from '../../table-filters/utils/build-created-table-filters-response-object.util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs, ForeignKeyDSInfo } from '../table-datastructures.js';

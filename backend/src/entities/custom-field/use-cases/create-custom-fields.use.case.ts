@@ -4,9 +4,9 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { CreateTableSettingsDs } from '../../table-settings/application/data-structures/create-table-settings.ds.js';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds.js';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
-import { buildEmptyTableSettings } from '../../table-settings/utils/build-empty-table-settings.js';
-import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
+import { buildEmptyTableSettings } from '../../table-settings/common-table-settings/utils/build-empty-table-settings.js';
+import { buildFoundTableSettingsDs } from '../../table-settings/common-table-settings/utils/build-found-table-settings-ds.js';
 import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds.js';
 import { buildNewCustomFieldsEntity } from '../utils/build-new-custom-fields-entity.js';
 import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto.js';

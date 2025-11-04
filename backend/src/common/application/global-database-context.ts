@@ -32,9 +32,9 @@ import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js'
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
 import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity.js';
-import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/repository/table-settings-custom-repository-extension.js';
-import { ITableSettingsRepository } from '../../entities/table-settings/repository/table-settings.repository.interface.js';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/common-table-settings/repository/table-settings-custom-repository-extension.js';
+import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
+import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
 import { userAccessCustomReposiotoryExtension } from '../../entities/user-access/repository/user-access-custom-repository-extension.js';
 import { IUserAccessRepository } from '../../entities/user-access/repository/user-access.repository.interface.js';
 import { userActionCustomRepositoryExtension } from '../../entities/user-actions/repository/user-action-custom-repository-extension.js';
@@ -262,7 +262,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userInvitationRepository;
   }
 
-  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository {
+  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> &
+    IConnectionPropertiesRepository {
     return this._connectionPropertiesRepository;
   }
 

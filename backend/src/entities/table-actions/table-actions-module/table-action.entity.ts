@@ -10,11 +10,11 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { ActionRulesEntity } from '../table-action-rules-module/action-rules.entity.js';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-
+ 
 @Entity('table_actions')
 export class TableActionEntity {
   @PrimaryGeneratedColumn('uuid')

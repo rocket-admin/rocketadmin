@@ -1,6 +1,6 @@
-import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
-import { QueryOrderingEnum } from '../../../enums/index.js';
-import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
+import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity.js';
+import { QueryOrderingEnum } from '../../../../enums/index.js';
+import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 
 export class CreateTableSettingsDto {
   connection_id: string;

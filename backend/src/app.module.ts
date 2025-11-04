@@ -25,7 +25,7 @@ import { TableTriggersModule } from './entities/table-actions/table-action-rules
 import { TableActionModule } from './entities/table-actions/table-actions-module/table-action.module.js';
 import { TableFiltersModule } from './entities/table-filters/table-filters.module.js';
 import { TableLogsModule } from './entities/table-logs/table-logs.module.js';
-import { TableSettingsModule } from './entities/table-settings/table-settings.module.js';
+import { TableSettingsModule } from './entities/table-settings/common-table-settings/table-settings.module.js';
 import { TableModule } from './entities/table/table.module.js';
 import { UserActionModule } from './entities/user-actions/user-action.module.js';
 import { UserModule } from './entities/user/user.module.js';

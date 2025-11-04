@@ -1,4 +1,4 @@
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { OrderingFiledDs } from '../application/data-structures/found-table-rows.ds.js';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../exceptions/text/messages.js';

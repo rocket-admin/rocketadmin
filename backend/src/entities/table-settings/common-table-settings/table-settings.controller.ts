@@ -14,18 +14,18 @@ import {
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators/index.js';
-import { InTransactionEnum, QueryOrderingEnum } from '../../enums/index.js';
-import { Messages } from '../../exceptions/text/messages.js';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import { toPrettyErrorsMsg } from '../../helpers/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
-import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
-import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds.js';
-import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds.js';
-import { FindTableSettingsDs } from './application/data-structures/find-table-settings.ds.js';
-import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds.js';
+import { UseCaseType } from '../../../common/data-injection.tokens.js';
+import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../../decorators/index.js';
+import { InTransactionEnum, QueryOrderingEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../../guards/index.js';
+import { toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { SentryInterceptor } from '../../../interceptors/index.js';
+import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { DeleteTableSettingsDs } from '../application/data-structures/delete-table-settings.ds.js';
+import { FindTableSettingsDs } from '../application/data-structures/find-table-settings.ds.js';
+import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds.js';
 import { CreateTableSettingsDto } from './dto/index.js';
 import {
   ICreateTableSettings,

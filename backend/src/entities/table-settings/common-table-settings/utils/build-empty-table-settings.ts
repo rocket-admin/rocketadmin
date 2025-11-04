@@ -1,4 +1,4 @@
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 
 export function buildEmptyTableSettings(connectionId: string, tableName: string): CreateTableSettingsDs {
   return {

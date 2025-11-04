@@ -1,5 +1,5 @@
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { CreateTableSettingsDto } from '../../entities/table-settings/common-table-settings/dto/index.js';
 import { QueryOrderingEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { isObjectEmpty } from '../is-object-empty.js';
@@ -9,7 +9,6 @@ export function tableSettingsFieldValidator(
   primaryColumns: Array<PrimaryKeyDS>,
   settings: CreateTableSettingsDto,
 ): Array<string> {
-   
   const errorMessages = [];
   if (isObjectEmpty(settings)) {
     return errorMessages;
@@ -149,5 +148,4 @@ export function tableSettingsFieldValidator(
   }
 
   return errorMessages;
-   
 }

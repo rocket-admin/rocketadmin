@@ -1,4 +1,4 @@
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { CreateTableSettingsDto } from '../../entities/table-settings/common-table-settings/dto/index.js';
 import { QueryOrderingEnum } from '../../enums/index.js';
 
 export const TableSettingForTestConnections = {
