@@ -375,7 +375,10 @@
 }
 
 .db-table_withActions ::ng-deep .mat-header-row .mat-column-select {
-    padding-top: 18px;
+    padding-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 th.mat-header-cell, td.mat-cell {
@@ -388,6 +391,7 @@ th.mat-header-cell, td.mat-cell {
     align-items: flex-start !important;
     display: flex !important;
     width: 100%;
+    padding-top: 8px !important;
 }
 
 .db-table ::ng-deep .mat-sort-header-container {
@@ -415,7 +419,7 @@ th.mat-header-cell, td.mat-cell {
 
 .db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-arrow {
     align-self: flex-start !important;
-    margin-top: 2px !important;
+    margin-top: 8px !important;
 }
 
 .db-table-cell-checkbox {
@@ -460,6 +464,10 @@ th.mat-header-cell, td.mat-cell {
 
 .db-table-cell-actions, .db-table-header-actions {
     justify-content: flex-end;
+}
+
+.db-table-header-actions {
+    padding-top: 8px !important;
 }
 
 .table-cell-content {
