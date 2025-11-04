@@ -180,7 +180,7 @@ export class ConnectionSettingsComponent implements OnInit {
 
     for (const [key, value] of Object.entries(this.connectionSettings)) {
       if (key === 'hidden_tables') {
-        updatedSettings[key] = value.length > 0;
+        updatedSettings[key] = value?.length > 0;
       } else {
         updatedSettings[key] = Boolean(value);
       }
