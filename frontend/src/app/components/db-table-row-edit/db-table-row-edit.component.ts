@@ -16,6 +16,7 @@ import { BreadcrumbsComponent } from '../ui-components/breadcrumbs/breadcrumbs.c
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { FormValidationService } from 'src/app/services/form-validation.service';
 import { DBtype } from 'src/app/models/connection';
 import { DbActionLinkDialogComponent } from '../dashboard/db-table-view/db-action-link-dialog/db-action-link-dialog.component';
 import { DbTableRowViewComponent } from '../dashboard/db-table-view/db-table-row-view/db-table-row-view.component';
@@ -132,6 +133,7 @@ export class DbTableRowEditComponent implements OnInit {
     private _notifications: NotificationsService,
     private _tableState: TableStateService,
     private _company: CompanyService,
+    private _formValidation: FormValidationService,
     private route: ActivatedRoute,
     private ngZone: NgZone,
     public router: Router,
@@ -148,6 +150,9 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Clear any previous validation states when component initializes
+    this._formValidation.clearAll();
+    
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
@@ -450,6 +455,10 @@ export class DbTableRowEditComponent implements OnInit {
     return recordEditTypes[this.connectionType]
   }
 
+  get isFormValid(): boolean {
+    return this._formValidation.isFormValid();
+  }
+
   get currentConnection() {
     return this._connections.currentConnection;
   }
@@ -616,6 +625,18 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   handleRowSubmitting(continueEditing: boolean) {
+    // Double-check validation before submitting
+    if (!this._formValidation.isFormValid()) {
+      const invalidFields = this._formValidation.getInvalidFields();
+      console.warn('Form has validation errors in fields:', invalidFields);
+      this._notifications.showAlert(
+        AlertType.Error,
+        'Please fix validation errors before submitting',
+        []
+      );
+      return;
+    }
+    
     if (this.hasKeyAttributesFromURL && this.pageAction !== 'dub') {
       this.updateRow(continueEditing);
     } else {
