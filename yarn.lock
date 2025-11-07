@@ -6176,7 +6176,7 @@ __metadata:
     fetch-blob: ^4.0.0
     helmet: 8.1.0
     i18n-iso-countries: ^7.14.0
-    ibm_db: ^3.3.0
+    ibm_db: ^3.3.4
     ip-range-check: 0.2.0
     json2csv: ^5.0.7
     jsonwebtoken: ^9.0.2
@@ -6286,7 +6286,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.12.2, axios@npm:^1.13.0, axios@npm:^1.7.4":
+"axios@npm:^1.12.0":
+  version: 1.13.2
+  resolution: "axios@npm:1.13.2"
+  dependencies:
+    follow-redirects: ^1.15.6
+    form-data: ^4.0.4
+    proxy-from-env: ^1.1.0
+  checksum: 057d0204d5930e2969f0bccb9f0752745b1524a36994667833195e7e1a82f245d660752ba8517b2dbea17e9e4ed0479f10b80c5fe45edd0b5a0df645c0060386
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.12.2, axios@npm:^1.13.0":
   version: 1.13.0
   resolution: "axios@npm:1.13.0"
   dependencies:
@@ -6898,13 +6909,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cipher-base@npm:^1.0.1":
-  version: 1.0.4
-  resolution: "cipher-base@npm:1.0.4"
+"cipher-base@npm:1.0.7":
+  version: 1.0.7
+  resolution: "cipher-base@npm:1.0.7"
   dependencies:
-    inherits: ^2.0.1
-    safe-buffer: ^5.0.1
-  checksum: 47d3568dbc17431a339bad1fe7dff83ac0891be8206911ace3d3b818fc695f376df809bea406e759cdea07fff4b454fa25f1013e648851bec790c1d75763032e
+    inherits: ^2.0.4
+    safe-buffer: ^5.2.1
+    to-buffer: ^1.2.2
+  checksum: 3c3b5ddd8c8bfbb68fdd134c4c6db408b57a81f19260c59a5e1f5b75cb67fc5a0127af2ffb84a14720c9d249226659544c593245123f42285c82267cf787b883
   languageName: node
   linkType: hard
 
@@ -9381,20 +9393,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ibm_db@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "ibm_db@npm:3.3.0"
+"ibm_db@npm:^3.3.4":
+  version: 3.3.4
+  resolution: "ibm_db@npm:3.3.4"
   dependencies:
     adm-zip: ^0.5.16
-    axios: ^1.7.4
+    axios: ^1.12.0
     big-integer: ^1.6.51
     bindings: ^1.5.0
     fs-extra: ^11.1.1
     lodash: ^4.17.21
-    nan: ^2.22.0
+    nan: ^2.23.0
     q: ^1.5.1
     targz: ^1.0.1
-  checksum: 7a266c6bd5bbc9ba3d3fd83c82e7b207f704be72a80ceeed1b8f22fc05ebeb65e6baada7e6ca9710c773f48cb2a1a53ddc7a593eacf7b0d5b5f376696007bc5b
+  checksum: 3ac61a91a91770a269705db7e4bc2a165641b8586f7ea0f5a64e435a2dae2dac24ddb188c351faff05fc3062569cec8e7d5c707746e07d2331e4ccd4a960a187
   languageName: node
   linkType: hard
 
@@ -11590,7 +11602,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.19.0, nan@npm:^2.22.0, nan@npm:^2.23.0":
+"nan@npm:^2.19.0, nan@npm:^2.23.0":
   version: 2.23.0
   resolution: "nan@npm:2.23.0"
   dependencies:
@@ -13040,7 +13052,7 @@ __metadata:
     eslint-config-prettier: ^10.1.8
     eslint-plugin-prettier: ^5.5.4
     get-port: ^7.1.0
-    ibm_db: ^3.3.0
+    ibm_db: ^3.3.4
     jest: ^30.2.0
     knex: 3.1.0
     mongodb: ^6.20.0
@@ -14163,7 +14175,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"to-buffer@npm:^1.1.1, to-buffer@npm:^1.2.0":
+"to-buffer@npm:^1.1.1, to-buffer@npm:^1.2.0, to-buffer@npm:^1.2.2":
   version: 1.2.2
   resolution: "to-buffer@npm:1.2.2"
   dependencies:
