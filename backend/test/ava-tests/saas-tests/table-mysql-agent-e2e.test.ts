@@ -20,7 +20,7 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { TestUtils } from '../../utils/test.utils.js';
 import knex from 'knex';
 import { getRandomConstraintName, getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
-import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors/error-messages.js';
+import { ERROR_MESSAGES } from '@rocketadmin/shared-code/src/helpers/errors/error-messages.js';
 import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';

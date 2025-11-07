@@ -35,13 +35,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY package.json .yarnrc.yml yarn.lock /app/
+COPY package.json .yarnrc.yml yarn.lock tsconfig.json /app/
 COPY backend /app/backend
 COPY shared-code /app/shared-code
 COPY rocketadmin-agent /app/rocketadmin-agent
 COPY .yarn /app/.yarn
 RUN yarn install --network-timeout 1000000 --immutable --silent
-RUN cd shared-code && ../node_modules/.bin/tsc
+RUN ./node_modules/.bin/tsc --build
 RUN cd backend && yarn run nest build
 COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default

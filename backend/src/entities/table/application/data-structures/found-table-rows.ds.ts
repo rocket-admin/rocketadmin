@@ -1,9 +1,9 @@
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../../../enums/index.js';
 import { FullTableStructureDs } from './found-table-structure.ds.js';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
-import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
-import { RowsPaginationDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/rows-pagination.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import { RowsPaginationDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/rows-pagination.ds.js';
 import { ApiProperty } from '@nestjs/swagger';
 import { TablePermissionDs } from '../../../permission/application/data-structures/create-permissions.ds.js';
 import { FoundActionEventDTO } from '../../../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';

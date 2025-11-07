@@ -2,7 +2,7 @@ import { TableSettingsEntity } from '../../table-settings/table-settings.entity.
 import { AutocompleteFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function findAutocompleteFieldsUtil(
   query: Record<string, unknown>,

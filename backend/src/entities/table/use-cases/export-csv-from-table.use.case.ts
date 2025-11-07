@@ -7,7 +7,7 @@ import { IExportCSVFromTable } from './table-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { isHexString } from '../utils/is-hex-string.js';

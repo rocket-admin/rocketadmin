@@ -1,5 +1,5 @@
 import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 
 export async function findTableFieldsUtil(
   connection: ConnectionEntity,

@@ -1,5 +1,5 @@
-import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableSettingsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-settings.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 
 export function findAvailableFields(settings: TableSettingsDS, tableStructure: Array<TableStructureDS>): Array<string> {

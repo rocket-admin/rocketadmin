@@ -7,7 +7,7 @@ import { CreateActionRuleDS, CreateTableActionData } from '../application/data-s
 import { FoundActionRulesWithActionsAndEventsDTO } from '../application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { buildEmptyActionRule } from '../utils/build-empty-action-rule.util.js';
 import { ValidationHelper } from '../../../../helpers/validators/validation-helper.js';
 import { buildTableActionWithRule } from '../../table-actions-module/utils/build-table-action-with-rule.util.js';

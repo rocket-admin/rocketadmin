@@ -7,7 +7,7 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import axios, { AxiosResponse } from 'axios';

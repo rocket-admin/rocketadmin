@@ -1,4 +1,4 @@
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { FilterCriteriaEnum } from '../../../enums/filter-criteria.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';

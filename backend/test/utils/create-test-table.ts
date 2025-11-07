@@ -2,7 +2,7 @@
 import { fa, faker, th } from '@faker-js/faker';
 import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
 import { getTestKnex } from './get-test-knex.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import ibmdb, { Database } from 'ibm_db';
 import { MongoClient, Db, ObjectId } from 'mongodb';
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';

@@ -9,7 +9,7 @@ import { checkConnection } from './helpers/check-connection.js';
 import { ICLIConnectionCredentials } from './interfaces/interfaces.js';
 import { Config } from './shared/config/config.js';
 import { CLIQuestionUtility } from './helpers/cli/cli-questions.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { mkDirIfNotExistsUtil } from './helpers/write-file-util.js';
 import { Constants } from './helpers/constants/constants.js';
 

@@ -6,7 +6,7 @@ import { FoundActionRulesWithActionsAndEventsDTO } from '../application/dto/foun
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
 import { ValidationHelper } from '../../../../helpers/validators/validation-helper.js';
 import { CreateTableActionData } from '../application/data-structures/create-action-rules.ds.js';

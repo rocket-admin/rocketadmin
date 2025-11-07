@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message.js';
 import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
@@ -15,7 +15,7 @@ import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { ITestConnection } from './use-cases.interfaces.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 @Injectable()
 export class TestConnectionUseCase

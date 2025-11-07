@@ -13,11 +13,14 @@
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@rocketadmin/shared-code/*": ["../shared-code/dist/*"]
+    }
   },
-  // "references": [
-  //   { "path": "../shared-code" },
-  // ],
+  "references": [
+    { "path": "../shared-code" },
+  ],
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist", "../node_modules"]
 }

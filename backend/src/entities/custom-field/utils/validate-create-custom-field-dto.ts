@@ -4,7 +4,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { HttpStatus } from '@nestjs/common';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 
 export async function validateCreateCustomFieldDto(
   createFieldDto: CreateFieldDto,

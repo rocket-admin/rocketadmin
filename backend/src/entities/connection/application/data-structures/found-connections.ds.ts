@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum } from '../../../../enums/index.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { UserEntity } from '../../../user/user.entity.js';
 import { FoundGroupDataWithUsersDs } from '../../../group/application/data-sctructures/found-user-groups.ds.js';
 import { SimpleFoundUserInfoDs } from '../../../user/dto/found-user.dto.js';

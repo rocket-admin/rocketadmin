@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
 import { ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
