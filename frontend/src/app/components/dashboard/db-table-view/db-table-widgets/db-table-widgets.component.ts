@@ -246,6 +246,13 @@ export class DbTableWidgetsComponent implements OnInit {
   "rows": 5
 }`,
     Time: `// No settings required`,
+    Timezone: `// Configure timezone widget options
+// Uses Intl API to populate timezone list automatically
+// allow_null: Allow empty/null value selection
+{
+  "allow_null": false
+}
+`,
     URL: `// prefix: optional URL prefix to prepend to the href
 // example:
 {
