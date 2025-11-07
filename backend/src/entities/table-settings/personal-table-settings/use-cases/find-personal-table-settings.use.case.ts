@@ -39,7 +39,7 @@ export class FindPersonalTableSettingsUseCase
     );
 
     if (!foundPersonalTableSettings) {
-      throw new NotFoundException(Messages.PERSONAL_TABLE_SETTINGS_NOT_FOUND);
+      return {} as FoundPersonalTableSettingsDto;
     }
 
     return buildFoundTableSettingsDto(foundPersonalTableSettings);
