@@ -232,7 +232,11 @@ export class SharedJobsService {
   }
 
   private isValueTelephoneNumber(value: unknown): boolean {
-    return ValidationHelper.isValidPhoneNumber(String(value));
+    if (typeof value !== 'string') {
+      return false;
+    }
+    const phoneRegex = /^\+\d{10,}$/;
+    return phoneRegex.test(value) && ValidationHelper.isValidPhoneNumber(value);
   }
 
   private isValueRgbColor(value: unknown): boolean {
@@ -271,7 +275,8 @@ export class SharedJobsService {
     if (typeof value !== 'string') {
       return false;
     }
-    return ValidationHelper.isValidUrl(value);
+    const urlRegex = /^https?:\/\/.+/;
+    return urlRegex.test(value) && ValidationHelper.isValidUrl(value);
   }
 
   private isValueJSON(value: unknown): boolean {
