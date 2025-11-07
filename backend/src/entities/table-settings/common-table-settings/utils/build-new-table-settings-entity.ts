@@ -15,10 +15,6 @@ export function buildNewTableSettingsEntity(
     excluded_fields,
     identification_fields,
     identity_column,
-    list_fields,
-    list_per_page,
-    ordering,
-    ordering_field,
     readonly_fields,
     search_fields,
     sortable_by,
@@ -38,10 +34,6 @@ export function buildNewTableSettingsEntity(
   newSettings.table_name = table_name;
   newSettings.search_fields = search_fields;
   newSettings.excluded_fields = excluded_fields;
-  newSettings.list_fields = list_fields;
-  newSettings.list_per_page = list_per_page;
-  newSettings.ordering = ordering;
-  newSettings.ordering_field = ordering_field;
   newSettings.readonly_fields = readonly_fields;
   newSettings.sortable_by = sortable_by;
   newSettings.autocomplete_columns = autocomplete_columns;

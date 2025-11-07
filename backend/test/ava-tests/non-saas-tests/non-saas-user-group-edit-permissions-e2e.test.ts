@@ -2372,11 +2372,7 @@ test.serial(`${currentTest} 'should return table settings when it was created`, 
     t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
     t.is(JSON.stringify(getTableSettingsRO.excluded_fields), JSON.stringify(createTableSettingsDTO.excluded_fields));
-    t.is(JSON.stringify(getTableSettingsRO.list_fields), JSON.stringify(createTableSettingsDTO.list_fields.concat(['id', 'created_at', 'updated_at'])));
     t.is(JSON.stringify(getTableSettingsRO.identification_fields), JSON.stringify([]));
-    t.is(getTableSettingsRO.list_per_page, createTableSettingsDTO.list_per_page);
-    t.is(getTableSettingsRO.ordering, createTableSettingsDTO.ordering);
-    t.is(getTableSettingsRO.ordering_field, createTableSettingsDTO.ordering_field);
     t.is(JSON.stringify(getTableSettingsRO.readonly_fields), JSON.stringify(createTableSettingsDTO.readonly_fields));
     t.is(JSON.stringify(getTableSettingsRO.sortable_by), JSON.stringify(createTableSettingsDTO.sortable_by));
     t.is(JSON.stringify(getTableSettingsRO.autocomplete_columns), JSON.stringify([]));

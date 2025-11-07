@@ -1,24 +1,25 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
+import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { DeleteRowFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { IDeleteRowFromTable } from './table-use-cases.interface.js';
-import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
-import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
-import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
-import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
-import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
@@ -115,10 +116,17 @@ export class DeleteRowFromTableUseCase
         HttpStatus.FORBIDDEN,
       );
     }
+    const personalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
+      userId,
+      connectionId,
+      tableName,
+    );
+
+    const builtTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
 
     let oldRowData: Record<string, unknown>;
     try {
-      oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+      oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtTableSettings, userEmail);
     } catch (e) {
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
     }

@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
-import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
@@ -20,6 +20,8 @@ import {
   CreateTableActionEventDS,
 } from '../table-actions/table-action-rules-module/application/data-structures/create-action-rules.ds.js';
 import { buildEmptyActionRule } from '../table-actions/table-action-rules-module/utils/build-empty-action-rule.util.js';
+import { CreateTableFilterDs } from '../table-filters/application/data-structures/create-table-filters.ds.js';
+import { buildNewTableFiltersEntity } from '../table-filters/utils/build-new-table-filters-entity.util.js';
 import { CreateTableSettingsDs } from '../table-settings/application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { buildNewTableSettingsEntity } from '../table-settings/common-table-settings/utils/build-new-table-settings-entity.js';
@@ -28,9 +30,6 @@ import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-group
 import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
-import { CreateTableFilterDs } from '../table-filters/application/data-structures/create-table-filters.ds.js';
-import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
-import { buildNewTableFiltersEntity } from '../table-filters/utils/build-new-table-filters-entity.util.js';
 
 @Injectable()
 export class DemoDataService {
@@ -109,10 +108,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: [],
         excluded_fields: [],
-        list_fields: ['title', 'start_time', 'end_time', 'space_id', 'image_url', 'organizer_id', 'description', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['title', 'description'],
@@ -135,10 +130,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: ['event_id', 'user_id', 'guest_name', 'guest_email', 'status'],
         excluded_fields: [],
-        list_fields: ['user_id', 'guest_name', 'status', 'guest_email', 'event_id', 'created_at', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['event_id', 'user_id', 'guest_name', 'guest_email'],
@@ -161,10 +152,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: [],
         excluded_fields: [],
-        list_fields: [],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: null,
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -187,10 +174,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: ['name', 'address', 'city', 'country'],
         excluded_fields: [],
-        list_fields: [],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['name', 'address', 'city', 'country'],
@@ -213,10 +196,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: ['user_id', 'space_id', 'membership_type'],
         excluded_fields: [],
-        list_fields: ['user_id', 'start_date', 'end_date', 'space_id', 'membership_type', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['user_id', 'space_id'],
@@ -239,10 +218,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: ['location_id', 'name', 'type', 'description'],
         excluded_fields: [],
-        list_fields: ['name', 'type', 'price_per_hour', 'capacity', 'location_id', 'description', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['location_id', 'name', 'description'],
@@ -265,10 +240,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: [],
         excluded_fields: [],
-        list_fields: [],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -291,10 +262,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: ['name', 'email', 'phone'],
         excluded_fields: [],
-        list_fields: [],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['name', 'email', 'phone'],
@@ -757,10 +724,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: [],
         excluded_fields: [],
-        list_fields: ['user_id', 'course_id', 'certificate_url', 'issued_at', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -783,10 +746,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: [],
         excluded_fields: [],
-        list_fields: [],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: null,
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -809,10 +768,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: [],
         excluded_fields: [],
-        list_fields: ['position', 'title', 'course_id', 'description', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -835,10 +790,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: [],
         excluded_fields: [],
-        list_fields: ['title', 'description', 'language', 'level', 'price', 'is_published', 'created_at', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -861,10 +812,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: [],
         excluded_fields: [],
-        list_fields: ['user_id', 'course_id', 'progress', 'completed', 'enrolled_at', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -887,10 +834,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: [],
         excluded_fields: [],
-        list_fields: ['title', 'module_id', 'content', 'video_url', 'duration', 'position', 'content_url', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: null,
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: [],
@@ -913,10 +856,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: [],
         excluded_fields: [],
-        list_fields: ['user_id', 'quiz_id', 'score', 'started_at', 'completed_at', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: null,
         readonly_fields: ['completed_at'],
         sortable_by: [],
         autocomplete_columns: [],
@@ -939,10 +878,6 @@ export class DemoDataService {
         display_name: null,
         search_fields: ['lesson_id', 'title'],
         excluded_fields: [],
-        list_fields: ['title', 'lesson_id', 'max_score', 'questions', 'id'],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: null,
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['title'],
@@ -965,20 +900,6 @@ export class DemoDataService {
         display_name: '',
         search_fields: ['role', 'full_name', 'email', 'bio'],
         excluded_fields: [],
-        list_fields: [
-          'full_name',
-          'role',
-          'email',
-          'bio',
-          'date_of_birth',
-          'created_at',
-          'last_login',
-          'password_hash',
-          'id',
-        ],
-        list_per_page: null,
-        ordering: QueryOrderingEnum.ASC,
-        ordering_field: '',
         readonly_fields: [],
         sortable_by: [],
         autocomplete_columns: ['role', 'full_name', 'email', 'bio'],

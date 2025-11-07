@@ -1,6 +1,5 @@
 import { Transform } from 'class-transformer';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
-import { QueryOrderingEnum } from '../../../enums/index.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { TableActionEntity } from '../../table-actions/table-actions-module/table-action.entity.js';
@@ -25,23 +24,7 @@ export class TableSettingsEntity {
   excluded_fields: string[];
 
   @Column('varchar', { array: true, default: {} })
-  list_fields: string[];
-
-  @Column('varchar', { array: true, default: {} })
   identification_fields: string[];
-
-  @Column('int', { default: null })
-  list_per_page: number;
-
-  @Column('enum', {
-    nullable: false,
-    enum: QueryOrderingEnum,
-    default: QueryOrderingEnum.ASC,
-  })
-  ordering!: QueryOrderingEnum;
-
-  @Column('varchar', { default: null })
-  ordering_field: string;
 
   @Column({ default: null })
   identity_column: string;

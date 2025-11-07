@@ -4,6 +4,7 @@ import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/di
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -14,6 +15,7 @@ import {
   WidgetTypeEnum,
 } from '../../../enums/index.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent, isObjectEmpty, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
@@ -22,6 +24,7 @@ import { TableActionActivationService } from '../../table-actions/table-actions-
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
 import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
+import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
@@ -29,8 +32,6 @@ import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
 import { IAddRowInTable } from './table-use-cases.interface.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
-import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, TableRowRODs> implements IAddRowInTable {
@@ -93,6 +94,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
       tableStructure,
       tableWidgets,
       tableSettings,
+      personalTableSettings,
       tableForeignKeys,
       tablePrimaryKeys,
       referencedTableNamesAndColumns,
@@ -100,6 +102,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+      this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
@@ -205,6 +208,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
     let addedRow: Record<string, unknown> = {};
     let addedRowPrimaryKey: Record<string, unknown>;
+    const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
     try {
       row = await hashPasswordsInRowUtil(row, tableWidgets);
       row = processUuidsInRowUtil(row, tableWidgets);
@@ -212,7 +216,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
       addedRowPrimaryKey = (await dao.addRowInTable(tableName, row, userEmail)) as Record<string, unknown>;
       if (addedRowPrimaryKey && !isObjectEmpty(addedRowPrimaryKey)) {
         operationResult = OperationResultStatusEnum.successfully;
-        addedRow = await dao.getRowByPrimaryKey(tableName, addedRowPrimaryKey, tableSettings, userEmail);
+        addedRow = await dao.getRowByPrimaryKey(tableName, addedRowPrimaryKey, builtDAOsTableSettings, userEmail);
         addedRow = removePasswordsFromRowsUtil(addedRow, tableWidgets);
         addedRow = convertBinaryDataInRowUtil(addedRow, tableStructure);
         return {
@@ -223,7 +227,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
           table_widgets: tableWidgets,
           display_name: tableSettings?.display_name ? tableSettings.display_name : null,
           readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-          list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+          list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
           identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
           referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
           excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
@@ -232,9 +236,9 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
           can_add: tableSettings ? tableSettings.can_add : true,
           table_settings: {
             sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
-            ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+            ordering: personalTableSettings?.ordering ? personalTableSettings.ordering : undefined,
             identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
-            list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+            list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
             allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
             allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
             can_delete: tableSettings ? tableSettings.can_delete : true,

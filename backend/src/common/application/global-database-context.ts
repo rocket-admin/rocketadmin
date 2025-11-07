@@ -90,6 +90,9 @@ import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
 import { tableCategoriesCustomRepositoryExtension } from '../../entities/table-categories/repository/table-categories-repository.extension.js';
+import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
+import { IPersonalTableSettingsRepository } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings.repository.interface.js';
+import { personalTableSettingsCustomRepositoryExtension } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -128,6 +131,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
   private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+  private _personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -216,6 +220,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._tableCategoriesRepository = this.appDataSource
       .getRepository(TableCategoriesEntity)
       .extend(tableCategoriesCustomRepositoryExtension);
+    this._personalTableSettingsRepository = this.appDataSource
+      .getRepository(PersonalTableSettingsEntity)
+      .extend(personalTableSettingsCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -349,6 +356,11 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
     return this._tableCategoriesRepository;
+  }
+
+  public get personalTableSettingsRepository(): Repository<PersonalTableSettingsEntity> &
+    IPersonalTableSettingsRepository {
+    return this._personalTableSettingsRepository;
   }
 
   public startTransaction(): Promise<void> {

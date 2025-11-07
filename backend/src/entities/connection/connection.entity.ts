@@ -26,6 +26,7 @@ import { ActionRulesEntity } from '../table-actions/table-action-rules-module/ac
 import { nanoid } from 'nanoid';
 import { Constants } from '../../helpers/constants/constants.js';
 import { TableFiltersEntity } from '../table-filters/table-filters.entity.js';
+import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -219,6 +220,9 @@ export class ConnectionEntity {
 
   @OneToMany((_) => TableSettingsEntity, (settings) => settings.connection_id)
   settings: Relation<TableSettingsEntity>[];
+
+  @OneToMany((_) => PersonalTableSettingsEntity, (personal_table_settings) => personal_table_settings.connection)
+  personal_table_settings: Relation<PersonalTableSettingsEntity>[];
 
   @OneToMany((_) => TableLogsEntity, (logs) => logs.connection_id)
   logs: Relation<TableLogsEntity>[];

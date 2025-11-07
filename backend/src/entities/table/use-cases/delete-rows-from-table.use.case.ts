@@ -14,6 +14,7 @@ import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-pri
 import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
 import { IDeleteRowsFromTable } from './table-use-cases.interface.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 
 type DeleteRowsFromTableResult = {
   operationStatusResult: OperationResultStatusEnum;
@@ -77,10 +78,11 @@ export class DeleteRowsFromTableUseCase
       );
     }
 
-    const [tableStructure, primaryColumns, tableSettings] = await Promise.all([
+    const [tableStructure, primaryColumns, tableSettings, personalTableSettings] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+      this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
     ]);
 
     if (tableSettings && !tableSettings?.can_delete) {
@@ -116,8 +118,14 @@ export class DeleteRowsFromTableUseCase
       }
     });
     let oldRowsData: Array<Record<string, unknown>>;
+    const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
     try {
-      oldRowsData = await dao.bulkGetRowsFromTableByPrimaryKeys(tableName, primaryKeys, tableSettings, userEmail);
+      oldRowsData = await dao.bulkGetRowsFromTableByPrimaryKeys(
+        tableName,
+        primaryKeys,
+        builtDAOsTableSettings,
+        userEmail,
+      );
     } catch (error) {
       throw new HttpException(
         {

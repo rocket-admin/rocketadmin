@@ -541,6 +541,9 @@ should return all found rows with pagination page=1 perPage=2`,
         .set('Accept', 'application/json');
       t.is(createTableSettingsResponse.status, 201);
 
+      const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
+      console.log('🚀 ~ createTableSettingsRO:', createTableSettingsRO);
+
       const getTableRowsResponse = await request(app.getHttpServer())
         .get(
           `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
@@ -548,9 +551,11 @@ should return all found rows with pagination page=1 perPage=2`,
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
-      t.is(getTableRowsResponse.status, 200);
-      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
+
+      t.is(getTableRowsResponse.status, 200);
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -653,77 +658,77 @@ should return all found rows with pagination page=1 perPage=3`,
   },
 );
 
-test.serial(
-  `${currentTest} without search and without pagination and with sorting
-should return all found rows with sorting ids by DESC`,
-  async (t) => {
-    try {
-      const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
+test.only(`${currentTest} without search and without pagination and with sorting
+should return all found rows with sorting ids by DESC`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
-      testTables.push(testTableName);
+    testTables.push(testTableName);
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(connectionToTestDB)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
-      t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-      const createTableSettingsDTO = mockFactory.generateTableSettings(
-        createConnectionRO.id,
-        testTableName,
-        [testTableColumnName],
-        undefined,
-        undefined,
-        42,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      );
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      createConnectionRO.id,
+      testTableName,
+      [testTableColumnName],
+      undefined,
+      undefined,
+      42,
+      QueryOrderingEnum.DESC,
+      'id',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
 
-      const createTableSettingsResponse = await request(app.getHttpServer())
-        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-        .send(createTableSettingsDTO)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      t.is(createTableSettingsResponse.status, 201);
+    const createTableSettingsResponse = await request(app.getHttpServer())
+      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+      .send(createTableSettingsDTO)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createTableSettingsResponse.status, 201);
 
-      const getTableRowsResponse = await request(app.getHttpServer())
-        .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      t.is(getTableRowsResponse.status, 200);
-      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    const getTableRowsResponse = await request(app.getHttpServer())
+      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-      t.is(typeof getTableRowsRO, 'object');
-      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-      t.is(getTableRowsRO.rows.length, 42);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-      t.is(getTableRowsRO.rows[0].id, 42);
-      t.is(getTableRowsRO.rows[1].id, 41);
-      t.is(getTableRowsRO.rows[41].id, 1);
+    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
 
-      t.is(typeof getTableRowsRO.primaryColumns, 'object');
-      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  },
-);
+    t.is(getTableRowsResponse.status, 200);
+
+    t.is(typeof getTableRowsRO, 'object');
+    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+    t.is(getTableRowsRO.rows.length, 20);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+    t.is(getTableRowsRO.rows[0].id, 42);
+    t.is(getTableRowsRO.rows[1].id, 41);
+    t.is(getTableRowsRO.rows[41].id, 1);
+
+    t.is(typeof getTableRowsRO.primaryColumns, 'object');
+    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});
 
 test.serial(
   `${currentTest} without search and without pagination and with sorting

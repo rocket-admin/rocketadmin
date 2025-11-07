@@ -39,6 +39,7 @@ import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IUpdateRowInTable } from './table-use-cases.interface.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -98,6 +99,7 @@ export class UpdateRowInTableUseCase
       tableStructure,
       tableWidgets,
       tableSettings,
+      personalTableSettings,
       tableForeignKeys,
       tablePrimaryKeys,
       referencedTableNamesAndColumns,
@@ -105,10 +107,13 @@ export class UpdateRowInTableUseCase
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+      this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
+
+    const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
 
     for (const referencedTable of referencedTableNamesAndColumns) {
       referencedTable.referenced_by = await Promise.all(
@@ -237,7 +242,7 @@ export class UpdateRowInTableUseCase
 
     let oldRowData: Record<string, unknown>;
     try {
-      oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+      oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
     } catch (e) {
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
     }
@@ -269,7 +274,7 @@ export class UpdateRowInTableUseCase
       row = processUuidsInRowUtil(row, tableWidgets);
       await dao.updateRowInTable(tableName, row, primaryKey, userEmail);
       operationResult = OperationResultStatusEnum.successfully;
-      let updatedRow = await dao.getRowByPrimaryKey(tableName, futurePrimaryKey, tableSettings, userEmail);
+      let updatedRow = await dao.getRowByPrimaryKey(tableName, futurePrimaryKey, builtDAOsTableSettings, userEmail);
       updatedRow = removePasswordsFromRowsUtil(updatedRow, tableWidgets);
       updatedRow = convertBinaryDataInRowUtil(updatedRow, tableStructure);
       return {
@@ -280,7 +285,7 @@ export class UpdateRowInTableUseCase
         table_widgets: tableWidgets,
         display_name: tableSettings?.display_name ? tableSettings.display_name : null,
         readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-        list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+        list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
         identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
         referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
         excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
@@ -289,9 +294,9 @@ export class UpdateRowInTableUseCase
         can_add: tableSettings ? tableSettings.can_add : true,
         table_settings: {
           sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
-          ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+          ordering: personalTableSettings?.ordering ? personalTableSettings.ordering : undefined,
           identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
-          list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+          list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
           allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
           allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
           can_delete: tableSettings ? tableSettings.can_delete : true,

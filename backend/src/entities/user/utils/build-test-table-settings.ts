@@ -49,10 +49,6 @@ function tableSettingsDtosToTableSettingsEntity(
     newSettings.table_name = tableSetting.table_name;
     newSettings.search_fields = tableSetting.search_fields;
     newSettings.excluded_fields = tableSetting.excluded_fields;
-    newSettings.list_fields = tableSetting.list_fields;
-    newSettings.list_per_page = tableSetting.list_per_page;
-    newSettings.ordering = tableSetting.ordering;
-    newSettings.ordering_field = tableSetting.ordering_field;
     newSettings.readonly_fields = tableSetting.readonly_fields;
     newSettings.sortable_by = tableSetting.sortable_by;
     newSettings.autocomplete_columns = tableSetting.autocomplete_columns;

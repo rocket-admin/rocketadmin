@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { QueryOrderingEnum } from '../../../../enums/index.js';
 import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity.js';
 import { TableActionEntity } from '../../../table-actions/table-actions-module/table-action.entity.js';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
@@ -28,19 +27,7 @@ export class CreateTableSettingsDs {
   @ApiProperty()
   identity_column: string;
 
-  @ApiProperty({ isArray: true, type: 'string' })
-  list_fields: Array<string>;
-
-  @ApiProperty()
-  list_per_page: number;
-
   masterPwd: string;
-
-  @ApiProperty({ enum: QueryOrderingEnum })
-  ordering: QueryOrderingEnum;
-
-  @ApiProperty()
-  ordering_field: string;
 
   @ApiProperty({ isArray: true, type: 'string' })
   readonly_fields: Array<string>;

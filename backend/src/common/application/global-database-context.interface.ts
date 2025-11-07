@@ -48,6 +48,8 @@ import { IDatabaseContext } from '../database-context.interface.js';
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
 import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity.js';
+import { IPersonalTableSettingsRepository } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings.repository.interface.js';
+import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -83,4 +85,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
   tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+  personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
 }

@@ -25,6 +25,7 @@ import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -73,6 +74,7 @@ export class GetRowByPrimaryKeyUseCase
       tableStructure,
       tableWidgets,
       tableSettings,
+      personalTableSettings,
       tableForeignKeys,
       tablePrimaryKeys,
       customActionEvents,
@@ -82,6 +84,7 @@ export class GetRowByPrimaryKeyUseCase
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, tableName),
+      this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
@@ -155,8 +158,9 @@ export class GetRowByPrimaryKeyUseCase
       );
     }
     let rowData: Record<string, unknown>;
+    const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
     try {
-      rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+      rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
     } catch (e) {
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
     }
@@ -217,7 +221,7 @@ export class GetRowByPrimaryKeyUseCase
       structure: formedTableStructure,
       table_widgets: tableWidgets,
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-      list_fields: findAvailableFields(tableSettings, tableStructure),
+      list_fields: findAvailableFields(builtDAOsTableSettings, tableStructure),
       action_events: customActionEvents.map((event) => buildActionEventDto(event)),
       table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
@@ -230,9 +234,9 @@ export class GetRowByPrimaryKeyUseCase
       can_add: tableSettings ? tableSettings.can_add : true,
       table_settings: {
         sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
-        ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+        ordering: personalTableSettings?.ordering ? personalTableSettings.ordering : undefined,
         identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
-        list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+        list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
         allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
         allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
         can_delete: tableSettings ? tableSettings.can_delete : true,

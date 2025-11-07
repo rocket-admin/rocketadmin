@@ -1,6 +1,5 @@
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 import { CreateTableSettingsDto } from '../../entities/table-settings/common-table-settings/dto/index.js';
-import { QueryOrderingEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { isObjectEmpty } from '../is-object-empty.js';
 
@@ -16,12 +15,8 @@ export function tableSettingsFieldValidator(
   const {
     search_fields,
     excluded_fields,
-    list_fields,
     readonly_fields,
     sortable_by,
-    ordering_field,
-    ordering,
-    list_per_page,
     identification_fields,
     columns_view,
     identity_column,
@@ -37,10 +32,6 @@ export function tableSettingsFieldValidator(
 
   if (excluded_fields && !Array.isArray(excluded_fields)) {
     errorMessages.push(Messages.MUST_BE_ARRAY(`excluded_fields`));
-  }
-
-  if (list_fields && !Array.isArray(list_fields)) {
-    errorMessages.push(Messages.MUST_BE_ARRAY(`list_fields`));
   }
 
   if (identification_fields && !Array.isArray(identification_fields)) {
@@ -83,11 +74,9 @@ export function tableSettingsFieldValidator(
   const errors = Array.prototype.concat(
     excludedFields(search_fields, columnNames),
     excludedFields(excluded_fields, columnNames),
-    excludedFields(list_fields, columnNames),
     excludedFields(identification_fields, columnNames),
     excludedFields(readonly_fields, columnNames),
     excludedFields(sortable_by, columnNames),
-    excludedFields([ordering_field], columnNames),
     excludedFields(columns_view, columnNames),
     excludedFields([identity_column], columnNames),
   );
@@ -96,27 +85,12 @@ export function tableSettingsFieldValidator(
     errorMessages.push(Messages.NO_SUCH_FIELDS_IN_TABLES(errors, settings.table_name));
   }
 
-  if (ordering) {
-    if (!Object.keys(QueryOrderingEnum).find((key) => key === ordering)) {
-      errorMessages.push(Messages.ORDERING_FIELD_INCORRECT);
-    }
-  }
-
-  if ((list_per_page && list_per_page < 0) || list_per_page === 0) {
-    errorMessages.push(Messages.LIST_PER_PAGE_INCORRECT);
-  }
-
   if (excluded_fields) {
     for (const field of search_fields) {
       const index = excluded_fields.indexOf(field);
       if (index >= 0) {
         errorMessages.push(Messages.CANT_LIST_AND_EXCLUDE(field));
       }
-    }
-
-    const orderingFieldIndex = excluded_fields.indexOf(ordering_field);
-    if (orderingFieldIndex >= 0) {
-      errorMessages.push(Messages.CANT_ORDER_AND_EXCLUDE);
     }
 
     if (readonly_fields && readonly_fields.length > 0) {

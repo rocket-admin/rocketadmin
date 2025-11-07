@@ -522,6 +522,28 @@ export class MockFactory {
     };
   }
 
+//   {
+//   id: 'e82ed355-94fd-46e5-b732-c0e8f01ccc96',
+//   table_name: 'capitulus_xiphias_rU6K_delectatio',
+//   display_name: 'test display name',
+//   search_fields: [ 'voluptas_adulatio' ],
+//   excluded_fields: [],
+//   identification_fields: [],
+//   identity_column: null,
+//   readonly_fields: [],
+//   sensitive_fields: null,
+//   sortable_by: [],
+//   autocomplete_columns: [],
+//   columns_view: null,
+//   connection_id: 'k7N6nja2',
+//   can_add: true,
+//   can_delete: true,
+//   can_update: true,
+//   icon: null,
+//   allow_csv_export: true,
+//   allow_csv_import: true
+// }
+
   generateTableSettings(
     connectionId: string,
     tableName: string,
@@ -546,10 +568,6 @@ export class MockFactory {
       display_name: 'test display name',
       search_fields: searchedFields,
       excluded_fields: excludedFields,
-      list_fields: listFields,
-      list_per_page: listPerPage,
-      ordering: ordering,
-      ordering_field: orderingField,
       readonly_fields: readonlyFields,
       sortable_by: sortableBy,
       autocomplete_columns: autocompleteColumns,
