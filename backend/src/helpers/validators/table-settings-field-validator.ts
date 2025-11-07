@@ -12,15 +12,8 @@ export function tableSettingsFieldValidator(
   if (isObjectEmpty(settings)) {
     return errorMessages;
   }
-  const {
-    search_fields,
-    excluded_fields,
-    readonly_fields,
-    sortable_by,
-    identification_fields,
-    columns_view,
-    identity_column,
-  } = settings;
+  const { search_fields, excluded_fields, readonly_fields, sortable_by, identification_fields, identity_column } =
+    settings;
 
   const columnNames = tableStructure.map((column) => {
     return column.column_name;
@@ -44,10 +37,6 @@ export function tableSettingsFieldValidator(
 
   if (sortable_by && !Array.isArray(sortable_by)) {
     errorMessages.push(Messages.MUST_BE_ARRAY(`sortable_by`));
-  }
-
-  if (columns_view && !Array.isArray(columns_view)) {
-    errorMessages.push(Messages.MUST_BE_ARRAY(`columns_view`));
   }
 
   if (errorMessages.length > 0) {
@@ -77,7 +66,6 @@ export function tableSettingsFieldValidator(
     excludedFields(identification_fields, columnNames),
     excludedFields(readonly_fields, columnNames),
     excludedFields(sortable_by, columnNames),
-    excludedFields(columns_view, columnNames),
     excludedFields([identity_column], columnNames),
   );
 
@@ -98,15 +86,6 @@ export function tableSettingsFieldValidator(
         const index = excluded_fields.indexOf(field);
         if (index >= 0) {
           errorMessages.push(Messages.CANT_READONLY_AND_EXCLUDE(field));
-        }
-      }
-    }
-
-    if (columns_view && columns_view.length > 0) {
-      for (const field of columns_view) {
-        const index = excluded_fields.indexOf(field);
-        if (index >= 0) {
-          errorMessages.push(Messages.CANT_VIEW_AND_EXCLUDE(field));
         }
       }
     }

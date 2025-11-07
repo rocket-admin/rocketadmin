@@ -55,7 +55,6 @@ function tableSettingsDtosToTableSettingsEntity(
     newSettings.custom_fields = tableSetting.custom_fields;
     newSettings.table_widgets = tableSetting.table_widgets;
     newSettings.identification_fields = tableSetting.identification_fields;
-    newSettings.columns_view = tableSetting.columns_view;
     newSettings.identity_column = tableSetting.identity_column;
     tableSettingsEntities.push(newSettings);
   }

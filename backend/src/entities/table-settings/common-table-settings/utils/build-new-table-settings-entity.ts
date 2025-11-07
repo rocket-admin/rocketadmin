@@ -9,7 +9,6 @@ export function buildNewTableSettingsEntity(
   const newSettings = new TableSettingsEntity();
   const {
     autocomplete_columns,
-    columns_view,
     custom_fields,
     display_name,
     excluded_fields,
@@ -41,7 +40,6 @@ export function buildNewTableSettingsEntity(
   newSettings.table_widgets = table_widgets;
   newSettings.identification_fields = identification_fields;
   newSettings.sensitive_fields = sensitive_fields;
-  newSettings.columns_view = columns_view;
   newSettings.identity_column = identity_column;
   newSettings.table_actions = table_actions;
   newSettings.can_add = can_add;

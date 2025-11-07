@@ -12,5 +12,6 @@ export function buildFoundTableSettingsDto(
     list_per_page: personalTableSettings.list_per_page,
     list_fields: personalTableSettings.list_fields,
     original_names: personalTableSettings.original_names,
+    columns_view: personalTableSettings.columns_view,
   };
 }

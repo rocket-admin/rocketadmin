@@ -27,6 +27,9 @@ export class PersonalTableSettingsEntity {
   @Column('varchar', { array: true, default: {} })
   list_fields: string[];
 
+  @Column({ type: 'varchar', array: true, default: {} })
+  columns_view: Array<string>;
+
   @Column('boolean', { default: false })
   original_names: boolean;
 

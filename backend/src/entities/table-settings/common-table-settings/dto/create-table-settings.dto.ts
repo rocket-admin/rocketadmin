@@ -14,5 +14,4 @@ export class CreateTableSettingsDto {
   autocomplete_columns: string[];
   custom_fields?: CustomFieldsEntity[];
   table_widgets?: TableWidgetEntity[];
-  columns_view?: string[];
 }

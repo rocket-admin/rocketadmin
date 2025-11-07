@@ -3,7 +3,6 @@ import { CreateTableSettingsDs } from '../../application/data-structures/create-
 export function buildEmptyTableSettings(connectionId: string, tableName: string): CreateTableSettingsDs {
   return {
     autocomplete_columns: undefined,
-    columns_view: undefined,
     connection_id: connectionId,
     custom_fields: undefined,
     display_name: undefined,
@@ -35,7 +34,6 @@ export function buildEmptyTableSettingsWithEmptyWidgets(
 ): CreateTableSettingsDs {
   return {
     autocomplete_columns: undefined,
-    columns_view: undefined,
     connection_id: connectionId,
     custom_fields: undefined,
     display_name: undefined,

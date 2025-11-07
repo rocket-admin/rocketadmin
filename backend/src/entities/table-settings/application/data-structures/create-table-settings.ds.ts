@@ -7,9 +7,6 @@ export class CreateTableSettingsDs {
   @ApiProperty({ isArray: true, type: 'string' })
   autocomplete_columns: Array<string>;
 
-  @ApiProperty({ isArray: true, type: 'string', required: false })
-  columns_view?: Array<string>;
-
   connection_id: string;
 
   @ApiProperty({ isArray: true, required: false })

@@ -17,16 +17,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = ['FirstName', 'LastName'];
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = [
-      'Email',
-      'FirstName',
-      'LastName',
-      'DateRegistered',
-      'LastLoginDate',
-      'ProfileImage',
-      'Role',
-      'UserID',
-    ];
     return newTableSettingsDto;
   },
 
@@ -44,7 +34,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = ['VendorName'];
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -62,7 +51,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -80,7 +68,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -98,7 +85,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -116,7 +102,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -134,7 +119,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -152,7 +136,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -170,7 +153,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 
@@ -188,7 +170,6 @@ export const TableSettingForTestConnections = {
     newTableSettingsDto.autocomplete_columns = undefined;
     newTableSettingsDto.custom_fields = undefined;
     newTableSettingsDto.table_widgets = undefined;
-    newTableSettingsDto.columns_view = undefined;
     return newTableSettingsDto;
   },
 

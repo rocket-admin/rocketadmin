@@ -1,14 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { QueryOrderingEnum } from '../../../../enums/query-ordering.enum.js';
+import { IsEnum, IsOptional } from 'class-validator';
 
-export class FoundPersonalTableSettingsDto {
-  @ApiProperty({ type: String, description: 'The entity id' })
-  id: string;
-
-  @ApiProperty({ type: String, description: 'The table name' })
-  table_name: string;
-
-  @ApiProperty({ type: String, enum: ['ASC', 'DESC'], description: 'The ordering direction' })
+export class CreatePersonalTableSettingsDto {
+  @ApiProperty({ enumName: 'QueryOrderingEnum', enum: QueryOrderingEnum, description: 'The ordering direction' })
+  @IsOptional()
+  @IsEnum(QueryOrderingEnum)
   ordering: QueryOrderingEnum;
 
   @ApiProperty({ type: String, description: 'The ordering field' })
