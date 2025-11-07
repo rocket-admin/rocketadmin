@@ -102,7 +102,7 @@
     "winston": "3.18.3"
   },
   "optionalDependencies": {
-    "ibm_db": "^3.3.4"
+    "ibm_db": "3.3.0"
   },
   "devDependencies": {
     "@ava/typescript": "6.0.0",

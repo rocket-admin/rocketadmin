@@ -11,6 +11,7 @@
     "monaco-editor": "^0.53.0"
   },
   "resolutions": {
-    "cipher-base": "1.0.7"
+    "cipher-base": "1.0.7",
+    "tar-fs": "1.16.6"
   }
 }
