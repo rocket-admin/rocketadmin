@@ -1,15 +1,16 @@
 import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
-import AbstractUseCase from '../../../../common/abstract-use.case.js';
-import { FoundPersonalTableSettingsDto } from '../dto/found-personal-table-settings.dto.js';
+import { ConnectionEntity } from '../../../connection/connection.entity.js';
 import {
   CreatePersonalTableSettingsDs,
   PersonalTableSettingsData,
 } from '../data-structures/create-personal-table-settings.ds.js';
+import { FoundPersonalTableSettingsDto } from '../dto/found-personal-table-settings.dto.js';
+import { buildNewPersonalTableSettingsEntity } from '../utils/build-new-personal-table-settings-entity.util.js';
 import { ICreateUpdatePersonalTableSettings } from './personal-table-settings.use-cases.interface.js';
-import { ConnectionEntity } from '../../../connection/connection.entity.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateUpdatePersonalTableSettingsUseCase
@@ -39,20 +40,17 @@ export class CreateUpdatePersonalTableSettingsUseCase
     await this.validatePersonalTableSettingsData(table_settings_data, foundConnection, table_name);
 
     const foundTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
+      user_id,
       connection_id,
       table_name,
-      user_id,
     );
 
-    const settings =
-      foundTableSettings ||
-      this._dbContext.personalTableSettingsRepository.create({
-        connection_id,
-        table_name,
-        user_id,
-      });
-
-    Object.assign(settings, table_settings_data);
+    const settings = foundTableSettings || {};
+    const newSettingsEntity = buildNewPersonalTableSettingsEntity(table_settings_data);
+    newSettingsEntity.connection_id = foundConnection.id;
+    newSettingsEntity.table_name = table_name;
+    newSettingsEntity.user_id = user_id;
+    Object.assign(settings, newSettingsEntity);
     return await this._dbContext.personalTableSettingsRepository.save(settings);
   }
 

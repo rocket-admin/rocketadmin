@@ -1,12 +1,12 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
-import { FoundPersonalTableSettingsDto } from '../dto/found-personal-table-settings.dto.js';
-import { FindPersonalTableSettingsDs } from '../data-structures/find-personal-table-settings.ds.js';
-import { IFindPersonalTableSettings } from './personal-table-settings.use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { FindPersonalTableSettingsDs } from '../data-structures/find-personal-table-settings.ds.js';
+import { FoundPersonalTableSettingsDto } from '../dto/found-personal-table-settings.dto.js';
 import { buildFoundTableSettingsDto } from '../utils/build-found-table-settings-dto.js';
+import { IFindPersonalTableSettings } from './personal-table-settings.use-cases.interface.js';
 
 @Injectable()
 export class FindPersonalTableSettingsUseCase
@@ -33,9 +33,9 @@ export class FindPersonalTableSettingsUseCase
     }
 
     const foundPersonalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
+      userId,
       connectionId,
       tableName,
-      userId,
     );
 
     if (!foundPersonalTableSettings) {
