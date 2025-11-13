@@ -16,6 +16,7 @@ import { StaticTextFilterComponent } from '../components/ui-components/filter-fi
 import { TextFilterComponent } from 'src/app/components/ui-components/filter-fields/text/text.component';
 import { TimeFilterComponent } from '../components/ui-components/filter-fields/time/time.component';
 import { TimeIntervalFilterComponent } from '../components/ui-components/filter-fields/time-interval/time-interval.component';
+import { TimezoneFilterComponent } from '../components/ui-components/filter-fields/timezone/timezone.component';
 
 export const UIwidgets = {
     Default: '',
@@ -34,6 +35,7 @@ export const UIwidgets = {
     Textarea: LongTextFilterComponent,
     Time: TimeFilterComponent,
     TimeInterval: TimeIntervalFilterComponent,
+    Timezone: TimezoneFilterComponent,
     Point: PointFilterComponent,
     ID: IdFilterComponent,
 }

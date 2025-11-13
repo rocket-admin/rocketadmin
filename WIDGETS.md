@@ -4,14 +4,42 @@
 
 The widget system in RocketAdmin allows customization of how database fields are displayed and edited in the UI. Each field in a database table can be assigned a specific widget type with custom parameters to control its behavior and appearance.
 
+### Widget Contexts
+
+Widgets are implemented across **four different contexts**, each serving a specific purpose in the UI:
+
+| Context | Location | Purpose | Editable | Base Component |
+|---------|----------|---------|----------|----------------|
+| **Record Edit Fields** | Create/Edit forms | Interactive input for data entry | ✅ Yes | `BaseEditFieldComponent` |
+| **Record View Fields** | Single record detail page | Read-only formatted display | ❌ No | `BaseRecordViewFieldComponent` |
+| **Table Display Fields** | Table rows | Compact display in lists | ❌ No | `BaseTableDisplayFieldComponent` |
+| **Filter Fields** | Filter panels | Search and filter inputs | ✅ Yes | `BaseFilterFieldComponent` |
+
+**Example:** The `Boolean` widget type has four implementations:
+- `record-edit-fields/boolean/` - Checkbox toggle for editing
+- `record-view-fields/boolean/` - "Yes/No" or icon display
+- `table-display-fields/boolean/` - Badge or icon in table cells
+- `filter-fields/boolean/` - True/False/All dropdown for filtering
+
 ## Table of Contents
 
 1. [Where Widgets Are Stored](#where-widgets-are-stored)
+   - [Backend (Database & Entity)](#backend-database--entity)
+   - [Frontend (UI Components)](#frontend-ui-components)
+     - [Record Edit Fields](#1-record-edit-fields-record-edit-fields)
+     - [Record View Fields](#2-record-view-fields-record-view-fields)
+     - [Table Display Fields](#3-table-display-fields-table-display-fields)
+     - [Filter Fields](#4-filter-fields-filter-fields)
+   - [Shared Code](#shared-code)
 2. [Widget Structure](#widget-structure)
 3. [Available Widget Types](#available-widget-types)
 4. [How to Add a New Widget](#how-to-add-a-new-widget)
 5. [Widget Lifecycle](#widget-lifecycle)
-6. [Testing](#testing)
+6. [Widget Parameters Examples](#widget-parameters-examples)
+7. [Testing](#testing)
+8. [Real-World Example: Timezone Widget](#real-world-example-timezone-widget)
+9. [Important Notes](#important-notes)
+10. [Key Files Reference](#key-files-reference)
 
 ---
 
@@ -37,30 +65,150 @@ backend/src/entities/widget/
 
 ### Frontend (UI Components)
 
-**Widget Components:**
+The frontend implements widgets across **four different contexts**, each with its own set of components:
+
+#### 1. Record Edit Fields (`record-edit-fields/`)
+**Purpose:** Interactive form inputs for editing/creating records
+**Base Component:** `BaseEditFieldComponent`
+**Key Features:**
+- Two-way data binding with `@Output() onFieldChange`
+- Supports validation, required fields, disabled/readonly states
+- Full CRUD functionality
+
+**Available Components:**
 ```
-frontend/src/app/components/ui-components/
-├── boolean-edit/
-├── code-edit/
-├── color-edit/
-├── country-edit/
-├── date-edit/
-├── datetime-edit/
-├── file-edit/
-├── foreign-key-edit/
-├── image-edit/
-├── json-editor-edit/
-├── number-edit/
-├── password-edit/
-├── phone-edit/
-├── range-edit/
-├── readonly-edit/
-├── select-edit/
-├── string-edit/
-├── textarea-edit/
-├── time-edit/
-├── url-edit/
-└── uuid-edit/
+frontend/src/app/components/ui-components/record-edit-fields/
+├── boolean/          # Checkbox/toggle for true/false
+├── code/             # Code editor with syntax highlighting
+├── color/            # Color picker
+├── country/          # Country selector with flags
+├── date/             # Date picker
+├── date-time/        # Date and time picker
+├── file/             # File upload
+├── foreign-key/      # Related record selector
+├── image/            # Image upload with preview
+├── json-editor/      # JSON editor
+├── long-text/        # Multi-line textarea
+├── money/            # Currency input
+├── number/           # Numeric input
+├── password/         # Password input with encryption
+├── phone/            # International phone number
+├── point/            # Geographic point input
+├── range/            # Range slider
+├── select/           # Dropdown select
+├── static-text/      # Read-only text
+├── text/             # Single-line text input
+├── time/             # Time picker
+├── time-interval/    # Time interval input
+├── timezone/         # Timezone selector with UTC offsets
+├── url/              # URL input with validation
+└── uuid/             # UUID display/input
+```
+
+#### 2. Record View Fields (`record-view-fields/`)
+**Purpose:** Read-only display for single record detail view
+**Base Component:** `BaseRecordViewFieldComponent`
+**Key Features:**
+- Display-only (no editing)
+- Copy-to-clipboard functionality via `@Output() onCopyToClipboard`
+- Formatted value presentation
+
+**Available Components:**
+```
+frontend/src/app/components/ui-components/record-view-fields/
+├── boolean/          # Display boolean as Yes/No or icons
+├── code/             # Syntax-highlighted code display
+├── color/            # Color swatch display
+├── country/          # Country name with flag
+├── date/             # Formatted date display
+├── date-time/        # Formatted datetime display
+├── file/             # File download link
+├── foreign-key/      # Related record link
+├── image/            # Image display
+├── json-editor/      # Formatted JSON display
+├── long-text/        # Multi-line text display
+├── money/            # Formatted currency display
+├── number/           # Formatted number display
+├── password/         # Masked password display
+├── phone/            # Formatted phone number
+├── point/            # Geographic coordinates display
+├── range/            # Range value display
+├── select/           # Selected option display
+├── static-text/      # Plain text display
+├── text/             # Text display
+├── time/             # Formatted time display
+├── time-interval/    # Time interval display
+├── url/              # Clickable URL link
+└── uuid/             # UUID display with copy option
+```
+
+#### 3. Table Display Fields (`table-display-fields/`)
+**Purpose:** Compact, read-only display for table rows
+**Base Component:** `BaseTableDisplayFieldComponent`
+**Key Features:**
+- Condensed display optimized for tables
+- Copy-to-clipboard functionality
+- Truncation for long values
+- Inline formatting
+
+**Available Components:**
+```
+frontend/src/app/components/ui-components/table-display-fields/
+├── boolean/          # Icon or badge display
+├── code/             # Truncated code snippet
+├── color/            # Color swatch
+├── country/          # Flag or country code
+├── date/             # Short date format
+├── date-time/        # Short datetime format
+├── file/             # File icon/link
+├── foreign-key/      # Related record link
+├── image/            # Thumbnail image
+├── json-editor/      # JSON preview (truncated)
+├── long-text/        # Truncated text with tooltip
+├── money/            # Currency symbol + amount
+├── number/           # Formatted number
+├── password/         # Masked (*****)
+├── phone/            # Phone number
+├── point/            # Coordinates
+├── range/            # Range value
+├── select/           # Selected option
+├── static-text/      # Plain text
+├── text/             # Text (truncated if long)
+├── time/             # Time display
+├── time-interval/    # Interval display
+├── url/              # Clickable link (truncated)
+└── uuid/             # Shortened UUID
+```
+
+#### 4. Filter Fields (`filter-fields/`)
+**Purpose:** Search/filter inputs for table data
+**Base Component:** `BaseFilterFieldComponent`
+**Key Features:**
+- Specialized for filtering operations
+- Supports comparison operators (equals, contains, greater than, etc.)
+- `@Output() onFieldChange` for filter updates
+- Auto-focus support for better UX
+
+**Available Components:**
+```
+frontend/src/app/components/ui-components/filter-fields/
+├── boolean/          # Boolean filter (true/false/all)
+├── country/          # Country filter dropdown
+├── date/             # Date range picker
+├── date-time/        # Datetime range picker
+├── file/             # File type filter
+├── foreign-key/      # Related record filter
+├── id/               # ID search
+├── json-editor/      # JSON query filter
+├── long-text/        # Text search with operators
+├── number/           # Numeric range filter
+├── password/         # Password field filter
+├── point/            # Geographic filter
+├── select/           # Dropdown filter
+├── static-text/      # Text filter
+├── text/             # Text search input
+├── time/             # Time range filter
+└── time-interval/    # Interval filter
 ```
 
 **Widget Registration:**
@@ -119,7 +267,7 @@ export class TableWidgetEntity {
 
 ## Available Widget Types
 
-Currently supported widget types (23 total):
+Currently supported widget types (24 total):
 
 | Widget Type | Description | Common Parameters |
 |------------|-------------|-------------------|
@@ -143,6 +291,7 @@ Currently supported widget types (23 total):
 | `String` | Single-line text input | `pattern` |
 | `Textarea` | Multi-line text input | `rows`, `cols` |
 | `Time` | Time picker (HH:MM:SS) | `format` |
+| `Timezone` | Timezone selector with UTC offsets | `allow_null` |
 | `URL` | URL input with validation | N/A |
 | `UUID` | UUID display/input | N/A |
 | `Default` | Default rendering (inferred) | N/A |
@@ -169,29 +318,47 @@ export enum WidgetTypeEnum {
 }
 ```
 
-### Step 2: Create Frontend Component
+### Step 2: Create Frontend Components
 
-**Location:** `frontend/src/app/components/ui-components/your-new-widget-edit/`
+When adding a new widget, you need to create components for **all four contexts**:
+
+1. **Record Edit Field** (required) - `record-edit-fields/your-new-widget/`
+2. **Record View Field** (optional) - `record-view-fields/your-new-widget/`
+3. **Table Display Field** (optional) - `table-display-fields/your-new-widget/`
+4. **Filter Field** (optional) - `filter-fields/your-new-widget/`
+
+**Note:** At minimum, create the **record-edit-field** component. The other contexts will fall back to default rendering if not provided.
+
+#### Creating the Record Edit Field Component
+
+**Location:** `frontend/src/app/components/ui-components/record-edit-fields/your-new-widget/`
 
 Create three files:
 
-#### 1. Component TypeScript (`your-new-widget-edit.component.ts`)
+#### 1. Component TypeScript (`your-new-widget.component.ts`)
 
 ```typescript
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+
+import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 
 @Component({
-  selector: 'app-your-new-widget-edit',
-  templateUrl: './your-new-widget-edit.component.html',
-  styleUrls: ['./your-new-widget-edit.component.css']
+  selector: 'app-edit-your-new-widget',
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule],
+  templateUrl: './your-new-widget.component.html',
+  styleUrls: ['./your-new-widget.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class YourNewWidgetEditComponent implements OnInit {
-  @Input() field: any;           // Field configuration
-  @Input() value: any;           // Current field value
-  @Output() onFieldChange = new EventEmitter();
+export class YourNewWidgetEditComponent extends BaseEditFieldComponent {
+  @Input() value: any;
 
   ngOnInit(): void {
-    // Initialize component
+    super.ngOnInit();
+    // Additional initialization here
   }
 
   handleChange(newValue: any): void {
@@ -200,56 +367,152 @@ export class YourNewWidgetEditComponent implements OnInit {
 }
 ```
 
-#### 2. Component Template (`your-new-widget-edit.component.html`)
+#### 2. Component Template (`your-new-widget.component.html`)
 
 ```html
-<div class="your-new-widget-wrapper">
-  <!-- Your widget UI here -->
+<mat-form-field class="your-new-widget-form-field" appearance="outline">
+  <mat-label>{{normalizedLabel}}</mat-label>
   <input
-    [value]="value"
-    (change)="handleChange($event.target.value)"
-    [attr.required]="field.required"
+    matInput
+    name="{{label}}-{{key}}"
+    [required]="required"
+    [disabled]="disabled"
+    [readonly]="readonly"
+    attr.data-testid="record-{{label}}-your-new-widget"
+    [(ngModel)]="value"
+    (ngModelChange)="onFieldChange.emit($event)"
   />
-</div>
+</mat-form-field>
 ```
 
-#### 3. Component Styles (`your-new-widget-edit.component.css`)
+#### 3. Component Styles (`your-new-widget.component.css`)
 
 ```css
-.your-new-widget-wrapper {
-  /* Your styles here */
+.your-new-widget-form-field {
+  width: 100%;
 }
 ```
 
-### Step 3: Register Component in Module
+#### Optional: Create Other Field Type Components
 
-**File:** `frontend/src/app/app.module.ts`
-
+**Record View Field** (`record-view-fields/your-new-widget/`):
 ```typescript
-import { YourNewWidgetEditComponent } from './components/ui-components/your-new-widget-edit/your-new-widget-edit.component';
+import { Component, Input } from '@angular/core';
+import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@NgModule({
-  declarations: [
-    // ... existing components
-    YourNewWidgetEditComponent,
-  ],
-  // ...
+@Component({
+  selector: 'app-view-your-new-widget',
+  templateUrl: './your-new-widget.component.html',
+  styleUrls: ['./your-new-widget.component.css']
 })
-export class AppModule { }
+export class YourNewWidgetViewComponent extends BaseRecordViewFieldComponent {
+  // Read-only display logic
+}
 ```
 
-### Step 4: Add to Widget Registry
+**Table Display Field** (`table-display-fields/your-new-widget/`):
+```typescript
+import { Component } from '@angular/core';
+import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
+
+@Component({
+  selector: 'app-display-your-new-widget',
+  templateUrl: './your-new-widget.component.html',
+  styleUrls: ['./your-new-widget.component.css']
+})
+export class YourNewWidgetDisplayComponent extends BaseTableDisplayFieldComponent {
+  // Condensed table display logic
+}
+```
+
+**Filter Field** (`filter-fields/your-new-widget/`):
+```typescript
+import { Component } from '@angular/core';
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
+
+@Component({
+  selector: 'app-filter-your-new-widget',
+  templateUrl: './your-new-widget.component.html',
+  styleUrls: ['./your-new-widget.component.css']
+})
+export class YourNewWidgetFilterComponent extends BaseFilterFieldComponent {
+  // Filter logic with operators
+}
+```
+
+### Step 3: Register Component (Angular Standalone)
+
+**Note:** With Angular 19's standalone components, you don't need to register in NgModule. Components are self-contained with their imports.
+
+### Step 4: Add to Widget Registries
+
+You need to register your widget components in **four separate registry files**, one for each context:
+
+#### 4.1 Record Edit Types Registry
 
 **File:** `frontend/src/app/consts/record-edit-types.ts`
 
 ```typescript
-import { YourNewWidgetEditComponent } from '../components/ui-components/your-new-widget-edit/your-new-widget-edit.component';
+// Add import at the top
+import { YourNewWidgetEditComponent } from '../components/ui-components/record-edit-fields/your-new-widget/your-new-widget.component';
 
+// Add to UIwidgets export
 export const UIwidgets = {
   // ... existing widgets
   Your_new_widget: YourNewWidgetEditComponent,
 }
 ```
+
+#### 4.2 Record View Types Registry
+
+**File:** `frontend/src/app/consts/record-view-types.ts`
+
+```typescript
+// Add import at the top
+import { YourNewWidgetRecordViewComponent } from '../components/ui-components/record-view-fields/your-new-widget/your-new-widget.component';
+
+// Add to UIwidgets export
+export const UIwidgets = {
+  // ... existing widgets
+  Your_new_widget: YourNewWidgetRecordViewComponent,
+}
+```
+
+#### 4.3 Table Display Types Registry
+
+**File:** `frontend/src/app/consts/table-display-types.ts`
+
+```typescript
+// Add import at the top
+import { YourNewWidgetDisplayComponent } from '../components/ui-components/table-display-fields/your-new-widget/your-new-widget.component';
+
+// Add to UIwidgets export
+export const UIwidgets = {
+  // ... existing widgets
+  Your_new_widget: YourNewWidgetDisplayComponent,
+}
+```
+
+#### 4.4 Filter Types Registry
+
+**File:** `frontend/src/app/consts/filter-types.ts`
+
+```typescript
+// Add import at the top
+import { YourNewWidgetFilterComponent } from '../components/ui-components/filter-fields/your-new-widget/your-new-widget.component';
+
+// Add to UIwidgets export
+export const UIwidgets = {
+  // ... existing widgets
+  Your_new_widget: YourNewWidgetFilterComponent,
+}
+```
+
+**Important Notes:**
+- Each registry file has its own `UIwidgets` export mapping widget types to components
+- If you only created the record-edit-fields component, only add it to `record-edit-types.ts`
+- The system will gracefully fall back to default rendering for missing contexts
+- Component names follow the pattern: `{WidgetName}{Context}Component` where Context is Edit, RecordView, Display, or Filter
 
 ### Step 5: Add Default Parameters (Optional)
 
@@ -456,6 +719,15 @@ Supported algorithms: `sha1`, `sha3`, `sha224`, `sha256`, `sha512`, `sha384`, `b
 }
 ```
 
+### Timezone Widget
+```json
+{
+  "allow_null": false
+}
+```
+
+The Timezone widget automatically populates the dropdown with all available timezones from the Intl API, displaying them with their UTC offsets (e.g., "America/New_York (UTC-05:00)").
+
 ---
 
 ## Testing
@@ -480,23 +752,198 @@ cd frontend && yarn test --browsers=ChromeHeadlessCustom --no-watch --no-progres
 ```
 
 Widget component tests located in:
-- `frontend/src/app/components/ui-components/*/your-widget-edit.component.spec.ts`
+- `frontend/src/app/components/ui-components/record-edit-fields/*/your-widget.component.spec.ts`
+- `frontend/src/app/components/ui-components/record-view-fields/*/your-widget.component.spec.ts`
+- `frontend/src/app/components/ui-components/table-display-fields/*/your-widget.component.spec.ts`
+- `frontend/src/app/components/ui-components/filter-fields/*/your-widget.component.spec.ts`
+
+---
+
+## Real-World Example: Timezone Widget
+
+The **Timezone widget** is a complete example demonstrating all the concepts covered in this guide.
+
+### Implementation Details
+
+**Backend Enum** (`backend/src/enums/widget-type.enum.ts:24`):
+```typescript
+Timezone = 'Timezone'
+```
+
+**Frontend Component** (`record-edit-fields/timezone/timezone.component.ts`):
+```typescript
+import { CUSTOM_ELEMENTS_SCHEMA, Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
+
+@Component({
+  selector: 'app-edit-timezone',
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule],
+  templateUrl: './timezone.component.html',
+  styleUrls: ['./timezone.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class TimezoneEditComponent extends BaseEditFieldComponent {
+  @Input() value: string;
+  public timezones: { value: string, label: string }[] = [];
+
+  ngOnInit(): void {
+    super.ngOnInit();
+    this.initializeTimezones();
+  }
+
+  private initializeTimezones(): void {
+    // Get all available timezone identifiers from Intl API
+    const timezoneList = Intl.supportedValuesOf('timeZone');
+
+    // Map timezones to format with offset and readable label
+    this.timezones = timezoneList.map(tz => {
+      const offset = this.getTimezoneOffset(tz);
+      return {
+        value: tz,
+        label: `${tz} (UTC${offset})`
+      };
+    });
+
+    // Sort by timezone name
+    this.timezones.sort((a, b) => a.value.localeCompare(b.value));
+
+    // Add null option if allowed
+    if (this.widgetStructure?.widget_params?.allow_null) {
+      this.timezones = [{ value: null, label: '' }, ...this.timezones];
+    }
+  }
+
+  private getTimezoneOffset(timezone: string): string {
+    // Implementation details for calculating UTC offset
+    // ...
+  }
+}
+```
+
+**Widget Registration in All Four Registries:**
+
+1. `consts/record-edit-types.ts:57`:
+```typescript
+export const UIwidgets = {
+  // ... other widgets
+  Timezone: TimezoneEditComponent,
+  // ... other widgets
+}
+```
+
+2. `consts/record-view-types.ts:52`:
+```typescript
+export const UIwidgets = {
+  // ... other widgets
+  Timezone: TimezoneRecordViewComponent,
+  // ... other widgets
+}
+```
+
+3. `consts/table-display-types.ts:50`:
+```typescript
+export const UIwidgets = {
+  // ... other widgets
+  Timezone: TimezoneDisplayComponent,
+  // ... other widgets
+}
+```
+
+4. `consts/filter-types.ts:38`:
+```typescript
+export const UIwidgets = {
+  // ... other widgets
+  Timezone: TimezoneFilterComponent,
+  // ... other widgets
+}
+```
+
+**Default Parameters** (`db-table-widgets.component.ts:249-255`):
+```typescript
+Timezone: `// Configure timezone widget options
+// Uses Intl API to populate timezone list automatically
+// allow_null: Allow empty/null value selection
+{
+  "allow_null": false
+}
+`,
+```
+
+**Key Features:**
+- Uses browser's Intl API (`Intl.supportedValuesOf('timeZone')`)
+- Automatically calculates UTC offsets for each timezone
+- Supports `allow_null` parameter
+- Material Design dropdown with search capability
+- Alphabetically sorted timezone list
+- Comprehensive test coverage
+
+**Component Files (All Four Contexts):**
+
+**Record Edit Fields:**
+- Component: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.ts`
+- Template: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.html`
+- Styles: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.css`
+- Tests: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.spec.ts`
+
+**Record View Fields:**
+- Component: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.ts`
+- Template: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.html`
+- Styles: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.css`
+- Tests: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.spec.ts`
+
+**Table Display Fields:**
+- Component: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.ts`
+- Template: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.html`
+- Styles: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.css`
+- Tests: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.spec.ts`
+
+**Filter Fields:**
+- Component: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.ts`
+- Template: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.html`
+- Styles: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.css`
+- Tests: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.spec.ts`
+
+**Registry Files:**
+- `frontend/src/app/consts/record-edit-types.ts` (line 25, 57)
+- `frontend/src/app/consts/record-view-types.ts` (line 24, 52)
+- `frontend/src/app/consts/table-display-types.ts` (line 24, 50)
+- `frontend/src/app/consts/filter-types.ts` (line 19, 38)
 
 ---
 
 ## Important Notes
 
-1. **JSON5 Support:** Widget parameters support JSON5 format (comments, unquoted keys) in the UI editor, but are stored as standard JSON
+1. **Four Field Contexts:** Understanding when each field type is used:
+   - **Record Edit Fields:** Used in create/edit forms (modals, dedicated edit pages)
+   - **Record View Fields:** Used in single record detail/view pages (read-only)
+   - **Table Display Fields:** Used in table rows for listing multiple records (compact display)
+   - **Filter Fields:** Used in filter panels for searching/filtering table data
 
-2. **Security:** Widget parameters are parsed using `secure-json-parse` to prevent prototype pollution attacks
+2. **Component Inheritance:** All field components should extend their respective base components:
+   - `BaseEditFieldComponent` for record-edit-fields
+   - `BaseRecordViewFieldComponent` for record-view-fields
+   - `BaseTableDisplayFieldComponent` for table-display-fields
+   - `BaseFilterFieldComponent` for filter-fields
 
-3. **Validation:** Always validate widget parameters both on frontend (user experience) and backend (security)
+3. **Standalone Architecture:** Angular 19 uses standalone components. No NgModule registration needed. Import dependencies directly in component metadata.
 
-4. **Database Types:** Consider which database column types are compatible with your widget
+4. **JSON5 Support:** Widget parameters support JSON5 format (comments, unquoted keys) in the UI editor, but are stored as standard JSON
 
-5. **Cascading Deletes:** Widgets are automatically deleted when their parent `table_settings` record is removed
+5. **Security:** Widget parameters are parsed using `secure-json-parse` to prevent prototype pollution attacks
 
-6. **Null Values:** Widget type can be null (defaults to standard rendering)
+6. **Validation:** Always validate widget parameters both on frontend (user experience) and backend (security)
+
+7. **Database Types:** Consider which database column types are compatible with your widget
+
+8. **Cascading Deletes:** Widgets are automatically deleted when their parent `table_settings` record is removed
+
+9. **Null Values:** Widget type can be null (defaults to standard rendering)
+
+10. **Progressive Enhancement:** Start with the record-edit-field component. Add view/display/filter components only if you need custom behavior for those contexts
 
 ---
 
@@ -510,10 +957,22 @@ Widget component tests located in:
 - Use Cases: `backend/src/entities/widget/use-cases/`
 
 ### Frontend
-- Registry: `frontend/src/app/consts/record-edit-types.ts`
-- Widget Manager: `frontend/src/app/components/dashboard/db-table-view/db-table-widgets/`
-- Components: `frontend/src/app/components/ui-components/`
-- Service: `frontend/src/app/services/tables.service.ts`
+
+**Widget Registries (Type to Component Mapping):**
+- `frontend/src/app/consts/record-edit-types.ts` - Edit form components
+- `frontend/src/app/consts/record-view-types.ts` - Detail view components
+- `frontend/src/app/consts/table-display-types.ts` - Table row components
+- `frontend/src/app/consts/filter-types.ts` - Filter panel components
+
+**Widget Configuration:**
+- **Widget Manager:** `frontend/src/app/components/dashboard/db-table-view/db-table-widgets/` - Configuration UI
+- **Service:** `frontend/src/app/services/tables.service.ts` - Widget CRUD operations
+
+**Component Directories:**
+- **Record Edit Fields:** `frontend/src/app/components/ui-components/record-edit-fields/` - Interactive form inputs
+- **Record View Fields:** `frontend/src/app/components/ui-components/record-view-fields/` - Read-only detail display
+- **Table Display Fields:** `frontend/src/app/components/ui-components/table-display-fields/` - Compact table display
+- **Filter Fields:** `frontend/src/app/components/ui-components/filter-fields/` - Search/filter inputs
 
 ### Shared
 - Data Structures: `shared-code/src/data-access-layer/shared/data-structures/table-widget.ds.ts`
