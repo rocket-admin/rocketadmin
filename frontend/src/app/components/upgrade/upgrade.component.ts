@@ -5,12 +5,12 @@ import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { PaymentService } from 'src/app/services/payment.service';
 import { PlanKey } from 'src/app/models/plans';
 import { RouterModule } from '@angular/router';
 import plans from '../../consts/plans';
-import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-upgrade',
@@ -109,18 +109,6 @@ export class UpgradeComponent implements OnInit {
   ]
 
   features = [
-    // {
-    //   title: 'Database',
-    //   free: 'MySQL, PostgreSQL, MongoDB',
-    //   team: 'MySQL, PostgreSQL, MongoDB',
-    //   enterprise: 'MySQL, PostgreSQL, MongoDB, \n Oracle, Microsoft SQL'
-    // },
-    // {
-    //   title: 'Number of users',
-    //   free: 'up to 3 members',
-    //   team: 'per 10 members',
-    //   enterprise: 'per 10 members'
-    // },
     {
       title: 'Standard actions (CRUD)',
       free: true,
