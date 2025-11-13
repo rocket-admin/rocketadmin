@@ -22,6 +22,7 @@ import { StaticTextEditComponent } from '../components/ui-components/record-edit
 import { TextEditComponent } from 'src/app/components/ui-components/record-edit-fields/text/text.component';
 import { TimeEditComponent } from '../components/ui-components/record-edit-fields/time/time.component';
 import { TimeIntervalEditComponent } from '../components/ui-components/record-edit-fields/time-interval/time-interval.component';
+import { TimezoneEditComponent } from '../components/ui-components/record-edit-fields/timezone/timezone.component';
 import { UrlEditComponent } from '../components/ui-components/record-edit-fields/url/url.component';
 import { UuidEditComponent } from '../components/ui-components/record-edit-fields/uuid/uuid.component';
 
@@ -53,6 +54,7 @@ export const UIwidgets = {
     String: TextEditComponent,
     Textarea: LongTextEditComponent,
     Time: TimeEditComponent,
+    Timezone: TimezoneEditComponent,
     URL: UrlEditComponent,
     UUID: UuidEditComponent,
 }

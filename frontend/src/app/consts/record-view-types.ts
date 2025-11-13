@@ -21,6 +21,7 @@ import { StaticTextRecordViewComponent } from '../components/ui-components/recor
 import { TextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/text/text.component';
 import { TimeIntervalRecordViewComponent } from '../components/ui-components/record-view-fields/time-interval/time-interval.component';
 import { TimeRecordViewComponent } from '../components/ui-components/record-view-fields/time/time.component';
+import { TimezoneRecordViewComponent } from '../components/ui-components/record-view-fields/timezone/timezone.component';
 import { UrlRecordViewComponent } from '../components/ui-components/record-view-fields/url/url.component';
 import { UuidRecordViewComponent } from '../components/ui-components/record-view-fields/uuid/uuid.component';
 
@@ -47,7 +48,8 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyRecordViewComponent,
     Color: ColorRecordViewComponent,
     UUID: UuidRecordViewComponent,
-    Range: RangeRecordViewComponent
+    Range: RangeRecordViewComponent,
+    Timezone: TimezoneRecordViewComponent
 }
 
 export const recordViewFieldTypes = {

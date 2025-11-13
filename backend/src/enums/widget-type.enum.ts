@@ -20,5 +20,6 @@ export enum WidgetTypeEnum {
   Phone = 'Phone',
   Country = 'Country',
   Color = 'Color',
-  Range = 'Range'
+  Range = 'Range',
+  Timezone = 'Timezone'
 }

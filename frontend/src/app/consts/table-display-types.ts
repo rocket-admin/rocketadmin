@@ -21,6 +21,7 @@ import { StaticTextDisplayComponent } from '../components/ui-components/table-di
 import { TextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/text/text.component';
 import { TimeDisplayComponent } from '../components/ui-components/table-display-fields/time/time.component';
 import { TimeIntervalDisplayComponent } from '../components/ui-components/table-display-fields/time-interval/time-interval.component';
+import { TimezoneDisplayComponent } from '../components/ui-components/table-display-fields/timezone/timezone.component';
 import { UrlDisplayComponent } from '../components/ui-components/table-display-fields/url/url.component';
 import { UuidDisplayComponent } from '../components/ui-components/table-display-fields/uuid/uuid.component';
 
@@ -46,6 +47,7 @@ export const UIwidgets = {
     String: TextDisplayComponent,
     Textarea: LongTextDisplayComponent,
     Time: TimeDisplayComponent,
+    Timezone: TimezoneDisplayComponent,
     URL: UrlDisplayComponent,
     UUID: UuidDisplayComponent,
 }
