@@ -189,7 +189,21 @@
 
 .ai-message ::ng-deep ol,
 .ai-message ::ng-deep ul {
-    padding-left: 28px;
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.ai-message ::ng-deep li {
+    margin: 4px 0;
+    line-height: 1.5;
+}
+
+.ai-message ::ng-deep ol {
+    list-style-position: outside;
+}
+
+.ai-message ::ng-deep ul {
+    list-style-position: outside;
 }
 
 .ai-message ::ng-deep pre {
