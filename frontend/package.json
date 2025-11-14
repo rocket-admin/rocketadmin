@@ -46,6 +46,7 @@
     "json5": "^2.2.3",
     "libphonenumber-js": "^1.12.9",
     "lodash": "^4.17.21",
+    "mermaid": "^11.12.1",
     "monaco-editor": "0.44.0",
     "ng-dynamic-component": "^10.7.0",
     "ngx-cookie-service": "^19.0.0",

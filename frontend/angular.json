@@ -35,7 +35,8 @@
             "stylePreprocessorOptions": {
               "includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
             },
-            "scripts": [],
+            "scripts": [
+            ],
             "vendorChunk": true,
             "extractLicenses": false,
             "buildOptimizer": false,
