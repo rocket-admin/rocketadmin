@@ -6726,6 +6726,7 @@ __metadata:
     karma-jasmine-html-reporter: ^2.1.0
     libphonenumber-js: ^1.12.9
     lodash: ^4.17.21
+    lodash-es: ^4.17.21
     mermaid: ^11.12.1
     monaco-editor: 0.44.0
     ng-dynamic-component: ^10.7.0
