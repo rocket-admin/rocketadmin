@@ -21,7 +21,8 @@
         <div *ngIf="messagesChain.length; else suggestions" class="ai-message-chain-box" #chatContainer>
             <div class="ai-message-chain">
                 <div *ngFor="let message of messagesChain" class="{{message.type}}-message">
-                    <markdown mermaid>{{message.text}}</markdown>
+                    <span style="white-space: pre-wrap" *ngIf="message.type == 'user'">{{message.text}}</span>
+                    <markdown *ngIf="message.type == 'ai'" mermaid>{{message.text}}</markdown>
                 </div>
             </div>
         </div>
