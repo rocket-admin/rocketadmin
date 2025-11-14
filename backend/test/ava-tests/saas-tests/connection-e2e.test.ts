@@ -21,7 +21,6 @@ import {
   registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

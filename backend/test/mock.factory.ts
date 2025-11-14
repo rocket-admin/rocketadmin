@@ -12,6 +12,7 @@ import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
 import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
+import { CreatePersonalTableSettingsDto } from '../src/entities/table-settings/personal-table-settings/dto/create-personal-table-settings.dto.js';
 export class MockFactory {
   generateCognitoUserName() {
     return 'a876284a-e902-11ea-adc1-0242ac120002';
@@ -522,37 +523,37 @@ export class MockFactory {
     };
   }
 
-//   {
-//   id: 'e82ed355-94fd-46e5-b732-c0e8f01ccc96',
-//   table_name: 'capitulus_xiphias_rU6K_delectatio',
-//   display_name: 'test display name',
-//   search_fields: [ 'voluptas_adulatio' ],
-//   excluded_fields: [],
-//   identification_fields: [],
-//   identity_column: null,
-//   readonly_fields: [],
-//   sensitive_fields: null,
-//   sortable_by: [],
-//   autocomplete_columns: [],
-//   columns_view: null,
-//   connection_id: 'k7N6nja2',
-//   can_add: true,
-//   can_delete: true,
-//   can_update: true,
-//   icon: null,
-//   allow_csv_export: true,
-//   allow_csv_import: true
-// }
+  //   {
+  //   id: 'e82ed355-94fd-46e5-b732-c0e8f01ccc96',
+  //   table_name: 'capitulus_xiphias_rU6K_delectatio',
+  //   display_name: 'test display name',
+  //   search_fields: [ 'voluptas_adulatio' ],
+  //   excluded_fields: [],
+  //   identification_fields: [],
+  //   identity_column: null,
+  //   readonly_fields: [],
+  //   sensitive_fields: null,
+  //   sortable_by: [],
+  //   autocomplete_columns: [],
+  //   columns_view: null,
+  //   connection_id: 'k7N6nja2',
+  //   can_add: true,
+  //   can_delete: true,
+  //   can_update: true,
+  //   icon: null,
+  //   allow_csv_export: true,
+  //   allow_csv_import: true
+  // }
 
   generateTableSettings(
     connectionId: string,
     tableName: string,
     searchedFields: Array<string>,
     excludedFields: Array<string>,
-    listFields: Array<string>,
-    listPerPage = 3,
-    ordering: QueryOrderingEnum,
-    orderingField: string,
+    // listFields: Array<string>,
+    // listPerPage = 3,
+    // ordering: QueryOrderingEnum,
+    // orderingField: string,
     readonlyFields: Array<string>,
     sortableBy: Array<string>,
     autocompleteColumns: Array<string>,
@@ -579,15 +580,33 @@ export class MockFactory {
     /*eslint-enable*/
   }
 
+  generatePersonalTableSettingsDto(
+    list_fields: Array<string>,
+    list_per_page = 3,
+    ordering: QueryOrderingEnum,
+    ordering_field: string,
+    columns_view? : Array<string>,
+    original_names: boolean = true,
+  ): CreatePersonalTableSettingsDto {
+    return {
+      columns_view,
+      list_fields,
+      list_per_page,
+      ordering,
+      ordering_field,
+      original_names,
+    };
+  }
+
   generateTableSettingsWithoutTypes(
     connectionId: any,
     tableName: any,
     searchedFields: any,
     excludedFields: any,
-    listFields: any,
-    listPerPage: any,
-    ordering: any,
-    orderingField: any,
+    // listFields: any,
+    // listPerPage: any,
+    // ordering: any,
+    // orderingField: any,
     readonlyFields: any,
     sortebleBy: any,
     autocompleteColumns: any,
@@ -599,10 +618,6 @@ export class MockFactory {
       display_name: 'test display name',
       search_fields: searchedFields,
       excluded_fields: excludedFields,
-      list_fields: listFields,
-      list_per_page: listPerPage ? listPerPage : 3,
-      ordering: ordering,
-      ordering_field: orderingField,
       readonly_fields: readonlyFields,
       sortable_by: sortebleBy,
       autocomplete_columns: autocompleteColumns,
