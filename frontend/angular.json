@@ -36,7 +36,6 @@
               "includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
             },
             "scripts": [
-              "node_modules/mermaid/dist/mermaid.min.js"
             ],
             "vendorChunk": true,
             "extractLicenses": false,
