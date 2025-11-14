@@ -10,6 +10,7 @@ import { IdRecordViewComponent } from '../components/ui-components/record-view-f
 import { ImageRecordViewComponent } from '../components/ui-components/record-view-fields/image/image.component';
 import { JsonEditorRecordViewComponent } from '../components/ui-components/record-view-fields/json-editor/json-editor.component';
 import { LongTextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/long-text/long-text.component';
+import { MarkdownRecordViewComponent } from '../components/ui-components/record-view-fields/markdown/markdown.component';
 import { MoneyRecordViewComponent } from '../components/ui-components/record-view-fields/money/money.component';
 import { NumberRecordViewComponent } from '../components/ui-components/record-view-fields/number/number.component';
 import { PasswordRecordViewComponent } from '../components/ui-components/record-view-fields/password/password.component';
@@ -32,6 +33,7 @@ export const UIwidgets = {
     Time: TimeRecordViewComponent,
     DateTime: DateTimeRecordViewComponent,
     JSON: JsonEditorRecordViewComponent,
+    Markdown: MarkdownRecordViewComponent,
     Textarea: LongTextRecordViewComponent,
     String: TextRecordViewComponent,
     Readonly: StaticTextRecordViewComponent,

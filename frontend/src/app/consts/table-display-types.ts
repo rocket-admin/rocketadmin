@@ -10,6 +10,7 @@ import { IdDisplayComponent } from '../components/ui-components/table-display-fi
 import { ImageDisplayComponent } from '../components/ui-components/table-display-fields/image/image.component';
 import { JsonEditorDisplayComponent } from '../components/ui-components/table-display-fields/json-editor/json-editor.component';
 import { LongTextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/long-text/long-text.component';
+import { MarkdownDisplayComponent } from '../components/ui-components/table-display-fields/markdown/markdown.component';
 import { MoneyDisplayComponent } from '../components/ui-components/table-display-fields/money/money.component';
 import { NumberDisplayComponent } from '../components/ui-components/table-display-fields/number/number.component';
 import { PasswordDisplayComponent } from '../components/ui-components/table-display-fields/password/password.component';
@@ -37,6 +38,7 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyDisplayComponent,
     Image: ImageDisplayComponent,
     JSON: JsonEditorDisplayComponent,
+    Markdown: MarkdownDisplayComponent,
     Money: MoneyDisplayComponent,
     Number: NumberDisplayComponent,
     Password: PasswordDisplayComponent,
