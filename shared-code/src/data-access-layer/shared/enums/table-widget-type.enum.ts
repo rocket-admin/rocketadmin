@@ -21,4 +21,5 @@ export enum TableWidgetTypeEnum {
   Country = 'Country',
   Color = 'Color',
   Range = 'Range',
+  Timezone = 'Timezone',
 }

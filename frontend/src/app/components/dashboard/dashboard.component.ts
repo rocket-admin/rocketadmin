@@ -242,8 +242,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return result;
       }, '');
 
-      if (tableItem.display_name) return {...tableItem, initials: initials.slice(0, 2)}
-      else return {...tableItem, normalizedTableName, initials: initials.slice(0, 2)}
+      return {...tableItem, normalizedTableName, initials: initials.slice(0, 2)}
     })
   }
 

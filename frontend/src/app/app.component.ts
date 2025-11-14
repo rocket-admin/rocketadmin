@@ -121,7 +121,9 @@ export class AppComponent {
         filter(event => event instanceof NavigationEnd)
       )
       .subscribe(() => {
-        this.page = this.router.routerState.snapshot.url;
+        this.page = this.router.routerState.snapshot.url.split('?')[0];
+
+        console.log('Navigated to page:', this.page);
 
         if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
           console.log('App component, demo mode search params found');
