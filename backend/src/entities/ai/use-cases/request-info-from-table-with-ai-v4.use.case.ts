@@ -25,7 +25,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
   extends AbstractUseCase<RequestInfoFromTableDSV2, void>
   implements IRequestInfoFromTableV2
 {
-  private readonly model: ResponsesModel = 'gpt-4.1';
+  private readonly model: ResponsesModel = 'gpt-5';
   private readonly maxDepth: number = 5;
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
