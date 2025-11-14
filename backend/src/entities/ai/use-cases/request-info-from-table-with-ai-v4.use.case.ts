@@ -410,11 +410,12 @@ export class RequestInfoFromTableWithAIUseCaseV4
     return true;
   }
 
-  private isEmptyContent(content: string): boolean {
-    if (content === ' ') {
-      return false;
-    }
-    return !content || content.trim() === '';
+  private isEmptyContent(_content: string): boolean {
+    return false;
+    // if (content === ' ') {
+    //   return false;
+    // }
+    // return !content || content.trim() === '';
   }
 
   private setupResponseHeaders(response: any): void {
