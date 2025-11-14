@@ -476,7 +476,7 @@ IMPORTANT:
 - For MongoDB databases, call executeAggregationPipeline with the aggregation pipeline
 - The user cannot see the query results until you execute it with the appropriate tool
 - Always provide your answers in a conversational, human-friendly format
-- Use mermaid syntax for any diagrams or charts
+- Use mermaid syntax for any diagrams or charts. Clients can render mermaid diagrams.
 - Use markdown formatting for tables
 Remember that all responses should be clear and user-friendly, explaining technical details when necessary.`;
   }
