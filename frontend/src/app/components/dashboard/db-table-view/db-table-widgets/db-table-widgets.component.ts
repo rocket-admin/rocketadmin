@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
 import { Location } from '@angular/common';
 import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
+import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -53,6 +54,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     PasswordEditComponent,
     ImageEditComponent,
     CodeEditComponent,
+    MarkdownEditComponent,
     WidgetComponent,
     TextEditComponent,
     LongTextEditComponent,
@@ -160,6 +162,7 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
     JSON: `// No settings required`,
+    Markdown: `// No settings required`,
     Money: `// Configure money widget settings
 // example:
 {

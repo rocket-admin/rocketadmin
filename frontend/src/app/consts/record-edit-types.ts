@@ -11,6 +11,7 @@ import { IdEditComponent } from '../components/ui-components/record-edit-fields/
 import { ImageEditComponent } from '../components/ui-components/record-edit-fields/image/image.component';
 import { JsonEditorEditComponent } from '../components/ui-components/record-edit-fields/json-editor/json-editor.component';
 import { LongTextEditComponent } from 'src/app/components/ui-components/record-edit-fields/long-text/long-text.component'
+import { MarkdownEditComponent } from '../components/ui-components/record-edit-fields/markdown/markdown.component';
 import { MoneyEditComponent } from '../components/ui-components/record-edit-fields/money/money.component';
 import { NumberEditComponent } from 'src/app/components/ui-components/record-edit-fields/number/number.component';
 import { PasswordEditComponent } from '../components/ui-components/record-edit-fields/password/password.component';
@@ -44,6 +45,7 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyEditComponent,
     Image: ImageEditComponent,
     JSON: JsonEditorEditComponent,
+    Markdown: MarkdownEditComponent,
     Money: MoneyEditComponent,
     Number: NumberEditComponent,
     Password: PasswordEditComponent,

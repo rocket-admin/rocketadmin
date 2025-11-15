@@ -25,7 +25,7 @@ export class RequestInfoFromTableWithAIUseCaseV4
   extends AbstractUseCase<RequestInfoFromTableDSV2, void>
   implements IRequestInfoFromTableV2
 {
-  private readonly model: ResponsesModel = 'gpt-4.1';
+  private readonly model: ResponsesModel = 'gpt-5';
   private readonly maxDepth: number = 5;
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -410,11 +410,12 @@ export class RequestInfoFromTableWithAIUseCaseV4
     return true;
   }
 
-  private isEmptyContent(content: string): boolean {
-    if (content === ' ') {
-      return false;
-    }
-    return !content || content.trim() === '';
+  private isEmptyContent(_content: string): boolean {
+    return false;
+    // if (content === ' ') {
+    //   return false;
+    // }
+    // return !content || content.trim() === '';
   }
 
   private setupResponseHeaders(response: any): void {
@@ -475,6 +476,8 @@ IMPORTANT:
 - For MongoDB databases, call executeAggregationPipeline with the aggregation pipeline
 - The user cannot see the query results until you execute it with the appropriate tool
 - Always provide your answers in a conversational, human-friendly format
+- Use mermaid syntax for any diagrams or charts. Clients can render mermaid diagrams.
+- Use markdown formatting for tables
 Remember that all responses should be clear and user-friendly, explaining technical details when necessary.`;
   }
 

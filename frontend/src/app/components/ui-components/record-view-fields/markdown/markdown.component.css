@@ -1,0 +1,48 @@
+.markdown-container {
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  min-height: 100px;
+}
+
+.markdown-container ::ng-deep h1,
+.markdown-container ::ng-deep h2,
+.markdown-container ::ng-deep h3,
+.markdown-container ::ng-deep h4,
+.markdown-container ::ng-deep h5,
+.markdown-container ::ng-deep h6 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.markdown-container ::ng-deep p {
+  margin-bottom: 8px;
+}
+
+.markdown-container ::ng-deep ul,
+.markdown-container ::ng-deep ol {
+  margin-left: 20px;
+  margin-bottom: 8px;
+}
+
+.markdown-container ::ng-deep code {
+  background: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.markdown-container ::ng-deep pre {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.markdown-container ::ng-deep blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 16px;
+  margin-left: 0;
+  color: #666;
+}

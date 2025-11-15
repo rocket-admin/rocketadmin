@@ -28,7 +28,7 @@ import { SubscriptionPlans } from 'src/app/models/user';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
-import { orderBy } from "lodash";
+import { orderBy } from "lodash-es";
 
 @Component({
   selector: 'app-company',
