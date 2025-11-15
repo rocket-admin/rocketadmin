@@ -2,9 +2,9 @@ import { FilterCriteriaEnum } from '../enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
 import { WidgetTypeEnum } from '../enums/widget-type.enum.js';
 import { OperationTypeEnum } from '../enums/operation-type.enum.js';
-import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
-import { FilteringFieldsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/filtering-fields.ds.js';
-import { AutocompleteFieldsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/autocomplete-fields.ds.js';
+import { TableSettingsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-settings.ds.js';
+import { FilteringFieldsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/filtering-fields.ds.js';
+import { AutocompleteFieldsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/autocomplete-fields.ds.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export interface IAutocompleteFields {
@@ -30,8 +30,8 @@ export interface ICLIConnectionCredentials {
   config_encryption_option: boolean;
   encryption_password: string;
   saving_logs_option: boolean;
-  dataCenter: string;
-  authSource: string;
+  dataCenter?: string;
+  authSource?: string;
 }
 
 export interface ISavedCLIConnectionCredentials {

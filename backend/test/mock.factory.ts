@@ -10,7 +10,7 @@ import { TestConstants } from './mocks/test-constants.js';
 import json5 from 'json5';
 import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
 import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 export class MockFactory {
   generateCognitoUserName() {

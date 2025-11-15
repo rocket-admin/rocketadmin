@@ -1,4 +1,4 @@
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { getTestKnex } from './get-test-knex.js';
 
 export async function dropTestTables(tableNames: Array<string>, connectionParams): Promise<void> {

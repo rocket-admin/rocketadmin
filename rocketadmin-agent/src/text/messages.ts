@@ -1,5 +1,5 @@
 import { enumToString } from '../helpers/enum-to-string.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
 import { Constants } from '../helpers/constants/constants.js';
 
@@ -64,7 +64,7 @@ export const Messages = {
       'Welcome! First of all, we need to configure the connection to your database. \n' +
       'Please, enter you unique connection token ' +
       'what you received when you created an agent-connection on the autoadmin website: \n ->',
-    CONNECTION_TYPE_MESSAGE: `Please choose the type of connection. 
+    CONNECTION_TYPE_MESSAGE: `Please choose the type of connection.
     We support the following types: `,
     CONNECTION_HOST_MESSAGE: `Please enter the host, where your database is located: \n ->`,
     CONNECTION_PORT_MESSAGE: `Please enter the port, what your database is listening on your host: \n ->`,
@@ -81,7 +81,7 @@ export const Messages = {
     CONNECTION_AZURE_ENCRYPTION_MESSAGE: `Azure encryption option.
      If your database located in Microsoft Azure cloud, and requires encryption choose "Yes" or "No" - if it doesn't: \n ->`,
     CONNECTION_SSL_OPTION_MESSAGE: `SSL option. Choose "Yes"  if your database support ssl connections and
-    if you want to use ssl connection to your database 
+    if you want to use ssl connection to your database
     (before answering "YES", please put the ssl certificate in the application directory and name it "cert.pem"),
     "No" - in another cases. \n ->`,
     APPLICATION_PORT_MESSAGE: `Enter port number, when this application will launch. Default is 3000. (You can left this value empty): \n ->`,

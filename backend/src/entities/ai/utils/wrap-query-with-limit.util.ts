@@ -1,4 +1,4 @@
-import { ConnectionTypesEnum } from "@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js";
+import { ConnectionTypesEnum } from "@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js";
 
 export function wrapQueryWithLimit(query: string, databaseType: ConnectionTypesEnum): string {
   const queryWithoutSemicolon = query.replace(/;$/, '');

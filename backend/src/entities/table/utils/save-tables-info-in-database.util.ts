@@ -1,4 +1,4 @@
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { TableFieldInfoEntity } from '../../table-field-info/table-field-info.entity.js';
 import { TableInfoEntity } from '../../table-info/table-info.entity.js';
