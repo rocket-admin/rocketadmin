@@ -37,6 +37,10 @@
                     {{action.title}}
                 </button>
             </ng-container>
+            <button mat-button *ngIf="tableData && tableData.isExportAllowed"
+                (click)="exportData()">
+                Export to CSV
+            </button>
             <button mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.delete && tableData.canDelete"
                 (click)="handleActions({title: 'Delete rows', type: 'multiple',  require_confirmation: true})">
                 Delete
