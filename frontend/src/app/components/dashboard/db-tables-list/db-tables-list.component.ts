@@ -429,6 +429,11 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     return folder.id;
   }
 
+  hasCustomFolders(): boolean {
+    // Check if there are folders other than "All Tables"
+    return this.folders.some(folder => folder.name !== 'All Tables');
+  }
+
   private preserveFolderStates() {
     // Save expanded states of all folders
     this.folders.forEach(folder => {

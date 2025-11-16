@@ -70,103 +70,111 @@
             </div>
         </div>
 
-        <mat-form-field *ngIf="!collapsed" appearance="fill" class="search-input">
-            <input matInput name="search" #search="ngModel"
-                placeholder="Search"
-                [(ngModel)]="substringToSearch"
-                (keyup)="searchSubstring()">
-            <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
-        </mat-form-field>
+        <!-- Expanded state container -->
+        <div *ngIf="!collapsed" class="expanded-container">
+            <!-- Search field always at the top -->
+            <mat-form-field appearance="fill" class="search-input">
+                <input matInput name="search" #search="ngModel"
+                    placeholder="Search"
+                    [(ngModel)]="substringToSearch"
+                    (keyup)="searchSubstring()">
+                <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
+            </mat-form-field>
 
-        <div *ngIf="!collapsed && accessLevel === 'edit'" class="add-folder-button-container">
-            <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
-                <mat-icon>add</mat-icon>
-                Add Folder
-            </button>
-        </div>
-
-        <!-- Collections Section -->
-        <div *ngIf="!collapsed && folders.length > 0" class="folders-section">
-            <ng-container *ngFor="let folder of folders; trackBy: trackByFolderId">
-                <div *ngIf="shouldShowFolder(folder)"
-                    class="folder-item"
-                    [class.expanded]="folder.expanded"
-                    [class.drag-over]="dragOverFolder === folder.id"
-                    (dragover)="onFolderDragOver($event, folder.id)"
-                    (dragleave)="onFolderDragLeave($event, folder.id)"
-                    (drop)="onFolderDrop($event, folder)">
-                    <div class="folder-header"
-                        [class.expanded]="folder.expanded"
-                        (click)="toggleFolder(folder.id)">
-                        <!-- Folder icon on the left -->
-                        <span *ngIf="folder.name === 'All Tables'"
-                            class="material-icons folder-icon"
-                            [style.color]="getFolderIconColor(folder)">dehaze</span>
-                        <span *ngIf="folder.name !== 'All Tables'"
-                            class="material-icons folder-icon"
-                            [style.color]="getFolderIconColor(folder)">folder</span>
-
-                        <div class="folder-name">
-                            {{folder.name}}
-                        </div>
-
-                        <div class="folder-actions">
-                            <button *ngIf="folder.name !== 'All Tables' && accessLevel === 'edit'"
-                                mat-icon-button class="more-folder-button"
-                                [matMenuTriggerFor]="folderMenu"
-                                (click)="$event.stopPropagation()"
-                                matTooltip="Folder options">
-                                <mat-icon>more_vert</mat-icon>
-                            </button>
-
-                            <!-- Expand/collapse icon on the right -->
-                            <mat-icon class="folder-expand-icon" [class.expanded]="folder.expanded">
-                                chevron_right
-                            </mat-icon>
-                            <mat-menu #folderMenu="matMenu">
-                                <button mat-menu-item (click)="showEditTablesDialog(folder)">
-                                    <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
-                                    <span>Edit</span>
-                                </button>
-                                <button mat-menu-item (click)="deleteFolder(folder)">
-                                    <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
-                                    <span>Delete</span>
-                                </button>
-                            </mat-menu>
-                        </div>
-                    </div>
-                    <div *ngIf="folder.expanded" class="folder-tables">
-                        <div *ngIf="getFolderTables(folder).length > 0; else noTablesInCollection"
-                            class="selected-tables-list">
-                            <div *ngFor="let table of getFolderTables(folder)"
-                                class="selected-table-item"
-                                [draggable]="true"
-                                (dragstart)="onTableDragStart($event, table)"
-                                (dragend)="onTableDragEnd($event)">
-                                <a class="table-link"
-                                    routerLink="/dashboard/{{connectionID}}/{{table.table}}"
-                                    [queryParams]="{page_index: 0, page_size: 30}"
-                                    [ngClass]="{'table-link_active': selectedTable === table.table}"
-                                    (click)="closeSidebar()">
-                                    <span class="table-name">{{getTableName(table)}}</span>
-                                </a>
-                            </div>
-
-                        </div>
-                        <ng-template #noTablesInCollection>
-                            <div class="no-tables-message" [class.empty-folder-message]="folder.isEmpty">
-                                <p *ngIf="!folder.isEmpty">No tables in this folder</p>
-                                <button mat-stroked-button
-                                    color="primary"
-                                    [class.empty-folder-button]="folder.isEmpty"
-                                    (click)="showEditTablesDialog(folder)">
-                                    {{folder.isEmpty ? 'Add or drag and drop tables' : 'Add Table'}}
-                                </button>
-                            </div>
-                        </ng-template>
-                    </div>
+            <!-- Wrapper for folders and add button with dynamic flex-direction -->
+            <div class="expanded-content-wrapper" [class.custom-folders-exist]="hasCustomFolders()">
+                <!-- Single Add Folder button -->
+                <div *ngIf="accessLevel === 'edit'" class="add-folder-button-container">
+                    <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
+                        <mat-icon>add</mat-icon>
+                        Add Folder
+                    </button>
                 </div>
-            </ng-container>
+
+                <!-- Collections Section -->
+                <div *ngIf="folders && folders.length > 0" class="folders-section">
+                    <ng-container *ngFor="let folder of folders; trackBy: trackByFolderId">
+                        <div *ngIf="shouldShowFolder(folder)"
+                            class="folder-item"
+                            [class.expanded]="folder.expanded"
+                            [class.drag-over]="dragOverFolder === folder.id"
+                            (dragover)="onFolderDragOver($event, folder.id)"
+                            (dragleave)="onFolderDragLeave($event, folder.id)"
+                            (drop)="onFolderDrop($event, folder)">
+                            <div class="folder-header"
+                                [class.expanded]="folder.expanded"
+                                (click)="toggleFolder(folder.id)">
+                                <!-- Folder icon on the left -->
+                                <span *ngIf="folder.name === 'All Tables'"
+                                    class="material-icons folder-icon"
+                                    [style.color]="getFolderIconColor(folder)">dehaze</span>
+                                <span *ngIf="folder.name !== 'All Tables'"
+                                    class="material-icons folder-icon"
+                                    [style.color]="getFolderIconColor(folder)">folder</span>
+
+                                <div class="folder-name">
+                                    {{folder.name}}
+                                </div>
+
+                                <div class="folder-actions">
+                                    <button *ngIf="folder.name !== 'All Tables' && accessLevel === 'edit'"
+                                        mat-icon-button class="more-folder-button"
+                                        [matMenuTriggerFor]="folderMenu"
+                                        (click)="$event.stopPropagation()"
+                                        matTooltip="Folder options">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+
+                                    <!-- Expand/collapse icon on the right -->
+                                    <mat-icon class="folder-expand-icon" [class.expanded]="folder.expanded">
+                                        chevron_right
+                                    </mat-icon>
+                                    <mat-menu #folderMenu="matMenu">
+                                        <button mat-menu-item (click)="showEditTablesDialog(folder)">
+                                            <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
+                                            <span>Edit</span>
+                                        </button>
+                                        <button mat-menu-item (click)="deleteFolder(folder)">
+                                            <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+                                            <span>Delete</span>
+                                        </button>
+                                    </mat-menu>
+                                </div>
+                            </div>
+                            <div *ngIf="folder.expanded" class="folder-tables">
+                                <div *ngIf="getFolderTables(folder).length > 0; else noTablesInCollection"
+                                    class="selected-tables-list">
+                                    <div *ngFor="let table of getFolderTables(folder)"
+                                        class="selected-table-item"
+                                        [draggable]="true"
+                                        (dragstart)="onTableDragStart($event, table)"
+                                        (dragend)="onTableDragEnd($event)">
+                                        <a class="table-link"
+                                            routerLink="/dashboard/{{connectionID}}/{{table.table}}"
+                                            [queryParams]="{page_index: 0, page_size: 30}"
+                                            [ngClass]="{'table-link_active': selectedTable === table.table}"
+                                            (click)="closeSidebar()">
+                                            <span class="table-name">{{getTableName(table)}}</span>
+                                        </a>
+                                    </div>
+
+                                </div>
+                                <ng-template #noTablesInCollection>
+                                    <div class="no-tables-message" [class.empty-folder-message]="folder.isEmpty">
+                                        <p *ngIf="!folder.isEmpty">No tables in this folder</p>
+                                        <button mat-stroked-button
+                                            color="primary"
+                                            [class.empty-folder-button]="folder.isEmpty"
+                                            (click)="showEditTablesDialog(folder)">
+                                            {{folder.isEmpty ? 'Add or drag and drop tables' : 'Add Table'}}
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
         </div>
 
     </div>

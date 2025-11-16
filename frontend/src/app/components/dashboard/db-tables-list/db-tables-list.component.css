@@ -29,6 +29,7 @@
     align-items: center;
     height: 100%;
     min-height: calc(100vh - 120px); /* Adjust based on header height */
+    position: relative;
 }
 
 .collapsed-top-section {
@@ -39,14 +40,20 @@
     flex: 1;
     justify-content: flex-start;
     padding-top: 8px;
+    overflow-y: auto;
+    width: 100%;
 }
 
 .collapsed-bottom-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: auto;
-    padding-bottom: 8px;
+    position: sticky;
+    bottom: 0;
+    background-color: #ffffff;
+    padding: 8px 0;
+    width: 100%;
+    z-index: 10;
 }
 
 .collapsed-folders {
@@ -212,6 +219,10 @@
     .collapsed-tables-list {
         background: #303030;
         border: 1px solid #424242;
+    }
+
+    .collapsed-bottom-section {
+        background-color: #303030;
     }
 
     .collapsed-folder-item {
@@ -524,11 +535,32 @@
     margin-left: 16px;
 }
 
+/* Expanded state container */
+.expanded-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+/* Expanded content wrapper */
+.expanded-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.expanded-content-wrapper.custom-folders-exist {
+    flex-direction: column-reverse;
+}
+
 .search-input {
     background-color: transparent;
-    margin-top: 4px;
+    margin-top: 8px;
     margin-left: 16px;
-    /* margin-bottom: -24px; */
+    margin-bottom: 4px;
     width: calc(100% - 32px);
     max-width: calc(240px - 32px);
     box-sizing: border-box;
@@ -554,10 +586,16 @@
 .add-folder-button-container {
     margin-left: 16px;
     margin-right: 16px;
-    margin-top: -12px;
-    margin-bottom: 12px;
+    margin-top: 0;
+    margin-bottom: 8px;
     width: calc(100% - 32px);
     box-sizing: border-box;
+}
+
+/* Adjust margins when custom folders exist (button at bottom) */
+.expanded-content-wrapper.custom-folders-exist .add-folder-button-container {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .add-folder-button {
