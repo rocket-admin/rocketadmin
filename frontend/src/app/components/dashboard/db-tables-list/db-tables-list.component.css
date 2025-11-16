@@ -209,6 +209,11 @@
 
 /* Dark theme adaptations */
 @media (prefers-color-scheme: dark) {
+    .collapsed-tables-list {
+        background: #303030;
+        border: 1px solid #424242;
+    }
+
     .collapsed-folder-item {
         background-color: transparent;
         color: #ffffff;
@@ -463,16 +468,25 @@
     }
 
     .folder-header.expanded {
-        background-color: #212121;
-        color: #ffffff;
+        background-color: #212121 !important;
+        color: #ffffff !important;
     }
 
-    .folder-header.expanded .folder-icon {
-        color: #ffffff;
+    .folder-header .folder-icon {
+        color: #ffffff !important;
+    }
+
+    /* .folder-header.expanded .folder-name, */
+    .folder-header .folder-name {
+        color: #ffffff !important;
     }
 
     .folder-header.expanded .folder-expand-icon {
-        color: #ffffff;
+        color: #ffffff !important;
+    }
+
+    .folder-header:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
     }
 }
 
@@ -548,15 +562,6 @@
 
 .add-folder-button {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-weight: 500;
-    text-transform: none;
-    letter-spacing: 0.5px;
-    border-color: #e0e0e0 !important;
-    color: #616161 !important;
 }
 
 .add-folder-button:hover {

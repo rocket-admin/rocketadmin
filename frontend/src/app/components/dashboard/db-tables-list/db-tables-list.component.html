@@ -25,8 +25,7 @@
                         matTooltipPosition="right"
                         (click)="onCollapsedFolderClick(folder)">
                     <span *ngIf="folder.name === 'All Tables'"
-                        class="material-icons collapsed-folder-icon"
-                        [style.color]="getFolderIconColor(folder)">dehaze</span>
+                        class="material-icons collapsed-folder-icon">dehaze</span>
                         <span *ngIf="folder.name !== 'All Tables'"
                             class="material-icons collapsed-folder-icon"
                             [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
