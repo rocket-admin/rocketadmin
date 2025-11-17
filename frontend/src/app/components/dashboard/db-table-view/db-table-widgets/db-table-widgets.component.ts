@@ -219,15 +219,18 @@ export class DbTableWidgetsComponent implements OnInit {
   "options": [
     {
       "value": "UA",
-      "label": "🇺🇦 Ukraine"
+      "label": "🇺🇦 Ukraine",
+      "background_color": "gold"
     },
     {
       "value": "PL",
-      "label": "🇵🇱 Poland"
+      "label": "🇵🇱 Poland",
+      "background_color": "#FF1212"
     },
     {
       "value": "US",
-      "label": "🇺🇸 United States"
+      "label": "🇺🇸 United States",
+      "background_color": "rgba(100, 150, 255, 0.5)"
     }
   ]
 }`,
