@@ -438,7 +438,8 @@
 .tables-list {
     width: 100%;
     box-sizing: border-box;
-    min-height: 0;
+    /* min-height: 0; */
+    height: calc(100vh - 100px); /* Adjust based on header height */
 }
 
 .tables-list ::ng-deep .table-list-item .mat-list-item-content {
@@ -541,10 +542,11 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
+    position: relative;
 }
 
-/* Expanded content wrapper */
-.expanded-content-wrapper {
+/* Expanded top section with search and folders */
+.expanded-top-section {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -552,8 +554,25 @@
     overflow-y: auto;
 }
 
-.expanded-content-wrapper.custom-folders-exist {
-    flex-direction: column-reverse;
+/* Expanded bottom section with add button */
+.expanded-bottom-section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: sticky;
+    bottom: 0;
+    background-color: #ffffff;
+    padding: 8px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+/* Dark theme support for expanded bottom section */
+@media (prefers-color-scheme: dark) {
+    .expanded-bottom-section {
+        background-color: #303030;
+    }
 }
 
 .search-input {
@@ -581,21 +600,6 @@
 .search-input ::ng-deep .mdc-text-field--no-label:not(.mdc-text-field--outlined):not(.mdc-text-field--textarea) .mat-mdc-form-field-infix {
     padding-top: 8px;
     padding-bottom: 8px;
-}
-
-.add-folder-button-container {
-    margin-left: 16px;
-    margin-right: 16px;
-    margin-top: 0;
-    margin-bottom: 8px;
-    width: calc(100% - 32px);
-    box-sizing: border-box;
-}
-
-/* Adjust margins when custom folders exist (button at bottom) */
-.expanded-content-wrapper.custom-folders-exist .add-folder-button-container {
-    margin-top: 8px;
-    margin-bottom: 8px;
 }
 
 .add-folder-button {
