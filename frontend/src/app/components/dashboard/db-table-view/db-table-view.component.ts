@@ -522,4 +522,62 @@ export class DbTableViewComponent implements OnInit {
     console.log('table view fiers filterSelected:', $event)
     this.applyFilter.emit($event);
   }
+
+  exportData() {
+    console.log('export data');
+    console.log(this.selection.selected);
+
+    // Helper function to convert value to CSV-safe string
+    const convertToCSVValue = (value: any): string => {
+      // Handle null and undefined
+      if (value === null || value === undefined) {
+        return '';
+      }
+
+      // Handle nested objects and arrays - convert to JSON string
+      if (typeof value === 'object') {
+        try {
+          // Convert object/array to JSON string
+          value = JSON.stringify(value);
+        } catch (e) {
+          // Handle circular references or other JSON stringify errors
+          value = '[Object]';
+        }
+      }
+
+      // Convert to string if not already
+      const stringValue = String(value);
+
+      // Check if value needs to be quoted (contains comma, double quote, or newline)
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n') || stringValue.includes('\r')) {
+        // Escape double quotes by doubling them and wrap in quotes
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+
+      return stringValue;
+    };
+
+    const header = Object.keys(this.selection.selected[0]);
+
+    // Create CSV rows with proper handling of nested objects
+    const csv = this.selection.selected.map((row) =>
+      header
+        .map((fieldName) => convertToCSVValue(row[fieldName]))
+        .join(',')
+    );
+
+    // Add header row
+    csv.unshift(header.map(h => convertToCSVValue(h)).join(','));
+    const csvArray = csv.join('\r\n');
+
+    const a = document.createElement('a');
+    const blob = new Blob([csvArray], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    a.href = url;
+    a.download = 'myFile.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }
 }
