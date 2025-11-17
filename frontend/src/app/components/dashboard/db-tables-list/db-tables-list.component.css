@@ -543,46 +543,47 @@
     width: 100%;
     height: 100%;
     position: relative;
-}
-
-/* Expanded top section with search and folders */
-.expanded-top-section {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    flex: 1;
     overflow-y: auto;
-}
-
-/* Expanded bottom section with add button */
-.expanded-bottom-section {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    position: sticky;
-    bottom: 0;
-    background-color: #ffffff;
-    padding: 8px 16px;
-    width: 100%;
-    box-sizing: border-box;
-    z-index: 10;
-}
-
-/* Dark theme support for expanded bottom section */
-@media (prefers-color-scheme: dark) {
-    .expanded-bottom-section {
-        background-color: #303030;
-    }
 }
 
 .search-input {
     background-color: transparent;
     margin-top: 8px;
     margin-left: 16px;
-    margin-bottom: 4px;
+    margin-bottom: -8px;
     width: calc(100% - 32px);
     max-width: calc(240px - 32px);
     box-sizing: border-box;
+    order: 1; /* Always first */
+}
+
+/* Add folder button container */
+.add-folder-button-container {
+    order: 2; /* Default: after search when no custom folders */
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    width: calc(100% - 32px);
+    box-sizing: border-box;
+}
+
+/* When custom folders exist, move add button to bottom */
+.expanded-container.has-custom-folders .add-folder-button-container {
+    order: 4; /* After folders section */
+    position: sticky;
+    bottom: 0;
+    background-color: #ffffff;
+    padding: 8px 16px;
+    z-index: 10;
+    margin-top: auto;
+}
+
+/* Dark theme support for add button container when at bottom */
+@media (prefers-color-scheme: dark) {
+    .expanded-container.has-custom-folders .add-folder-button-container {
+        background-color: #303030;
+    }
 }
 
 .search-input ::ng-deep * {
@@ -622,6 +623,9 @@
     margin-bottom: 8px;
     width: calc(100% - 32px);
     box-sizing: border-box;
+    order: 3; /* After search and (optionally) add button */
+    flex: 1;
+    overflow-y: auto;
 }
 
 .folder-item {

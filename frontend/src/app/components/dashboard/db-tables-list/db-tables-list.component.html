@@ -71,20 +71,26 @@
         </div>
 
         <!-- Expanded state container -->
-        <div *ngIf="!collapsed" class="expanded-container">
-            <!-- Top section with search and folders -->
-            <div class="expanded-top-section">
-                <!-- Search field always at the top -->
-                <mat-form-field appearance="fill" class="search-input">
-                    <input matInput name="search" #search="ngModel"
-                        placeholder="Search"
-                        [(ngModel)]="substringToSearch"
-                        (keyup)="searchSubstring()">
-                    <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
-                </mat-form-field>
+        <div *ngIf="!collapsed" class="expanded-container" [class.has-custom-folders]="hasCustomFolders()">
+            <!-- Search field always at the top -->
+            <mat-form-field appearance="fill" class="search-input">
+                <input matInput name="search" #search="ngModel"
+                    placeholder="Search"
+                    [(ngModel)]="substringToSearch"
+                    (keyup)="searchSubstring()">
+                <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
+            </mat-form-field>
 
-                <!-- Collections Section -->
-                <div *ngIf="folders && folders.length > 0" class="folders-section">
+            <!-- Add Folder button (position controlled by CSS order) -->
+            <div *ngIf="accessLevel === 'edit'" class="add-folder-button-container">
+                <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
+                    <mat-icon>add</mat-icon>
+                    Add Folder
+                </button>
+            </div>
+
+            <!-- Collections Section -->
+            <div *ngIf="folders && folders.length > 0" class="folders-section">
                     <ng-container *ngFor="let folder of folders; trackBy: trackByFolderId">
                         <div *ngIf="shouldShowFolder(folder)"
                             class="folder-item"
@@ -165,15 +171,6 @@
                             </div>
                         </div>
                     </ng-container>
-                </div>
-            </div>
-
-            <!-- Bottom section with add folder button (fixed at bottom) -->
-            <div *ngIf="accessLevel === 'edit'" class="expanded-bottom-section">
-                <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
-                    <mat-icon>add</mat-icon>
-                    Add Folder
-                </button>
             </div>
         </div>
 
