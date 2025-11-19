@@ -85,7 +85,6 @@
             <div data-hj-suppress class="row-preview-sidebar__value">
                 <ng-container *ngIf="isForeignKey(column.title); else recordContent">
                     <app-foreign-key-record-view
-                        [key]="i"
                         link="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
                         [primaryKeysParams]="getForeignKeyQueryParams(column.title)"
                         [displayValue]="getForeignKeyValue(column.title)"

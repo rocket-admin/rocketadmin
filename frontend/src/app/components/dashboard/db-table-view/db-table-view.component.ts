@@ -291,14 +291,14 @@ export class DbTableViewComponent implements OnInit {
           structure: this.tableData.structure,
           foreignKeys: this.tableData.foreignKeys,
           foreignKeysList: this.tableData.foreignKeysList,
-          widgets: this.tableData.widgets
+          widgets: this.tableData.widgets || []
         },
         autofocusField: filterKey
       }
     });
 
     dialogRef.afterClosed().subscribe(action => {
-      if (action === 'filter') {
+      if (action === 'filter' && dialogRef.componentInstance) {
         const filtersFromDialog = {...dialogRef.componentInstance.tableRowFieldsShown};
         const comparators = dialogRef.componentInstance.tableRowFieldsComparator;
         this.openFilters.emit({

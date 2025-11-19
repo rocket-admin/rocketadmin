@@ -128,10 +128,12 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
       }
     }
 
-    this.data.structure.widgets.length && this.setWidgets(this.data.structure.widgets);
+    if (this.data.structure.widgets && this.data.structure.widgets.length) {
+      this.setWidgets(this.data.structure.widgets);
+    }
 
     // If autofocusField is provided, ensure it's in the filters list
-    if (this.autofocusField && !this.tableFilters.includes(this.autofocusField)) {
+    if (this.autofocusField && this.tableFilters && !this.tableFilters.includes(this.autofocusField)) {
       this.tableFilters.push(this.autofocusField);
       if (!this.tableRowFieldsShown[this.autofocusField]) {
         this.tableRowFieldsShown[this.autofocusField] = undefined;
