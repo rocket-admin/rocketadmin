@@ -557,12 +557,32 @@ export class DbTableViewComponent implements OnInit {
       return stringValue;
     };
 
+    // Check if there's any selection
+    if (!this.selection.selected || this.selection.selected.length === 0) {
+      this._notifications.showErrorSnackbar('No rows selected for export');
+      return;
+    }
+
     const header = Object.keys(this.selection.selected[0]);
 
-    // Create CSV rows with proper handling of nested objects
+    // Create CSV rows with proper handling of foreign keys
     const csv = this.selection.selected.map((row) =>
       header
-        .map((fieldName) => convertToCSVValue(row[fieldName]))
+        .map((fieldName) => {
+          let value = row[fieldName];
+
+          // Check if this field is a foreign key
+          if (this.isForeignKey(fieldName) && value && typeof value === 'object') {
+            // Get the foreign key definition
+            const foreignKey = this.tableData.foreignKeys[fieldName];
+            if (foreignKey) {
+              // Extract only the primary key value from the foreign key object
+              value = value[foreignKey.referenced_column_name];
+            }
+          }
+
+          return convertToCSVValue(value);
+        })
         .join(',')
     );
 
