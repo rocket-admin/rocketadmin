@@ -1,5 +1,6 @@
-import { User } from "@sentry/angular-ivy"
 import { SubscriptionPlans, UserGroup } from "./user"
+
+import { User } from "@sentry/angular-ivy"
 
 export interface Address {
     street: string,
@@ -60,7 +61,7 @@ export interface CompanyMemberInvitation {
 }
 
 export interface SamlConfig {
-  id: string;
+  id?: string;
   name: string;
   entryPoint: string;
   issuer: string;
