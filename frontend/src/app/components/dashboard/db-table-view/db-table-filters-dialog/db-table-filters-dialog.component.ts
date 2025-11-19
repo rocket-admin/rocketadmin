@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -48,7 +48,7 @@ import { Angulartics2OnModule } from 'angulartics2';
     ContentLoaderComponent
   ]
 })
-export class DbTableFiltersDialogComponent implements OnInit {
+export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 
   public tableFilters = [];
   public fieldSearchControl = new FormControl('');
@@ -67,6 +67,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
   public tableWidgets: object;
   public tableWidgetsList: string[] = [];
   public UIwidgets = UIwidgets;
+  public autofocusField: string | null = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -90,6 +91,11 @@ export class DbTableFiltersDialogComponent implements OnInit {
     this.tableRowStructure = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => {
       return {[field.column_name]: field};
     }));
+
+    // Set autofocus field if provided
+    if (this.data.autofocusField) {
+      this.autofocusField = this.data.autofocusField;
+    }
 
     const queryParams = this.route.snapshot.queryParams;
 
@@ -124,10 +130,71 @@ export class DbTableFiltersDialogComponent implements OnInit {
 
     this.data.structure.widgets.length && this.setWidgets(this.data.structure.widgets);
 
+    // If autofocusField is provided, ensure it's in the filters list
+    if (this.autofocusField && !this.tableFilters.includes(this.autofocusField)) {
+      this.tableFilters.push(this.autofocusField);
+      if (!this.tableRowFieldsShown[this.autofocusField]) {
+        this.tableRowFieldsShown[this.autofocusField] = undefined;
+      }
+      if (!this.tableRowFieldsComparator[this.autofocusField]) {
+        this.tableRowFieldsComparator[this.autofocusField] = 'eq';
+      }
+    }
+
     this.foundFields = this.fieldSearchControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
+
+  }
+
+  ngAfterViewInit(): void {
+    // Set focus on the autofocus field after view is initialized
+    if (this.autofocusField) {
+      setTimeout(() => {
+        this.focusOnField(this.autofocusField);
+      }, 200);
+    }
+  }
+
+  focusOnField(fieldName: string) {
+    // Try multiple selectors to find the input field
+    const selectors = [
+      `input[name*="${fieldName}"]`,
+      `textarea[name*="${fieldName}"]`,
+      `[data-field="${fieldName}"] input`,
+      `[data-field="${fieldName}"] textarea`,
+      `mat-form-field:has([name*="${fieldName}"]) input`,
+      `mat-form-field:has([name*="${fieldName}"]) textarea`
+    ];
+
+    for (const selector of selectors) {
+      try {
+        const element = document.querySelector(selector) as HTMLElement;
+        if (element) {
+          element.focus();
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      } catch (e) {
+        // Continue to next selector if this one fails
+      }
+    }
+
+    // Fallback: try to find by key attribute in ndc-dynamic components
+    const allInputs = document.querySelectorAll('input, textarea');
+    for (let i = 0; i < allInputs.length; i++) {
+      const input = allInputs[i] as HTMLElement;
+      const formField = input.closest('mat-form-field');
+      if (formField) {
+        const label = formField.querySelector('mat-label');
+        if (label && label.textContent && label.textContent.trim() === fieldName) {
+          input.focus();
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+    }
   }
 
   private _filter(value: string): string[] {

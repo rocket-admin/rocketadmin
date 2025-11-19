@@ -177,6 +177,29 @@
     margin-bottom: 12px;
 }
 
+::ng-deep .active-filters .mat-mdc-chip {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    --mdc-chip-container-shape-radius: 16px !important;
+    background-color: #E8ECEE !important;
+    border-radius: 16px !important;
+}
+
+::ng-deep .active-filters .mat-mdc-chip:hover {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    background-color: #E8ECEE !important;
+}
+
+::ng-deep .active-filters .mdc-evolution-chip__cell {
+    background-color: #E8ECEE !important;
+    border-radius: 16px !important;
+}
+
+::ng-deep .active-filters .mdc-evolution-chip__cell:hover {
+    background-color: #E8ECEE !important;
+}
+
 .empty-table-message {
     display: inline-block;
     margin-top: 40px;

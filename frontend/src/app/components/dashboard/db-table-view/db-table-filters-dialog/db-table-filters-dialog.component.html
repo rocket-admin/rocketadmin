@@ -34,7 +34,8 @@
                                 label: tableWidgets[value.key].name || value.key,
                                 value: tableRowFieldsShown[value.key],
                                 widgetStructure: tableWidgets[value.key],
-                                relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined
+                                relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined,
+                                autofocus: autofocusField === value.key
                             }"
                             [ndcDynamicOutputs]="{
                                 onFieldChange: { handler: updateField, args: ['$event', value.key] }
@@ -49,7 +50,8 @@
                                 label: value.key,
                                 value: tableRowFieldsShown[value.key],
                                 structure: tableRowStructure[value.key],
-                                relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined
+                                relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined,
+                                autofocus: autofocusField === value.key
                             }"
                             [ndcDynamicOutputs]="{
                                 onFieldChange: { handler: updateField, args: ['$event', value.key] }
@@ -117,7 +119,8 @@
                             value: tableRowFieldsShown[value.key],
                             readonly: tableRowFieldsComparator[value.key] === 'empty',
                             structure: tableRowStructure[value.key],
-                            relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined
+                            relations: tableTypes[value.key] === 'foreign key' ? tableForeignKeys[value.key] : undefined,
+                            autofocus: autofocusField === value.key
                         }"
                         [ndcDynamicOutputs]="{
                             onFieldChange: { handler: updateField, args: ['$event', value.key] }

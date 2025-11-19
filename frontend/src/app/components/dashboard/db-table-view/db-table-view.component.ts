@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbTableExportDialogComponent } from './db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
+import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
 import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
@@ -277,6 +278,39 @@ export class DbTableViewComponent implements OnInit {
       widgets: this.tableData.widgets
     });
     this.searchString = '';
+  }
+
+  handleActiveFilterClick(filterKey: string) {
+    const dialogRef = this.dialog.open(DbTableFiltersDialogComponent, {
+      width: '56em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.name,
+        displayTableName: this.displayName,
+        structure: {
+          structure: this.tableData.structure,
+          foreignKeys: this.tableData.foreignKeys,
+          foreignKeysList: this.tableData.foreignKeysList,
+          widgets: this.tableData.widgets
+        },
+        autofocusField: filterKey
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(action => {
+      if (action === 'filter') {
+        const filtersFromDialog = {...dialogRef.componentInstance.tableRowFieldsShown};
+        const comparators = dialogRef.componentInstance.tableRowFieldsComparator;
+        this.openFilters.emit({
+          structure: this.tableData.structure,
+          foreignKeysList: this.tableData.foreignKeysList,
+          foreignKeys: this.tableData.foreignKeys,
+          widgets: this.tableData.widgets,
+          filters: filtersFromDialog,
+          comparators: comparators
+        });
+      }
+    });
   }
 
   handleSearch() {

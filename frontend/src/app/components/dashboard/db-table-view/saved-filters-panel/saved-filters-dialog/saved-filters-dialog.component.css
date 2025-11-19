@@ -109,3 +109,16 @@
     font-style: italic;
     margin: 16px 0;
 }
+
+.comparator-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+    display: flex;
+    align-items: center;
+}

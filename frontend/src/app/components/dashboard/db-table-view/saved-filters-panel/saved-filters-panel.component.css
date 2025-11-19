@@ -47,6 +47,94 @@
     --mdc-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
     --mdc-chip-container-height: 32px;
     --mdc-chip-label-text-color: rgba(0,0,0,0.64);
+    --mdc-chip-selected-container-shape-leading-width: 0px;
+    --mdc-chip-with-icon-graphic-selected-container-shape-leading-width: 0px;
+    --mdc-chip-with-icon-graphic-selected-container-shape-leading-start-width: 0px;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip.mdc-evolution-chip--selected {
+    --mdc-chip-selected-container-elevation-shadow: none;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__checkmark {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-svg {
+    display: none !important;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__graphic {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__action {
+    padding-left: 16px !important;
+    padding-right: 8px !important;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action {
+    padding-left: 16px !important;
+    padding-right: 8px !important;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action .mdc-evolution-chip__action__content {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    transform: translateX(0) !important;
+}
+
+.saved-filters-tabs ::ng-deep .filter-chip-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.saved-filters-tabs ::ng-deep .mat-mdc-chip-action {
+    display: flex;
+    align-items: center;
+}
+
+.saved-filters-tabs ::ng-deep .mdc-evolution-chip__action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.saved-filters-tabs ::ng-deep .mdc-evolution-chip__text-label {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.filter-chip-content {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.filter-chip-menu-button {
+    opacity: 1;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    flex-shrink: 0;
+    margin-left: auto;
+    margin-right: -4px;
+}
+
+.filter-chip-menu-button mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
 }
 
 @media (prefers-color-scheme: light) {
@@ -81,6 +169,29 @@
 
 .column-name {
     margin-top: -8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.column-name-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.comparator-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+    display: flex;
+    align-items: center;
 }
 
 @media (prefers-color-scheme: light) {
@@ -120,6 +231,112 @@
 
 .static-filter-chip {
     cursor: default;
+    pointer-events: none;
+}
+
+::ng-deep .static-filter-chip .mat-mdc-chip {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    --mdc-chip-container-shape-radius: 16px !important;
+    background-color: #E8ECEE !important;
+    border-radius: 16px !important;
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+::ng-deep .static-filter-chip .mat-mdc-chip:hover {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    background-color: #E8ECEE !important;
+    cursor: default !important;
+}
+
+::ng-deep .static-filter-chip .mat-mdc-chip:active {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    background-color: #E8ECEE !important;
+    cursor: default !important;
+}
+
+::ng-deep .static-filter-chip .mdc-evolution-chip__cell {
+    background-color: #E8ECEE !important;
+    border-radius: 16px !important;
+}
+
+::ng-deep .static-filter-chip .mdc-evolution-chip__cell:hover {
+    background-color: #E8ECEE !important;
+}
+
+::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    background-color: #E8ECEE !important;
+    pointer-events: none !important;
+}
+
+::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:hover {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    background-color: #E8ECEE !important;
+    cursor: default !important;
+}
+
+::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:active {
+    --mdc-chip-container-color: #E8ECEE !important;
+    --mdc-chip-elevated-container-color: #E8ECEE !important;
+    background-color: #E8ECEE !important;
+    cursor: default !important;
+}
+
+::ng-deep .static-filter-chip .mdc-evolution-chip__action {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    ::ng-deep .static-filter-chip .mat-mdc-chip {
+        --mdc-chip-container-color: #E8ECEE !important;
+        --mdc-chip-elevated-container-color: #E8ECEE !important;
+        background-color: #E8ECEE !important;
+    }
+
+    ::ng-deep .static-filter-chip .mat-mdc-chip:hover {
+        --mdc-chip-container-color: #E8ECEE !important;
+        --mdc-chip-elevated-container-color: #E8ECEE !important;
+        background-color: #E8ECEE !important;
+    }
+
+    ::ng-deep .static-filter-chip .mat-mdc-chip:active {
+        --mdc-chip-container-color: #E8ECEE !important;
+        --mdc-chip-elevated-container-color: #E8ECEE !important;
+        background-color: #E8ECEE !important;
+    }
+
+    ::ng-deep .static-filter-chip .mdc-evolution-chip__cell {
+        background-color: #E8ECEE !important;
+    }
+
+    ::ng-deep .static-filter-chip .mdc-evolution-chip__cell:hover {
+        background-color: #E8ECEE !important;
+    }
+
+    ::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon {
+        --mdc-chip-container-color: #E8ECEE !important;
+        --mdc-chip-elevated-container-color: #E8ECEE !important;
+        background-color: #E8ECEE !important;
+    }
+
+    ::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:hover {
+        --mdc-chip-container-color: #E8ECEE !important;
+        --mdc-chip-elevated-container-color: #E8ECEE !important;
+        background-color: #E8ECEE !important;
+    }
+
+    ::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:active {
+        --mdc-chip-container-color: #E8ECEE !important;
+        --mdc-chip-elevated-container-color: #E8ECEE !important;
+        background-color: #E8ECEE !important;
+    }
 }
 
 /* .dynamic-column-editor + .static-filters {

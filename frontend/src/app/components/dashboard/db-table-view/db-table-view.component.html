@@ -176,9 +176,11 @@
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
     <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue" data-hj-suppress
-        (removed)="removeFilter.emit(activeFilter.key)">
+        (removed)="removeFilter.emit(activeFilter.key)"
+        (click)="handleActiveFilterClick(activeFilter.key)">
         {{ getFilter(activeFilter) }}
-        <button matChipRemove>
+        <button matChipRemove
+            (click)="$event.stopPropagation()">
             <mat-icon>cancel</mat-icon>
         </button>
     </mat-chip-row>

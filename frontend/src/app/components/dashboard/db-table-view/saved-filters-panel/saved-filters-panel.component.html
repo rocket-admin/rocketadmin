@@ -13,38 +13,49 @@
 
         <button *ngIf="accessLevel === 'edit' && savedFilterData.length !== 0"
             mat-icon-button type="button"
-            matTooltip="Set up, edit, or remove fast filters"
-            [matMenuTriggerFor]="menu"
+            matTooltip="Create new fast filter"
+            (click)="handleOpenSavedFiltersDialog()"
             angulartics2On="click"
-            angularticsAction="Saved filters: open menu is clicked">
-            <mat-icon>tune</mat-icon>
+            angularticsAction="Saved filters: create new filter is clicked">
+            <mat-icon>add</mat-icon>
         </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="handleOpenSavedFiltersDialog()">
-                <mat-icon>add</mat-icon>
-                New fast filter
-            </button>
-            <button mat-menu-item
-                *ngFor="let filter of savedFilterData"
-                (click)="handleOpenSavedFiltersDialog(filter)">
-                {{ filter.name }}
-            </button>
-        </mat-menu>
 
         <mat-chip-listbox [value]="selectedFilterSetId" class="saved-filters-tabs">
             <mat-chip-option *ngFor="let filter of savedFilterData"
                 [value]="filter.id"
-                (click)="selectFiltersSet(filter.id)">
-                {{ filter.name }}
+                (click)="selectFiltersSet(filter.id)"
+                class="filter-chip-wrapper">
+                <span class="filter-chip-content">{{ filter.name }}</span>
+                <button *ngIf="accessLevel === 'edit'"
+                    mat-icon-button
+                    type="button"
+                    class="filter-chip-menu-button"
+                    [matMenuTriggerFor]="filterMenu"
+                    (click)="$event.stopPropagation(); setCurrentFilter(filter)"
+                    matTooltip="Filter options">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
             </mat-chip-option>
         </mat-chip-listbox>
+        <mat-menu #filterMenu="matMenu">
+            <button mat-menu-item (click)="handleEditFilter(currentFilterForMenu)">
+                <mat-icon fontSet="material-icons-outlined">create</mat-icon>
+                <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="handleDeleteFilter(currentFilterForMenu)">
+                <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+                <span>Delete</span>
+            </button>
+        </mat-menu>
     </div>
 
     <div class="filters-container">
         <form *ngIf="savedFilterMap[selectedFilterSetId]?.dynamicColumn"
             class="dynamic-column-editor"
             (ngSubmit)="applyDynamicColumnChanges()">
-            <span class="column-name mat-body-1">where
+            <span class="column-name mat-body-1">
+                <mat-icon class="column-name-icon">subdirectory_arrow_right</mat-icon>
+                where
                 <strong *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
                     {{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}
                 </strong>
@@ -53,12 +64,30 @@
                 <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
                         name="textComparator"
                         (ngModelChange)="updateDynamicColumnComparator($event)">
-                    <mat-option value="startswith">starts with</mat-option>
-                    <mat-option value="endswith">ends with</mat-option>
-                    <mat-option value="eq">equal</mat-option>
-                    <mat-option value="contains">contains</mat-option>
-                    <mat-option value="icontains">not contains</mat-option>
-                    <mat-option value="empty">is empty</mat-option>
+                    <mat-option value="startswith">
+                        <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                        <span>starts with</span>
+                    </mat-option>
+                    <mat-option value="endswith">
+                        <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                        <span>ends with</span>
+                    </mat-option>
+                    <mat-option value="eq">
+                        <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                        <span>equal</span>
+                    </mat-option>
+                    <mat-option value="contains">
+                        <mat-icon class="comparator-icon">search</mat-icon>
+                        <span>contains</span>
+                    </mat-option>
+                    <mat-option value="icontains">
+                        <mat-icon class="comparator-icon">block</mat-icon>
+                        <span>not contains</span>
+                    </mat-option>
+                    <mat-option value="empty">
+                        <mat-icon class="comparator-icon">space_bar</mat-icon>
+                        <span>is empty</span>
+                    </mat-option>
                 </mat-select>
             </mat-form-field>
 
@@ -66,11 +95,26 @@
                 <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
                             name="numberComparator"
                             (ngModelChange)="updateDynamicColumnComparator($event)">
-                    <mat-option value="eq">equal</mat-option>
-                    <mat-option value="gt">greater than</mat-option>
-                    <mat-option value="lt">less than</mat-option>
-                    <mat-option value="gte">greater than or equal</mat-option>
-                    <mat-option value="lte">less than or equal</mat-option>
+                    <mat-option value="eq">
+                        <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                        <span>equal</span>
+                    </mat-option>
+                    <mat-option value="gt">
+                        <mat-icon class="comparator-icon">keyboard_arrow_right</mat-icon>
+                        <span>greater than</span>
+                    </mat-option>
+                    <mat-option value="lt">
+                        <mat-icon class="comparator-icon">keyboard_arrow_left</mat-icon>
+                        <span>less than</span>
+                    </mat-option>
+                    <mat-option value="gte">
+                        <mat-icon class="comparator-icon">keyboard_double_arrow_right</mat-icon>
+                        <span>greater than or equal</span>
+                    </mat-option>
+                    <mat-option value="lte">
+                        <mat-icon class="comparator-icon">keyboard_double_arrow_left</mat-icon>
+                        <span>less than or equal</span>
+                    </mat-option>
                 </mat-select>
             </mat-form-field>
 

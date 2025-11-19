@@ -80,22 +80,28 @@
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
                             (ngModelChange)="updateComparator($event, value.key)">
                             <mat-option value="startswith">
-                                starts with
+                                <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                                <span>starts with</span>
                             </mat-option>
                             <mat-option value="endswith">
-                                ends with
+                                <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                                <span>ends with</span>
                             </mat-option>
                             <mat-option value="eq">
-                                equal
+                                <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                                <span>equal</span>
                             </mat-option>
                             <mat-option value="contains">
-                                contains
+                                <mat-icon class="comparator-icon">search</mat-icon>
+                                <span>contains</span>
                             </mat-option>
                             <mat-option value="icontains">
-                                not contains
+                                <mat-icon class="comparator-icon">block</mat-icon>
+                                <span>not contains</span>
                             </mat-option>
                             <mat-option value="empty">
-                                is empty
+                                <mat-icon class="comparator-icon">space_bar</mat-icon>
+                                <span>is empty</span>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -106,19 +112,24 @@
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
                             (ngModelChange)="updateComparator($event, value.key)">
                             <mat-option value="eq">
-                                equal
+                                <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                                <span>equal</span>
                             </mat-option>
                             <mat-option value="gt">
-                                greater than
+                                <mat-icon class="comparator-icon">keyboard_arrow_right</mat-icon>
+                                <span>greater than</span>
                             </mat-option>
                             <mat-option value="lt">
-                                less than
+                                <mat-icon class="comparator-icon">keyboard_arrow_left</mat-icon>
+                                <span>less than</span>
                             </mat-option>
                             <mat-option value="gte">
-                                greater than or equal
+                                <mat-icon class="comparator-icon">keyboard_double_arrow_right</mat-icon>
+                                <span>greater than or equal</span>
                             </mat-option>
                             <mat-option value="lte">
-                                less than or equal
+                                <mat-icon class="comparator-icon">keyboard_double_arrow_left</mat-icon>
+                                <span>less than or equal</span>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>

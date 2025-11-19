@@ -213,6 +213,22 @@ export class SavedFiltersDialogComponent implements OnInit {
     }
   }
 
+  getOperatorIcon(operator: string): string {
+    const iconMap: { [key: string]: string } = {
+      'startswith': 'play_arrow',
+      'endswith': 'play_arrow',
+      'eq': 'drag_handle',
+      'contains': 'search',
+      'icontains': 'block',
+      'empty': 'space_bar',
+      'gt': 'keyboard_arrow_right',
+      'lt': 'keyboard_arrow_left',
+      'gte': 'keyboard_double_arrow_right',
+      'lte': 'keyboard_double_arrow_left'
+    };
+    return iconMap[operator] || 'drag_handle';
+  }
+
   removeFilter(field) {
     delete this.tableRowFieldsShown[field];
     delete this.tableRowFieldsComparator[field];
