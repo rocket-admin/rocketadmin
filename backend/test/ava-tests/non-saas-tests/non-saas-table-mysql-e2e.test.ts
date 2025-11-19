@@ -1114,15 +1114,28 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1190,15 +1203,28 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1264,15 +1290,28 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.ASC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.ASC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1341,15 +1380,28 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.ASC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.ASC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1416,15 +1468,28 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1498,15 +1563,28 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1581,15 +1659,28 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1660,15 +1751,28 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1739,15 +1843,28 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
       [testTableColumnName],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
       undefined,
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${createConnectionRO.id}`)
+      .query({ tableName: testTableName })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1798,15 +1915,28 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       [testTableColumnName],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
       undefined,
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${createConnectionRO.id}`)
+      .query({ tableName: testTableName })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1862,15 +1992,28 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       [testTableColumnName],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
       undefined,
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${createConnectionRO.id}`)
+      .query({ tableName: testTableName })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
@@ -1928,15 +2071,28 @@ test.serial(
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)

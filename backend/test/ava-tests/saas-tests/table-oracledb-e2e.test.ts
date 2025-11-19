@@ -274,6 +274,9 @@ test.serial(`${currentTest} should return rows of selected table with search and
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
+    const createPersonalTableSettingsRO = JSON.parse(createPersonalTableSettingsResponse.text);
+    console.log('🚀 ~ createPersonalTableSettingsRO:', createPersonalTableSettingsRO);
+
     t.is(createPersonalTableSettingsResponse.status, 200);
 
     const createTableSettingsResponse = await request(app.getHttpServer())

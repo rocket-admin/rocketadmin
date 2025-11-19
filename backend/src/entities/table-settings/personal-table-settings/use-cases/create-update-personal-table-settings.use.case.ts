@@ -59,7 +59,7 @@ export class CreateUpdatePersonalTableSettingsUseCase
     connection: ConnectionEntity,
     tableName: string,
   ): Promise<void> {
-    const { columns_view, list_fields, list_per_page, ordering, ordering_field, original_names } = settingsData;
+    const { columns_view, list_fields, list_per_page, ordering, ordering_field } = settingsData;
     const dao = getDataAccessObject(connection);
     const tableStructure = await dao.getTableStructure(tableName, null);
     const tableColumnNames = tableStructure.map((col) => col.column_name);
@@ -95,17 +95,6 @@ export class CreateUpdatePersonalTableSettingsUseCase
     if (ordering_field !== null && ordering_field !== undefined) {
       if (!tableColumnNames.includes(ordering_field)) {
         errors.push(`Invalid ordering_field: ${ordering_field}`);
-      }
-    }
-
-    if (original_names !== null && original_names !== undefined) {
-      if (typeof original_names !== 'object' || Array.isArray(original_names)) {
-        errors.push('original_names must be an object');
-      } else {
-        const invalidKeys = Object.keys(original_names).filter((key) => !tableColumnNames.includes(key));
-        if (invalidKeys.length > 0) {
-          errors.push(`Invalid columns in original_names: ${invalidKeys.join(', ')}`);
-        }
       }
     }
 

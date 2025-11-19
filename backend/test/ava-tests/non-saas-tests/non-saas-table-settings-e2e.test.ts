@@ -168,15 +168,28 @@ test.serial(`${currentTest} should return connection settings object`, async (t)
       ['title'],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: tableName })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
@@ -233,16 +246,30 @@ test.serial(`${currentTest} should return created table settings`, async (t) => 
       'connection',
       ['title'],
       undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
+
       undefined,
       undefined,
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${connectionId}&tableName=connection`)
@@ -297,16 +324,28 @@ test.serial(`${currentTest} should throw exception when tableName is missing`, a
       ['title'],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
       undefined,
       undefined,
     );
 
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
     const tableName = '';
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
@@ -342,15 +381,28 @@ test.serial(`${currentTest} should throw exception when connectionId is missing`
       ['title'],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const tableName = faker.lorem.words(1);
     const createTableSettingsResponse = await request(app.getHttpServer())
@@ -387,13 +439,26 @@ test.serial(`${currentTest} should throw exception when search_fields is not an 
       'title',
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const tableName = 'connection';
     const createTableSettingsResponse = await request(app.getHttpServer())
@@ -430,13 +495,26 @@ test.serial(`${currentTest} should throw exception when excluded_fields is not a
       ['title'],
       'type',
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const tableName = 'connection';
     const createTableSettingsResponse = await request(app.getHttpServer())
@@ -472,14 +550,27 @@ test.serial(`${currentTest} should throw exception when list_fields is not an ar
       'connection',
       ['title'],
       undefined,
-      'type',
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      ['type'],
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const tableName = 'connection';
     const createTableSettingsResponse = await request(app.getHttpServer())
@@ -515,14 +606,27 @@ test.serial(`${currentTest} should throw exception when readonly_fields is not a
       'connection',
       ['title'],
       undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
       'type',
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const tableName = 'connection';
     const createTableSettingsResponse = await request(app.getHttpServer())
@@ -559,13 +663,26 @@ test.serial(`${currentTest} should throw exception when sortable_by is not an ar
       ['title'],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       'type',
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const tableName = 'connection';
     const createTableSettingsResponse = await request(app.getHttpServer())
@@ -603,14 +720,28 @@ test.serial(
         'connection',
         ['testField'],
         undefined,
-        undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
+
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'port',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${connectionId}`)
+        .query({ tableName: 'connection' })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const tableName = 'connection';
       const createTableSettingsResponse = await request(app.getHttpServer())
@@ -650,13 +781,26 @@ test.serial(
         ['type'],
         ['testField'],
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
-        undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'port',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${connectionId}`)
+        .query({ tableName: 'connection' })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const tableName = 'connection';
       const createTableSettingsResponse = await request(app.getHttpServer())
@@ -693,14 +837,27 @@ test.serial(`${currentTest} should throw exception when there are no such field 
       'connection',
       ['type'],
       undefined,
-      ['testField'],
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
       undefined,
       undefined,
       undefined,
     );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      ['testField'],
+      3,
+      QueryOrderingEnum.DESC,
+      'port',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${connectionId}`)
+      .query({ tableName: 'connection' })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const tableName = 'connection';
     const createTableSettingsResponse = await request(app.getHttpServer())
@@ -738,14 +895,27 @@ test.serial(
         'connection',
         ['type'],
         undefined,
-        undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
         ['testField'],
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'port',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${connectionId}`)
+        .query({ tableName: 'connection' })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const tableName = 'connection';
       const createTableSettingsResponse = await request(app.getHttpServer())
@@ -786,13 +956,26 @@ test.serial(
         ['type'],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
-        undefined,
         ['testField'],
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'port',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${connectionId}`)
+        .query({ tableName: 'connection' })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const tableName = 'connection';
       const createTableSettingsResponse = await request(app.getHttpServer())
