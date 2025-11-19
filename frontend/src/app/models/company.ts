@@ -70,7 +70,8 @@ export interface SamlConfig {
   signatureAlgorithm: string;
   digestAlgorithm: "sha256",
   active: true,
-  authnResponseSignedValidation: true,
+  authnResponseSignedValidation: boolean,
+  assertionsSignedValidation: boolean,
   allowedDomains: string[],
   displayName: string,
   logoUrl: string,
