@@ -307,6 +307,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
     const createPersonalTableSettingsResponse = await request(app.getHttpServer())
       .put(`/settings/personal/${createConnectionRO.id}`)
       .query({ tableName: testTableName })
+      .set('masterpwd', masterPwd)
       .send(createPersonalTableSettingsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
@@ -395,6 +396,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     const createPersonalTableSettingsResponse = await request(app.getHttpServer())
       .put(`/settings/personal/${createConnectionRO.id}`)
       .query({ tableName: testTableName })
+      .set('masterpwd', masterPwd)
       .send(createPersonalTableSettingsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
@@ -485,6 +487,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     const createPersonalTableSettingsResponse = await request(app.getHttpServer())
       .put(`/settings/personal/${createConnectionRO.id}`)
       .query({ tableName: testTableName })
+      .set('masterpwd', masterPwd)
       .send(createPersonalTableSettingsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
@@ -578,6 +581,7 @@ should return all found rows with pagination page=1 perPage=2`,
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -672,6 +676,7 @@ should return all found rows with pagination page=1 perPage=3`,
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -766,6 +771,7 @@ should return all found rows with sorting ids by DESC`,
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -854,6 +860,7 @@ should return all found rows with sorting ids by ASC`,
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -942,6 +949,7 @@ should return all found rows with sorting ports by DESC and with pagination page
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1029,6 +1037,7 @@ test.serial(
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1116,6 +1125,7 @@ test.serial(
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1204,6 +1214,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1296,6 +1307,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1386,6 +1398,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1479,6 +1492,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1570,6 +1584,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1668,6 +1683,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1767,6 +1783,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1862,6 +1879,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
@@ -1954,16 +1972,6 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
       'id',
     );
 
-    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-      .put(`/settings/personal/${createConnectionRO.id}`)
-      .query({ tableName: testTableName })
-      .send(createPersonalTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    t.is(createPersonalTableSettingsResponse.status, 200);
-
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
@@ -2030,25 +2038,6 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       'id',
     );
 
-    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-      .put(`/settings/personal/${createConnectionRO.id}`)
-      .query({ tableName: testTableName })
-      .send(createPersonalTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    t.is(createPersonalTableSettingsResponse.status, 200);
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('masterpwd', masterPwd)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
     const fieldname = 'id';
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
@@ -2113,6 +2102,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
     const createPersonalTableSettingsResponse = await request(app.getHttpServer())
       .put(`/settings/personal/${createConnectionRO.id}`)
       .query({ tableName: testTableName })
+      .set('masterpwd', masterPwd)
       .send(createPersonalTableSettingsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
@@ -2195,6 +2185,7 @@ test.serial(
       const createPersonalTableSettingsResponse = await request(app.getHttpServer())
         .put(`/settings/personal/${createConnectionRO.id}`)
         .query({ tableName: testTableName })
+        .set('masterpwd', masterPwd)
         .send(createPersonalTableSettingsDTO)
         .set('Cookie', firstUserToken)
         .set('Content-Type', 'application/json')
