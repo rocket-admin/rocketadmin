@@ -7,11 +7,14 @@
 .saved-filters-list {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
 }
 
 .saved-filters-list__first-time-button {
     transition: background 0.3s ease;
+}
+
+.create-filter-button {
 }
 
 @media (prefers-color-scheme: light) {

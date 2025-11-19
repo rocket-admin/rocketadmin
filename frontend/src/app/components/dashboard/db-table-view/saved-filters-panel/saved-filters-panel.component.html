@@ -13,6 +13,7 @@
 
         <button *ngIf="accessLevel === 'edit' && savedFilterData.length !== 0"
             mat-icon-button type="button"
+            class="create-filter-button"
             matTooltip="Create new fast filter"
             (click)="handleOpenSavedFiltersDialog()"
             angulartics2On="click"
