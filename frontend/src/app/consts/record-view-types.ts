@@ -302,4 +302,12 @@ export const recordViewFieldTypes = {
         map: JsonEditorRecordViewComponent,
         set: JsonEditorRecordViewComponent,
     },
+    redis: {
+        string: TextRecordViewComponent,
+        integer: NumberRecordViewComponent,
+        decimal: NumberRecordViewComponent,
+        boolean: BooleanRecordViewComponent,
+        array: JsonEditorRecordViewComponent,
+        json: JsonEditorRecordViewComponent,
+    }
 }

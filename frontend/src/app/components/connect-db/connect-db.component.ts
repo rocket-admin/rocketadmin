@@ -5,6 +5,7 @@ import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 import { Subscription, take } from 'rxjs';
+import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 
 import { AccessLevel } from 'src/app/models/user';
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -37,6 +38,7 @@ import { NgForm } from '@angular/forms';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { OracledbCredentialsFormComponent } from './db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component';
 import { PostgresCredentialsFormComponent } from './db-credentials-forms/postgres-credentials-form/postgres-credentials-form.component';
+import { RedisCredentialsFormComponent } from './db-credentials-forms/redis-credentials-form/redis-credentials-form.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -44,7 +46,6 @@ import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
-import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 
 @Component({
   selector: 'app-connect-db',
@@ -72,6 +73,7 @@ import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/con
     MysqlCredentialsFormComponent,
     OracledbCredentialsFormComponent,
     PostgresCredentialsFormComponent,
+    RedisCredentialsFormComponent,
     IpAddressButtonComponent,
     AlertComponent,
     Angulartics2Module
@@ -101,6 +103,7 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.Mongo]: '27017',
     [DBtype.Dynamo]: '',
     [DBtype.Cassandra]: '9042',
+    [DBtype.Redis]: '6379',
     [DBtype.DB2]: '50000'
   }
 
