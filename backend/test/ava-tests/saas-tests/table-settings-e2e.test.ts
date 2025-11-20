@@ -192,10 +192,6 @@ test.serial(`${currentTest} should return connection settings object`, async (t)
     t.is(findSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.deepEqual(findSettingsRO.search_fields, ['title']);
     t.deepEqual(findSettingsRO.excluded_fields, []);
-    t.deepEqual(findSettingsRO.list_fields, []);
-    t.is(findSettingsRO.list_per_page, 3);
-    t.is(findSettingsRO.ordering, 'DESC');
-    t.is(findSettingsRO.ordering_field, 'port');
     t.deepEqual(findSettingsRO.readonly_fields, []);
     t.deepEqual(findSettingsRO.sortable_by, []);
     t.deepEqual(findSettingsRO.autocomplete_columns, []);
@@ -254,10 +250,6 @@ test.serial(`${currentTest} should return created table settings`, async (t) => 
     t.is(findSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.deepEqual(findSettingsRO.search_fields, ['title']);
     t.deepEqual(findSettingsRO.excluded_fields, []);
-    t.deepEqual(findSettingsRO.list_fields, []);
-    t.is(findSettingsRO.list_per_page, 3);
-    t.is(findSettingsRO.ordering, 'DESC');
-    t.is(findSettingsRO.ordering_field, 'port');
     t.deepEqual(findSettingsRO.readonly_fields, []);
     t.deepEqual(findSettingsRO.sortable_by, []);
     t.deepEqual(findSettingsRO.autocomplete_columns, []);
@@ -427,45 +419,6 @@ test.serial(`${currentTest} should throw exception when excluded_fields is not a
   }
 });
 
-test.serial(`${currentTest} should throw exception when list_fields is not an array`, async (t) => {
-  try {
-    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
-    const { token } = await registerUserAndReturnUserInfo(app);
-
-    const createdConnection = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    const connectionId = JSON.parse(createdConnection.text).id;
-
-    const createTableSettingsDTO = mockFactory.generateTableSettingsWithoutTypes(
-      connectionId,
-      'connection',
-      ['title'],
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const tableName = 'connection';
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 400);
-    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-    t.is(createTableSettingsRO.message, 'The field "list_fields" must be an array');
-  } catch (e) {
-    console.error(e);
-  }
-});
-
 test.serial(`${currentTest} should throw exception when readonly_fields is not an array`, async (t) => {
   try {
     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
@@ -628,45 +581,6 @@ test.serial(
   },
 );
 
-test.serial(`${currentTest} should throw exception when there are no such field in the table for list`, async (t) => {
-  try {
-    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
-    const { token } = await registerUserAndReturnUserInfo(app);
-
-    const createdConnection = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    const connectionId = JSON.parse(createdConnection.text).id;
-
-    const createTableSettingsDTO = mockFactory.generateTableSettingsWithoutTypes(
-      connectionId,
-      'connection',
-      ['type'],
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const tableName = 'connection';
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 400);
-    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-    t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
-  } catch (e) {
-    console.error(e);
-  }
-});
-
 test.serial(
   `${currentTest} should throw exception when there are no such field in the table for read only`,
   async (t) => {
@@ -701,48 +615,6 @@ test.serial(
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
 
-      t.is(createTableSettingsResponse.status, 400);
-      const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-      t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
-    } catch (e) {
-      console.error(e);
-    }
-  },
-);
-
-test.serial(
-  `${currentTest} should throw exception when there are no such field in the table for sorting`,
-  async (t) => {
-    try {
-      const newConnection = getTestData(mockFactory).newConnectionToTestDB;
-      const { token } = await registerUserAndReturnUserInfo(app);
-
-      const createdConnection = await request(app.getHttpServer())
-        .post('/connection')
-        .send(newConnection)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-
-      const connectionId = JSON.parse(createdConnection.text).id;
-
-      const createTableSettingsDTO = mockFactory.generateTableSettingsWithoutTypes(
-        connectionId,
-        'connection',
-        ['type'],
-        undefined,
-        undefined,
-        ['testField'],
-        undefined,
-      );
-
-      const tableName = 'connection';
-      const createTableSettingsResponse = await request(app.getHttpServer())
-        .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
-        .send(createTableSettingsDTO)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
       t.is(createTableSettingsResponse.status, 400);
       const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
       t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');

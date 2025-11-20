@@ -148,11 +148,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           connection.type === ConnectionTypesEnum.agent_mongodb)
       ) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-        tableSettings.search_fields = tableStructure
+        builtDAOsTableSettings.search_fields = tableStructure
           .filter((field) => isBinary(field.data_type))
           .map((field) => field.column_name);
         if (connection.type === 'mongodb' || connection.type === 'agent_mongodb') {
-          tableSettings.search_fields.push('_id');
+          builtDAOsTableSettings.search_fields.push('_id');
         }
       }
 
@@ -228,15 +228,15 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         rows: rows.data,
         primaryColumns: tablePrimaryColumns,
         pagination: rows.pagination,
-        sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+        sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
         ordering_field: personalTableSettings.ordering_field ? personalTableSettings.ordering_field : undefined,
         ordering: personalTableSettings.ordering ? personalTableSettings.ordering : undefined,
-        columns_view: tableSettings.columns_view ? tableSettings.columns_view : undefined,
+        columns_view: builtDAOsTableSettings.columns_view ? builtDAOsTableSettings.columns_view : undefined,
         structure: formedTableStructure,
         foreignKeys: tableForeignKeys,
         configured: configured,
         widgets: tableWidgets,
-        identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
+        identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
         table_permissions: userTablePermissions,
         list_fields: listFields,
         action_events: actionEventsDtos,
@@ -249,9 +249,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         can_update: can_update,
         can_add: can_add,
         table_settings: {
-          sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+          sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
           ordering: personalTableSettings.ordering ? personalTableSettings.ordering : undefined,
-          identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
+          identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
           list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
           allow_csv_export: allowCsvExport,
           allow_csv_import: allowCsvImport,

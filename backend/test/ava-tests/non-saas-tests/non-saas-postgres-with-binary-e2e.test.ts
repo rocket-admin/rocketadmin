@@ -122,8 +122,9 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
+
     const getTableRowsWithSearchRO = JSON.parse(getTableRowsWithSearchResponse.text);
+    t.is(getTableRowsResponse.status, 200);
     t.is(getTableRowsWithSearchRO.rows.length, 1);
     t.is(getTableRowsWithSearchRO.rows[0][testTableColumnName], getTableRowsRO.rows[0][testTableColumnName]);
 
