@@ -696,6 +696,11 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
   private async getUsualConnection(): Promise<RedisClientType> {
     let client: RedisClientType = LRUStorage.getRedisClientCache(this.connection);
+    const database = this.connection.database
+      ? Number(this.connection.database)
+        ? Number(this.connection.database)
+        : 0
+      : 0;
     if (!client) {
       client = createClient({
         socket: {
@@ -706,6 +711,8 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           rejectUnauthorized: this.connection.ssl === false ? false : true,
         },
         password: this.connection.password || undefined,
+        username: this.connection.username || undefined,
+        database: database,
       });
       await client.connect();
       LRUStorage.setRedisClientCache(this.connection, client);
