@@ -1,7 +1,7 @@
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnInit, AfterViewInit, ElementRef } from '@angular/core';
 import { DynamicModule } from 'ng-dynamic-component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,7 +47,7 @@ import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
   templateUrl: './saved-filters-dialog.component.html',
   styleUrl: './saved-filters-dialog.component.css'
 })
-export class SavedFiltersDialogComponent implements OnInit {
+export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
   // @Input() connectionID: string;
   // @Input() tableName: string;
   // @Input() displayTableName: string;
@@ -77,6 +77,7 @@ export class SavedFiltersDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<SavedFiltersDialogComponent>,
     private snackBar: MatSnackBar,
     private angulartics2: Angulartics2,
+    private elementRef: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -124,6 +125,18 @@ export class SavedFiltersDialogComponent implements OnInit {
       startWith(''),
       map(value => this._filter(value || '')),
     );
+  }
+
+  ngAfterViewInit(): void {
+    // If editing an existing filter (has id), remove focus from the filter name input
+    if (this.data.filtersSet && this.data.filtersSet.id) {
+      setTimeout(() => {
+        const nameInput = this.elementRef.nativeElement.querySelector('input[name="filters_set_name"]') as HTMLInputElement;
+        if (nameInput && document.activeElement === nameInput) {
+          nameInput.blur();
+        }
+      }, 100);
+    }
   }
 
   private _filter(value: string): string[] {

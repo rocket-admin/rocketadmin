@@ -16,9 +16,9 @@
                 </mat-error>
             </mat-form-field>
 
-            <h3 class="section-title">Conditions & main column</h3>
+            <h3 class="section-title">Conditions & editable column</h3>
             <p class="section-description">
-                Select which conditions to add and choose a main column. Main columns remain editable, while conditions are set.
+                Add conditions and choose one column to use for editing. Only one editable column can be selected.
             </p>
 
             <!-- Filter Selection -->
@@ -152,7 +152,7 @@
                     <mat-checkbox
                         [checked]="dynamicColumn === value.key"
                         (change)="toggleDynamicColumn(value.key)">
-                        Main column
+                        Use for editing
                     </mat-checkbox>
                 </div>
                 <button mat-icon-button type="button" class="filter-delete-button"
