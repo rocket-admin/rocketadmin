@@ -161,12 +161,14 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   ): Promise<FoundRowsDS> {
     const redisClient = await this.getClient();
 
+    const safeSettings = settings || ({} as TableSettingsDS);
+
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
       perPage > 0
         ? perPage
-        : settings.list_per_page > 0
-          ? settings.list_per_page
+        : safeSettings.list_per_page > 0
+          ? safeSettings.list_per_page
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
@@ -176,13 +178,11 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     const pattern = `${tableName}:*`;
     const allRows: Array<Record<string, unknown>> = [];
     let cursor = '0';
-    let processedCount = 0;
-    const targetRows = page * perPage;
 
     do {
       const scanResult = await redisClient.scan(cursor, {
         MATCH: pattern,
-        COUNT: 100,
+        COUNT: 1000,
       });
 
       cursor = scanResult.cursor;
@@ -193,37 +193,49 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         keys.forEach((key) => pipeline.get(key));
         const results = await pipeline.exec();
 
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
-          const data = results[i] as unknown as string;
-
-          if (data) {
-            try {
-              const parsedData = JSON.parse(data);
-              const keyPart = key.split(':').slice(1).join(':');
-              const rowData = { key: keyPart, ...parsedData };
-              const passesFilter = await this.passesFilters(rowData, filteringFields, searchedFieldValue, settings);
-              if (passesFilter) {
-                allRows.push(rowData);
-                processedCount++;
+        if (results) {
+          for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            const result = results[i];
+            let data: string | null = null;
+            if (Array.isArray(result)) {
+              const [error, value] = result;
+              if (!error && value !== null) {
+                data = value as string;
               }
-            } catch (_error) {
-              continue;
+            } else {
+              data = result as unknown as string;
+            }
+
+            if (data) {
+              try {
+                const parsedData = JSON.parse(data);
+                const keyPart = key.split(':').slice(1).join(':');
+                const rowData = { key: keyPart, ...parsedData };
+                const passesFilter = await this.passesFilters(
+                  rowData,
+                  filteringFields,
+                  searchedFieldValue,
+                  safeSettings,
+                  tableName,
+                );
+                if (passesFilter) {
+                  allRows.push(rowData);
+                }
+              } catch (_error) {
+                continue;
+              }
             }
           }
-        }
-
-        if (processedCount >= targetRows + perPage && cursor === '0') {
-          break;
         }
       }
     } while (cursor !== '0');
 
-    if (settings.ordering_field && settings.ordering) {
+    if (safeSettings.ordering_field && safeSettings.ordering) {
       allRows.sort((a, b) => {
-        const aVal = a[settings.ordering_field];
-        const bVal = b[settings.ordering_field];
-        const modifier = settings.ordering === 'ASC' ? 1 : -1;
+        const aVal = a[safeSettings.ordering_field];
+        const bVal = b[safeSettings.ordering_field];
+        const modifier = safeSettings.ordering === 'ASC' ? 1 : -1;
 
         if (aVal < bVal) return -1 * modifier;
         if (aVal > bVal) return 1 * modifier;
@@ -239,7 +251,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       tableStructure = await this.getTableStructure(tableName);
     }
 
-    const availableFields = this.findAvailableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(safeSettings, tableStructure);
 
     const finalRows = paginatedRows.map((row) => {
       if (availableFields.length > 0) {
@@ -567,40 +579,52 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         keys.forEach((key) => pipeline.get(key));
         const results = await pipeline.exec();
 
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
-          const data = results[i] as unknown as string;
+        if (results) {
+          for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            const result = results[i];
 
-          if (data) {
-            try {
-              const parsedData = JSON.parse(data);
-              const keyPart = key.split(':').slice(1).join(':');
-              const rowData = { key: keyPart, ...parsedData };
-
-              if (
-                value === '*' ||
-                fields.some((field) =>
-                  String(rowData[field] || '')
-                    .toLowerCase()
-                    .includes(String(value).toLowerCase()),
-                )
-              ) {
-                const autocompleteRow: Record<string, unknown> = {};
-                fields.forEach((field) => {
-                  if (rowData[field] !== undefined) {
-                    autocompleteRow[field] = rowData[field];
-                  }
-                });
-                rows.push(autocompleteRow);
-                processedCount++;
+            let data: string | null = null;
+            if (Array.isArray(result)) {
+              const [error, value] = result;
+              if (!error && value !== null) {
+                data = value as string;
               }
-            } catch (_error) {
-              continue;
+            } else {
+              data = result as unknown as string;
             }
-          }
 
-          if (processedCount >= DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT) {
-            break;
+            if (data) {
+              try {
+                const parsedData = JSON.parse(data);
+                const keyPart = key.split(':').slice(1).join(':');
+                const rowData = { key: keyPart, ...parsedData };
+
+                if (
+                  value === '*' ||
+                  fields.some((field) =>
+                    String(rowData[field] || '')
+                      .toLowerCase()
+                      .includes(String(value).toLowerCase()),
+                  )
+                ) {
+                  const autocompleteRow: Record<string, unknown> = {};
+                  fields.forEach((field) => {
+                    if (rowData[field] !== undefined) {
+                      autocompleteRow[field] = rowData[field];
+                    }
+                  });
+                  rows.push(autocompleteRow);
+                  processedCount++;
+                }
+              } catch (_error) {
+                continue;
+              }
+            }
+
+            if (processedCount >= DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT) {
+              break;
+            }
           }
         }
       }
@@ -622,6 +646,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     filteringFields: Array<FilteringFieldsDS>,
     searchedFieldValue: string,
     settings: TableSettingsDS,
+    tableName: string,
   ): Promise<boolean> {
     if (filteringFields?.length > 0) {
       const filterResults: boolean[] = [];
@@ -681,7 +706,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       const searchFields =
         settings.search_fields?.length > 0
           ? settings.search_fields
-          : await this.getTableStructure(row.key as string).then((structure) => structure.map((s) => s.column_name));
+          : await this.getTableStructure(tableName).then((structure) => structure.map((s) => s.column_name));
 
       const passesSearch = searchFields.some((field) =>
         String(row[field] || '')
