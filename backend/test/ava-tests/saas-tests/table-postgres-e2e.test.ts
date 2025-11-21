@@ -754,7 +754,7 @@ should return all found rows with sorting ids by DESC`, async (t) => {
 
     const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
       undefined,
-      42,
+      20,
       QueryOrderingEnum.DESC,
       'id',
     );

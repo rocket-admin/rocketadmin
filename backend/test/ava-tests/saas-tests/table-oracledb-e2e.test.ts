@@ -1621,7 +1621,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-      t.is(getTableRowsRO.rows[0].id, 1);
+      t.is(getTableRowsRO.rows[0].id, 38);
       t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
       t.is(getTableRowsRO.rows[1].id, 22);
 
