@@ -11,9 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-redis-credentials-form',
-  templateUrl: './redis-credentials-form.component.html',
-  styleUrls: ['../base-credentials-form/base-credentials-form.component.css', './redis-credentials-form.component.css'],
+  selector: 'app-elastic-credentials-form',
+  templateUrl: './elastic-credentials-form.component.html',
+  styleUrls: ['../base-credentials-form/base-credentials-form.component.css', './elastic-credentials-form.component.css'],
   imports: [
     NgIf,
     FormsModule,
@@ -26,6 +26,6 @@ import { NgIf } from '@angular/common';
     Angulartics2Module
   ]
 })
-export class RedisCredentialsFormComponent extends BaseCredentialsFormComponent {
+export class ElasticCredentialsFormComponent extends BaseCredentialsFormComponent {
 
 }

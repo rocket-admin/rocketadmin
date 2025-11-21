@@ -316,5 +316,14 @@ export const recordEditTypes = {
         boolean: BooleanEditComponent,
         array: JsonEditorEditComponent,
         json: JsonEditorEditComponent,
+    },
+    elasticsearch: {
+        string: TextEditComponent,
+        number: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        date: DateEditComponent,
+        object: JsonEditorEditComponent,
+        array: JsonEditorEditComponent,
+        binary: FileEditComponent,
     }
 }

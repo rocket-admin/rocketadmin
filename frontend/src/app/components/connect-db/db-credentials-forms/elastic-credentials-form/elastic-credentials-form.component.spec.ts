@@ -2,14 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Angulartics2Module } from 'angulartics2';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ElasticCredentialsFormComponent } from './elastic-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { RedisCredentialsFormComponent } from './redis-credentials-form.component';
 import { provideHttpClient } from '@angular/common/http';
 
-describe('RedisCredentialsFormComponent', () => {
-  let component: RedisCredentialsFormComponent;
-  let fixture: ComponentFixture<RedisCredentialsFormComponent>;
+describe('ElasticCredentialsFormComponent', () => {
+  let component: ElasticCredentialsFormComponent;
+  let fixture: ComponentFixture<ElasticCredentialsFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -18,13 +18,13 @@ describe('RedisCredentialsFormComponent', () => {
         MatCheckboxModule,
         BrowserAnimationsModule,
         Angulartics2Module.forRoot({}),
-        RedisCredentialsFormComponent
+        ElasticCredentialsFormComponent
     ],
     providers: [provideHttpClient()]
 })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RedisCredentialsFormComponent);
+    fixture = TestBed.createComponent(ElasticCredentialsFormComponent);
     component = fixture.componentInstance;
 
     component.connection = {
