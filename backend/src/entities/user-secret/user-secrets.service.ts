@@ -15,6 +15,7 @@ import { UpdateSecretDto } from './application/dto/update-secret.dto.js';
 import { FoundSecretDto } from './application/dto/found-secret.dto.js';
 import { SecretListResponseDto, SecretListItemDto } from './application/dto/secret-list.dto.js';
 import { AuditLogResponseDto, AuditLogEntryDto } from './application/dto/audit-log.dto.js';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
 
 @Injectable()
 export class UserSecretsService {
@@ -74,14 +75,28 @@ export class UserSecretsService {
       throw new ConflictException('Secret with this slug already exists in your company');
     }
 
+    // Encrypt the secret value
+    let encryptedValue = createDto.value;
+
+    // Layer 2: Encrypt with master password first (if enabled)
+    if (createDto.masterEncryption && createDto.masterPassword) {
+      encryptedValue = Encryptor.encryptDataMasterPwd(encryptedValue, createDto.masterPassword);
+    }
+
+    // Layer 1: Encrypt with PRIVATE_KEY (always)
+    encryptedValue = Encryptor.encryptData(encryptedValue);
+
+    // Hash master password if provided
+    const masterHash = createDto.masterPassword ? await Encryptor.hashUserPassword(createDto.masterPassword) : null;
+
     // Create secret
     const secret = this.secretRepository.create({
       slug: createDto.slug,
-      encryptedValue: createDto.value, // TODO: Encrypt with PRIVATE_KEY and optionally master password
+      encryptedValue,
       companyId: user.company.id,
       expiresAt: createDto.expiresAt ? new Date(createDto.expiresAt) : null,
       masterEncryption: createDto.masterEncryption || false,
-      masterHash: createDto.masterPassword ? 'TODO: Hash master password' : null, // TODO: Hash master password
+      masterHash,
     });
 
     const saved = await this.secretRepository.save(secret);
@@ -151,8 +166,8 @@ export class UserSecretsService {
     }
 
     if (secret.masterEncryption && masterPassword) {
-      // TODO: Verify master password
-      const isValid = true; // TODO: Verify against masterHash
+      // Verify master password against stored hash
+      const isValid = await Encryptor.verifyUserPassword(masterPassword, secret.masterHash);
       if (!isValid) {
         await this.logAccess(secret.id, userId, SecretActionEnum.VIEW, false, 'Invalid master password');
         throw new ForbiddenException('Invalid master password');
@@ -166,7 +181,7 @@ export class UserSecretsService {
     // Log access
     await this.logAccess(secret.id, userId, SecretActionEnum.VIEW);
 
-    return this.buildFoundSecretDto(secret, true);
+    return this.buildFoundSecretDto(secret, true, masterPassword);
   }
 
   async updateSecret(
@@ -198,8 +213,30 @@ export class UserSecretsService {
       throw new ForbiddenException('Master password required');
     }
 
-    // Update secret
-    secret.encryptedValue = updateDto.value; // TODO: Encrypt
+    // Verify master password if required
+    if (secret.masterEncryption && masterPassword) {
+      const isValid = await Encryptor.verifyUserPassword(masterPassword, secret.masterHash);
+      if (!isValid) {
+        await this.logAccess(secret.id, userId, SecretActionEnum.UPDATE, false, 'Invalid master password');
+        throw new ForbiddenException('Invalid master password');
+      }
+    }
+
+    // Encrypt the updated secret value if provided
+    if (updateDto.value) {
+      let encryptedValue = updateDto.value;
+
+      // Layer 2: Encrypt with master password first (if enabled)
+      if (secret.masterEncryption && masterPassword) {
+        encryptedValue = Encryptor.encryptDataMasterPwd(encryptedValue, masterPassword);
+      }
+
+      // Layer 1: Encrypt with PRIVATE_KEY (always)
+      encryptedValue = Encryptor.encryptData(encryptedValue);
+
+      secret.encryptedValue = encryptedValue;
+    }
+
     if (updateDto.expiresAt !== undefined) {
       secret.expiresAt = updateDto.expiresAt ? new Date(updateDto.expiresAt) : null;
     }
@@ -279,11 +316,29 @@ export class UserSecretsService {
     };
   }
 
-  private buildFoundSecretDto(secret: UserSecretEntity, includeValue: boolean): FoundSecretDto {
+  private buildFoundSecretDto(
+    secret: UserSecretEntity,
+    includeValue: boolean,
+    masterPassword?: string,
+  ): FoundSecretDto {
+    let decryptedValue: string | undefined = undefined;
+
+    if (includeValue) {
+      // Layer 1: Decrypt with PRIVATE_KEY (always)
+      let value = Encryptor.decryptData(secret.encryptedValue);
+
+      // Layer 2: Decrypt with master password (if enabled)
+      if (secret.masterEncryption && masterPassword) {
+        value = Encryptor.decryptDataMasterPwd(value, masterPassword);
+      }
+
+      decryptedValue = value;
+    }
+
     return {
       id: secret.id,
       slug: secret.slug,
-      value: includeValue ? secret.encryptedValue : undefined, // TODO: Decrypt
+      value: decryptedValue,
       companyId: secret.companyId,
       createdAt: secret.createdAt,
       updatedAt: secret.updatedAt,
