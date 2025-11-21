@@ -1,0 +1,40 @@
+.markdown-preview {
+  display: inline-block;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.markdown-preview ::ng-deep p {
+  margin: 0;
+  display: inline;
+}
+
+.markdown-preview ::ng-deep h1,
+.markdown-preview ::ng-deep h2,
+.markdown-preview ::ng-deep h3,
+.markdown-preview ::ng-deep h4,
+.markdown-preview ::ng-deep h5,
+.markdown-preview ::ng-deep h6 {
+  margin: 0;
+  display: inline;
+  font-size: inherit;
+  font-weight: bold;
+}
+
+.markdown-preview ::ng-deep ul,
+.markdown-preview ::ng-deep ol {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.markdown-preview ::ng-deep code {
+  background: #f5f5f5;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-family: monospace;
+  font-size: 0.9em;
+}

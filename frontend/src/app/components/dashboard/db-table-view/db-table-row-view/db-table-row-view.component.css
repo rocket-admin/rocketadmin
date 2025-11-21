@@ -25,7 +25,14 @@
 
 @media (width <= 600px) {
     .row-preview-sidebar_open {
-        width: 0;
+        position: fixed;
+        top: 44px;
+        bottom: 0;
+        left: 0;
+        min-height: initial;
+        max-height: initial;
+        width: calc(100vw - 24px);
+        z-index: 2;
     }
 }
 

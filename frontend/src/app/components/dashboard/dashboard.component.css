@@ -36,8 +36,14 @@
     }
 }
 
+.table-list-sidenav-container ::ng-deep .mat-drawer-inner-container,
+.side-bar_collapsed ::ng-deep .mat-drawer-inner-container {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
 .table-list-sidenav-container ::ng-deep .mat-drawer:not(.mat-drawer-opened):not(.mat-drawer-animating) .mat-drawer-inner-container {
-    display: initial;
+    display: block;
 }
 
 .mat-list-item {
@@ -105,6 +111,7 @@
 .table-preview {
     display: flex;
     overflow-x: hidden;
+    height: calc(100vh - 44px);
 }
 
 .table-preview-content {

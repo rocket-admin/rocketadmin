@@ -11,6 +11,7 @@ import { IdEditComponent } from '../components/ui-components/record-edit-fields/
 import { ImageEditComponent } from '../components/ui-components/record-edit-fields/image/image.component';
 import { JsonEditorEditComponent } from '../components/ui-components/record-edit-fields/json-editor/json-editor.component';
 import { LongTextEditComponent } from 'src/app/components/ui-components/record-edit-fields/long-text/long-text.component'
+import { MarkdownEditComponent } from '../components/ui-components/record-edit-fields/markdown/markdown.component';
 import { MoneyEditComponent } from '../components/ui-components/record-edit-fields/money/money.component';
 import { NumberEditComponent } from 'src/app/components/ui-components/record-edit-fields/number/number.component';
 import { PasswordEditComponent } from '../components/ui-components/record-edit-fields/password/password.component';
@@ -22,6 +23,7 @@ import { StaticTextEditComponent } from '../components/ui-components/record-edit
 import { TextEditComponent } from 'src/app/components/ui-components/record-edit-fields/text/text.component';
 import { TimeEditComponent } from '../components/ui-components/record-edit-fields/time/time.component';
 import { TimeIntervalEditComponent } from '../components/ui-components/record-edit-fields/time-interval/time-interval.component';
+import { TimezoneEditComponent } from '../components/ui-components/record-edit-fields/timezone/timezone.component';
 import { UrlEditComponent } from '../components/ui-components/record-edit-fields/url/url.component';
 import { UuidEditComponent } from '../components/ui-components/record-edit-fields/uuid/uuid.component';
 
@@ -43,6 +45,7 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyEditComponent,
     Image: ImageEditComponent,
     JSON: JsonEditorEditComponent,
+    Markdown: MarkdownEditComponent,
     Money: MoneyEditComponent,
     Number: NumberEditComponent,
     Password: PasswordEditComponent,
@@ -53,6 +56,7 @@ export const UIwidgets = {
     String: TextEditComponent,
     Textarea: LongTextEditComponent,
     Time: TimeEditComponent,
+    Timezone: TimezoneEditComponent,
     URL: UrlEditComponent,
     UUID: UuidEditComponent,
 }
@@ -304,5 +308,13 @@ export const recordEditTypes = {
         list: JsonEditorEditComponent,
         map: JsonEditorEditComponent,
         set: JsonEditorEditComponent,
+    },
+    redis: {
+        string: TextEditComponent,
+        integer: NumberEditComponent,
+        decimal: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        array: JsonEditorEditComponent,
+        json: JsonEditorEditComponent,
     }
 }

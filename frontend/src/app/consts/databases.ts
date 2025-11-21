@@ -6,6 +6,7 @@ export const supportedOrderedDatabases = [
     "cassandra",
     "oracledb",
     "mssql",
+    "redis",
     "ibmdb2"
 ]
 
@@ -17,5 +18,6 @@ export const supportedDatabasesTitles = {
     cassandra: "Cassandra",
     oracledb: "OracleDB",
     mssql: "SQL Server",
+    redis: "Redis",
     ibmdb2: "IBM DB2"
   }

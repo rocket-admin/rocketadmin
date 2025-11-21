@@ -57,7 +57,7 @@
     "yarn": "^1.22.22"
   },
   "optionalDependencies": {
-    "ibm_db": "^3.3.0"
+    "ibm_db": "3.3.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",

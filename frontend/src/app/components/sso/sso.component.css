@@ -7,6 +7,11 @@
     width: 100%;
 }
 
+.samlConfigForm__checkbox {
+    margin-top: -8px;
+    margin-bottom: 20px;
+}
+
 .ssoPageHeader {
     margin-bottom: 24px !important;
 }
