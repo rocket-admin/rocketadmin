@@ -1,15 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MongodbCredentialsFormComponent } from './mongodb-credentials-form.component';
-import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Angulartics2Module } from 'angulartics2';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { RedisCredentialsFormComponent } from './redis-credentials-form.component';
 import { provideHttpClient } from '@angular/common/http';
 
-describe('MongodbCredentialsFormComponent', () => {
-  let component: MongodbCredentialsFormComponent;
-  let fixture: ComponentFixture<MongodbCredentialsFormComponent>;
+describe('RedisCredentialsFormComponent', () => {
+  let component: RedisCredentialsFormComponent;
+  let fixture: ComponentFixture<RedisCredentialsFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -18,13 +18,13 @@ describe('MongodbCredentialsFormComponent', () => {
         MatCheckboxModule,
         BrowserAnimationsModule,
         Angulartics2Module.forRoot({}),
-        MongodbCredentialsFormComponent
+        RedisCredentialsFormComponent
     ],
     providers: [provideHttpClient()]
 })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MongodbCredentialsFormComponent);
+    fixture = TestBed.createComponent(RedisCredentialsFormComponent);
     component = fixture.componentInstance;
 
     component.connection = {
