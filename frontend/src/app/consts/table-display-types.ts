@@ -302,4 +302,12 @@ export const tableDisplayTypes = {
         map: JsonEditorDisplayComponent,
         set: JsonEditorDisplayComponent,
     },
+    redis: {
+        string: TextDisplayComponent,
+        integer: NumberDisplayComponent,
+        decimal: NumberDisplayComponent,
+        boolean: BooleanDisplayComponent,
+        array: JsonEditorDisplayComponent,
+        json: JsonEditorDisplayComponent,
+    }
 }
