@@ -6,9 +6,9 @@ services:
     ports:
       - 3000:3000
     env_file: ./backend/.development.env
+    environment:
+      DATABASE_URL: "postgres://postgres:abc123@postgres:5432/postgres"
     volumes:
-      - ./backend/dist:/app/dist
-      - ./backend/src:/app/src
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
       - postgres
@@ -31,9 +31,9 @@ services:
     build:
       context: .
     env_file: ./backend/.development.env
+    environment:
+      DATABASE_URL: "postgres://postgres:abc123@postgres:5432/postgres"
     volumes:
-      - ./backend/dist:/app/dist
-      - ./backend/src:/app/src
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
       - postgres
@@ -53,7 +53,7 @@ services:
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
-    command: ["/bin/sh", "-c", "sleep 300 && yarn test"]
+    command: ["/bin/sh", "-c", "yarn test-all test/ava-tests/non-saas-tests/non-saas-secrets-e2e.test.ts"]
 
   testMySQL-e2e-testing:
     image: mysql:8.0.23
@@ -235,8 +235,6 @@ services:
 
   test-dynamodb-e2e-testing:
     image: amazon/dynamodb-local
-    ports:
-      - 8000:8000
     environment:
       - AWS_ACCESS_KEY_ID=SuperSecretAwsAccessKey
       - AWS_SECRET=SuperSecretAwsSecret
