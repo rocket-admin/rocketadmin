@@ -67,24 +67,33 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     const keys = await redisClient.keys(pattern);
 
     for (const key of keys) {
-      const data = await redisClient.get(key);
-      if (data) {
-        try {
-          const parsedData = JSON.parse(data as string);
-          const keyPart = key.split(':').slice(1).join(':');
-          const rowData = { key: keyPart, ...parsedData };
-          if (fieldValues.includes(rowData[referencedFieldName])) {
-            const result: Record<string, unknown> = {
-              [referencedFieldName]: rowData[referencedFieldName],
-            };
-            if (identityColumnName && rowData[identityColumnName] !== undefined) {
-              result[identityColumnName] = rowData[identityColumnName];
-            }
-            results.push(result);
-          }
-        } catch (_error) {
+      try {
+        const keyType = await redisClient.type(key);
+        if (keyType !== 'string') {
           continue;
         }
+
+        const data = await redisClient.get(key);
+        if (data) {
+          try {
+            const parsedData = JSON.parse(data as string);
+            const keyPart = key.split(':').slice(1).join(':');
+            const rowData = { key: keyPart, ...parsedData };
+            if (fieldValues.includes(rowData[referencedFieldName])) {
+              const result: Record<string, unknown> = {
+                [referencedFieldName]: rowData[referencedFieldName],
+              };
+              if (identityColumnName && rowData[identityColumnName] !== undefined) {
+                result[identityColumnName] = rowData[identityColumnName];
+              }
+              results.push(result);
+            }
+          } catch (_error) {
+            continue;
+          }
+        }
+      } catch (_error) {
+        continue;
       }
     }
     return results;
@@ -100,34 +109,50 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       throw new Error('Primary key "key" is required for Redis operations');
     }
     const rowKey = `${tableName}:${primaryKey.key}`;
-    const data = await redisClient.get(rowKey);
 
-    if (!data) {
-      return null;
-    }
+    const keyType = await redisClient.type(rowKey);
 
-    try {
-      const parsedData = JSON.parse(data as string);
-      const result = { key: primaryKey.key, ...parsedData };
-      if (settings) {
-        const tableStructure = await this.getTableStructure(tableName);
-        const availableFields = this.findAvailableFields(settings, tableStructure);
+    let result: Record<string, unknown>;
 
-        if (availableFields.length > 0) {
-          const filteredResult: Record<string, unknown> = {};
-          for (const field of availableFields) {
-            if (result[field] !== undefined) {
-              filteredResult[field] = result[field];
-            }
-          }
-          return filteredResult;
-        }
+    if (keyType === 'string') {
+      const data = await redisClient.get(rowKey);
+      if (!data) {
+        return null;
       }
-
-      return result;
-    } catch (error) {
-      throw new Error(`Invalid JSON data for key ${rowKey}: ${error.message}`);
+      try {
+        const parsedData = JSON.parse(data as string);
+        result = { key: primaryKey.key, ...parsedData };
+      } catch (error) {
+        throw new Error(`Invalid JSON data for key ${rowKey}: ${error.message}`);
+      }
+    } else if (keyType === 'hash') {
+      const hashData = await redisClient.hGetAll(rowKey);
+      if (!hashData || Object.keys(hashData).length === 0) {
+        return null;
+      }
+      result = { key: primaryKey.key, ...hashData };
+    } else if (keyType === 'none') {
+      return null;
+    } else {
+      result = { key: primaryKey.key, type: keyType };
     }
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      const availableFields = this.findAvailableFields(settings, tableStructure);
+
+      if (availableFields.length > 0) {
+        const filteredResult: Record<string, unknown> = {};
+        for (const field of availableFields) {
+          if (result[field] !== undefined) {
+            filteredResult[field] = result[field];
+          }
+        }
+        return filteredResult;
+      }
+    }
+
+    return result;
   }
 
   public async bulkGetRowsFromTableByPrimaryKeys(
@@ -189,43 +214,101 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       const keys = scanResult.keys;
 
       if (keys.length > 0) {
-        const pipeline = redisClient.multi();
-        keys.forEach((key) => pipeline.get(key));
-        const results = await pipeline.exec();
+        const keyTypes: Array<{ key: string; type: string }> = [];
+        for (const key of keys) {
+          try {
+            const type = await redisClient.type(key);
+            keyTypes.push({ key, type });
+          } catch (_error) {
+            continue;
+          }
+        }
 
-        if (results) {
-          for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            const result = results[i];
-            let data: string | null = null;
-            if (Array.isArray(result)) {
-              const [error, value] = result;
-              if (!error && value !== null) {
-                data = value as string;
-              }
-            } else {
-              data = result as unknown as string;
-            }
+        const stringKeys = keyTypes.filter(({ type }) => type === 'string');
 
-            if (data) {
-              try {
-                const parsedData = JSON.parse(data);
-                const keyPart = key.split(':').slice(1).join(':');
-                const rowData = { key: keyPart, ...parsedData };
-                const passesFilter = await this.passesFilters(
-                  rowData,
-                  filteringFields,
-                  searchedFieldValue,
-                  safeSettings,
-                  tableName,
-                );
-                if (passesFilter) {
-                  allRows.push(rowData);
+        if (stringKeys.length > 0) {
+          const pipeline = redisClient.multi();
+          stringKeys.forEach(({ key }) => pipeline.get(key));
+          const results = await pipeline.exec();
+
+          if (results) {
+            for (let i = 0; i < stringKeys.length; i++) {
+              const key = stringKeys[i].key;
+              const result = results[i];
+              let data: string | null = null;
+              if (Array.isArray(result)) {
+                const [error, value] = result;
+                if (!error && value !== null) {
+                  data = value as string;
                 }
-              } catch (_error) {
-                continue;
+              } else {
+                data = result as unknown as string;
+              }
+
+              if (data) {
+                try {
+                  const parsedData = JSON.parse(data);
+                  const keyPart = key.split(':').slice(1).join(':');
+                  const rowData = { key: keyPart, ...parsedData };
+                  const passesFilter = await this.passesFilters(
+                    rowData,
+                    filteringFields,
+                    searchedFieldValue,
+                    safeSettings,
+                    tableName,
+                  );
+                  if (passesFilter) {
+                    allRows.push(rowData);
+                  }
+                } catch (_error) {
+                  continue;
+                }
               }
             }
+          }
+        }
+
+        const nonStringKeys = keyTypes.filter(({ type }) => type !== 'string');
+        for (const { key, type } of nonStringKeys) {
+          try {
+            let rowData: Record<string, unknown> = {};
+            const keyPart = key.split(':').slice(1).join(':');
+            rowData.key = keyPart;
+
+            switch (type) {
+              case 'list':
+                const listData = await redisClient.lRange(key, 0, -1);
+                rowData.value = listData;
+                break;
+              case 'set':
+                const setData = await redisClient.sMembers(key);
+                rowData.value = setData;
+                break;
+              case 'zset':
+                const zsetData = await redisClient.zRangeWithScores(key, 0, -1);
+                rowData.value = zsetData;
+                break;
+              case 'hash':
+                const hashData = await redisClient.hGetAll(key);
+                rowData = { key: keyPart, ...hashData };
+                break;
+              default:
+                rowData.value = `[${type}]`;
+                break;
+            }
+
+            const passesFilter = await this.passesFilters(
+              rowData,
+              filteringFields,
+              searchedFieldValue,
+              safeSettings,
+              tableName,
+            );
+            if (passesFilter) {
+              allRows.push(rowData);
+            }
+          } catch (_error) {
+            continue;
           }
         }
       }
@@ -312,27 +395,41 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
   public async getTableStructure(tableName: string): Promise<Array<TableStructureDS>> {
     const redisClient = await this.getClient();
-
     const pattern = `${tableName}:*`;
     const keys = await redisClient.keys(pattern);
     const fieldTypes = new Map<string, string>();
-
     fieldTypes.set('key', 'string');
 
     const sampleSize = Math.min(keys.length, 10);
     for (let i = 0; i < sampleSize; i++) {
-      const data = await redisClient.get(keys[i]);
-      if (data && typeof data === 'string') {
-        try {
-          const parsedData = JSON.parse(data);
-          Object.entries(parsedData).forEach(([field, value]) => {
+      try {
+        const keyType = await redisClient.type(keys[i]);
+        if (keyType === 'string') {
+          const data = await redisClient.get(keys[i]);
+          if (data && typeof data === 'string') {
+            try {
+              const parsedData = JSON.parse(data);
+              Object.entries(parsedData).forEach(([field, value]) => {
+                if (!fieldTypes.has(field)) {
+                  fieldTypes.set(field, this.inferRedisDataType(value));
+                }
+              });
+            } catch (_error) {
+              fieldTypes.set('value', 'string');
+            }
+          }
+        } else if (keyType === 'hash') {
+          const hashData = await redisClient.hGetAll(keys[i]);
+          Object.entries(hashData).forEach(([field, value]) => {
             if (!fieldTypes.has(field)) {
               fieldTypes.set(field, this.inferRedisDataType(value));
             }
           });
-        } catch (_error) {
-          continue;
+        } else {
+          fieldTypes.set('value', keyType);
         }
+      } catch (_error) {
+        continue;
       }
     }
 
@@ -401,17 +498,35 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       throw new Error(`Row with key ${primaryKey.key} not found in ${tableName}`);
     }
 
-    const existingData = await redisClient.get(rowKey);
-    const existingParsed = existingData ? JSON.parse(existingData as string) : {};
+    const keyType = await redisClient.type(rowKey);
 
-    const updatedData = { ...existingParsed };
-    Object.entries(row).forEach(([field, value]) => {
-      if (field !== 'key') {
-        updatedData[field] = value;
+    if (keyType === 'hash') {
+      const updateFields: Record<string, any> = {};
+      Object.entries(row).forEach(([field, value]) => {
+        if (field !== 'key') {
+          updateFields[field] = String(value);
+        }
+      });
+      if (Object.keys(updateFields).length > 0) {
+        await redisClient.hSet(rowKey, updateFields);
       }
-    });
-    await redisClient.set(rowKey, JSON.stringify(updatedData));
-    return { key: primaryKey.key, ...updatedData };
+      const updatedData = await redisClient.hGetAll(rowKey);
+      return { key: primaryKey.key, ...updatedData };
+    } else if (keyType === 'string') {
+      const existingData = await redisClient.get(rowKey);
+      const existingParsed = existingData ? JSON.parse(existingData as string) : {};
+
+      const updatedData = { ...existingParsed };
+      Object.entries(row).forEach(([field, value]) => {
+        if (field !== 'key') {
+          updatedData[field] = value;
+        }
+      });
+      await redisClient.set(rowKey, JSON.stringify(updatedData));
+      return { key: primaryKey.key, ...updatedData };
+    } else {
+      throw new Error(`Cannot update Redis key of type ${keyType}`);
+    }
   }
 
   public async bulkUpdateRowsInTable(
@@ -575,55 +690,69 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       const keys = scanResult.keys.slice(0, DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT - processedCount);
 
       if (keys.length > 0) {
-        const pipeline = redisClient.multi();
-        keys.forEach((key) => pipeline.get(key));
-        const results = await pipeline.exec();
-
-        if (results) {
-          for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            const result = results[i];
-
-            let data: string | null = null;
-            if (Array.isArray(result)) {
-              const [error, value] = result;
-              if (!error && value !== null) {
-                data = value as string;
-              }
-            } else {
-              data = result as unknown as string;
+        const stringKeys: string[] = [];
+        for (const key of keys) {
+          try {
+            const type = await redisClient.type(key);
+            if (type === 'string') {
+              stringKeys.push(key);
             }
+          } catch (_error) {
+            continue;
+          }
+        }
 
-            if (data) {
-              try {
-                const parsedData = JSON.parse(data);
-                const keyPart = key.split(':').slice(1).join(':');
-                const rowData = { key: keyPart, ...parsedData };
+        if (stringKeys.length > 0) {
+          const pipeline = redisClient.multi();
+          stringKeys.forEach((key) => pipeline.get(key));
+          const results = await pipeline.exec();
 
-                if (
-                  value === '*' ||
-                  fields.some((field) =>
-                    String(rowData[field] || '')
-                      .toLowerCase()
-                      .includes(String(value).toLowerCase()),
-                  )
-                ) {
-                  const autocompleteRow: Record<string, unknown> = {};
-                  fields.forEach((field) => {
-                    if (rowData[field] !== undefined) {
-                      autocompleteRow[field] = rowData[field];
-                    }
-                  });
-                  rows.push(autocompleteRow);
-                  processedCount++;
+          if (results) {
+            for (let i = 0; i < stringKeys.length; i++) {
+              const key = stringKeys[i];
+              const result = results[i];
+
+              let data: string | null = null;
+              if (Array.isArray(result)) {
+                const [error, value] = result;
+                if (!error && value !== null) {
+                  data = value as string;
                 }
-              } catch (_error) {
-                continue;
+              } else {
+                data = result as unknown as string;
               }
-            }
 
-            if (processedCount >= DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT) {
-              break;
+              if (data) {
+                try {
+                  const parsedData = JSON.parse(data);
+                  const keyPart = key.split(':').slice(1).join(':');
+                  const rowData = { key: keyPart, ...parsedData };
+
+                  if (
+                    value === '*' ||
+                    fields.some((field) =>
+                      String(rowData[field] || '')
+                        .toLowerCase()
+                        .includes(String(value).toLowerCase()),
+                    )
+                  ) {
+                    const autocompleteRow: Record<string, unknown> = {};
+                    fields.forEach((field) => {
+                      if (rowData[field] !== undefined) {
+                        autocompleteRow[field] = rowData[field];
+                      }
+                    });
+                    rows.push(autocompleteRow);
+                    processedCount++;
+                  }
+                } catch (_error) {
+                  continue;
+                }
+              }
+
+              if (processedCount >= DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT) {
+                break;
+              }
             }
           }
         }
