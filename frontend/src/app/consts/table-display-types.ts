@@ -309,5 +309,14 @@ export const tableDisplayTypes = {
         boolean: BooleanDisplayComponent,
         array: JsonEditorDisplayComponent,
         json: JsonEditorDisplayComponent,
+    },
+    elasticsearch: {
+        string: TextDisplayComponent,
+        number: NumberDisplayComponent,
+        boolean: BooleanDisplayComponent,
+        date: DateDisplayComponent,
+        object: JsonEditorDisplayComponent,
+        array: JsonEditorDisplayComponent,
+        binary: FileDisplayComponent,
     }
 }

@@ -309,5 +309,14 @@ export const recordViewFieldTypes = {
         boolean: BooleanRecordViewComponent,
         array: JsonEditorRecordViewComponent,
         json: JsonEditorRecordViewComponent,
+    },
+    elasticsearch: {
+        string: TextRecordViewComponent,
+        number: NumberRecordViewComponent,
+        boolean: BooleanRecordViewComponent,
+        date: DateRecordViewComponent,
+        object: JsonEditorRecordViewComponent,
+        array: JsonEditorRecordViewComponent,
+        binary: FileRecordViewComponent,
     }
 }
