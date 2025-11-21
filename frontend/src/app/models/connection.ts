@@ -8,6 +8,8 @@ export enum DBtype {
     Mongo = 'mongodb',
     Dynamo = 'dynamodb',
     Cassandra = 'cassandra',
+    Redis = 'redis',
+    Elasticsearch = 'elasticsearch',
     DB2 = 'ibmdb2'
 }
 
