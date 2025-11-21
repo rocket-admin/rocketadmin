@@ -289,8 +289,8 @@ export class ConnectDBComponent implements OnInit {
     (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
 
     this.angulartics2.eventTrack.next({
-      action: `Connect DB: automatic test connection on edit is ${credsCorrect.result ? 'passed' : 'failed'}`,
-      properties: { errorMessage: credsCorrect.message }
+      action: `Connect DB: automatic test connection on edit is ${credsCorrect?.result ? 'passed' : 'failed'}`,
+      properties: { errorMessage: credsCorrect?.message }
     });
 
     if ((this.db.connectionType === 'agent' || credsCorrect.result)) {
