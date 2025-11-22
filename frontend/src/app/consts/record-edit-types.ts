@@ -310,5 +310,22 @@ export const recordEditTypes = {
         list: JsonEditorEditComponent,
         map: JsonEditorEditComponent,
         set: JsonEditorEditComponent,
+    },
+    redis: {
+        string: TextEditComponent,
+        integer: NumberEditComponent,
+        decimal: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        array: JsonEditorEditComponent,
+        json: JsonEditorEditComponent,
+    },
+    elasticsearch: {
+        string: TextEditComponent,
+        number: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        date: DateEditComponent,
+        object: JsonEditorEditComponent,
+        array: JsonEditorEditComponent,
+        binary: FileEditComponent,
     }
 }

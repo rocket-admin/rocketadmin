@@ -11,6 +11,7 @@ import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-rec
 })
 export class SelectRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
   public displayValue: string;
+  public backgroundColor: string;
 
   ngOnInit(): void {
     this.setDisplayValue();
@@ -28,6 +29,7 @@ export class SelectRecordViewComponent extends BaseRecordViewFieldComponent impl
         (opt: { value: any, label: string }) => opt.value === this.value
       );
       this.displayValue = option ? option.label : this.value;
+      this.backgroundColor = option && option.background_color ? option.background_color : 'transparent';
     } else if (this.structure?.data_type_params) {
       // If no widget structure but we have data_type_params, just use the value
       this.displayValue = this.value;
