@@ -28,7 +28,7 @@ import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-action
 import { ActivatedTableActionsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/activated-table-actions.dto.js';
 import nock from 'nock';
 import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { FoundTableActionRulesRoDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-table-action-rules.ro.dto.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 

@@ -7,7 +7,7 @@ import { FoundTableSettingsDs } from '../application/data-structures/found-table
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds.js';
 import { IFindTableSettings } from './use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
 import { findAvailableFields } from '../../table/utils/find-available-fields.utils.js';
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { isBinary, binaryToHex } from '../../../helpers/binary-to-hex.js';

@@ -44,8 +44,8 @@ import { UpdateMasterPasswordDs } from './application/data-structures/update-mas
 import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
 
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { TestConnectionResultDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
 import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';

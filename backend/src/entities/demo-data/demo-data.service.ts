@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';

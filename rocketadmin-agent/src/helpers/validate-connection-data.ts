@@ -1,6 +1,6 @@
 import { Messages } from '../text/messages.js';
 import { ICLIConnectionCredentials } from '../interfaces/interfaces.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 export function validateConnectionData(connectionData: ICLIConnectionCredentials): Array<string> {
   const errors = [];

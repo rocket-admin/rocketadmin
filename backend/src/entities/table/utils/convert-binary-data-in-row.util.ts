@@ -1,4 +1,4 @@
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { binaryToHex, isBinary } from '../../../helpers/index.js';
 
 export function convertBinaryDataInRowUtil(
