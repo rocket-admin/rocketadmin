@@ -1,0 +1,49 @@
+.language-form-field {
+  width: 100%;
+}
+
+.language-input-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.language-flag-prefix {
+  font-size: 20px;
+  margin-right: 8px;
+  line-height: 1;
+}
+
+.language-input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.language-flag {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.language-name {
+  flex: 1;
+}
+
+.language-native {
+  margin-left: 8px;
+  opacity: 0.8;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.language-code {
+  margin-left: 8px;
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+mat-option {
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,22 @@
+<mat-form-field class="language-form-field" appearance="outline">
+    <mat-label>{{normalizedLabel}}</mat-label>
+    <div class="language-input-container">
+        <span *ngIf="selectedLanguageFlag && showFlag" class="language-flag-prefix">{{selectedLanguageFlag}}</span>
+        <input type="text" matInput
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
+            attr.data-testid="record-{{label}}-language"
+            [formControl]="languageControl"
+            [matAutocomplete]="auto"
+            class="language-input">
+    </div>
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+        <mat-option *ngFor="let language of filteredLanguages | async"
+            [value]="language"
+            (onSelectionChange)="language && onLanguageSelected(language)">
+            <span *ngIf="language.flag && showFlag" class="language-flag">{{language.flag}}</span>
+            <span class="language-name">{{language.label}}</span>
+            <span *ngIf="language.nativeName && language.label !== language.nativeName" class="language-native">{{language.nativeName}}</span>
+            <span *ngIf="language.value" class="language-code">({{language.value}})</span>
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>
