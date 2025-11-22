@@ -162,6 +162,12 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
     JSON: `// No settings required`,
+    Language: `// Configure language display options
+// show_flag: Display country flag emoji next to language name
+// Example:
+{
+  "show_flag": true
+}`,
     Markdown: `// No settings required`,
     Money: `// Configure money widget settings
 // example:

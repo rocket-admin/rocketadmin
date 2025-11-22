@@ -8,6 +8,7 @@
   .markdown-container {
     background: #f9f9f9;
     border: 1px solid #e0e0e0;
+    color: rgba(0, 0, 0, 0.64);
   }
 }
 
@@ -15,6 +16,7 @@
   .markdown-container {
     background: #2a2a2a;
     border: 1px solid #404040;
+    color: rgba(255, 255, 255, 0.64);
   }
 }
 
