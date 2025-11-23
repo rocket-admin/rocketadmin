@@ -524,10 +524,6 @@ export class DbTableViewComponent implements OnInit {
   }
 
   exportData() {
-    console.log('export data');
-    console.log(this.selection.selected);
-
-    // Helper function to convert value to CSV-safe string
     const convertToCSVValue = (value: any): string => {
       // Handle null and undefined
       if (value === null || value === undefined) {
@@ -537,10 +533,8 @@ export class DbTableViewComponent implements OnInit {
       // Handle nested objects and arrays - convert to JSON string
       if (typeof value === 'object') {
         try {
-          // Convert object/array to JSON string
           value = JSON.stringify(value);
         } catch (e) {
-          // Handle circular references or other JSON stringify errors
           value = '[Object]';
         }
       }
@@ -563,20 +557,18 @@ export class DbTableViewComponent implements OnInit {
       return;
     }
 
-    const header = Object.keys(this.selection.selected[0]);
+    // Use the displayed columns order from the table
+    const columnsToExport = this.tableData.displayedDataColumns;
 
     // Create CSV rows with proper handling of foreign keys
     const csv = this.selection.selected.map((row) =>
-      header
+      columnsToExport
         .map((fieldName) => {
           let value = row[fieldName];
 
-          // Check if this field is a foreign key
           if (this.isForeignKey(fieldName) && value && typeof value === 'object') {
-            // Get the foreign key definition
             const foreignKey = this.tableData.foreignKeys[fieldName];
             if (foreignKey) {
-              // Extract only the primary key value from the foreign key object
               value = value[foreignKey.referenced_column_name];
             }
           }
@@ -586,8 +578,8 @@ export class DbTableViewComponent implements OnInit {
         .join(',')
     );
 
-    // Add header row
-    csv.unshift(header.map(h => convertToCSVValue(h)).join(','));
+    // Add header row using the same column order
+    csv.unshift(columnsToExport.map(h => convertToCSVValue(h)).join(','));
     const csvArray = csv.join('\r\n');
 
     const a = document.createElement('a');
