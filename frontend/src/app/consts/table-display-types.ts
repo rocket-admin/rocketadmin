@@ -9,6 +9,7 @@ import { ForeignKeyDisplayComponent } from '../components/ui-components/table-di
 import { IdDisplayComponent } from '../components/ui-components/table-display-fields/id/id.component';
 import { ImageDisplayComponent } from '../components/ui-components/table-display-fields/image/image.component';
 import { JsonEditorDisplayComponent } from '../components/ui-components/table-display-fields/json-editor/json-editor.component';
+import { LanguageDisplayComponent } from '../components/ui-components/table-display-fields/language/language.component';
 import { LongTextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/long-text/long-text.component';
 import { MarkdownDisplayComponent } from '../components/ui-components/table-display-fields/markdown/markdown.component';
 import { MoneyDisplayComponent } from '../components/ui-components/table-display-fields/money/money.component';
@@ -38,6 +39,7 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyDisplayComponent,
     Image: ImageDisplayComponent,
     JSON: JsonEditorDisplayComponent,
+    Language: LanguageDisplayComponent,
     Markdown: MarkdownDisplayComponent,
     Money: MoneyDisplayComponent,
     Number: NumberDisplayComponent,
@@ -302,4 +304,21 @@ export const tableDisplayTypes = {
         map: JsonEditorDisplayComponent,
         set: JsonEditorDisplayComponent,
     },
+    redis: {
+        string: TextDisplayComponent,
+        integer: NumberDisplayComponent,
+        decimal: NumberDisplayComponent,
+        boolean: BooleanDisplayComponent,
+        array: JsonEditorDisplayComponent,
+        json: JsonEditorDisplayComponent,
+    },
+    elasticsearch: {
+        string: TextDisplayComponent,
+        number: NumberDisplayComponent,
+        boolean: BooleanDisplayComponent,
+        date: DateDisplayComponent,
+        object: JsonEditorDisplayComponent,
+        array: JsonEditorDisplayComponent,
+        binary: FileDisplayComponent,
+    }
 }

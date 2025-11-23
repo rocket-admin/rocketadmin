@@ -9,6 +9,7 @@ import { ForeignKeyRecordViewComponent } from '../components/ui-components/recor
 import { IdRecordViewComponent } from '../components/ui-components/record-view-fields/id/id.component';
 import { ImageRecordViewComponent } from '../components/ui-components/record-view-fields/image/image.component';
 import { JsonEditorRecordViewComponent } from '../components/ui-components/record-view-fields/json-editor/json-editor.component';
+import { LanguageRecordViewComponent } from '../components/ui-components/record-view-fields/language/language.component';
 import { LongTextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/long-text/long-text.component';
 import { MarkdownRecordViewComponent } from '../components/ui-components/record-view-fields/markdown/markdown.component';
 import { MoneyRecordViewComponent } from '../components/ui-components/record-view-fields/money/money.component';
@@ -33,6 +34,7 @@ export const UIwidgets = {
     Time: TimeRecordViewComponent,
     DateTime: DateTimeRecordViewComponent,
     JSON: JsonEditorRecordViewComponent,
+    Language: LanguageRecordViewComponent,
     Markdown: MarkdownRecordViewComponent,
     Textarea: LongTextRecordViewComponent,
     String: TextRecordViewComponent,
@@ -302,4 +304,21 @@ export const recordViewFieldTypes = {
         map: JsonEditorRecordViewComponent,
         set: JsonEditorRecordViewComponent,
     },
+    redis: {
+        string: TextRecordViewComponent,
+        integer: NumberRecordViewComponent,
+        decimal: NumberRecordViewComponent,
+        boolean: BooleanRecordViewComponent,
+        array: JsonEditorRecordViewComponent,
+        json: JsonEditorRecordViewComponent,
+    },
+    elasticsearch: {
+        string: TextRecordViewComponent,
+        number: NumberRecordViewComponent,
+        boolean: BooleanRecordViewComponent,
+        date: DateRecordViewComponent,
+        object: JsonEditorRecordViewComponent,
+        array: JsonEditorRecordViewComponent,
+        binary: FileRecordViewComponent,
+    }
 }
