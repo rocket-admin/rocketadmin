@@ -1,5 +1,5 @@
 import { ConnectionEntity } from '../entities/connection/connection.entity.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { ConnectionTypeTestEnum } from '../enums/connection-type.enum.js';
 import { CreateConnectionDto } from '../entities/connection/application/dto/create-connection.dto.js';
 

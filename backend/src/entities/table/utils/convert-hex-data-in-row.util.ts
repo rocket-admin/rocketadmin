@@ -1,6 +1,6 @@
 import { isBinary } from '../../../helpers/index.js';
 import { hexToBinary } from '../../../helpers/binary-to-hex.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function convertHexDataInRowUtil(
   row: Record<string, unknown>,

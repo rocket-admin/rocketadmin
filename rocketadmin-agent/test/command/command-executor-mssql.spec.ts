@@ -34,6 +34,8 @@ describe('Command executor tests', () => {
     config_encryption_option: false,
     encryption_password: undefined,
     saving_logs_option: false,
+    dataCenter: "test",
+    authSource: "test"
   };
 
   async function resetMsSqlTestDB() {

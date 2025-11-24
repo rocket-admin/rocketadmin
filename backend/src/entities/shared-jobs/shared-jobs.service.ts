@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
+import { TableDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table.ds.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import PQueue from 'p-queue';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
@@ -11,7 +11,7 @@ import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-t
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import * as Sentry from '@sentry/node';
 @Injectable()
 export class SharedJobsService {
@@ -69,6 +69,7 @@ export class SharedJobsService {
         rgbColor: new Set<string>(),
         hexColor: new Set<string>(),
         hslColor: new Set<string>(),
+        password: new Map<string, string>(),
       };
 
       for (const column of columnsArray) {
@@ -107,6 +108,9 @@ export class SharedJobsService {
           case sampleValues.every((value) => this.isHslColor(value)):
             widgetColumnNames.hslColor.add(column);
             break;
+          case sampleValues.every((value) => this.isValueModularCryptedPassword(value)):
+            widgetColumnNames.password.set(column, this.getPasswordEncryptionAlgorithm(String(sampleValues[0])));
+            break;
           default:
             break;
         }
@@ -120,6 +124,7 @@ export class SharedJobsService {
       const rgbColorColumns = Array.from(widgetColumnNames.rgbColor);
       const hexColorColumns = Array.from(widgetColumnNames.hexColor);
       const hslColorColumns = Array.from(widgetColumnNames.hslColor);
+      const passwordColumns = Array.from(widgetColumnNames.password.keys());
 
       const allColumns = [
         telephoneColumns,
@@ -130,6 +135,7 @@ export class SharedJobsService {
         rgbColorColumns,
         hexColorColumns,
         hslColorColumns,
+        passwordColumns,
       ];
       if (allColumns.every((columns) => columns.length === 0)) {
         return;
@@ -228,6 +234,19 @@ export class SharedJobsService {
           await this._dbContext.tableWidgetsRepository.save(newWidget);
         }
       }
+      if (passwordColumns.length) {
+        for (const column of passwordColumns) {
+          const newWidget = new TableWidgetEntity();
+          newWidget.field_name = column;
+          newWidget.widget_type = WidgetTypeEnum.Password;
+          newWidget.widget_options = JSON.stringify({
+            encrypt: true,
+            algorithm: this.getPasswordEncryptionAlgorithm(passwordColumns[0]),
+          });
+          newWidget.settings = savedTableSettings;
+          await this._dbContext.tableWidgetsRepository.save(newWidget);
+        }
+      }
     }
   }
 
@@ -237,6 +256,33 @@ export class SharedJobsService {
     }
     const phoneRegex = /^\+\d{10,}$/;
     return phoneRegex.test(value) && ValidationHelper.isValidPhoneNumber(value);
+  }
+
+  private isValueModularCryptedPassword(value: unknown): boolean {
+    if (typeof value !== 'string') {
+      return false;
+    }
+    const modularCryptRegex = /^\$[a-zA-Z0-9]+\$[a-zA-Z0-9./]{0,16}\$[a-zA-Z0-9./]+$/;
+    return modularCryptRegex.test(value);
+  }
+
+  private getPasswordEncryptionAlgorithm(sampleValue: string): string {
+    const match = sampleValue.match(/^\$([a-zA-Z0-9]+)\$/);
+    switch (match ? match[1] : '') {
+      case '2a':
+      case '2b':
+      case '2y':
+        return 'bcrypt';
+      case 'argon2i':
+      case 'argon2id':
+        return 'argon2';
+      case '5':
+        return 'sha256_crypt';
+      case '6':
+        return 'sha512_crypt';
+      default:
+        return 'unknown';
+    }
   }
 
   private isValueRgbColor(value: unknown): boolean {

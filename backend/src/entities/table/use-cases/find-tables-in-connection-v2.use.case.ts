@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/src/data-access-layer/shared/create-data-access-object.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table.ds.js';
 import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
 import AbstractUseCase from '../../../common/abstract-use.case.js';

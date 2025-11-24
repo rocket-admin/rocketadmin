@@ -1,7 +1,7 @@
 /* eslint-disable security/detect-object-injection */
 import { FilteringFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { FilterCriteriaEnum } from '../../../enums/index.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 

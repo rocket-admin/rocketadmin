@@ -3,7 +3,7 @@ import { OrderingFiledDs } from '../application/data-structures/found-table-rows
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { QueryOrderingEnum } from '../../../enums/index.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 export function findOrderingFieldUtil(

@@ -1,4 +1,4 @@
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 
 export function validateTableRowUtil(row: Record<string, unknown>, structure: Array<TableStructureDS>): Array<string> {

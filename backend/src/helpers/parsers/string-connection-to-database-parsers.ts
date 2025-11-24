@@ -1,4 +1,4 @@
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
 
 // postgresql://user:password@localhost:5432/mydatabase?ssh=true&privateSSHKey=key&sshHost=sshHost&sshPort=22&sshUsername=sshUser&ssl=true&cert=cert

@@ -7,7 +7,7 @@ import {
   WidgetTypeEnum,
 } from '../../enums/index.js';
 
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
