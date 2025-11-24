@@ -458,7 +458,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     try {
       const redisClient = await this.getClient();
       const response = await redisClient.ping();
-
       if (response === 'PONG') {
         return {
           result: true,
@@ -855,23 +854,51 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         ? Number(this.connection.database)
         : 0
       : 0;
-    if (!client) {
-      client = createClient({
-        socket: {
+    try {
+      if (!client) {
+        const shouldUseTLS = this.connection.ssl !== false;
+
+        const socketConfig: any = {
           host: this.connection.host,
           port: this.connection.port,
-          ca: this.connection.cert || undefined,
-          cert: this.connection.cert || undefined,
-          rejectUnauthorized: this.connection.ssl === false ? false : true,
-        },
-        password: this.connection.password || undefined,
-        username: this.connection.username || undefined,
-        database: database,
-      });
-      await client.connect();
-      LRUStorage.setRedisClientCache(this.connection, client);
+          reconnectStrategy: (retries: number) => {
+            if (retries > 3) {
+              return new Error('Max reconnection attempts reached');
+            }
+            return Math.min(retries * 100, 3000);
+          },
+        };
+
+        if (shouldUseTLS) {
+          socketConfig.tls = true;
+          socketConfig.rejectUnauthorized = this.connection.ssl === false ? false : true;
+
+          if (this.connection.cert) {
+            socketConfig.ca = this.connection.cert;
+            socketConfig.cert = this.connection.cert;
+          }
+        }
+
+        client = createClient({
+          socket: socketConfig,
+          password: this.connection.password || undefined,
+          username: this.connection.username || undefined,
+          database: database,
+        });
+
+        client.on('error', (err) => {
+          console.error('Redis Client Error:', err);
+          LRUStorage.delRedisClientCache(this.connection);
+        });
+
+        await client.connect();
+        LRUStorage.setRedisClientCache(this.connection, client);
+      }
+      return client;
+    } catch (error) {
+      LRUStorage.delRedisClientCache(this.connection);
+      throw error;
     }
-    return client;
   }
 
   private async createTunneledConnection(connection: ConnectionParams): Promise<RedisClientType> {
