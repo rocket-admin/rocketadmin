@@ -65,6 +65,7 @@
             </form>
             <div class="actions">
                 <button mat-button type="button"
+                    class="ai-insights-button"
                     matTooltip="AI assistant"
                     angulartics2On="click"
                     angularticsAction="Dashboard: AI is clicked"
@@ -96,9 +97,12 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked">
                         <mat-icon fontSet="material-icons-outlined">view_week</mat-icon>
-                        Columns ({{ tableData.displayedDataColumns.length   }}
-                            /
-                            {{ tableData.columns.length }})
+                        Columns
+                            <span class="db-table-manage-columns-button__count">
+                                ({{ tableData.displayedDataColumns.length   }}
+                                /
+                                {{ tableData.columns.length }})
+                            </span>
                     </button>
                     <mat-menu #menu="matMenu">
                         <button mat-menu-item

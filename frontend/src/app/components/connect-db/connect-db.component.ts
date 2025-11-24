@@ -19,6 +19,7 @@ import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dial
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DynamodbCredentialsFormComponent } from './db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component';
+import { ElasticCredentialsFormComponent } from './db-credentials-forms/elastic-credentials-form/elastic-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -74,6 +75,7 @@ import isIP from 'validator/lib/isIP';
     OracledbCredentialsFormComponent,
     PostgresCredentialsFormComponent,
     RedisCredentialsFormComponent,
+    ElasticCredentialsFormComponent,
     IpAddressButtonComponent,
     AlertComponent,
     Angulartics2Module
@@ -104,6 +106,7 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.Dynamo]: '',
     [DBtype.Cassandra]: '9042',
     [DBtype.Redis]: '6379',
+    [DBtype.Elasticsearch]: '9200',
     [DBtype.DB2]: '50000'
   }
 

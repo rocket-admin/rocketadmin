@@ -179,6 +179,20 @@
             (masterKeyChange)="handleMasterKeyChange($event)">
         </app-redis-credentials-form>
 
+        <app-elastic-credentials-form *ngIf="db.type === 'elasticsearch' && db.connectionType === 'direct'"
+            [ngClass]="{
+                'credentials-fieldset': !db.isTestConnection,
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
+            }"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)">
+        </app-elastic-credentials-form>
+
         <app-db2-credentials-form *ngIf="db.type === 'ibmdb2' && db.connectionType === 'direct'"
             [ngClass]="{
                 'credentials-fieldset': !db.isTestConnection,
