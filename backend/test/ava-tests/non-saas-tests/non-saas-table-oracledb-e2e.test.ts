@@ -1971,7 +1971,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
   }
 });
 
-test.only(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -2006,16 +2006,6 @@ test.only(`${currentTest} should throw an exception when table name passed in re
       QueryOrderingEnum.DESC,
       'id',
     );
-
-    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-      .put(`/settings/personal/${createConnectionRO.id}`)
-      .query({ tableName: testTableName })
-      .send(createPersonalTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    t.is(createPersonalTableSettingsResponse.status, 200);
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)

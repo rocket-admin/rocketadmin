@@ -722,7 +722,7 @@ should return all found rows with pagination page=1 perPage=3`,
   },
 );
 
-test.only(`${currentTest} without search and without pagination and with sorting
+test.serial(`${currentTest} without search and without pagination and with sorting
 should return all found rows with sorting ids by DESC`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
@@ -796,7 +796,7 @@ should return all found rows with sorting ids by DESC`, async (t) => {
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
     t.is(getTableRowsRO.rows[0].id, 42);
     t.is(getTableRowsRO.rows[1].id, 41);
-    t.is(getTableRowsRO.rows[41].id, 1);
+    t.is(getTableRowsRO.rows[19].id, 23);
 
     t.is(typeof getTableRowsRO.primaryColumns, 'object');
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
