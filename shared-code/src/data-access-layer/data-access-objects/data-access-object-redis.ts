@@ -884,8 +884,8 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         client = createClient({
           socket: isConnectionUrl ? undefined : socketConfig,
           url: isConnectionUrl ? this.connection.host : undefined,
-          password: !isConnectionUrl ? this.connection.password : undefined,
-          username: !isConnectionUrl ? this.connection.username : undefined,
+          password: isConnectionUrl ? undefined : this.connection.password ? this.connection.password : undefined,
+          username: isConnectionUrl ? undefined : this.connection.username ? this.connection.username : undefined,
           database: database,
         });
 
