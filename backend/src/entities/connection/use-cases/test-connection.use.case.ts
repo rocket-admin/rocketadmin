@@ -3,7 +3,10 @@ import { getRepository } from 'typeorm';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import {
+  getDataAccessObject,
+  isRedisConnectionUrl,
+} from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message.js';
 import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
@@ -96,7 +99,8 @@ export class TestConnectionUseCase
         if (
           !connectionData.password &&
           (connectionData.host !== toUpdate.host || connectionData.port !== toUpdate.port) &&
-          !isConnectionTypeAgent(connectionData.type)
+          !isConnectionTypeAgent(connectionData.type) &&
+          !isRedisConnectionUrl(connectionData.host)
         ) {
           return {
             result: false,
@@ -125,7 +129,7 @@ export class TestConnectionUseCase
         };
       }
     } else {
-      if (!connectionData.password) {
+      if (!connectionData.password && !isConnectionTypeAgent(connectionData.type) && !isRedisConnectionUrl(connectionData.host)) {
         return {
           result: false,
           message: Messages.PASSWORD_MISSING,

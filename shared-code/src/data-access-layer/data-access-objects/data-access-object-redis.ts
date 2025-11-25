@@ -22,6 +22,7 @@ import { ValidateTableSettingsDS } from '../shared/data-structures/validate-tabl
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { isRedisConnectionUrl } from '../shared/create-data-access-object.js';
 
 export class DataAccessObjectRedis extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -857,6 +858,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     try {
       if (!client) {
         const shouldUseTLS = this.connection.ssl !== false;
+        const isConnectionUrl = isRedisConnectionUrl(this.connection.host);
 
         const socketConfig: any = {
           host: this.connection.host,
@@ -880,9 +882,10 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         }
 
         client = createClient({
-          socket: socketConfig,
-          password: this.connection.password || undefined,
-          username: this.connection.username || undefined,
+          socket: isConnectionUrl ? undefined : socketConfig,
+          url: isConnectionUrl ? this.connection.host : undefined,
+          password: !isConnectionUrl ? this.connection.password : undefined,
+          username: !isConnectionUrl ? this.connection.username : undefined,
           database: database,
         });
 
