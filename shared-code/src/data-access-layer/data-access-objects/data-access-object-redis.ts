@@ -76,21 +76,27 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
         const data = await redisClient.get(key);
         if (data) {
+          const keyPart = key.split(':').slice(1).join(':');
+          let rowData: Record<string, unknown>;
           try {
             const parsedData = JSON.parse(data as string);
-            const keyPart = key.split(':').slice(1).join(':');
-            const rowData = { key: keyPart, ...parsedData };
-            if (fieldValues.includes(rowData[referencedFieldName])) {
-              const result: Record<string, unknown> = {
-                [referencedFieldName]: rowData[referencedFieldName],
-              };
-              if (identityColumnName && rowData[identityColumnName] !== undefined) {
-                result[identityColumnName] = rowData[identityColumnName];
-              }
-              results.push(result);
+            if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+              rowData = { key: keyPart, ...parsedData };
+            } else {
+              rowData = { key: keyPart, value: parsedData };
             }
           } catch (_error) {
-            continue;
+            rowData = { key: keyPart, value: data };
+          }
+          const fieldValue = rowData[referencedFieldName];
+          if (fieldValue !== undefined && fieldValues.includes(fieldValue as string | number)) {
+            const result: Record<string, unknown> = {
+              [referencedFieldName]: fieldValue,
+            };
+            if (identityColumnName && rowData[identityColumnName] !== undefined) {
+              result[identityColumnName] = rowData[identityColumnName];
+            }
+            results.push(result);
           }
         }
       } catch (_error) {
@@ -122,9 +128,13 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       }
       try {
         const parsedData = JSON.parse(data as string);
-        result = { key: primaryKey.key, ...parsedData };
-      } catch (error) {
-        throw new Error(`Invalid JSON data for key ${rowKey}: ${error.message}`);
+        if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+          result = { key: primaryKey.key, ...parsedData };
+        } else {
+          result = { key: primaryKey.key, value: parsedData };
+        }
+      } catch (_error) {
+        result = { key: primaryKey.key, value: data };
       }
     } else if (keyType === 'hash') {
       const hashData = await redisClient.hGetAll(rowKey);
@@ -211,7 +221,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         COUNT: 1000,
       });
 
-      cursor = scanResult.cursor;
+      cursor = String(scanResult.cursor);
       const keys = scanResult.keys;
 
       if (keys.length > 0) {
@@ -247,22 +257,27 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
               }
 
               if (data) {
+                const keyPart = key.split(':').slice(1).join(':');
+                let rowData: Record<string, unknown>;
                 try {
                   const parsedData = JSON.parse(data);
-                  const keyPart = key.split(':').slice(1).join(':');
-                  const rowData = { key: keyPart, ...parsedData };
-                  const passesFilter = await this.passesFilters(
-                    rowData,
-                    filteringFields,
-                    searchedFieldValue,
-                    safeSettings,
-                    tableName,
-                  );
-                  if (passesFilter) {
-                    allRows.push(rowData);
+                  if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+                    rowData = { key: keyPart, ...parsedData };
+                  } else {
+                    rowData = { key: keyPart, value: parsedData };
                   }
                 } catch (_error) {
-                  continue;
+                  rowData = { key: keyPart, value: data };
+                }
+                const passesFilter = await this.passesFilters(
+                  rowData,
+                  filteringFields,
+                  searchedFieldValue,
+                  safeSettings,
+                  tableName,
+                );
+                if (passesFilter) {
+                  allRows.push(rowData);
                 }
               }
             }
@@ -410,13 +425,21 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           if (data && typeof data === 'string') {
             try {
               const parsedData = JSON.parse(data);
-              Object.entries(parsedData).forEach(([field, value]) => {
-                if (!fieldTypes.has(field)) {
-                  fieldTypes.set(field, this.inferRedisDataType(value));
+              if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+                Object.entries(parsedData).forEach(([field, value]) => {
+                  if (!fieldTypes.has(field)) {
+                    fieldTypes.set(field, this.inferRedisDataType(value));
+                  }
+                });
+              } else {
+                if (!fieldTypes.has('value')) {
+                  fieldTypes.set('value', this.inferRedisDataType(parsedData));
                 }
-              });
+              }
             } catch (_error) {
-              fieldTypes.set('value', 'string');
+              if (!fieldTypes.has('value')) {
+                fieldTypes.set('value', 'string');
+              }
             }
           }
         } else if (keyType === 'hash') {
@@ -686,7 +709,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         COUNT: 50,
       });
 
-      cursor = scanResult.cursor;
+      cursor = String(scanResult.cursor);
       const keys = scanResult.keys.slice(0, DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT - processedCount);
 
       if (keys.length > 0) {
@@ -723,30 +746,35 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
               }
 
               if (data) {
+                const keyPart = key.split(':').slice(1).join(':');
+                let rowData: Record<string, unknown>;
                 try {
                   const parsedData = JSON.parse(data);
-                  const keyPart = key.split(':').slice(1).join(':');
-                  const rowData = { key: keyPart, ...parsedData };
-
-                  if (
-                    value === '*' ||
-                    fields.some((field) =>
-                      String(rowData[field] || '')
-                        .toLowerCase()
-                        .includes(String(value).toLowerCase()),
-                    )
-                  ) {
-                    const autocompleteRow: Record<string, unknown> = {};
-                    fields.forEach((field) => {
-                      if (rowData[field] !== undefined) {
-                        autocompleteRow[field] = rowData[field];
-                      }
-                    });
-                    rows.push(autocompleteRow);
-                    processedCount++;
+                  if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+                    rowData = { key: keyPart, ...parsedData };
+                  } else {
+                    rowData = { key: keyPart, value: parsedData };
                   }
                 } catch (_error) {
-                  continue;
+                  rowData = { key: keyPart, value: data };
+                }
+
+                if (
+                  value === '*' ||
+                  fields.some((field) =>
+                    String(rowData[field] || '')
+                      .toLowerCase()
+                      .includes(String(value).toLowerCase()),
+                  )
+                ) {
+                  const autocompleteRow: Record<string, unknown> = {};
+                  fields.forEach((field) => {
+                    if (rowData[field] !== undefined) {
+                      autocompleteRow[field] = rowData[field];
+                    }
+                  });
+                  rows.push(autocompleteRow);
+                  processedCount++;
                 }
               }
 
