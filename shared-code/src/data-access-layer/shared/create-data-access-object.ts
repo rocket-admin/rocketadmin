@@ -96,7 +96,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
 
   const sqlAndMongoRequiredKeys = ['type', 'host', 'port', 'username', 'password', 'database'];
   const elasticAndDynamoAndRedisRequiredKeys = ['host', 'username', 'password'];
-  const redisRequiredKeys = ['host', 'port', 'password'];
+  const redisRequiredKeys = !isRedisConnectionUrl(connectionParams.host) ? ['host', 'port', 'password'] : ['host'];
 
   switch (connectionParams.type) {
     case ConnectionTypesEnum.postgres:
@@ -154,4 +154,9 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     isTestConnection: connectionParams.isTestConnection || false,
   };
   return connection;
+}
+
+export function isRedisConnectionUrl(host: string): boolean {
+  const redisUrlPattern = /^rediss?:\/\/.+/i;
+  return redisUrlPattern.test(host);
 }
