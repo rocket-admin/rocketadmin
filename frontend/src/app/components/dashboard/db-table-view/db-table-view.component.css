@@ -201,7 +201,7 @@
 
 @media (prefers-color-scheme: light) {
     .db-table-manage-columns-button__count {
-        color: rgba(0, 0, 0, 0.64);
+        color: rgba(0, 0, 0, 0.52);
     }
 }
 
@@ -429,13 +429,13 @@ th.mat-header-cell, td.mat-cell {
 
 @media (prefers-color-scheme: light) {
     .db-table-cell-actions {
-        color: #4f4f4f;
+        color: rgba(0,0,0,0.64);
     }
 }
 
 @media (prefers-color-scheme: dark) {
     .db-table-cell-actions {
-        color: #cdcdcd;
+        color: rgba(255,255,255,0.64);
     }
 }
 
@@ -464,6 +464,17 @@ th.mat-header-cell, td.mat-cell {
 
 .db-table-cell-actions, .db-table-header-actions {
     justify-content: flex-end;
+}
+
+.db-table-cell-action-button {
+    --mdc-icon-button-state-layer-size: 30px !important;
+    --mdc-icon-button-icon-size: 20px !important;
+}
+
+.db-table-cell-action-button ::ng-deep .mat-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
 }
 
 .table-cell-content {
