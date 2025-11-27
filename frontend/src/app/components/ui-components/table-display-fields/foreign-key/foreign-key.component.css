@@ -13,9 +13,18 @@
   transition: background 100ms, border-color 100ms;
 }
 
-.foreign-key-button:hover{
-  background-color: var(--color-accentedPalette-100);
-  border: 1px solid var(--color-accentedPalette-300);
+@media (prefers-color-scheme: dark) {
+  .foreign-key-button:hover{
+    background-color: var(--color-accentedPalette-900);
+    border: 1px solid var(--color-accentedPalette-700);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .foreign-key-button:hover{
+    background-color: var(--color-accentedPalette-100);
+    border: 1px solid var(--color-accentedPalette-300);
+  }
 }
 
 .foreign-key-button_selected {
