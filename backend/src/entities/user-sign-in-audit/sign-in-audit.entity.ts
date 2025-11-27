@@ -41,6 +41,6 @@ export class SignInAuditEntity {
   @JoinColumn({ name: 'userId' })
   user: Relation<UserEntity>;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
 }

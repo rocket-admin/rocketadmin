@@ -31,6 +31,7 @@ export class SignInAuditService {
       const user = await this.userRepository.findOne({ where: { id: userId } });
       if (user) {
         newRecord.user = user;
+        newRecord.userId = user.id;
       }
     }
 
