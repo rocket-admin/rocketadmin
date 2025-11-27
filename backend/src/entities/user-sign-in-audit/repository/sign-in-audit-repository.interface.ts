@@ -25,6 +25,7 @@ export interface IFindSignInAuditLogsOptions {
   searchedEmail?: string;
   status?: SignInStatusEnum;
   signInMethod?: SignInMethodEnum;
+  userId?: string;
 }
 
 export interface IFoundSignInAuditLogsResult {

@@ -111,6 +111,7 @@ export class FindSignInAuditLogsUseCase
       searchedEmail,
       status,
       signInMethod,
+      userId,
     });
 
     return {

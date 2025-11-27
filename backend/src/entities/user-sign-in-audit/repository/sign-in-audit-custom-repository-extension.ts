@@ -31,12 +31,16 @@ export const signInAuditCustomRepositoryExtension: ISignInAuditRepository = {
   },
 
   async findSignInAuditLogs(options: IFindSignInAuditLogsOptions): Promise<IFoundSignInAuditLogsResult> {
-    const { companyId, order, page, perPage, dateFrom, dateTo, searchedEmail, status, signInMethod } = options;
+    const { companyId, order, page, perPage, dateFrom, dateTo, searchedEmail, status, signInMethod, userId } = options;
 
     const qb = this.createQueryBuilder('signInAudit')
       .leftJoinAndSelect('signInAudit.user', 'user')
       .leftJoin('user.company', 'company')
       .where('company.id = :companyId', { companyId });
+
+    if (userId) {
+      qb.andWhere('user.id = :userId', { userId });
+    }
 
     if (searchedEmail) {
       qb.andWhere('signInAudit.email = :email', { email: searchedEmail.toLowerCase() });
