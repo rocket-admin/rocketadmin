@@ -29,7 +29,8 @@
     "migration:generate": "yarn run typeorm migration:generate -d dist/shared/config/datasource.config.js",
     "migration:create": "yarn run typeorm migration:create -d dist/shared/config/datasource.config.js",
     "migration:run": "yarn run typeorm migration:run -d dist/shared/config/datasource.config.js",
-    "migration:revert": "npm run typeorm -- migration:revert -d dist/shared/config/datasource.config.js"
+    "migration:revert": "npm run typeorm -- migration:revert -d dist/shared/config/datasource.config.js",
+    "knip": "knip"
   },
   "dependencies": {
     "@amplitude/node": "1.10.2",
@@ -116,7 +117,7 @@
     "@types/express": "^5.0.5",
     "@types/ibm_db": "^3.2.0",
     "@types/json2csv": "^5.0.7",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.1",
     "@types/safe-regex": "^1.1.6",
     "@types/supertest": "^6.0.3",
     "@types/uuid": "^11.0.0",
@@ -127,12 +128,13 @@
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
+    "knip": "^5.70.2",
     "nock": "^14.0.10",
     "prettier": "^3.6.2",
     "supertest": "^7.1.4",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "5.9.3"
+    "typescript": "^5.9.3"
   }
 }
