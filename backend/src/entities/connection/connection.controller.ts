@@ -83,6 +83,7 @@ import {
 import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 import { SkipThrottle } from '@nestjs/throttler';
+import { isRedisConnectionUrl } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -243,7 +244,11 @@ export class ConnectionController {
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDTO> {
-    if (!createConnectionDto.password && !isConnectionTypeAgent(createConnectionDto.type)) {
+    if (
+      !createConnectionDto.password &&
+      !isConnectionTypeAgent(createConnectionDto.type) &&
+      !isRedisConnectionUrl(createConnectionDto.host)
+    ) {
       throw new BadRequestException(Messages.PASSWORD_MISSING);
     }
     if (createConnectionDto.masterEncryption && !masterPwd) {
@@ -706,6 +711,10 @@ export class ConnectionController {
     if (!isConnectionEntityAgent(connectionData)) {
       if (!connectionData.host) {
         errors.push(Messages.HOST_MISSING);
+        return errors;
+      }
+
+      if (isRedisConnectionUrl(connectionData.host)) {
         return errors;
       }
 
