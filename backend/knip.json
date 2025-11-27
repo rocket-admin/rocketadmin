@@ -4,6 +4,6 @@
     "interface": true,
     "type": true
   },
-  "ignore": ["src/migrations/**"],
+  "ignore": ["src/migrations/**", "src/shared/config/datasource.config.ts", "src/enums/widget-type.enum.ts"],
   "tags": ["-lintignore"]
 }
