@@ -48,7 +48,7 @@ export class UserSecretEntity {
   @Column({ default: false })
   masterEncryption: boolean;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 4096, nullable: true })
   masterHash: string;
 
   @OneToMany(() => SecretAccessLogEntity, (log) => log.secret)

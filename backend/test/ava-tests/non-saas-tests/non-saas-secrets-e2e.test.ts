@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
@@ -7,7 +6,6 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
-import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
@@ -84,7 +82,7 @@ test.serial(`${currentTest} - should create a new secret`, async (t) => {
     .set('Accept', 'application/json')
     .send(createDto);
 
-  t.is(response.status, 201);
+  t.is(response.status, 201, response.text);
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.slug, 'test-api-key');
   t.is(responseBody.masterEncryption, false);
@@ -119,7 +117,7 @@ test.serial(`${currentTest} - should return 409 for duplicate slug`, async (t) =
     .set('Accept', 'application/json')
     .send(createDto);
 
-  t.is(response.status, 409);
+  t.is(response.status, 409, response.text);
   const responseBody = JSON.parse(response.text);
   t.truthy(responseBody.message);
 });
@@ -150,7 +148,7 @@ test.serial(`${currentTest} - should validate slug format`, async (t) => {
     .set('Accept', 'application/json')
     .send(createDto);
 
-  t.is(response.status, 400);
+  t.is(response.status, 400, response.text);
   const responseBody = JSON.parse(response.text);
   t.truthy(responseBody.message);
 });
@@ -175,7 +173,7 @@ test.serial(`${currentTest} - should return list of company secrets`, async (t) 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.truthy(responseBody.data);
   t.true(Array.isArray(responseBody.data));
@@ -207,7 +205,7 @@ test.serial(`${currentTest}?search=test - should filter secrets by slug`, async 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.truthy(responseBody.data);
   t.true(responseBody.data.every((s: any) => s.slug.includes('test')));
@@ -233,7 +231,7 @@ test.serial(`${currentTest} - should return secret with value`, async (t) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.slug, 'test-api-key');
   t.truthy(responseBody.value);
@@ -259,7 +257,7 @@ test.serial(`${currentTest} - should return 404 for non-existent secret`, async 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 404);
+  t.is(response.status, 404, response.text);
 });
 
 currentTest = 'POST /secrets';
@@ -291,7 +289,7 @@ test.serial(`${currentTest} - should create secret with master password`, async 
     .set('Accept', 'application/json')
     .send(createDto);
 
-  t.is(response.status, 201);
+  t.is(response.status, 201, response.text);
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.slug, 'protected-secret');
   t.is(responseBody.masterEncryption, true);
@@ -317,7 +315,7 @@ test.serial(`${currentTest} - should require master password for protected secre
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 403);
+  t.is(response.status, 403, response.text);
 });
 
 test.serial(`${currentTest} - should return protected secret with correct master password`, async (t) => {
@@ -340,7 +338,7 @@ test.serial(`${currentTest} - should return protected secret with correct master
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.slug, 'protected-secret');
   t.truthy(responseBody.value);
@@ -372,7 +370,7 @@ test.serial(`${currentTest} - should update secret value`, async (t) => {
     .set('Accept', 'application/json')
     .send(updateDto);
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.slug, 'test-api-key');
   t.truthy(responseBody.updatedAt);
@@ -407,7 +405,7 @@ test.serial(`${currentTest} - should update expiration date`, async (t) => {
     .set('Accept', 'application/json')
     .send(updateDto);
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.truthy(responseBody.expiresAt);
 });
@@ -437,7 +435,7 @@ test.serial(`${currentTest} - should return 404 for non-existent secret`, async 
     .set('Accept', 'application/json')
     .send(updateDto);
 
-  t.is(response.status, 404);
+  t.is(response.status, 404, response.text);
 });
 
 currentTest = 'GET /secrets/:slug/audit-log';
@@ -460,7 +458,7 @@ test.serial(`${currentTest} - should return audit log entries`, async (t) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.truthy(responseBody.data);
   t.true(Array.isArray(responseBody.data));
@@ -495,9 +493,9 @@ test.serial(`${currentTest}?page=1&limit=2 - should paginate audit log`, async (
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
-  t.is(responseBody.pagination.limit, 2);
+  t.is(responseBody.pagination.limit, '2');
   t.true(responseBody.data.length <= 2);
 });
 
@@ -532,7 +530,7 @@ test.serial(`${currentTest} - should create expired secret`, async (t) => {
     .set('Accept', 'application/json')
     .send(createDto);
 
-  t.is(response.status, 201);
+  t.is(response.status, 201, response.text);
 });
 
 currentTest = 'GET /secrets/:slug';
@@ -555,7 +553,7 @@ test.serial(`${currentTest} - should return 410 for expired secret`, async (t) =
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 410);
+  t.is(response.status, 410, response.text);
 });
 
 currentTest = 'DELETE /secrets/:slug';
@@ -579,7 +577,7 @@ test.serial(`${currentTest} - should delete secret`, async (t) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 200);
+  t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.message, 'Secret deleted successfully');
   t.truthy(responseBody.deletedAt);
@@ -605,7 +603,7 @@ test.serial(`${currentTest} - should return 404 after deletion`, async (t) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 404);
+  t.is(response.status, 404, response.text);
 });
 
 currentTest = 'DELETE /secrets/:slug';
@@ -629,7 +627,7 @@ test.serial(`${currentTest} - should return 404 for non-existent secret`, async 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 404);
+  t.is(response.status, 404, response.text);
 });
 
 currentTest = 'GET /secrets';
@@ -639,7 +637,7 @@ test.serial(`${currentTest} - unauthorized without token`, async (t) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 401);
+  t.is(response.status, 401, response.text);
 });
 
 currentTest = 'POST /secrets';
@@ -655,5 +653,5 @@ test.serial(`${currentTest} - unauthorized without token`, async (t) => {
     .set('Accept', 'application/json')
     .send(createDto);
 
-  t.is(response.status, 401);
+  t.is(response.status, 401, response.text);
 });

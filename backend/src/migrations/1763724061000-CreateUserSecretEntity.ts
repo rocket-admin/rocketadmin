@@ -14,7 +14,7 @@ export class CreateUserSecretEntity1763724061000 implements MigrationInterface {
             "lastAccessedAt" TIMESTAMP,
             "expiresAt" TIMESTAMP,
             "masterEncryption" boolean NOT NULL DEFAULT false,
-            "masterHash" character varying(255),
+            "masterHash" character varying(4096),
             CONSTRAINT "PK_user_secrets" PRIMARY KEY ("id")
         )`);
 
