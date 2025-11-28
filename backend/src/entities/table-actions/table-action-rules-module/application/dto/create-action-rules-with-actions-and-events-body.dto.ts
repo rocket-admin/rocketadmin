@@ -19,7 +19,7 @@ import { TableActionEventEnum } from '../../../../../enums/table-action-event-en
 import { applyDecorators } from '@nestjs/common';
 import { IsURLOptions } from 'validator';
 
-export function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
+function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
   return function (object: NonNullable<unknown>, propertyName: string) {
     const decorators = [IsString()];
     if (process.env.NODE_ENV !== 'test') {

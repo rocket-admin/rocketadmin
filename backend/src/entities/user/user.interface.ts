@@ -1,9 +1,5 @@
 import { SubscriptionLevelEnum } from '../../enums/index.js';
 
-export interface IUserData {
-  id: string;
-}
-
 export interface IUserInfo {
   id: string;
   isActive: boolean;
@@ -13,4 +9,3 @@ export interface IUserInfo {
   subscriptionLevel: SubscriptionLevelEnum;
   name: string;
 }
-
