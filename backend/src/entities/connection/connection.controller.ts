@@ -55,7 +55,6 @@ import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-co
 import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
 import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
 import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
-import { CreateConnectionDto } from './application/dto/index.js';
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
 import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
@@ -84,6 +83,7 @@ import { TokenValidationResult } from './use-cases/validate-connection-token.use
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 import { SkipThrottle } from '@nestjs/throttler';
 import { isRedisConnectionUrl } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { CreateConnectionDto } from './application/dto/create-connection.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
