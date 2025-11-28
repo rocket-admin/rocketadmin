@@ -1,7 +1,7 @@
 .code-editor-box {
     display: block;
     border: 1px solid rgba(0, 0, 0, 0.38);
-    border-radius: 0;
+    border-radius: 4px;
     margin-top: 4px;
     margin-bottom: 20px;
     /* overflow-y: auto;

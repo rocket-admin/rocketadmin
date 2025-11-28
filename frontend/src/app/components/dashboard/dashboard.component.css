@@ -1,3 +1,7 @@
+:host {
+    margin-bottom: -60px;
+}
+
 .mat-sidenav-container {
     height: 100%;
     /* height: calc(100vh - 56px); */
@@ -48,10 +52,6 @@
 
 .mat-list-item {
     text-decoration: none;
-}
-
-.mat-sidenav-content {
-    padding: 0 24px;
 }
 
 .toggle-button {
@@ -116,6 +116,10 @@
 
 .table-preview-content {
     flex-grow: 1;
+    padding-bottom: 24px;
+    height: calc(100vh - 44px);
+    padding: 0 24px;
+    overflow-y: scroll;
     width: 100%;
 }
 

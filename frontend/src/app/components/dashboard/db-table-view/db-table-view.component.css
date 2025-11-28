@@ -126,7 +126,7 @@
 .actions {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     margin-top: -16px;
 }
 
@@ -159,6 +159,26 @@
     pointer-events: none;
 }
 
+@media (prefers-color-scheme: light) {
+    .ai-insights-button {
+        background: var(--color-accentedPalette-50);
+    }
+
+    .ai-insights-button:hover {
+        background: var(--color-accentedPalette-100) !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-insights-button {
+        background: var(--color-accentedPalette-900);
+    }
+
+    .ai-insights-button:hover {
+        background: var(--color-accentedPalette-800) !important;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     .ai-icon ::ng-deep svg path {
         fill: #fff;
@@ -167,6 +187,22 @@
 
 .db-table-manage-columns-button {
     display: inline-block;
+}
+
+.db-table-manage-columns-button__count {
+    margin-left: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .db-table-manage-columns-button__count {
+        color: rgba(255, 255, 255, 0.56);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .db-table-manage-columns-button__count {
+        color: rgba(0, 0, 0, 0.52);
+    }
 }
 
 .active-filters {
@@ -253,7 +289,7 @@
 
 @media (prefers-color-scheme: dark) {
     .db-table ::ng-deep .db-table-row:hover {
-        --hover-color: var(--color-primaryPalette-500);
+        --hover-color: var(--color-primaryPalette-900);
     }
 }
 
@@ -393,13 +429,13 @@ th.mat-header-cell, td.mat-cell {
 
 @media (prefers-color-scheme: light) {
     .db-table-cell-actions {
-        color: #4f4f4f;
+        color: rgba(0,0,0,0.64);
     }
 }
 
 @media (prefers-color-scheme: dark) {
     .db-table-cell-actions {
-        color: #cdcdcd;
+        color: rgba(255,255,255,0.64);
     }
 }
 
@@ -428,6 +464,17 @@ th.mat-header-cell, td.mat-cell {
 
 .db-table-cell-actions, .db-table-header-actions {
     justify-content: flex-end;
+}
+
+.db-table-cell-action-button {
+    --mdc-icon-button-state-layer-size: 30px !important;
+    --mdc-icon-button-icon-size: 20px !important;
+}
+
+.db-table-cell-action-button ::ng-deep .mat-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
 }
 
 .table-cell-content {

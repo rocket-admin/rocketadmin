@@ -52,6 +52,8 @@ import { UserSecretEntity } from '../../entities/user-secret/user-secret.entity.
 import { IUserSecretRepository } from '../../entities/user-secret/repository/user-secret-repository.interface.js';
 import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
 import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -89,4 +91,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
   userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
   secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
+  signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 }

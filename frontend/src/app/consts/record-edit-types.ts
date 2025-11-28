@@ -10,6 +10,7 @@ import { ForeignKeyEditComponent } from '../components/ui-components/record-edit
 import { IdEditComponent } from '../components/ui-components/record-edit-fields/id/id.component';
 import { ImageEditComponent } from '../components/ui-components/record-edit-fields/image/image.component';
 import { JsonEditorEditComponent } from '../components/ui-components/record-edit-fields/json-editor/json-editor.component';
+import { LanguageEditComponent } from '../components/ui-components/record-edit-fields/language/language.component';
 import { LongTextEditComponent } from 'src/app/components/ui-components/record-edit-fields/long-text/long-text.component'
 import { MarkdownEditComponent } from '../components/ui-components/record-edit-fields/markdown/markdown.component';
 import { MoneyEditComponent } from '../components/ui-components/record-edit-fields/money/money.component';
@@ -45,6 +46,7 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyEditComponent,
     Image: ImageEditComponent,
     JSON: JsonEditorEditComponent,
+    Language: LanguageEditComponent,
     Markdown: MarkdownEditComponent,
     Money: MoneyEditComponent,
     Number: NumberEditComponent,
