@@ -48,6 +48,8 @@ import { IDatabaseContext } from '../database-context.interface.js';
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
 import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -83,4 +85,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
   tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+  signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 }

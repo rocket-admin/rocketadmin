@@ -9,4 +9,10 @@ export class SaasRegisterUserWithGoogleDS {
 
   @ApiProperty()
   glidCookieValue: string;
+
+  @ApiProperty({ required: false })
+  ipAddress?: string;
+
+  @ApiProperty({ required: false })
+  userAgent?: string;
 }
