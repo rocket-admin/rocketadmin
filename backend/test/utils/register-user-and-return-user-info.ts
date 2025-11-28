@@ -20,7 +20,7 @@ export async function registerUserAndReturnUserInfo(app: INestApplication): Prom
   return await registerUserOnSaasAndReturnUserInfo();
 }
 
-export async function loginTestAdminUserAndReturnInfo(app: INestApplication): Promise<{
+async function loginTestAdminUserAndReturnInfo(app: INestApplication): Promise<{
   token: string;
   email: string;
   password: string;
@@ -42,30 +42,6 @@ export async function loginTestAdminUserAndReturnInfo(app: INestApplication): Pr
 
   const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(loginAdminUserResponse)}`;
   return { token: token, ...userLoginInfo };
-}
-
-export async function registerUserOnCoreAndReturnUserInfo(app: INestApplication): Promise<{
-  token: string;
-  email: string;
-  password: string;
-}> {
-  const userRegisterInfo: RegisterUserData = {
-    email: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
-    password: '#r@dY^e&7R4b5Ib@31iE4xbn',
-  };
-
-  const registerAdminUserResponse = await request(app.getHttpServer())
-    .post('/user/register/')
-    .send(userRegisterInfo)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  if (registerAdminUserResponse.status > 300) {
-    console.info('registerAdminUserResponse.text -> ', registerAdminUserResponse.text);
-  }
-
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
-  return { token: token, ...userRegisterInfo };
 }
 
 export async function registerUserOnSaasAndReturnUserInfo(

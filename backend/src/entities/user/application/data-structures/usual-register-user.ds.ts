@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRoleEnum } from '../../enums/user-role.enum.js';
 
-export class UsualRegisterUserDs {
+class UsualRegisterUserDs {
   @ApiProperty()
   email: string;
 
@@ -24,18 +24,4 @@ export class SaasUsualUserRegisterDS extends UsualRegisterUserDs {
 
   @ApiProperty({ required: false })
   companyName?: string;
-}
-
-export class RegisterInvitedUserDS {
-  @ApiProperty()
-  email: string;
-
-  @ApiProperty()
-  password: string;
-
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  companyId: string;
 }
