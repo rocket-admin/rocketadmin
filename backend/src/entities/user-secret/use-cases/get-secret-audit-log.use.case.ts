@@ -5,6 +5,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { AuditLogListDS, GetAuditLogDS } from '../application/data-structures/get-audit-log.ds.js';
 import { IGetSecretAuditLog } from './user-secret-use-cases.interface.js';
 import { buildAuditLogEntryDS } from '../utils/build-audit-log-entry.ds.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetSecretAuditLogUseCase
@@ -27,13 +28,13 @@ export class GetSecretAuditLogUseCase
     });
 
     if (!user || !user.company) {
-      throw new ForbiddenException('User not found or not associated with a company');
+      throw new ForbiddenException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
     }
 
     const secret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);
 
     if (!secret) {
-      throw new NotFoundException('Secret not found');
+      throw new NotFoundException(Messages.SECRET_NOT_FOUND);
     }
 
     const [logs, total] = await this._dbContext.secretAccessLogRepository.findLogsForSecret(secret.id, {

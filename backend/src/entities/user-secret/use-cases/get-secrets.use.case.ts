@@ -5,6 +5,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { GetSecretsDS, SecretsListDS } from '../application/data-structures/get-secrets.ds.js';
 import { IGetSecrets } from './user-secret-use-cases.interface.js';
 import { buildSecretListItemDS } from '../utils/build-secret-list-item.ds.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetSecretsUseCase extends AbstractUseCase<GetSecretsDS, SecretsListDS> implements IGetSecrets {
@@ -24,7 +25,7 @@ export class GetSecretsUseCase extends AbstractUseCase<GetSecretsDS, SecretsList
     });
 
     if (!user || !user.company) {
-      throw new ForbiddenException('User not found or not associated with a company');
+      throw new ForbiddenException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
     }
 
     const [secrets, total] = await this._dbContext.userSecretRepository.findSecretsForCompany(user.company.id, {

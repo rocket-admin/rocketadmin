@@ -8,6 +8,7 @@ import { ICreateSecret } from './user-secret-use-cases.interface.js';
 import { buildCreatedSecretDS } from '../utils/build-created-secret.ds.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { SecretActionEnum } from '../../secret-access-log/secret-access-log.entity.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateSecretUseCase extends AbstractUseCase<CreateSecretDS, CreatedSecretDS> implements ICreateSecret {
@@ -27,13 +28,13 @@ export class CreateSecretUseCase extends AbstractUseCase<CreateSecretDS, Created
     });
 
     if (!user || !user.company) {
-      throw new ForbiddenException('User not found or not associated with a company');
+      throw new ForbiddenException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
     }
 
     const existing = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);
 
     if (existing) {
-      throw new ConflictException('Secret with this slug already exists in your company');
+      throw new ConflictException(Messages.SECRET_ALREADY_EXISTS);
     }
 
     let encryptedValue = value;

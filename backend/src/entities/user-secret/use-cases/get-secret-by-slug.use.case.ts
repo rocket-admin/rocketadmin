@@ -8,6 +8,7 @@ import { IGetSecretBySlug } from './user-secret-use-cases.interface.js';
 import { buildFoundSecretDS } from '../utils/build-found-secret.ds.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { SecretActionEnum } from '../../secret-access-log/secret-access-log.entity.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetSecretBySlugUseCase extends AbstractUseCase<GetSecretDS, FoundSecretDS> implements IGetSecretBySlug {
@@ -27,21 +28,21 @@ export class GetSecretBySlugUseCase extends AbstractUseCase<GetSecretDS, FoundSe
     });
 
     if (!user || !user.company) {
-      throw new ForbiddenException('User not found or not associated with a company');
+      throw new ForbiddenException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
     }
 
     const secret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);
 
     if (!secret) {
-      throw new NotFoundException('Secret not found');
+      throw new NotFoundException(Messages.SECRET_NOT_FOUND);
     }
 
     if (secret.expiresAt && secret.expiresAt < new Date()) {
-      throw new GoneException('Secret has expired');
+      throw new GoneException(Messages.SECRET_EXPIRED);
     }
 
     if (secret.masterEncryption && !masterPassword) {
-      throw new ForbiddenException('Master password required');
+      throw new ForbiddenException(Messages.SECRET_MASTER_PASSWORD_REQUIRED);
     }
 
     if (secret.masterEncryption && masterPassword) {
@@ -52,9 +53,9 @@ export class GetSecretBySlugUseCase extends AbstractUseCase<GetSecretDS, FoundSe
           userId,
           SecretActionEnum.VIEW,
           false,
-          'Invalid master password',
+          Messages.SECRET_MASTER_PASSWORD_INVALID,
         );
-        throw new ForbiddenException('Invalid master password');
+        throw new ForbiddenException(Messages.SECRET_MASTER_PASSWORD_INVALID);
       }
     }
 
