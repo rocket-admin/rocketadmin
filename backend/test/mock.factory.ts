@@ -12,7 +12,7 @@ import { CreateConnectionDto } from '../src/entities/connection/application/dto/
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 
-export class CreateGroupDto {
+class CreateGroupDto {
   title: string;
   permissions?: Array<any>;
   isMain?: boolean;
