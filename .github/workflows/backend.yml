@@ -3,11 +3,11 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "!frontend/**"
+    paths-ignore:
+      - "frontend/**"
   pull_request:
-    paths: 
-      - "!frontend/**"
+    paths-ignore:
+      - "frontend/**"
 jobs:
   test:
     runs-on:
@@ -40,5 +40,3 @@ jobs:
           node-version: '18'
       - run: cd backend && yarn install
       - run: cd backend && yarn run lint
-
-      

@@ -54,7 +54,7 @@ services:
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
-    command: ["/bin/sh", "-c", "yarn test-all $EXTRA_ARGS"]
+    command: ["/bin/sh", "-c", "yarn test $EXTRA_ARGS"]
     develop:
       watch:
         - action: rebuild
