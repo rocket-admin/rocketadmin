@@ -14,6 +14,9 @@ import { isTest } from '../../../helpers/app/is-test.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { SignInAuditService } from '../../user-sign-in-audit/sign-in-audit.service.js';
+import { SignInStatusEnum } from '../../user-sign-in-audit/enums/sign-in-status.enum.js';
+import { SignInMethodEnum } from '../../user-sign-in-audit/enums/sign-in-method.enum.js';
 
 @Injectable()
 export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualLogin {
@@ -21,12 +24,13 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    private readonly signInAuditService: SignInAuditService,
   ) {
     super();
   }
 
   protected async implementation(userData: UsualLoginDs): Promise<IToken> {
-    const { request_domain } = userData;
+    const { request_domain, ipAddress, userAgent } = userData;
     let { companyId } = userData;
     const email = userData.email.toLowerCase();
     let user: UserEntity = null;
@@ -34,6 +38,14 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     if (companyId) {
       user = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
       if (!user) {
+        await this.recordSignInAudit(
+          email,
+          null,
+          SignInStatusEnum.FAILED,
+          ipAddress,
+          userAgent,
+          Messages.USER_NOT_FOUND,
+        );
         throw new NotFoundException(Messages.USER_NOT_FOUND);
       }
     } else if (!Constants.APP_REQUEST_DOMAINS().includes(request_domain) && isSaaS()) {
@@ -44,6 +56,14 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
         foundUserCompanyIdByDomain,
       );
       if (!foundUser) {
+        await this.recordSignInAudit(
+          email,
+          null,
+          SignInStatusEnum.FAILED,
+          ipAddress,
+          userAgent,
+          Messages.USER_NOT_FOUND_FOR_THIS_DOMAIN,
+        );
         throw new BadRequestException(Messages.USER_NOT_FOUND_FOR_THIS_DOMAIN);
       }
       user = foundUser;
@@ -51,16 +71,33 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     } else {
       const foundUsers = await this._dbContext.userRepository.findAllUsersWithEmail(email);
       if (foundUsers.length > 1) {
+        await this.recordSignInAudit(
+          email,
+          null,
+          SignInStatusEnum.FAILED,
+          ipAddress,
+          userAgent,
+          Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY,
+        );
         throw new BadRequestException(Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
       }
       user = foundUsers[0];
-      companyId = foundUsers[0].company.id;
+      companyId = foundUsers[0]?.company?.id;
     }
 
     if (!user) {
+      await this.recordSignInAudit(email, null, SignInStatusEnum.FAILED, ipAddress, userAgent, Messages.USER_NOT_FOUND);
       throw new NotFoundException(Messages.USER_NOT_FOUND);
     }
     if (!userData.password) {
+      await this.recordSignInAudit(
+        email,
+        user.id,
+        SignInStatusEnum.FAILED,
+        ipAddress,
+        userAgent,
+        Messages.PASSWORD_MISSING,
+      );
       throw new BadRequestException(Messages.PASSWORD_MISSING);
     }
 
@@ -68,13 +105,47 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 
     const passwordValidationResult = await Encryptor.verifyUserPassword(userData.password, user.password);
     if (!passwordValidationResult) {
+      await this.recordSignInAudit(
+        email,
+        user.id,
+        SignInStatusEnum.FAILED,
+        ipAddress,
+        userAgent,
+        Messages.LOGIN_DENIED,
+      );
       throw new BadRequestException(Messages.LOGIN_DENIED);
     }
     if (user.isOTPEnabled) {
       return generateTemporaryJwtToken(user);
     }
+
+    await this.recordSignInAudit(email, user.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
+
     const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(user.id);
     return generateGwtToken(user, get2FaScope(user, foundUserCompany));
+  }
+
+  private async recordSignInAudit(
+    email: string,
+    userId: string | null,
+    status: SignInStatusEnum,
+    ipAddress: string,
+    userAgent: string,
+    failureReason?: string,
+  ): Promise<void> {
+    try {
+      await this.signInAuditService.createSignInAuditRecord({
+        email,
+        userId,
+        status,
+        signInMethod: SignInMethodEnum.EMAIL,
+        ipAddress,
+        userAgent,
+        failureReason,
+      });
+    } catch (e) {
+      console.error('Failed to record sign-in audit:', e);
+    }
   }
 
   private async validateRequestDomain(requestDomain: string, companyId: string): Promise<void> {

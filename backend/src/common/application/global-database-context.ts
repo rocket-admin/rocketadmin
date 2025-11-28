@@ -96,6 +96,9 @@ import { userSecretRepositoryExtension } from '../../entities/user-secret/reposi
 import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
 import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
 import { secretAccessLogRepositoryExtension } from '../../entities/secret-access-log/repository/secret-access-log-repository.extension.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
+import { signInAuditCustomRepositoryExtension } from '../../entities/user-sign-in-audit/repository/sign-in-audit-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -136,6 +139,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
   private _userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
   private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
+  private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -230,6 +234,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._secretAccessLogRepository = this.appDataSource
       .getRepository(SecretAccessLogEntity)
       .extend(secretAccessLogRepositoryExtension);
+    this._signInAuditRepository = this.appDataSource
+      .getRepository(SignInAuditEntity)
+      .extend(signInAuditCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -370,6 +377,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get secretAccessLogRepository(): Repository<SecretAccessLogEntity> & ISecretAccessLogRepository {
     return this._secretAccessLogRepository;
+  }
+
+  public get signInAuditRepository(): Repository<SignInAuditEntity> & ISignInAuditRepository {
+    return this._signInAuditRepository;
   }
 
   public startTransaction(): Promise<void> {

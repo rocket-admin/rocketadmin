@@ -317,7 +317,7 @@ export class TablesDataSource implements DataSource<Object> {
   getActionsColumnWidth(actions, permissions) {
     const defaultActionsCount = permissions.edit + permissions.add + (!!permissions.delete && !!this.canDelete);
     const totalActionsCount = actions.length + defaultActionsCount;
-    const lengthValue = ((totalActionsCount * 36) + 32);
+    const lengthValue = ((totalActionsCount * 30) + 32);
     return totalActionsCount === 0 ? '0' : `${lengthValue}px`
   }
 

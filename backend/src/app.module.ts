@@ -40,6 +40,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { SharedJobsModule } from './entities/shared-jobs/shared-jobs.module.js';
 import { TableCategoriesModule } from './entities/table-categories/table-categories.module.js';
 import { UserSecretModule } from './entities/user-secret/user-secret.module.js';
+import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.module.js';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { UserSecretModule } from './entities/user-secret/user-secret.module.js';
     SharedJobsModule,
     TableCategoriesModule,
     UserSecretModule,
+    SignInAuditModule,
   ],
   controllers: [AppController],
   providers: [

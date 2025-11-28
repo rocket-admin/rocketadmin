@@ -22,6 +22,22 @@ import { ValidateTableSettingsDS } from '../shared/data-structures/validate-tabl
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { isRedisConnectionUrl } from '../shared/create-data-access-object.js';
+
+enum RedisTableType {
+  PREFIXED_KEYS = 'prefixed_keys',
+  LIST = 'list',
+  SET = 'set',
+  ZSET = 'zset',
+  STRING = 'string',
+  HASH = 'hash',
+}
+
+interface RedisTableMetadata {
+  tableName: string;
+  tableType: RedisTableType;
+  redisKey: string;
+}
 
 export class DataAccessObjectRedis extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -32,6 +48,81 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     tableName: string,
     row: Record<string, unknown>,
   ): Promise<Record<string, unknown> | number> {
+    const tableMetadata = this.parseTableName(tableName);
+
+    if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
+      return this.addRowToStandaloneTable(tableMetadata, row);
+    }
+
+    return this.addRowToPrefixedTable(tableName, row);
+  }
+
+  private async addRowToStandaloneTable(
+    metadata: RedisTableMetadata,
+    row: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const redisClient = await this.getClient();
+
+    switch (metadata.tableType) {
+      case RedisTableType.LIST: {
+        const value = row.value;
+        if (value === undefined) {
+          throw new Error('Field "value" is required for adding to Redis list');
+        }
+        const newLength = await redisClient.rPush(metadata.redisKey, String(value));
+        return { index: newLength - 1, value };
+      }
+
+      case RedisTableType.SET: {
+        const value = row.value;
+        if (value === undefined) {
+          throw new Error('Field "value" is required for adding to Redis set');
+        }
+        await redisClient.sAdd(metadata.redisKey, String(value));
+        return { value };
+      }
+
+      case RedisTableType.ZSET: {
+        const member = row.member;
+        const score = row.score;
+        if (member === undefined) {
+          throw new Error('Field "member" is required for adding to Redis sorted set');
+        }
+        const scoreValue = score !== undefined ? Number(score) : 0;
+        await redisClient.zAdd(metadata.redisKey, { score: scoreValue, value: String(member) });
+        return { member, score: scoreValue };
+      }
+
+      case RedisTableType.STRING: {
+        const value = row.value;
+        if (value === undefined) {
+          throw new Error('Field "value" is required for setting Redis string');
+        }
+        await redisClient.set(metadata.redisKey, String(value));
+        return { value };
+      }
+
+      case RedisTableType.HASH: {
+        const fieldsToSet: Record<string, string> = {};
+        Object.entries(row).forEach(([field, value]) => {
+          fieldsToSet[field] = String(value);
+        });
+        if (Object.keys(fieldsToSet).length === 0) {
+          throw new Error('At least one field is required for adding to Redis hash');
+        }
+        await redisClient.hSet(metadata.redisKey, fieldsToSet);
+        return row;
+      }
+
+      default:
+        throw new Error(`Cannot add row to Redis table of type ${metadata.tableType}`);
+    }
+  }
+
+  private async addRowToPrefixedTable(
+    tableName: string,
+    row: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     const redisClient = await this.getClient();
     const key = row.key ? String(row.key) : nanoid();
     const rowKey = `${tableName}:${key}`;
@@ -42,6 +133,75 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   }
 
   public async deleteRowInTable(
+    tableName: string,
+    primaryKey: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const tableMetadata = this.parseTableName(tableName);
+
+    if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
+      return this.deleteRowFromStandaloneTable(tableMetadata, primaryKey);
+    }
+
+    return this.deleteRowFromPrefixedTable(tableName, primaryKey);
+  }
+
+  private async deleteRowFromStandaloneTable(
+    metadata: RedisTableMetadata,
+    primaryKey: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const redisClient = await this.getClient();
+
+    switch (metadata.tableType) {
+      case RedisTableType.LIST: {
+        const index = primaryKey.index;
+        if (index === undefined) {
+          throw new Error('Primary key "index" is required for deleting from Redis list');
+        }
+        const placeholder = `__DELETED_${nanoid()}__`;
+        await redisClient.lSet(metadata.redisKey, Number(index), placeholder);
+        await redisClient.lRem(metadata.redisKey, 1, placeholder);
+        return primaryKey;
+      }
+
+      case RedisTableType.SET: {
+        const value = primaryKey.value;
+        if (value === undefined) {
+          throw new Error('Primary key "value" is required for deleting from Redis set');
+        }
+        await redisClient.sRem(metadata.redisKey, String(value));
+        return primaryKey;
+      }
+
+      case RedisTableType.ZSET: {
+        const member = primaryKey.member;
+        if (member === undefined) {
+          throw new Error('Primary key "member" is required for deleting from Redis sorted set');
+        }
+        await redisClient.zRem(metadata.redisKey, String(member));
+        return primaryKey;
+      }
+
+      case RedisTableType.STRING: {
+        await redisClient.del(metadata.redisKey);
+        return primaryKey;
+      }
+
+      case RedisTableType.HASH: {
+        const field = primaryKey.field;
+        if (field) {
+          await redisClient.hDel(metadata.redisKey, String(field));
+        } else {
+          await redisClient.del(metadata.redisKey);
+        }
+        return primaryKey;
+      }
+
+      default:
+        throw new Error(`Cannot delete from Redis table of type ${metadata.tableType}`);
+    }
+  }
+
+  private async deleteRowFromPrefixedTable(
     tableName: string,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
@@ -75,21 +235,27 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
         const data = await redisClient.get(key);
         if (data) {
+          const keyPart = key.split(':').slice(1).join(':');
+          let rowData: Record<string, unknown>;
           try {
             const parsedData = JSON.parse(data as string);
-            const keyPart = key.split(':').slice(1).join(':');
-            const rowData = { key: keyPart, ...parsedData };
-            if (fieldValues.includes(rowData[referencedFieldName])) {
-              const result: Record<string, unknown> = {
-                [referencedFieldName]: rowData[referencedFieldName],
-              };
-              if (identityColumnName && rowData[identityColumnName] !== undefined) {
-                result[identityColumnName] = rowData[identityColumnName];
-              }
-              results.push(result);
+            if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+              rowData = { key: keyPart, ...parsedData };
+            } else {
+              rowData = { key: keyPart, value: parsedData };
             }
           } catch (_error) {
-            continue;
+            rowData = { key: keyPart, value: data };
+          }
+          const fieldValue = rowData[referencedFieldName];
+          if (fieldValue !== undefined && fieldValues.includes(fieldValue as string | number)) {
+            const result: Record<string, unknown> = {
+              [referencedFieldName]: fieldValue,
+            };
+            if (identityColumnName && rowData[identityColumnName] !== undefined) {
+              result[identityColumnName] = rowData[identityColumnName];
+            }
+            results.push(result);
           }
         }
       } catch (_error) {
@@ -100,6 +266,104 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   }
 
   public async getRowByPrimaryKey(
+    tableName: string,
+    primaryKey: Record<string, unknown>,
+    settings: TableSettingsDS,
+  ): Promise<Record<string, unknown>> {
+    const tableMetadata = this.parseTableName(tableName);
+
+    if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
+      return this.getStandaloneRowByPrimaryKey(tableMetadata, primaryKey, settings);
+    }
+
+    return this.getPrefixedRowByPrimaryKey(tableName, primaryKey, settings);
+  }
+
+  private async getStandaloneRowByPrimaryKey(
+    metadata: RedisTableMetadata,
+    primaryKey: Record<string, unknown>,
+    settings: TableSettingsDS,
+  ): Promise<Record<string, unknown>> {
+    const redisClient = await this.getClient();
+    let result: Record<string, unknown> | null = null;
+
+    switch (metadata.tableType) {
+      case RedisTableType.LIST: {
+        const index = primaryKey.index;
+        if (index === undefined) {
+          throw new Error('Primary key "index" is required for Redis list operations');
+        }
+        const value = await redisClient.lIndex(metadata.redisKey, Number(index));
+        if (value !== null) {
+          result = { index: Number(index), value };
+        }
+        break;
+      }
+
+      case RedisTableType.SET: {
+        const value = primaryKey.value;
+        if (value === undefined) {
+          throw new Error('Primary key "value" is required for Redis set operations');
+        }
+        const isMember = await redisClient.sIsMember(metadata.redisKey, String(value));
+        if (isMember) {
+          result = { value: String(value) };
+        }
+        break;
+      }
+
+      case RedisTableType.ZSET: {
+        const member = primaryKey.member;
+        if (member === undefined) {
+          throw new Error('Primary key "member" is required for Redis sorted set operations');
+        }
+        const score = await redisClient.zScore(metadata.redisKey, String(member));
+        if (score !== null) {
+          result = { member: String(member), score };
+        }
+        break;
+      }
+
+      case RedisTableType.STRING: {
+        const stringData = await redisClient.get(metadata.redisKey);
+        if (stringData) {
+          result = { value: stringData };
+        }
+        break;
+      }
+
+      case RedisTableType.HASH: {
+        const hashData = await redisClient.hGetAll(metadata.redisKey);
+        if (Object.keys(hashData).length > 0) {
+          result = hashData;
+        }
+        break;
+      }
+    }
+
+    if (!result) {
+      return null;
+    }
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(metadata.tableName);
+      const availableFields = this.findAvailableFields(settings, tableStructure);
+
+      if (availableFields.length > 0) {
+        const filteredResult: Record<string, unknown> = {};
+        for (const field of availableFields) {
+          if (result[field] !== undefined) {
+            filteredResult[field] = result[field];
+          }
+        }
+        return filteredResult;
+      }
+    }
+
+    return result;
+  }
+
+  private async getPrefixedRowByPrimaryKey(
     tableName: string,
     primaryKey: Record<string, unknown>,
     settings: TableSettingsDS,
@@ -121,9 +385,13 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       }
       try {
         const parsedData = JSON.parse(data as string);
-        result = { key: primaryKey.key, ...parsedData };
-      } catch (error) {
-        throw new Error(`Invalid JSON data for key ${rowKey}: ${error.message}`);
+        if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+          result = { key: primaryKey.key, ...parsedData };
+        } else {
+          result = { key: primaryKey.key, value: parsedData };
+        }
+      } catch (_error) {
+        result = { key: primaryKey.key, value: data };
       }
     } else if (keyType === 'hash') {
       const hashData = await redisClient.hGetAll(rowKey);
@@ -184,8 +452,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     autocompleteFields: AutocompleteFieldsDS,
     tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
-    const redisClient = await this.getClient();
-
     const safeSettings = settings || ({} as TableSettingsDS);
 
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
@@ -200,6 +466,153 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       return await this.getAutocompleteRows(tableName, autocompleteFields);
     }
 
+    const tableMetadata = this.parseTableName(tableName);
+
+    if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
+      return this.getStandaloneTableRows(
+        tableMetadata,
+        safeSettings,
+        page,
+        perPage,
+        searchedFieldValue,
+        filteringFields,
+        tableStructure,
+      );
+    }
+
+    return this.getPrefixedTableRows(
+      tableName,
+      safeSettings,
+      page,
+      perPage,
+      searchedFieldValue,
+      filteringFields,
+      tableStructure,
+    );
+  }
+
+  private async getStandaloneTableRows(
+    metadata: RedisTableMetadata,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+    tableStructure: TableStructureDS[] | null,
+  ): Promise<FoundRowsDS> {
+    const redisClient = await this.getClient();
+    let allRows: Array<Record<string, unknown>> = [];
+
+    switch (metadata.tableType) {
+      case RedisTableType.LIST: {
+        const listData = await redisClient.lRange(metadata.redisKey, 0, -1);
+        allRows = listData.map((value, index) => ({ index, value }));
+        break;
+      }
+
+      case RedisTableType.SET: {
+        const setData = await redisClient.sMembers(metadata.redisKey);
+        allRows = setData.map((value) => ({ value }));
+        break;
+      }
+
+      case RedisTableType.ZSET: {
+        const zsetData = await redisClient.zRangeWithScores(metadata.redisKey, 0, -1);
+        allRows = zsetData.map(({ value, score }) => ({ member: value, score }));
+        break;
+      }
+
+      case RedisTableType.STRING: {
+        const stringData = await redisClient.get(metadata.redisKey);
+        if (stringData) {
+          allRows = [{ value: stringData }];
+        }
+        break;
+      }
+
+      case RedisTableType.HASH: {
+        const hashData = await redisClient.hGetAll(metadata.redisKey);
+        if (Object.keys(hashData).length > 0) {
+          allRows = [hashData];
+        }
+        break;
+      }
+    }
+
+    if (filteringFields?.length > 0 || searchedFieldValue) {
+      const filteredRows: Array<Record<string, unknown>> = [];
+      for (const row of allRows) {
+        const passesFilter = await this.passesFilters(
+          row,
+          filteringFields,
+          searchedFieldValue,
+          settings,
+          metadata.tableName,
+        );
+        if (passesFilter) {
+          filteredRows.push(row);
+        }
+      }
+      allRows = filteredRows;
+    }
+
+    if (settings.ordering_field && settings.ordering) {
+      allRows.sort((a, b) => {
+        const aVal = a[settings.ordering_field];
+        const bVal = b[settings.ordering_field];
+        const modifier = settings.ordering === 'ASC' ? 1 : -1;
+
+        if (aVal < bVal) return -1 * modifier;
+        if (aVal > bVal) return 1 * modifier;
+        return 0;
+      });
+    }
+
+    const totalRows = allRows.length;
+    const offset = (page - 1) * perPage;
+    const paginatedRows = allRows.slice(offset, offset + perPage);
+
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(metadata.tableName);
+    }
+
+    const availableFields = this.findAvailableFields(settings, tableStructure);
+
+    const finalRows = paginatedRows.map((row) => {
+      if (availableFields.length > 0) {
+        const filteredRow: Record<string, unknown> = {};
+        availableFields.forEach((field) => {
+          if (row[field] !== undefined) {
+            filteredRow[field] = row[field];
+          }
+        });
+        return filteredRow;
+      }
+      return row;
+    });
+
+    return {
+      data: finalRows,
+      pagination: {
+        total: totalRows,
+        lastPage: Math.ceil(totalRows / perPage),
+        perPage: perPage,
+        currentPage: page,
+      },
+      large_dataset: totalRows > 1000,
+    };
+  }
+
+  private async getPrefixedTableRows(
+    tableName: string,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+    tableStructure: TableStructureDS[] | null,
+  ): Promise<FoundRowsDS> {
+    const redisClient = await this.getClient();
     const pattern = `${tableName}:*`;
     const allRows: Array<Record<string, unknown>> = [];
     let cursor = '0';
@@ -210,7 +623,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         COUNT: 1000,
       });
 
-      cursor = scanResult.cursor;
+      cursor = String(scanResult.cursor);
       const keys = scanResult.keys;
 
       if (keys.length > 0) {
@@ -246,22 +659,27 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
               }
 
               if (data) {
+                const keyPart = key.split(':').slice(1).join(':');
+                let rowData: Record<string, unknown>;
                 try {
                   const parsedData = JSON.parse(data);
-                  const keyPart = key.split(':').slice(1).join(':');
-                  const rowData = { key: keyPart, ...parsedData };
-                  const passesFilter = await this.passesFilters(
-                    rowData,
-                    filteringFields,
-                    searchedFieldValue,
-                    safeSettings,
-                    tableName,
-                  );
-                  if (passesFilter) {
-                    allRows.push(rowData);
+                  if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+                    rowData = { key: keyPart, ...parsedData };
+                  } else {
+                    rowData = { key: keyPart, value: parsedData };
                   }
                 } catch (_error) {
-                  continue;
+                  rowData = { key: keyPart, value: data };
+                }
+                const passesFilter = await this.passesFilters(
+                  rowData,
+                  filteringFields,
+                  searchedFieldValue,
+                  settings,
+                  tableName,
+                );
+                if (passesFilter) {
+                  allRows.push(rowData);
                 }
               }
             }
@@ -301,7 +719,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
               rowData,
               filteringFields,
               searchedFieldValue,
-              safeSettings,
+              settings,
               tableName,
             );
             if (passesFilter) {
@@ -314,11 +732,11 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       }
     } while (cursor !== '0');
 
-    if (safeSettings.ordering_field && safeSettings.ordering) {
+    if (settings.ordering_field && settings.ordering) {
       allRows.sort((a, b) => {
-        const aVal = a[safeSettings.ordering_field];
-        const bVal = b[safeSettings.ordering_field];
-        const modifier = safeSettings.ordering === 'ASC' ? 1 : -1;
+        const aVal = a[settings.ordering_field];
+        const bVal = b[settings.ordering_field];
+        const modifier = settings.ordering === 'ASC' ? 1 : -1;
 
         if (aVal < bVal) return -1 * modifier;
         if (aVal > bVal) return 1 * modifier;
@@ -334,7 +752,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       tableStructure = await this.getTableStructure(tableName);
     }
 
-    const availableFields = this.findAvailableFields(safeSettings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     const finalRows = paginatedRows.map((row) => {
       if (availableFields.length > 0) {
@@ -365,35 +783,135 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     return [];
   }
 
-  public async getTablePrimaryColumns(_tableName: string): Promise<Array<PrimaryKeyDS>> {
-    return [
-      {
-        column_name: 'key',
-        data_type: 'string',
-      },
-    ];
+  public async getTablePrimaryColumns(tableName: string): Promise<Array<PrimaryKeyDS>> {
+    const tableMetadata = this.parseTableName(tableName);
+
+    switch (tableMetadata.tableType) {
+      case RedisTableType.LIST:
+        return [{ column_name: 'index', data_type: 'integer' }];
+
+      case RedisTableType.SET:
+        return [{ column_name: 'value', data_type: 'string' }];
+
+      case RedisTableType.ZSET:
+        return [{ column_name: 'member', data_type: 'string' }];
+
+      case RedisTableType.STRING:
+        return [{ column_name: 'value', data_type: 'string' }];
+
+      case RedisTableType.HASH:
+        const structure = await this.getTableStructure(tableName);
+        if (structure.length > 0) {
+          return [{ column_name: structure[0].column_name, data_type: structure[0].data_type }];
+        }
+        return [{ column_name: 'field', data_type: 'string' }];
+
+      case RedisTableType.PREFIXED_KEYS:
+      default:
+        return [{ column_name: 'key', data_type: 'string' }];
+    }
   }
 
   public async getTablesFromDB(): Promise<Array<TableDS>> {
     const redisClient = await this.getClient();
 
     const allKeys = await redisClient.keys('*');
-    const tableNames = new Set<string>();
+    const prefixedTableNames = new Set<string>();
+    const standaloneKeys: Array<{ key: string; type: string }> = [];
 
-    allKeys.forEach((key) => {
+    for (const key of allKeys) {
       const parts = key.split(':');
       if (parts.length >= 2) {
-        tableNames.add(parts[0]);
+        prefixedTableNames.add(parts[0]);
+      } else {
+        try {
+          const keyType = await redisClient.type(key);
+          if (keyType !== 'none') {
+            standaloneKeys.push({ key, type: keyType });
+          }
+        } catch (_error) {
+          continue;
+        }
       }
-    });
+    }
 
-    return Array.from(tableNames).map((tableName) => ({
-      tableName: tableName,
-      isView: false,
-    }));
+    const tables: Array<TableDS> = [];
+
+    for (const tableName of prefixedTableNames) {
+      tables.push({
+        tableName: tableName,
+        isView: false,
+      });
+    }
+
+    for (const { key, type } of standaloneKeys) {
+      tables.push({
+        tableName: `[${type}]${key}`,
+        isView: false,
+      });
+    }
+
+    return tables;
   }
 
   public async getTableStructure(tableName: string): Promise<Array<TableStructureDS>> {
+    const tableMetadata = this.parseTableName(tableName);
+
+    if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
+      return this.getStandaloneTableStructure(tableMetadata);
+    }
+
+    return this.getPrefixedTableStructure(tableName);
+  }
+
+  private async getStandaloneTableStructure(metadata: RedisTableMetadata): Promise<Array<TableStructureDS>> {
+    const createColumn = (columnName: string, dataType: string, isPrimaryKey: boolean = false): TableStructureDS => ({
+      column_name: columnName,
+      data_type: dataType,
+      allow_null: !isPrimaryKey,
+      column_default: null,
+      character_maximum_length: null,
+      data_type_params: '',
+      udt_name: dataType,
+      extra: isPrimaryKey ? 'primary_key' : null,
+    });
+
+    switch (metadata.tableType) {
+      case RedisTableType.LIST:
+        return [createColumn('index', 'integer', true), createColumn('value', 'string', false)];
+
+      case RedisTableType.SET:
+        return [createColumn('value', 'string', true)];
+
+      case RedisTableType.ZSET:
+        return [createColumn('member', 'string', true), createColumn('score', 'decimal', false)];
+
+      case RedisTableType.STRING:
+        return [createColumn('value', 'string', true)];
+
+      case RedisTableType.HASH: {
+        const redisClient = await this.getClient();
+        const hashData = await redisClient.hGetAll(metadata.redisKey);
+        const columns: TableStructureDS[] = [];
+
+        Object.entries(hashData).forEach(([field, value]) => {
+          columns.push(createColumn(field, this.inferRedisDataType(value), columns.length === 0));
+        });
+
+        if (columns.length === 0) {
+          columns.push(createColumn('field', 'string', true));
+          columns.push(createColumn('value', 'string', false));
+        }
+
+        return columns;
+      }
+
+      default:
+        return [createColumn('value', 'string', true)];
+    }
+  }
+
+  private async getPrefixedTableStructure(tableName: string): Promise<Array<TableStructureDS>> {
     const redisClient = await this.getClient();
     const pattern = `${tableName}:*`;
     const keys = await redisClient.keys(pattern);
@@ -409,13 +927,21 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           if (data && typeof data === 'string') {
             try {
               const parsedData = JSON.parse(data);
-              Object.entries(parsedData).forEach(([field, value]) => {
-                if (!fieldTypes.has(field)) {
-                  fieldTypes.set(field, this.inferRedisDataType(value));
+              if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+                Object.entries(parsedData).forEach(([field, value]) => {
+                  if (!fieldTypes.has(field)) {
+                    fieldTypes.set(field, this.inferRedisDataType(value));
+                  }
+                });
+              } else {
+                if (!fieldTypes.has('value')) {
+                  fieldTypes.set('value', this.inferRedisDataType(parsedData));
                 }
-              });
+              }
             } catch (_error) {
-              fieldTypes.set('value', 'string');
+              if (!fieldTypes.has('value')) {
+                fieldTypes.set('value', 'string');
+              }
             }
           }
         } else if (keyType === 'hash') {
@@ -436,15 +962,9 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     return Array.from(fieldTypes.entries()).map(([columnName, dataType]) => ({
       column_name: columnName,
       data_type: dataType,
-      is_nullable: true,
       allow_null: true,
       column_default: null,
       character_maximum_length: null,
-      numeric_precision: null,
-      numeric_scale: null,
-      datetime_precision: null,
-      character_set_name: null,
-      collation_name: null,
       data_type_params: '',
       udt_name: dataType,
       extra: columnName === 'key' ? 'primary_key' : null,
@@ -458,7 +978,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     try {
       const redisClient = await this.getClient();
       const response = await redisClient.ping();
-
       if (response === 'PONG') {
         return {
           result: true,
@@ -481,6 +1000,103 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   }
 
   public async updateRowInTable(
+    tableName: string,
+    row: Record<string, unknown>,
+    primaryKey: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const tableMetadata = this.parseTableName(tableName);
+
+    if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
+      return this.updateRowInStandaloneTable(tableMetadata, row, primaryKey);
+    }
+
+    return this.updateRowInPrefixedTable(tableName, row, primaryKey);
+  }
+
+  private async updateRowInStandaloneTable(
+    metadata: RedisTableMetadata,
+    row: Record<string, unknown>,
+    primaryKey: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const redisClient = await this.getClient();
+
+    switch (metadata.tableType) {
+      case RedisTableType.LIST: {
+        const index = primaryKey.index;
+        if (index === undefined) {
+          throw new Error('Primary key "index" is required for updating Redis list');
+        }
+        const newValue = row.value;
+        if (newValue === undefined) {
+          throw new Error('Field "value" is required for updating Redis list');
+        }
+        await redisClient.lSet(metadata.redisKey, Number(index), String(newValue));
+        return { index: Number(index), value: newValue };
+      }
+
+      case RedisTableType.SET: {
+        const oldValue = primaryKey.value;
+        const newValue = row.value;
+        if (oldValue === undefined) {
+          throw new Error('Primary key "value" is required for updating Redis set');
+        }
+        if (newValue === undefined) {
+          throw new Error('Field "value" is required for updating Redis set');
+        }
+        await redisClient.sRem(metadata.redisKey, String(oldValue));
+        await redisClient.sAdd(metadata.redisKey, String(newValue));
+        return { value: newValue };
+      }
+
+      case RedisTableType.ZSET: {
+        const member = primaryKey.member;
+        if (member === undefined) {
+          throw new Error('Primary key "member" is required for updating Redis sorted set');
+        }
+        const newScore = row.score;
+        const newMember = row.member;
+
+        if (newMember !== undefined && newMember !== member) {
+          const oldScore = await redisClient.zScore(metadata.redisKey, String(member));
+          await redisClient.zRem(metadata.redisKey, String(member));
+          const scoreToUse = newScore !== undefined ? Number(newScore) : oldScore || 0;
+          await redisClient.zAdd(metadata.redisKey, { score: scoreToUse, value: String(newMember) });
+          return { member: newMember, score: scoreToUse };
+        } else if (newScore !== undefined) {
+          await redisClient.zAdd(metadata.redisKey, { score: Number(newScore), value: String(member) });
+          return { member, score: Number(newScore) };
+        }
+        const currentScore = await redisClient.zScore(metadata.redisKey, String(member));
+        return { member, score: currentScore };
+      }
+
+      case RedisTableType.STRING: {
+        const newValue = row.value;
+        if (newValue === undefined) {
+          throw new Error('Field "value" is required for updating Redis string');
+        }
+        await redisClient.set(metadata.redisKey, String(newValue));
+        return { value: newValue };
+      }
+
+      case RedisTableType.HASH: {
+        const fieldsToSet: Record<string, string> = {};
+        Object.entries(row).forEach(([field, value]) => {
+          fieldsToSet[field] = String(value);
+        });
+        if (Object.keys(fieldsToSet).length > 0) {
+          await redisClient.hSet(metadata.redisKey, fieldsToSet);
+        }
+        const updatedData = await redisClient.hGetAll(metadata.redisKey);
+        return updatedData;
+      }
+
+      default:
+        throw new Error(`Cannot update Redis table of type ${metadata.tableType}`);
+    }
+  }
+
+  private async updateRowInPrefixedTable(
     tableName: string,
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
@@ -514,7 +1130,28 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       return { key: primaryKey.key, ...updatedData };
     } else if (keyType === 'string') {
       const existingData = await redisClient.get(rowKey);
-      const existingParsed = existingData ? JSON.parse(existingData as string) : {};
+      let existingParsed: Record<string, unknown> = {};
+
+      if (existingData) {
+        try {
+          const parsed = JSON.parse(existingData as string);
+          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            existingParsed = parsed;
+          } else {
+            if (row.value !== undefined) {
+              await redisClient.set(rowKey, String(row.value));
+              return { key: primaryKey.key, value: row.value };
+            }
+            existingParsed = { value: parsed };
+          }
+        } catch (_error) {
+          if (row.value !== undefined) {
+            await redisClient.set(rowKey, String(row.value));
+            return { key: primaryKey.key, value: row.value };
+          }
+          existingParsed = { value: existingData };
+        }
+      }
 
       const updatedData = { ...existingParsed };
       Object.entries(row).forEach(([field, value]) => {
@@ -549,25 +1186,49 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   }
 
   public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
-    const redisClient = await this.getClient();
     let deletedCount = 0;
 
     for (const primaryKey of primaryKeys) {
-      if (primaryKey.key) {
-        const rowKey = `${tableName}:${primaryKey.key}`;
-        const deleted = await redisClient.del(rowKey);
-        deletedCount += deleted;
+      try {
+        await this.deleteRowInTable(tableName, primaryKey);
+        deletedCount++;
+      } catch (_error) {
+        continue;
       }
     }
 
     return deletedCount;
   }
 
-  public async validateSettings(settings: ValidateTableSettingsDS, _tableName: string): Promise<Array<string>> {
+  public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>> {
     const errors: string[] = [];
+    const tableMetadata = this.parseTableName(tableName);
 
-    if (settings.excluded_fields?.includes('key')) {
-      errors.push('Cannot exclude the "key" field in Redis tables');
+    switch (tableMetadata.tableType) {
+      case RedisTableType.PREFIXED_KEYS:
+        if (settings.excluded_fields?.includes('key')) {
+          errors.push('Cannot exclude the "key" field in prefixed Redis tables');
+        }
+        break;
+
+      case RedisTableType.LIST:
+        if (settings.excluded_fields?.includes('index')) {
+          errors.push('Cannot exclude the "index" field in Redis list tables');
+        }
+        break;
+
+      case RedisTableType.SET:
+      case RedisTableType.STRING:
+        if (settings.excluded_fields?.includes('value')) {
+          errors.push('Cannot exclude the "value" field in Redis set/string tables');
+        }
+        break;
+
+      case RedisTableType.ZSET:
+        if (settings.excluded_fields?.includes('member')) {
+          errors.push('Cannot exclude the "member" field in Redis sorted set tables');
+        }
+        break;
     }
 
     return errors;
@@ -653,6 +1314,27 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     }
   }
 
+  private parseTableName(tableName: string): RedisTableMetadata {
+    const standalonePattern = /^\[(list|set|zset|string|hash)\](.+)$/;
+    const match = tableName.match(standalonePattern);
+
+    if (match) {
+      const type = match[1] as 'list' | 'set' | 'zset' | 'string' | 'hash';
+      const redisKey = match[2];
+      return {
+        tableName,
+        tableType: RedisTableType[type.toUpperCase() as keyof typeof RedisTableType],
+        redisKey,
+      };
+    }
+
+    return {
+      tableName,
+      tableType: RedisTableType.PREFIXED_KEYS,
+      redisKey: tableName,
+    };
+  }
+
   private async getClient(): Promise<RedisClientType> {
     if (this.connection.ssh) {
       return await this.createTunneledConnection(this.connection);
@@ -686,7 +1368,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         COUNT: 50,
       });
 
-      cursor = scanResult.cursor;
+      cursor = String(scanResult.cursor);
       const keys = scanResult.keys.slice(0, DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT - processedCount);
 
       if (keys.length > 0) {
@@ -723,30 +1405,35 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
               }
 
               if (data) {
+                const keyPart = key.split(':').slice(1).join(':');
+                let rowData: Record<string, unknown>;
                 try {
                   const parsedData = JSON.parse(data);
-                  const keyPart = key.split(':').slice(1).join(':');
-                  const rowData = { key: keyPart, ...parsedData };
-
-                  if (
-                    value === '*' ||
-                    fields.some((field) =>
-                      String(rowData[field] || '')
-                        .toLowerCase()
-                        .includes(String(value).toLowerCase()),
-                    )
-                  ) {
-                    const autocompleteRow: Record<string, unknown> = {};
-                    fields.forEach((field) => {
-                      if (rowData[field] !== undefined) {
-                        autocompleteRow[field] = rowData[field];
-                      }
-                    });
-                    rows.push(autocompleteRow);
-                    processedCount++;
+                  if (typeof parsedData === 'object' && parsedData !== null && !Array.isArray(parsedData)) {
+                    rowData = { key: keyPart, ...parsedData };
+                  } else {
+                    rowData = { key: keyPart, value: parsedData };
                   }
                 } catch (_error) {
-                  continue;
+                  rowData = { key: keyPart, value: data };
+                }
+
+                if (
+                  value === '*' ||
+                  fields.some((field) =>
+                    String(rowData[field] || '')
+                      .toLowerCase()
+                      .includes(String(value).toLowerCase()),
+                  )
+                ) {
+                  const autocompleteRow: Record<string, unknown> = {};
+                  fields.forEach((field) => {
+                    if (rowData[field] !== undefined) {
+                      autocompleteRow[field] = rowData[field];
+                    }
+                  });
+                  rows.push(autocompleteRow);
+                  processedCount++;
                 }
               }
 
@@ -855,23 +1542,53 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         ? Number(this.connection.database)
         : 0
       : 0;
-    if (!client) {
-      client = createClient({
-        socket: {
+    try {
+      if (!client) {
+        const shouldUseTLS = this.connection.ssl !== false;
+        const isConnectionUrl = isRedisConnectionUrl(this.connection.host);
+
+        const socketConfig: any = {
           host: this.connection.host,
           port: this.connection.port,
-          ca: this.connection.cert || undefined,
-          cert: this.connection.cert || undefined,
-          rejectUnauthorized: this.connection.ssl === false ? false : true,
-        },
-        password: this.connection.password || undefined,
-        username: this.connection.username || undefined,
-        database: database,
-      });
-      await client.connect();
-      LRUStorage.setRedisClientCache(this.connection, client);
+          reconnectStrategy: (retries: number) => {
+            if (retries > 3) {
+              return new Error('Max reconnection attempts reached');
+            }
+            return Math.min(retries * 100, 3000);
+          },
+        };
+
+        if (shouldUseTLS) {
+          socketConfig.tls = true;
+          socketConfig.rejectUnauthorized = this.connection.ssl === false ? false : true;
+
+          if (this.connection.cert) {
+            socketConfig.ca = this.connection.cert;
+            socketConfig.cert = this.connection.cert;
+          }
+        }
+
+        client = createClient({
+          socket: isConnectionUrl ? undefined : socketConfig,
+          url: isConnectionUrl ? this.connection.host : undefined,
+          password: isConnectionUrl ? undefined : this.connection.password ? this.connection.password : undefined,
+          username: isConnectionUrl ? undefined : this.connection.username ? this.connection.username : undefined,
+          database: database,
+        });
+
+        client.on('error', (err) => {
+          console.error('Redis Client Error:', err);
+          LRUStorage.delRedisClientCache(this.connection);
+        });
+
+        await client.connect();
+        LRUStorage.setRedisClientCache(this.connection, client);
+      }
+      return client;
+    } catch (error) {
+      LRUStorage.delRedisClientCache(this.connection);
+      throw error;
     }
-    return client;
   }
 
   private async createTunneledConnection(connection: ConnectionParams): Promise<RedisClientType> {
