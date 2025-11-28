@@ -11,6 +11,9 @@ import { buildUserGitHubIdentifierEntity } from '../../../entities/user/utils/bu
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
 import { ILoginUserWithGitHub } from './saas-use-cases.interface.js';
+import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
+import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
+import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
 
 @Injectable()
 export class LoginUserWithGithubUseCase
@@ -21,12 +24,13 @@ export class LoginUserWithGithubUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly demoDataService: DemoDataService,
+    private readonly signInAuditService: SignInAuditService,
   ) {
     super();
   }
 
   protected async implementation(inputData: SaasRegisterUserWithGithub): Promise<UserEntity> {
-    const { email, githubId, glidCookieValue, name } = inputData;
+    const { email, githubId, glidCookieValue, name, ipAddress, userAgent } = inputData;
     const foundUser: UserEntity = await this._dbContext.userRepository.findOneUserByGitHubId(githubId);
     if (foundUser) {
       if (foundUser.name !== name && name) {
@@ -36,6 +40,7 @@ export class LoginUserWithGithubUseCase
         foundUser.email = email;
       }
       await this._dbContext.userRepository.saveUserEntity(foundUser);
+      await this.recordSignInAudit(email, foundUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
       return foundUser;
     }
     const userData: RegisterUserDs = {
@@ -58,9 +63,42 @@ export class LoginUserWithGithubUseCase
 
       await this.demoDataService.createDemoDataForUser(savedUser.id);
 
+      await this.recordSignInAudit(email, savedUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
+
       return savedUser;
     } catch (_e) {
+      await this.recordSignInAudit(
+        email,
+        null,
+        SignInStatusEnum.FAILED,
+        ipAddress,
+        userAgent,
+        Messages.GITHUB_REGISTRATION_FAILED,
+      );
       throw new InternalServerErrorException(Messages.GITHUB_REGISTRATION_FAILED);
+    }
+  }
+
+  private async recordSignInAudit(
+    email: string,
+    userId: string | null,
+    status: SignInStatusEnum,
+    ipAddress: string,
+    userAgent: string,
+    failureReason?: string,
+  ): Promise<void> {
+    try {
+      await this.signInAuditService.createSignInAuditRecord({
+        email,
+        userId,
+        status,
+        signInMethod: SignInMethodEnum.GITHUB,
+        ipAddress,
+        userAgent,
+        failureReason,
+      });
+    } catch (e) {
+      console.error('Failed to record sign-in audit:', e);
     }
   }
 }
