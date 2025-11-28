@@ -125,7 +125,7 @@ export async function createTestTable(
   };
 }
 
-export async function createTestElasticsearchTable(
+async function createTestElasticsearchTable(
   connectionParams,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -206,7 +206,7 @@ export async function createTestElasticsearchTable(
   };
 }
 
-export async function createTestTableIbmDb2(
+async function createTestTableIbmDb2(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -639,7 +639,7 @@ export async function createTestPostgresTableWithSchema(
   };
 }
 
-export async function createTestDynamoDBTable(
+async function createTestDynamoDBTable(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -728,7 +728,7 @@ export async function createTestDynamoDBTable(
   };
 }
 
-export async function createTestCassandraTable(
+async function createTestCassandraTable(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',

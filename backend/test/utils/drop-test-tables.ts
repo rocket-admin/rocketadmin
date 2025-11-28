@@ -18,23 +18,3 @@ export async function dropTestTables(tableNames: Array<string>, connectionParams
     }),
   );
 }
-
-export async function dropAllTestTables(connectionParams): Promise<void> {
-  const connectionParamsCopy = {
-    ...connectionParams,
-  };
-  if (connectionParams.type === 'mysql') {
-    connectionParamsCopy.type = 'mysql2';
-  }
-  const foundKnex = getTestKnex(connectionParamsCopy);
-  const dao = getDataAccessObject(connectionParamsCopy);
-  const tables = (await dao.getTablesFromDB()).map((table) => table.tableName);
-  await Promise.all(
-    tables.map(async (tableName) => {
-      if (connectionParamsCopy.schema) {
-        await foundKnex.schema.withSchema(connectionParamsCopy.schema).dropTableIfExists(tableName);
-      }
-      await foundKnex.schema.dropTableIfExists(tableName);
-    }),
-  );
-}
