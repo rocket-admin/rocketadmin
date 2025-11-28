@@ -20,7 +20,7 @@ export class UserSecretEntity {
   id: string;
 
   @ManyToOne(() => CompanyInfoEntity, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'companyId' })
   company: Relation<CompanyInfoEntity>;
 
   @Column()

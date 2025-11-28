@@ -33,7 +33,6 @@ export class CreateSecretDto {
 
   @ApiProperty({ required: false, type: 'string' })
   @IsString()
-  @IsOptional()
   @MinLength(8)
   @ValidateIf((o) => o.masterEncryption === true)
   masterPassword?: string;

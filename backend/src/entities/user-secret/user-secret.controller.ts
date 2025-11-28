@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Injectable,
   Param,
   Post,
@@ -16,12 +17,26 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@ne
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { CreateSecretDto } from './application/dto/create-secret.dto.js';
 import { UpdateSecretDto } from './application/dto/update-secret.dto.js';
 import { FoundSecretDto } from './application/dto/found-secret.dto.js';
 import { SecretListResponseDto } from './application/dto/secret-list.dto.js';
 import { AuditLogResponseDto } from './application/dto/audit-log.dto.js';
-import { UserSecretsService } from './user-secrets.service.js';
+import {
+  ICreateSecret,
+  IDeleteSecret,
+  IGetSecretAuditLog,
+  IGetSecretBySlug,
+  IGetSecrets,
+  IUpdateSecret,
+} from './use-cases/user-secret-use-cases.interface.js';
+import { buildCreatedSecretDto } from './utils/build-created-secret.dto.js';
+import { buildFoundSecretDto } from './utils/build-found-secret.dto.js';
+import { buildUpdatedSecretDto } from './utils/build-updated-secret.dto.js';
+import { buildSecretListResponseDto } from './utils/build-secret-list.dto.js';
+import { buildAuditLogResponseDto } from './utils/build-audit-log.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -29,7 +44,20 @@ import { UserSecretsService } from './user-secrets.service.js';
 @ApiTags('Secrets')
 @Injectable()
 export class UserSecretController {
-  constructor(private readonly userSecretsService: UserSecretsService) {}
+  constructor(
+    @Inject(UseCaseType.CREATE_SECRET)
+    private readonly createSecretUseCase: ICreateSecret,
+    @Inject(UseCaseType.GET_SECRETS)
+    private readonly getSecretsUseCase: IGetSecrets,
+    @Inject(UseCaseType.GET_SECRET_BY_SLUG)
+    private readonly getSecretBySlugUseCase: IGetSecretBySlug,
+    @Inject(UseCaseType.UPDATE_SECRET)
+    private readonly updateSecretUseCase: IUpdateSecret,
+    @Inject(UseCaseType.DELETE_SECRET)
+    private readonly deleteSecretUseCase: IDeleteSecret,
+    @Inject(UseCaseType.GET_SECRET_AUDIT_LOG)
+    private readonly getSecretAuditLogUseCase: IGetSecretAuditLog,
+  ) {}
 
   @ApiOperation({ summary: 'Create new secret' })
   @ApiResponse({
@@ -44,7 +72,18 @@ export class UserSecretController {
   @Post('/secrets')
   @HttpCode(HttpStatus.CREATED)
   async createSecret(@UserId() userId: string, @Body() createDto: CreateSecretDto): Promise<FoundSecretDto> {
-    return await this.userSecretsService.createSecret(userId, createDto);
+    const createdSecret = await this.createSecretUseCase.execute(
+      {
+        userId,
+        slug: createDto.slug,
+        value: createDto.value,
+        expiresAt: createDto.expiresAt,
+        masterEncryption: createDto.masterEncryption,
+        masterPassword: createDto.masterPassword,
+      },
+      InTransactionEnum.ON,
+    );
+    return buildCreatedSecretDto(createdSecret);
   }
 
   @ApiOperation({ summary: 'Get all company secrets' })
@@ -63,11 +102,13 @@ export class UserSecretController {
     @Query('limit') limit?: number,
     @Query('search') search?: string,
   ): Promise<SecretListResponseDto> {
-    return await this.userSecretsService.getSecrets(userId, {
+    const secretsList = await this.getSecretsUseCase.execute({
+      userId,
       page: page || 1,
       limit: limit || 20,
       search,
     });
+    return buildSecretListResponseDto(secretsList);
   }
 
   @ApiOperation({ summary: 'Get secret by slug' })
@@ -94,7 +135,12 @@ export class UserSecretController {
     @Param('slug') slug: string,
     @MasterPassword() masterPassword?: string,
   ): Promise<FoundSecretDto> {
-    return await this.userSecretsService.getSecretBySlug(userId, slug, masterPassword);
+    const foundSecret = await this.getSecretBySlugUseCase.execute({
+      userId,
+      slug,
+      masterPassword,
+    });
+    return buildFoundSecretDto(foundSecret);
   }
 
   @ApiOperation({ summary: 'Update secret' })
@@ -105,7 +151,7 @@ export class UserSecretController {
   })
   @ApiResponse({
     status: 403,
-    description: 'You don\'t have permission to modify this secret.',
+    description: "You don't have permission to modify this secret.",
   })
   @ApiResponse({
     status: 404,
@@ -118,7 +164,17 @@ export class UserSecretController {
     @Body() updateDto: UpdateSecretDto,
     @MasterPassword() masterPassword?: string,
   ): Promise<FoundSecretDto> {
-    return await this.userSecretsService.updateSecret(userId, slug, updateDto, masterPassword);
+    const updatedSecret = await this.updateSecretUseCase.execute(
+      {
+        userId,
+        slug,
+        value: updateDto.value,
+        expiresAt: updateDto.expiresAt,
+        masterPassword,
+      },
+      InTransactionEnum.ON,
+    );
+    return buildUpdatedSecretDto(updatedSecret);
   }
 
   @ApiOperation({ summary: 'Delete secret' })
@@ -128,7 +184,7 @@ export class UserSecretController {
   })
   @ApiResponse({
     status: 403,
-    description: 'You don\'t have permission to delete this secret.',
+    description: "You don't have permission to delete this secret.",
   })
   @ApiResponse({
     status: 404,
@@ -136,7 +192,7 @@ export class UserSecretController {
   })
   @Delete('/secrets/:slug')
   async deleteSecret(@UserId() userId: string, @Param('slug') slug: string): Promise<{ message: string; deletedAt: Date }> {
-    return await this.userSecretsService.deleteSecret(userId, slug);
+    return await this.deleteSecretUseCase.execute({ userId, slug }, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Get secret audit log' })
@@ -147,7 +203,7 @@ export class UserSecretController {
   })
   @ApiResponse({
     status: 403,
-    description: 'You don\'t have permission to view this audit log.',
+    description: "You don't have permission to view this audit log.",
   })
   @ApiResponse({
     status: 404,
@@ -162,9 +218,12 @@ export class UserSecretController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ): Promise<AuditLogResponseDto> {
-    return await this.userSecretsService.getAuditLog(userId, slug, {
+    const auditLog = await this.getSecretAuditLogUseCase.execute({
+      userId,
+      slug,
       page: page || 1,
       limit: limit || 50,
     });
+    return buildAuditLogResponseDto(auditLog);
   }
 }

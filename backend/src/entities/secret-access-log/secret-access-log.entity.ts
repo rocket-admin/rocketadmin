@@ -16,7 +16,7 @@ export class SecretAccessLogEntity {
   id: string;
 
   @ManyToOne(() => UserSecretEntity, (secret) => secret.accessLogs, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'secretId' })
   secret: Relation<UserSecretEntity>;
 
   @Column()
@@ -24,7 +24,7 @@ export class SecretAccessLogEntity {
   secretId: string;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user: Relation<UserEntity>;
 
   @Column()

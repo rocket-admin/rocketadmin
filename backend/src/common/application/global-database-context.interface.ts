@@ -48,6 +48,10 @@ import { IDatabaseContext } from '../database-context.interface.js';
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
 import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity.js';
+import { UserSecretEntity } from '../../entities/user-secret/user-secret.entity.js';
+import { IUserSecretRepository } from '../../entities/user-secret/repository/user-secret-repository.interface.js';
+import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
+import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -83,4 +87,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
   tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+  userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
+  secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
 }
