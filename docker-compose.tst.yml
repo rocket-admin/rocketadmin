@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   backend:
     build:
@@ -52,6 +51,8 @@ services:
       test-mongo-e2e-testing:
         condition: service_healthy
       test-dynamodb-e2e-testing:
+        condition: service_healthy
+      test-redis-e2e-testing:
         condition: service_healthy
     command: ["/bin/sh", "-c", "yarn test $EXTRA_ARGS"]
     develop:
@@ -160,6 +161,15 @@ services:
       - backend
     depends_on:
       - backend
+
+  test-redis-e2e-testing:
+    image: redis:7.0.11
+    command: ["redis-server", "--requirepass", "SuperSecretRedisPassword"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # rocketadmin-agent_oracle:
   #   build:
