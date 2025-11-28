@@ -26,6 +26,7 @@ import { UserRoleEnum } from './enums/user-role.enum.js';
 import { ExternalRegistrationProviderEnum } from './enums/external-registration-provider.enum.js';
 import { UserApiKeyEntity } from '../api-key/api-key.entity.js';
 import { AiResponsesToUserEntity } from '../ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
+import { SignInAuditEntity } from '../user-sign-in-audit/sign-in-audit.entity.js';
 import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
 
 @Entity('user')
@@ -119,6 +120,9 @@ export class UserEntity {
 
   @OneToMany((_) => AiResponsesToUserEntity, (response) => response.user)
   ai_responses: Relation<AiResponsesToUserEntity>[];
+
+  @OneToMany((_) => SignInAuditEntity, (signInAudit) => signInAudit.user)
+  signInAudits: Relation<SignInAuditEntity>[];
 
   @OneToMany((_) => PersonalTableSettingsEntity, (personal_table_settings) => personal_table_settings.connection)
   personal_table_settings: Relation<PersonalTableSettingsEntity>[];

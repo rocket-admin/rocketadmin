@@ -171,6 +171,8 @@ export const Messages = {
   INCORRECT_TABLE_LOG_ACTION_TYPE: `Incorrect log operation type, supported types are ${enumToString(
     LogOperationTypeEnum,
   )}`,
+  INVALID_SIGN_IN_STATUS: `Invalid sign-in status. Supported values are: success, failed, blocked`,
+  INVALID_SIGN_IN_METHOD: `Invalid sign-in method. Supported values are: email, google, github, saml, otp`,
   INVALID_DISPLAY_MODE: `Invalid display mode. Supported values are "on" and "off"`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
   INVALID_USER_COMPANY_ROLE: `Invalid user role in company. Only supported is ${enumToString(UserRoleEnum)}`,

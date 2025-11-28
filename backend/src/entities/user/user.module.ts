@@ -38,6 +38,8 @@ import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { NonScopedAuthMiddleware } from '../../authorization/non-scoped-auth.middleware.js';
 import { ToggleTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test-connections-display-mode.use.case.js';
+import { SignInAuditEntity } from '../user-sign-in-audit/sign-in-audit.entity.js';
+import { SignInAuditService } from '../user-sign-in-audit/sign-in-audit.service.js';
 
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { ToggleTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test
       ConnectionPropertiesEntity,
       LogOutEntity,
       CompanyInfoEntity,
+      SignInAuditEntity,
     ]),
     AgentModule,
   ],
@@ -138,6 +141,7 @@ import { ToggleTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test
       useClass: ToggleTestConnectionsDisplayModeUseCase,
     },
     UserHelperService,
+    SignInAuditService,
   ],
   controllers: [UserController],
   exports: [UserHelperService],

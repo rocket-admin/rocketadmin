@@ -1,3 +1,3 @@
 export function validateStringWithEnum(str: string, en: any): boolean {
-  return !!Object.keys(en).find((key) => key === str);
+  return !!Object.values(en).find((value) => value === str);
 }

@@ -90,6 +90,9 @@ import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
 import { tableCategoriesCustomRepositoryExtension } from '../../entities/table-categories/repository/table-categories-repository.extension.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
+import { signInAuditCustomRepositoryExtension } from '../../entities/user-sign-in-audit/repository/sign-in-audit-custom-repository-extension.js';
 import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
 import { IPersonalTableSettingsRepository } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings.repository.interface.js';
 import { personalTableSettingsCustomRepositoryExtension } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings-custom-repository-extension.js';
@@ -131,6 +134,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
   private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+  private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
   private _personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
 
   public constructor(
@@ -220,6 +224,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._tableCategoriesRepository = this.appDataSource
       .getRepository(TableCategoriesEntity)
       .extend(tableCategoriesCustomRepositoryExtension);
+    this._signInAuditRepository = this.appDataSource
+      .getRepository(SignInAuditEntity)
+      .extend(signInAuditCustomRepositoryExtension);
     this._personalTableSettingsRepository = this.appDataSource
       .getRepository(PersonalTableSettingsEntity)
       .extend(personalTableSettingsCustomRepositoryExtension);
@@ -356,6 +363,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
     return this._tableCategoriesRepository;
+  }
+
+  public get signInAuditRepository(): Repository<SignInAuditEntity> & ISignInAuditRepository {
+    return this._signInAuditRepository;
   }
 
   public get personalTableSettingsRepository(): Repository<PersonalTableSettingsEntity> &

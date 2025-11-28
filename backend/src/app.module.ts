@@ -39,6 +39,7 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { SharedJobsModule } from './entities/shared-jobs/shared-jobs.module.js';
 import { TableCategoriesModule } from './entities/table-categories/table-categories.module.js';
+import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.module.js';
 import { PersonalTableSettingsModule } from './entities/table-settings/personal-table-settings/personal-table-settings.module.js';
 
 @Module({
@@ -82,6 +83,7 @@ import { PersonalTableSettingsModule } from './entities/table-settings/personal-
     LoggingModule,
     SharedJobsModule,
     TableCategoriesModule,
+    SignInAuditModule,
     PersonalTableSettingsModule,
   ],
   controllers: [AppController],
