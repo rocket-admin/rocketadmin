@@ -1441,17 +1441,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emnapi/core@npm:^1.4.3":
-  version: 1.7.0
-  resolution: "@emnapi/core@npm:1.7.0"
-  dependencies:
-    "@emnapi/wasi-threads": 1.1.0
-    tslib: ^2.4.0
-  checksum: 19df5bc99100c9a132060ab62aa9e4a5ed7053cd5109beeffa394c11fd933fcf292c9a688ec2e09c10c3ef4d6d0fb89fdf379ce3e140171903abc75ed36341ed
-  languageName: node
-  linkType: hard
-
-"@emnapi/core@npm:^1.5.0":
+"@emnapi/core@npm:^1.4.3, @emnapi/core@npm:^1.5.0":
   version: 1.7.1
   resolution: "@emnapi/core@npm:1.7.1"
   dependencies:
@@ -1461,16 +1451,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emnapi/runtime@npm:^1.4.3":
-  version: 1.7.0
-  resolution: "@emnapi/runtime@npm:1.7.0"
-  dependencies:
-    tslib: ^2.4.0
-  checksum: 2aa1b056f39f113b0fae006f8a113ce2e309c199a5a2b141906f9c3d76c0208d9e61601fe1cdffb3c0b769cfcf141635fe7f14e83a34447257306da4d5f2a0e4
-  languageName: node
-  linkType: hard
-
-"@emnapi/runtime@npm:^1.5.0":
+"@emnapi/runtime@npm:^1.4.3, @emnapi/runtime@npm:^1.5.0":
   version: 1.7.1
   resolution: "@emnapi/runtime@npm:1.7.1"
   dependencies:
@@ -2525,49 +2506,6 @@ __metadata:
     class-validator:
       optional: true
   checksum: e59882dcc36405d9648dc102b106b01d9a6b27ac1e0645002de9b9f2c9d464dac6a3f0a52f6a88cf1e7b49cd230c26451da903ec1e7c6f3755a84ad912460837
-  languageName: node
-  linkType: hard
-
-"@nestjs/microservices@npm:^11.1.8":
-  version: 11.1.8
-  resolution: "@nestjs/microservices@npm:11.1.8"
-  dependencies:
-    iterare: 1.2.1
-    tslib: 2.8.1
-  peerDependencies:
-    "@grpc/grpc-js": "*"
-    "@nestjs/common": ^11.0.0
-    "@nestjs/core": ^11.0.0
-    "@nestjs/websockets": ^11.0.0
-    amqp-connection-manager: "*"
-    amqplib: "*"
-    cache-manager: "*"
-    ioredis: "*"
-    kafkajs: "*"
-    mqtt: "*"
-    nats: "*"
-    reflect-metadata: ^0.1.12 || ^0.2.0
-    rxjs: ^7.1.0
-  peerDependenciesMeta:
-    "@grpc/grpc-js":
-      optional: true
-    "@nestjs/websockets":
-      optional: true
-    amqp-connection-manager:
-      optional: true
-    amqplib:
-      optional: true
-    cache-manager:
-      optional: true
-    ioredis:
-      optional: true
-    kafkajs:
-      optional: true
-    mqtt:
-      optional: true
-    nats:
-      optional: true
-  checksum: 81818bdca6672dd91c561f5103ac598be5e0a820645ca59d9dd866015aec117bdc261bd552f5dedc2742b12520ef9796cb3c08baca64e35cb8faae01356cb5d4
   languageName: node
   linkType: hard
 
@@ -4645,12 +4583,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=18, @types/node@npm:^24.9.1":
-  version: 24.10.0
-  resolution: "@types/node@npm:24.10.0"
+"@types/node@npm:*, @types/node@npm:>=18, @types/node@npm:^24.10.1, @types/node@npm:^24.9.1":
+  version: 24.10.1
+  resolution: "@types/node@npm:24.10.1"
   dependencies:
     undici-types: ~7.16.0
-  checksum: 268c843faae02ba88be2441759c26e73038583a7e221fa3000f2c1d7fdc1d06b28cb514fc5367f7cb147c3519cd25ddafdfa1f8566829b91fb096262ebe3f7bb
+  checksum: c2f370ae7a97c04991e0eee6b57e588a2abef0814a5f6e41fda5a9200cf02ae6654fad51c8372ee203ae4134bab80f5bf441c586f7f50e0fda3ba422f35eb3c0
   languageName: node
   linkType: hard
 
@@ -4669,15 +4607,6 @@ __metadata:
   dependencies:
     undici-types: ~6.21.0
   checksum: d532a28d454dfadc7b3af7f39d087f7d9416d2e0cdd4b47c3e00fc303177280a66bd15a86078a9957260a47b1d2bad5ac35096aeb316e56bc0318c904f214cc3
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^24.10.1":
-  version: 24.10.1
-  resolution: "@types/node@npm:24.10.1"
-  dependencies:
-    undici-types: ~7.16.0
-  checksum: c2f370ae7a97c04991e0eee6b57e588a2abef0814a5f6e41fda5a9200cf02ae6654fad51c8372ee203ae4134bab80f5bf441c586f7f50e0fda3ba422f35eb3c0
   languageName: node
   linkType: hard
 
@@ -5931,7 +5860,6 @@ __metadata:
     "@nestjs/common": 11.1.8
     "@nestjs/config": 4.0.2
     "@nestjs/core": 11.1.8
-    "@nestjs/microservices": ^11.1.8
     "@nestjs/platform-express": 11.1.8
     "@nestjs/schedule": ^6.0.1
     "@nestjs/schematics": 11.0.9
@@ -5983,7 +5911,6 @@ __metadata:
     eslint-plugin-import: ^2.32.0
     eslint-plugin-security: 3.0.1
     express: 5.1.0
-    express-rate-limit: 8.1.0
     fetch-blob: ^4.0.0
     helmet: 8.1.0
     i18n-iso-countries: ^7.14.0
@@ -8226,17 +8153,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express-rate-limit@npm:8.1.0":
-  version: 8.1.0
-  resolution: "express-rate-limit@npm:8.1.0"
-  dependencies:
-    ip-address: 10.0.1
-  peerDependencies:
-    express: ">= 4.11"
-  checksum: 3bbb2239b328969fe1e8d6171c675a62d403be7ec16d1f852878bf4dc383e83078a56145bfecb132cb2bb5a1f78c3802bb8a6d6349d9a03c5b380a5655b7f405
-  languageName: node
-  linkType: hard
-
 "express@npm:5.1.0":
   version: 5.1.0
   resolution: "express@npm:5.1.0"
@@ -9314,7 +9230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ip-address@npm:10.0.1, ip-address@npm:^10.0.1":
+"ip-address@npm:^10.0.1":
   version: 10.0.1
   resolution: "ip-address@npm:10.0.1"
   checksum: 525d5391cfd31a91f80f5857e98487aeaa8474e860a6725a0b6461ac8e436c7f8c869774dece391c8f8e7486306a34a4d1c094778c4c583a3f1f2cd905e5ed50
@@ -10314,7 +10230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:4.1.0, js-yaml@npm:^4.1.0":
+"js-yaml@npm:4.1.0":
   version: 4.1.0
   resolution: "js-yaml@npm:4.1.0"
   dependencies:
@@ -10337,7 +10253,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^4.1.1":
+"js-yaml@npm:^4.1.0, js-yaml@npm:^4.1.1":
   version: 4.1.1
   resolution: "js-yaml@npm:4.1.1"
   dependencies:
