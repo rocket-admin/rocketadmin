@@ -37,23 +37,22 @@ services:
     volumes:
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
-      - postgres
-      - testMySQL-e2e-testing
-      - testPg-e2e-testing
-      - mssql-e2e-testing
-      - test-oracle-e2e-testing
-      - test-ibm-db2-e2e-testing
-      - test-mongo-e2e-testing
-      - test-dynamodb-e2e-testing
-    links:
-      - postgres
-      - testMySQL-e2e-testing
-      - testPg-e2e-testing
-      - mssql-e2e-testing
-      - test-oracle-e2e-testing
-      - test-ibm-db2-e2e-testing
-      - test-mongo-e2e-testing
-      - test-dynamodb-e2e-testing
+      postgres:
+        condition: service_healthy
+      testMySQL-e2e-testing:
+        condition: service_healthy
+      testPg-e2e-testing:
+        condition: service_healthy
+      mssql-e2e-testing:
+        condition: service_healthy
+      test-oracle-e2e-testing:
+        condition: service_healthy
+      test-ibm-db2-e2e-testing:
+        condition: service_healthy
+      test-mongo-e2e-testing:
+        condition: service_healthy
+      test-dynamodb-e2e-testing:
+        condition: service_healthy
     command: ["/bin/sh", "-c", "yarn test $EXTRA_ARGS"]
     develop:
       watch:
@@ -69,6 +68,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: testDB
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   testPg-e2e-testing:
     image: postgres
@@ -77,6 +82,12 @@ services:
     environment:
       POSTGRES_PASSWORD: 123
     command: postgres -c 'max_connections=300'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   test-mongo-e2e-testing:
     image: mongo
@@ -86,6 +97,12 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - 27017:27017
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   postgres:
     image: postgres
@@ -96,6 +113,12 @@ services:
     command: postgres -c 'max_connections=300'
     tmpfs:
       - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mssql-e2e-testing:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -104,6 +127,12 @@ services:
       - ACCEPT_EULA=Y
     ports:
       - "5434:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'yNuXf@6T#BgoQ%U6knMp' -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'yNuXf@6T#BgoQ%U6knMp' -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
   test-oracle-e2e-testing:
     image: gvenzl/oracle-xe
@@ -111,6 +140,12 @@ services:
       - 1521:1521
     environment:
       ORACLE_PASSWORD: 12345
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
 
   autoadmin-ws-server:
     build:
@@ -239,9 +274,23 @@ services:
       - ETCD_PASSWORD=
     ports:
       - 50000:50000
+    healthcheck:
+      test: ["CMD-SHELL", "su - db2inst1 -c 'db2 connect to testdb'"]
+      interval: 30s
+      timeout: 30s
+      retries: 20
+      start_period: 180s
 
   test-dynamodb-e2e-testing:
     image: amazon/dynamodb-local
     environment:
       - AWS_ACCESS_KEY_ID=SuperSecretAwsAccessKey
       - AWS_SECRET=SuperSecretAwsSecret
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
