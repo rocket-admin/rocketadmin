@@ -3597,6 +3597,8 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
     const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
     t.is(typeof getTableWidgetsRO, 'object');
     t.is(getTableWidgetsRO.length, 2);
+    getTableWidgetsRO.sort((a, b) => a.field_name.localeCompare(b.field_name))
+    newTableWidgets.sort((a, b) => a.field_name.localeCompare(b.field_name))
 
     t.is(getTableWidgetsRO[0].field_name, newTableWidgets[0].field_name);
     t.is(getTableWidgetsRO[0].widget_type, newTableWidgets[0].widget_type);
