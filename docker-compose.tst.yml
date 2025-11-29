@@ -35,8 +35,8 @@ services:
       context: .
     env_file: ./backend/.development.env
     environment:
-      DATABASE_URL: "postgres://postgres:abc123@postgres:5432/postgres"
-      EXTRA_ARGS: "${EXTRA_ARGS:-}"
+      - "DATABASE_URL=postgres://postgres:abc123@postgres:5432/postgres"
+      - "EXTRA_ARGS=$EXTRA_ARGS"
     volumes:
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
@@ -60,7 +60,7 @@ services:
         condition: service_healthy
       test-cassandra-e2e-testing:
         condition: service_healthy
-    command: ["/bin/sh", "-c", "yarn test $EXTRA_ARGS"]
+    command: ["/bin/sh", "-c", "yarn test-all $EXTRA_ARGS"]
     develop:
       watch:
         - action: rebuild
@@ -169,8 +169,6 @@ services:
       - backend
   test-cassandra-e2e-testing:
     image: cassandra:5.0.4
-    ports:
-      - 9042:9042
     environment:
       - CASSANDRA_CLUSTER_NAME=TestCluster
       - CASSANDRA_DC=TestDC
@@ -327,8 +325,6 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=SuperSecretAwsAccessKey
       - AWS_SECRET=SuperSecretAwsSecret
-    ports:
-      - 8000:8000
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:8000 || exit 1"]
       interval: 10s
