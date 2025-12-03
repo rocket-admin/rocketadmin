@@ -71,7 +71,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
         ? `${this.escapeIdentifier(referencedFieldName)}, ${this.escapeIdentifier(identityColumnName)}`
         : this.escapeIdentifier(referencedFieldName);
 
-      const placeholders = fieldValues.map((v) => (typeof v === 'string' ? `'${this.escapeValue(v)}'` : v)).join(', ');
+      const placeholders = fieldValues.map((v) => this.sanitizeValue(v)).join(', ');
 
       const query = `SELECT ${columnsToSelect} FROM ${this.escapeIdentifier(tableName)} WHERE ${this.escapeIdentifier(referencedFieldName)} IN (${placeholders})`;
 
@@ -229,17 +229,18 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
         for (const filterObject of filteringFields) {
           const { field, criteria, value } = filterObject;
           const escapedField = this.escapeIdentifier(field);
-          const escapedValue = typeof value === 'string' ? `'${this.escapeValue(value)}'` : value;
+          const escapedValue = this.sanitizeValue(value);
 
+          const escapedStringValue = this.escapeValue(String(value));
           switch (criteria) {
             case FilterCriteriaEnum.eq:
               whereClauses.push(`${escapedField} = ${escapedValue}`);
               break;
             case FilterCriteriaEnum.startswith:
-              whereClauses.push(`toString(${escapedField}) LIKE '${this.escapeValue(String(value))}%'`);
+              whereClauses.push(`toString(${escapedField}) LIKE '${escapedStringValue}%'`);
               break;
             case FilterCriteriaEnum.endswith:
-              whereClauses.push(`toString(${escapedField}) LIKE '%${this.escapeValue(String(value))}'`);
+              whereClauses.push(`toString(${escapedField}) LIKE '%${escapedStringValue}'`);
               break;
             case FilterCriteriaEnum.gt:
               whereClauses.push(`${escapedField} > ${escapedValue}`);
@@ -254,10 +255,10 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
               whereClauses.push(`${escapedField} <= ${escapedValue}`);
               break;
             case FilterCriteriaEnum.contains:
-              whereClauses.push(`toString(${escapedField}) LIKE '%${this.escapeValue(String(value))}%'`);
+              whereClauses.push(`toString(${escapedField}) LIKE '%${escapedStringValue}%'`);
               break;
             case FilterCriteriaEnum.icontains:
-              whereClauses.push(`toString(${escapedField}) NOT LIKE '%${this.escapeValue(String(value))}%'`);
+              whereClauses.push(`toString(${escapedField}) NOT LIKE '%${escapedStringValue}%'`);
               break;
             case FilterCriteriaEnum.empty:
               whereClauses.push(`${escapedField} IS NULL`);
@@ -459,8 +460,8 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     try {
       const setClause = Object.entries(row)
         .map(([key, value]) => {
-          const escapedValue = typeof value === 'string' ? `'${this.escapeValue(value)}'` : value;
-          return `${this.escapeIdentifier(key)} = ${escapedValue}`;
+          const sanitizedValue = this.sanitizeValue(value);
+          return `${this.escapeIdentifier(key)} = ${sanitizedValue}`;
         })
         .join(', ');
 
@@ -488,8 +489,8 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     try {
       const setClause = Object.entries(newValues)
         .map(([key, value]) => {
-          const escapedValue = typeof value === 'string' ? `'${this.escapeValue(value)}'` : value;
-          return `${this.escapeIdentifier(key)} = ${escapedValue}`;
+          const sanitizedValue = this.sanitizeValue(value);
+          return `${this.escapeIdentifier(key)} = ${sanitizedValue}`;
         })
         .join(', ');
 
@@ -635,18 +636,75 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
   }
 
   private escapeIdentifier(identifier: string): string {
+    this.validateIdentifier(identifier);
     return `\`${identifier.replace(/`/g, '``')}\``;
   }
 
+  private validateIdentifier(identifier: string): void {
+    if (!identifier || typeof identifier !== 'string') {
+      throw new Error('Invalid identifier: must be a non-empty string');
+    }
+
+    if (identifier.length > 256) {
+      throw new Error('Invalid identifier: exceeds maximum length');
+    }
+
+    if (/[\x00-\x1f\x7f]/.test(identifier)) {
+      throw new Error('Invalid identifier: contains control characters');
+    }
+  }
+
   private escapeValue(value: string): string {
-    return value.replace(/'/g, "''").replace(/\\/g, '\\\\');
+    if (typeof value !== 'string') {
+      throw new Error('escapeValue expects a string');
+    }
+    return value
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "''")
+      .replace(/\0/g, '\\0')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\x1a/g, '\\Z');
+  }
+
+  private sanitizeValue(value: unknown): string {
+    if (value === null || value === undefined) {
+      return 'NULL';
+    }
+    if (typeof value === 'number') {
+      if (!Number.isFinite(value)) {
+        throw new Error('Invalid numeric value: must be finite');
+      }
+      return String(value);
+    }
+    if (typeof value === 'boolean') {
+      return value ? '1' : '0';
+    }
+    if (typeof value === 'string') {
+      return `'${this.escapeValue(value)}'`;
+    }
+    if (value instanceof Date) {
+      return `'${this.escapeValue(value.toISOString())}'`;
+    }
+
+    if (typeof value === 'object') {
+      return `'${this.escapeValue(JSON.stringify(value))}'`;
+    }
+    throw new Error(`Unsupported value type: ${typeof value}`);
   }
 
   private buildWhereClause(conditions: Record<string, unknown>): string {
-    return Object.entries(conditions)
+    if (!conditions || typeof conditions !== 'object') {
+      throw new Error('Invalid conditions: must be an object');
+    }
+    const entries = Object.entries(conditions);
+    if (entries.length === 0) {
+      throw new Error('Invalid conditions: must have at least one condition');
+    }
+    return entries
       .map(([key, value]) => {
-        const escapedValue = typeof value === 'string' ? `'${this.escapeValue(value)}'` : value;
-        return `${this.escapeIdentifier(key)} = ${escapedValue}`;
+        const sanitizedValue = this.sanitizeValue(value);
+        return `${this.escapeIdentifier(key)} = ${sanitizedValue}`;
       })
       .join(' AND ');
   }
@@ -727,7 +785,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
   }
 
   private extractTypeParams(type: string): string | null {
-    const enumMatch = type.match(/Enum\d*\((.*)\)/i);
+    const enumMatch = type.match(/Enum\d*\(([^)]+)\)/i);
     if (enumMatch) {
       return enumMatch[1];
     }
