@@ -9,6 +9,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.918.0",
     "@aws-sdk/lib-dynamodb": "^3.918.0",
+    "@clickhouse/client": "^1.14.0",
     "@elastic/elasticsearch": "8.18.1",
     "@types/multer": "^2.0.0",
     "axios": "^1.13.0",

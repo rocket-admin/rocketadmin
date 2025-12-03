@@ -13,7 +13,8 @@ export class ConnectionParams {
     | 'dynamodb'
     | 'elasticsearch'
     | 'cassandra'
-    | 'redis';
+    | 'redis'
+    | 'clickhouse';
 
   host: string;
 

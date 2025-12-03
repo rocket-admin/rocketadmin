@@ -103,6 +103,19 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestClickHouseDBInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to ClickHouse in Docker';
+    dto.type = 'clickhouse';
+    dto.host = 'clickhouse-e2e-testing';
+    dto.port = 8123;
+    dto.username = 'default';
+    dto.password = 'clickhouse_password';
+    dto.database = 'testdb';
+    dto.ssh = false;
+    return dto;
+  }
+
   generateConnectionToTestMySQLDBInDocker() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to MySQL in Docker';

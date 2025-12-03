@@ -32,6 +32,7 @@ export function getTestData(mockFactory: MockFactory) {
   const cassandraAgentTestConnection = mockFactory.generateConnectionToTestCassandraAgent();
   const redisConnection = mockFactory.generateConnectionToTestRedisInDocker();
   const redisAgentConnection = mockFactory.generateConnectionToTestRedisAgent();
+  const clickhouseTestConnection = mockFactory.generateConnectionToTestClickHouseDBInDocker();
   return {
     newConnection,
     newEncryptedConnection,
@@ -64,5 +65,6 @@ export function getTestData(mockFactory: MockFactory) {
     cassandraAgentTestConnection,
     redisConnection,
     redisAgentConnection,
+    clickhouseTestConnection,
   };
 }
