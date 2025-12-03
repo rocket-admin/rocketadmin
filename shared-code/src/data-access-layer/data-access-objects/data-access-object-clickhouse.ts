@@ -21,6 +21,7 @@ import { ValidateTableSettingsDS } from '../shared/data-structures/validate-tabl
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { NodeClickHouseClientConfigOptions } from '@clickhouse/client/dist/config.js';
 
 export class DataAccessObjectClickHouse extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -815,20 +816,17 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     const protocol = ssl ? 'https' : 'http';
     const url = `${protocol}://${host}:${port}`;
 
-    const clientConfig: any = {
+    const clientConfig: NodeClickHouseClientConfigOptions = {
       url,
       username,
       password,
       database: database || 'default',
     };
 
-    if (ssl) {
+    if (ssl && cert) {
       clientConfig.tls = {
-        rejectUnauthorized: !cert,
+        ca_cert: Buffer.from(cert),
       };
-      if (cert) {
-        clientConfig.tls.ca_cert = Buffer.from(cert);
-      }
     }
 
     return createClient(clientConfig);
