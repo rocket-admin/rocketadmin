@@ -9,8 +9,7 @@ export const secretAccessLogRepositoryExtension: ISecretAccessLogRepository = {
     success: boolean = true,
     errorMessage?: string,
   ): Promise<SecretAccessLogEntity> {
-    const self = this as any;
-    const log = self.create({
+    const log = this.create({
       secretId,
       userId,
       action,
@@ -18,15 +17,14 @@ export const secretAccessLogRepositoryExtension: ISecretAccessLogRepository = {
       errorMessage,
       accessedAt: new Date(),
     });
-    return self.save(log);
+    return this.save(log);
   },
 
   async findLogsForSecret(
     secretId: string,
     options: { page: number; limit: number },
   ): Promise<[SecretAccessLogEntity[], number]> {
-    const self = this as any;
-    return self.findAndCount({
+    return this.findAndCount({
       where: {
         secretId,
       },

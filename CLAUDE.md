@@ -124,3 +124,9 @@ Test databases are defined in `docker-compose.tst.yml`:
 - IBM DB2: `test-ibm-db2-e2e-testing:50000`
 - MongoDB: `test-mongo-e2e-testing:27017`
 - DynamoDB: `test-dynamodb-e2e-testing:8000`
+
+## Coding Conventions
+
+### Class Member Ordering
+
+- Private methods must be placed at the end of the class, after all public methods
