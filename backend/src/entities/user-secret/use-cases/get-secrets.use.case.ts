@@ -38,9 +38,9 @@ export class GetSecretsUseCase extends AbstractUseCase<GetSecretsDS, SecretsList
       data: secrets.map((secret) => buildSecretListItemDS(secret)),
       pagination: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        perPage: limit,
+        lastPage: Math.ceil(total / limit),
       },
     };
   }

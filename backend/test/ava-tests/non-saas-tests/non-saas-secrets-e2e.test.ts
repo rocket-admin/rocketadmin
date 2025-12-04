@@ -178,7 +178,7 @@ test.serial(`${currentTest} - should return list of company secrets`, async (t) 
   t.truthy(responseBody.data);
   t.true(Array.isArray(responseBody.data));
   t.truthy(responseBody.pagination);
-  t.is(responseBody.pagination.page, 1);
+  t.is(responseBody.pagination.currentPage, 1);
   t.true(responseBody.data.length > 0);
 
   const firstSecret = responseBody.data[0];
@@ -495,7 +495,7 @@ test.serial(`${currentTest}?page=1&limit=2 - should paginate audit log`, async (
 
   t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
-  t.is(responseBody.pagination.limit, '2');
+  t.is(responseBody.pagination.perPage, 2);
   t.true(responseBody.data.length <= 2);
 });
 

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
 
 export class SecretListItemDto {
   @ApiProperty({
@@ -60,36 +61,6 @@ export class SecretListItemDto {
   masterEncryption: boolean;
 }
 
-export class PaginationDto {
-  @ApiProperty({
-    type: Number,
-    description: 'Total number of items',
-    example: 42,
-  })
-  total: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Current page number',
-    example: 1,
-  })
-  page: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Number of items per page',
-    example: 20,
-  })
-  limit: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Total number of pages',
-    example: 3,
-  })
-  totalPages: number;
-}
-
 export class SecretListResponseDto {
   @ApiProperty({
     type: [SecretListItemDto],
@@ -98,8 +69,8 @@ export class SecretListResponseDto {
   data: SecretListItemDto[];
 
   @ApiProperty({
-    type: PaginationDto,
+    type: PaginationDs,
     description: 'Pagination information',
   })
-  pagination: PaginationDto;
+  pagination: PaginationDs;
 }

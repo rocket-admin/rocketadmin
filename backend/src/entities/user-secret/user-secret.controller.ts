@@ -14,7 +14,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
@@ -63,6 +63,7 @@ export class UserSecretController {
   ) {}
 
   @ApiOperation({ summary: 'Create new secret' })
+  @ApiBody({ type: CreateSecretDto })
   @ApiResponse({
     status: 201,
     description: 'Secret created successfully.',
@@ -159,6 +160,7 @@ export class UserSecretController {
   }
 
   @ApiOperation({ summary: 'Update secret' })
+  @ApiBody({ type: UpdateSecretDto })
   @ApiResponse({
     status: 200,
     description: 'Secret updated successfully.',

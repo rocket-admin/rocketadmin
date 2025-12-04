@@ -1,3 +1,5 @@
+import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
+
 export class GetSecretsDS {
   userId: string;
   page: number;
@@ -18,10 +20,5 @@ export class SecretListItemDS {
 
 export class SecretsListDS {
   data: SecretListItemDS[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  pagination: PaginationDs;
 }
