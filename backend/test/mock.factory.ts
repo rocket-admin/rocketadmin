@@ -314,7 +314,7 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Redis in Docker';
     dto.type = ConnectionTypesEnum.redis;
-    dto.host = 'redis-e2e-testing';
+    dto.host = 'test-redis-e2e-testing';
     dto.port = 6379;
     dto.password = 'SuperSecretRedisPassword';
     dto.ssh = false;

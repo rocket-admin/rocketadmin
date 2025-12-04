@@ -3,15 +3,15 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "!frontend/**"
+    paths-ignore:
+      - "frontend/**"
   pull_request:
-    paths: 
-      - "!frontend/**"
+    paths-ignore:
+      - "frontend/**"
 jobs:
   test:
     runs-on:
-      labels: ubuntu-latest-4-cores
+      labels: ubuntu-latest-8-cores
     steps:
       - uses: actions/checkout@v3
       - uses: extractions/setup-just@v1
@@ -40,5 +40,3 @@ jobs:
           node-version: '18'
       - run: cd backend && yarn install
       - run: cd backend && yarn run lint
-
-      
