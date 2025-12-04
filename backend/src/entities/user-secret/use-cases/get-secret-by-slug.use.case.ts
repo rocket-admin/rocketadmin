@@ -28,7 +28,7 @@ export class GetSecretBySlugUseCase extends AbstractUseCase<GetSecretDS, FoundSe
     });
 
     if (!user || !user.company) {
-      throw new ForbiddenException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
+      throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
     }
 
     const secret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);

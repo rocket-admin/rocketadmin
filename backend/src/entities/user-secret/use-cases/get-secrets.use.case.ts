@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -25,7 +25,7 @@ export class GetSecretsUseCase extends AbstractUseCase<GetSecretsDS, SecretsList
     });
 
     if (!user || !user.company) {
-      throw new ForbiddenException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
+      throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
     }
 
     const [secrets, total] = await this._dbContext.userSecretRepository.findSecretsForCompany(user.company.id, {

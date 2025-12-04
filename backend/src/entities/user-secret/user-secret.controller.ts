@@ -11,12 +11,14 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { CompanyUserGuard } from '../../guards/company-user.guard.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { CreateSecretDto } from './application/dto/create-secret.dto.js';
@@ -24,6 +26,7 @@ import { UpdateSecretDto } from './application/dto/update-secret.dto.js';
 import { FoundSecretDto } from './application/dto/found-secret.dto.js';
 import { SecretListResponseDto } from './application/dto/secret-list.dto.js';
 import { AuditLogResponseDto } from './application/dto/audit-log.dto.js';
+import { DeleteSecretResponseDto } from './application/dto/delete-secret.dto.js';
 import {
   ICreateSecret,
   IDeleteSecret,
@@ -66,9 +69,14 @@ export class UserSecretController {
     type: FoundSecretDto,
   })
   @ApiResponse({
+    status: 404,
+    description: 'User not found or not in a company.',
+  })
+  @ApiResponse({
     status: 409,
     description: 'Secret with this slug already exists in your company.',
   })
+  @UseGuards(CompanyUserGuard)
   @Post('/secrets')
   @HttpCode(HttpStatus.CREATED)
   async createSecret(@UserId() userId: string, @Body() createDto: CreateSecretDto): Promise<FoundSecretDto> {
@@ -92,9 +100,14 @@ export class UserSecretController {
     description: 'Returns list of company secrets.',
     type: SecretListResponseDto,
   })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found or not in a company.',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 20)' })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search term to filter secrets by slug' })
+  @UseGuards(CompanyUserGuard)
   @Get('/secrets')
   async getSecrets(
     @UserId() userId: string,
@@ -123,12 +136,14 @@ export class UserSecretController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Secret not found.',
+    description: 'Secret or user not found.',
   })
   @ApiResponse({
     status: 410,
     description: 'Secret has expired.',
   })
+  @ApiParam({ name: 'slug', type: String, description: 'Unique secret identifier', example: 'database-password' })
+  @UseGuards(CompanyUserGuard)
   @Get('/secrets/:slug')
   async getSecretBySlug(
     @UserId() userId: string,
@@ -151,12 +166,18 @@ export class UserSecretController {
   })
   @ApiResponse({
     status: 403,
-    description: "You don't have permission to modify this secret.",
+    description: 'Master password required or incorrect.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Secret not found.',
+    description: 'Secret or user not found.',
   })
+  @ApiResponse({
+    status: 410,
+    description: 'Secret has expired.',
+  })
+  @ApiParam({ name: 'slug', type: String, description: 'Unique secret identifier', example: 'database-password' })
+  @UseGuards(CompanyUserGuard)
   @Put('/secrets/:slug')
   async updateSecret(
     @UserId() userId: string,
@@ -181,17 +202,16 @@ export class UserSecretController {
   @ApiResponse({
     status: 200,
     description: 'Secret deleted successfully.',
-  })
-  @ApiResponse({
-    status: 403,
-    description: "You don't have permission to delete this secret.",
+    type: DeleteSecretResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: 'Secret not found.',
+    description: 'Secret or user not found.',
   })
+  @ApiParam({ name: 'slug', type: String, description: 'Unique secret identifier', example: 'database-password' })
+  @UseGuards(CompanyUserGuard)
   @Delete('/secrets/:slug')
-  async deleteSecret(@UserId() userId: string, @Param('slug') slug: string): Promise<{ message: string; deletedAt: Date }> {
+  async deleteSecret(@UserId() userId: string, @Param('slug') slug: string): Promise<DeleteSecretResponseDto> {
     return await this.deleteSecretUseCase.execute({ userId, slug }, InTransactionEnum.ON);
   }
 
@@ -202,15 +222,13 @@ export class UserSecretController {
     type: AuditLogResponseDto,
   })
   @ApiResponse({
-    status: 403,
-    description: "You don't have permission to view this audit log.",
-  })
-  @ApiResponse({
     status: 404,
-    description: 'Secret not found.',
+    description: 'Secret or user not found.',
   })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiParam({ name: 'slug', type: String, description: 'Unique secret identifier', example: 'database-password' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 50)' })
+  @UseGuards(CompanyUserGuard)
   @Get('/secrets/:slug/audit-log')
   async getAuditLog(
     @UserId() userId: string,
