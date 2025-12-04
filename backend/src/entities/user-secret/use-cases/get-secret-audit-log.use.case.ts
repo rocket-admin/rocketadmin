@@ -46,9 +46,9 @@ export class GetSecretAuditLogUseCase
       data: logs.map((log) => buildAuditLogEntryDS(log)),
       pagination: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        perPage: limit,
+        lastPage: Math.ceil(total / limit),
       },
     };
   }

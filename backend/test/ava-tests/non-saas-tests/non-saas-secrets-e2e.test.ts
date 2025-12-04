@@ -485,8 +485,6 @@ test.serial(`${currentTest}?page=1&limit=2 - should paginate audit log`, async (
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const connectionId = JSON.parse(createdConnection.text).id;
-
   const response = await request(app.getHttpServer())
     .get('/secrets/test-api-key/audit-log?page=1&limit=2')
     .set('Cookie', token)

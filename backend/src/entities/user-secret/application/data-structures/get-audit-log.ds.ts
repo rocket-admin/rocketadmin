@@ -1,4 +1,5 @@
 import { SecretActionEnum } from '../../../secret-access-log/secret-access-log.entity.js';
+import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
 
 export class GetAuditLogDS {
   userId: string;
@@ -23,10 +24,5 @@ export class AuditLogEntryDS {
 
 export class AuditLogListDS {
   data: AuditLogEntryDS[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  pagination: PaginationDs;
 }

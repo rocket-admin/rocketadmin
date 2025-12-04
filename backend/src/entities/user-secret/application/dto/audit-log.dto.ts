@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { SecretActionEnum } from '../../../secret-access-log/secret-access-log.entity.js';
+import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
 
 export class AuditLogUserDto {
   @ApiProperty({
@@ -78,36 +79,6 @@ export class AuditLogEntryDto {
   errorMessage?: string;
 }
 
-export class AuditLogPaginationDto {
-  @ApiProperty({
-    type: Number,
-    description: 'Total number of audit log entries',
-    example: 150,
-  })
-  total: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Current page number',
-    example: 1,
-  })
-  page: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Number of entries per page',
-    example: 50,
-  })
-  limit: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Total number of pages',
-    example: 3,
-  })
-  totalPages: number;
-}
-
 export class AuditLogResponseDto {
   @ApiProperty({
     type: AuditLogEntryDto,
@@ -117,8 +88,8 @@ export class AuditLogResponseDto {
   data: AuditLogEntryDto[];
 
   @ApiProperty({
-    type: AuditLogPaginationDto,
+    type: PaginationDs,
     description: 'Pagination information',
   })
-  pagination: AuditLogPaginationDto;
+  pagination: PaginationDs;
 }
