@@ -389,3 +389,23 @@ services:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.redis_test_agent_config.txt
     command: ["yarn", "start:dev"]
+
+  rocketadmin-agent_clickhouse:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8148:8148
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+      - clickhouse-e2e-testing
+    depends_on:
+      - autoadmin-ws-server
+      - clickhouse-e2e-testing
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.clickhouse_test_agent_config.txt
+    command: ["yarn", "start:dev"]

@@ -19,4 +19,5 @@ export enum ConnectionTypesEnum {
   agent_mongodb = 'agent_mongodb',
   agent_cassandra = 'agent_cassandra',
   agent_redis = 'agent_redis',
+  agent_clickhouse = 'agent_clickhouse',
 }

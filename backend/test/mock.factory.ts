@@ -116,6 +116,13 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestClickHouseAgent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypesEnum.agent_clickhouse;
+    return dto;
+  }
+
   generateConnectionToTestMySQLDBInDocker() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to MySQL in Docker';

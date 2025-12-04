@@ -31,6 +31,7 @@ export function getDataAccessObject(
     ConnectionTypesEnum.agent_mongodb,
     ConnectionTypesEnum.agent_cassandra,
     ConnectionTypesEnum.agent_redis,
+    ConnectionTypesEnum.agent_clickhouse,
   ];
   if (!connectionParams || connectionParams === null) {
     throw new Error(ERROR_MESSAGES.CONNECTION_PARAMS_SHOULD_BE_DEFINED);
