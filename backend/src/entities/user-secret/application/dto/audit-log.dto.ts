@@ -110,7 +110,8 @@ export class AuditLogPaginationDto {
 
 export class AuditLogResponseDto {
   @ApiProperty({
-    type: [AuditLogEntryDto],
+    type: AuditLogEntryDto,
+    isArray: true,
     description: 'List of audit log entries',
   })
   data: AuditLogEntryDto[];
