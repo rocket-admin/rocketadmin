@@ -370,4 +370,11 @@ export const Messages = {
   INVALID_REQUEST_DOMAIN: `Invalid request domain`,
   INVALID_REQUEST_DOMAIN_FORMAT: `Invalid request domain format`,
   FEATURE_NON_AVAILABLE_IN_FREE_PLAN: `This feature is not available in free plan.`,
+  SECRET_NOT_FOUND: 'Secret not found',
+  SECRET_ALREADY_EXISTS: 'Secret with this slug already exists in your company',
+  SECRET_EXPIRED: 'Secret has expired',
+  SECRET_MASTER_PASSWORD_REQUIRED: 'Master password required',
+  SECRET_MASTER_PASSWORD_INVALID: 'Invalid master password',
+  SECRET_DELETED_SUCCESSFULLY: 'Secret deleted successfully',
+  USER_NOT_FOUND_OR_NOT_IN_COMPANY: 'User not found or not associated with a company',
 };
