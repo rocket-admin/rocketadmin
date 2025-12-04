@@ -493,7 +493,7 @@ test.serial(`${currentTest}?page=1&limit=2 - should paginate audit log`, async (
 
   t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
-  t.is(responseBody.pagination.perPage, 2);
+  t.is(responseBody.pagination.perPage, '2');
   t.true(responseBody.data.length <= 2);
 });
 
