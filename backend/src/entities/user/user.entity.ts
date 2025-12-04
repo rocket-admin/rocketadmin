@@ -27,6 +27,7 @@ import { ExternalRegistrationProviderEnum } from './enums/external-registration-
 import { UserApiKeyEntity } from '../api-key/api-key.entity.js';
 import { AiResponsesToUserEntity } from '../ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
 import { SignInAuditEntity } from '../user-sign-in-audit/sign-in-audit.entity.js';
+import { SecretAccessLogEntity } from '../secret-access-log/secret-access-log.entity.js';
 
 @Entity('user')
 export class UserEntity {
@@ -122,6 +123,9 @@ export class UserEntity {
 
   @OneToMany((_) => SignInAuditEntity, (signInAudit) => signInAudit.user)
   signInAudits: Relation<SignInAuditEntity>[];
+
+  @OneToMany((_) => SecretAccessLogEntity, (secretAccessLog) => secretAccessLog.user)
+  secretAccessLogs: Relation<SecretAccessLogEntity>[];
 
   @Column({ default: false, type: 'boolean' })
   isActive: boolean;

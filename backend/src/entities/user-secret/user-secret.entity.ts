@@ -19,7 +19,7 @@ export class UserSecretEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => CompanyInfoEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => CompanyInfoEntity, (company) => company.secrets, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'companyId' })
   company: Relation<CompanyInfoEntity>;
 

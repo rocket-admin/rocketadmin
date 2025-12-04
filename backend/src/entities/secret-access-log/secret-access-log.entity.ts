@@ -23,7 +23,7 @@ export class SecretAccessLogEntity {
   @Index()
   secretId: string;
 
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.secretAccessLogs, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: Relation<UserEntity>;
 
