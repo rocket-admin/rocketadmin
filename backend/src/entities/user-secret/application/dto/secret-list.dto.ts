@@ -63,7 +63,8 @@ export class SecretListItemDto {
 
 export class SecretListResponseDto {
   @ApiProperty({
-    type: [SecretListItemDto],
+    type: SecretListItemDto,
+    isArray: true,
     description: 'List of secrets',
   })
   data: SecretListItemDto[];
