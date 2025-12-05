@@ -39,6 +39,7 @@ services:
     environment:
       - "DATABASE_URL=postgres://postgres:abc123@postgres:5432/postgres"
       - "EXTRA_ARGS=$EXTRA_ARGS"
+      - LOG_LEVEL=warn
     volumes:
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
