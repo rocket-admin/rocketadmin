@@ -342,7 +342,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const bindings = [schema];
     try {
       const results = await knex.raw(query, bindings);
-      console.log({ tablesPg: results });
       return results.rows.map((row: Record<string, unknown>) => ({ tableName: row.table_name, isView: !!row.is_view }));
     } catch (error) {
       console.log({ tablesPg: error });
