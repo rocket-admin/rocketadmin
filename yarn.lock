@@ -1373,6 +1373,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@clickhouse/client-common@npm:1.14.0":
+  version: 1.14.0
+  resolution: "@clickhouse/client-common@npm:1.14.0"
+  checksum: c9618b33551033dfd9d3d29fe0dfdac8badbffc921a5cad6c430ba814469b59f0c7c819547967f75bf0779e1af728555572bf2f5053dd503ea2003230703d1fa
+  languageName: node
+  linkType: hard
+
+"@clickhouse/client@npm:^1.14.0":
+  version: 1.14.0
+  resolution: "@clickhouse/client@npm:1.14.0"
+  dependencies:
+    "@clickhouse/client-common": 1.14.0
+  checksum: 529616a1b4b50f8df7be5f12e0847bee610a125fe2e7faeaa7a3a16016e0b8e44abead4bff0b70ef6f434a43531b70db7e7d5943ee55cce49d8576cbc0cce493
+  languageName: node
+  linkType: hard
+
 "@colors/colors@npm:1.5.0":
   version: 1.5.0
   resolution: "@colors/colors@npm:1.5.0"
@@ -3469,6 +3485,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-dynamodb": ^3.918.0
     "@aws-sdk/lib-dynamodb": ^3.918.0
+    "@clickhouse/client": ^1.14.0
     "@elastic/elasticsearch": 8.18.1
     "@types/multer": ^2.0.0
     "@types/oracledb": ^6.10.0

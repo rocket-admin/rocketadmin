@@ -1,6 +1,7 @@
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
 import { DataAccessObjectCassandra } from '../data-access-objects/data-access-object-cassandra.js';
+import { DataAccessObjectClickHouse } from '../data-access-objects/data-access-object-clickhouse.js';
 import { DataAccessObjectDynamoDB } from '../data-access-objects/data-access-object-dynamodb.js';
 import { DataAccessObjectElasticsearch } from '../data-access-objects/data-access-object-elasticsearch.js';
 import { DataAccessObjectIbmDb2 } from '../data-access-objects/data-access-object-ibmdb2.js';
@@ -30,6 +31,7 @@ export function getDataAccessObject(
     ConnectionTypesEnum.agent_mongodb,
     ConnectionTypesEnum.agent_cassandra,
     ConnectionTypesEnum.agent_redis,
+    ConnectionTypesEnum.agent_clickhouse,
   ];
   if (!connectionParams || connectionParams === null) {
     throw new Error(ERROR_MESSAGES.CONNECTION_PARAMS_SHOULD_BE_DEFINED);
@@ -68,6 +70,9 @@ export function getDataAccessObject(
     case ConnectionTypesEnum.redis:
       const connectionParamsRedis = buildConnectionParams(connectionParams);
       return new DataAccessObjectRedis(connectionParamsRedis);
+    case ConnectionTypesEnum.clickhouse:
+      const connectionParamsClickHouse = buildConnectionParams(connectionParams);
+      return new DataAccessObjectClickHouse(connectionParamsClickHouse);
     default:
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
@@ -107,6 +112,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     case ConnectionTypesEnum.ibmdb2:
     case ConnectionTypesEnum.mongodb:
     case ConnectionTypesEnum.cassandra:
+    case ConnectionTypesEnum.clickhouse:
       requiredKeys.push(...sqlAndMongoRequiredKeys);
       break;
     case ConnectionTypesEnum.dynamodb:

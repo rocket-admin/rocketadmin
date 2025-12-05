@@ -65,6 +65,8 @@ export const customAgentRepositoryExtension = {
         return 'CASSANDRA-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_redis:
         return 'REDIS-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_clickhouse:
+        return 'CLICKHOUSE-TEST-AGENT-TOKEN';
     }
   },
 };

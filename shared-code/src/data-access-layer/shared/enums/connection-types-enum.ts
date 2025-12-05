@@ -10,6 +10,7 @@ export enum ConnectionTypesEnum {
   elasticsearch = 'elasticsearch',
   cassandra = 'cassandra',
   redis = 'redis',
+  clickhouse = 'clickhouse',
   agent_postgres = 'agent_postgres',
   agent_mysql = 'agent_mysql',
   agent_oracledb = 'agent_oracledb',
@@ -18,4 +19,5 @@ export enum ConnectionTypesEnum {
   agent_mongodb = 'agent_mongodb',
   agent_cassandra = 'agent_cassandra',
   agent_redis = 'agent_redis',
+  agent_clickhouse = 'agent_clickhouse',
 }

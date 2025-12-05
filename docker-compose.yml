@@ -22,7 +22,8 @@ services:
       - test-elasticsearch-e2e-testing
       - cassandra-init
       - test-cassandra-e2e-testing
-      - redis-e2e-testing
+      - test-redis-e2e-testing
+      - clickhouse-e2e-testing
     links:
       - postgres
       - testMySQL-e2e-testing
@@ -34,7 +35,8 @@ services:
       - test-dynamodb-e2e-testing
       - test-elasticsearch-e2e-testing
       - test-cassandra-e2e-testing
-      - redis-e2e-testing
+      - test-redis-e2e-testing
+      - clickhouse-e2e-testing
     command: ["yarn", "start"]
 
   testMySQL-e2e-testing:
@@ -203,13 +205,33 @@ services:
     command: ["/init-cassandra.sh"]
     restart: "no"
 
-  redis-e2e-testing:
+  test-redis-e2e-testing:
     image: redis:7.0.11
     ports:
       - 6379:6379
     command: ["redis-server", "--requirepass", "SuperSecretRedisPassword"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  clickhouse-e2e-testing:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - 8123:8123
+      - 9000:9000
+    environment:
+      - CLICKHOUSE_DB=testdb
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse_password
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -359,11 +381,31 @@ services:
       - ./rocketadmin-agent/src:/app/src
     links:
       - autoadmin-ws-server
-      - redis-e2e-testing
+      - test-redis-e2e-testing
     depends_on:
       - autoadmin-ws-server
-      - redis-e2e-testing
+      - test-redis-e2e-testing
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.redis_test_agent_config.txt
+    command: ["yarn", "start:dev"]
+
+  rocketadmin-agent_clickhouse:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8148:8148
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+      - clickhouse-e2e-testing
+    depends_on:
+      - autoadmin-ws-server
+      - clickhouse-e2e-testing
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.clickhouse_test_agent_config.txt
     command: ["yarn", "start:dev"]

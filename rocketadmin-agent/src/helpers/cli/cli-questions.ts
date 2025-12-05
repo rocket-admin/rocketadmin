@@ -35,6 +35,7 @@ export class CLIQuestionUtility {
       'MongoDB',
       'IBM Db2',
       'Redis',
+      'ClickHouse',
     ];
     const connectionTypeIndex = readlineSync.keyInSelect(connectionTypeList, '-> \n') + 1;
     switch (connectionTypeIndex) {
@@ -59,6 +60,9 @@ export class CLIQuestionUtility {
       case 7:
         console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
         return ConnectionTypesEnum.redis;
+      case 8:
+        console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
+        return ConnectionTypesEnum.clickhouse;
       case 0:
         console.log(Messages.INTRO_MESSAGES.APPLICATION_CLI_QUIT);
         process.exit(0);
