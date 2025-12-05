@@ -19,7 +19,7 @@ services:
       - test-dynamodb-e2e-testing
       - test-redis-e2e-testing
       - test-cassandra-e2e-testing
-      - clickhouse-e2e-testing
+      - test-clickhouse-e2e-testing
     links:
       - postgres
       - testMySQL-e2e-testing
@@ -30,7 +30,7 @@ services:
       - test-dynamodb-e2e-testing
       - test-redis-e2e-testing
       - test-cassandra-e2e-testing
-      - clickhouse-e2e-testing
+      - test-clickhouse-e2e-testing
     command: ["yarn", "start"]
   backend_test:
     build:
@@ -251,7 +251,7 @@ services:
       retries: 10
       start_period: 10s
 
-  clickhouse-e2e-testing:
+  test-clickhouse-e2e-testing:
     image: clickhouse/clickhouse-server:latest
     ports:
       - 8123:8123
