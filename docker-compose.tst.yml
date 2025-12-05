@@ -19,6 +19,7 @@ services:
       - test-dynamodb-e2e-testing
       - test-redis-e2e-testing
       - test-cassandra-e2e-testing
+      - clickhouse-e2e-testing
     links:
       - postgres
       - testMySQL-e2e-testing
@@ -29,6 +30,7 @@ services:
       - test-dynamodb-e2e-testing
       - test-redis-e2e-testing
       - test-cassandra-e2e-testing
+      - clickhouse-e2e-testing
     command: ["yarn", "start"]
   backend_test:
     build:
@@ -60,6 +62,8 @@ services:
         condition: service_healthy
       test-cassandra-e2e-testing:
         condition: service_healthy
+      test-clickhouse-e2e-testing:
+        condition: service_healthy
     command: ["/bin/sh", "-c", "yarn test-all $EXTRA_ARGS"]
     develop:
       watch:
@@ -76,7 +80,8 @@ services:
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: testDB
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -135,7 +140,11 @@ services:
     ports:
       - "5434:1433"
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'yNuXf@6T#BgoQ%U6knMp' -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'yNuXf@6T#BgoQ%U6knMp' -Q 'SELECT 1'"]
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'yNuXf@6T#BgoQ%U6knMp' -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'yNuXf@6T#BgoQ%U6knMp' -Q 'SELECT 1'",
+        ]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -200,97 +209,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # rocketadmin-agent_oracle:
-  #   build:
-  #     context: .
-  #     dockerfile: ./rocketadmin-agent/Dockerfile
-  #   ports:
-  #     - 8088:8088
-  #   volumes:
-  #     - ./rocketadmin-agent/dist:/app/dist
-  #     - ./rocketadmin-agent/src:/app/src
-  #   links:
-  #     - autoadmin-ws-server
-  #   depends_on:
-  #     - autoadmin-ws-server
-  #   environment:
-  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-  #     - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
-  #   command: ["yarn", "start:dev"]
-
-  # rocketadmin-agent_postgres:
-  #   build:
-  #     context: .
-  #     dockerfile: ./rocketadmin-agent/Dockerfile
-  #   ports:
-  #     - 8098:8098
-  #   volumes:
-  #     - ./rocketadmin-agent/dist:/app/dist
-  #     - ./rocketadmin-agent/src:/app/src
-  #   links:
-  #     - autoadmin-ws-server
-  #   depends_on:
-  #     - autoadmin-ws-server
-  #   environment:
-  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-  #     - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
-  #   command: ["yarn", "start:dev"]
-
-  # rocketadmin-agent_mysql:
-  #   build:
-  #     context: .
-  #     dockerfile: ./rocketadmin-agent/Dockerfile
-  #   ports:
-  #     - 8108:8108
-  #   volumes:
-  #     - ./rocketadmin-agent/dist:/app/dist
-  #     - ./rocketadmin-agent/src:/app/src
-  #   links:
-  #     - autoadmin-ws-server
-  #   depends_on:
-  #     - autoadmin-ws-server
-  #   environment:
-  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-  #     - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
-  #   command: ["yarn", "start:dev"]
-
-  # rocketadmin-agent_mssql:
-  #   build:
-  #     context: .
-  #     dockerfile: ./rocketadmin-agent/Dockerfile
-  #   ports:
-  #     - 8118:8118
-  #   volumes:
-  #     - ./rocketadmin-agent/dist:/app/dist
-  #     - ./rocketadmin-agent/src:/app/src
-  #   links:
-  #     - autoadmin-ws-server
-  #   depends_on:
-  #     - autoadmin-ws-server
-  #   environment:
-  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-  #     - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
-  #   command: ["yarn", "start:dev"]
-
-  # rocketadmin-agent_ibmdb2:
-  #   build:
-  #     context: .
-  #     dockerfile: ./rocketadmin-agent/Dockerfile
-  #   ports:
-  #     - 8308:8308
-  #   volumes:
-  #     - ./rocketadmin-agent/dist:/app/dist
-  #     - ./rocketadmin-agent/src:/app/src
-  #     - ./rocketadmin-agent/wait-for-db2.sh:/app/wait-for-db2.sh
-  #   links:
-  #     - autoadmin-ws-server
-  #   depends_on:
-  #     - autoadmin-ws-server
-  #   environment:
-  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-  #     - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
-  #   command: ["/bin/sh", "/app/wait-for-db2.sh"]
-
   test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2
     restart: always
@@ -331,3 +249,23 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+
+  clickhouse-e2e-testing:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - 8123:8123
+      - 9000:9000
+    environment:
+      - CLICKHOUSE_DB=testdb
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse_password
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
