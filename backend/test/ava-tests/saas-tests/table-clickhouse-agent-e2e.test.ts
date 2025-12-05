@@ -8,6 +8,7 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
+import os from 'os';
 import path, { join } from 'path';
 import request from 'supertest';
 import { fileURLToPath } from 'url';
@@ -2647,41 +2648,44 @@ test.serial(
   },
 );
 
-test.serial(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).clickhouseAgentTestConnection;
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).clickhouseAgentTestConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.person.firstName();
-  const fakeMail = faker.internet.email();
+    const fakeName = faker.person.firstName();
+    const fakeMail = faker.internet.email();
 
-  const row = {
-    [testTableColumnName]: fakeName,
-    [testTableSecondColumnName]: fakeMail,
-  };
+    const row = {
+      [testTableColumnName]: fakeName,
+      [testTableSecondColumnName]: fakeMail,
+    };
 
-  const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
-    .send(JSON.stringify(row))
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const updateRowInTableResponse = await request(app.getHttpServer())
+      .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
+      .send(JSON.stringify(row))
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(updateRowInTableResponse.status, 500);
-  const { message } = JSON.parse(updateRowInTableResponse.text);
-  console.log('🚀 ~ message:', message);
-  t.is(message, 'Failed to update row in table. No data returned from agent');
-});
+    t.is(updateRowInTableResponse.status, 500);
+    const { message } = JSON.parse(updateRowInTableResponse.text);
+    console.log('🚀 ~ message:', message);
+    t.is(message, 'Failed to update row in table. No data returned from agent');
+  },
+);
 
 currentTest = 'PUT /table/rows/update/:connectionId';
 
@@ -3533,12 +3537,8 @@ test.serial(`${currentTest} should return csv file with table data`, async (t) =
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
 
@@ -3650,12 +3650,8 @@ with search and pagination: page=1, perPage=2 and DESC sorting`,
     }
     t.is(getTableCsvResponse.status, 201);
     const fileName = `${testTableName}.csv`;
-    const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+    const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-    const dir = join(__dirname, 'response-files');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
 
@@ -3716,12 +3712,8 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
@@ -3822,12 +3814,8 @@ test.serial(`${currentTest} should throw exception whe csv import is disabled`, 
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
