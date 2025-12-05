@@ -14,6 +14,7 @@ import { createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection } from '
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
@@ -324,12 +325,7 @@ test.serial(`${currentTest} should return all found logs in connection as csv`, 
     }
     t.is(getTableLogsCSV.status, 200);
     const fileName = `${testTableName}.csv`;
-    const downloadedFilePatch = join(__dirname, 'response-files', fileName);
-    const dir = join(__dirname, 'response-files');
-
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
+    const downloadedFilePatch = join(os.tmpdir(), fileName);
 
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     fs.writeFileSync(downloadedFilePatch, getTableLogsCSV.body);

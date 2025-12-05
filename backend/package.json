@@ -26,10 +26,10 @@
     "test-all": "ava --timeout=5m --serial",
     "test-saas": "ava test/ava-tests/saas-tests/* ",
     "typeorm": "ts-node -r tsconfig-paths/register ../node_modules/.bin/typeorm",
-    "migration:generate": "yarn run typeorm migration:generate -d dist/shared/config/datasource.config.js",
-    "migration:create": "yarn run typeorm migration:create -d dist/shared/config/datasource.config.js",
-    "migration:run": "yarn run typeorm migration:run -d dist/shared/config/datasource.config.js",
-    "migration:revert": "npm run typeorm -- migration:revert -d dist/shared/config/datasource.config.js",
+    "migration:generate": "yarn run typeorm migration:generate -d dist/src/shared/config/datasource.config.js",
+    "migration:create": "yarn run typeorm migration:create -d dist/src/shared/config/datasource.config.js",
+    "migration:run": "yarn run typeorm migration:run -d dist/src/shared/config/datasource.config.js",
+    "migration:revert": "npm run typeorm -- migration:revert -d dist/src/shared/config/datasource.config.js",
     "knip": "knip"
   },
   "dependencies": {

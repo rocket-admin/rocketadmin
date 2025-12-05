@@ -13,6 +13,7 @@ export function isConnectionEntityAgent(connection: ConnectionEntity | CreateCon
     ConnectionTypesEnum.agent_mongodb,
     ConnectionTypesEnum.agent_cassandra,
     ConnectionTypesEnum.agent_redis,
+    ConnectionTypesEnum.agent_clickhouse,
   ];
 
   return agentTypes.includes(connection.type as ConnectionTypesEnum);
@@ -28,6 +29,7 @@ export function isConnectionTypeAgent(type: ConnectionTypesEnum | string): boole
     ConnectionTypeTestEnum.agent_mongodb,
     ConnectionTypeTestEnum.agent_cassandra,
     ConnectionTypesEnum.agent_redis,
+    ConnectionTypesEnum.agent_clickhouse,
   ];
 
   return connectionTypes.includes(type as ConnectionTypeTestEnum);
