@@ -36,6 +36,12 @@
                 </mat-icon>
                 <div matListItemTitle>Company</div>
             </a>
+            <a mat-list-item routerLink="/secrets" data-testid="secrets-link-account-menu">
+                <mat-icon matListItemIcon class="connection-navigation__icon">
+                    key
+                </mat-icon>
+                <div matListItemTitle>Secrets</div>
+            </a>
             <a mat-list-item href="https://docs.rocketadmin.com/" target="_blank">
                 <mat-icon matListItemIcon class="connection-navigation__icon" fontSet="material-icons-outlined">help_outlined</mat-icon>
                 <div matListItemTitle>Help center</div>
@@ -169,6 +175,12 @@
                             apartment
                         </mat-icon>
                         <span>Company</span>
+                    </a>
+                    <a mat-menu-item routerLink="/secrets" data-testid="secrets-link-account-menu">
+                        <mat-icon class="nav-menu__list-link-icon">
+                            key
+                        </mat-icon>
+                        <span>Secrets</span>
                     </a>
                     <a mat-menu-item href="https://docs.rocketadmin.com/" target="_blank">
                         <mat-icon fontSet="material-icons-outlined">help_outlined</mat-icon>
