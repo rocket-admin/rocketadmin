@@ -385,7 +385,7 @@ WHERE TABLE_TYPE = 'VIEW'
     }
     const knex = await this.configureKnex();
     try {
-      await knex().select(1);
+      await knex.queryBuilder().select(1);
       return {
         result: true,
         message: 'Successfully connected',
@@ -472,18 +472,18 @@ WHERE TABLE_TYPE = 'VIEW'
       knex
         .raw(
           `
-  SELECT 
+  SELECT
     OBJECT_NAME(f.parent_object_id) "table_name",
     COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
-  FROM 
+  FROM
      sys.foreign_keys AS f
-  INNER JOIN 
-    sys.foreign_key_columns AS fc 
+  INNER JOIN
+    sys.foreign_key_columns AS fc
       ON f.OBJECT_ID = fc.constraint_object_id
-  INNER JOIN 
-    sys.tables t 
+  INNER JOIN
+    sys.tables t
      ON t.OBJECT_ID = fc.referenced_object_id
-  WHERE 
+  WHERE
      OBJECT_NAME (f.referenced_object_id) = ?
         `,
           tableName,

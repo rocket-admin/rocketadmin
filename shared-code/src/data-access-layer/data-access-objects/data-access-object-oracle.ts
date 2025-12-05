@@ -494,7 +494,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     }
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
-    const structureColumns = await knex()
+    const structureColumns = await knex.queryBuilder()
       .select('COLUMN_NAME', 'DATA_DEFAULT', 'DATA_TYPE', 'NULLABLE', 'DATA_LENGTH')
       .from('ALL_TAB_COLUMNS')
       .orderBy('COLUMN_ID')

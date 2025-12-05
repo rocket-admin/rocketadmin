@@ -25,6 +25,7 @@ import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messag
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
@@ -3479,12 +3480,8 @@ test.serial(`${currentTest} should return csv file with table data`, async (t) =
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
 
@@ -3556,12 +3553,8 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
   // eslint-disable-next-line security/detect-non-literal-fs-filename

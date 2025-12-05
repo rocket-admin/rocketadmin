@@ -2687,6 +2687,8 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
     const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
     t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
     t.is(getTableStructureRO.table_widgets.length, 2);
+    getTableStructureRO.table_widgets.sort((a, b) => a.field_name.localeCompare(b.field_name))
+    newTableWidgets.sort((a, b) => a.field_name.localeCompare(b.field_name))
     t.is(getTableStructureRO.table_widgets[0].field_name, newTableWidgets[0].field_name);
     t.is(getTableStructureRO.table_widgets[1].widget_type, newTableWidgets[1].widget_type);
     t.is(compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets), true);

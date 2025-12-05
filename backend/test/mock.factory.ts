@@ -104,6 +104,26 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestClickHouseDBInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to ClickHouse in Docker';
+    dto.type = 'clickhouse';
+    dto.host = 'clickhouse-e2e-testing';
+    dto.port = 8123;
+    dto.username = 'default';
+    dto.password = 'clickhouse_password';
+    dto.database = 'testdb';
+    dto.ssh = false;
+    return dto;
+  }
+
+  generateConnectionToTestClickHouseAgent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypesEnum.agent_clickhouse;
+    return dto;
+  }
+
   generateConnectionToTestMySQLDBInDocker() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to MySQL in Docker';
@@ -295,7 +315,7 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Redis in Docker';
     dto.type = ConnectionTypesEnum.redis;
-    dto.host = 'redis-e2e-testing';
+    dto.host = 'test-redis-e2e-testing';
     dto.port = 6379;
     dto.password = 'SuperSecretRedisPassword';
     dto.ssh = false;

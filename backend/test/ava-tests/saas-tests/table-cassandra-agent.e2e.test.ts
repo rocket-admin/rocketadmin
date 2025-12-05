@@ -8,6 +8,7 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
+import os from 'os';
 import path, { join } from 'path';
 import request from 'supertest';
 import { fileURLToPath } from 'url';
@@ -3424,12 +3425,8 @@ test.serial(`${currentTest} should return csv file with table data`, async (t) =
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
 
@@ -3565,12 +3562,8 @@ with search and pagination: page=1, perPage=2 and DESC sorting`,
     }
     t.is(getTableCsvResponse.status, 201);
     const fileName = `${testTableName}.csv`;
-    const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+    const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-    const dir = join(__dirname, 'response-files');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
 
@@ -3643,12 +3636,8 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
@@ -3761,12 +3750,8 @@ test.serial(`${currentTest} should throw exception whe csv import is disabled`, 
   }
   t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
-  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+  const downloadedFilePatch = join(os.tmpdir(), fileName);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
