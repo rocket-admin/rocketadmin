@@ -15,8 +15,8 @@ import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js'
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
 import { Knex } from 'knex';

@@ -1,4 +1,4 @@
-import { TableWidgetTypeEnum } from '../enums/table-widget-type.enum.js';
+import { TableWidgetTypeEnum } from '../../../shared/enums/table-widget-type.enum.js';
 
 export class TableWidgetDS {
   id: string;

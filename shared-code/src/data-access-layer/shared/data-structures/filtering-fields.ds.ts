@@ -1,4 +1,4 @@
-import { FilterCriteriaEnum } from '../enums/filter-criteria.enum.js';
+import { FilterCriteriaEnum } from '../../../shared/enums/filter-criteria.enum.js';
 
 export class FilteringFieldsDS {
   field: string;
