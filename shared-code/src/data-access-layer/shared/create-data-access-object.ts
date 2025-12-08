@@ -12,9 +12,9 @@ import { DataAccessObjectOracle } from '../data-access-objects/data-access-objec
 import { DataAccessObjectPostgres } from '../data-access-objects/data-access-object-postgres.js';
 import { DataAccessObjectRedis } from '../data-access-objects/data-access-object-redis.js';
 import { ConnectionAgentParams, ConnectionParams } from './data-structures/connections-params.ds.js';
-import { ConnectionTypesEnum } from './enums/connection-types-enum.js';
-import { IDataAccessObjectAgent } from './interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from './interfaces/data-access-object.interface.js';
+import { ConnectionTypesEnum } from '../../shared/enums/connection-types-enum.js';
+import { IDataAccessObjectAgent } from '../../shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 
 interface IUnknownConnectionParams {
   [key: string]: any;

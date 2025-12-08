@@ -1,8 +1,8 @@
 import knex from 'knex';
 import { Knex } from 'knex';
 import { LRUCache } from 'lru-cache';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 const knexCache = new LRUCache(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 
