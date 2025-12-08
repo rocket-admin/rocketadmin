@@ -1,4 +1,4 @@
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { ICLIConnectionCredentials } from '../interfaces/interfaces.js';
 import { Messages } from '../text/messages.js';
 

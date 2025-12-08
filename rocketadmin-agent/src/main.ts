@@ -11,7 +11,7 @@ import { mkDirIfNotExistsUtil } from './helpers/write-file-util.js';
 import { ICLIConnectionCredentials } from './interfaces/interfaces.js';
 import { Config } from './shared/config/config.js';
 import { Messages } from './text/messages.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 async function bootstrap() {
   const connectionCredentials: ICLIConnectionCredentials = Config.getConnectionConfig();
