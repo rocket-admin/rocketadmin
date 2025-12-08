@@ -27,8 +27,8 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 type RefererencedConstraint = {
@@ -494,7 +494,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     }
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
-    const structureColumns = await knex.queryBuilder()
+    const structureColumns = await knex
+      .queryBuilder()
       .select('COLUMN_NAME', 'DATA_DEFAULT', 'DATA_TYPE', 'NULLABLE', 'DATA_LENGTH')
       .from('ALL_TAB_COLUMNS')
       .orderBy('COLUMN_ID')

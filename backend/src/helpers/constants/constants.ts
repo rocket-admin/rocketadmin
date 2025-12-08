@@ -1,4 +1,3 @@
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
 import { Knex } from 'knex';
 import { getProcessVariable } from '../get-process-variable.js';
@@ -12,6 +11,7 @@ import {
   parseTestDynamoDBConnectionString,
 } from '../parsers/string-connection-to-database-parsers.js';
 import { isTest } from '../app/is-test.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 export type TestConnectionsFromJSON = {
   //string value represents the connection string, to connect to the database
@@ -27,7 +27,17 @@ export const Constants = {
   ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',
   JWT_COOKIE_KEY_NAME: 'rocketadmin_cookie',
   FORBIDDEN_HOSTS: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', 'fd00::/8'],
-  BINARY_DATATYPES: ['binary', 'bytea', 'varbinary', 'varbinary(max)', 'tinyblob', 'blob', 'mediumblob', 'longblob', 'raw'],
+  BINARY_DATATYPES: [
+    'binary',
+    'bytea',
+    'varbinary',
+    'varbinary(max)',
+    'tinyblob',
+    'blob',
+    'mediumblob',
+    'longblob',
+    'raw',
+  ],
   DEFAULT_LOG_ROWS_LIMIT: 500,
   MIDNIGHT_CRON_KEY: 1,
   MORNING_CRON_KEY: 2,
