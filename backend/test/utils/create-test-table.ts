@@ -2,7 +2,6 @@
 import { fa, faker, th } from '@faker-js/faker';
 import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
 import { getTestKnex } from './get-test-knex.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import ibmdb, { Database } from 'ibm_db';
 import { MongoClient, Db, ObjectId } from 'mongodb';
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
@@ -12,6 +11,7 @@ import * as cassandra from 'cassandra-driver';
 import { v4 as uuidv4 } from 'uuid';
 import { createClient } from 'redis';
 import { createClient as createClickHouseClient } from '@clickhouse/client';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 export async function createTestTable(
   connectionParams: any,

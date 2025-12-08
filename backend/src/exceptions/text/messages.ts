@@ -1,3 +1,5 @@
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import {
   EncryptionAlgorithmEnum,
   LogOperationTypeEnum,
@@ -6,11 +8,8 @@ import {
   UserActionEnum,
   WidgetTypeEnum,
 } from '../../enums/index.js';
-
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
-import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 export const Messages = {

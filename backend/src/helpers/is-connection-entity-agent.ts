@@ -1,7 +1,9 @@
-import { ConnectionEntity } from '../entities/connection/connection.entity.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import {
+  ConnectionTypesEnum,
+  ConnectionTypeTestEnum,
+} from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { CreateConnectionDto } from '../entities/connection/application/dto/create-connection.dto.js';
-import { ConnectionTypeTestEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { ConnectionEntity } from '../entities/connection/connection.entity.js';
 
 export function isConnectionEntityAgent(connection: ConnectionEntity | CreateConnectionDto): boolean {
   const agentTypes = [
