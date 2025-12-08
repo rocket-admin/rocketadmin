@@ -1,7 +1,7 @@
 import { enumToString } from '../helpers/enum-to-string.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
 import { Constants } from '../helpers/constants/constants.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/src/shared/enums/connection-types-enum.js';
 
 export const Messages = {
   APPLICATION_ENCRYPTION_PASSWORD_INVALID: `Invalid encryption password`,
