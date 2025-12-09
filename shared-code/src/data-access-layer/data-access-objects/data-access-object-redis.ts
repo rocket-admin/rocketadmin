@@ -826,9 +826,9 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       } else {
         try {
           const keyType = await redisClient.type(key);
-          if (keyType !== 'none') {
-            standaloneKeys.push({ key, type: keyType });
-          }
+          //  if (keyType !== 'none') {
+          standaloneKeys.push({ key, type: keyType });
+          //  }
         } catch (_error) {
           continue;
         }
