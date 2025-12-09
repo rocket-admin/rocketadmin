@@ -2,7 +2,6 @@
 import { fa, faker, th } from '@faker-js/faker';
 import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
 import { getTestKnex } from './get-test-knex.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import ibmdb, { Database } from 'ibm_db';
 import { MongoClient, Db, ObjectId } from 'mongodb';
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
@@ -11,6 +10,8 @@ import { Client } from '@elastic/elasticsearch';
 import * as cassandra from 'cassandra-driver';
 import { v4 as uuidv4 } from 'uuid';
 import { createClient } from 'redis';
+import { createClient as createClickHouseClient } from '@clickhouse/client';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 export async function createTestTable(
   connectionParams: any,
@@ -41,6 +42,10 @@ export async function createTestTable(
 
   if (connectionParams.type === ConnectionTypesEnum.redis) {
     return createTestRedisTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
+  if (connectionParams.type === ConnectionTypesEnum.clickhouse) {
+    return createTestClickHouseTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
 
   const testTableName = getRandomTestTableName();
@@ -125,7 +130,7 @@ export async function createTestTable(
   };
 }
 
-export async function createTestElasticsearchTable(
+async function createTestElasticsearchTable(
   connectionParams,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -206,7 +211,7 @@ export async function createTestElasticsearchTable(
   };
 }
 
-export async function createTestTableIbmDb2(
+async function createTestTableIbmDb2(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -639,7 +644,7 @@ export async function createTestPostgresTableWithSchema(
   };
 }
 
-export async function createTestDynamoDBTable(
+async function createTestDynamoDBTable(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -728,7 +733,7 @@ export async function createTestDynamoDBTable(
   };
 }
 
-export async function createTestCassandraTable(
+async function createTestCassandraTable(
   connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
@@ -881,4 +886,93 @@ async function createTestRedisTable(
     testEntitiesSeedsCount: testEntitiesSeedsCount,
     insertedSearchedIds,
   };
+}
+
+async function createTestClickHouseTable(
+  connectionParams: any,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName().toLowerCase().replace(/-/g, '_');
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+
+  const client = createClickHouseClient({
+    url: `http://${connectionParams.host}:${connectionParams.port}`,
+    username: connectionParams.username || 'default',
+    password: connectionParams.password || '',
+    database: connectionParams.database || 'default',
+  });
+
+  try {
+    await client.command({
+      query: `
+        CREATE TABLE IF NOT EXISTS ${testTableName} (
+          id UInt32,
+          ${testTableColumnName} String,
+          ${testTableSecondColumnName} String,
+          age UInt32,
+          created_at DateTime,
+          updated_at DateTime
+        ) ENGINE = MergeTree()
+        ORDER BY id
+      `,
+    });
+
+    const insertedSearchedIds: Array<{ number: number; id: string }> = [];
+
+    const rows: Array<{
+      id: number;
+      name: string;
+      email: string;
+      age: number;
+      created_at: string;
+      updated_at: string;
+    }> = [];
+
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+      const age = isSearchedUser
+        ? i === 0
+          ? 14
+          : i === testEntitiesSeedsCount - 21
+            ? 21
+            : 37
+        : faker.number.int({ min: 16, max: 80 });
+
+      const row = {
+        id: i + 1,
+        name: isSearchedUser ? testSearchedUserName : faker.person.firstName(),
+        email: faker.internet.email(),
+        age: age,
+        created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        updated_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      };
+
+      rows.push(row);
+
+      if (isSearchedUser) {
+        insertedSearchedIds.push({
+          number: i,
+          id: String(i + 1),
+        });
+      }
+    }
+
+    await client.insert({
+      table: testTableName,
+      values: rows,
+      format: 'JSONEachRow',
+    });
+
+    return {
+      testTableName: testTableName,
+      testTableColumnName: testTableColumnName,
+      testTableSecondColumnName: testTableSecondColumnName,
+      testEntitiesSeedsCount: testEntitiesSeedsCount,
+      insertedSearchedIds,
+    };
+  } finally {
+    await client.close();
+  }
 }

@@ -171,8 +171,13 @@ export class SaasController {
     @Body('email') email: string,
     @Body('name') name: string,
     @Body('glidCookieValue') glidCookieValue: string,
+    @Body('ipAddress') ipAddress: string,
+    @Body('userAgent') userAgent: string,
   ): Promise<UserEntity> {
-    return await this.loginUserWithGoogleUseCase.execute({ email, name, glidCookieValue }, InTransactionEnum.OFF);
+    return await this.loginUserWithGoogleUseCase.execute(
+      { email, name, glidCookieValue, ipAddress, userAgent },
+      InTransactionEnum.OFF,
+    );
   }
 
   @ApiOperation({ summary: 'Login or create user with github webhook' })
@@ -186,8 +191,17 @@ export class SaasController {
     @Body('name') name: string,
     @Body('githubId') githubId: number,
     @Body('glidCookieValue') glidCookieValue: string,
+    @Body('ipAddress') ipAddress: string,
+    @Body('userAgent') userAgent: string,
   ): Promise<UserEntity> {
-    return await this.loginUserWithGithubUseCase.execute({ email, name, githubId, glidCookieValue });
+    return await this.loginUserWithGithubUseCase.execute({
+      email,
+      name,
+      githubId,
+      glidCookieValue,
+      ipAddress,
+      userAgent,
+    });
   }
 
   @ApiOperation({ summary: 'Suspending users' })

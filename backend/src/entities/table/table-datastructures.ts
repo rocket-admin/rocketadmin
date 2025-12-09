@@ -47,20 +47,6 @@ export class ForeignKeyDSStructure {
   autocomplete_columns: Array<string>;
 }
 
-export class PaginationRO {
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  lastPage: number;
-
-  @ApiProperty()
-  perPage: number;
-
-  @ApiProperty()
-  currentPage: number;
-}
-
 export class PrimaryColumnNameDs {
   @ApiProperty()
   column_name: string;

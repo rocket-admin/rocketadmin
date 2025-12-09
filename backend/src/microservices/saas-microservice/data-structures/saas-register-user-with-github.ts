@@ -12,4 +12,10 @@ export class SaasRegisterUserWithGithub {
 
   @ApiProperty()
   glidCookieValue: string;
+
+  @ApiProperty({ required: false })
+  ipAddress?: string;
+
+  @ApiProperty({ required: false })
+  userAgent?: string;
 }

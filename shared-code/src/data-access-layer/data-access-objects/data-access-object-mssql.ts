@@ -22,9 +22,9 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
@@ -385,7 +385,7 @@ WHERE TABLE_TYPE = 'VIEW'
     }
     const knex = await this.configureKnex();
     try {
-      await knex().select(1);
+      await knex.queryBuilder().select(1);
       return {
         result: true,
         message: 'Successfully connected',
@@ -472,18 +472,18 @@ WHERE TABLE_TYPE = 'VIEW'
       knex
         .raw(
           `
-  SELECT 
+  SELECT
     OBJECT_NAME(f.parent_object_id) "table_name",
     COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
-  FROM 
+  FROM
      sys.foreign_keys AS f
-  INNER JOIN 
-    sys.foreign_key_columns AS fc 
+  INNER JOIN
+    sys.foreign_key_columns AS fc
       ON f.OBJECT_ID = fc.constraint_object_id
-  INNER JOIN 
-    sys.tables t 
+  INNER JOIN
+    sys.tables t
      ON t.OBJECT_ID = fc.referenced_object_id
-  WHERE 
+  WHERE
      OBJECT_NAME (f.referenced_object_id) = ?
         `,
           tableName,

@@ -9,7 +9,7 @@ export async function readSslCertificate(): Promise<string> {
   const fileName = 'global-bundle.pem';
   return new Promise((resolve, reject) => {
     fs.readFile(
-      join(__dirname, '..', '..', '..', '..', 'files', 'certificates', fileName),
+      join(__dirname, '..', '..', '..', '..', '..', 'files', 'certificates', fileName),
       'utf8',
       function (err, data) {
         if (err) {
