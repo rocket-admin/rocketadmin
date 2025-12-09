@@ -870,6 +870,7 @@ test.serial(`${currentTest} should throw error when update connection without da
       .set('Content-Type', 'application/json')
       .set('Cookie', token)
       .set('Accept', 'application/json');
+    t.is(createConnectionResponse.status, 201, createConnectionResponse.text);
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
     delete updateConnection.database;
