@@ -99,7 +99,7 @@ class ConfigService {
       migrationsRun: false,
       logging: false,
       extra: {
-        max: 2,
+        max: 10,
       },
       logger: 'advanced-console',
       driver: pgLiteDriver ? pgLiteDriver : undefined,
