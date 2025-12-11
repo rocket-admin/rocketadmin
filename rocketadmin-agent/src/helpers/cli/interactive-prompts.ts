@@ -31,7 +31,7 @@ export class InteractivePrompts {
     console.log(chalk.cyan('╔════════════════════════════════════════════════════════════════╗'));
     console.log(
       chalk.cyan('║') +
-        chalk.white.bold('           RocketAdmin Agent Configuration Wizard            ') +
+        chalk.white.bold('             RocketAdmin Agent Configuration Wizard             ') +
         chalk.cyan('║'),
     );
     console.log(chalk.cyan('╚════════════════════════════════════════════════════════════════╝'));
