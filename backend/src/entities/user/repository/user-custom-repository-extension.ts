@@ -130,6 +130,17 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await usersQB.getCount();
   },
 
+  async findUsersInCompany(companyId: string, orderByRole: boolean = false): Promise<Array<UserEntity>> {
+    const usersQB = this.createQueryBuilder('user')
+      .leftJoin('user.company', 'company')
+      .where('company.id = :companyId', { companyId: companyId })
+      .orderBy('user.createdAt', 'ASC');
+    if (orderByRole) {
+      usersQB.addOrderBy('user.role', 'ASC');
+    }
+    return await usersQB.getMany();
+  },
+
   async getUserEmailOrReturnNull(userId: string): Promise<string> {
     const userQB = this.createQueryBuilder('user').where('user.id = :userId', { userId: userId });
     const user = await userQB.getOne();

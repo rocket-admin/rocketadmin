@@ -5,6 +5,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { HttpStatus } from '@nestjs/common';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { validateTableCategories } from '../../table-categories/utils/validate-table-categories.util.js';
 
 export async function validateCreateConnectionPropertiesDs(
   createConnectionProperties: CreateConnectionPropertiesDs,
@@ -14,7 +15,7 @@ export async function validateCreateConnectionPropertiesDs(
   const errors = [];
   const dao = getDataAccessObject(connection);
   const tablesInConnection = (await dao.getTablesFromDB()).map((table) => table.tableName);
-  if (!Array.isArray(hidden_tables)) {
+  if (hidden_tables && !Array.isArray(hidden_tables)) {
     errors.push(Messages.HIDDEN_TABLES_MUST_BE_ARRAY);
   }
   if (hidden_tables && hidden_tables.length > 0) {
@@ -43,6 +44,8 @@ export async function validateCreateConnectionPropertiesDs(
         errors.push(Messages.CANT_CATEGORIZE_HIDDEN_TABLE(table));
       }
     }
+
+    await validateTableCategories(table_categories, connection);
   }
 
   if (errors.length > 0) {

@@ -82,7 +82,7 @@
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns; let i = index" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <div data-hj-suppress>
+            <div data-hj-suppress class="row-preview-sidebar__value">
                 <ng-container *ngIf="isForeignKey(column.title); else recordContent">
                     <app-foreign-key-record-view
                         [key]="i"

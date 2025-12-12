@@ -19,8 +19,8 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { nanoid } from 'nanoid';
 
@@ -274,10 +274,10 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       column_name: string;
     }> = await knex(tableName)
       .select(
-        knex.raw(`tc.constraint_name,
+        knex.raw(`kcu.constraint_name,
       kcu.column_name,
-      ccu.table_name AS foreign_table_name,
-      ccu.column_name AS foreign_column_name`),
+      kcu2.table_name AS foreign_table_name,
+      kcu2.column_name AS foreign_column_name`),
       )
       .from(
         knex.raw(
@@ -285,11 +285,15 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       JOIN ??.information_schema.key_column_usage AS kcu
       ON tc.constraint_name = kcu.constraint_name
       AND tc.table_schema = kcu.table_schema
-      JOIN ??.information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
-      AND ccu.table_schema = tc.table_schema
+      JOIN ??.information_schema.referential_constraints AS rc
+      ON tc.constraint_name = rc.constraint_name
+      AND tc.table_schema = rc.constraint_schema
+      JOIN ??.information_schema.key_column_usage AS kcu2
+      ON rc.unique_constraint_name = kcu2.constraint_name
+      AND rc.unique_constraint_schema = kcu2.table_schema
+      AND kcu.ordinal_position = kcu2.ordinal_position
       WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=? AND tc.table_schema =?;`,
-          [database, database, database, tableName, tableSchema],
+          [database, database, database, database, tableName, tableSchema],
         ),
       );
     const resultKeys = foreignKeys.map((key) => {
@@ -338,7 +342,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const bindings = [schema];
     try {
       const results = await knex.raw(query, bindings);
-      console.log({ tablesPg: results });
       return results.rows.map((row: Record<string, unknown>) => ({ tableName: row.table_name, isView: !!row.is_view }));
     } catch (error) {
       console.log({ tablesPg: error });
@@ -430,7 +433,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     try {
-      await knex().select(1);
+      await knex.queryBuilder().select(1);
       return {
         result: true,
         message: 'Successfully connected',

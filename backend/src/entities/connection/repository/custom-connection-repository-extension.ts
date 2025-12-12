@@ -207,6 +207,15 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       .execute();
   },
 
+  async foundUserTestConnectionsWithoutCompany(userId: string): Promise<Array<ConnectionEntity>> {
+    const qb = this.createQueryBuilder('connection')
+      .leftJoin('connection.author', 'user')
+      .where('user.id = :userId', { userId: userId })
+      .andWhere('connection.isTestConnection = :isTest', { isTest: true })
+      .andWhere('connection.company IS NULL');
+    return await qb.getMany();
+  },
+
   decryptConnectionField(field: string): string {
     try {
       return Encryptor.decryptData(field);

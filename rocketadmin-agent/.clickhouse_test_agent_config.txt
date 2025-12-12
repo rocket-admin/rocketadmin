@@ -1,0 +1,21 @@
+{
+  "encrypted": false,
+  "hash": null,
+  "credentials": {
+    "app_port": 3000,
+    "azure_encryption": false,
+    "cert": null,
+    "database": "testdb",
+    "host": "clickhouse-e2e-testing",
+    "password": "clickhouse_password",
+    "port": 8123,
+    "token": "CLICKHOUSE-TEST-AGENT-TOKEN",
+    "type": "clickhouse",
+    "username": "default",
+    "ssl": false,
+    "application_save_option": true,
+    "config_encryption_option": false,
+    "encryption_password": null,
+    "saving_logs_option": false
+  }
+}

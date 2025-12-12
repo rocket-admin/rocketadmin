@@ -45,7 +45,7 @@ export class CompanyService {
 
   isCustomDomain() {
     const domain = window.location.hostname;
-    return !this.saasHostnames.includes(domain);
+    return !this.saasHostnames?.includes(domain);
   }
 
   fetchCompany() {

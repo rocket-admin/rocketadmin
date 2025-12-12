@@ -8,6 +8,9 @@ import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/e
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { ILoginUserWithGoogle } from './saas-use-cases.interface.js';
+import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
+import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
+import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
 
 @Injectable()
 export class LoginWithGoogleUseCase
@@ -18,12 +21,13 @@ export class LoginWithGoogleUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly demoDataService: DemoDataService,
+    private readonly signInAuditService: SignInAuditService,
   ) {
     super();
   }
 
   protected async implementation(inputData: SaasRegisterUserWithGoogleDS): Promise<UserEntity> {
-    const { email, name, glidCookieValue } = inputData;
+    const { email, name, glidCookieValue, ipAddress, userAgent } = inputData;
 
     const foundUser: UserEntity = await this._dbContext.userRepository.findOneUserByEmail(
       email,
@@ -34,6 +38,7 @@ export class LoginWithGoogleUseCase
         foundUser.name = name;
         await this._dbContext.userRepository.saveUserEntity(foundUser);
       }
+      await this.recordSignInAudit(email, foundUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
       return foundUser;
     }
     const userData: RegisterUserDs = {
@@ -48,6 +53,30 @@ export class LoginWithGoogleUseCase
       ExternalRegistrationProviderEnum.GOOGLE,
     );
     await this.demoDataService.createDemoDataForUser(savedUser.id);
+    await this.recordSignInAudit(email, savedUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
     return savedUser;
+  }
+
+  private async recordSignInAudit(
+    email: string,
+    userId: string | null,
+    status: SignInStatusEnum,
+    ipAddress: string,
+    userAgent: string,
+    failureReason?: string,
+  ): Promise<void> {
+    try {
+      await this.signInAuditService.createSignInAuditRecord({
+        email,
+        userId,
+        status,
+        signInMethod: SignInMethodEnum.GOOGLE,
+        ipAddress,
+        userAgent,
+        failureReason,
+      });
+    } catch (e) {
+      console.error('Failed to record sign-in audit:', e);
+    }
   }
 }

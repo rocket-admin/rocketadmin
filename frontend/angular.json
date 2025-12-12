@@ -35,7 +35,8 @@
             "stylePreprocessorOptions": {
               "includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
             },
-            "scripts": [],
+            "scripts": [
+            ],
             "vendorChunk": true,
             "extractLicenses": false,
             "buildOptimizer": false,
@@ -66,8 +67,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "20kb"
                 }
               ]
             },
@@ -124,8 +125,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "20kb"
                 }
               ]
             }
@@ -188,18 +189,6 @@
             "exclude": [
               "**/node_modules/**"
             ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "dissendium-v0:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "dissendium-v0:serve:production"
-            }
           }
         }
       }

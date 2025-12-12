@@ -419,7 +419,7 @@ export class CompanyInfoController {
     @UserId() userId: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<SuccessResponse> {
-    const deleteResult = await this.deleteCompanyUseCase.execute(userId, InTransactionEnum.OFF);
+    const deleteResult = await this.deleteCompanyUseCase.execute(userId, InTransactionEnum.ON);
 
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
       ...getCookieDomainOptions(request.hostname),

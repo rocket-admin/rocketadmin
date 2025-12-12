@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
@@ -20,6 +21,8 @@ import {
   CreateTableActionEventDS,
 } from '../table-actions/table-action-rules-module/application/data-structures/create-action-rules.ds.js';
 import { buildEmptyActionRule } from '../table-actions/table-action-rules-module/utils/build-empty-action-rule.util.js';
+import { CreateTableFilterDs } from '../table-filters/application/data-structures/create-table-filters.ds.js';
+import { buildNewTableFiltersEntity } from '../table-filters/utils/build-new-table-filters-entity.util.js';
 import { CreateTableSettingsDs } from '../table-settings/application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
@@ -28,9 +31,6 @@ import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-group
 import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
-import { CreateTableFilterDs } from '../table-filters/application/data-structures/create-table-filters.ds.js';
-import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
-import { buildNewTableFiltersEntity } from '../table-filters/utils/build-new-table-filters-entity.util.js';
 
 @Injectable()
 export class DemoDataService {

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { Angulartics2Module } from 'angulartics2';
 import { DbTablesListComponent } from './db-tables-list.component';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTablesListComponent', () => {
   let component: DbTablesListComponent;
@@ -8,7 +10,11 @@ describe('DbTablesListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DbTablesListComponent]
+      providers: [provideHttpClient()],
+      imports: [
+        Angulartics2Module.forRoot(),
+        DbTablesListComponent
+      ]
     }).compileComponents();
   });
 

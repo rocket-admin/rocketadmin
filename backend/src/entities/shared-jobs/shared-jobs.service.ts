@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 import { buildEmptyTableSettings } from '../table-settings/utils/build-empty-table-settings.js';
 import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
-import { ConnectionEntity } from '../connection/connection.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
-import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import * as Sentry from '@sentry/node';
 @Injectable()
 export class SharedJobsService {
   constructor(
@@ -232,7 +232,11 @@ export class SharedJobsService {
   }
 
   private isValueTelephoneNumber(value: unknown): boolean {
-    return ValidationHelper.isValidPhoneNumber(String(value));
+    if (typeof value !== 'string') {
+      return false;
+    }
+    const phoneRegex = /^\+\d{10,}$/;
+    return phoneRegex.test(value) && ValidationHelper.isValidPhoneNumber(value);
   }
 
   private isValueRgbColor(value: unknown): boolean {
@@ -271,7 +275,8 @@ export class SharedJobsService {
     if (typeof value !== 'string') {
       return false;
     }
-    return ValidationHelper.isValidUrl(value);
+    const urlRegex = /^https?:\/\/.+/;
+    return urlRegex.test(value) && ValidationHelper.isValidUrl(value);
   }
 
   private isValueJSON(value: unknown): boolean {

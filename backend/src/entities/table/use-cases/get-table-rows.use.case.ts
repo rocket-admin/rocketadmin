@@ -3,8 +3,6 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 import Sentry from '@sentry/minimal';
 import JSON5 from 'json5';
@@ -39,8 +37,10 @@ import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -115,11 +115,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       const configured = !!tableSettings;
 
-      const allowCsvExport = tableSettings ? tableSettings.allow_csv_export : true;
-      const allowCsvImport = tableSettings ? tableSettings.allow_csv_import : true;
-      const can_delete = tableSettings ? tableSettings.can_delete : true;
-      const can_update = tableSettings ? tableSettings.can_update : true;
-      const can_add = tableSettings ? tableSettings.can_add : true;
+      const allowCsvExport = tableSettings?.allow_csv_export ?? true;
+      const allowCsvImport = tableSettings?.allow_csv_import ?? true;
+      const can_delete = tableSettings?.can_delete ?? true;
+      const can_update = tableSettings?.can_update ?? true;
+      const can_add = tableSettings?.can_add ?? true;
 
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
@@ -170,17 +170,17 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
         .filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
-        .map((widget) => {
+        .reduce<Array<ForeignKeyDSInfo>>((acc, widget) => {
           if (widget.widget_params) {
             try {
               const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
-              return widgetParams;
+              acc.push(widgetParams);
             } catch (_e) {
-              return null;
+              //
             }
           }
-        })
-        .filter((el) => el !== null);
+          return acc;
+        }, []);
 
       tableForeignKeys = [...tableForeignKeys, ...foreignKeysFromWidgets];
 
@@ -205,23 +205,17 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         tableForeignKeys = await Promise.all(
-          tableForeignKeys.map((el) => {
-            try {
-              return this.attachForeignColumnNames(el, userId, connectionId, dao);
-            } catch (_e) {
-              return el;
-            }
-          }),
+          tableForeignKeys.map((el) => this.attachForeignColumnNames(el, userId, connectionId, dao).catch(() => el)),
         );
       }
 
       const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
 
-      const largeDataset = rows.large_dataset
-        ? true
-        : rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT
-          ? true
-          : false;
+      const largeDataset = rows.large_dataset || rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT;
+
+      const listFields = findAvailableFields(tableSettings, tableStructure);
+      const actionEventsDtos = customActionEvents.map((el) => buildActionEventDto(el));
+      const savedFiltersRO = savedTableFilters.map((el) => buildCreatedTableFilterRO(el));
 
       const rowsRO = {
         rows: rows.data,
@@ -237,13 +231,13 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         widgets: tableWidgets,
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
         table_permissions: userTablePermissions,
-        list_fields: findAvailableFields(tableSettings, tableStructure),
-        action_events: customActionEvents.map((el) => buildActionEventDto(el)),
-        table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
+        list_fields: listFields,
+        action_events: actionEventsDtos,
+        table_actions: actionEventsDtos,
         large_dataset: largeDataset,
         allow_csv_export: allowCsvExport,
         allow_csv_import: allowCsvImport,
-        saved_filters: savedTableFilters.map((el) => buildCreatedTableFilterRO(el)),
+        saved_filters: savedFiltersRO,
         can_delete: can_delete,
         can_update: can_update,
         can_add: can_add,
@@ -263,24 +257,53 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const identitiesMap = new Map<string, any[]>();
 
       if (tableForeignKeys?.length > 0) {
+        const uniqueReferencedTables = [...new Set(tableForeignKeys.map((fk) => fk.referenced_table_name))];
+        const foreignTableSettingsPromises = uniqueReferencedTables.map((tableName) =>
+          this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName).then((settings) => ({
+            tableName,
+            settings,
+          })),
+        );
+        const foreignTableSettingsResults = await Promise.all(foreignTableSettingsPromises);
+        const foreignTableSettingsMap = new Map(
+          foreignTableSettingsResults.map((result) => [result.tableName, result.settings]),
+        );
+
+        const foreignKeyDataMap = new Map<string, { foreignKey: ForeignKeyDS; values: Set<string | number> }>();
+
         for (const foreignKey of tableForeignKeys) {
-          const foreignKeysValuesCollection = rowsRO.rows
-            .map((row) => row[foreignKey.column_name])
-            .filter((value) => value !== undefined) as (string | number)[];
+          const valuesSet = new Set<string | number>();
+          for (const row of rowsRO.rows) {
+            const value = row[foreignKey.column_name];
+            if (value !== undefined && value !== null) {
+              valuesSet.add(value as string | number);
+            }
+          }
 
-          const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
-            connectionId,
-            foreignKey.referenced_table_name,
-          );
+          const key = `${foreignKey.referenced_table_name}:${foreignKey.referenced_column_name}`;
+          if (foreignKeyDataMap.has(key)) {
+            const existing = foreignKeyDataMap.get(key);
+            valuesSet.forEach((v) => existing!.values.add(v));
+          } else {
+            foreignKeyDataMap.set(key, { foreignKey, values: valuesSet });
+          }
+        }
 
+        const identityPromises = Array.from(foreignKeyDataMap.values()).map(async ({ foreignKey, values }) => {
+          const foreignTableSettings = foreignTableSettingsMap.get(foreignKey.referenced_table_name);
           const identityColumns = await this.getBatchedIdentityColumns(
-            foreignKeysValuesCollection,
+            Array.from(values),
             foreignKey,
             dao,
             foreignTableSettings,
             userEmail,
           );
+          return { foreignKey, identityColumns };
+        });
 
+        const identityResults = await Promise.all(identityPromises);
+
+        for (const { foreignKey, identityColumns } of identityResults) {
           if (!identitiesMap.has(foreignKey.referenced_table_name)) {
             identitiesMap.set(foreignKey.referenced_table_name, []);
           }
@@ -299,6 +322,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         referencedTableName: key.referenced_table_name,
       }));
 
+      const identityLookupMaps = new Map<string, Map<any, any>>();
       for (const element of foreignKeysConformity) {
         const identityForCurrentTable = identities.find(
           (el) => el.referenced_table_name === element.referencedTableName,
@@ -306,15 +330,26 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
         if (!identityForCurrentTable) continue;
 
-        const identityColumnsMap = new Map(
-          identityForCurrentTable.identity_columns.map((col) => [col[element.realFKeyName], col]),
-        );
+        const lookupKey = `${element.referencedTableName}:${element.realFKeyName}`;
+        if (!identityLookupMaps.has(lookupKey)) {
+          const identityColumnsMap = new Map(
+            identityForCurrentTable.identity_columns.map((col) => [col[element.realFKeyName], col]),
+          );
+          identityLookupMaps.set(lookupKey, identityColumnsMap);
+        }
+      }
 
-        for (const row of rowsRO.rows) {
+      for (const row of rowsRO.rows) {
+        for (const element of foreignKeysConformity) {
+          const lookupKey = `${element.referencedTableName}:${element.realFKeyName}`;
+          const identityColumnsMap = identityLookupMaps.get(lookupKey);
+
+          if (!identityColumnsMap) continue;
+
           const identityForCurrentValue = identityColumnsMap.get(row[element.currentFKeyName]);
           row[element.currentFKeyName] =
             typeof identityForCurrentValue === 'object' && identityForCurrentValue !== null
-              ? { ...identityForCurrentValue }
+              ? identityForCurrentValue
               : {};
         }
       }
@@ -395,22 +430,37 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
     foreignTableSettings: TableSettingsDS,
     userEmail: string,
   ): Promise<Array<Record<string, unknown>>> {
-    foreignKeysValuesCollection = [...new Set(foreignKeysValuesCollection)];
-    const batchSize = 50;
-    const chunkedValues = this.chunkArray(foreignKeysValuesCollection, batchSize);
-    let identityColumns = [];
+    const uniqueValues = [...new Set(foreignKeysValuesCollection)];
 
-    for (const chunk of chunkedValues) {
-      const result = await dao.getIdentityColumns(
+    if (uniqueValues.length === 0) {
+      return [];
+    }
+
+    const batchSize = 50;
+
+    if (uniqueValues.length <= batchSize) {
+      return await dao.getIdentityColumns(
         foreignKey.referenced_table_name,
         foreignKey.referenced_column_name,
         foreignTableSettings?.identity_column,
-        chunk,
+        uniqueValues,
         userEmail,
       );
-      identityColumns = identityColumns.concat(result);
     }
 
-    return identityColumns;
+    const chunkedValues = this.chunkArray(uniqueValues, batchSize);
+    const results = await Promise.all(
+      chunkedValues.map((chunk) =>
+        dao.getIdentityColumns(
+          foreignKey.referenced_table_name,
+          foreignKey.referenced_column_name,
+          foreignTableSettings?.identity_column,
+          chunk,
+          userEmail,
+        ),
+      ),
+    );
+
+    return results.flat();
   }
 }

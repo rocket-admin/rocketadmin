@@ -88,6 +88,17 @@ import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities
 import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
 import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-reponses-to-user-repository.extension.js';
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
+import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
+import { tableCategoriesCustomRepositoryExtension } from '../../entities/table-categories/repository/table-categories-repository.extension.js';
+import { UserSecretEntity } from '../../entities/user-secret/user-secret.entity.js';
+import { IUserSecretRepository } from '../../entities/user-secret/repository/user-secret-repository.interface.js';
+import { userSecretRepositoryExtension } from '../../entities/user-secret/repository/user-secret-repository.extension.js';
+import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
+import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
+import { secretAccessLogRepositoryExtension } from '../../entities/secret-access-log/repository/secret-access-log-repository.extension.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
+import { signInAuditCustomRepositoryExtension } from '../../entities/user-sign-in-audit/repository/sign-in-audit-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -104,7 +115,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _passwordResetRepository: IPasswordResetRepository;
   private _emailChangeRepository: IEmailChangeRepository;
   private _userInvitationRepository: IUserInvitationRepository;
-  private _connectionPropertiesRepository: IConnectionPropertiesRepository;
+  private _connectionPropertiesRepository: Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository;
   private _customFieldsRepository: ICustomFieldsRepository;
   private _tableLogsRepository: ITableLogsRepository;
   private _userActionRepository: IUserActionRepository;
@@ -125,7 +136,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
   private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
-  private _tableCategoriesRepository: Repository<TableCategoriesEntity>;
+  private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+  private _userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
+  private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
+  private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -211,7 +225,18 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._aiResponsesToUserRepository = this.appDataSource
       .getRepository(AiResponsesToUserEntity)
       .extend(aiResponsesToUserRepositoryExtension);
-    this._tableCategoriesRepository = this.appDataSource.getRepository(TableCategoriesEntity);
+    this._tableCategoriesRepository = this.appDataSource
+      .getRepository(TableCategoriesEntity)
+      .extend(tableCategoriesCustomRepositoryExtension);
+    this._userSecretRepository = this.appDataSource
+      .getRepository(UserSecretEntity)
+      .extend(userSecretRepositoryExtension);
+    this._secretAccessLogRepository = this.appDataSource
+      .getRepository(SecretAccessLogEntity)
+      .extend(secretAccessLogRepositoryExtension);
+    this._signInAuditRepository = this.appDataSource
+      .getRepository(SignInAuditEntity)
+      .extend(signInAuditCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -258,7 +283,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userInvitationRepository;
   }
 
-  public get connectionPropertiesRepository(): IConnectionPropertiesRepository {
+  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository {
     return this._connectionPropertiesRepository;
   }
 
@@ -342,8 +367,20 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._aiResponsesToUserRepository;
   }
 
-  public get tableCategoriesRepository(): Repository<TableCategoriesEntity> {
+  public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
     return this._tableCategoriesRepository;
+  }
+
+  public get userSecretRepository(): Repository<UserSecretEntity> & IUserSecretRepository {
+    return this._userSecretRepository;
+  }
+
+  public get secretAccessLogRepository(): Repository<SecretAccessLogEntity> & ISecretAccessLogRepository {
+    return this._secretAccessLogRepository;
+  }
+
+  public get signInAuditRepository(): Repository<SignInAuditEntity> & ISignInAuditRepository {
+    return this._signInAuditRepository;
   }
 
   public startTransaction(): Promise<void> {

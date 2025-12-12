@@ -112,7 +112,7 @@ export class FindTablesInConnectionUseCase
     const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
     const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
     let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
-    if (excludedTables && excludedTables.hidden_tables.length > 0) {
+    if (excludedTables && excludedTables.hidden_tables?.length) {
       if (!hiddenTablesOption) {
         tablesRO = tablesRO.filter((tableRO) => {
           return !excludedTables.hidden_tables.includes(tableRO.table);

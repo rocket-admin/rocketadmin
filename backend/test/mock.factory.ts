@@ -1,17 +1,22 @@
 import { faker } from '@faker-js/faker';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import json5 from 'json5';
 import jwt from 'jsonwebtoken';
 import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
 import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
-import { CreateGroupDto } from '../src/entities/group/dto/index.js';
+import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
+import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionEntity } from '../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
 import { AccessLevelEnum, PermissionTypeEnum, QueryOrderingEnum, WidgetTypeEnum } from '../src/enums/index.js';
 import { TestConstants } from './mocks/test-constants.js';
-import json5 from 'json5';
-import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
-import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
+
+class CreateGroupDto {
+  title: string;
+  permissions?: Array<any>;
+  isMain?: boolean;
+  users?: Array<any>;
+}
 export class MockFactory {
   generateCognitoUserName() {
     return 'a876284a-e902-11ea-adc1-0242ac120002';
@@ -94,6 +99,26 @@ export class MockFactory {
     dto.password = 'admin123';
     dto.database = 'testDB';
     dto.ssh = false;
+    return dto;
+  }
+
+  generateConnectionToTestClickHouseDBInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to ClickHouse in Docker';
+    dto.type = 'clickhouse';
+    dto.host = 'clickhouse-e2e-testing';
+    dto.port = 8123;
+    dto.username = 'default';
+    dto.password = 'clickhouse_password';
+    dto.database = 'testdb';
+    dto.ssh = false;
+    return dto;
+  }
+
+  generateConnectionToTestClickHouseAgent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypesEnum.agent_clickhouse;
     return dto;
   }
 
@@ -288,7 +313,7 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Redis in Docker';
     dto.type = ConnectionTypesEnum.redis;
-    dto.host = 'redis-e2e-testing';
+    dto.host = 'test-redis-e2e-testing';
     dto.port = 6379;
     dto.password = 'SuperSecretRedisPassword';
     dto.ssh = false;

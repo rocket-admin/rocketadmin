@@ -109,6 +109,8 @@ export class AppComponent {
     this.matIconRegistry.addSvgIcon("dynamodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/dynamodb_logo.svg"));
     this.matIconRegistry.addSvgIcon("ibmdb2", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/db2_logo.svg"));
     this.matIconRegistry.addSvgIcon("cassandra", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/сassandra_logo.svg"));
+    this.matIconRegistry.addSvgIcon("redis", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/redis_logo.svg"));
+    this.matIconRegistry.addSvgIcon("elasticsearch", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/elasticsearch_logo.svg"));
     this.matIconRegistry.addSvgIcon("github", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/github.svg"));
     this.matIconRegistry.addSvgIcon("google", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/google.svg"));
     this.matIconRegistry.addSvgIcon("ai_rocket", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/ai-rocket.svg"));
@@ -121,7 +123,9 @@ export class AppComponent {
         filter(event => event instanceof NavigationEnd)
       )
       .subscribe(() => {
-        this.page = this.router.routerState.snapshot.url;
+        this.page = this.router.routerState.snapshot.url.split('?')[0];
+
+        console.log('Navigated to page:', this.page);
 
         if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
           console.log('App component, demo mode search params found');

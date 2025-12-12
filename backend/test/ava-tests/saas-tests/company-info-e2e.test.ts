@@ -7,6 +7,7 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
+import os from 'os';
 import { nanoid } from 'nanoid';
 import path, { join } from 'path';
 import request from 'supertest';
@@ -1194,13 +1195,8 @@ test.serial(`${currentTest} should create and return found company logo after cr
 
   const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
-
   const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-  const downloadedLogoPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_logo.png`);
+  const downloadedLogoPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_logo.png`);
 
   const createLogoResponse = await request(app.getHttpServer())
     .post(`/company/logo/${foundCompanyInfoRO.id}`)
@@ -1240,11 +1236,8 @@ test.serial(`${currentTest} should create and return found company logo after cr
   t.is(foundCompanyLogoForSimpleUserRO.logo.mimeType, 'image/png');
   t.is(foundCompanyLogoForSimpleUserRO.logo.image.length > 0, true);
 
-  const downloadedLogoPatchForSimpleUser = join(
-    __dirname,
-    'response-files',
-    `${foundCompanyInfoRO.id}_simple_user_logo.png`,
-  );
+  const downloadedLogoPatchForSimpleUser = join(os.tmpdir(), `${foundCompanyInfoRO.id}_simple_user_logo.png`);
+
   fs.writeFileSync(downloadedLogoPatchForSimpleUser, foundCompanyLogoForSimpleUserRO.logo.image);
   const isFileExistsForSimpleUser = fs.existsSync(downloadedLogoPatchForSimpleUser);
   t.is(isFileExistsForSimpleUser, true);
@@ -1262,11 +1255,8 @@ test.serial(`${currentTest} should create and return found company logo after cr
   t.is(foundCompanyInfoWithLogoRO.logo.mimeType, 'image/png');
   t.is(foundCompanyInfoWithLogoRO.logo.image.length > 0, true);
 
-  const downloadedLogoPatchWithLogo = join(
-    __dirname,
-    'response-files',
-    `${foundCompanyInfoWithLogoRO.id}_admin_user_logo.png`,
-  );
+  const downloadedLogoPatchWithLogo = join(os.tmpdir(), `${foundCompanyInfoWithLogoRO.id}_admin_user_logo.png`);
+
   fs.writeFileSync(downloadedLogoPatchWithLogo, foundCompanyInfoWithLogoRO.logo.image);
   const isFileExistsWithLogo = fs.existsSync(downloadedLogoPatchWithLogo);
   t.is(isFileExistsWithLogo, true);
@@ -1285,10 +1275,10 @@ test.serial(`${currentTest} should create and return found company logo after cr
   t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.image.length > 0, true);
 
   const downloadedLogoPatchForSimpleUserWithLogo = join(
-    __dirname,
-    'response-files',
+    os.tmpdir(),
     `${foundCompanyInfoWithLogoForSimpleUserRO.id}_simple_user_logo.png`,
   );
+
   fs.writeFileSync(downloadedLogoPatchForSimpleUserWithLogo, foundCompanyInfoWithLogoForSimpleUserRO.logo.image);
   const isFileExistsForSimpleUserWithLogo = fs.existsSync(downloadedLogoPatchForSimpleUserWithLogo);
   t.is(isFileExistsForSimpleUserWithLogo, true);
@@ -1316,13 +1306,8 @@ test.serial(`${currentTest} should create and return found company favicon after
 
   const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
-
   const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-  const downloadedFaviconPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_favicon.png`);
+  const downloadedFaviconPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_favicon.png`);
 
   const createFaviconResponse = await request(app.getHttpServer())
     .post(`/company/favicon/${foundCompanyInfoRO.id}`)
@@ -1362,11 +1347,8 @@ test.serial(`${currentTest} should create and return found company favicon after
   t.is(foundCompanyFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
   t.is(foundCompanyFaviconForSimpleUserRO.favicon.image.length > 0, true);
 
-  const downloadedFaviconPatchForSimpleUser = join(
-    __dirname,
-    'response-files',
-    `${foundCompanyInfoRO.id}_simple_user_favicon.png`,
-  );
+  const downloadedFaviconPatchForSimpleUser = join(os.tmpdir(), `${foundCompanyInfoRO.id}_simple_user_favicon.png`);
+
   fs.writeFileSync(downloadedFaviconPatchForSimpleUser, foundCompanyFaviconForSimpleUserRO.favicon.image);
   const isFileExistsForSimpleUser = fs.existsSync(downloadedFaviconPatchForSimpleUser);
   t.is(isFileExistsForSimpleUser, true);
@@ -1385,10 +1367,10 @@ test.serial(`${currentTest} should create and return found company favicon after
   t.is(foundCompanyInfoWithFaviconRO.favicon.image.length > 0, true);
 
   const downloadedFaviconPatchWithFavicon = join(
-    __dirname,
-    'response-files',
+    os.tmpdir(),
     `${foundCompanyInfoWithFaviconRO.id}_admin_user_favicon.png`,
   );
+
   fs.writeFileSync(downloadedFaviconPatchWithFavicon, foundCompanyInfoWithFaviconRO.favicon.image);
   const isFileExistsWithFavicon = fs.existsSync(downloadedFaviconPatchWithFavicon);
   t.is(isFileExistsWithFavicon, true);
@@ -1407,10 +1389,10 @@ test.serial(`${currentTest} should create and return found company favicon after
   t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image.length > 0, true);
 
   const downloadedFaviconPatchForSimpleUserWithFavicon = join(
-    __dirname,
-    'response-files',
+    os.tmpdir(),
     `${foundCompanyInfoWithFaviconForSimpleUserRO.id}_simple_user_favicon.png`,
   );
+
   fs.writeFileSync(
     downloadedFaviconPatchForSimpleUserWithFavicon,
     foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image,
@@ -1512,13 +1494,8 @@ test.serial(`${currentTest} should return found company white label properties f
   const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
   // crete company logo
-  const dir = join(__dirname, 'response-files');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
-
   const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-  const downloadedLogoPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_logo.png`);
+  const downloadedLogoPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_logo.png`);
 
   const createLogoResponse = await request(app.getHttpServer())
     .post(`/company/logo/${foundCompanyInfoRO.id}`)
@@ -1532,7 +1509,7 @@ test.serial(`${currentTest} should return found company white label properties f
 
   // crete company favicon
   const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-  const downloadedFaviconPatch = join(__dirname, 'response-files', `${foundCompanyInfoRO.id}_test_favicon.png`);
+  const downloadedFaviconPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_favicon.png`);
 
   const createFaviconResponse = await request(app.getHttpServer())
     .post(`/company/favicon/${foundCompanyInfoRO.id}`)

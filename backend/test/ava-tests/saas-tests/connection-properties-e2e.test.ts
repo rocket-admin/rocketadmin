@@ -16,6 +16,7 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { CreateTableCategoryDto } from '../../../src/entities/table-categories/dto/create-table-category.dto.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -162,7 +163,14 @@ test.serial(`${currentTest} should return created connection properties with tab
       human_readable_table_names: faker.datatype.boolean(),
       allow_ai_requests: faker.datatype.boolean(),
       default_showing_table: null,
-      table_categories: [{ category_name: 'Category 1', tables: [testTableName] }],
+      table_categories: [
+        {
+          category_name: 'Category 1',
+          category_id: 'cat-001',
+          category_color: '#FF5733',
+          tables: [testTableName],
+        },
+      ],
     };
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -202,7 +210,14 @@ test.serial(`${currentTest} should return created connection properties with tab
       human_readable_table_names: faker.datatype.boolean(),
       allow_ai_requests: faker.datatype.boolean(),
       default_showing_table: null,
-      table_categories: [{ category_name: 'Updated Category', tables: [testTableName] }],
+      table_categories: [
+        {
+          category_name: 'Updated Category',
+          tables: [testTableName],
+          category_color: '#33FF57',
+          category_id: 'cat-002',
+        },
+      ],
     };
 
     const updateConnectionPropertiesResponse = await request(app.getHttpServer())
@@ -259,7 +274,7 @@ test.serial(`${currentTest} should return created connection properties with tab
       updateConnectionPropertiesROWithoutCategories.default_showing_table,
       updatedConnectionPropertiesWithOutCategories.default_showing_table,
     );
-    t.is(updateConnectionPropertiesROWithoutCategories.table_categories.length, 0);
+    t.is(updateConnectionPropertiesROWithoutCategories.table_categories.length, 1);
   } catch (e) {
     throw e;
   }
@@ -283,7 +298,9 @@ test.serial(
         human_readable_table_names: faker.datatype.boolean(),
         allow_ai_requests: faker.datatype.boolean(),
         default_showing_table: null,
-        table_categories: [{ category_name: 'Category 1', tables: [testTableName] }],
+        table_categories: [
+          { category_name: 'Category 1', tables: [testTableName], category_color: '#FF5733', category_id: 'cat-001' },
+        ],
       };
 
       const createConnectionResponse = await request(app.getHttpServer())
@@ -607,9 +624,93 @@ test.serial(`${currentTest} should return updated connection properties`, async 
   }
 });
 
-// test.serial(`${currentTest} `, async (t) => {
-//   try {
-//   } catch (e) {
-//     throw e;
-//   }
-// });
+test.serial(
+  `${currentTest} should keep created table categories if the exists return updated connection properties`,
+  async (t) => {
+    try {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { token } = await registerUserAndReturnUserInfo(app);
+      const secondHiddenTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
+      await resetPostgresTestDB(secondHiddenTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newConnection)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createConnectionPropertiesResponse = await request(app.getHttpServer())
+        .post(`/connection/properties/${createConnectionRO.id}`)
+        .send(newConnectionProperties)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+      t.is(createConnectionPropertiesResponse.status, 201);
+      t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+      t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+
+      const categoriesDTO: Array<CreateTableCategoryDto> = [
+        {
+          category_name: 'Category 1',
+          category_color: '#FF5733',
+          tables: [testTableName],
+          category_id: 'cat-001',
+        },
+      ];
+
+      const createTableCategoriesResponse = await request(app.getHttpServer())
+        .put(`/table-categories/${createConnectionRO.id}`)
+        .send(categoriesDTO)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const createTableCategoriesRO = JSON.parse(createTableCategoriesResponse.text);
+
+      t.is(createTableCategoriesResponse.status, 200);
+
+      const propertiesCopy = JSON.parse(JSON.stringify(newConnectionProperties));
+      propertiesCopy.hidden_tables = [testTableName, secondHiddenTableName];
+
+      const updateConnectionPropertiesResponse = await request(app.getHttpServer())
+        .put(`/connection/properties/${createConnectionRO.id}`)
+        .send(propertiesCopy)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(updateConnectionPropertiesResponse.status, 200);
+
+      const updateConnectionPropertiesRO = JSON.parse(updateConnectionPropertiesResponse.text);
+      t.is(updateConnectionPropertiesRO.hidden_tables.length, 2);
+      t.is(updateConnectionPropertiesRO.hidden_tables.includes(testTableName), true);
+      t.is(updateConnectionPropertiesRO.hidden_tables.includes(secondHiddenTableName), true);
+      t.is(updateConnectionPropertiesRO.connectionId, createConnectionRO.id);
+      t.is(updateConnectionPropertiesRO.table_categories.length, 1);
+      t.is(updateConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
+      t.is(updateConnectionPropertiesRO.table_categories[0].tables.length, 1);
+      t.is(updateConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+
+      const findTableCategoriesResponse = await request(app.getHttpServer())
+        .get(`/table-categories/${createConnectionRO.id}`)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const findTableCategoriesRO = JSON.parse(findTableCategoriesResponse.text);
+
+      t.is(findTableCategoriesResponse.status, 200);
+
+      t.is(findTableCategoriesRO.length, 1);
+      t.is(findTableCategoriesRO[0].category_name, 'Category 1');
+      t.is(findTableCategoriesRO[0].tables.length, 1);
+      t.is(findTableCategoriesRO[0].tables[0], testTableName);
+    } catch (e) {
+      throw e;
+    }
+  },
+);

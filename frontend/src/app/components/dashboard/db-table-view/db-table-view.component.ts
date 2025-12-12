@@ -522,4 +522,74 @@ export class DbTableViewComponent implements OnInit {
     console.log('table view fiers filterSelected:', $event)
     this.applyFilter.emit($event);
   }
+
+  exportData() {
+    const convertToCSVValue = (value: any): string => {
+      // Handle null and undefined
+      if (value === null || value === undefined) {
+        return '';
+      }
+
+      // Handle nested objects and arrays - convert to JSON string
+      if (typeof value === 'object') {
+        try {
+          value = JSON.stringify(value);
+        } catch (e) {
+          value = '[Object]';
+        }
+      }
+
+      // Convert to string if not already
+      const stringValue = String(value);
+
+      // Check if value needs to be quoted (contains comma, double quote, or newline)
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n') || stringValue.includes('\r')) {
+        // Escape double quotes by doubling them and wrap in quotes
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+
+      return stringValue;
+    };
+
+    // Check if there's any selection
+    if (!this.selection.selected || this.selection.selected.length === 0) {
+      this._notifications.showErrorSnackbar('No rows selected for export');
+      return;
+    }
+
+    // Use the displayed columns order from the table
+    const columnsToExport = this.tableData.displayedDataColumns;
+
+    // Create CSV rows with proper handling of foreign keys
+    const csv = this.selection.selected.map((row) =>
+      columnsToExport
+        .map((fieldName) => {
+          let value = row[fieldName];
+
+          if (this.isForeignKey(fieldName) && value && typeof value === 'object') {
+            const foreignKey = this.tableData.foreignKeys[fieldName];
+            if (foreignKey) {
+              value = value[foreignKey.referenced_column_name];
+            }
+          }
+
+          return convertToCSVValue(value);
+        })
+        .join(',')
+    );
+
+    // Add header row using the same column order
+    csv.unshift(columnsToExport.map(h => convertToCSVValue(h)).join(','));
+    const csvArray = csv.join('\r\n');
+
+    const a = document.createElement('a');
+    const blob = new Blob([csvArray], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    a.href = url;
+    a.download = 'myFile.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }
 }

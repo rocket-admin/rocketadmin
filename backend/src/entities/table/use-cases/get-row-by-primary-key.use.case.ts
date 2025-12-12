@@ -14,8 +14,6 @@ import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-pri
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
@@ -25,6 +23,8 @@ import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase

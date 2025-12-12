@@ -1,0 +1,124 @@
+.confirmation-message {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #424242;
+}
+
+.confirmation-message strong {
+    color: #212121;
+    font-weight: 600;
+}
+
+.folder-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background-color: #e3f2fd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.info-icon {
+    color: #1976d2;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+}
+
+.info-text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #424242;
+    flex: 1;
+}
+
+.warning-note {
+    padding: 12px 16px;
+    background-color: #fff3e0;
+    border-radius: 4px;
+    border-left: 4px solid #ff9800;
+}
+
+.warning-note p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #424242;
+}
+
+.warning-note strong {
+    color: #e65100;
+    font-weight: 600;
+}
+
+.cancel-button {
+    color: #666;
+}
+
+.delete-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.delete-button mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .dialog-title {
+        border-bottom-color: #424242;
+    }
+
+    .dialog-content {
+        background-color: #303030;
+    }
+
+    .confirmation-message {
+        color: #e0e0e0;
+    }
+
+    .confirmation-message strong {
+        color: #fff;
+    }
+
+    .folder-info {
+        background-color: #1a3a52;
+    }
+
+    .info-icon {
+        color: #64b5f6;
+    }
+
+    .info-text {
+        color: #e0e0e0;
+    }
+
+    .warning-note {
+        background-color: #4a3c28;
+        border-left-color: #ffb74d;
+    }
+
+    .warning-note p {
+        color: #e0e0e0;
+    }
+
+    .warning-note strong {
+        color: #ffb74d;
+    }
+
+    .dialog-actions {
+        border-top-color: #424242;
+    }
+
+    .cancel-button {
+        color: #aaa;
+    }
+}

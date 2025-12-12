@@ -9,7 +9,9 @@ import { ForeignKeyRecordViewComponent } from '../components/ui-components/recor
 import { IdRecordViewComponent } from '../components/ui-components/record-view-fields/id/id.component';
 import { ImageRecordViewComponent } from '../components/ui-components/record-view-fields/image/image.component';
 import { JsonEditorRecordViewComponent } from '../components/ui-components/record-view-fields/json-editor/json-editor.component';
+import { LanguageRecordViewComponent } from '../components/ui-components/record-view-fields/language/language.component';
 import { LongTextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/long-text/long-text.component';
+import { MarkdownRecordViewComponent } from '../components/ui-components/record-view-fields/markdown/markdown.component';
 import { MoneyRecordViewComponent } from '../components/ui-components/record-view-fields/money/money.component';
 import { NumberRecordViewComponent } from '../components/ui-components/record-view-fields/number/number.component';
 import { PasswordRecordViewComponent } from '../components/ui-components/record-view-fields/password/password.component';
@@ -21,6 +23,7 @@ import { StaticTextRecordViewComponent } from '../components/ui-components/recor
 import { TextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/text/text.component';
 import { TimeIntervalRecordViewComponent } from '../components/ui-components/record-view-fields/time-interval/time-interval.component';
 import { TimeRecordViewComponent } from '../components/ui-components/record-view-fields/time/time.component';
+import { TimezoneRecordViewComponent } from '../components/ui-components/record-view-fields/timezone/timezone.component';
 import { UrlRecordViewComponent } from '../components/ui-components/record-view-fields/url/url.component';
 import { UuidRecordViewComponent } from '../components/ui-components/record-view-fields/uuid/uuid.component';
 
@@ -31,6 +34,8 @@ export const UIwidgets = {
     Time: TimeRecordViewComponent,
     DateTime: DateTimeRecordViewComponent,
     JSON: JsonEditorRecordViewComponent,
+    Language: LanguageRecordViewComponent,
+    Markdown: MarkdownRecordViewComponent,
     Textarea: LongTextRecordViewComponent,
     String: TextRecordViewComponent,
     Readonly: StaticTextRecordViewComponent,
@@ -47,7 +52,8 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyRecordViewComponent,
     Color: ColorRecordViewComponent,
     UUID: UuidRecordViewComponent,
-    Range: RangeRecordViewComponent
+    Range: RangeRecordViewComponent,
+    Timezone: TimezoneRecordViewComponent
 }
 
 export const recordViewFieldTypes = {
@@ -298,4 +304,21 @@ export const recordViewFieldTypes = {
         map: JsonEditorRecordViewComponent,
         set: JsonEditorRecordViewComponent,
     },
+    redis: {
+        string: TextRecordViewComponent,
+        integer: NumberRecordViewComponent,
+        decimal: NumberRecordViewComponent,
+        boolean: BooleanRecordViewComponent,
+        array: JsonEditorRecordViewComponent,
+        json: JsonEditorRecordViewComponent,
+    },
+    elasticsearch: {
+        string: TextRecordViewComponent,
+        number: NumberRecordViewComponent,
+        boolean: BooleanRecordViewComponent,
+        date: DateRecordViewComponent,
+        object: JsonEditorRecordViewComponent,
+        array: JsonEditorRecordViewComponent,
+        binary: FileRecordViewComponent,
+    }
 }

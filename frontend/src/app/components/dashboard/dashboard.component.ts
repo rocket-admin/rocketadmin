@@ -124,6 +124,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._connections.currentConnection.isTestConnection
   }
 
+  get connectionTitle() {
+    return this._connections.currentConnection?.title || 'Database';
+  }
+
   get defaultTableToOpen () {
     return this._connections.defaultTableToOpen;
   }
@@ -238,8 +242,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return result;
       }, '');
 
-      if (tableItem.display_name) return {...tableItem, initials: initials.slice(0, 2)}
-      else return {...tableItem, normalizedTableName, initials: initials.slice(0, 2)}
+      return {...tableItem, normalizedTableName, initials: initials.slice(0, 2)}
     })
   }
 

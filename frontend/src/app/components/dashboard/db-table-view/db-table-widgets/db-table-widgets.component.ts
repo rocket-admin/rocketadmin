@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
 import { Location } from '@angular/common';
 import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
+import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -53,6 +54,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     PasswordEditComponent,
     ImageEditComponent,
     CodeEditComponent,
+    MarkdownEditComponent,
     WidgetComponent,
     TextEditComponent,
     LongTextEditComponent,
@@ -160,6 +162,13 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
     JSON: `// No settings required`,
+    Language: `// Configure language display options
+// show_flag: Display country flag emoji next to language name
+// Example:
+{
+  "show_flag": true
+}`,
+    Markdown: `// No settings required`,
     Money: `// Configure money widget settings
 // example:
 {
@@ -216,15 +225,18 @@ export class DbTableWidgetsComponent implements OnInit {
   "options": [
     {
       "value": "UA",
-      "label": "🇺🇦 Ukraine"
+      "label": "🇺🇦 Ukraine",
+      "background_color": "gold"
     },
     {
       "value": "PL",
-      "label": "🇵🇱 Poland"
+      "label": "🇵🇱 Poland",
+      "background_color": "#FF1212"
     },
     {
       "value": "US",
-      "label": "🇺🇸 United States"
+      "label": "🇺🇸 United States",
+      "background_color": "rgba(100, 150, 255, 0.5)"
     }
   ]
 }`,
@@ -246,6 +258,13 @@ export class DbTableWidgetsComponent implements OnInit {
   "rows": 5
 }`,
     Time: `// No settings required`,
+    Timezone: `// Configure timezone widget options
+// Uses Intl API to populate timezone list automatically
+// allow_null: Allow empty/null value selection
+{
+  "allow_null": false
+}
+`,
     URL: `// prefix: optional URL prefix to prepend to the href
 // example:
 {

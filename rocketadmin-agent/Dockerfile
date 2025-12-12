@@ -19,9 +19,10 @@ COPY ./rocketadmin-agent/.ibmdb2_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.mongodb_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.cassandra_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.redis_test_agent_config.txt /app/rocketadmin-agent/
+COPY ./rocketadmin-agent/.clickhouse_test_agent_config.txt /app/rocketadmin-agent/
 COPY shared-code /app/shared-code
 COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd rocketadmin-agent && yarn run nest build
+RUN cd rocketadmin-agent && yarn run build
 COPY ./rocketadmin-agent/wait-for-db2.js /app/
-CMD [ "./node_modules/.bin/nest", "start"]
+CMD [ "node", "rocketadmin-agent/dist/main.js"]

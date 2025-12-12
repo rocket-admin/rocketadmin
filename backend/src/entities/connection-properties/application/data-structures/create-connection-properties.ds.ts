@@ -15,5 +15,7 @@ export class CreateConnectionPropertiesDs {
   table_categories: Array<{
     category_name: string;
     tables: Array<string>;
+    category_color: string;
+    category_id: string;
   }>;
 }

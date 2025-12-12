@@ -9,6 +9,12 @@ export class TableCategoriesEntity {
   @Column({ type: 'varchar', length: 255 })
   category_name: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, default: null })
+  category_id: string;
+
+  @Column({ type: 'varchar', length: 255, default: null, nullable: true })
+  category_color: string;
+
   @Column('varchar', { array: true, default: null })
   tables: string[];
 

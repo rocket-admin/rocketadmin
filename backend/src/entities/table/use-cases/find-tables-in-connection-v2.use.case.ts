@@ -145,10 +145,11 @@ export class FindTablesInConnectionV2UseCase
 
     const responseObject: FoundTablesWithCategoriesDS = {
       tables: sortedTables,
-      table_categories: tableCategories.map(({ category_name, id, tables }) => ({
+      table_categories: tableCategories.map(({ category_name, category_id, tables, category_color }) => ({
         category_name,
-        id,
+        category_id,
         tables,
+        category_color,
       })),
     };
     return responseObject;
