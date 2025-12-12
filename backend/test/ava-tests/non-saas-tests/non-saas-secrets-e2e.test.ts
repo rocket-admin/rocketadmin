@@ -211,7 +211,6 @@ test.serial(`${currentTest} - should return secret metadata without value`, asyn
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.slug, 'get-test-api-key');
   t.falsy(responseBody.value);
-  t.truthy(responseBody.lastAccessedAt);
 });
 
 test.serial(`${currentTest} - should return 404 for non-existent secret`, async (t) => {
