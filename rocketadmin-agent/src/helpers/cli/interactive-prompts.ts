@@ -412,7 +412,10 @@ export class InteractivePrompts {
     console.log(`  ${chalk.gray('Host:')} ${chalk.white(config.host)}`);
     console.log(`  ${chalk.gray('Port:')} ${chalk.white(config.port)}`);
     if (config.username) {
-      console.log(`  ${chalk.gray('Username:')} ${chalk.white(config.username)}`);
+      const maskedUsername = config.username.length > 2 
+        ? config.username.slice(0, 2) + '*'.repeat(Math.min(config.username.length - 2, 6))
+        : '**';
+      console.log(`  ${chalk.gray('Username:')} ${chalk.white(maskedUsername)}`);
     }
     if (config.database) {
       console.log(`  ${chalk.gray('Database:')} ${chalk.white(config.database)}`);
