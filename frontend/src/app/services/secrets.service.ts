@@ -5,7 +5,6 @@ import { catchError, map } from 'rxjs/operators';
 import { NotificationsService } from './notifications.service';
 import {
   Secret,
-  SecretWithValue,
   SecretListResponse,
   AuditLogResponse,
   CreateSecretPayload,
@@ -40,31 +39,6 @@ export class SecretsService {
         catchError((err) => {
           console.log(err);
           this._notifications.showErrorSnackbar(err.error?.message || 'Failed to fetch secrets');
-          return EMPTY;
-        })
-      );
-  }
-
-  getSecret(slug: string, masterPassword?: string): Observable<SecretWithValue> {
-    let headers = new HttpHeaders();
-    if (masterPassword) {
-      headers = headers.set('masterPassword', masterPassword);
-    }
-
-    return this._http.get<SecretWithValue>(`/secrets/${slug}`, { headers })
-      .pipe(
-        map(res => res),
-        catchError((err) => {
-          console.log(err);
-          if (err.status === 403) {
-            // Master password required or invalid - let component handle
-            return throwError(() => err);
-          }
-          if (err.status === 410) {
-            this._notifications.showErrorSnackbar('This secret has expired');
-          } else {
-            this._notifications.showErrorSnackbar(err.error?.message || 'Failed to fetch secret');
-          }
           return EMPTY;
         })
       );

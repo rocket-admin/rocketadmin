@@ -9,10 +9,6 @@ export interface Secret {
   masterEncryption: boolean;
 }
 
-export interface SecretWithValue extends Secret {
-  value: string;
-}
-
 export interface SecretListResponse {
   data: Secret[];
   pagination: SecretPagination;

@@ -21,7 +21,6 @@ import { SecretsService } from 'src/app/services/secrets.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { Secret, SecretPagination } from 'src/app/models/secret';
 import { CreateSecretDialogComponent } from './create-secret-dialog/create-secret-dialog.component';
-import { ViewSecretDialogComponent } from './view-secret-dialog/view-secret-dialog.component';
 import { EditSecretDialogComponent } from './edit-secret-dialog/edit-secret-dialog.component';
 import { DeleteSecretDialogComponent } from './delete-secret-dialog/delete-secret-dialog.component';
 import { AuditLogDialogComponent } from './audit-log-dialog/audit-log-dialog.component';
@@ -144,16 +143,6 @@ export class SecretsComponent implements OnInit, OnDestroy {
     });
     this.angulartics2.eventTrack.next({
       action: 'Secrets: create secret dialog opened',
-    });
-  }
-
-  openViewDialog(secret: Secret): void {
-    this.dialog.open(ViewSecretDialogComponent, {
-      width: '600px',
-      data: { secret },
-    });
-    this.angulartics2.eventTrack.next({
-      action: 'Secrets: view secret dialog opened',
     });
   }
 

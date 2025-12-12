@@ -26,11 +26,7 @@ describe('EditSecretDialogComponent', () => {
   };
 
   beforeEach(async () => {
-    mockSecretsService = jasmine.createSpyObj('SecretsService', ['getSecret', 'updateSecret']);
-    mockSecretsService.getSecret.and.returnValue(of({
-      ...mockSecret,
-      value: 'secret-value',
-    }));
+    mockSecretsService = jasmine.createSpyObj('SecretsService', ['updateSecret']);
     mockSecretsService.updateSecret.and.returnValue(of(mockSecret));
 
     mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
@@ -60,17 +56,19 @@ describe('EditSecretDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load secret on init', () => {
-    expect(mockSecretsService.getSecret).toHaveBeenCalledWith('test-secret', undefined);
-  });
-
-  it('should populate form with secret value', () => {
-    expect(component.form.get('value')?.value).toBe('secret-value');
+  it('should initialize form with empty value', () => {
+    expect(component.form.get('value')?.value).toBe('');
   });
 
   it('should submit updated secret', () => {
     component.form.patchValue({ value: 'new-value' });
     component.onSubmit();
     expect(mockSecretsService.updateSecret).toHaveBeenCalled();
+  });
+
+  it('should require value field', () => {
+    expect(component.form.get('value')?.valid).toBeFalse();
+    component.form.patchValue({ value: 'some-value' });
+    expect(component.form.get('value')?.valid).toBeTrue();
   });
 });

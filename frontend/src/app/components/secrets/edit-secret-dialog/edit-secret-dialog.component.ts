@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -9,12 +9,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Angulartics2 } from 'angulartics2';
 
 import { SecretsService } from 'src/app/services/secrets.service';
-import { Secret, SecretWithValue } from 'src/app/models/secret';
+import { Secret } from 'src/app/models/secret';
 
 @Component({
   selector: 'app-edit-secret-dialog',
@@ -32,20 +31,16 @@ import { Secret, SecretWithValue } from 'src/app/models/secret';
     MatNativeDateModule,
     MatIconModule,
     MatCheckboxModule,
-    MatProgressSpinnerModule,
     MatTooltipModule,
   ]
 })
-export class EditSecretDialogComponent implements OnInit {
+export class EditSecretDialogComponent {
   public form: FormGroup;
-  public loading = true;
   public submitting = false;
   public showValue = false;
-  public requiresMasterPassword = false;
   public masterPassword = '';
   public masterPasswordError = '';
   public showMasterPassword = false;
-  public currentSecret: SecretWithValue | null = null;
   public clearExpiration = false;
   public minDate = new Date();
 
@@ -58,47 +53,8 @@ export class EditSecretDialogComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       value: ['', [Validators.required, Validators.maxLength(10000)]],
-      expiresAt: [null],
+      expiresAt: [data.secret.expiresAt ? new Date(data.secret.expiresAt) : null],
     });
-  }
-
-  ngOnInit(): void {
-    this.loadSecret();
-  }
-
-  loadSecret(masterPassword?: string): void {
-    this.loading = true;
-    this.masterPasswordError = '';
-
-    this._secrets.getSecret(this.data.secret.slug, masterPassword).subscribe({
-      next: (secret) => {
-        this.currentSecret = secret;
-        this.form.patchValue({
-          value: secret.value,
-          expiresAt: secret.expiresAt ? new Date(secret.expiresAt) : null,
-        });
-        this.loading = false;
-        this.requiresMasterPassword = false;
-        this.masterPassword = masterPassword || '';
-      },
-      error: (err) => {
-        this.loading = false;
-        if (err.status === 403) {
-          this.requiresMasterPassword = true;
-          if (masterPassword) {
-            this.masterPasswordError = 'Invalid master password';
-          }
-        }
-      }
-    });
-  }
-
-  submitMasterPassword(): void {
-    if (!this.masterPassword) {
-      this.masterPasswordError = 'Please enter the master password';
-      return;
-    }
-    this.loadSecret(this.masterPassword);
   }
 
   toggleValueVisibility(): void {
@@ -111,7 +67,7 @@ export class EditSecretDialogComponent implements OnInit {
 
   get valueError(): string {
     const control = this.form.get('value');
-    if (control?.hasError('required')) return 'Value is required';
+    if (control?.hasError('required')) return 'New value is required';
     if (control?.hasError('maxlength')) return 'Value must be 10000 characters or less';
     return '';
   }
@@ -127,6 +83,11 @@ export class EditSecretDialogComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.invalid) return;
+
+    if (this.data.secret.masterEncryption && !this.masterPassword) {
+      this.masterPasswordError = 'Master password is required';
+      return;
+    }
 
     this.submitting = true;
     const formValue = this.form.getRawValue();
@@ -150,8 +111,11 @@ export class EditSecretDialogComponent implements OnInit {
         this.submitting = false;
         this.dialogRef.close(true);
       },
-      error: () => {
+      error: (err) => {
         this.submitting = false;
+        if (err.status === 403) {
+          this.masterPasswordError = 'Invalid master password';
+        }
       }
     });
   }
