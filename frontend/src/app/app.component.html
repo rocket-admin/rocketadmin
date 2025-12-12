@@ -188,13 +188,13 @@
                         class="action">
                         Login
                     </a>
-                    <a mat-flat-button color="accent" routerLink="/registration"
+                    <a *ngIf="isSaas" mat-flat-button color="accent" routerLink="/registration"
                         data-testid="registration-header-link"
                         class="action">
                         Sign up
                     </a>
                 </ng-container>
-                <ng-container *ngIf="page === '/registration'">
+                <ng-container *ngIf="page === '/registration' && isSaas">
                     <a mat-flat-button color="accent" routerLink="/login"
                         data-testid="login-header-link"
                         class="action">

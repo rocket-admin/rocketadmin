@@ -71,6 +71,13 @@
     transform: translateX(-10%) scale(0.8);
 }
 
+@media (width <= 600px) {
+    .filters-container {
+        flex-direction: column;
+        transform: none;
+    }
+}
+
 .dynamic-column-editor {
     display: flex;
     align-items: center;
@@ -81,6 +88,20 @@
 
 .column-name {
     margin-top: -8px;
+}
+
+.comparator-text {
+    display: none;
+}
+
+@media (width <= 600px) {
+    .comparator-select {
+        display: none;
+    }
+
+    .comparator-text {
+        display: inline;
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -116,6 +137,12 @@
     gap: 8px;
     transform: translateX(5%) scale(1.1);
     padding-bottom: 16px;
+}
+
+@media (width <= 600px) {
+    .static-filters {
+        transform: none;
+    }
 }
 
 .static-filter-chip {

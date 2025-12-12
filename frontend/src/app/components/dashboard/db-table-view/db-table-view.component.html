@@ -4,25 +4,25 @@
 
         <mat-form-field appearance="outline" class="table-switcher">
             <mat-label>Table</mat-label>
-            <input type="text"
-                placeholder="Select a table"
-                matInput
-                [value]="name"
-                [matAutocomplete]="auto"
-                (focus)="onInputFocus()"
-                (input)="onInput($event.target.value)">
-            <mat-autocomplete autoActiveFirstOption
-                #auto="matAutocomplete">
-                <mat-option *ngFor="let table of filteredTables"
-                    class="table-switcher-option"
-                    [value]="table.table">
-                    <a class="table-switcher-link"
-                        routerLink="/dashboard/{{connectionID}}/{{table.table}}"
-                        [queryParams]="{page_index: 0, page_size: 30}">
+            <mat-select [value]="name" (selectionChange)="switchTable($event.value)">
+                <ng-container *ngIf="folders && folders.length > 0; else flatList">
+                    <mat-optgroup *ngFor="let folder of folders" [label]="folder.name">
+                        <mat-option *ngFor="let table of getFolderTables(folder)" [value]="table.table">
+                            {{table.normalizedTableName}}
+                        </mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup *ngIf="getUncategorizedTables().length > 0" label="Other">
+                        <mat-option *ngFor="let table of getUncategorizedTables()" [value]="table.table">
+                            {{table.normalizedTableName}}
+                        </mat-option>
+                    </mat-optgroup>
+                </ng-container>
+                <ng-template #flatList>
+                    <mat-option *ngFor="let table of tables" [value]="table.table">
                         {{table.normalizedTableName}}
-                </a>
-                </mat-option>
-            </mat-autocomplete>
+                    </mat-option>
+                </ng-template>
+            </mat-select>
         </mat-form-field>
 
         <button mat-icon-button (click)="loadRowsPage()">
