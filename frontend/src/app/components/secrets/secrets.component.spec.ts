@@ -34,10 +34,10 @@ describe('SecretsComponent', () => {
     masterEncryption: false,
   };
 
-  const mockSecretsResponse = {
+  const createMockSecretsResponse = () => ({
     data: [mockSecret],
     pagination: { total: 1, currentPage: 1, perPage: 20, lastPage: 1 }
-  };
+  });
 
   beforeEach(async () => {
     secretsUpdatedSubject = new BehaviorSubject<string>('');
@@ -45,7 +45,7 @@ describe('SecretsComponent', () => {
     mockSecretsService = jasmine.createSpyObj('SecretsService', ['fetchSecrets'], {
       cast: secretsUpdatedSubject.asObservable()
     });
-    mockSecretsService.fetchSecrets.and.returnValue(of(mockSecretsResponse));
+    mockSecretsService.fetchSecrets.and.callFake(() => of(createMockSecretsResponse()));
 
     mockCompanyService = jasmine.createSpyObj('CompanyService', ['getCurrentTabTitle']);
     mockCompanyService.getCurrentTabTitle.and.returnValue(of('Test Company'));
@@ -215,6 +215,11 @@ describe('SecretsComponent', () => {
         length: 100
       };
 
+      // Update mock to return pagination matching the page change
+      mockSecretsService.fetchSecrets.and.callFake(() => of({
+        data: [mockSecret],
+        pagination: { total: 100, currentPage: 2, perPage: 10, lastPage: 10 }
+      }));
       mockSecretsService.fetchSecrets.calls.reset();
       component.onPageChange(pageEvent);
 
@@ -269,7 +274,7 @@ describe('SecretsComponent', () => {
   describe('loadSecrets', () => {
     it('should set loading to true while fetching', () => {
       component.loading = false;
-      mockSecretsService.fetchSecrets.and.returnValue(of(mockSecretsResponse));
+      mockSecretsService.fetchSecrets.and.callFake(() => of(createMockSecretsResponse()));
 
       component.loadSecrets();
 
