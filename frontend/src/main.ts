@@ -21,14 +21,12 @@ import { DynamicModule } from "ng-dynamic-component";
 import { EncodeUrlParamsSafelyInterceptor } from "./app/services/url-params.interceptor";
 import { NgxStripeModule } from "ngx-stripe";
 import { NotificationsService } from "./app/services/notifications.service";
-import { PasswordStrengthMeterComponent } from "angular-password-strength-meter";
 import { TablesService } from "./app/services/tables.service";
 import { TokenInterceptor } from "./app/services/token.interceptor";
 import { UsersService } from "./app/services/users.service";
 import { environment } from './environments/environment';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { provideAnimations } from "@angular/platform-browser/animations";
-import { provideZxvbnServiceForPSM } from "angular-password-strength-meter/zxcvbn";
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -84,7 +82,6 @@ bootstrapApplication(AppComponent, {
         provideCodeEditor({
           baseUrl: 'assets/monaco'
         }),
-        PasswordStrengthMeterComponent,
         ConnectionsService,
         UsersService,
         NotificationsService,
@@ -92,7 +89,6 @@ bootstrapApplication(AppComponent, {
         CookieService,
         provideMarkdown(),
         Title,
-        provideZxvbnServiceForPSM(),
         {
             provide: HTTP_INTERCEPTORS,
             useClass: TokenInterceptor,
