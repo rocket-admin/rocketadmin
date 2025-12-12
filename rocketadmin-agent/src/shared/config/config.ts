@@ -5,7 +5,7 @@ import { writeFileIfNotExistsUtil } from '../../helpers/write-file-util.js';
 import { validateConnectionData } from '../../helpers/validate-connection-data.js';
 import { toPrettyErrorsMsg } from '../../helpers/to-pretty-errors-msg.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
-import { CLIQuestionUtility } from '../../helpers/cli/cli-questions.js';
+import { InteractivePrompts } from '../../helpers/cli/interactive-prompts.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { Messages } from '../../text/messages.js';
 
@@ -115,9 +115,7 @@ export class Config {
         if (appConfig.encrypted) {
           let encryptionPassword = null;
           for (let i = 0; i < Constants.CLI_ATTEMPTS_COUNT; i++) {
-            encryptionPassword = CLIQuestionUtility.askConnectionPassword(
-              Messages.INTRO_MESSAGES.ASK_ENCRYPTION_PASSWORD_MESSAGE,
-            );
+            encryptionPassword = await InteractivePrompts.askDecryptionPassword();
             if (!(await Encryptor.verifyPassword(appConfig.hash, encryptionPassword))) {
               console.log(Messages.CORRUPTED_DATA_OR_PASSWORD);
               if (i === 2) {
