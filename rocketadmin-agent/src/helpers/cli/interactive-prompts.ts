@@ -61,11 +61,10 @@ export class InteractivePrompts {
   static async askConnectionType(): Promise<ConnectionTypesEnum> {
     const { type } = await inquirer.prompt([
       {
-        type: 'list',
+        type: 'rawlist',
         name: 'type',
         message: chalk.cyan('Select your database type:'),
         choices: DATABASE_CHOICES,
-        pageSize: 10,
       },
     ]);
     console.log(chalk.green(`✓ Selected: ${DATABASE_CHOICES.find((c) => c.value === type)?.name}`));
@@ -261,8 +260,7 @@ export class InteractivePrompts {
   }
 
   static async askApplicationEncryptionPassword(): Promise<string> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, confirmPassword } = await inquirer.prompt([
+    const { password } = await inquirer.prompt([
       {
         type: 'password',
         name: 'password',
@@ -275,19 +273,24 @@ export class InteractivePrompts {
           return true;
         },
       },
+    ]);
+
+    const { confirmPassword: _confirmPassword } = await inquirer.prompt([
       {
         type: 'password',
         name: 'confirmPassword',
         message: chalk.cyan('Confirm encryption password:'),
         mask: '*',
-        validate: (input: string, answers: Record<string, string>) => {
-          if (input !== answers.password) {
+        validate: (input: string) => {
+          // eslint-disable-next-line security/detect-possible-timing-attacks
+          if (input !== password) {
             return chalk.red('Passwords do not match');
           }
           return true;
         },
       },
     ]);
+
     return password;
   }
 
