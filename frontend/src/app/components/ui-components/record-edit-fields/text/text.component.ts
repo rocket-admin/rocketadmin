@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TextValidatorDirective } from 'src/app/directives/text-validator.directive';
+import { FieldValidationDirective } from 'src/app/directives/field-validation.directive';
 
 @Injectable()
 
@@ -13,7 +14,7 @@ import { TextValidatorDirective } from 'src/app/directives/text-validator.direct
   selector: 'app-edit-text',
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.css'],
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, FormsModule, TextValidatorDirective]
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, FormsModule, TextValidatorDirective, FieldValidationDirective]
 })
 export class TextEditComponent extends BaseEditFieldComponent implements OnInit {
   @Input() value: string;
