@@ -197,7 +197,7 @@ test.serial(`${currentTest}?search=test - should filter secrets by slug`, async 
 });
 
 currentTest = 'GET /secrets/:slug';
-test.serial(`${currentTest} - should return secret with value`, async (t) => {
+test.serial(`${currentTest} - should return secret metadata without value`, async (t) => {
   // Create user with a secret to retrieve
   const { token } = await setupUserWithSecrets([{ slug: 'get-test-api-key', value: 'sk-get-test-value' }]);
 
@@ -210,7 +210,7 @@ test.serial(`${currentTest} - should return secret with value`, async (t) => {
   t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
   t.is(responseBody.slug, 'get-test-api-key');
-  t.truthy(responseBody.value);
+  t.falsy(responseBody.value);
   t.truthy(responseBody.lastAccessedAt);
 });
 
@@ -252,30 +252,34 @@ test.serial(`${currentTest} - should create secret with master password`, async 
 });
 
 currentTest = 'GET /secrets/:slug';
-test.serial(`${currentTest} - should require master password for protected secret`, async (t) => {
+test.serial(`${currentTest} - should return protected secret metadata without master password`, async (t) => {
   // Create user with a protected secret
   const { token } = await setupUserWithSecrets([
-    { slug: 'protected-secret-403', value: 'sensitive-data', masterEncryption: true, masterPassword: 'SecretPass123!' },
+    { slug: 'protected-secret-200', value: 'sensitive-data', masterEncryption: true, masterPassword: 'SecretPass123!' },
   ]);
 
-  // Try to access without master password
+  // Access without master password should return metadata (no value is returned anyway)
   const response = await request(app.getHttpServer())
-    .get('/secrets/protected-secret-403')
+    .get('/secrets/protected-secret-200')
     .set('Cookie', token)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(response.status, 403, response.text);
+  t.is(response.status, 200, response.text);
+  const responseBody = JSON.parse(response.text);
+  t.is(responseBody.slug, 'protected-secret-200');
+  t.falsy(responseBody.value);
+  t.is(responseBody.masterEncryption, true);
 });
 
-test.serial(`${currentTest} - should return protected secret with correct master password`, async (t) => {
+test.serial(`${currentTest} - should return protected secret metadata with master password (no value returned)`, async (t) => {
   // Create user with a protected secret
   const { token } = await setupUserWithSecrets([
-    { slug: 'protected-secret-200', value: 'sensitive-data', masterEncryption: true, masterPassword: 'MasterPass123!' },
+    { slug: 'protected-secret-with-pwd', value: 'sensitive-data', masterEncryption: true, masterPassword: 'MasterPass123!' },
   ]);
 
   const response = await request(app.getHttpServer())
-    .get('/secrets/protected-secret-200')
+    .get('/secrets/protected-secret-with-pwd')
     .set('Cookie', token)
     .set('masterpwd', 'MasterPass123!')
     .set('Content-Type', 'application/json')
@@ -283,8 +287,8 @@ test.serial(`${currentTest} - should return protected secret with correct master
 
   t.is(response.status, 200, response.text);
   const responseBody = JSON.parse(response.text);
-  t.is(responseBody.slug, 'protected-secret-200');
-  t.truthy(responseBody.value);
+  t.is(responseBody.slug, 'protected-secret-with-pwd');
+  t.falsy(responseBody.value);
 });
 
 currentTest = 'PUT /secrets/:slug';
