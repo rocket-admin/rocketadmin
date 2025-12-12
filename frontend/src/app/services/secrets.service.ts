@@ -67,7 +67,7 @@ export class SecretsService {
   updateSecret(slug: string, payload: UpdateSecretPayload, masterPassword?: string): Observable<Secret> {
     let headers = new HttpHeaders();
     if (masterPassword) {
-      headers = headers.set('masterPassword', masterPassword);
+      headers = headers.set('masterpwd', masterPassword);
     }
 
     return this._http.put<Secret>(`/secrets/${slug}`, payload, { headers })
