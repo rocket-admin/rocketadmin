@@ -1,7 +1,7 @@
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import readlineSync from 'readline-sync';
 import { Messages } from '../../text/messages.js';
 import { Constants } from '../constants/constants.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 export class CLIQuestionUtility {
   public static askConnectionToken(): string {
