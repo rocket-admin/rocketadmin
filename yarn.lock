@@ -2794,7 +2794,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schematics@npm:11.0.9, @nestjs/schematics@npm:^11.0.1, @nestjs/schematics@npm:^11.0.9":
+"@nestjs/schematics@npm:11.0.9, @nestjs/schematics@npm:^11.0.1":
   version: 11.0.9
   resolution: "@nestjs/schematics@npm:11.0.9"
   dependencies:
@@ -4960,13 +4960,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 9fed1e1a4926e74bdc057d530c99906c2dc88eef215d0b9b1058d2beb7e5b6edf5d11eca8d69d9029d780524a4c80024c21e671fc113994af4eaf156e9e3f8ec
-  languageName: node
-  linkType: hard
-
-"@types/readline-sync@npm:^1.4.8":
-  version: 1.4.8
-  resolution: "@types/readline-sync@npm:1.4.8"
-  checksum: 9d69fe944d6a26fb1f6a08d205cb9f6107379570ad0b2081df613ccc7414caa026be9307343afcdd3c93b16939ce2e4a76187c33082301a5c7a2bd5d4a7759ee
   languageName: node
   linkType: hard
 
@@ -12858,13 +12851,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readline-sync@npm:^1.4.10":
-  version: 1.4.10
-  resolution: "readline-sync@npm:1.4.10"
-  checksum: 4dbd8925af028dc4cb1bb813f51ca3479035199aa5224886b560eec8e768ab27d7ebf11d69a67ed93d5a130b7c994f0bdb77796326e563cf928bbfd560e3747e
-  languageName: node
-  linkType: hard
-
 "rechoir@npm:^0.8.0":
   version: 0.8.0
   resolution: "rechoir@npm:0.8.0"
@@ -12887,7 +12873,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reflect-metadata@npm:0.2.2, reflect-metadata@npm:^0.2.2":
+"reflect-metadata@npm:0.2.2":
   version: 0.2.2
   resolution: "reflect-metadata@npm:0.2.2"
   checksum: a66c7b583e4efdd8f3c3124fbff33da2d0c86d8280617516308b32b2159af7a3698c961db3246387f56f6316b1d33a608f39bb2b49d813316dfc58f6d3bf3210
@@ -13094,15 +13080,11 @@ __metadata:
   resolution: "rocketadmin-agent@workspace:rocketadmin-agent"
   dependencies:
     "@azure/core-tracing": ^1.3.1
-    "@nestjs/cli": ^11.0.10
-    "@nestjs/schematics": ^11.0.9
     "@rocketadmin/shared-code": "workspace:*"
-    "@types/express": ^5.0.5
     "@types/inquirer": ^9.0.9
     "@types/jest": ^30.0.0
     "@types/node": ^24.9.1
     "@types/pg": ^8.15.6
-    "@types/readline-sync": ^1.4.8
     "@types/supertest": ^6.0.3
     "@types/ws": ^8.18.1
     "@typescript-eslint/eslint-plugin": ^8.46.2
@@ -13126,10 +13108,7 @@ __metadata:
     oracledb: ^6.10.0
     pg: ^8.16.3
     prettier: ^3.6.2
-    readline-sync: ^1.4.10
-    reflect-metadata: ^0.2.2
     rimraf: ^6.0.1
-    rxjs: ^7.8.2
     ssh2: ^1.17.0
     supertest: ^7.1.4
     tedious: ^18.6.1
