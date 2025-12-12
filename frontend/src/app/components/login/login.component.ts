@@ -88,25 +88,27 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    const gAccounts: accounts = google.accounts;
-    gAccounts.id.initialize({
-      client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
-      callback: (authUser) => {
-        this.ngZone.run(() => {
-          this._auth.loginWithGoogle(authUser.credential).subscribe((res) => {
-            if (res.isTemporary) this.is2FAShown = true;
-            this.angulartics2.eventTrack.next({
-              action: 'Login: google login success'
+    if (this.isSaas) {
+      const gAccounts: accounts = google.accounts;
+      gAccounts.id.initialize({
+        client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
+        callback: (authUser) => {
+          this.ngZone.run(() => {
+            this._auth.loginWithGoogle(authUser.credential).subscribe((res) => {
+              if (res.isTemporary) this.is2FAShown = true;
+              this.angulartics2.eventTrack.next({
+                action: 'Login: google login success'
+              });
             });
-          });
-        })
-      }
-    });
-    gAccounts.id.renderButton(
-       document.getElementById("google_login_button"),
-       { theme: "outline", size: "large", width: 360, text: "continue_with" }
-    );
-    gAccounts.id.prompt();
+          })
+        }
+      });
+      gAccounts.id.renderButton(
+         document.getElementById("google_login_button"),
+         { theme: "outline", size: "large", width: 360, text: "continue_with" }
+      );
+      gAccounts.id.prompt();
+    }
   }
 
   requestUserCompanies() {

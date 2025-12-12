@@ -18,6 +18,7 @@ import { DynamicModule } from 'ng-dynamic-component';
 import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
 import JsonURL from "@jsonurl/jsonurl";
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -51,6 +52,12 @@ interface Column {
   selected: boolean
 }
 
+export interface Folder {
+  id: string;
+  name: string;
+  tableIds: string[];
+}
+
 @Component({
   selector: 'app-db-table-view',
   templateUrl: './db-table-view.component.html',
@@ -71,6 +78,7 @@ interface Column {
     ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,
+    MatSelectModule,
     MatMenuModule,
     MatTooltipModule,
     ClipboardModule,
@@ -95,6 +103,7 @@ export class DbTableViewComponent implements OnInit {
   @Input() filterComparators: object;
   @Input() selection: SelectionModel<any>;
   @Input() tables: TableProperties[];
+  @Input() folders: Folder[] = [];
 
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
@@ -514,8 +523,24 @@ export class DbTableViewComponent implements OnInit {
     this._notifications.showSuccessSnackbar(message);
   }
 
-  switchTable(e) {
+  switchTable(tableName: string) {
+    if (tableName && tableName !== this.name) {
+      this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], {
+        queryParams: { page_index: 0, page_size: 30 }
+      });
+    }
+  }
 
+  getFolderTables(folder: Folder): TableProperties[] {
+    return this.tables.filter(table => folder.tableIds.includes(table.table));
+  }
+
+  getUncategorizedTables(): TableProperties[] {
+    const categorizedTableIds = new Set<string>();
+    this.folders.forEach(folder => {
+      folder.tableIds.forEach(id => categorizedTableIds.add(id));
+    });
+    return this.tables.filter(table => !categorizedTableIds.has(table.table));
   }
 
   onFilterSelected($event) {

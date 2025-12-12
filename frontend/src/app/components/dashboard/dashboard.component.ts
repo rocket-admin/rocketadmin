@@ -3,6 +3,8 @@ import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
+import { TableCategory } from 'src/app/models/connection';
+import { Folder } from './db-table-view/db-table-view.component';
 import { first, map } from 'rxjs/operators';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -101,6 +103,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public isAIpanelOpened: boolean = false;
 
   public uiSettings: ConnectionSettingsUI;
+  public tableFolders: Folder[] = [];
 
   constructor(
     private _connections: ConnectionsService,
@@ -153,6 +156,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getData();
         console.log('getData from ngOnInit');
     });
+
+    this.loadTableFolders();
   }
 
   ngOnDestroy() {
@@ -428,5 +433,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
   toggleSideBar() {
     this.shownTableTitles = !this.shownTableTitles;
     this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
+  }
+
+  private loadTableFolders() {
+    this._connections.getTablesFolders(this.connectionID).subscribe({
+      next: (categories: TableCategory[]) => {
+        if (categories && categories.length > 0) {
+          this.tableFolders = categories.map(cat => ({
+            id: cat.category_id,
+            name: cat.category_name,
+            tableIds: cat.tables
+          }));
+        } else {
+          this.tableFolders = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching table folders:', error);
+        this.tableFolders = [];
+      }
+    });
   }
 }
