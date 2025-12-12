@@ -1,3 +1,16 @@
 .form-field {
+    position: relative;
     width: 100%;
+}
+
+.long-textarea {
+    margin-bottom: 20px;
+}
+
+.counter {
+    position: absolute;
+    bottom: 8px;
+    font-size: 12px;
+    width: 90%;
+    background: #fff;
 }

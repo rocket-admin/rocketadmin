@@ -2,7 +2,7 @@
 <app-alert *ngIf="isDemo" [alert]="isDemoConnectionWarning"></app-alert>
 
 <div class="connectPage">
-    <form action="" #connectForm="ngForm" class="form"
+    <form #connectForm="ngForm" class="form"
         (ngSubmit)="handleCredentialsSubmitting(connectForm)">
         <h1 class="mat-h1 connectForm__fullLine">
             {{ connectionID ? 'Edit credentials' : 'Connect database' }}
@@ -30,14 +30,9 @@
                 [disabled]="submitting"
                 [(ngModel)]="db.type"
                 (ngModelChange)="dbTypeChange()" >
-                <mat-option value="mysql">MySQL</mat-option>
-                <mat-option value="postgres">PostgreSQL</mat-option>
-                <mat-option value="mongodb">MongoDB</mat-option>
-                <mat-option value="dynamodb" *ngIf="db.connectionType === 'direct'">DynamoDB</mat-option>
-                <mat-option value="cassandra">Cassandra</mat-option>
-                <mat-option value="oracledb">Oracle</mat-option>
-                <mat-option value="mssql">MS SQL</mat-option>
-                <mat-option value="ibmdb2">IBM DB2</mat-option>
+                <mat-option *ngFor="let dbType of supportedOrderedDatabases" [value]="dbType">
+                    {{supportedDatabasesTitles[dbType]}}
+                </mat-option>
             </mat-select>
         </mat-form-field>
 
@@ -169,6 +164,34 @@
             (switchToAgent)="switchToAgent"
             (masterKeyChange)="handleMasterKeyChange($event)">
         </app-mssql-credentials-form>
+
+        <app-redis-credentials-form *ngIf="db.type === 'redis' && db.connectionType === 'direct'"
+            [ngClass]="{
+                'credentials-fieldset': !db.isTestConnection,
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
+            }"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)">
+        </app-redis-credentials-form>
+
+        <app-elastic-credentials-form *ngIf="db.type === 'elasticsearch' && db.connectionType === 'direct'"
+            [ngClass]="{
+                'credentials-fieldset': !db.isTestConnection,
+                'credentials-fieldset-no-warning': db.isTestConnection || !isSaas
+            }"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)">
+        </app-elastic-credentials-form>
 
         <app-db2-credentials-form *ngIf="db.type === 'ibmdb2' && db.connectionType === 'direct'"
             [ngClass]="{

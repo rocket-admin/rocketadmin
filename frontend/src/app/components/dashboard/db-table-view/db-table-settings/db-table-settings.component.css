@@ -1,0 +1,225 @@
+.settings-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 0 0;
+}
+
+.settings-page .mat-mdc-form-field-bottom-align::before {
+    margin-left: 0;
+}
+
+.settings-form {
+    width: 100%;
+}
+
+.settings-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px max(calc(50vw - 325px), 10%) 60px;
+}
+
+@media (width <= 600px) {
+    .settings-fields {
+        gap: 24px;
+        padding: 0 9vw 72px;
+    }
+}
+
+.settings-fields__subheading {
+    margin-top: -4px !important;
+    margin-bottom: 0 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .settings-fields__subheading {
+        color: rgba(255,255,255,0.64);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .settings-fields__subheading {
+        color: rgba(0,0,0,0.64);
+    }
+}
+
+.settings-table-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.settings-table-display__title {
+    flex-grow: 1;
+}
+
+.settings-fields__heading {
+    margin-top: 20px !important;
+    margin-bottom: -4px !important;
+}
+
+.icon-picker {
+    margin-left: -4px;
+    margin-bottom: 20px;
+}
+
+.order-settings {
+    display: flex;
+    gap: 12px;
+}
+
+.order-settings__panel {
+    flex-grow: 1;
+    position: relative;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.order-settings__expansion-panel {
+    position: relative;
+    box-shadow: 0 0 1px 1px rgba(0,0,0,0.15);
+}
+
+.order-settings ::ng-deep .mat-expansion-panel-header {
+    height: auto;
+    min-height: 44px;
+    padding: 0.75em;
+}
+
+.order-settings__reset-button {
+    margin-top: 4px;
+}
+
+.mat-expansion-panel:not(.mat-expanded):hover {
+    box-shadow: 0 0 1px 2px rgba(0,0,0,0.87);
+}
+
+.mat-expansion-panel:not(.mat-expanded) .mat-expansion-panel-header:hover:not([aria-disabled="true"]) {
+    background: transparent;
+}
+
+.mat-expansion-panel-header {
+    position: relative;
+    height: 60px;
+    padding: 0 0.75em;
+}
+
+.order__title {
+    position: absolute;
+    top: -12px;
+    left: 8px;
+    display: inline-block;
+    font-size: 0.75em;
+    padding: 4px;
+    z-index: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .order__title {
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .order__title {
+        background: #fff;
+        color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+.order-item {
+    background: var(--mat-expansion-container-background-color);
+    color: var(--mat-expansion-container-text-color);
+    box-sizing: border-box;
+    cursor: move;
+    padding: 20px 12px;
+}
+
+.order-item:not(:last-child) {
+    border-bottom: solid 1px var(--mat-table-row-item-outline-color);
+}
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.settings-form__tooltip {
+    margin-bottom: 20px;
+}
+
+.form-group-ordering {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (width <= 600px) {
+    .form-group-ordering {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.form-group-ordering__ordering-by {
+    width: 50%
+}
+
+@media (width <= 600px) {
+    .form-group-ordering__ordering-by {
+        width: 100%
+    }
+}
+
+.form-group-ordering__order-options {
+    flex-shrink: 0;
+    display: flex;
+    gap: 12px;
+    margin-top: -20px;
+}
+
+.mat-form-field_excludedFields {
+    margin-top: 16px;
+    margin-bottom: 20px;
+}
+
+.actions {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--mat-sidenav-content-background-color);
+    box-shadow: var(--shadow);
+    height: 64px;
+    padding: 0 max(calc(50vw - 325px), 10%);
+    width: 100vw;
+    z-index: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+    .actions {
+        --shadow: 0 3px 1px -2px rgba(0,0,0,.5),0 2px 2px 0 rgba(0,0,0,.64),0 1px 5px 0 rgba(0,0,0,0.85);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .actions {
+        --shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    }
+}
+
+.settings-form__back-button {
+    margin-right: auto;
+}
+
+.settings-form__save-button {
+    margin-left: 20px;
+}

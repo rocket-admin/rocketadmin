@@ -2,8 +2,8 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -14,6 +14,7 @@ import {
   WidgetTypeEnum,
 } from '../../../enums/index.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent, isObjectEmpty, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
@@ -22,6 +23,7 @@ import { TableActionActivationService } from '../../table-actions/table-actions-
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
 import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
+import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
@@ -29,7 +31,6 @@ import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
 import { IAddRowInTable } from './table-use-cases.interface.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, TableRowRODs> implements IAddRowInTable {
@@ -213,7 +214,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         operationResult = OperationResultStatusEnum.successfully;
         addedRow = await dao.getRowByPrimaryKey(tableName, addedRowPrimaryKey, tableSettings, userEmail);
         addedRow = removePasswordsFromRowsUtil(addedRow, tableWidgets);
-
+        addedRow = convertBinaryDataInRowUtil(addedRow, tableStructure);
         return {
           row: addedRow,
           foreignKeys: foreignKeysWithAutocompleteColumns,
@@ -225,6 +226,21 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
           list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
           identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
           referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
+          excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
+          can_delete: tableSettings ? tableSettings.can_delete : true,
+          can_update: tableSettings ? tableSettings.can_update : true,
+          can_add: tableSettings ? tableSettings.can_add : true,
+          table_settings: {
+            sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+            ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+            identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+            list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+            allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
+            allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
+            can_delete: tableSettings ? tableSettings.can_delete : true,
+            can_update: tableSettings ? tableSettings.can_update : true,
+            can_add: tableSettings ? tableSettings.can_add : true,
+          },
         };
       }
     } catch (e) {

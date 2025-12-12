@@ -36,6 +36,7 @@ export interface TableSettings {
     sensitive_fields: string[],
     allow_csv_export: boolean,
     allow_csv_import: boolean,
+    can_delete: boolean,
 }
 
 export interface TableRow {
@@ -48,6 +49,7 @@ export interface TableRow {
     foreignKeysList: string[],
     widgets: Widget[],
     widgetsList: string[],
+    fieldsTypes: { [key: string]: string },
     relatedRecords: {
         referenced_on_column_name: string,
 		referenced_by: []

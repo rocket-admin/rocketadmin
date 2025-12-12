@@ -4,8 +4,8 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -18,6 +18,7 @@ import {
 } from '../../../enums/index.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import {
@@ -38,7 +39,6 @@ import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IUpdateRowInTable } from './table-use-cases.interface.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -283,6 +283,21 @@ export class UpdateRowInTableUseCase
         list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
         identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
         referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
+        excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
+        can_delete: tableSettings ? tableSettings.can_delete : true,
+        can_update: tableSettings ? tableSettings.can_update : true,
+        can_add: tableSettings ? tableSettings.can_add : true,
+        table_settings: {
+          sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+          ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+          identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+          list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+          allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
+          allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
+          can_delete: tableSettings ? tableSettings.can_delete : true,
+          can_update: tableSettings ? tableSettings.can_update : true,
+          can_add: tableSettings ? tableSettings.can_add : true,
+        },
       };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;

@@ -1,198 +1,206 @@
-import WebSocket from 'ws';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
-import { CommandExecutor } from './command/command-executor.js';
-import { getConnectionToDbParams } from './helpers/get-connection-to-db-params.js';
-import { OperationTypeEnum } from './enums/operation-type.enum.js';
-import { Messages } from './text/messages.js';
+#!/usr/bin/env node
+
+import 'dotenv/config';
+import { Command } from 'commander';
+import chalk from 'chalk';
+import ora from 'ora';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { checkConnection } from './helpers/check-connection.js';
+import { Constants } from './helpers/constants/constants.js';
+import { InteractivePrompts } from './helpers/cli/interactive-prompts.js';
+import { mkDirIfNotExistsUtil } from './helpers/write-file-util.js';
 import { ICLIConnectionCredentials } from './interfaces/interfaces.js';
 import { Config } from './shared/config/config.js';
-import { CLIQuestionUtility } from './helpers/cli/cli-questions.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { mkDirIfNotExistsUtil } from './helpers/write-file-util.js';
-import { Constants } from './helpers/constants/constants.js';
+import { createWebSocketClient } from './websocket/websocket-client.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-async function bootstrap() {
-  const connectionCredentials: ICLIConnectionCredentials = Config.getConnectionConfig();
-  await NestFactory.create(AppModule);
-  const remoteWebsocketAddRess = process.env.REMOTE_WEBSOCKET_ADDRESS || 'wss://ws.rocketadmin.com:443/';
-  function connect() {
-    const ws = new WebSocket(remoteWebsocketAddRess);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+let version = '0.0.1';
+try {
+  const packageJson = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf-8'));
+  version = packageJson.version;
+} catch {}
 
-    ws.on('open', function open() {
-      const connectionToken = connectionCredentials?.token;
-      if (!connectionToken) {
-        console.error(Messages.CONNECTION_TOKEN_MISSING);
-        process.exit(0);
-      }
-      console.info('-> Connected to the remote server');
-      const data = {
-        operationType: 'initialConnection',
-        connectionToken: connectionToken,
-      };
-      ws.send(JSON.stringify(data));
-    });
+const program = new Command();
 
-    ws.on('message', async function incoming(data: any) {
-      const messageData = JSON.parse(data);
-      const {
-        data: { resId },
-      } = messageData;
-      const commandExecutor = new CommandExecutor(connection);
-      try {
-        const result = await commandExecutor.executeCommand(messageData);
-        const responseData = {
-          operationType: OperationTypeEnum.dataFromAgent,
-          commandResult: result,
-          resId: resId,
-        };
-        ws.send(JSON.stringify(responseData));
-      } catch (e) {
-        ws.send(JSON.stringify(e));
-      }
-    });
+program
+  .name('rocketadmin-agent')
+  .description('RocketAdmin Agent - Connect your database to RocketAdmin through a secure agent')
+  .version(version)
+  .option('-t, --token <token>', 'Connection token from RocketAdmin')
+  .option('--type <type>', 'Database type (postgres, mysql, oracledb, mssql, mongodb, ibmdb2, redis, clickhouse)')
+  .option('-H, --host <host>', 'Database host')
+  .option('-p, --port <port>', 'Database port', parseInt)
+  .option('-u, --username <username>', 'Database username')
+  .option('-P, --password <password>', 'Database password')
+  .option('-d, --database <database>', 'Database name')
+  .option('-s, --schema <schema>', 'Database schema')
+  .option('--sid <sid>', 'Oracle SID')
+  .option('--ssl', 'Enable SSL connection', false)
+  .option('--azure-encryption', 'Enable Azure encryption (MSSQL)', false)
+  .option('--data-center <dataCenter>', 'Cassandra data center')
+  .option('--auth-source <authSource>', 'MongoDB auth source')
+  .option('--ws-url <url>', 'WebSocket server URL (overrides REMOTE_WEBSOCKET_ADDRESS env)')
+  .option('--save-config', 'Save configuration to file', false)
+  .option('--encrypt-config', 'Encrypt saved configuration', false)
+  .option('--encryption-password <password>', 'Password for config encryption')
+  .option('--save-logs', 'Save logs to file', false)
+  .option('-i, --interactive', 'Run interactive configuration wizard', false);
 
-    ws.on('close', (code, reason) => {
-      console.log(
-        `${Messages.SOCKET_WAS_DISCONNECTED} ${code ? ` With code: ${code} ` : ' '}`,
-        reason ? `Reason: ${reason}` : '',
-      );
-      setTimeout(() => {
-        connect();
-      }, 1000);
-    });
+async function testDatabaseConnection(connection: ICLIConnectionCredentials, maxRetries: number = 6): Promise<boolean> {
+  const spinner = ora({
+    text: 'Testing database connection...',
+    color: 'cyan',
+  }).start();
 
-    ws.on('error', (e) => {
-      console.error(Messages.SOCKET_ENCOUNTERED_ERROR(e.message));
-      ws.close();
-    });
+  const testResult = await checkConnection(connection);
+  if (testResult.result) {
+    spinner.succeed(chalk.green('Database connection successful'));
+    return true;
   }
 
-  console.log('-> Application started');
-  const connection = await getConnectionToDbParams();
+  spinner.warn(chalk.yellow('Initial connection failed, retrying...'));
 
-  async function tryConnectToDatabase(timeout = 2000) {
-    const testConnectionResult = await checkConnection(connection);
-    if (testConnectionResult.result) {
-      return;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const delay = 2000 + attempt * 2000;
+    console.log(chalk.gray(`  Retry ${attempt}/${maxRetries} in ${delay / 1000}s...`));
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    const retryResult = await checkConnection(connection);
+    if (retryResult.result) {
+      console.log(chalk.green(`✓ Database connection successful on retry ${attempt}`));
+      return true;
     }
-    let counter = 0;
-    setTimeout(async function run() {
-      timeout += 2000;
-      ++counter;
-      const tryResult = await checkConnection(connection);
-      if (tryResult.result) {
-        return;
-      } else {
-        if (counter >= 6) {
-          console.log('-> Connection to database failed. Please check your credentials and network connection');
-          process.exit(0);
-          return;
-        }
-        setTimeout(run, timeout);
-      }
-    }, timeout);
   }
 
-  await tryConnectToDatabase();
-
-  connect();
+  console.error(chalk.red('✗ Database connection failed after all retries'));
+  console.error(chalk.red('  Please check your credentials and network connection'));
+  return false;
 }
 
-(async function () {
-  const connectionCredentials: ICLIConnectionCredentials = {
-    app_port: 3000,
-    azure_encryption: false,
-    cert: null,
-    database: null,
-    host: null,
-    password: null,
-    port: null,
-    schema: null,
-    sid: null,
-    ssl: false,
-    token: null,
-    type: null,
-    username: null,
-    application_save_option: false,
-    config_encryption_option: false,
-    encryption_password: null,
-    saving_logs_option: false,
-    dataCenter: null,
-    authSource: null,
-  };
-
-  const configFromEnvironment = Config.readConnectionConfigFromEnv();
-  if (configFromEnvironment) {
-    await Config.setConnectionConfig(configFromEnvironment);
-    bootstrap()
-      .then(() => {
-        console.info('-> Application launched');
-      })
-      .catch((e) => {
-        console.error(`-> Failed to start application with error: ${e}`);
-        process.exit(0);
-      });
-    return;
-  } else {
-    const savedConfig: ICLIConnectionCredentials = await Config.readConfigFromFile();
-    if (savedConfig) {
-      await Config.setConnectionConfig(savedConfig);
-      bootstrap()
-        .then(() => {
-          console.info('-> Application launched');
-        })
-        .catch((e) => {
-          console.error(`-> Failed to start application with error: ${e}`);
-          process.exit(0);
-        });
-    } else {
-      connectionCredentials.token = CLIQuestionUtility.askConnectionToken();
-      connectionCredentials.type = CLIQuestionUtility.askConnectionType();
-      connectionCredentials.host = CLIQuestionUtility.askConnectionHost();
-      connectionCredentials.port = CLIQuestionUtility.askConnectionPort();
-      connectionCredentials.username = CLIQuestionUtility.askConnectionUserName();
-      connectionCredentials.password = CLIQuestionUtility.askConnectionPassword();
-      connectionCredentials.database = CLIQuestionUtility.askConnectionDatabase();
-      connectionCredentials.schema = CLIQuestionUtility.askConnectionSchema();
-      if (connectionCredentials.type === ConnectionTypesEnum.oracledb) {
-        connectionCredentials.sid = CLIQuestionUtility.askConnectionSid();
-      }
-      if (connectionCredentials.type === ConnectionTypesEnum.mssql) {
-        connectionCredentials.azure_encryption = CLIQuestionUtility.askConnectionAzureEncryption();
-      }
-      if (connectionCredentials.type === ConnectionTypesEnum.cassandra) {
-        connectionCredentials.dataCenter = CLIQuestionUtility.askConnectionDataCenter();
-      }
-      if (connectionCredentials.type === ConnectionTypesEnum.mongodb) {
-        connectionCredentials.authSource = CLIQuestionUtility.askConnectionAuthSource();
-      }
-      connectionCredentials.cert = null;
-      connectionCredentials.ssl = CLIQuestionUtility.askConnectionSslOption();
-      connectionCredentials.application_save_option = CLIQuestionUtility.askApplicationSaveConfig();
-      if (connectionCredentials.application_save_option) {
-        connectionCredentials.config_encryption_option = CLIQuestionUtility.askApplicationEncryptConfigOption();
-      }
-      if (connectionCredentials.config_encryption_option) {
-        connectionCredentials.encryption_password = CLIQuestionUtility.askApplicationEncryptionPassword();
-      }
-      connectionCredentials.saving_logs_option = CLIQuestionUtility.askApplicationSaveLogsOption();
-      if (connectionCredentials.saving_logs_option) {
-        await mkDirIfNotExistsUtil(Constants.DEFAULT_LOGS_DIRNAME);
-      }
-      console.info(Messages.CREDENTIALS_ACCEPTED);
-
-      await Config.setConnectionConfig(connectionCredentials, true);
-
-      bootstrap()
-        .then(() => {
-          console.info('-> Application launched');
-        })
-        .catch((e) => {
-          console.error(`-> Failed to start apllication with error: ${e}`);
-          process.exit(0);
-        });
-    }
+function buildCredentialsFromOptions(options: Record<string, any>): ICLIConnectionCredentials | null {
+  if (!options.token || !options.type || !options.host || !options.port) {
+    return null;
   }
-})();
+
+  const validTypes = Object.values(ConnectionTypesEnum);
+  if (!validTypes.includes(options.type as ConnectionTypesEnum)) {
+    console.error(chalk.red(`Invalid database type: ${options.type}`));
+    console.error(chalk.gray(`Valid types: ${validTypes.join(', ')}`));
+    process.exit(1);
+  }
+
+  return {
+    token: options.token,
+    type: options.type,
+    host: options.host,
+    port: options.port,
+    username: options.username || null,
+    password: options.password || null,
+    database: options.database || null,
+    schema: options.schema || null,
+    sid: options.sid || null,
+    ssl: options.ssl || false,
+    cert: null,
+    app_port: 3000,
+    azure_encryption: options.azureEncryption || false,
+    application_save_option: options.saveConfig || false,
+    config_encryption_option: options.encryptConfig || false,
+    encryption_password: options.encryptionPassword || null,
+    saving_logs_option: options.saveLogs || false,
+    dataCenter: options.dataCenter || null,
+    authSource: options.authSource || null,
+  };
+}
+
+async function startAgent(config: ICLIConnectionCredentials, wsUrl?: string): Promise<void> {
+  console.log('');
+  console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+  console.log(chalk.white.bold('  RocketAdmin Agent Starting'));
+  console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+  console.log('');
+
+  InteractivePrompts.displayConfigSummary(config);
+
+  const connected = await testDatabaseConnection(config);
+  if (!connected) {
+    process.exit(1);
+  }
+
+  if (config.saving_logs_option) {
+    await mkDirIfNotExistsUtil(Constants.DEFAULT_LOGS_DIRNAME);
+    console.log(chalk.gray('→ Logs will be saved to', Constants.DEFAULT_LOGS_DIRNAME));
+  }
+
+  const client = createWebSocketClient(config, wsUrl);
+  client.connect();
+
+  console.log('');
+  console.log(chalk.green('Agent is running. Press Ctrl+C to stop.'));
+}
+
+function getWebSocketUrl(cliOption?: string): string {
+  const defaultUrl = 'wss://ws.rocketadmin.com:443/';
+  const wsUrl = cliOption || process.env.REMOTE_WEBSOCKET_ADDRESS || defaultUrl;
+  console.log(chalk.gray(`→ WebSocket URL: ${wsUrl}`));
+  console.log(chalk.gray(`  (env REMOTE_WEBSOCKET_ADDRESS: ${process.env.REMOTE_WEBSOCKET_ADDRESS || 'not set'})`));
+  return wsUrl;
+}
+
+async function main(): Promise<void> {
+  program.parse();
+  const options = program.opts();
+  const wsUrl = getWebSocketUrl(options.wsUrl);
+
+  try {
+    const envConfig = Config.readConnectionConfigFromEnv();
+    if (envConfig) {
+      console.log(chalk.green('→ Configuration loaded from environment variables'));
+      await Config.setConnectionConfig(envConfig);
+      await startAgent(envConfig, wsUrl);
+      return;
+    }
+
+    const cliConfig = buildCredentialsFromOptions(options);
+    if (cliConfig && !options.interactive) {
+      console.log(chalk.green('→ Configuration loaded from command line arguments'));
+      await Config.setConnectionConfig(cliConfig, cliConfig.application_save_option);
+      await startAgent(cliConfig, wsUrl);
+      return;
+    }
+
+    const savedConfig = await Config.readConfigFromFile();
+    if (savedConfig && !options.interactive) {
+      console.log(chalk.green('→ Configuration loaded from saved file'));
+      await Config.setConnectionConfig(savedConfig);
+      await startAgent(savedConfig, wsUrl);
+      return;
+    }
+
+    console.log(chalk.gray('No existing configuration found. Starting interactive setup...'));
+    const interactiveConfig = await InteractivePrompts.runInteractiveSetup();
+
+    if (interactiveConfig.saving_logs_option) {
+      await mkDirIfNotExistsUtil(Constants.DEFAULT_LOGS_DIRNAME);
+    }
+
+    await Config.setConnectionConfig(interactiveConfig, true);
+    await startAgent(interactiveConfig, wsUrl);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ERR_USE_AFTER_CLOSE') {
+      console.log(chalk.yellow('\nSetup cancelled.'));
+      process.exit(0);
+    }
+    console.error(chalk.red('Failed to start agent:'), error);
+    process.exit(1);
+  }
+}
+
+main().catch((error) => {
+  console.error(chalk.red('Unexpected error:'), error);
+  process.exit(1);
+});

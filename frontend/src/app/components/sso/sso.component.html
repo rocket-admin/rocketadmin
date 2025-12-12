@@ -1,0 +1,146 @@
+<form class="samlConfigForm" (ngSubmit)="samlConfig.id ? updateSamlConfiguration() : createSamlConfiguration()" #samlForm="ngForm" novalidate>
+    <h1 class="mat-h1 ssoPageHeader">
+        SAML SSO Configuration
+    </h1>
+    <mat-form-field appearance="outline">
+        <mat-label>Config name</mat-label>
+        <input matInput name="config-name" #configName="ngModel"
+            data-testid="config-name-input"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.name">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>SSO identifier</mat-label>
+        <input matInput name="sso-slug" #ssoSlug="ngModel"
+            data-testid="sso-slug-input"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.slug">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Entry point</mat-label>
+        <input matInput name="entry-point" #entryPoint="ngModel"
+            data-testid="entry-point-input"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.entryPoint">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Issuer</mat-label>
+        <input matInput name="issuer" #issuer="ngModel"
+            data-testid="issuer-input"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.issuer">
+    </mat-form-field>
+
+
+
+    <mat-form-field appearance="outline">
+        <mat-label>Callback URL</mat-label>
+        <input matInput name="callback-url" #callbackUrl="ngModel"
+            data-testid="callback-url-input"
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.callbackUrl">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Certificate</mat-label>
+        <textarea matInput resizeToFitContent rows="8" name="cert" #cert="ngModel"
+            data-testid="cert-textarea"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.cert"
+        ></textarea>
+        <mat-error *ngIf="cert.errors?.required && (cert.invalid && cert.touched)">Certificate should not be empty</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Signature algorithm</mat-label>
+        <input matInput name="signature-algorithm" #signatureAlgorithm="ngModel"
+            data-testid="signature-algorithm-input"
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.signatureAlgorithm">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Digest algorithm</mat-label>
+        <input matInput name="digest-algorithm" #digestAlgorithm="ngModel"
+            data-testid="digest-algorithm-input"
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.digestAlgorithm">
+    </mat-form-field>
+
+    <mat-checkbox name="active" #active="ngModel"
+        class="samlConfigForm__checkbox"
+        data-testid="active-checkbox"
+        labelPosition="after"
+        [disabled]="submitting"
+        [(ngModel)]="samlConfig.active">
+        Active
+    </mat-checkbox>
+
+    <mat-checkbox name="assertionsSignedValidation" #assertionsSignedValidation="ngModel"
+        class="samlConfigForm__checkbox"
+        data-testid="assertionsSignedValidation-checkbox"
+        labelPosition="after"
+        [disabled]="submitting"
+        [(ngModel)]="samlConfig.assertionsSignedValidation">
+        Assertions signed validation
+    </mat-checkbox>
+
+    <mat-checkbox name="authnResponseSignedValidation" #authnResponseSignedValidation="ngModel"
+        class="samlConfigForm__checkbox"
+        data-testid="authnResponseSignedValidation-checkbox"
+        labelPosition="after"
+        [disabled]="submitting"
+        [(ngModel)]="samlConfig.authnResponseSignedValidation">
+        Authn response signed validation
+    </mat-checkbox>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Allowed domains</mat-label>
+        <input matInput name="allowed-domains" #allowedDomains="ngModel"
+            data-testid="allowed-domains-input"
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.allowedDomains">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Display name</mat-label>
+        <input matInput name="display-name" #displayName="ngModel"
+            data-testid="display-name-input"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.displayName">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Logo URL</mat-label>
+        <input matInput name="logo-url" #logoUrl="ngModel"
+            data-testid="logo-url-input"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.logoUrl">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Expected issuer</mat-label>
+        <input matInput name="expected-issuer" #expectedIssuer="ngModel"
+            data-testid="expected-issuer-input"
+            required
+            [disabled]="submitting"
+            [(ngModel)]="samlConfig.expectedIssuer">
+    </mat-form-field>
+
+    <div class="actions">
+        <div class="actions-box">
+            <a mat-stroked-button type="button" routerLink="/company"
+                data-testid="sso-back-to-company-button">
+                Back
+            </a>
+
+            <button type="submit" mat-flat-button color="primary"
+                data-testid="sso-save-button"
+                [disabled]="submitting">
+                Save
+            </button>
+        </div>
+</div>
+</form>

@@ -2,7 +2,6 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
-import { TableLogsEntity } from '../../table-logs/table-logs.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
@@ -44,6 +43,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     const connectionQb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
+      .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
       .andWhere('user.id = :userId', { userId: userId })
       .andWhere('connection.isTestConnection = :isTest', { isTest: true });
     return await connectionQb.getMany();
@@ -127,41 +127,16 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return await qb.getOne();
   },
 
-  async getConnectionsWithNonNullUsersGCLIDs(): Promise<Array<ConnectionEntity>> {
-    const dateTwoWeeksAgo = Constants.TWO_WEEKS_AGO();
-    const connectionsQB = this.createQueryBuilder('connection')
-      .where('connection.createdAt > :date', { date: dateTwoWeeksAgo })
-      .leftJoinAndSelect('connection.author', 'user')
-      .andWhere('user.gclid IS NOT NULL');
-    const freshConnections: Array<ConnectionEntity> = await connectionsQB.getMany();
-    const testConnectionsHosts = Constants.getTestConnectionsArr().map((connection) => {
-      return connection.host;
-    });
-    return freshConnections.filter((connection: ConnectionEntity) => {
-      return !testConnectionsHosts.includes(connection.host);
-    });
-  },
-
   async getWorkedConnectionsInTwoWeeks(): Promise<Array<ConnectionEntity>> {
-    const freshConnections = await this.getConnectionsWithNonNullUsersGCLIDs();
-    const workedFreshConnections: Array<ConnectionEntity> = await Promise.all(
-      freshConnections.map(async (connection: ConnectionEntity): Promise<ConnectionEntity | null> => {
-        const qb = this.manager
-          .getRepository(TableLogsEntity)
-          .createQueryBuilder('tableLogs')
-          .leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
-        qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connection.id });
-        const logs = await qb.getMany();
-        if (logs && logs.length > 0) {
-          return connection;
-        } else {
-          return null;
-        }
-      }),
-    );
-    return workedFreshConnections.filter((connection) => {
-      return !!connection;
-    });
+    const freshNonTestConnectionsWithLogs = await this.createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.author', 'author')
+      .leftJoin('connection.logs', 'logs')
+      .where('connection.createdAt > :date', { date: Constants.TWO_WEEKS_AGO() })
+      .andWhere('author.gclid IS NOT NULL')
+      .andWhere('connection.isTestConnection = :isTest', { isTest: false })
+      .andWhere('logs.id IS NOT NULL')
+      .getMany();
+    return freshNonTestConnectionsWithLogs;
   },
 
   async getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId: string): Promise<ConnectionEntity> {
@@ -171,15 +146,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       .leftJoinAndSelect('company.users', 'user');
     qb.andWhere('group.id = :groupId', { groupId: groupId });
     return await qb.getOne();
-  },
-
-  async getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string> {
-    const connectionQb = this.createQueryBuilder('connection')
-      .leftJoinAndSelect('connection.groups', 'group')
-      .leftJoinAndSelect('connection.author', 'author')
-      .andWhere('group.id = :id', { id: groupId });
-    const connection: ConnectionEntity = await connectionQb.getOne();
-    return connection.author.id;
   },
 
   async findOneById(connectionId: string): Promise<ConnectionEntity> {
@@ -239,6 +205,15 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       .set({ is_frozen: false })
       .where('id IN (:...connectionsIds)', { connectionsIds })
       .execute();
+  },
+
+  async foundUserTestConnectionsWithoutCompany(userId: string): Promise<Array<ConnectionEntity>> {
+    const qb = this.createQueryBuilder('connection')
+      .leftJoin('connection.author', 'user')
+      .where('user.id = :userId', { userId: userId })
+      .andWhere('connection.isTestConnection = :isTest', { isTest: true })
+      .andWhere('connection.company IS NULL');
+    return await qb.getMany();
   },
 
   decryptConnectionField(field: string): string {

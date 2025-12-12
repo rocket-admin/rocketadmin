@@ -1,129 +1,22 @@
 <h1 *ngIf="isDemo" class="mat-display-1">Create you own test connection</h1>
 
 <div *ngIf="!connections?.length && connections !== null" class="empty-state">
-    <svg *ngIf="!isDemo" width="197" height="151" viewBox="0 0 197 151" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="147.928" y1="148.995" x2="49.7833" y2="148.995" stroke="black" stroke-width="2.13357"/>
-        <rect x="87.8319" y="115.569" width="21.3357" height="33.426" fill="white" stroke="black" stroke-width="2.13357"/>
-        <mask id="path-3-inside-1_38199_26305" fill="white">
-        <path d="M86.7651 112.369H110.234V120.192H86.7651V112.369Z"/>
-        </mask>
-        <path d="M86.7651 112.369H110.234V120.192H86.7651V112.369Z" fill="#DCB3FD"/>
-        <path d="M86.7651 112.369V110.236H84.6316V112.369H86.7651ZM110.234 112.369H112.368V110.236H110.234V112.369ZM86.7651 114.503H110.234V110.236H86.7651V114.503ZM108.101 112.369V120.192H112.368V112.369H108.101ZM88.8987 120.192V112.369H84.6316V120.192H88.8987Z" fill="black" mask="url(#path-3-inside-1_38199_26305)"/>
-        <path d="M0 103.588H197V110.234C197 112.591 195.09 114.501 192.733 114.501H4.27001C1.91175 114.501 0 112.59 0 110.231V103.588Z" fill="#C177FC"/>
-        <mask id="mask0_38199_26305" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="197" height="115">
-        <rect x="1.06679" y="1.06679" width="194.866" height="112.368" rx="3.20036" stroke="black" stroke-width="2.13357" stroke-linejoin="round"/>
-        </mask>
-        <g mask="url(#mask0_38199_26305)">
-        </g>
-        <g clip-path="url(#clip0_38199_26305)">
-        <g clip-path="url(#clip1_38199_26305)">
-        <rect width="195" height="142.935" transform="translate(1.5 1)" fill="white"/>
-        <g filter="url(#filter0_d_38199_26305)">
-        <rect width="43.29" height="114.465" transform="translate(1.5 18.1602)" fill="white"/>
-        <path opacity="0.8" d="M32.2319 32.3945H6.19944C5.4348 32.3945 4.81494 33.0144 4.81494 33.779V33.7985C4.81494 34.5632 5.4348 35.183 6.19944 35.183H32.2319C32.9966 35.183 33.6164 34.5632 33.6164 33.7985V33.779C33.6164 33.0144 32.9966 32.3945 32.2319 32.3945Z" fill="#515492" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M36.249 38.7129H10.2165C9.45189 38.7129 8.83203 39.3328 8.83203 40.0974V40.1169C8.83203 40.8815 9.45189 41.5014 10.2165 41.5014H36.249C37.0137 41.5014 37.6335 40.8815 37.6335 40.1169V40.0974C37.6335 39.3328 37.0137 38.7129 36.249 38.7129Z" fill="#262C61" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M30.8475 44.8555H10.2165C9.45189 44.8555 8.83203 45.4753 8.83203 46.24V46.2595C8.83203 47.0241 9.45189 47.644 10.2165 47.644H30.8475C31.6122 47.644 32.232 47.0241 32.232 46.2595V46.24C32.232 45.4753 31.6122 44.8555 30.8475 44.8555Z" fill="#262C61" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M36.249 50.9785H10.2165C9.45189 50.9785 8.83203 51.5984 8.83203 52.363V52.3825C8.83203 53.1472 9.45189 53.767 10.2165 53.767H36.249C37.0137 53.767 37.6335 53.1472 37.6335 52.3825V52.363C37.6335 51.5984 37.0137 50.9785 36.249 50.9785Z" fill="#262C61" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M8.83203 58.5056C8.83203 57.7256 9.45603 57.1211 10.236 57.1211H33.2655C34.0455 57.1211 34.6695 57.7451 34.6695 58.5056C34.6695 59.2856 34.0455 59.8901 33.2655 59.8901H10.236C9.45603 59.8901 8.83203 59.2856 8.83203 58.5251V58.5056Z" fill="#C177FC"/>
-        <path opacity="0.8" d="M8.83203 64.6481C8.83203 63.8681 9.45603 63.2441 10.236 63.2441H34.377C35.157 63.2441 35.781 63.8681 35.781 64.6481C35.781 65.4086 35.157 66.0326 34.377 66.0326H10.236C9.45603 66.0326 8.83203 65.4086 8.83203 64.6481ZM8.83203 70.7711C8.83203 69.9911 9.45603 69.3866 10.236 69.3866H26.031C26.811 69.3866 27.4155 70.0106 27.4155 70.7711C27.4155 71.5511 26.7915 72.1751 26.031 72.1751H10.236C9.45603 72.1751 8.83203 71.5511 8.83203 70.7711Z" fill="#262C61" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M36.249 75.5098H10.2165C9.45189 75.5098 8.83203 76.1296 8.83203 76.8943V76.9138C8.83203 77.6784 9.45189 78.2983 10.2165 78.2983H36.249C37.0137 78.2983 37.6335 77.6784 37.6335 76.9138V76.8943C37.6335 76.1296 37.0137 75.5098 36.249 75.5098Z" fill="#262C61" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M8.83203 83.0368C8.83203 82.2568 9.45603 81.6523 10.236 81.6523H33.2655C34.0455 81.6523 34.6695 82.2763 34.6695 83.0368C34.6695 83.8168 34.0455 84.4408 33.2655 84.4408H10.236C9.45603 84.4408 8.83203 83.8168 8.83203 83.0368Z" fill="#262C61" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M36.249 87.7754H10.2165C9.45189 87.7754 8.83203 88.3953 8.83203 89.1599V89.1794C8.83203 89.944 9.45189 90.5639 10.2165 90.5639H36.249C37.0137 90.5639 37.6335 89.944 37.6335 89.1794V89.1599C37.6335 88.3953 37.0137 87.7754 36.249 87.7754Z" fill="#515492" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M30.8475 93.918H10.2165C9.45189 93.918 8.83203 94.5378 8.83203 95.3025V95.322C8.83203 96.0866 9.45189 96.7065 10.2165 96.7065H30.8475C31.6122 96.7065 32.232 96.0866 32.232 95.322V95.3025C32.232 94.5378 31.6122 93.918 30.8475 93.918Z" fill="#262C61" fill-opacity="0.1"/>
-        <path opacity="0.8" d="M30.8475 100.059H10.2165C9.45189 100.059 8.83203 100.678 8.83203 101.443V101.463C8.83203 102.227 9.45189 102.847 10.2165 102.847H30.8475C31.6122 102.847 32.232 102.227 32.232 101.463V101.443C32.232 100.678 31.6122 100.059 30.8475 100.059Z" fill="#262C61" fill-opacity="0.1"/>
-        </g>
-        <rect width="195.135" height="8.66667" transform="translate(1.36426 9.38477)" fill="#212121"/>
-        <path d="M189.811 11.5312H178.696C177.544 11.5312 176.61 12.4654 176.61 13.6177V13.6373C176.61 14.7896 177.544 15.7237 178.696 15.7237H189.811C190.964 15.7237 191.898 14.7896 191.898 13.6373V13.6177C191.898 12.4654 190.964 11.5312 189.811 11.5312Z" fill="#EBEBF0" fill-opacity="0.32"/>
-        <path d="M172.651 11.5312H161.536C160.384 11.5312 159.45 12.4654 159.45 13.6177V13.6373C159.45 14.7896 160.384 15.7237 161.536 15.7237H172.651C173.804 15.7237 174.738 14.7896 174.738 13.6373V13.6177C174.738 12.4654 173.804 11.5312 172.651 11.5312Z" fill="#EBEBF0" fill-opacity="0.32"/>
-        <rect x="51.4199" y="30.6406" width="138.645" height="102.57" rx="1.08333" stroke="#EAEAEA" stroke-width="0.195"/>
-        <rect opacity="0.02" x="188.461" y="42.2852" width="0.541667" height="73.6667" rx="0.270833" fill="black"/>
-        <rect x="188.461" y="42.2852" width="0.541667" height="13.2708" rx="0.270833" fill="#DADCDB"/>
-        <rect x="69.5552" y="34.9297" width="10.14" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="34.9297" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="34.9297" width="6.24" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="34.9297" width="4.68" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="34.9297" width="22.23" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="34.9297" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="69.5552" y="43.9004" width="6.825" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="43.9004" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="43.9004" width="11.31" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="43.9004" width="6.435" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="43.9004" width="15.795" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="43.9004" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="69.5552" y="53.2598" width="8.19" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="53.2598" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="53.2598" width="6.24" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="53.2598" width="4.68" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="53.2598" width="19.11" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="53.2598" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="69.5552" y="62.2305" width="10.14" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="62.2305" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="62.2305" width="9.165" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="62.2305" width="3.705" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="62.2305" width="15.795" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="62.2305" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="69.5552" y="71.3945" width="6.24" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="71.3945" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="71.3945" width="6.24" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="71.3945" width="4.68" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="71.3945" width="13.26" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="71.3945" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="69.5552" y="80.3652" width="9.165" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="80.3652" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="80.3652" width="12.285" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="80.3652" width="5.265" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="80.3652" width="19.11" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="80.3652" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="69.5552" y="89.334" width="7.215" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="89.334" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="89.334" width="5.655" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="89.334" width="4.68" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="89.334" width="15.795" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="89.334" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="69.5552" y="98.8906" width="11.7" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="55.3203" y="98.8906" width="3.12" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="93.9302" y="98.8906" width="8.385" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="118.305" y="98.8906" width="3.705" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <rect x="132.93" y="98.8906" width="22.23" height="2.145" rx="0.39" fill="#D3D3D3"/>
-        <rect x="165.105" y="98.8906" width="21.255" height="2.145" rx="0.39" fill="#DCB3FD"/>
-        <path d="M55.4507 40.6602H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55.4507 49.6953H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55.4507 58.7305H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55.4507 67.7656H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55.4507 76.8008H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55.4507 86.6055H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55.4507 95.7695H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55.4507 103.904H185.722" stroke="black" stroke-opacity="0.08" stroke-width="0.195" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M194.879 1H3.12144C2.22595 1 1.5 1.05462 1.5 1.12201V9.26299C1.5 9.33038 2.22595 9.385 3.12144 9.385H194.879C195.774 9.385 196.5 9.33038 196.5 9.26299V1.12201C196.5 1.05462 195.774 1 194.879 1Z" fill="white"/>
-        <path d="M5.43898 6.38284C6.10669 6.38284 6.64798 5.84156 6.64798 5.17384C6.64798 4.50613 6.10669 3.96484 5.43898 3.96484C4.77127 3.96484 4.22998 4.50613 4.22998 5.17384C4.22998 5.84156 4.77127 6.38284 5.43898 6.38284Z" fill="#FF6158"/>
-        <path d="M13.044 6.38284C13.7117 6.38284 14.253 5.84156 14.253 5.17384C14.253 4.50613 13.7117 3.96484 13.044 3.96484C12.3762 3.96484 11.835 4.50613 11.835 5.17384C11.835 5.84156 12.3762 6.38284 13.044 6.38284Z" fill="#2AC940"/>
-        <path d="M9.16359 6.38284C9.8313 6.38284 10.3726 5.84156 10.3726 5.17384C10.3726 4.50613 9.8313 3.96484 9.16359 3.96484C8.49588 3.96484 7.95459 4.50613 7.95459 5.17384C7.95459 5.84156 8.49588 6.38284 9.16359 6.38284Z" fill="#FFBD30"/>
-        </g>
-        </g>
-        <path opacity="0.25" d="M150 1H192.73C195.088 1 197 2.91174 197 5.27V110.234C197 112.591 195.09 114.501 192.733 114.501H88L150 1Z" fill="#DCB3FD"/>
-        <rect x="1.06679" y="1.06679" width="194.866" height="112.368" rx="3.20036" fill="#D9D9D9" fill-opacity="0.1" stroke="black" stroke-width="2.13357" stroke-linejoin="round"/>
-        <defs>
-        <filter id="filter0_d_38199_26305" x="-3.375" y="13.2852" width="54.1234" height="125.298" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-        <feOffset dx="0.541667" dy="0.541667"/>
-        <feGaussianBlur stdDeviation="2.70833"/>
-        <feComposite in2="hardAlpha" operator="out"/>
-        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
-        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_38199_26305"/>
-        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_38199_26305" result="shape"/>
-        </filter>
-        <clipPath id="clip0_38199_26305">
-        <rect x="1" y="1" width="195" height="103" rx="1.56" fill="white"/>
-        </clipPath>
-        <clipPath id="clip1_38199_26305">
-        <rect width="195" height="142.935" fill="white" transform="translate(1.5 1)"/>
-        </clipPath>
-        </defs>
-    </svg>
-    <p *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !isDemo" class="mat-body-1 empty-state__text" style="margin-bottom: -24px !important">
+    <h1 *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !isDemo" class="mat-display-1">
         Create your first connection
-    </p>
+    </h1>
+    <ul class="supportedDatabases">
+        <li *ngFor="let supportedDatabase of supportedOrderedDatabases">
+            <a routerLink="/connect-db"
+                [queryParams]="{ type: supportedDatabase }"
+                class="addConnectionLink"
+                attr.data-testid="{{supportedDatabase}}-test-connection-list-item">
+                <div class="addConnectionLink__iconBox">
+                    <mat-icon [svgIcon]="supportedDatabase" class="addConnectionLink__icon"></mat-icon>
+                </div>
+                {{ supportedDatabasesTitles[supportedDatabase] }}
+            </a>
+        </li>
+    </ul>
 </div>
 
 <ul class="connections">
@@ -131,36 +24,20 @@
         <a routerLink="/dashboard/{{connectionItem.connection.id}}" class="connection"
             angulartics2On="click"
             angularticsAction="Connections: open own db is clicked">
-            <div *ngIf="connectionItem.connection.connection_properties?.logo_url && connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <img [src]="connectionItem.connection.connection_properties?.logo_url"
+            <div  class="connectionLogoPreview">
+                <img *ngIf="connectionItem.connection.connection_properties?.logo_url; else noLogo"
+                    [src]="connectionItem.connection.connection_properties?.logo_url"
                     class="connectionLogoPreview__logo"
                     [alt]="connectionItem.connection.connection_properties?.company_name">
-                <span class="mat-body-1 connectionLogoPreview__name">
-                    {{connectionItem.connection.connection_properties?.company_name}}
-                </span>
-            </div>
-            <div *ngIf="connectionItem.connection.connection_properties?.logo_url && !connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <img [src]="connectionItem.connection.connection_properties?.logo_url"
-                    class="connectionLogoPreview__logo"
-                    [alt]="connectionItem.connection.connection_properties?.company_name">
-            </div>
-            <div *ngIf="!connectionItem.connection.connection_properties?.logo_url && connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <span class="mat-body-1 connectionLogoPreview__name">
-                    {{connectionItem.connection.connection_properties?.company_name}}
-                </span>
-            </div>
-            <div *ngIf="!connectionItem.connection.connection_properties?.logo_url && !connectionItem.connection.connection_properties?.company_name" class="connectionLogoPreview">
-                <img src="../../assets/rocketadmin_logo_white-short.svg"
-                    class="connectionLogoPreview__logo"
-                    alt="Rocketadmin connection">
-                <span class="mat-body-1 connectionLogoPreview__name">
-                    Rocketadmin
-                </span>
-            </div>
-            <div class="connectionInfo">
-                <h2 class="connectionInfo__connectionTitle">{{ connectionItem.connection.title }}</h2>
-                <span class="mat-body-2">{{ connectionItem.connection.type }}</span>
-                <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
+                <ng-template #noLogo>
+                    <img src="../../assets/rocketadmin_logo_white-short.svg"
+                        class="connectionLogoPreview__logo"
+                        alt="Rocketadmin connection">
+                </ng-template>
+                <div class="connectionInfo">
+                    <h2 class="connectionInfo__connectionTitle">{{ connectionItem.displayTitle }}</h2>
+                    <span class="mat-body-2">{{ supportedDatabasesTitles[connectionItem.connection.type] }}</span>
+                </div>
             </div>
         </a>
     </li>
@@ -208,7 +85,7 @@
         Add database
     </a>
 </div>
-<a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !connections?.length"
+<!--<a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !connections?.length"
     data-testid="add-connection-button"
     color="primary"
     class="addButton"
@@ -217,14 +94,14 @@
     angularticsAction="Connections: Add connection button is clicked">
     <mat-icon *ngIf="connections?.length">add</mat-icon>
     Add database
-</a>
+</a>-->
 
 <div *ngIf="!connections?.length && connections !== null && !isDemo" class="empty-state_bottom">
     <p class="mat-body-1 empty-state__text">
-        Invited to the company and don't see admin panel?
+        Invited to a company but don't see your admin panel?
     </p>
-    <p class="mat-body-1">
-        Request access to admin panel from your Acount owner.
+    <p class="mat-body-1" style="text-align: center;">
+        Request access from your Account Owner
     </p>
 </div>
 

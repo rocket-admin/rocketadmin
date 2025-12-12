@@ -12,7 +12,7 @@ export class UserActionEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   mail_sent: boolean;
 
   @OneToOne(() => UserEntity, (user) => user.user_action, { onDelete: 'CASCADE' })

@@ -28,7 +28,7 @@
                     matTooltip="Duplicate row">
                     <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
                 </a>
-                <button type="button" mat-icon-button *ngIf="permissions.delete && hasKeyAttributesFromURL"
+                <button type="button" mat-icon-button *ngIf="permissions.delete && canDelete && hasKeyAttributesFromURL"
                     matTooltip="Delete row"
                     (click)="handleDeleteRow()">
                     <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
@@ -123,7 +123,7 @@
                                     label: tableWidgets[value].name || value,
                                     value: tableRowValues[value],
                                     required: tableRowRequiredValues[value],
-                                    readonly: !permissions?.edit && pageAction !== 'dub',
+                                    readonly: (!permissions?.edit && pageAction !== 'dub') || pageMode === 'view',
                                     disabled: isReadonlyField(value),
                                     widgetStructure: tableWidgets[value],
                                     relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -148,7 +148,7 @@
                                     label: value,
                                     value: tableRowValues[value],
                                     required: tableRowRequiredValues[value],
-                                    readonly: !permissions?.edit && pageAction !== 'dub',
+                                    readonly: (!permissions?.edit && pageAction !== 'dub') || pageMode === 'view',
                                     disabled: isReadonlyField(value),
                                     structure: tableRowStructure[value],
                                     relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -169,8 +169,17 @@
                         data-testid="record-back-to-table-button">
                         Back
                     </a>
+
+                    <button type="button" mat-flat-button color="primary"
+                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit && pageMode === 'view'"
+                        data-testid="switch-to-editing-button"
+                        (click)="switchToEditMode()">
+                        <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+                        Edit
+                    </button>
+
                     <button type="button" mat-button color="primary"
-                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
+                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit && pageMode !== 'view'"
                         class="actions__continue"
                         data-testid="record-save-and-continue-editing-button"
                         [disabled]="submitting || editRowForm.form.invalid"
@@ -178,7 +187,7 @@
                         Save and continue editing
                     </button>
 
-                    <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
+                    <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction && pageMode !== 'view'"
                         type="submit" mat-flat-button color="primary"
                         data-testid="record-edit-button"
                         [disabled]="submitting || editRowForm.form.invalid">

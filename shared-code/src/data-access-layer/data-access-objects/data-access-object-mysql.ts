@@ -15,8 +15,8 @@ import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js'
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
 import { Knex } from 'knex';
@@ -175,6 +175,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -185,7 +186,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const knex = await this.configureKnex();
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields?.fields?.length > 0) {
@@ -428,7 +431,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     }
     const knex = await this.configureKnex();
     try {
-      await knex().select(1);
+      await knex.queryBuilder().select(1);
       return {
         result: true,
         message: 'Successfully connected',

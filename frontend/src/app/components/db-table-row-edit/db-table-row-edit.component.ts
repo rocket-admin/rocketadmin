@@ -11,14 +11,14 @@ import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
-import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
+import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-table-view/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { BreadcrumbsComponent } from '../ui-components/breadcrumbs/breadcrumbs.component';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
-import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
-import { DbTableRowViewComponent } from '../dashboard/db-table-row-view/db-table-row-view.component';
+import { DbActionLinkDialogComponent } from '../dashboard/db-table-view/db-action-link-dialog/db-action-link-dialog.component';
+import { DbTableRowViewComponent } from '../dashboard/db-table-view/db-table-row-view/db-table-row-view.component';
 import { DynamicModule } from 'ng-dynamic-component';
 import JsonURL from "@jsonurl/jsonurl";
 import { MatButtonModule } from '@angular/material/button';
@@ -103,7 +103,9 @@ export class DbTableRowEditComponent implements OnInit {
   public referencedTablesURLParams: any;
   public isDesktop: boolean = true;
   public permissions: TablePermissions;
+  public canDelete: boolean;
   public pageAction: string;
+  public pageMode: string = null;
   public tableFiltersUrlString: string;
   public backUrlParams: object;
 
@@ -201,9 +203,13 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
-        const { action, ...primaryKeys } = params;
+        const { action, mode, ...primaryKeys } = params;
         if (action) {
           this.pageAction = action;
+        };
+
+        if (mode) {
+          this.pageMode = mode;
         };
 
         this.keyAttributesFromURL = primaryKeys;
@@ -214,6 +220,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
             this.permissions = res.table_access_level;
+            this.canDelete = res.can_delete;
             this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
 
             this.nonModifyingFields = res.structure
@@ -270,7 +277,7 @@ export class DbTableRowEditComponent implements OnInit {
                   chunkSize: 30,
                   filters
                 }).subscribe((res) => {
-
+                  const foreignKeysList = res.foreignKeys.map((foreignKey: TableForeignKey) => foreignKey.column_name);
                   this.relatedRecordsProperties = Object.assign({}, this.relatedRecordsProperties, {
                     [table.table_name]: {
                       connectionID: this.connectionID,
@@ -278,7 +285,7 @@ export class DbTableRowEditComponent implements OnInit {
                       columnsOrder: res.list_fields,
                       primaryColumns: res.primaryColumns,
                       foreignKeys: Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey}))),
-                      foreignKeysList: res.foreignKeys.map(fk => fk.column_name),
+                      foreignKeysList,
                       widgets: Object.assign({}, ...res.widgets.map((widget: Widget) => {
                           let parsedParams;
 
@@ -297,6 +304,7 @@ export class DbTableRowEditComponent implements OnInit {
                         })
                       ),
                       widgetsList: res.widgets.map(widget => widget.field_name),
+                      fieldsTypes: getTableTypes(res.structure, foreignKeysList),
                       relatedRecords: [],
                       link: `/dashboard/${this.connectionID}/${table.table_name}/entry`
                     }
@@ -718,6 +726,15 @@ export class DbTableRowEditComponent implements OnInit {
         acc[column.column_name] = row[column.column_name];
         return acc;
       }, {}),
+    });
+  }
+
+  switchToEditMode() {
+    this.pageMode = null;
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], {
+      queryParams: {
+        ...this.keyAttributesFromURL
+      }
     });
   }
 }

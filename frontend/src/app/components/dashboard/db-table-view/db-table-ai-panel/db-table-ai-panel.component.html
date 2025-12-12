@@ -1,0 +1,80 @@
+<div *ngIf="isAIpanelOpened"
+    class="ai-panel-sidebar"
+    [ngClass]="{'ai-panel-sidebar_open': isAIpanelOpened}">
+</div>
+<div class="ai-panel-sidebar-content">
+    <div class="ai-panel-sidebar__header">
+        <h2 class="mat-heading-2 ai-panel-sidebar__title">
+            <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
+            <span>AI insights</span>
+        </h2>
+        <button mat-icon-button (click)="handleClose()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div *ngIf="messagesChain.length === 0" class="ai-placeholder">
+        Insights from <strong>"{{displayName}}"</strong> table are waiting — type your query to unlock them.
+    </div>
+
+    <div class="ai-panel-chat">
+        <div *ngIf="messagesChain.length; else suggestions" class="ai-message-chain-box" #chatContainer>
+            <div class="ai-message-chain">
+                <div *ngFor="let message of messagesChain" class="{{message.type}}-message">
+                    <span style="white-space: pre-wrap" *ngIf="message.type == 'user'">{{message.text}}</span>
+                    <markdown *ngIf="message.type == 'ai'" mermaid>{{message.text}}</markdown>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #suggestions>
+            <div class="mat-elevation-z2 suggestions">
+                <span class="suggestions-title">Suggested insights</span>
+                <mat-action-list role="list">
+                    <button mat-list-item *ngFor="let suggestion of aiRequestSuggestions"
+                        class="suggestion-button"
+                        (click)="createThread(suggestion)"
+                        angulartics2On="click"
+                        angularticsAction="AI panel: suggested request is clicked">
+                        {{suggestion}}
+                    </button>
+                </mat-action-list>
+            </div>
+
+        </ng-template>
+
+        <div class="loading">
+            <div *ngIf="submitting">
+                loading...
+            </div>
+        </div>
+
+        <form (ngSubmit)="threadID ? sendMessage() : createThread()" class="ai-message-form">
+            <mat-form-field class="form-field" appearance="outline" class="ai-message-form__textarea">
+                <mat-label class="ai-message-form__label">What should I analyze?</mat-label>
+                <textarea matInput name="message"
+                    class="ai-panel-sidebar__message"
+                    rows="4"
+                    data-testid="user-message"
+                    maxlength="255"
+                    (keydown)="onKeydown($event)"
+                    [(ngModel)]="message">
+                </textarea>
+            </mat-form-field>
+
+            <div class="ai-message-form__footer">
+                <span> {{charactrsNumber}} / 256</span>
+                <button mat-icon-button type="submit"
+                    class="ai-message-form__button">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+        </form>
+
+        <div class="footer">
+            <p class="mat-small">
+                AI may provide inaccurate responses.<br/>Check our <a href="https://rocketadmin.com/privacy/" class="link">Privacy policy</a>.
+            </p>
+        </div>
+    </div>
+</div>

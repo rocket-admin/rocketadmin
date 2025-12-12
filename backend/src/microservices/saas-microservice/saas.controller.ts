@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Inject, Injectable, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Injectable,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
@@ -27,9 +39,13 @@ import {
   ISaasRegisterUser,
   ISaasSAMLRegisterUser,
   ISuspendUsers,
+  ISuspendUsersOverLimit,
 } from './use-cases/saas-use-cases.interface.js';
+import { SkipThrottle } from '@nestjs/throttler';
+import { Messages } from '../../exceptions/text/messages.js';
 
 @UseInterceptors(SentryInterceptor)
+@SkipThrottle()
 @Controller('saas')
 @ApiBearerAuth()
 @ApiTags('saas')
@@ -54,6 +70,8 @@ export class SaasController {
     private readonly registerUserWithSamlUseCase: ISaasSAMLRegisterUser,
     @Inject(UseCaseType.SAAS_SUSPEND_USERS)
     private readonly suspendUsersUseCase: ISuspendUsers,
+    @Inject(UseCaseType.SAAS_SUSPEND_USERS_OVER_LIMIT)
+    private readonly suspendUsersOverLimitUseCase: ISuspendUsersOverLimit,
     @Inject(UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID)
     private readonly getCompanyInfoByUserIdUseCase: ISaaSGetCompanyInfoByUserId,
     @Inject(UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY)
@@ -120,7 +138,9 @@ export class SaasController {
     @Body('companyId') companyId: string,
     @Body('companyName') companyName: string,
   ): Promise<FoundUserDto> {
-    companyId = companyId ? companyId : null;
+    if (!companyId) {
+      throw new BadRequestException(Messages.COMPANY_ID_MISSING);
+    }
     return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
   }
 
@@ -151,8 +171,13 @@ export class SaasController {
     @Body('email') email: string,
     @Body('name') name: string,
     @Body('glidCookieValue') glidCookieValue: string,
+    @Body('ipAddress') ipAddress: string,
+    @Body('userAgent') userAgent: string,
   ): Promise<UserEntity> {
-    return await this.loginUserWithGoogleUseCase.execute({ email, name, glidCookieValue }, InTransactionEnum.OFF);
+    return await this.loginUserWithGoogleUseCase.execute(
+      { email, name, glidCookieValue, ipAddress, userAgent },
+      InTransactionEnum.OFF,
+    );
   }
 
   @ApiOperation({ summary: 'Login or create user with github webhook' })
@@ -166,8 +191,17 @@ export class SaasController {
     @Body('name') name: string,
     @Body('githubId') githubId: number,
     @Body('glidCookieValue') glidCookieValue: string,
+    @Body('ipAddress') ipAddress: string,
+    @Body('userAgent') userAgent: string,
   ): Promise<UserEntity> {
-    return await this.loginUserWithGithubUseCase.execute({ email, name, githubId, glidCookieValue });
+    return await this.loginUserWithGithubUseCase.execute({
+      email,
+      name,
+      githubId,
+      glidCookieValue,
+      ipAddress,
+      userAgent,
+    });
   }
 
   @ApiOperation({ summary: 'Suspending users' })
@@ -177,6 +211,13 @@ export class SaasController {
     @Body('companyId') companyId: string,
   ): Promise<SuccessResponse> {
     await this.suspendUsersUseCase.execute({ emailsToSuspend, companyId });
+    return { success: true };
+  }
+
+  @ApiOperation({ summary: 'Suspending users' })
+  @Put('/company/:companyId/users/suspend-above-limit')
+  async suspendUsersOverLimit(@Body('companyId') companyId: string): Promise<SuccessResponse> {
+    await this.suspendUsersOverLimitUseCase.execute(companyId);
     return { success: true };
   }
 
@@ -228,7 +269,7 @@ export class SaasController {
       companyId,
       samlConfigId,
       samlNameId,
-      samlAttributes
+      samlAttributes,
     });
   }
 }

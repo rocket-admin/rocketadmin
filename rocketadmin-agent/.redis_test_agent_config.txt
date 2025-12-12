@@ -1,0 +1,21 @@
+{
+  "encrypted": false,
+  "hash": null,
+  "credentials": {
+    "app_port": 3000,
+    "azure_encryption": false,
+    "cert": null,
+    "host": "test-redis-e2e-testing",
+    "password": "SuperSecretRedisPassword",
+    "port": 6379,
+    "schema": null,
+    "sid": "null",
+    "ssl": false,
+    "token": "REDIS-TEST-AGENT-TOKEN",
+    "type": "redis",
+    "application_save_option": true,
+    "config_encryption_option": false,
+    "encryption_password": null,
+    "saving_logs_option": false
+  }
+}

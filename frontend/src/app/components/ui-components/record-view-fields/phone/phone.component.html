@@ -1,0 +1,4 @@
+<span *ngIf="value" class="phone-content">
+  <span *ngIf="countryFlag" class="country-flag" [matTooltip]="countryName">{{ countryFlag }}</span>
+  <a [href]="'tel:' + value" class="field-view-value phone-link">{{ formattedNumber || value }}</a>
+</span>

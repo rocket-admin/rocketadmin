@@ -78,18 +78,27 @@ import { actionEventsCustomRepositoryExtension } from '../../entities/table-acti
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { userApiRepositoryExtension } from '../../entities/api-key/repository/user-api-key-repository.extension.js';
-import { AiUserThreadEntity } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads.entity.js';
-import { IAiUserThreadsRepository } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.interface.js';
-import { IAiUserFilesRepository } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files-repository.interface.js';
-import { AiUserFileEntity } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-files.entity.js';
-import { aiUserThreadRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-threads/ai-user-threads-repository.extension.js';
-import { aiUserFileRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-user-files/ai-user-file-repository.extension.js';
 import { CompanyLogoEntity } from '../../entities/company-logo/company-logo.entity.js';
 import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
 import { CompanyTabTitleEntity } from '../../entities/company-tab-title/company-tab-title.entity.js';
 import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
 import { ITableFiltersCustomRepository } from '../../entities/table-filters/repository/table-filters-custom-repository.interface.js';
 import { tableFiltersCustomRepositoryExtension } from '../../entities/table-filters/repository/table-filters-custom-repository-extension.js';
+import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
+import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
+import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-reponses-to-user-repository.extension.js';
+import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
+import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
+import { tableCategoriesCustomRepositoryExtension } from '../../entities/table-categories/repository/table-categories-repository.extension.js';
+import { UserSecretEntity } from '../../entities/user-secret/user-secret.entity.js';
+import { IUserSecretRepository } from '../../entities/user-secret/repository/user-secret-repository.interface.js';
+import { userSecretRepositoryExtension } from '../../entities/user-secret/repository/user-secret-repository.extension.js';
+import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
+import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
+import { secretAccessLogRepositoryExtension } from '../../entities/secret-access-log/repository/secret-access-log-repository.extension.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
+import { signInAuditCustomRepositoryExtension } from '../../entities/user-sign-in-audit/repository/sign-in-audit-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -106,7 +115,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _passwordResetRepository: IPasswordResetRepository;
   private _emailChangeRepository: IEmailChangeRepository;
   private _userInvitationRepository: IUserInvitationRepository;
-  private _connectionPropertiesRepository: IConnectionPropertiesRepository;
+  private _connectionPropertiesRepository: Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository;
   private _customFieldsRepository: ICustomFieldsRepository;
   private _tableLogsRepository: ITableLogsRepository;
   private _userActionRepository: IUserActionRepository;
@@ -122,12 +131,15 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
   private _actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
   private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
-  private _aiUserThreadsRepository: Repository<AiUserThreadEntity> & IAiUserThreadsRepository;
-  private _aiUserFilesRepository: Repository<AiUserFileEntity> & IAiUserFilesRepository;
   private _companyLogoRepository: Repository<CompanyLogoEntity>;
   private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
   private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
   private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
+  private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
+  private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+  private _userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
+  private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
+  private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -204,18 +216,27 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
       .getRepository(ActionEventsEntity)
       .extend(actionEventsCustomRepositoryExtension);
     this._userApiKeysRepository = this.appDataSource.getRepository(UserApiKeyEntity).extend(userApiRepositoryExtension);
-    this._aiUserThreadsRepository = this.appDataSource
-      .getRepository(AiUserThreadEntity)
-      .extend(aiUserThreadRepositoryExtension);
-    this._aiUserFilesRepository = this.appDataSource
-      .getRepository(AiUserFileEntity)
-      .extend(aiUserFileRepositoryExtension);
     this._companyLogoRepository = this.appDataSource.getRepository(CompanyLogoEntity);
     this._companyFaviconRepository = this.appDataSource.getRepository(CompanyFaviconEntity);
     this._companyTabTitleRepository = this.appDataSource.getRepository(CompanyTabTitleEntity);
     this._tableFiltersRepository = this.appDataSource
       .getRepository(TableFiltersEntity)
       .extend(tableFiltersCustomRepositoryExtension);
+    this._aiResponsesToUserRepository = this.appDataSource
+      .getRepository(AiResponsesToUserEntity)
+      .extend(aiResponsesToUserRepositoryExtension);
+    this._tableCategoriesRepository = this.appDataSource
+      .getRepository(TableCategoriesEntity)
+      .extend(tableCategoriesCustomRepositoryExtension);
+    this._userSecretRepository = this.appDataSource
+      .getRepository(UserSecretEntity)
+      .extend(userSecretRepositoryExtension);
+    this._secretAccessLogRepository = this.appDataSource
+      .getRepository(SecretAccessLogEntity)
+      .extend(secretAccessLogRepositoryExtension);
+    this._signInAuditRepository = this.appDataSource
+      .getRepository(SignInAuditEntity)
+      .extend(signInAuditCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -262,7 +283,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userInvitationRepository;
   }
 
-  public get connectionPropertiesRepository(): IConnectionPropertiesRepository {
+  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository {
     return this._connectionPropertiesRepository;
   }
 
@@ -326,14 +347,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userApiKeysRepository;
   }
 
-  public get aiUserThreadsRepository(): Repository<AiUserThreadEntity> & IAiUserThreadsRepository {
-    return this._aiUserThreadsRepository;
-  }
-
-  public get aiUserFilesRepository(): Repository<AiUserFileEntity> & IAiUserFilesRepository {
-    return this._aiUserFilesRepository;
-  }
-
   public get companyLogoRepository(): Repository<CompanyLogoEntity> {
     return this._companyLogoRepository;
   }
@@ -348,6 +361,26 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableFiltersRepository(): Repository<TableFiltersEntity> & ITableFiltersCustomRepository {
     return this._tableFiltersRepository;
+  }
+
+  public get aiResponsesToUserRepository(): Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository {
+    return this._aiResponsesToUserRepository;
+  }
+
+  public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
+    return this._tableCategoriesRepository;
+  }
+
+  public get userSecretRepository(): Repository<UserSecretEntity> & IUserSecretRepository {
+    return this._userSecretRepository;
+  }
+
+  public get secretAccessLogRepository(): Repository<SecretAccessLogEntity> & ISecretAccessLogRepository {
+    return this._secretAccessLogRepository;
+  }
+
+  public get signInAuditRepository(): Repository<SignInAuditEntity> & ISignInAuditRepository {
+    return this._signInAuditRepository;
   }
 
   public startTransaction(): Promise<void> {

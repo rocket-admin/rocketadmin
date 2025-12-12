@@ -8,7 +8,6 @@ $md-app-primary-color: palette.createpalette('primaryPalette');
 $md-app-accented-color: palette.createpalette('accentedPalette');
 $md-app-warn-color: palette.createpalette('warnPalette');
 $md-app-white-color: palette.createpalette('whitePalette');
-// $md-app-accented-dark-color: palette.createpalette('accentedDarkPalette');
 $md-app-warn-dark-color: palette.createpalette('warnDarkPalette');
 
 $custom-palette-primary: mat.m2-define-palette($md-app-primary-color);
@@ -23,7 +22,7 @@ html {
   --mdc-filled-button-container-shape: 4px;
   --mdc-outlined-button-container-shape: 4px;
   --mdc-text-button-container-shape: 4px;
-  --mdc-outlined-text-field-container-shape: 0px !important;
+  --mdc-outlined-text-field-container-shape: 4px !important;
 }
 
 @media (prefers-color-scheme: dark) {

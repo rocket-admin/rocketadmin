@@ -30,6 +30,7 @@ export class CommandExecutor {
       referencedFieldName,
       identityColumnName,
       fieldValues,
+      tableStructure,
     } = messageData.data;
     let operationStatusResult = OperationResultStatusEnum.unknown;
     switch (operationType) {
@@ -113,6 +114,7 @@ export class CommandExecutor {
             searchedFieldValue,
             filteringFields,
             autocompleteFields,
+            tableStructure,
           );
         } catch (e) {
           operationStatusResult = OperationResultStatusEnum.unsuccessfully;
@@ -225,6 +227,7 @@ export class CommandExecutor {
             searchedFieldValue,
             filteringFields,
             autocompleteFields,
+            null,
           );
         } catch (e) {
           operationStatusResult = OperationResultStatusEnum.unsuccessfully;

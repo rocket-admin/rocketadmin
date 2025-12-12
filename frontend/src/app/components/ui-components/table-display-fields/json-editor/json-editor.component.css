@@ -1,6 +1,17 @@
 .json-display {
-  background-color: #EAEAFF;
   border-radius: 4px;
   font-family: monospace;
   padding: 0 8px;
+}
+
+@media (prefers-color-scheme: light) {
+  .json-display {
+    background-color: #EAEAFF;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .json-display {
+    background-color: #2C2C54;
+  }
 }

@@ -48,6 +48,18 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .getOne();
   },
 
+  async findCompanyInfoByCompanyIdWithoutConnections(companyId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.users', 'current_user')
+      .leftJoinAndSelect('company_info.users', 'users')
+      .leftJoinAndSelect('company_info.invitations', 'invitations')
+      .leftJoinAndSelect('company_info.logo', 'logo')
+      .leftJoinAndSelect('company_info.favicon', 'favicon')
+      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
+      .where('company_info.id = :companyId', { companyId })
+      .getOne();
+  },
+
   // returns groups and connections where user is invited
   async findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
     return await this.createQueryBuilder('company_info')
@@ -62,48 +74,6 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .leftJoinAndSelect('connections.author', 'connection_author')
       .leftJoinAndSelect('groups.users', 'groups_users')
       .where('current_user.id = :userId', { userId })
-      .getOne();
-  },
-
-  async findFullCompanyInfoByCompanyId(companyId: string): Promise<CompanyInfoEntity> {
-    return await this.createQueryBuilder('company_info')
-      .leftJoinAndSelect('company_info.users', 'current_user')
-      .leftJoinAndSelect('company_info.users', 'users')
-      .leftJoinAndSelect('company_info.connections', 'connections')
-      .leftJoinAndSelect('company_info.invitations', 'invitations')
-      .leftJoinAndSelect('connections.groups', 'groups')
-      .leftJoinAndSelect('connections.author', 'connection_author')
-      .leftJoinAndSelect('groups.users', 'groups_users')
-      .where('company_info.id = :companyId', { companyId })
-      .getOne();
-  },
-
-  async findCompanyInfoByCompanyIdWithoutConnections(companyId: string): Promise<CompanyInfoEntity> {
-    return await this.createQueryBuilder('company_info')
-      .leftJoinAndSelect('company_info.users', 'current_user')
-      .leftJoinAndSelect('company_info.users', 'users')
-      .leftJoinAndSelect('company_info.invitations', 'invitations')
-      .leftJoinAndSelect('company_info.logo', 'logo')
-      .leftJoinAndSelect('company_info.favicon', 'favicon')
-      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
-      .where('company_info.id = :companyId', { companyId })
-      .getOne();
-  },
-
-  // temporary solution to handle "old" connections (case, when connection not attached to any company
-  // will be removed in during architecture refactoring)
-  async findAllCompanyWithConnectionsUsersJoining(companyId: string): Promise<CompanyInfoEntity> {
-    return await this.createQueryBuilder('company_info')
-      .leftJoinAndSelect('company_info.users', 'users')
-      .leftJoinAndSelect('company_info.logo', 'logo')
-      .leftJoinAndSelect('company_info.favicon', 'favicon')
-      .leftJoinAndSelect('company_info.tab_title', 'tab_title')
-      .leftJoinAndSelect('users.groups', 'groups')
-      .leftJoinAndSelect('groups.connection', 'connections')
-      .leftJoinAndSelect('connections.author', 'connection_author')
-      .leftJoinAndSelect('connections.groups', 'connection_groups')
-      .leftJoinAndSelect('connection_groups.users', 'connection_groups_users')
-      .where('company_info.id = :companyId', { companyId })
       .getOne();
   },
 

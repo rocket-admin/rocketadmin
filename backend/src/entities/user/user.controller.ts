@@ -148,12 +148,17 @@ export class UserController {
     @Body() loginUserData: LoginUserDto,
   ): Promise<ITokenExp> {
     const { email, password, companyId: userCompanyId } = loginUserData;
+    const ipAddress = (request.headers['x-forwarded-for'] as string) || request.ip;
+    const userAgent = request.headers['user-agent'] as string;
+
     const userData: UsualLoginDs = {
       email: email,
       password: password,
       gclidValue: null,
       companyId: userCompanyId,
       request_domain: request.hostname,
+      ipAddress,
+      userAgent,
     };
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
@@ -430,7 +435,12 @@ export class UserController {
     @Body() otpTokenData: OtpTokenDto,
   ): Promise<any> {
     const { otpToken } = otpTokenData;
-    const tokenInfo = await this.otpLoginUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
+    const ipAddress = (request.headers['x-forwarded-for'] as string) || request.ip;
+    const userAgent = request.headers['user-agent'] as string;
+    const tokenInfo = await this.otpLoginUseCase.execute(
+      { userId, otpToken, ipAddress, userAgent },
+      InTransactionEnum.OFF,
+    );
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
       secure: true,

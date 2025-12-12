@@ -13,8 +13,8 @@ import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js'
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { IDataAccessObjectAgent } from '../shared/interfaces/data-access-object-agent.interface.js';
-import { DataAccessObjectCommandsEnum } from '../shared/enums/data-access-object-commands.enum.js';
+import { IDataAccessObjectAgent } from '../../shared/interfaces/data-access-object-agent.interface.js';
+import { DataAccessObjectCommandsEnum } from '../../shared/enums/data-access-object-commands.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { Stream, Readable } from 'node:stream';
@@ -30,7 +30,7 @@ import {
   isPostgresDateOrTimeType,
   isPostgresDateStringByRegexp,
 } from '../../helpers/is-database-date.js';
-import { ConnectionTypesEnum } from '../shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '../../shared/enums/connection-types-enum.js';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   private readonly connection: ConnectionAgentParams;
@@ -239,6 +239,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
     userEmail: string,
   ): Promise<FoundRowsDS> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
@@ -256,6 +257,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
           filteringFields,
           autocompleteFields,
           email: userEmail,
+          tableStructure,
         });
 
         if (commandResult instanceof Error) {

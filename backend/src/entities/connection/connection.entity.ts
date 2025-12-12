@@ -36,7 +36,7 @@ export class ConnectionEntity {
   @Column({ default: '' })
   title?: string;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   masterEncryption: boolean;
 
   @Column({ default: null })
@@ -69,7 +69,7 @@ export class ConnectionEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   ssh?: boolean;
 
   @Column({ default: null })
@@ -84,19 +84,19 @@ export class ConnectionEntity {
   @Column({ default: null })
   sshUsername?: string | null;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   ssl?: boolean | null;
 
   @Column({ default: null })
   cert?: string | null;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   isTestConnection: boolean;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   azure_encryption: boolean;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   is_frozen: boolean;
 
   @Column({ default: 0 })

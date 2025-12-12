@@ -1,3 +1,5 @@
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import {
   EncryptionAlgorithmEnum,
   LogOperationTypeEnum,
@@ -6,11 +8,8 @@ import {
   UserActionEnum,
   WidgetTypeEnum,
 } from '../../enums/index.js';
-
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
-import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 export const Messages = {
@@ -52,6 +51,8 @@ export const Messages = {
     'It seems like the value you entered for the unique field already exists in database. Please check your input and try again with a different value',
   CANT_LIST_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to list and exclude`,
+  CANT_CATEGORIZE_HIDDEN_TABLE: (tableName: string) => `
+    You cannot categorize the hidden table "${tableName}". Please remove it from hidden tables first.`,
   CANT_SHOW_TABLE_AND_EXCLUDE: (tableName: string) =>
     `You cannot select the same table "${tableName}" to show by default and exclude`,
   CANT_VIEW_AND_EXCLUDE: (fieldName: string) =>
@@ -169,6 +170,8 @@ export const Messages = {
   INCORRECT_TABLE_LOG_ACTION_TYPE: `Incorrect log operation type, supported types are ${enumToString(
     LogOperationTypeEnum,
   )}`,
+  INVALID_SIGN_IN_STATUS: `Invalid sign-in status. Supported values are: success, failed, blocked`,
+  INVALID_SIGN_IN_METHOD: `Invalid sign-in method. Supported values are: email, google, github, saml, otp`,
   INVALID_DISPLAY_MODE: `Invalid display mode. Supported values are "on" and "off"`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
   INVALID_USER_COMPANY_ROLE: `Invalid user role in company. Only supported is ${enumToString(UserRoleEnum)}`,
@@ -366,4 +369,11 @@ export const Messages = {
   INVALID_REQUEST_DOMAIN: `Invalid request domain`,
   INVALID_REQUEST_DOMAIN_FORMAT: `Invalid request domain format`,
   FEATURE_NON_AVAILABLE_IN_FREE_PLAN: `This feature is not available in free plan.`,
+  SECRET_NOT_FOUND: 'Secret not found',
+  SECRET_ALREADY_EXISTS: 'Secret with this slug already exists in your company',
+  SECRET_EXPIRED: 'Secret has expired',
+  SECRET_MASTER_PASSWORD_REQUIRED: 'Master password required',
+  SECRET_MASTER_PASSWORD_INVALID: 'Invalid master password',
+  SECRET_DELETED_SUCCESSFULLY: 'Secret deleted successfully',
+  USER_NOT_FOUND_OR_NOT_IN_COMPANY: 'User not found or not associated with a company',
 };

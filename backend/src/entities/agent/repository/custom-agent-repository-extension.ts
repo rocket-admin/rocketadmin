@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { AgentEntity } from '../agent.entity.js';
-import { ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
+import { ConnectionTypeTestEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 export const customAgentRepositoryExtension = {
   async createNewAgentForConnectionAndReturnToken(connection: ConnectionEntity): Promise<string> {
@@ -62,7 +62,11 @@ export const customAgentRepositoryExtension = {
       case ConnectionTypeTestEnum.elasticsearch:
         return 'ELASTICSEARCH-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_cassandra:
-        return 'CASSANDRA-TEST-AGENT-TOKEN';  
+        return 'CASSANDRA-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_redis:
+        return 'REDIS-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_clickhouse:
+        return 'CLICKHOUSE-TEST-AGENT-TOKEN';
     }
   },
 };

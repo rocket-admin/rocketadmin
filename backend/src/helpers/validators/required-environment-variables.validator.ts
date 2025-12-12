@@ -1,10 +1,11 @@
 import { Messages } from '../../exceptions/text/messages.js';
 
 export function requiredEnvironmentVariablesValidator(): void {
-  const requiredParameterNames: Array<string> = ['DATABASE_URL', 'PRIVATE_KEY', 'JWT_SECRET'];
+  const requiredParameterNames: Array<string> = ['PRIVATE_KEY', 'JWT_SECRET'];
 
-  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.length) {
-    requiredParameterNames.push('SESSION_SECRET');
+  const pgLiteFolderPath = getEnvironmentVariable('PGLITE_FOLDER_PATH');
+  if (!pgLiteFolderPath) {
+    requiredParameterNames.push('DATABASE_URL');
   }
 
   const requiredParameters: Array<{ [k: string]: string | null }> = requiredParameterNames.map((paramName) => {

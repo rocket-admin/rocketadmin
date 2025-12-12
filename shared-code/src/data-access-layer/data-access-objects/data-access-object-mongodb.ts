@@ -23,8 +23,8 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export type MongoClientDB = {
@@ -172,6 +172,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -185,7 +186,9 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
 
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
@@ -440,6 +443,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       perPage,
       searchedFieldValue,
       filteringFields,
+      null,
       null,
     );
     return result.data as any;

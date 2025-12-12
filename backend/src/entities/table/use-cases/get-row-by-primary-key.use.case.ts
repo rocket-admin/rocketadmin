@@ -14,8 +14,6 @@ import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-pri
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
@@ -24,6 +22,9 @@ import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/
 import JSON5 from 'json5';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { findAvailableFields } from '../utils/find-available-fields.utils.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -216,7 +217,7 @@ export class GetRowByPrimaryKeyUseCase
       structure: formedTableStructure,
       table_widgets: tableWidgets,
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-      list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+      list_fields: findAvailableFields(tableSettings, tableStructure),
       action_events: customActionEvents.map((event) => buildActionEventDto(event)),
       table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
@@ -224,7 +225,21 @@ export class GetRowByPrimaryKeyUseCase
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,
       table_access_level: tableAccessLevel.accessLevel,
       excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
-    } as any;
+      can_delete: tableSettings ? tableSettings.can_delete : true,
+      can_update: tableSettings ? tableSettings.can_update : true,
+      can_add: tableSettings ? tableSettings.can_add : true,
+      table_settings: {
+        sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
+        ordering: tableSettings?.ordering ? tableSettings.ordering : undefined,
+        identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+        list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+        allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
+        allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
+        can_delete: tableSettings ? tableSettings.can_delete : true,
+        can_update: tableSettings ? tableSettings.can_update : true,
+        can_add: tableSettings ? tableSettings.can_add : true,
+      },
+    };
   }
 
   private async attachForeignColumnNames(

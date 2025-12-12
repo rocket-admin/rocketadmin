@@ -8,11 +8,10 @@ import { ConnectDBComponent } from './components/connect-db/connect-db.component
 import { ConnectionSettingsComponent } from './components/connection-settings/connection-settings.component';
 import { ConnectionsListComponent } from './components/connections-list/connections-list.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component'
-import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
-import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
+import { DbTableActionsComponent } from './components/dashboard/db-table-view/db-table-actions/db-table-actions.component';
 import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table-row-edit.component';
-import { DbTableSettingsComponent } from './components/dashboard/db-table-settings/db-table-settings.component';
-import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets/db-table-widgets.component';
+import { DbTableSettingsComponent } from './components/dashboard/db-table-view/db-table-settings/db-table-settings.component';
+import { DbTableWidgetsComponent } from './components/dashboard/db-table-view/db-table-widgets/db-table-widgets.component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 import { LoginComponent } from './components/login/login.component';
@@ -30,6 +29,7 @@ import { UserDeletedSuccessComponent } from './components/user-deleted-success/u
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
 import { ZapierComponent } from './components/zapier/zapier.component';
+import { SsoComponent } from './components/sso/sso.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -47,6 +47,7 @@ const routes: Routes = [
   // company routes have to be in this specific order
   {path: 'company/:company-id/verify/:verification-token', pathMatch: 'full', component: CompanyMemberInvitationComponent, title: 'Invitation | Rocketadmin'},
   {path: 'company', pathMatch: 'full', component: CompanyComponent, canActivate: [AuthGuard]},
+  {path: 'sso/:company-id', pathMatch: 'full', component: SsoComponent, canActivate: [AuthGuard]},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
   {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard], title: 'Upgrade | Rocketadmin'},
   {path: 'upgrade/payment', component: PaymentFormComponent, canActivate: [AuthGuard], title: 'Payment | Rocketadmin'},

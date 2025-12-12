@@ -1,4 +1,3 @@
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
 import { Knex } from 'knex';
 import { getProcessVariable } from '../get-process-variable.js';
@@ -9,10 +8,10 @@ import {
   parseTestMSSQLConnectionString,
   parseTestOracleDBConnectionString,
   parseTestMongoDBConnectionString,
-  parseTestIbmDB2ConnectionString,
   parseTestDynamoDBConnectionString,
 } from '../parsers/string-connection-to-database-parsers.js';
 import { isTest } from '../app/is-test.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 export type TestConnectionsFromJSON = {
   //string value represents the connection string, to connect to the database
@@ -28,7 +27,17 @@ export const Constants = {
   ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',
   JWT_COOKIE_KEY_NAME: 'rocketadmin_cookie',
   FORBIDDEN_HOSTS: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', 'fd00::/8'],
-  BINARY_DATATYPES: ['binary', 'bytea', 'varbinary', 'varbinary(max)', 'tinyblob', 'blob', 'mediumblob', 'longblob'],
+  BINARY_DATATYPES: [
+    'binary',
+    'bytea',
+    'varbinary',
+    'varbinary(max)',
+    'tinyblob',
+    'blob',
+    'mediumblob',
+    'longblob',
+    'raw',
+  ],
   DEFAULT_LOG_ROWS_LIMIT: 500,
   MIDNIGHT_CRON_KEY: 1,
   MORNING_CRON_KEY: 2,
@@ -62,6 +71,15 @@ export const Constants = {
   ONE_WEEK_AGO: (): Date => {
     const today = new Date();
     const oneWeekAgo = today.getDate() - 7;
+    today.setDate(oneWeekAgo);
+    return today;
+  },
+
+  ONE_MONTH_AND_A_WEEK_AGO: (): Date => {
+    const today = new Date();
+    const oneMonthAgo = today.getMonth() - 1;
+    const oneWeekAgo = today.getDate() - 7;
+    today.setMonth(oneMonthAgo);
     today.setDate(oneWeekAgo);
     return today;
   },
@@ -273,15 +291,17 @@ export const Constants = {
           case type.toLowerCase().includes('mongo'):
             connection = parseTestMongoDBConnectionString(connection_string) as CreateConnectionDto;
             break;
-          case type.toLowerCase().includes('ibmdb2'):
-            connection = parseTestIbmDB2ConnectionString(connection_string) as CreateConnectionDto;
-            break;
+          // case type.toLowerCase().includes('ibmdb2'):
+          //   connection = parseTestIbmDB2ConnectionString(connection_string) as CreateConnectionDto;
+          //   break;
           case type.toLowerCase().includes('dynamodb'):
             connection = parseTestDynamoDBConnectionString(connection_string) as CreateConnectionDto;
           default:
             break;
         }
-        testConnectionsArr.push(connection);
+        if (connection) {
+          testConnectionsArr.push(connection);
+        }
       }
       return testConnectionsArr;
     } catch (e) {

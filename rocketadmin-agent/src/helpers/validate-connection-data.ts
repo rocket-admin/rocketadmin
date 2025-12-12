@@ -1,6 +1,6 @@
-import { Messages } from '../text/messages.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { ICLIConnectionCredentials } from '../interfaces/interfaces.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { Messages } from '../text/messages.js';
 
 export function validateConnectionData(connectionData: ICLIConnectionCredentials): Array<string> {
   const errors = [];
@@ -16,8 +16,10 @@ export function validateConnectionData(connectionData: ICLIConnectionCredentials
     errors.push(Messages.PORT_MISSING);
   if (typeof connectionData.port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
   if (typeof connectionData.ssl !== 'boolean') errors.push(Messages.SSL_FORMAT_INCORRECT);
-  if (!connectionData.username) errors.push(Messages.USERNAME_MISSING);
-  if (!connectionData.database) errors.push(Messages.DATABASE_MISSING);
+  if (!connectionData.username && connectionData.type !== ConnectionTypesEnum.redis)
+    errors.push(Messages.USERNAME_MISSING);
+  if (!connectionData.database && connectionData.type !== ConnectionTypesEnum.redis)
+    errors.push(Messages.DATABASE_MISSING);
   if (!connectionData.token) errors.push(Messages.CONNECTION_TOKEN_MISSING);
   return errors;
 }

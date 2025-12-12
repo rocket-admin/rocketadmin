@@ -47,6 +47,10 @@ export interface ISuspendUsers {
   execute(usersData: SuspendUsersDS): Promise<void>;
 }
 
+export interface ISuspendUsersOverLimit {
+  execute(companyId: string): Promise<void>;
+}
+
 export interface ISaaSGetCompanyInfoByUserId {
   execute(userId: string): Promise<CompanyInfoEntity>;
 }

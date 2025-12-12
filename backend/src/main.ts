@@ -6,8 +6,6 @@ import * as Sentry from '@sentry/node';
 import bodyParser from 'body-parser';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
-import rateLimit from 'express-rate-limit';
-import session from 'express-session';
 import helmet from 'helmet';
 import { ApplicationModule } from './app.module.js';
 import { WinstonLogger } from './entities/logging/winston-logger.js';
@@ -42,25 +40,6 @@ async function bootstrap() {
 
     app.use(cookieParser());
 
-    const cookieDomain = process.env.ROCKETADMIN_COOKIE_DOMAIN || undefined;
-    const sessionSecret = process.env.SESSION_SECRET || undefined;
-    if (sessionSecret) {
-      app.use(
-        session({
-          secret: sessionSecret,
-          resave: false,
-          saveUninitialized: false,
-          cookie: {
-            secure: true,
-            domain: cookieDomain,
-            maxAge: 2 * 60 * 60 * 1000,
-            httpOnly: true,
-          },
-          name: 'rocketadmin.sid',
-        }),
-      );
-    }
-
     app.enableCors({
       origin: [
         'https://app.autoadmin.org',
@@ -76,12 +55,6 @@ async function bootstrap() {
       optionsSuccessStatus: 204,
     });
 
-    const apiLimiter = rateLimit({
-      windowMs: 60 * 1000,
-      max: 200,
-    });
-
-    app.use('/api/', apiLimiter);
     app.use(cookieParser());
 
     app.use(bodyParser.json({ limit: '10mb' }));

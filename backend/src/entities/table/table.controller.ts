@@ -37,7 +37,7 @@ import { DeleteRowFromTableDs, DeleteRowsFromTableDs } from './application/data-
 import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds.js';
 import { FindTablesDs } from './application/data-structures/find-tables.ds.js';
 import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds.js';
-import { FoundTableDs } from './application/data-structures/found-table.ds.js';
+import { FoundTableDs, FoundTablesWithCategoriesDS } from './application/data-structures/found-table.ds.js';
 import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds.js';
 import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds.js';
 import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds.js';
@@ -54,6 +54,7 @@ import {
   IDeleteRowsFromTable,
   IExportCSVFromTable,
   IFindTablesInConnection,
+  IFindTablesInConnectionV2,
   IGetRowByPrimaryKey,
   IGetTableRows,
   IGetTableStructure,
@@ -71,6 +72,8 @@ export class TableController {
     private readonly amplitudeService: AmplitudeService,
     @Inject(UseCaseType.FIND_TABLES_IN_CONNECTION)
     private readonly findTablesInConnectionUseCase: IFindTablesInConnection,
+    @Inject(UseCaseType.FIND_TABLES_IN_CONNECTION_V2)
+    private readonly findTablesInConnectionV2UseCase: IFindTablesInConnectionV2,
     @Inject(UseCaseType.GET_ALL_TABLE_ROWS)
     private readonly getTableRowsUseCase: IGetTableRows,
     @Inject(UseCaseType.GET_TABLE_STRUCTURE)
@@ -130,6 +133,43 @@ export class TableController {
       userId: userId,
     };
     return await this.findTablesInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({
+    summary: 'Find tables in connection. API+',
+    description: 'Return all found tables in connection with categories. Support access with api key.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Tables found.',
+    type: FoundTablesWithCategoriesDS,
+    isArray: false,
+  })
+  @UseGuards(TablesReceiveGuard)
+  @Get('/connection/tables/v2/:connectionId')
+  @ApiQuery({ name: 'hidden', required: false })
+  async findTablesInConnectionV2(
+    @SlugUuid('connectionId') connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @Query('hidden') hidden_tables: string,
+  ): Promise<FoundTablesWithCategoriesDS> {
+    const hiddenTablesOption = hidden_tables === 'true';
+    if (!connectionId) {
+      throw new HttpException(
+        {
+          message: Messages.CONNECTION_ID_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const inputData: FindTablesDs = {
+      connectionId: connectionId,
+      hiddenTablesOption: hiddenTablesOption,
+      masterPwd: masterPwd,
+      userId: userId,
+    };
+    return await this.findTablesInConnectionV2UseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Get all table rows. API+', deprecated: true, description: 'Deprecated' })

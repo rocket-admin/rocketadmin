@@ -1,5 +1,5 @@
 import { Response } from 'express';
-export class RequestInfoFromTableDS {
+class RequestInfoFromTableDS {
   connectionId: string;
   tableName: string;
   user_message: string;
@@ -9,4 +9,5 @@ export class RequestInfoFromTableDS {
 
 export class RequestInfoFromTableDSV2 extends RequestInfoFromTableDS {
   response: Response;
+  ai_thread_id?: string | null;
 }

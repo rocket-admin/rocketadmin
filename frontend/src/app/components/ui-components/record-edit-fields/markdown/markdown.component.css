@@ -1,0 +1,17 @@
+.code-editor-box {
+  min-height: 200px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: light) {
+  .code-editor-box {
+    border: 1px solid #ccc;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .code-editor-box {
+    border: 1px solid #404040;
+  }
+}

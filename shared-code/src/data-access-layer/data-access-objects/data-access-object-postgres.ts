@@ -19,8 +19,8 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { nanoid } from 'nanoid';
 
@@ -40,7 +40,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     ]);
 
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const processedRow = { ...row };
@@ -144,6 +144,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -155,7 +156,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
@@ -271,10 +274,10 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       column_name: string;
     }> = await knex(tableName)
       .select(
-        knex.raw(`tc.constraint_name,
+        knex.raw(`kcu.constraint_name,
       kcu.column_name,
-      ccu.table_name AS foreign_table_name,
-      ccu.column_name AS foreign_column_name`),
+      kcu2.table_name AS foreign_table_name,
+      kcu2.column_name AS foreign_column_name`),
       )
       .from(
         knex.raw(
@@ -282,11 +285,15 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       JOIN ??.information_schema.key_column_usage AS kcu
       ON tc.constraint_name = kcu.constraint_name
       AND tc.table_schema = kcu.table_schema
-      JOIN ??.information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
-      AND ccu.table_schema = tc.table_schema
+      JOIN ??.information_schema.referential_constraints AS rc
+      ON tc.constraint_name = rc.constraint_name
+      AND tc.table_schema = rc.constraint_schema
+      JOIN ??.information_schema.key_column_usage AS kcu2
+      ON rc.unique_constraint_name = kcu2.constraint_name
+      AND rc.unique_constraint_schema = kcu2.table_schema
+      AND kcu.ordinal_position = kcu2.ordinal_position
       WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=? AND tc.table_schema =?;`,
-          [database, database, database, tableName, tableSchema],
+          [database, database, database, database, tableName, tableSchema],
         ),
       );
     const resultKeys = foreignKeys.map((key) => {
@@ -335,7 +342,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const bindings = [schema];
     try {
       const results = await knex.raw(query, bindings);
-      console.log({ tablesPg: results });
       return results.rows.map((row: Record<string, unknown>) => ({ tableName: row.table_name, isView: !!row.is_view }));
     } catch (error) {
       console.log({ tablesPg: error });
@@ -350,19 +356,30 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     let result = await knex('information_schema.columns')
-      .select('column_name', 'column_default', 'data_type', 'udt_name', 'is_nullable', 'character_maximum_length')
+      .select(
+        'column_name',
+        'column_default',
+        'data_type',
+        'udt_name',
+        'is_nullable',
+        'character_maximum_length',
+        'is_identity',
+        'identity_generation',
+      )
       .orderBy('dtd_identifier')
       .where(`table_name`, tableName)
       .andWhere('table_schema', this.connection.schema ? this.connection.schema : 'public');
 
+    const generatedIdentities: Array<string> = ['BY DEFAULT', 'ALWAYS'];
     const customTypeIndexes: Array<number> = [];
     result = result.map((element, i) => {
-      const { is_nullable, data_type } = element;
+      const { is_nullable, data_type, identity_generation } = element;
       element.allow_null = is_nullable === 'YES';
       delete element.is_nullable;
       if (data_type === 'USER-DEFINED') {
         customTypeIndexes.push(i);
       }
+      element.extra = generatedIdentities.includes(identity_generation) ? 'auto_increment' : undefined;
       return element;
     });
 
@@ -416,7 +433,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     try {
-      await knex().select(1);
+      await knex.queryBuilder().select(1);
       return {
         result: true,
         message: 'Successfully connected',
@@ -438,7 +455,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedRow = { ...row };
@@ -463,7 +480,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>[]> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json' || data_type.toLowerCase() === 'jsonb')
       .map(({ column_name }) => column_name);
 
     const updatedValues = { ...newValues };

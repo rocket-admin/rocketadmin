@@ -47,6 +47,20 @@ export const CACHING_CONSTANTS = {
     },
   },
 
+  DEFAULT_REDIS_CLIENT_CACHE_OPTIONS: {
+    max: 150,
+    ttl: 1000 * 60 * 60,
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+    dispose: async (client: any) => {
+      try {
+        await client.quit();
+      } catch (_e) {
+        return;
+      }
+    },
+  },
+
   DEFAULT_TUNNEL_CACHE_OPTIONS: {
     max: 100,
     ttl: 1000 * 60 * 60,

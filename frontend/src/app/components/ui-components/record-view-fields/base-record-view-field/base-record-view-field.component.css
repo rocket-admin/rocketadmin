@@ -1,0 +1,25 @@
+.field-view-value {
+  word-wrap: anywhere;
+  word-break: keep-all;
+  white-space: break-spaces;
+  max-width: 100%;
+}
+
+@media (prefers-color-scheme: light) {
+  .field-view-value {
+    color: rgba(0, 0, 0, 0.64);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .field-view-value {
+    color: rgba(255, 255, 255, 0.64);
+  }
+}
+
+.field-view-icon {
+  font-size: 16px;
+  height: 16px;
+  margin-left: 8px;
+  width: 16px;
+}

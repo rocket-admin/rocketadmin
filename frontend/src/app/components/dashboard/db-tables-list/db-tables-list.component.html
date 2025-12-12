@@ -1,47 +1,179 @@
-<div class="sidenav-header">
-    <mat-icon *ngIf="collapsed; else tableHeader">table_view</mat-icon>
-    <ng-template #tableHeader>
-        <h1 class="mat-h2 connection-title">{{connectionTitle}}</h1>
-    </ng-template>
-</div>
 
 <app-content-loader *ngIf="tables === null; else tablesList"></app-content-loader>
 
 <ng-template #tablesList>
     <div *ngIf="tables && tables.length; else noTables" class="tables-list">
-        <mat-form-field *ngIf="!collapsed" appearance="fill" class="search-input">
-            <input matInput name="search" #search="ngModel"
-                placeholder="Search"
-                [(ngModel)]="substringToSearch"
-                (keyup)="searchSubstring()">
-            <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
-        </mat-form-field>
-        <mat-nav-list data-testid="tables-list">
-            <a mat-list-item *ngFor="let tableItem of foundTables" attr.data-testid="table-{{tableItem.table}}-list-item"
-                routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
-                [queryParams]="{page_index: 0, page_size: 30}"
-                [ngClass]="{'list-item_active': selectedTable === tableItem.table}"
-                [matTooltip]="getTableName(tableItem)"
-                [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 30 || collapsed"
-                matTooltipPosition="right"
-                routerLinkActive="list-item_active"
-                class="table-list-item"
-                (click)="closeSidebar()">
-                <div *ngIf="collapsed; else fullTableName"
-                    class="table-list-initials"
-                    [matTooltip]="getTableName(tableItem)">
-                    <mat-icon *ngIf="tableItem.icon; else tableNameInitials" class="table-list-icon">
-                        {{tableItem.icon}}
-                    </mat-icon>
-                    <ng-template #tableNameInitials>
-                        {{tableItem.initials}}
-                    </ng-template>
+
+        <!-- Collapsed content when sidebar is collapsed -->
+        <div *ngIf="collapsed" class="collapsed-content">
+            <!-- Top section with search and folders -->
+            <div class="collapsed-top-section">
+                <!-- Search button -->
+                <div class="collapsed-search-button"
+                    (click)="toggleCollapsedSearch()"
+                    matTooltip="Search"
+                    matTooltipPosition="right">
+                    <mat-icon class="collapsed-action-icon">search</mat-icon>
                 </div>
-                <ng-template #fullTableName>
-                    {{getTableName(tableItem)}}
-                </ng-template>
-            </a>
-        </mat-nav-list>
+
+                <!-- Show folders in collapsed state -->
+                <div *ngIf="folders.length > 0" class="collapsed-folders">
+                    <div *ngFor="let folder of folders"
+                        class="collapsed-folder-item"
+                        [class.collapsed-folder-item_active]="currentCollapsedFolder?.id === folder.id"
+                        [matTooltip]="folder.name"
+                        matTooltipPosition="right"
+                        (click)="onCollapsedFolderClick(folder)">
+                    <span *ngIf="folder.name === 'All Tables'"
+                        class="material-icons collapsed-folder-icon">dehaze</span>
+                        <span *ngIf="folder.name !== 'All Tables'"
+                            class="material-icons collapsed-folder-icon"
+                            [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
+                    </div>
+                </div>
+                <!-- Fallback to dehaze if no folders -->
+                <span *ngIf="folders.length === 0"
+                    class="material-icons collapsed-folder-icon"
+                    matTooltip="All Tables"
+                    matTooltipPosition="right">dehaze</span>
+
+                <!-- Collapsed table list for any folder -->
+                <div *ngIf="showCollapsedTableList" class="collapsed-tables-list">
+                    <a *ngFor="let tableItem of getCollapsedTableList()"
+                        class="collapsed-table-item"
+                        routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
+                        [queryParams]="{page_index: 0, page_size: 30}"
+                        [ngClass]="{'collapsed-table-item_active': selectedTable === tableItem.table}"
+                        [matTooltip]="getTableName(tableItem)"
+                        matTooltipPosition="right"
+                        (click)="closeSidebar()">
+                        <!-- Show icon if available, otherwise show initials -->
+                        <mat-icon *ngIf="tableItem.icon; else tableNameInitials" class="table-list-icon">
+                            {{tableItem.icon}}
+                        </mat-icon>
+                        <ng-template #tableNameInitials>
+                            {{tableItem.initials}}
+                        </ng-template>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bottom section with add folder button (fixed at bottom) -->
+            <div class="collapsed-bottom-section" *ngIf="accessLevel === 'edit'">
+                <!-- Add folder button -->
+                <div class="collapsed-add-button"
+                    (click)="onAddFolder()"
+                    matTooltip="Add Folder"
+                    matTooltipPosition="right">
+                    <mat-icon class="collapsed-action-icon">add</mat-icon>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expanded state container -->
+        <div *ngIf="!collapsed" class="expanded-container" [class.has-custom-folders]="hasCustomFolders()">
+            <!-- Search field always at the top -->
+            <mat-form-field appearance="fill" class="search-input">
+                <input matInput name="search" #search="ngModel"
+                    placeholder="Search"
+                    [(ngModel)]="substringToSearch"
+                    (keyup)="searchSubstring()">
+                <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
+            </mat-form-field>
+
+            <!-- Add Folder button (position controlled by CSS order) -->
+            <div *ngIf="accessLevel === 'edit'" class="add-folder-button-container">
+                <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
+                    <mat-icon>add</mat-icon>
+                    Add Folder
+                </button>
+            </div>
+
+            <!-- Collections Section -->
+            <div *ngIf="folders && folders.length > 0" class="folders-section">
+                    <ng-container *ngFor="let folder of folders; trackBy: trackByFolderId">
+                        <div *ngIf="shouldShowFolder(folder)"
+                            class="folder-item"
+                            [class.expanded]="folder.expanded"
+                            [class.drag-over]="dragOverFolder === folder.id"
+                            (dragover)="onFolderDragOver($event, folder.id)"
+                            (dragleave)="onFolderDragLeave($event, folder.id)"
+                            (drop)="onFolderDrop($event, folder)">
+                            <div class="folder-header"
+                                [class.expanded]="folder.expanded"
+                                (click)="toggleFolder(folder.id)">
+                                <!-- Folder icon on the left -->
+                                <span *ngIf="folder.name === 'All Tables'"
+                                    class="material-icons folder-icon"
+                                    [style.color]="getFolderIconColor(folder)">dehaze</span>
+                                <span *ngIf="folder.name !== 'All Tables'"
+                                    class="material-icons folder-icon"
+                                    [style.color]="getFolderIconColor(folder)">folder</span>
+
+                                <div class="folder-name">
+                                    {{folder.name}}
+                                </div>
+
+                                <div class="folder-actions">
+                                    <button *ngIf="folder.name !== 'All Tables' && accessLevel === 'edit'"
+                                        mat-icon-button class="more-folder-button"
+                                        [matMenuTriggerFor]="folderMenu"
+                                        (click)="$event.stopPropagation()"
+                                        matTooltip="Folder options">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+
+                                    <!-- Expand/collapse icon on the right -->
+                                    <mat-icon class="folder-expand-icon" [class.expanded]="folder.expanded">
+                                        chevron_right
+                                    </mat-icon>
+                                    <mat-menu #folderMenu="matMenu">
+                                        <button mat-menu-item (click)="showEditTablesDialog(folder)">
+                                            <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
+                                            <span>Edit</span>
+                                        </button>
+                                        <button mat-menu-item (click)="deleteFolder(folder)">
+                                            <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+                                            <span>Delete</span>
+                                        </button>
+                                    </mat-menu>
+                                </div>
+                            </div>
+                            <div *ngIf="folder.expanded" class="folder-tables">
+                                <div *ngIf="getFolderTables(folder).length > 0; else noTablesInCollection"
+                                    class="selected-tables-list">
+                                    <div *ngFor="let table of getFolderTables(folder)"
+                                        class="selected-table-item"
+                                        [draggable]="true"
+                                        (dragstart)="onTableDragStart($event, table)"
+                                        (dragend)="onTableDragEnd($event)">
+                                        <a class="table-link"
+                                            routerLink="/dashboard/{{connectionID}}/{{table.table}}"
+                                            [queryParams]="{page_index: 0, page_size: 30}"
+                                            [ngClass]="{'table-link_active': selectedTable === table.table}"
+                                            (click)="closeSidebar()">
+                                            <span class="table-name">{{getTableName(table)}}</span>
+                                        </a>
+                                    </div>
+
+                                </div>
+                                <ng-template #noTablesInCollection>
+                                    <div class="no-tables-message" [class.empty-folder-message]="folder.isEmpty">
+                                        <p *ngIf="!folder.isEmpty">No tables in this folder</p>
+                                        <button mat-stroked-button
+                                            color="primary"
+                                            [class.empty-folder-button]="folder.isEmpty"
+                                            (click)="showEditTablesDialog(folder)">
+                                            {{folder.isEmpty ? 'Add or drag and drop tables' : 'Add Table'}}
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </ng-container>
+            </div>
+        </div>
+
     </div>
 
 
@@ -54,4 +186,5 @@
             Rocketadmin do not provide adding and deleting database tables, only editing ones. You can add a table with SQL editor.
         </p>
     </ng-template>
-</ng-template>
+
+

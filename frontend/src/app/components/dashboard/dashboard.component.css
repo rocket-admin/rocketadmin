@@ -1,3 +1,7 @@
+:host {
+    margin-bottom: -60px;
+}
+
 .mat-sidenav-container {
     height: 100%;
     /* height: calc(100vh - 56px); */
@@ -36,48 +40,39 @@
     }
 }
 
+.table-list-sidenav-container ::ng-deep .mat-drawer-inner-container,
+.side-bar_collapsed ::ng-deep .mat-drawer-inner-container {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
 .table-list-sidenav-container ::ng-deep .mat-drawer:not(.mat-drawer-opened):not(.mat-drawer-animating) .mat-drawer-inner-container {
-    display: initial;
+    display: block;
 }
 
 .mat-list-item {
     text-decoration: none;
 }
 
-.mat-sidenav-content {
-    padding: 0 24px;
-}
-
-.toggle-button-position {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: -48px;
-    margin-top: 24px;
-}
-
 .toggle-button {
-    background-color: var(--mat-sidenav-content-background-color);
-    border-radius: 4px 0 0 4px !important;
-    color: inherit;
-    line-height: 24px;
-    min-width: 52px !important;
-    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.1),0px 6px 8px 0px rgba(0, 0, 0, 0.07),0px 1px 8px 0px rgba(0, 0, 0, 0.06);
+    margin-top: 8px;
+    margin-left: 12px;
 }
 
-.toggle-button::ng-deep .mat-button-wrapper {
-    padding: 0;
+.toggle-button-position button {
+    border-radius: 4px;
 }
 
-.toggle-button::ng-deep .material-icons {
-    line-height: 22px;
+.toggle-button-position button mat-icon {
+    border-radius: 4px;
 }
 
-.toggle-button-position__opened::ng-deep .material-icons {
-    margin-left: -2px;
+.toggle-button-position button:hover {
+    border-radius: 4px;
 }
 
-.toggle-button-position__closed::ng-deep .material-icons {
-    margin-left: 2px;
+.toggle-button-position button:hover mat-icon {
+    border-radius: 4px;
 }
 
 .dashboard {
@@ -116,10 +111,15 @@
 .table-preview {
     display: flex;
     overflow-x: hidden;
+    height: calc(100vh - 44px);
 }
 
 .table-preview-content {
     flex-grow: 1;
+    padding-bottom: 24px;
+    height: calc(100vh - 44px);
+    padding: 0 24px;
+    overflow-y: scroll;
     width: 100%;
 }
 

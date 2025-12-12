@@ -1,0 +1,11 @@
+.out-of-threshold {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.out-of-threshold__icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}

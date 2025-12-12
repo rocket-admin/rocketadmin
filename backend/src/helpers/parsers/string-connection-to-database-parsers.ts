@@ -1,4 +1,4 @@
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
 
 // postgresql://user:password@localhost:5432/mydatabase?ssh=true&privateSSHKey=key&sshHost=sshHost&sshPort=22&sshUsername=sshUser&ssl=true&cert=cert
@@ -12,7 +12,7 @@ export const parseTestPostgresConnectionString = (connectionString: string): Par
   config.database = url.pathname.split('/')[1] || null;
   config.schema = 'public';
   config.type = ConnectionTypesEnum.postgres;
-  config.title = 'PostgreSQL';
+  config.title = 'School of fish';
   config.isTestConnection = true;
   config.ssh = url.searchParams.get('ssh') === 'true';
   config.privateSSHKey = url.searchParams.get('privateSSHKey') || undefined;
@@ -34,7 +34,7 @@ export const parseTestMySQLConnectionString = (connectionString: string): Partia
   config.password = url.password || null;
   config.database = url.pathname.split('/')[1] || null;
   config.type = ConnectionTypesEnum.mysql || null;
-  config.title = 'MySQL';
+  config.title = 'Coworking hub';
   config.isTestConnection = true;
   config.ssh = url.searchParams.get('ssh') === 'true';
   config.privateSSHKey = url.searchParams.get('privateSSHKey') || undefined;
@@ -56,7 +56,7 @@ export const parseTestMSSQLConnectionString = (connectionString: string): Partia
   config.password = url.password || null;
   config.database = url.pathname.split('/')[1] || null;
   config.type = ConnectionTypesEnum.mssql;
-  config.title = 'MSSQL';
+  config.title = 'Online shop';
   config.isTestConnection = true;
   config.ssh = url.searchParams.get('ssh') === 'true';
   config.privateSSHKey = url.searchParams.get('privateSSHKey') || undefined;
@@ -82,7 +82,7 @@ export const parseTestOracleDBConnectionString = (connectionString: string): Par
   const params = new URLSearchParams(url.search);
   config.database = params.get('database') || undefined;
   config.type = ConnectionTypesEnum.oracledb;
-  config.title = 'Oracle DB';
+  config.title = 'Online shop';
   config.isTestConnection = true;
   config.schema = params.get('schema') || undefined;
   config.ssh = params.get('ssh') === 'true';
@@ -105,7 +105,7 @@ export const parseTestMongoDBConnectionString = (connectionString: string): Part
   config.password = url.password || null;
   config.database = url.pathname.split('/')[1] || null;
   config.type = ConnectionTypesEnum.mongodb;
-  config.title = 'MongoDB';
+  config.title = 'Movie theater';
   const authSource = url.searchParams.get('authSource');
   if (authSource) {
     config.authSource = authSource;
@@ -157,7 +157,7 @@ export const parseTestDynamoDBConnectionString = (connectionString: string): Par
   const host = `${url.protocol}//${url.hostname}:${url.port}`;
   config.host = host;
   config.type = ConnectionTypesEnum.dynamodb;
-  config.title = 'DynamoDB';
+  config.title = 'Orders';
   config.isTestConnection = true;
   config.ssl = false;
   return config;

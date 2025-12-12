@@ -11,7 +11,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
     const newUser: UserEntity = new UserEntity();
     newUser.id = userData.id;
     newUser.isActive = true;
-    newUser.gclid = userData.gclidValue;
+    newUser.gclid = userData.gclidValue || null;
     return await this.save(newUser);
   },
 
@@ -118,7 +118,8 @@ export const userCustomRepositoryExtension: IUserRepository = {
     const dateTwoWeeksAgo = Constants.TWO_WEEKS_AGO();
     const usersQB = this.createQueryBuilder('user')
       .where('user.createdAt > :date', { date: dateTwoWeeksAgo })
-      .andWhere('user.gclid IS NOT NULL');
+      .andWhere('user.gclid IS NOT NULL')
+      .andWhere('user.isDemoAccount = :isDemo', { isDemo: false });
     return await usersQB.getMany();
   },
 
@@ -127,6 +128,17 @@ export const userCustomRepositoryExtension: IUserRepository = {
       .leftJoin('user.company', 'company')
       .where('company.id = :companyId', { companyId: companyId });
     return await usersQB.getCount();
+  },
+
+  async findUsersInCompany(companyId: string, orderByRole: boolean = false): Promise<Array<UserEntity>> {
+    const usersQB = this.createQueryBuilder('user')
+      .leftJoin('user.company', 'company')
+      .where('company.id = :companyId', { companyId: companyId })
+      .orderBy('user.createdAt', 'ASC');
+    if (orderByRole) {
+      usersQB.addOrderBy('user.role', 'ASC');
+    }
+    return await usersQB.getMany();
   },
 
   async getUserEmailOrReturnNull(userId: string): Promise<string> {

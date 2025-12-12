@@ -7,16 +7,16 @@ import { first, map } from 'rxjs/operators';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
-import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
+import { BbBulkActionConfirmationDialogComponent } from './db-table-view/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { ContentLoaderComponent } from '../ui-components/content-loader/content-loader.component';
-import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
-import { DbTableAiPanelComponent } from './db-table-ai-panel/db-table-ai-panel.component';
-import { DbTableComponent } from './db-table/db-table.component';
-import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
-import { DbTableRowViewComponent } from './db-table-row-view/db-table-row-view.component';
+import { DbActionLinkDialogComponent } from './db-table-view/db-action-link-dialog/db-action-link-dialog.component';
+import { DbTableAiPanelComponent } from './db-table-view/db-table-ai-panel/db-table-ai-panel.component';
+import { DbTableFiltersDialogComponent } from './db-table-view/db-table-filters-dialog/db-table-filters-dialog.component';
+import { DbTableRowViewComponent } from './db-table-view/db-table-row-view/db-table-row-view.component';
+import { DbTableViewComponent } from './db-table-view/db-table-view.component';
 import { DbTablesListComponent } from './db-tables-list/db-tables-list.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import JsonURL from "@jsonurl/jsonurl";
@@ -58,7 +58,7 @@ interface DataToActivateActions {
     MatDialogModule,
     MatSidenavModule,
     DbTablesListComponent,
-    DbTableComponent,
+    DbTableViewComponent,
     DbTableAiPanelComponent,
     DbTableRowViewComponent,
     AlertComponent,
@@ -120,12 +120,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._connections.currentConnectionAccessLevel
   }
 
-  get currentConnectionTitle () {
-    return this._connections.currentConnection.title || this._connections.currentConnection.database || 'Tables'
-  }
-
   get currentConnectionIsTest () {
     return this._connections.currentConnection.isTestConnection
+  }
+
+  get connectionTitle() {
+    return this._connections.currentConnection?.title || 'Database';
   }
 
   get defaultTableToOpen () {
@@ -151,6 +151,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
 
         this.getData();
+        console.log('getData from ngOnInit');
     });
   }
 
@@ -159,6 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async getData() {
+    console.log('getData');
     let tables;
     try {
       tables = await this.getTables();
@@ -185,6 +187,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
+              console.log('setTable from getData paramMap');
               this.title.setTitle(`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`);
               this.selection.clear();
             } else {
@@ -201,12 +204,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this._tableRow.cast.subscribe((arg) => {
           if (arg === 'delete row' && this.selectedTableName) {
             this.setTable(this.selectedTableName);
+            console.log('setTable from getData _tableRow cast');
             this.selection.clear();
           };
         });
         this._tables.cast.subscribe((arg) => {
           if ((arg === 'delete rows' || arg === 'import') && this.selectedTableName) {
             this.setTable(this.selectedTableName);
+            console.log('setTable from getData _tables cast');
             this.selection.clear();
           };
           if (arg === 'activate actions') {
@@ -217,6 +222,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getTables() {
+    console.log('getTables');
     return this._tables.fetchTables(this.connectionID).toPromise();
   }
 
@@ -236,24 +242,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return result;
       }, '');
 
-      if (tableItem.display_name) return {...tableItem, initials: initials.slice(0, 2)}
-      else return {...tableItem, normalizedTableName, initials: initials.slice(0, 2)}
+      return {...tableItem, normalizedTableName, initials: initials.slice(0, 2)}
     })
   }
 
   setTable(tableName: string) {
     this.selectedTableName = tableName;
-    this.route.queryParams.pipe(first()).subscribe((queryParams) => {
-      this.filters = JsonURL.parse( queryParams.filters );
-      this.comparators = getComparatorsFromUrl(this.filters);
-      this.pageIndex = parseInt(queryParams.page_index) || 0;
-      this.pageSize = parseInt(queryParams.page_size) || 30;
-      this.sortColumn = queryParams.sort_active;
-      this.sortOrder = queryParams.sort_direction;
+    const queryParams = this.route.snapshot.queryParams;
+    this.filters = JsonURL.parse(queryParams.filters);
+    this.comparators = getComparatorsFromUrl(this.filters);
+    this.pageIndex = parseInt(queryParams.page_index) || 0;
+    this.pageSize = parseInt(queryParams.page_size) || 30;
+    this.sortColumn = queryParams.sort_active;
+    this.sortOrder = queryParams.sort_direction;
 
-      const search = queryParams.search;
-      this.getRows(search);
-    })
+    const search = queryParams.search;
+    this.getRows(search);
+    console.log('getRows from setTable');
 
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
     if (selectedTableProperties) {
@@ -279,20 +284,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (action === 'filter') {
         const filtersFromDialog = {...filterDialodRef.componentInstance.tableRowFieldsShown};
 
+        console.log('Filters from dialog:', filtersFromDialog);
+
         const nonEmptyFilters = omitBy(filtersFromDialog, (value) => value === undefined);
         this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
         if (Object.keys(nonEmptyFilters).length) {
           this.filters = {};
           for (const key in nonEmptyFilters) {
-              if (this.comparators[key] !== undefined) {
-                this.filters[key] = {
-                      [this.comparators[key]]: nonEmptyFilters[key]
-                  };
-              }
+            if (this.comparators[key] !== undefined) {
+              this.filters[key] = {
+                [this.comparators[key]]: nonEmptyFilters[key]
+              };
+            }
           }
 
+          console.log('Filters to apply:', this.filters);
+
           const filters = JsonURL.stringify( this.filters );
+
+          console.log('Filters to navigate:', filters);
 
           this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
             queryParams: {
@@ -302,6 +313,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
           });
           this.getRows();
+          console.log('getRows from afterClosed');
+
 
           this.angulartics2.eventTrack.next({
             action: 'Dashboard: filter is applied',
@@ -310,6 +323,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       } else if (action === 'reset') {
         this.filters = {};
         this.getRows();
+        console.log('getRows from reset filters afterClosed');
         this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`]);
       }
     })
@@ -324,6 +338,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.selection.clear();
 
     this.getRows();
+    console.log('getRows from removeFilter');
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams: {
         filters,
@@ -337,6 +352,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.filters = {};
     this.comparators = {};
     this.getRows();
+    console.log('getRows from clearAllFilters');
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams: {
         page_index: 0,
@@ -347,6 +363,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   search(value: string) {
     this.getRows(value);
+    console.log('getRows from search');
     this.filters = {};
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams: {
@@ -358,6 +375,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getRows(search?: string) {
+    console.log('getRows, filters:', this.filters);
     this._uiSettings.getUiSettings()
       .subscribe ((settings: UiSettings) => {
         this.uiSettings = settings?.connections[this.connectionID];
@@ -376,7 +394,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
           shownColumns
         });
     });
+  }
 
+  applyFilter(filters: any) {
+    console.log('applyFilter with filters:', filters);
+    this.filters = filters?.filters;
+    this.getRows();
+    console.log('getRows from applyFilter');
   }
 
   openIntercome() {

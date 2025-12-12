@@ -28,9 +28,9 @@ import { DynamoDBType, TableStructureDS } from '../shared/data-structures/table-
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export type DdAndClient = {
@@ -229,6 +229,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     const { dynamoDb } = this.getDynamoDb();
 
@@ -240,7 +241,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           ? settings.list_per_page
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     let filterExpression = '';
@@ -625,6 +628,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       perPage,
       searchedFieldValue,
       filteringFields,
+      null,
       null,
     );
     return result.data as any;

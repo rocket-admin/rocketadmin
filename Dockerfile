@@ -1,4 +1,6 @@
 FROM node:22-slim AS front_builder
+ARG VERSION
+ARG SAAS
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
@@ -6,9 +8,18 @@ COPY frontend/.yarn /app/frontend/.yarn
 RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
-RUN yarn install --immutable --network-timeout 1000000 --silent
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --immutable --network-timeout 1000000 --silent
+COPY frontend/scripts /app/frontend/scripts
 COPY frontend/src /app/frontend/src
-ARG SAAS
+
+# Update version if VERSION build arg is provided
+RUN if [[ -n $VERSION ]]; then \
+    cd frontend; \
+    echo "Updating package.json version to $VERSION" && \
+    npm version $VERSION --no-git-tag-version && \
+    yarn update-version; \
+    fi
+
 RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-production; \
     else API_ROOT=/api yarn build --configuration=production; fi
 RUN ls /app/frontend/dist/dissendium-v0
@@ -21,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     tini nginx \
     make gcc g++ python3 \
     libxml2 \
-    && rm -rf /var/lib/apt/lists/* 
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY package.json .yarnrc.yml yarn.lock /app/
@@ -29,13 +40,12 @@ COPY backend /app/backend
 COPY shared-code /app/shared-code
 COPY rocketadmin-agent /app/rocketadmin-agent
 COPY .yarn /app/.yarn
-RUN yarn install --network-timeout 1000000 --frozen-lockfile --silent
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --immutable --silent
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd backend && yarn run nest build
+RUN cd backend && ../node_modules/.bin/tsc && yarn run nest build
 COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
-
-RUN chown -R appuser:appuser /app
+RUN mkdir -p /app/backend/node_modules/.cache && chown -R appuser:appuser /app/backend/node_modules/.cache
 RUN chown -R appuser:appuser  /var/lib/nginx
 RUN chown -R appuser:appuser  /var/log/nginx
 RUN chown -R appuser:appuser  /run
@@ -43,5 +53,5 @@ RUN chown -R appuser:appuser  /run
 USER appuser
 
 WORKDIR /app/backend
-CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
+CMD [ "/app/backend/runner.sh" ]

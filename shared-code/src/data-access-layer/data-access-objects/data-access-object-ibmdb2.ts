@@ -20,8 +20,8 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
@@ -192,6 +192,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     const connectionSchema = this.connection.schema.toUpperCase();
     tableName = tableName.toUpperCase();
@@ -209,7 +210,9 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     const connectionToDb = await this.getConnectionToDatabase();
 
     const { large_dataset, rowsCount } = await this.getRowsCount(tableName, this.connection.schema);
-    const tableStructure = await this.getTableStructure(tableName);
+    if (!tableStructure) {
+      tableStructure = await this.getTableStructure(tableName);
+    }
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
     const lastPage = Math.ceil(rowsCount / perPage);
@@ -321,10 +324,13 @@ FROM
     syscat.keycoluse pk
     ON
         ref.refkeyname = pk.constname AND
-        ref.reftabschema = pk.tabschema
+        ref.reftabschema = pk.tabschema AND
+        col.colseq = pk.colseq
 WHERE
     ref.tabname = ? AND
     ref.tabschema = ?
+ORDER BY
+    ref.constname, col.colseq
   `;
     const foreignKeys = await connectionToDb.query(query, [
       tableName.toUpperCase(),
@@ -591,6 +597,7 @@ WHERE
       perPage,
       searchedFieldValue,
       filteringFields,
+      null,
       null,
     )) as any;
     return rowsResult.data;

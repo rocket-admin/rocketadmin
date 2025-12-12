@@ -12,7 +12,7 @@ import { Angulartics2Module } from "angulartics2";
 import { AppComponent } from "./app/app.component";
 import { AppRoutingModule } from "./app/app-routing.module";
 import { ClipboardModule } from "@angular/cdk/clipboard";
-import { CodeEditorModule } from "@ngstack/code-editor";
+import { provideCodeEditor } from "@ngstack/code-editor";
 import { ConfigModule } from "./app/modules/config.module";
 import { ConnectionsService } from "./app/services/connections.service";
 import { CookieService } from "ngx-cookie-service";
@@ -43,10 +43,10 @@ const saasExtraProviders = (environment as any).saas ? [
   },
 ] : [];
 const colorConfig: IColorConfig<Palettes, Colors> = {
-  palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC', warnPalette: '#B71C1C', whitePalette: '#FFFFFF', accentedDarkPalette: '#C176FC', warnDarkPalette: '#E53935' },
+  palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC', warnPalette: '#B71C1C', whitePalette: '#FFFFFF', warnDarkPalette: '#E53935' },
   simpleColors: { myColorName: '#2e959a' },
 };
-type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string, whitePalette: string, accentedDarkPalette: string, warnDarkPalette: string };
+type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string, whitePalette: string, warnDarkPalette: string };
 type Colors = { myColorName: string };
 
 const stripeKey = location.host === environment.stagingHost ? 'pk_test_51JM8FBFtHdda1TsBTjVNBFMIAA8cXLNWTmZCF22FCS5swdJIFqMk82ZEeZpvTys7oxlDekdcYIGaQ5MEFz6lWa2s000r6RziCg' : 'pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk'
@@ -76,11 +76,14 @@ if ((environment as any).saas) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(), CodeEditorModule.forRoot(),
+        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, RouterModule, DynamicModule, Angulartics2Module.forRoot(), ClipboardModule, DragDropModule, MarkdownModule.forRoot(),
         // ...saasExtraModules,
         NgxThemeModule.forRoot(colorConfig, {
             frameworks: ['material'], // optional, default : ['tailwind', 'material']
         }), NgxStripeModule.forRoot(stripeKey), ConfigModule.buildForConfigUrl('/config.json')),
+        provideCodeEditor({
+          baseUrl: 'assets/monaco'
+        }),
         PasswordStrengthMeterComponent,
         ConnectionsService,
         UsersService,

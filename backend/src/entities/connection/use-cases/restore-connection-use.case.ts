@@ -3,13 +3,8 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionEntityAgent } from '../../../helpers/index.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
@@ -26,7 +21,7 @@ export class RestoreConnectionUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+    // private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -34,7 +29,7 @@ export class RestoreConnectionUseCase
   protected async implementation(connectionData: UpdateConnectionDs): Promise<RestoredConnectionDs> {
     const {
       connection_parameters,
-      update_info: { connectionId, authorId },
+      update_info: { connectionId },
     } = connectionData;
 
     if (connection_parameters.masterEncryption && !connectionData.update_info.masterPwd) {
@@ -63,18 +58,6 @@ export class RestoreConnectionUseCase
         },
         HttpStatus.FORBIDDEN,
       );
-    }
-
-    if (isSaaS()) {
-      const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
-      const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
-      if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
-        if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(connection_parameters.type)) {
-          throw new NonAvailableInFreePlanException(
-            Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(connection_parameters.type),
-          );
-        }
-      }
     }
 
     const isTestConnection = isHostTest(connectionData.connection_parameters.host);

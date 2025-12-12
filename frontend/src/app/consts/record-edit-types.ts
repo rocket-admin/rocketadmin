@@ -10,17 +10,21 @@ import { ForeignKeyEditComponent } from '../components/ui-components/record-edit
 import { IdEditComponent } from '../components/ui-components/record-edit-fields/id/id.component';
 import { ImageEditComponent } from '../components/ui-components/record-edit-fields/image/image.component';
 import { JsonEditorEditComponent } from '../components/ui-components/record-edit-fields/json-editor/json-editor.component';
+import { LanguageEditComponent } from '../components/ui-components/record-edit-fields/language/language.component';
 import { LongTextEditComponent } from 'src/app/components/ui-components/record-edit-fields/long-text/long-text.component'
+import { MarkdownEditComponent } from '../components/ui-components/record-edit-fields/markdown/markdown.component';
 import { MoneyEditComponent } from '../components/ui-components/record-edit-fields/money/money.component';
 import { NumberEditComponent } from 'src/app/components/ui-components/record-edit-fields/number/number.component';
 import { PasswordEditComponent } from '../components/ui-components/record-edit-fields/password/password.component';
 import { PhoneEditComponent } from '../components/ui-components/record-edit-fields/phone/phone.component';
 import { PointEditComponent } from 'src/app/components/ui-components/record-edit-fields/point/point.component';
+import { RangeEditComponent } from '../components/ui-components/record-edit-fields/range/range.component';
 import { SelectEditComponent } from '../components/ui-components/record-edit-fields/select/select.component';
 import { StaticTextEditComponent } from '../components/ui-components/record-edit-fields/static-text/static-text.component';
 import { TextEditComponent } from 'src/app/components/ui-components/record-edit-fields/text/text.component';
 import { TimeEditComponent } from '../components/ui-components/record-edit-fields/time/time.component';
 import { TimeIntervalEditComponent } from '../components/ui-components/record-edit-fields/time-interval/time-interval.component';
+import { TimezoneEditComponent } from '../components/ui-components/record-edit-fields/timezone/timezone.component';
 import { UrlEditComponent } from '../components/ui-components/record-edit-fields/url/url.component';
 import { UuidEditComponent } from '../components/ui-components/record-edit-fields/uuid/uuid.component';
 
@@ -33,25 +37,29 @@ export const defaultTimestampValues = {
 export const UIwidgets = {
     Default: '',
     Boolean: BooleanEditComponent,
-    Date: DateEditComponent,
-    Time: TimeEditComponent,
-    DateTime: DateTimeEditComponent,
-    JSON: JsonEditorEditComponent,
-    Textarea: LongTextEditComponent,
-    String: TextEditComponent,
-    Readonly: StaticTextEditComponent,
-    Number: NumberEditComponent,
-    Select: SelectEditComponent,
-    Password: PasswordEditComponent,
-    File: FileEditComponent,
     Code: CodeEditComponent,
-    Image: ImageEditComponent,
-    URL: UrlEditComponent,
-    Country: CountryEditComponent,
-    Phone: PhoneEditComponent,
-    Money: MoneyEditComponent,
-    Foreign_key: ForeignKeyEditComponent,
     Color: ColorEditComponent,
+    Country: CountryEditComponent,
+    Date: DateEditComponent,
+    DateTime: DateTimeEditComponent,
+    File: FileEditComponent,
+    Foreign_key: ForeignKeyEditComponent,
+    Image: ImageEditComponent,
+    JSON: JsonEditorEditComponent,
+    Language: LanguageEditComponent,
+    Markdown: MarkdownEditComponent,
+    Money: MoneyEditComponent,
+    Number: NumberEditComponent,
+    Password: PasswordEditComponent,
+    Phone: PhoneEditComponent,
+    Range: RangeEditComponent,
+    Readonly: StaticTextEditComponent,
+    Select: SelectEditComponent,
+    String: TextEditComponent,
+    Textarea: LongTextEditComponent,
+    Time: TimeEditComponent,
+    Timezone: TimezoneEditComponent,
+    URL: UrlEditComponent,
     UUID: UuidEditComponent,
 }
 
@@ -302,5 +310,22 @@ export const recordEditTypes = {
         list: JsonEditorEditComponent,
         map: JsonEditorEditComponent,
         set: JsonEditorEditComponent,
+    },
+    redis: {
+        string: TextEditComponent,
+        integer: NumberEditComponent,
+        decimal: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        array: JsonEditorEditComponent,
+        json: JsonEditorEditComponent,
+    },
+    elasticsearch: {
+        string: TextEditComponent,
+        number: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        date: DateEditComponent,
+        object: JsonEditorEditComponent,
+        array: JsonEditorEditComponent,
+        binary: FileEditComponent,
     }
 }

@@ -9,42 +9,50 @@ import { ForeignKeyDisplayComponent } from '../components/ui-components/table-di
 import { IdDisplayComponent } from '../components/ui-components/table-display-fields/id/id.component';
 import { ImageDisplayComponent } from '../components/ui-components/table-display-fields/image/image.component';
 import { JsonEditorDisplayComponent } from '../components/ui-components/table-display-fields/json-editor/json-editor.component';
+import { LanguageDisplayComponent } from '../components/ui-components/table-display-fields/language/language.component';
 import { LongTextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/long-text/long-text.component';
+import { MarkdownDisplayComponent } from '../components/ui-components/table-display-fields/markdown/markdown.component';
 import { MoneyDisplayComponent } from '../components/ui-components/table-display-fields/money/money.component';
 import { NumberDisplayComponent } from '../components/ui-components/table-display-fields/number/number.component';
 import { PasswordDisplayComponent } from '../components/ui-components/table-display-fields/password/password.component';
 import { PhoneDisplayComponent } from '../components/ui-components/table-display-fields/phone/phone.component';
 import { PointDisplayComponent } from '../components/ui-components/table-display-fields/point/point.component';
+import { RangeDisplayComponent } from '../components/ui-components/table-display-fields/range/range.component';
 import { SelectDisplayComponent } from '../components/ui-components/table-display-fields/select/select.component';
 import { StaticTextDisplayComponent } from '../components/ui-components/table-display-fields/static-text/static-text.component';
 import { TextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/text/text.component';
 import { TimeDisplayComponent } from '../components/ui-components/table-display-fields/time/time.component';
 import { TimeIntervalDisplayComponent } from '../components/ui-components/table-display-fields/time-interval/time-interval.component';
+import { TimezoneDisplayComponent } from '../components/ui-components/table-display-fields/timezone/timezone.component';
 import { UrlDisplayComponent } from '../components/ui-components/table-display-fields/url/url.component';
 import { UuidDisplayComponent } from '../components/ui-components/table-display-fields/uuid/uuid.component';
 
 export const UIwidgets = {
     Default: '',
     Boolean: BooleanDisplayComponent,
-    Date: DateDisplayComponent,
-    Time: TimeDisplayComponent,
-    DateTime: DateTimeDisplayComponent,
-    JSON: JsonEditorDisplayComponent,
-    Textarea: LongTextDisplayComponent,
-    String: TextDisplayComponent,
-    Readonly: StaticTextDisplayComponent,
-    Number: NumberDisplayComponent,
-    Select: SelectDisplayComponent,
-    Password: PasswordDisplayComponent,
-    File: FileDisplayComponent,
     Code: CodeDisplayComponent,
-    Image: ImageDisplayComponent,
-    URL: UrlDisplayComponent,
-    Country: CountryDisplayComponent,
-    Phone: PhoneDisplayComponent,
-    Money: MoneyDisplayComponent,
-    Foreign_key: ForeignKeyDisplayComponent,
     Color: ColorDisplayComponent,
+    Country: CountryDisplayComponent,
+    Date: DateDisplayComponent,
+    DateTime: DateTimeDisplayComponent,
+    File: FileDisplayComponent,
+    Foreign_key: ForeignKeyDisplayComponent,
+    Image: ImageDisplayComponent,
+    JSON: JsonEditorDisplayComponent,
+    Language: LanguageDisplayComponent,
+    Markdown: MarkdownDisplayComponent,
+    Money: MoneyDisplayComponent,
+    Number: NumberDisplayComponent,
+    Password: PasswordDisplayComponent,
+    Phone: PhoneDisplayComponent,
+    Range: RangeDisplayComponent,
+    Readonly: StaticTextDisplayComponent,
+    Select: SelectDisplayComponent,
+    String: TextDisplayComponent,
+    Textarea: LongTextDisplayComponent,
+    Time: TimeDisplayComponent,
+    Timezone: TimezoneDisplayComponent,
+    URL: UrlDisplayComponent,
     UUID: UuidDisplayComponent,
 }
 
@@ -296,4 +304,21 @@ export const tableDisplayTypes = {
         map: JsonEditorDisplayComponent,
         set: JsonEditorDisplayComponent,
     },
+    redis: {
+        string: TextDisplayComponent,
+        integer: NumberDisplayComponent,
+        decimal: NumberDisplayComponent,
+        boolean: BooleanDisplayComponent,
+        array: JsonEditorDisplayComponent,
+        json: JsonEditorDisplayComponent,
+    },
+    elasticsearch: {
+        string: TextDisplayComponent,
+        number: NumberDisplayComponent,
+        boolean: BooleanDisplayComponent,
+        date: DateDisplayComponent,
+        object: JsonEditorDisplayComponent,
+        array: JsonEditorDisplayComponent,
+        binary: FileDisplayComponent,
+    }
 }

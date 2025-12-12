@@ -16,22 +16,28 @@ import { StaticTextFilterComponent } from '../components/ui-components/filter-fi
 import { TextFilterComponent } from 'src/app/components/ui-components/filter-fields/text/text.component';
 import { TimeFilterComponent } from '../components/ui-components/filter-fields/time/time.component';
 import { TimeIntervalFilterComponent } from '../components/ui-components/filter-fields/time-interval/time-interval.component';
+import { TimezoneFilterComponent } from '../components/ui-components/filter-fields/timezone/timezone.component';
 
 export const UIwidgets = {
     Default: '',
     Boolean: BooleanFilterComponent,
+    Country: CountryFilterComponent,
     Date: DateFilterComponent,
-    Time: TimeFilterComponent,
     DateTime: DateTimeFilterComponent,
-    JSON: JsonEditorFilterComponent,
-    Textarea: LongTextFilterComponent,
-    String: TextFilterComponent,
-    Readonly: StaticTextFilterComponent,
-    Number: NumberFilterComponent,
-    Select: SelectFilterComponent,
-    Password: PasswordFilterComponent,
     File: FileFilterComponent,
-    Country: CountryFilterComponent
+    Foreign_key: ForeignKeyFilterComponent,
+    JSON: JsonEditorFilterComponent,
+    Number: NumberFilterComponent,
+    Password: PasswordFilterComponent,
+    Readonly: StaticTextFilterComponent,
+    Select: SelectFilterComponent,
+    String: TextFilterComponent,
+    Textarea: LongTextFilterComponent,
+    Time: TimeFilterComponent,
+    TimeInterval: TimeIntervalFilterComponent,
+    Timezone: TimezoneFilterComponent,
+    Point: PointFilterComponent,
+    ID: IdFilterComponent,
 }
 
 export const filterTypes = {

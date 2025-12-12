@@ -108,6 +108,7 @@ export class ConnectionPropertiesController {
       human_readable_table_names: connectionPropertiesData.human_readable_table_names,
       allow_ai_requests: connectionPropertiesData.allow_ai_requests,
       default_showing_table: connectionPropertiesData.default_showing_table,
+      table_categories: connectionPropertiesData.table_categories,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -153,6 +154,7 @@ export class ConnectionPropertiesController {
       human_readable_table_names: connectionPropertiesData.human_readable_table_names,
       allow_ai_requests: connectionPropertiesData.allow_ai_requests,
       default_showing_table: connectionPropertiesData.default_showing_table,
+      table_categories: connectionPropertiesData.table_categories,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);

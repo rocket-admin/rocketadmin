@@ -5,6 +5,7 @@ import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 import { Subscription, take } from 'rxjs';
+import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 
 import { AccessLevel } from 'src/app/models/user';
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -18,6 +19,7 @@ import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dial
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DynamodbCredentialsFormComponent } from './db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component';
+import { ElasticCredentialsFormComponent } from './db-credentials-forms/elastic-credentials-form/elastic-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -37,6 +39,7 @@ import { NgForm } from '@angular/forms';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { OracledbCredentialsFormComponent } from './db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component';
 import { PostgresCredentialsFormComponent } from './db-credentials-forms/postgres-credentials-form/postgres-credentials-form.component';
+import { RedisCredentialsFormComponent } from './db-credentials-forms/redis-credentials-form/redis-credentials-form.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -71,6 +74,8 @@ import isIP from 'validator/lib/isIP';
     MysqlCredentialsFormComponent,
     OracledbCredentialsFormComponent,
     PostgresCredentialsFormComponent,
+    RedisCredentialsFormComponent,
+    ElasticCredentialsFormComponent,
     IpAddressButtonComponent,
     AlertComponent,
     Angulartics2Module
@@ -90,6 +95,8 @@ export class ConnectDBComponent implements OnInit {
     message: null
   }
 
+  public supportedOrderedDatabases = supportedOrderedDatabases;
+  public supportedDatabasesTitles = supportedDatabasesTitles;
   public ports = {
     [DBtype.MySQL]: '3306',
     [DBtype.Postgres]: '5432',
@@ -98,6 +105,8 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.Mongo]: '27017',
     [DBtype.Dynamo]: '',
     [DBtype.Cassandra]: '9042',
+    [DBtype.Redis]: '6379',
+    [DBtype.Elasticsearch]: '9200',
     [DBtype.DB2]: '50000'
   }
 
@@ -129,6 +138,13 @@ export class ConnectDBComponent implements OnInit {
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
+
+    const databaseType = this.router.routerState.snapshot.root.queryParams.type;
+
+    if (databaseType) {
+      this.db.type = databaseType
+      this.db.port = this.ports[databaseType];
+    };
 
     this._connections.getCurrentConnectionTitle()
       .pipe(take(1))
@@ -276,8 +292,8 @@ export class ConnectDBComponent implements OnInit {
     (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
 
     this.angulartics2.eventTrack.next({
-      action: `Connect DB: automatic test connection on edit is ${credsCorrect.result ? 'passed' : 'failed'}`,
-      properties: { errorMessage: credsCorrect.message }
+      action: `Connect DB: automatic test connection on edit is ${credsCorrect?.result ? 'passed' : 'failed'}`,
+      properties: { errorMessage: credsCorrect?.message }
     });
 
     if ((this.db.connectionType === 'agent' || credsCorrect.result)) {

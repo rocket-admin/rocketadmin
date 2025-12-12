@@ -6,5 +6,12 @@
     "rocketadmin-agent",
     "shared-code"
   ],
-  "packageManager": "yarn@3.4.1"
+  "packageManager": "yarn@3.4.1",
+  "dependencies": {
+    "monaco-editor": "^0.53.0"
+  },
+  "resolutions": {
+    "cipher-base": "1.0.7",
+    "tar-fs": "1.16.6"
+  }
 }

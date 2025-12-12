@@ -3,6 +3,7 @@ import { FilterCriteriaEnum } from '../../enums/index.js';
 import { TableAccessLevelsDs } from '../permission/application/data-structures/create-permissions.ds.js';
 import { FoundActionEventDTO } from '../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { TableWidgetRO } from '../widget/table-widget.interface.js';
+import { TableSettingsInRowsDS } from './application/data-structures/found-table-rows.ds.js';
 
 export class FilteringFieldsDs {
   @ApiProperty()
@@ -44,20 +45,6 @@ export class ForeignKeyDSStructure {
 
   @ApiProperty({ isArray: true })
   autocomplete_columns: Array<string>;
-}
-
-export class PaginationRO {
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  lastPage: number;
-
-  @ApiProperty()
-  perPage: number;
-
-  @ApiProperty()
-  currentPage: number;
 }
 
 export class PrimaryColumnNameDs {
@@ -155,8 +142,14 @@ export class TableRowRODs {
   @ApiProperty({ isArray: true })
   list_fields: Array<string>;
 
+  @ApiProperty({ isArray: true })
+  excluded_fields: Array<string>;
+
   @ApiProperty({ isArray: true, type: FoundActionEventDTO })
   action_events?: Array<FoundActionEventDTO>;
+
+  @ApiProperty({ isArray: true, type: FoundActionEventDTO })
+  table_actions?: Array<FoundActionEventDTO>;
 
   @ApiProperty()
   identity_column: string;
@@ -169,4 +162,16 @@ export class TableRowRODs {
 
   @ApiProperty({ isArray: true, type: ReferencedTableNamesAndColumnsDs })
   referenced_table_names_and_columns: Array<ReferencedTableNamesAndColumnsDs>;
+
+  @ApiProperty()
+  can_delete: boolean;
+
+  @ApiProperty()
+  can_update: boolean;
+
+  @ApiProperty()
+  can_add: boolean;
+
+  @ApiProperty({ type: TableSettingsInRowsDS })
+  table_settings: TableSettingsInRowsDS;
 }

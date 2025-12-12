@@ -12,7 +12,7 @@ export class GroupEntity {
   @Column()
   title: string;
 
-  @Column({ default: false })
+  @Column({ default: false, type: 'boolean' })
   isMain: boolean;
 
   @ManyToMany((_) => PermissionEntity, (permission) => permission.groups, {

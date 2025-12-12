@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
@@ -16,9 +17,13 @@ import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-saml-use.case.js';
+import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { SignInAuditService } from '../../entities/user-sign-in-audit/sign-in-audit.service.js';
+import { UserEntity } from '../../entities/user/user.entity.js';
 
 @Module({
-  imports: [],
+  imports: [TypeOrmModule.forFeature([SignInAuditEntity, UserEntity])],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
@@ -76,6 +81,11 @@ import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-
       provide: UseCaseType.SAAS_REGISTER_USER_WITH_SAML,
       useClass: SaaSRegisterUserWIthSamlUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_SUSPEND_USERS_OVER_LIMIT,
+      useClass: SuspendUsersOverLimitUseCase,
+    },
+    SignInAuditService,
   ],
   controllers: [SaasController],
   exports: [],
@@ -92,6 +102,7 @@ export class SaasModule {
         { path: 'saas/user/google/login', method: RequestMethod.POST },
         { path: 'saas/user/github/login', method: RequestMethod.POST },
         { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
+        { path: 'saas/company/:companyId/users/suspend-above-limit', method: RequestMethod.PUT },
         { path: 'saas/user/:userId/company', method: RequestMethod.GET },
         { path: 'saas/company/:companyId/users/count', method: RequestMethod.GET },
         { path: 'saas/company/freeze-connections', method: RequestMethod.PUT },

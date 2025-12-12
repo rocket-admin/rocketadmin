@@ -1,5 +1,5 @@
 import { ValidateTableSettingsDS } from '../../data-access-layer/shared/data-structures/validate-table-settings.ds.js';
-import { IUnknownDataStructure } from '../../data-access-layer/shared/interfaces/unknown-datastructure.interface.js';
+import { IUnknownDataStructure } from '../../shared/interfaces/unknown-datastructure.interface.js';
 import { buildTableWidgetDs } from './table-widget-ds.builder.js';
 
 export function buildValidateTableSettingsDS(tableSettings: IUnknownDataStructure): ValidateTableSettingsDS {

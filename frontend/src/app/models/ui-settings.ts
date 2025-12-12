@@ -10,6 +10,7 @@ export interface TableSettingsUI {
 export interface ConnectionSettingsUI {
     shownTableTitles: boolean;
     tables: { [tableName: string]: TableSettingsUI };
+    tableFoldersExpanded?: string[];
 }
 
 export interface UiSettings {

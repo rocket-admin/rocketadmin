@@ -5,6 +5,8 @@ import { IGetCompanyWhiteLabelProperties } from './company-info-use-cases.interf
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
 @Injectable()
 export class FindCompanyWhiteLabelPropertiesUseCase
@@ -14,6 +16,7 @@ export class FindCompanyWhiteLabelPropertiesUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
   ) {
     super();
   }
@@ -22,6 +25,15 @@ export class FindCompanyWhiteLabelPropertiesUseCase
     const company = await this._dbContext.companyInfoRepository.findCompanyWithWhiteLabelProperties(companyId);
     if (!company) {
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+    }
+
+    let companySubscriptionLevel = null;
+    if (isSaaS()) {
+      const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(companyId);
+      if (!companyInfoFromSaas) {
+        throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+      }
+      companySubscriptionLevel = companyInfoFromSaas.subscriptionLevel;
     }
 
     return {
@@ -38,6 +50,7 @@ export class FindCompanyWhiteLabelPropertiesUseCase
           }
         : null,
       tab_title: company.tab_title?.text ?? null,
+      subscriptionLevel: companySubscriptionLevel,
     };
   }
 }

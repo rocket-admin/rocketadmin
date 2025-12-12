@@ -20,9 +20,9 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectCassandra extends BasicDataAccessObject implements IDataAccessObject {
@@ -179,6 +179,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
     autocompleteFields: AutocompleteFieldsDS,
+    tableStructure: TableStructureDS[] | null,
   ): Promise<FoundRowsDS> {
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -189,7 +190,9 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
     try {
       const client = await this.getCassandraClient();
-      const tableStructure = await this.getTableStructure(tableName);
+      if (!tableStructure) {
+        tableStructure = await this.getTableStructure(tableName);
+      }
       const availableFields = this.findAvailableFields(settings, tableStructure);
 
       if (autocompleteFields?.value && autocompleteFields?.fields?.length > 0) {
@@ -660,6 +663,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
         perPage,
         searchedFieldValue,
         filteringFields,
+        null,
         null,
       );
       const readable = new Readable({

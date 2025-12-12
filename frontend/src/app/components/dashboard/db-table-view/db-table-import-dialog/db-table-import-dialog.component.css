@@ -1,0 +1,38 @@
+.file-uploader-appearance {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-name {
+    color: rgba(0, 0, 0, 0.5);
+    font-style: italic;
+    margin-right: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .file-name {
+        color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.upload-btn {
+    margin-right: 12px;
+}
+
+.form__warning {
+    margin-top: -12px;
+    margin-bottom: 20px;
+}
+
+@media (prefers-color-scheme: light) {
+    .form__warning {
+        color: var(--color-warnPalette-500);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .form__warning {
+        color: var(--color-warnDarkPalette-500);
+    }
+}
