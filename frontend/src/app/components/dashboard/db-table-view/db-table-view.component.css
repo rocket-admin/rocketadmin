@@ -213,6 +213,11 @@
     margin-bottom: 12px;
 }
 
+.db-table-active-filter-chip ::ng-deep .mdc-evolution-chip__text-label {
+    max-width: 300px;
+    overflow: hidden;
+}
+
 .empty-table-message {
     display: inline-block;
     margin-top: 40px;
