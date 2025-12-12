@@ -92,7 +92,7 @@ describe('NotificationsService', () => {
     service.dismissAlert();
 
     expect(service.alert).toBeNull();
-  }),
+  });
 
   it('should reset alert', () => {
     service.alert = alert;

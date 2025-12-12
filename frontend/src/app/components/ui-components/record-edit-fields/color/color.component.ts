@@ -47,7 +47,7 @@ export class ColorEditComponent extends BaseEditFieldComponent {
         return colorString.to.hex(r, g, b, a);
       case 'rgb':
         return colorString.to.rgb(r, g, b, a);
-      case 'hsl':
+      case 'hsl': {
         // Convert RGB to HSL using built-in conversion
         const hex = colorString.to.hex(r, g, b, a);
         const hslParsed = colorString.get.hsl(hex);
@@ -56,6 +56,7 @@ export class ColorEditComponent extends BaseEditFieldComponent {
           return colorString.to.hsl(h, s, l, alpha);
         }
         return hex;
+      }
       default:
         return colorString.to.hex(r, g, b, a);
     }
@@ -102,7 +103,7 @@ export class ColorEditComponent extends BaseEditFieldComponent {
         case 'rgb':
           this.value = colorString.to.rgb(r, g, b, a);
           break;
-        case 'hsl':
+        case 'hsl': {
           // Convert RGB to HSL using built-in conversion
           const hex = colorString.to.hex(r, g, b, a);
           const hslParsed = colorString.get.hsl(hex);
@@ -113,6 +114,7 @@ export class ColorEditComponent extends BaseEditFieldComponent {
             this.value = hex;
           }
           break;
+        }
         default:
           this.value = colorString.to.hex(r, g, b, a);
       }

@@ -1,4 +1,3 @@
-'use strict';
 import express, { Router, json } from 'express';
 import axios from 'axios';
 const app = express();
