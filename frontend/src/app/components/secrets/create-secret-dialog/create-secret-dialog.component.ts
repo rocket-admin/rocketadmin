@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Angulartics2 } from 'angulartics2';
@@ -18,6 +18,7 @@ import { SecretsService } from 'src/app/services/secrets.service';
   selector: 'app-create-secret-dialog',
   templateUrl: './create-secret-dialog.component.html',
   styleUrls: ['./create-secret-dialog.component.css'],
+  providers: [provideNativeDateAdapter()],
   imports: [
     CommonModule,
     FormsModule,
@@ -28,7 +29,6 @@ import { SecretsService } from 'src/app/services/secrets.service';
     MatFormFieldModule,
     MatCheckboxModule,
     MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule,
     MatTooltipModule,
   ]

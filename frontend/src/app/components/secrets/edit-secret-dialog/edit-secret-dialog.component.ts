@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +19,7 @@ import { Secret } from 'src/app/models/secret';
   selector: 'app-edit-secret-dialog',
   templateUrl: './edit-secret-dialog.component.html',
   styleUrls: ['./edit-secret-dialog.component.css'],
+  providers: [provideNativeDateAdapter()],
   imports: [
     CommonModule,
     FormsModule,
@@ -28,7 +29,6 @@ import { Secret } from 'src/app/models/secret';
     MatInputModule,
     MatFormFieldModule,
     MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule,
     MatCheckboxModule,
     MatTooltipModule,
