@@ -15,8 +15,6 @@ export class ValidationException extends HttpException {
           ).join(', ')}`;
         })
         .join('.\n');
-    } else {
-      originalMessage = originalMessage;
     }
     super(originalMessage, HttpStatus.BAD_REQUEST);
     this.internalCode = ExceptionsInternalCodes.VALIDATOR_EXCEPTION;

@@ -335,10 +335,11 @@ export class MockFactory {
         return this.generateConnectionToSchemaOracleDBInDocker();
       case 'mssql':
         return this.generateConnectionToTestMsSQlDBInDocker();
-      case 'mysql':
+      case 'mysql': {
         const config = this.generateConnectionToTestMySQLDBInDocker();
         config.type = 'mysql2';
         return config;
+      }
     }
   }
 

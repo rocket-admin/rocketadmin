@@ -56,10 +56,6 @@ export class ValidationHelper {
     return countries.isValid(countryCode);
   }
 
-  public isValidUrl(url: string): boolean {
-    return validator.isURL(url);
-  }
-
   public static validateOrThrowHttpExceptionEmail(email: string): boolean {
     const isEmailValid = ValidationHelper.isValidEmail(email);
     if (isEmailValid) {

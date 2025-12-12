@@ -22,7 +22,7 @@ export interface Connection {
     id: string | null,
     database: string,
     authSource?: string,
-​​    title: string,
+    title: string,
     host: string,
     port: string,
     sid: string | null,

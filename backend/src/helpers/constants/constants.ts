@@ -92,7 +92,7 @@ export const Constants = {
   },
 
   ONE_DAY_AGO: (): Date => {
-    return new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+    return new Date(Date.now() - 24 * 60 * 60 * 1000);
   },
 
   CRON_SHEDULE: '30 5 13 * * *',
@@ -296,6 +296,7 @@ export const Constants = {
           //   break;
           case type.toLowerCase().includes('dynamodb'):
             connection = parseTestDynamoDBConnectionString(connection_string) as CreateConnectionDto;
+            break;
           default:
             break;
         }
