@@ -18,6 +18,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
@@ -28,6 +29,7 @@ import { User } from '@sentry/angular-ivy';
 import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-audit',
@@ -42,6 +44,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     MatButtonModule,
     MatTableModule,
     MatPaginatorModule,
+    MatIconModule,
     FormsModule,
     RouterModule,
     Angulartics2OnModule,
@@ -76,7 +79,8 @@ export class AuditComponent implements OnInit {
     private _users: UsersService,
     private _companyService: CompanyService,
     public dialog: MatDialog,
-    private title: Title
+    private title: Title,
+    private _userService: UserService
   ) { }
 
   ngAfterViewInit() {
@@ -99,7 +103,7 @@ export class AuditComponent implements OnInit {
     this.accesLevel = this._connections.currentConnectionAccessLevel;
     this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
     this.dataColumns = ['Table', 'User', 'Action', 'Date', 'Status'];
-    this.dataSource = new AuditDataSource(this._connections);
+    this.dataSource = new AuditDataSource(this._connections, this._userService);
     this.loadLogsPage();
 
     this._tables.fetchTables(this.connectionID)
@@ -128,7 +132,8 @@ export class AuditComponent implements OnInit {
     this.dataSource.fetchLogs({
       connectionID: this.connectionID,
       tableName: this.tableName,
-      userEmail: this.userEmail
+      userEmail: this.userEmail,
+      usersList: this.usersList
     });
   }
 
@@ -142,5 +147,30 @@ export class AuditComponent implements OnInit {
   openIntercome() {
     // @ts-ignore
     Intercom('show');
+  }
+
+  getActionIcon(operationType: string, actionIcon?: string): string {
+    if ((operationType === 'ruleAction' || operationType === 'actionActivated') && actionIcon) {
+      return actionIcon;
+    }
+
+    switch (operationType) {
+      case 'addRow':
+        return 'add';
+      case 'deleteRow':
+        return 'delete';
+      case 'updateRow':
+        return 'edit';
+      case 'rowReceived':
+        return 'visibility_outline';
+      case 'rowsReceived':
+        return 'visibility_outline';
+      case 'ruleAction':
+        return 'rule';
+      case 'actionActivated':
+        return 'rule';
+      default:
+        return 'info';
+    }
   }
 }
