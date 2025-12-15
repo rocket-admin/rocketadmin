@@ -815,7 +815,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   public async getTablesFromDB(): Promise<Array<TableDS>> {
     const redisClient = await this.getClient();
 
-    const allKeys = await redisClient.keys('*');
+    const allKeys = await this.getAllKeysWithTimeout(redisClient);
     const prefixedTableNames = new Set<string>();
     const standaloneKeys: Array<{ key: string; type: string }> = [];
 
@@ -833,7 +833,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           continue;
         }
       }
-    }
+    } 
 
     const tables: Array<TableDS> = [];
 
@@ -1633,5 +1633,38 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         return;
       }
     });
+  }
+
+  private async getAllKeysWithScan(redisClient: RedisClientType, pattern: string = '*'): Promise<string[]> {
+    const allKeys: string[] = [];
+    const scanOptions = { MATCH: pattern, COUNT: 1000 };
+    let cursor = '0';
+
+    do {
+      const result = await redisClient.scan(cursor, scanOptions);
+      cursor = result.cursor.toString();
+      allKeys.push(...result.keys);
+    } while (cursor !== '0');
+
+    return allKeys;
+  }
+
+  private async getAllKeysWithTimeout(
+    redisClient: RedisClientType,
+    timeoutMs: number = 5000,
+  ): Promise<string[]> {
+    const keysPromise = redisClient.keys('*');
+
+    const timeoutPromise = new Promise<null>((resolve) => {
+      setTimeout(() => resolve(null), timeoutMs);
+    });
+
+    const result = await Promise.race([keysPromise, timeoutPromise]);
+
+    if (result === null) {
+      return this.getAllKeysWithScan(redisClient);
+    }
+
+    return result;
   }
 }
