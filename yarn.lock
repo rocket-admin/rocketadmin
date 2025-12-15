@@ -3726,6 +3726,7 @@ __metadata:
     eslint-config-prettier: ^10.1.8
     eslint-plugin-import: ^2.32.0
     get-port: ^7.1.0
+    ibm_db: 3.3.0
     jsonwebtoken: ^9.0.2
     knex: ^3.1.0
     lru-cache: ^11.2.2
@@ -3743,6 +3744,9 @@ __metadata:
     tedious: ^18.6.1
     tunnel-ssh: 5.2.0
     typescript: ^5.9.3
+  dependenciesMeta:
+    ibm_db:
+      optional: true
   languageName: unknown
   linkType: soft
 
@@ -4909,7 +4913,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pg@npm:*, @types/pg@npm:^8.15.6":
+"@types/pg@npm:*":
   version: 8.15.6
   resolution: "@types/pg@npm:8.15.6"
   dependencies:
@@ -13084,7 +13088,6 @@ __metadata:
     "@types/inquirer": ^9.0.9
     "@types/jest": ^30.0.0
     "@types/node": ^24.9.1
-    "@types/pg": ^8.15.6
     "@types/supertest": ^6.0.3
     "@types/ws": ^8.18.1
     "@typescript-eslint/eslint-plugin": ^8.46.2
@@ -13098,11 +13101,9 @@ __metadata:
     eslint-config-prettier: ^10.1.8
     eslint-plugin-prettier: ^5.5.4
     get-port: ^7.1.0
-    ibm_db: 3.3.0
     inquirer: ^13.0.2
     jest: ^30.2.0
     ora: ^9.0.0
-    pg: ^8.16.3
     prettier: ^3.6.2
     rimraf: ^6.0.1
     ssh2: ^1.17.0
@@ -13117,9 +13118,6 @@ __metadata:
     winston: ^3.18.3
     ws: ^8.18.3
     yarn: ^1.22.22
-  dependenciesMeta:
-    ibm_db:
-      optional: true
   bin:
     rocketadmin-agent: ./dist/main.js
   languageName: unknown
