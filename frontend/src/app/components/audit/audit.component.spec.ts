@@ -150,7 +150,7 @@ describe('AuditComponent', () => {
     const fakeLog = {
       Action: "received rows",
       Date: "09/09/2021 5:47 PM",
-​      Status: LogStatus.Successfully,
+      Status: LogStatus.Successfully,
       Table: "Customers",
       User: "lyubov+ytrsdzxfcgvhb@voloshko.com",
       createdAt: "2021-09-09T14:47:44.160Z",

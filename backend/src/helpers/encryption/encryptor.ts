@@ -140,15 +140,17 @@ export class Encryptor {
           hash = CryptoJS.SHA384(data);
           return hash.toString(CryptoJS.enc.Hex);
 
-        case EncryptionAlgorithmEnum.pbkdf2:
+        case EncryptionAlgorithmEnum.pbkdf2: {
           const salt = CryptoJS.lib.WordArray.random(128 / 8);
           return CryptoJS.PBKDF2(data, salt, {
             keySize: 256 / 32,
           }).toString();
+        }
 
-        case EncryptionAlgorithmEnum.bcrypt:
+        case EncryptionAlgorithmEnum.bcrypt: {
           const bSalt = await bcrypt.genSalt();
           return await bcrypt.hash(data, bSalt);
+        }
 
         case EncryptionAlgorithmEnum.argon2:
           return await argon2.hash(data);

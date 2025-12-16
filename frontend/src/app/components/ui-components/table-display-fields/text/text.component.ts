@@ -42,6 +42,7 @@ export class TextDisplayComponent extends BaseTableDisplayFieldComponent {
     }
 
     // Check if validator has this method
+    // biome-ignore lint: it is expected to import all exports of validator
     const validatorMethod = validator[validateType];
     if (typeof validatorMethod !== 'function') {
       console.warn(`Unknown validator method: ${validateType}`);
