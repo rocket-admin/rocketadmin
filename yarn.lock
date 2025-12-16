@@ -3159,7 +3159,6 @@ __metadata:
     mongodb: ^6.20.0
     mysql2: ^3.15.3
     nanoid: ^5.1.6
-    node-gyp: ^11.5.0
     oracledb: ^6.10.0
     p-queue: ^9.0.0
     pg: ^8.16.3
@@ -10027,7 +10026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-gyp@npm:^11.5.0, node-gyp@npm:latest":
+"node-gyp@npm:latest":
   version: 11.5.0
   resolution: "node-gyp@npm:11.5.0"
   dependencies:
