@@ -3068,6 +3068,7 @@ __metadata:
     mongodb: ^6.20.0
     mysql2: ^3.15.3
     nanoid: ^5.1.6
+    node-gyp: ^11.5.0
     oracledb: ^6.10.0
     p-queue: ^9.0.0
     pg: ^8.16.3
@@ -5226,7 +5227,6 @@ __metadata:
     fetch-blob: ^4.0.0
     helmet: 8.1.0
     i18n-iso-countries: ^7.14.0
-    ibm_db: 3.3.0
     ip-range-check: 0.2.0
     json2csv: ^5.0.7
     jsonwebtoken: ^9.0.2
@@ -5235,7 +5235,6 @@ __metadata:
     lru-cache: ^11.2.2
     nanoid: 5.1.6
     nock: ^14.0.10
-    node-gyp: ^11.5.0
     nodemailer: ^7.0.10
     nunjucks: ^3.2.4
     openai: ^6.7.0
@@ -5260,9 +5259,6 @@ __metadata:
     uuid: ^13.0.0
     validator: ^13.15.20
     winston: 3.18.3
-  dependenciesMeta:
-    ibm_db:
-      optional: true
   languageName: unknown
   linkType: soft
 
