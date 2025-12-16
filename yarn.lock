@@ -4169,6 +4169,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pg@npm:^8.16.0":
+  version: 8.16.0
+  resolution: "@types/pg@npm:8.16.0"
+  dependencies:
+    "@types/node": "*"
+    pg-protocol: "*"
+    pg-types: ^2.2.0
+  checksum: 98b5c95650659e78a512699814097ecd29102adb4299f198072d7152508dfda56191b5ca6036f5164d8b364cf1d9fe16dd3d9d26bd40845a3eea59a7e7032415
+  languageName: node
+  linkType: hard
+
 "@types/qrcode@npm:^1.5.6":
   version: 1.5.6
   resolution: "@types/qrcode@npm:1.5.6"
@@ -5196,6 +5207,7 @@ __metadata:
     "@types/node": ^24.10.1
     "@types/nodemailer": ^7.0.3
     "@types/nunjucks": ^3.2.6
+    "@types/pg": ^8.16.0
     "@types/qrcode": ^1.5.6
     "@types/safe-regex": ^1.1.6
     "@types/supertest": ^6.0.3
@@ -5239,6 +5251,7 @@ __metadata:
     openai: ^6.7.0
     otplib: ^12.0.1
     p-queue: 9.0.0
+    pg: ^8.16.3
     pg-connection-string: ^2.9.1
     prettier: ^3.6.2
     qrcode: ^1.5.4
