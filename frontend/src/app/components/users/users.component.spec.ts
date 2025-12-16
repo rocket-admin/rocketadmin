@@ -100,6 +100,7 @@ describe('UsersComponent', () => {
 
   it('should open create group dialog', () => {
     const fakeCreateUsersGroupOpen = spyOn(dialog, 'open');
+    // biome-ignore lint/suspicious/noGlobalAssign: mock global event in test
     event = jasmine.createSpyObj('event', [ 'preventDefault', 'stopImmediatePropagation' ]);
 
     component.openCreateUsersGroupDialog(event);

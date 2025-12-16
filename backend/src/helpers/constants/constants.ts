@@ -92,7 +92,7 @@ export const Constants = {
   },
 
   ONE_DAY_AGO: (): Date => {
-    return new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+    return new Date(Date.now() - 24 * 60 * 60 * 1000);
   },
 
   CRON_SHEDULE: '30 5 13 * * *',
@@ -118,31 +118,9 @@ export const Constants = {
     },
   },
 
-  DEFAULT_TUNNEL_CACHE_OPTIONS: {
-    max: 100,
-    ttl: 1000 * 60 * 60,
-    dispose: async (tnl: any) => {
-      try {
-        await tnl.close();
-      } catch (e) {
-        console.error('Tunnel closing error: ' + e);
-      }
-    },
-  },
-
-  DEFAULT_DRIVER_CACHE_OPTIONS: {
-    max: 50,
-    ttl: 1000 * 60 * 60,
-  },
-
   DEFAULT_INVITATION_CACHE_OPTIONS: {
     max: 200,
     ttl: 1000 * 60 * 60,
-  },
-
-  DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS: {
-    max: 1000,
-    ttl: 1000 * 60,
   },
 
   DEFAULT_TABLE_PERMISSIONS_CACHE_OPTIONS: {
@@ -296,6 +274,7 @@ export const Constants = {
           //   break;
           case type.toLowerCase().includes('dynamodb'):
             connection = parseTestDynamoDBConnectionString(connection_string) as CreateConnectionDto;
+            break;
           default:
             break;
         }
