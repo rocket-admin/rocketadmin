@@ -6,13 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "packageExtensions": {
-    "ibm_db": {
-      "dependencies": {
-        "node-gyp": "^11.5.0"
-      }
-    }
-  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -79,7 +72,6 @@
     "knex": "3.1.0",
     "lru-cache": "^11.2.2",
     "nanoid": "5.1.6",
-    "node-gyp": "^11.5.0",
     "nodemailer": "^7.0.10",
     "nunjucks": "^3.2.4",
     "openai": "^6.7.0",
@@ -98,9 +90,6 @@
     "uuid": "^13.0.0",
     "validator": "^13.15.20",
     "winston": "3.18.3"
-  },
-  "optionalDependencies": {
-    "ibm_db": "3.3.0"
   },
   "devDependencies": {
     "@ava/typescript": "6.0.0",

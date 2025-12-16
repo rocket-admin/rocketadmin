@@ -19,6 +19,9 @@ export async function registerUserAndReturnUserInfo(app: INestApplication): Prom
   email: string;
   password: string;
 }> {
+  if (isSaaS()) {
+    return await registerUserOnSaasAndReturnUserInfo();
+  }
   const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
   const userRepository = dataSource.getRepository(UserEntity);
   const companyRepository = dataSource.getRepository(CompanyInfoEntity);
