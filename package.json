@@ -13,5 +13,11 @@
   "resolutions": {
     "cipher-base": "1.0.7",
     "tar-fs": "1.16.6"
+  },
+  "scripts": {
+    "lint": "biome lint"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.8"
   }
 }
