@@ -1,5 +1,5 @@
 import { TableSettingsDS } from '../../data-access-layer/shared/data-structures/table-settings.ds.js';
-import { QueryOrderingEnum } from '../../data-access-layer/shared/enums/query-ordering.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
 
 type CommonTableSettingsInput = {
   table_name: string;
