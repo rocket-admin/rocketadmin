@@ -40,45 +40,57 @@ export function getDataAccessObject(
     throw new Error(ERROR_MESSAGES.PROPERTY_TYPE_REQUIRED);
   }
   switch (connectionParams.type) {
-    case ConnectionTypesEnum.postgres:
+    case ConnectionTypesEnum.postgres: {
       const connectionParamsPostgres = buildConnectionParams(connectionParams);
       return new DataAccessObjectPostgres(connectionParamsPostgres);
-    case ConnectionTypesEnum.mysql:
+    }
+    case ConnectionTypesEnum.mysql: {
       const connectionParamsMysql = buildConnectionParams(connectionParams);
       return new DataAccessObjectMysql(connectionParamsMysql);
-    case ConnectionTypesEnum.mssql:
+    }
+    case ConnectionTypesEnum.mssql: {
       const connectionParamsMssql = buildConnectionParams(connectionParams);
       return new DataAccessObjectMssql(connectionParamsMssql);
-    case ConnectionTypesEnum.oracledb:
+    }
+    case ConnectionTypesEnum.oracledb: {
       const connectionParamsOracle = buildConnectionParams(connectionParams);
       return new DataAccessObjectOracle(connectionParamsOracle);
-    case ConnectionTypesEnum.ibmdb2:
+    }
+    case ConnectionTypesEnum.ibmdb2: {
       const connectionParamsToIbmDB2 = buildConnectionParams(connectionParams);
       return new DataAccessObjectIbmDb2(connectionParamsToIbmDB2);
-    case ConnectionTypesEnum.mongodb:
+    }
+    case ConnectionTypesEnum.mongodb: {
       const connectionParamsMongo = buildConnectionParams(connectionParams);
       return new DataAccessObjectMongo(connectionParamsMongo);
-    case ConnectionTypesEnum.dynamodb:
+    }
+    case ConnectionTypesEnum.dynamodb: {
       const connectionParamsDynamoDB = buildConnectionParams(connectionParams);
       return new DataAccessObjectDynamoDB(connectionParamsDynamoDB);
-    case ConnectionTypesEnum.elasticsearch:
+    }
+    case ConnectionTypesEnum.elasticsearch: {
       const connectionParamsElasticsearch = buildConnectionParams(connectionParams);
       return new DataAccessObjectElasticsearch(connectionParamsElasticsearch);
-    case ConnectionTypesEnum.cassandra:
+    }
+    case ConnectionTypesEnum.cassandra: {
       const connectionParamsCassandra = buildConnectionParams(connectionParams);
       return new DataAccessObjectCassandra(connectionParamsCassandra);
-    case ConnectionTypesEnum.redis:
+    }
+    case ConnectionTypesEnum.redis: {
       const connectionParamsRedis = buildConnectionParams(connectionParams);
       return new DataAccessObjectRedis(connectionParamsRedis);
-    case ConnectionTypesEnum.clickhouse:
+    }
+    case ConnectionTypesEnum.clickhouse: {
       const connectionParamsClickHouse = buildConnectionParams(connectionParams);
       return new DataAccessObjectClickHouse(connectionParamsClickHouse);
-    default:
+    }
+    default: {
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
       }
       const connectionParamsAgent = buildAgentConnectionParams(connectionParams);
       return new DataAccessObjectAgent(connectionParamsAgent);
+    }
   }
 }
 

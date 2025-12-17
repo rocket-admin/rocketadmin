@@ -82,7 +82,7 @@ public class RocketAdminController {
         php: {
           langName: 'PHP',
           mode: 'php',
-          snippet: `<?php
+          snippet: String.raw`<?php
 
 namespace App\Http\Controllers;
 
@@ -209,4 +209,3 @@ router.post("/rocketadmin", (req, res) => {
         }
     }
 }
-
