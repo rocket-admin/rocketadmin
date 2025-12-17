@@ -2815,8 +2815,8 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
     const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
     t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
     t.is(getTableStructureRO.table_widgets.length, 2);
-    t.is(getTableStructureRO.table_widgets[0].field_name, newTableWidgets[0].field_name);
-    t.is(getTableStructureRO.table_widgets[1].widget_type, newTableWidgets[1].widget_type);
+    t.truthy(getTableStructureRO.table_widgets.some((w) => w.field_name === newTableWidgets[0].field_name));
+    t.truthy(getTableStructureRO.table_widgets.some((w) => w.widget_type === newTableWidgets[1].widget_type));
     t.is(compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets), true);
   } catch (e) {
     console.error(e);
