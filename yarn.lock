@@ -1428,19 +1428,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@clickhouse/client-common@npm:1.14.0":
-  version: 1.14.0
-  resolution: "@clickhouse/client-common@npm:1.14.0"
-  checksum: c9618b33551033dfd9d3d29fe0dfdac8badbffc921a5cad6c430ba814469b59f0c7c819547967f75bf0779e1af728555572bf2f5053dd503ea2003230703d1fa
+"@clickhouse/client-common@npm:1.15.0":
+  version: 1.15.0
+  resolution: "@clickhouse/client-common@npm:1.15.0"
+  checksum: 8369d1da4fbebe1c23bcfc5b88358fcb4bfa28babe1651035d7016ccc7b2f78fa46915598901ba4827be8f1bff51ddd1c30aabd54707f895598940b456f05948
   languageName: node
   linkType: hard
 
-"@clickhouse/client@npm:^1.14.0":
-  version: 1.14.0
-  resolution: "@clickhouse/client@npm:1.14.0"
+"@clickhouse/client@npm:^1.15.0":
+  version: 1.15.0
+  resolution: "@clickhouse/client@npm:1.15.0"
   dependencies:
-    "@clickhouse/client-common": 1.14.0
-  checksum: 529616a1b4b50f8df7be5f12e0847bee610a125fe2e7faeaa7a3a16016e0b8e44abead4bff0b70ef6f434a43531b70db7e7d5943ee55cce49d8576cbc0cce493
+    "@clickhouse/client-common": 1.15.0
+  checksum: 9658f54c2f92f3c15a9d8e0704889d155752210605b6b67f6d382d057dcb0953a466cbeeed128ab256c6fd01b5aa053e8e28ce86aed3d42bbfa4b648083b0c82
   languageName: node
   linkType: hard
 
@@ -3460,7 +3460,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-dynamodb": ^3.952.0
     "@aws-sdk/lib-dynamodb": ^3.952.0
-    "@clickhouse/client": ^1.14.0
+    "@clickhouse/client": ^1.15.0
     "@elastic/elasticsearch": 8.18.1
     "@types/multer": ^2.0.0
     "@types/oracledb": ^6.10.0
@@ -3479,7 +3479,7 @@ __metadata:
     knex: ^3.1.0
     lru-cache: ^11.2.4
     mongodb: ^7.0.0
-    mysql2: ^3.15.3
+    mysql2: ^3.16.0
     nanoid: ^5.1.6
     oracledb: ^6.10.0
     p-queue: ^9.0.1
@@ -10174,9 +10174,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.15.3":
-  version: 3.15.3
-  resolution: "mysql2@npm:3.15.3"
+"mysql2@npm:^3.16.0":
+  version: 3.16.0
+  resolution: "mysql2@npm:3.16.0"
   dependencies:
     aws-ssl-profiles: ^1.1.1
     denque: ^2.1.0
@@ -10187,7 +10187,7 @@ __metadata:
     named-placeholders: ^1.1.3
     seq-queue: ^0.0.5
     sqlstring: ^2.3.2
-  checksum: f0280dac3b49a36b320afbdff25c03e19017a9bd18c7f65f75a4083d9bb62172b5555f85870fba53e19485a79ae0273277b7318eda2be644e495528bad00610b
+  checksum: 62fb53f0cd96c82e1e52e066ae77683e4dca56b2e57d3180d7ded333aa3e7bc176f5ef7a96ba188241e36fb8239ed2a458bbeab190509a43b445b67ebf23a05b
   languageName: node
   linkType: hard
 
