@@ -136,7 +136,9 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "dissendium-v0:build"
+            "buildTarget": "dissendium-v0:build",
+            "host": "127.0.0.1",
+            "proxyConfig": "src/proxy.conf.json"
           },
           "configurations": {
             "production": {

@@ -2,7 +2,6 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
@@ -21,6 +20,7 @@ import {
   registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -319,6 +319,8 @@ test(`${currentTest} should return a found connection`, async (t) => {
       .set('Cookie', token)
       .set('Accept', 'application/json');
 
+    const foundOneRo = JSON.parse(findOneResponce.text);
+    console.log('🚀 ~ foundOneRo:', foundOneRo);
     t.is(findOneResponce.status, 200);
     const result = findOneResponce.body.connection;
 
@@ -1270,6 +1272,7 @@ test(`${currentTest} throw an exception when group name is not unique`, async (t
       .set('Accept', 'application/json');
 
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
     newGroup1.title = 'Admin';
     const createGroupResponse = await request(app.getHttpServer())
       .post(`/connection/group/${createConnectionRO.id}`)

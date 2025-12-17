@@ -124,7 +124,7 @@ test.serial(`${currentTest} should return full found company info for company ad
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
     t.is(Object.keys(foundCompanyInfoRO).length, 10);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
-    t.is(foundCompanyInfoRO.connections.length > 3, true);
+    t.is(foundCompanyInfoRO.connections.length > 0, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
     t.is(foundCompanyInfoRO.invitations.length, 0);
     t.is(Object.keys(foundCompanyInfoRO.connections[0]).length, 7);

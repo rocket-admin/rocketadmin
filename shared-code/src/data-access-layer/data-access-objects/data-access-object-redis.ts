@@ -19,8 +19,8 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { isRedisConnectionUrl } from '../shared/create-data-access-object.js';
 
@@ -694,22 +694,26 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
             rowData.key = keyPart;
 
             switch (type) {
-              case 'list':
+              case 'list': {
                 const listData = await redisClient.lRange(key, 0, -1);
                 rowData.value = listData;
                 break;
-              case 'set':
+              }
+              case 'set': {
                 const setData = await redisClient.sMembers(key);
                 rowData.value = setData;
                 break;
-              case 'zset':
+              }
+              case 'zset': {
                 const zsetData = await redisClient.zRangeWithScores(key, 0, -1);
                 rowData.value = zsetData;
                 break;
-              case 'hash':
+              }
+              case 'hash': {
                 const hashData = await redisClient.hGetAll(key);
                 rowData = { key: keyPart, ...hashData };
                 break;
+              }
               default:
                 rowData.value = `[${type}]`;
                 break;
@@ -799,14 +803,14 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       case RedisTableType.STRING:
         return [{ column_name: 'value', data_type: 'string' }];
 
-      case RedisTableType.HASH:
+      case RedisTableType.HASH: {
         const structure = await this.getTableStructure(tableName);
         if (structure.length > 0) {
           return [{ column_name: structure[0].column_name, data_type: structure[0].data_type }];
         }
         return [{ column_name: 'field', data_type: 'string' }];
+      }
 
-      case RedisTableType.PREFIXED_KEYS:
       default:
         return [{ column_name: 'key', data_type: 'string' }];
     }
@@ -815,7 +819,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
   public async getTablesFromDB(): Promise<Array<TableDS>> {
     const redisClient = await this.getClient();
 
-    const allKeys = await redisClient.keys('*');
+    const allKeys = await this.getAllKeysWithTimeout(redisClient);
     const prefixedTableNames = new Set<string>();
     const standaloneKeys: Array<{ key: string; type: string }> = [];
 
@@ -826,14 +830,14 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       } else {
         try {
           const keyType = await redisClient.type(key);
-          if (keyType !== 'none') {
-            standaloneKeys.push({ key, type: keyType });
-          }
+          //  if (keyType !== 'none') {
+          standaloneKeys.push({ key, type: keyType });
+          //  }
         } catch (_error) {
           continue;
         }
       }
-    }
+    } 
 
     const tables: Array<TableDS> = [];
 
@@ -1292,19 +1296,22 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
       const command = parts[0].toUpperCase();
 
       switch (command) {
-        case 'GET':
+        case 'GET': {
           if (parts.length !== 2) throw new Error('GET requires exactly one key');
           const value = await redisClient.get(parts[1]);
           return [{ key: parts[1], value }];
+        }
 
-        case 'KEYS':
+        case 'KEYS': {
           if (parts.length !== 2) throw new Error('KEYS requires exactly one pattern');
           const keys = await redisClient.keys(parts[1]);
           return keys.map((key) => ({ key }));
+        }
 
-        case 'PING':
+        case 'PING': {
           const response = await redisClient.ping();
           return [{ response }];
+        }
 
         default:
           throw new Error(`Unsupported command: ${command}`);
@@ -1633,5 +1640,38 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         return;
       }
     });
+  }
+
+  private async getAllKeysWithScan(redisClient: RedisClientType, pattern: string = '*'): Promise<string[]> {
+    const allKeys: string[] = [];
+    const scanOptions = { MATCH: pattern, COUNT: 1000 };
+    let cursor = '0';
+
+    do {
+      const result = await redisClient.scan(cursor, scanOptions);
+      cursor = result.cursor.toString();
+      allKeys.push(...result.keys);
+    } while (cursor !== '0');
+
+    return allKeys;
+  }
+
+  private async getAllKeysWithTimeout(
+    redisClient: RedisClientType,
+    timeoutMs: number = 5000,
+  ): Promise<string[]> {
+    const keysPromise = redisClient.keys('*');
+
+    const timeoutPromise = new Promise<null>((resolve) => {
+      setTimeout(() => resolve(null), timeoutMs);
+    });
+
+    const result = await Promise.race([keysPromise, timeoutPromise]);
+
+    if (result === null) {
+      return this.getAllKeysWithScan(redisClient);
+    }
+
+    return result;
   }
 }

@@ -42,15 +42,16 @@ import { RestoredConnectionDs } from './application/data-structures/restored-con
 import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
 import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
-
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
+import { isRedisConnectionUrl } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
 import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
 import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
 import { ValidateConnectionMasterPasswordDs } from './application/data-structures/validate-connection-master-password.ds.js';
+import { CreateConnectionDto } from './application/dto/create-connection.dto.js';
 import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
 import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
 import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
@@ -81,9 +82,7 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
-import { SkipThrottle } from '@nestjs/throttler';
-import { isRedisConnectionUrl } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { CreateConnectionDto } from './application/dto/create-connection.dto.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()

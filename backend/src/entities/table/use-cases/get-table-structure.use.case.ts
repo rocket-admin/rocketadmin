@@ -1,9 +1,17 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { WidgetTypeEnum } from '../../../enums/index.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds.js';
@@ -11,14 +19,6 @@ import { GetTableStructureDs } from '../application/data-structures/get-table-st
 import { ForeignKeyDSInfo, TableStructureDs } from '../table-datastructures.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { IGetTableStructure } from './table-use-cases.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
-import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
-import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
-import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
-import JSON5 from 'json5';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 
 @Injectable()
 export class GetTableStructureUseCase

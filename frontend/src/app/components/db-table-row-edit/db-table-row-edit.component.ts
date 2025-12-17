@@ -631,7 +631,7 @@ export class DbTableRowEditComponent implements OnInit {
     this._tableRow.addTableRow(this.connectionID, this.tableName, formattedUpdatedRow)
       .subscribe((res) => {
         this.keyAttributesFromURL = {};
-        for (var i = 0; i < res.primaryColumns.length; i++) {
+        for (let i = 0; i < res.primaryColumns.length; i++) {
           this.keyAttributesFromURL[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
         }
         this.ngZone.run(() => {

@@ -1,14 +1,14 @@
-import { AutocompleteFieldsDS } from '../data-structures/autocomplete-fields.ds.js';
-import { FilteringFieldsDS } from '../data-structures/filtering-fields.ds.js';
-import { ForeignKeyDS } from '../data-structures/foreign-key.ds.js';
-import { FoundRowsDS } from '../data-structures/found-rows.ds.js';
-import { PrimaryKeyDS } from '../data-structures/primary-key.ds.js';
-import { ReferencedTableNamesAndColumnsDS } from '../data-structures/referenced-table-names-columns.ds.js';
-import { TableSettingsDS } from '../data-structures/table-settings.ds.js';
-import { TableStructureDS } from '../data-structures/table-structure.ds.js';
-import { TableDS } from '../data-structures/table.ds.js';
-import { TestConnectionResultDS } from '../data-structures/test-result-connection.ds.js';
-import { ValidateTableSettingsDS } from '../data-structures/validate-table-settings.ds.js';
+import { AutocompleteFieldsDS } from '../../data-access-layer/shared/data-structures/autocomplete-fields.ds.js';
+import { FilteringFieldsDS } from '../../data-access-layer/shared/data-structures/filtering-fields.ds.js';
+import { ForeignKeyDS } from '../../data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { FoundRowsDS } from '../../data-access-layer/shared/data-structures/found-rows.ds.js';
+import { PrimaryKeyDS } from '../../data-access-layer/shared/data-structures/primary-key.ds.js';
+import { ReferencedTableNamesAndColumnsDS } from '../../data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableSettingsDS } from '../../data-access-layer/shared/data-structures/table-settings.ds.js';
+import { TableStructureDS } from '../../data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableDS } from '../../data-access-layer/shared/data-structures/table.ds.js';
+import { TestConnectionResultDS } from '../../data-access-layer/shared/data-structures/test-result-connection.ds.js';
+import { ValidateTableSettingsDS } from '../../data-access-layer/shared/data-structures/validate-table-settings.ds.js';
 import { Stream } from 'node:stream';
 
 export interface IDataAccessObjectAgent {

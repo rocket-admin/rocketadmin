@@ -1,4 +1,4 @@
-import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
+import { QueryOrderingEnum } from '../../../shared/enums/query-ordering.enum.js';
 
 export class TableSettingsDS {
   table_name: string;
