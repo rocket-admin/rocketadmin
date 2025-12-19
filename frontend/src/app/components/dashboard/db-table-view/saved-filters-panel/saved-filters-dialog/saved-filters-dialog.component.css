@@ -1,6 +1,6 @@
 .filters-content {
     display: grid;
-    grid-template-columns: auto 228px 0 1fr 120px 32px;
+    grid-template-columns: 32px auto 228px 0 1fr 120px;
     grid-column-gap: 8px;
     align-content: flex-start;
     align-items: flex-start;
@@ -8,22 +8,114 @@
 }
 
 .filters-select {
-    grid-column: 1 / span 6;
+    grid-column: 2 / span 5;
     margin-bottom: 16px;
 }
 
 .filter-line {
-    grid-column: 1 / span 4;
+    grid-column: 2 / span 4;
+}
+
+.empty-conditions-container {
+    grid-column: 1 / span 6;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.where-label {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+    white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+    .where-label {
+        color: rgba(255, 255, 255, 0.87);
+    }
+}
+
+.empty-conditions-container .add-condition-button {
+    width: auto;
+    min-width: auto;
+    min-height: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: none;
+    margin: 0 !important;
+    padding: 0 16px;
+    gap: 4px;
+}
+
+.empty-conditions-container .add-condition-button.accent-button {
+    color: #C177FC;
+}
+
+.empty-conditions-container .add-condition-button.accent-button:hover {
+    background-color: rgba(193, 119, 252, 0.04);
+}
+
+.empty-conditions-container .add-condition-button.accent-button .add-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+}
+
+.empty-conditions-container .column-name-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+.empty-condition-input {
+    width: auto;
+    min-width: 200px;
+    max-width: 300px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-form-field {
+    margin: 0;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 0;
+    position: absolute;
+    top: 100%;
 }
 
 .dynamic-column-radio {
-    grid-column: 5;
+    grid-column: 6;
     margin-top: 8px;
+}
+
+.comparator-select-field {
+    grid-column: 3;
 }
 
 .add-condition-footer {
     grid-column: 1 / span 6;
-    margin-top: 16px;
+    margin-top: 24px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -32,22 +124,39 @@
 }
 
 .add-condition-footer button {
-    width: 50%;
-    min-height: 44px;
-    height: 44px;
+    width: auto;
+    min-width: auto;
+    min-height: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-transform: none;
-    margin: 0 !important;
-    padding: 0;
+    margin: 0 0 16px 0 !important;
+    padding: 0 16px;
 }
 
 .add-condition-footer .filters-select {
-    width: 50%;
+    width: auto;
+    min-width: 200px;
+    max-width: 300px;
     margin: 0 !important;
-    min-height: 44px;
+    min-height: 36px;
     margin-top: 0 !important;
+    flex-shrink: 0;
+}
+
+.add-condition-footer .filters-select ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.add-condition-footer .filters-select ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-bottom: 0;
+    margin-bottom: 0;
 }
 
 .add-condition-footer ::ng-deep .mat-mdc-form-field {
@@ -142,17 +251,16 @@
     display: flex;
 }
 
-.filters-content {
-    flex: 1 0 auto;
-}
-
 .column-name {
+    grid-column: 2;
     margin-top: 12px;
 }
 
 .filter-delete-button {
+    grid-column: 1;
     margin-top: 4px;
-    margin-left: 8px;
+    margin-right: 8px;
+    align-self: flex-start;
 }
 
 .settings-form__reset-button {
@@ -181,25 +289,37 @@
 
 .comparator-select-field {
     width: auto;
-    min-width: fit-content;
-    max-width: fit-content;
+    min-width: 140px;
+    max-width: none;
 }
 
 .comparator-select-field ::ng-deep .mat-mdc-form-field-infix {
-    width: auto !important;
+    width: 100% !important;
     min-width: fit-content;
-    padding-right: 12px;
+    padding-right: 40px;
     padding-left: 0;
+    position: relative;
 }
 
 .comparator-select-field ::ng-deep .mat-mdc-select-trigger {
-    width: auto;
+    width: 100%;
     min-width: fit-content;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .comparator-select-field ::ng-deep .mat-mdc-select-value-text {
     width: auto;
     min-width: fit-content;
+    flex: 1;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-arrow-wrapper {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .comparator-select-field ::ng-deep .mat-mdc-select-panel {
@@ -213,4 +333,20 @@
     font-size: 12px;
     margin: 8px 0 0 0;
     padding-left: 16px;
+}
+
+/* Add more spacing for multiline textarea inputs (more than 2 rows) */
+.filters-content ::ng-deep .filter-line mat-form-field:has(textarea[rows]):not(:has(textarea[rows="1"])):not(:has(textarea[rows="2"])),
+.filters-content ::ng-deep .filter-line mat-form-field:has(textarea.long-textarea),
+.filters-content ::ng-deep .filter-line mat-form-field:has(textarea.form-textarea) {
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
+}
+
+/* Add more spacing for foreign key fields */
+.filters-content ::ng-deep .filter-line .foreign-key,
+.filters-content ::ng-deep .filter-line app-edit-foreign-key,
+.filters-content ::ng-deep .foreign-key {
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
 }
