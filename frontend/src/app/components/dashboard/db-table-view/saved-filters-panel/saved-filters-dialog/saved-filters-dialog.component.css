@@ -21,6 +21,46 @@
     margin-top: 8px;
 }
 
+.add-condition-footer {
+    grid-column: 1 / span 6;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.add-condition-footer button {
+    width: 50%;
+    min-height: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: none;
+    margin: 0 !important;
+    padding: 0;
+}
+
+.add-condition-footer .filters-select {
+    width: 50%;
+    margin: 0 !important;
+    min-height: 44px;
+    margin-top: 0 !important;
+}
+
+.add-condition-footer ::ng-deep .mat-mdc-form-field {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.add-condition-footer ::ng-deep .mat-mdc-form-field-wrapper {
+    padding-bottom: 0;
+}
+
 .dynamic-column-radio ::ng-deep .mdc-form-field {
     display: flex;
     align-items: center;
@@ -133,4 +173,32 @@
 ::ng-deep .mat-mdc-select-panel .mat-mdc-option {
     display: flex;
     align-items: center;
+}
+
+.comparator-select-field {
+    width: auto;
+    min-width: fit-content;
+    max-width: fit-content;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-form-field-infix {
+    width: auto !important;
+    min-width: fit-content;
+    padding-right: 12px;
+    padding-left: 0;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-trigger {
+    width: auto;
+    min-width: fit-content;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-value-text {
+    width: auto;
+    min-width: fit-content;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-panel {
+    min-width: max-content !important;
+    width: max-content !important;
 }

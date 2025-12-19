@@ -21,20 +21,34 @@
                 Add conditions and choose one column to use for editing. Only one editable column can be selected.
             </p>
 
-            <!-- Filter Selection -->
-            <mat-form-field class="filters-select" appearance="outline">
-                <mat-label>Click here to add condition</mat-label>
-                <input type="text" matInput name="filter_columns"
-                    [matAutocomplete]="auto"
-                    [formControl]="fieldSearchControl">
-                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
-                    <mat-option *ngFor="let field of foundFields | async"
-                        [ngClass]="{'disabled': field === 'No matches'}"
-                        [value]="field">
-                        {{field}}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
+            <ng-template #conditionInputField>
+                <mat-form-field class="filters-select" appearance="outline">
+                    <mat-label>Click here to add condition</mat-label>
+                    <input type="text" matInput name="filter_columns"
+                        [matAutocomplete]="auto"
+                        [formControl]="fieldSearchControl"
+                        (blur)="handleInputBlur()">
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
+                        <mat-option *ngFor="let field of foundFields | async"
+                            [ngClass]="{'disabled': field === 'No matches'}"
+                            [value]="field">
+                            {{field}}
+                        </mat-option>
+                    </mat-autocomplete>
+                    <button *ngIf="hasSelectedFilters"
+                        mat-icon-button
+                        matSuffix
+                        type="button"
+                        aria-label="Cancel adding condition"
+                        (click)="cancelAddConditionInput()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+            </ng-template>
+
+            <ng-container *ngIf="!hasSelectedFilters; else addConditionControls">
+                <ng-container *ngTemplateOutlet="conditionInputField"></ng-container>
+            </ng-container>
 
             <!-- Added Filters -->
             <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; trackBy:trackByFn">
@@ -75,7 +89,8 @@
                     <span class='mat-body-1 column-name'>{{value.key}}</span>
 
                     <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'text'"
-                        appearance="outline">
+                        appearance="outline"
+                        class="comparator-select-field">
                         <mat-select name="textComparator-{{value.key}}"
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
                             (ngModelChange)="updateComparator($event, value.key)">
@@ -107,7 +122,8 @@
                     </mat-form-field>
 
                     <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'number'"
-                        appearance="outline">
+                        appearance="outline"
+                        class="comparator-select-field">
                         <mat-select name="numberComparator-{{value.key}}"
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
                             (ngModelChange)="updateComparator($event, value.key)">
@@ -161,6 +177,16 @@
                     <mat-icon>close</mat-icon>
                 </button>
             </ng-container>
+            <ng-template #addConditionControls>
+                <div class="add-condition-footer">
+                    <button mat-stroked-button type="button" (click)="handleAddConditionButtonClick()">
+                        add condition
+                    </button>
+                    <ng-container *ngIf="showAddConditionField">
+                        <ng-container *ngTemplateOutlet="conditionInputField"></ng-container>
+                    </ng-container>
+                </div>
+            </ng-template>
         </mat-dialog-content>
     </ng-template>
 

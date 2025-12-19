@@ -1,7 +1,7 @@
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
-import { Component, Inject, Input, OnInit, AfterViewInit, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit } from '@angular/core';
 import { DynamicModule } from 'ng-dynamic-component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -69,6 +69,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
   public tableWidgetsList: string[] = [];
   public UIwidgets = UIwidgets;
   public dynamicColumn: string | null = null;
+  public showAddConditionField = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -77,7 +78,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
     private dialogRef: MatDialogRef<SavedFiltersDialogComponent>,
     private snackBar: MatSnackBar,
     private angulartics2: Angulartics2,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
   ) {}
 
   ngOnInit(): void {
@@ -139,6 +140,23 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
+  get hasSelectedFilters(): boolean {
+    return Object.keys(this.tableRowFieldsShown).length > 0;
+  }
+
+  handleAddConditionButtonClick(): void {
+    this.showAddConditionField = true;
+    setTimeout(() => {
+      const input = this.elementRef.nativeElement.querySelector('input[name="filter_columns"]') as HTMLInputElement;
+      input?.focus();
+    }, 0);
+  }
+
+  cancelAddConditionInput(): void {
+    this.showAddConditionField = false;
+    this.fieldSearchControl.setValue('');
+  }
+
   private _filter(value: string): string[] {
     return this.fields.filter((field: string) => field.toLowerCase().includes(value.toLowerCase()));
   }
@@ -187,6 +205,20 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
     this.tableRowFieldsComparator = {...this.tableRowFieldsComparator, [key]: this.tableRowFieldsComparator[key] || 'eq'};
     this.fieldSearchControl.setValue('');
     this.updateFiltersCount();
+    if (this.hasSelectedFilters) {
+      this.showAddConditionField = false;
+    }
+  }
+
+  handleInputBlur(): void {
+    // Hide the field if it's empty when it loses focus
+    if (!this.fieldSearchControl.value || this.fieldSearchControl.value.trim() === '') {
+      setTimeout(() => {
+        if (!this.fieldSearchControl.value || this.fieldSearchControl.value.trim() === '') {
+          this.cancelAddConditionInput();
+        }
+      }, 200);
+    }
   }
 
   updateComparator(event, fieldName: string) {
@@ -249,6 +281,9 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
       this.dynamicColumn = null;
     }
     this.updateFiltersCount();
+    if (!this.hasSelectedFilters) {
+      this.showAddConditionField = false;
+    }
   }
 
   updateFiltersCount() {
