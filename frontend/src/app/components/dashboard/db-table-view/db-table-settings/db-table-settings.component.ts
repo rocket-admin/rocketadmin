@@ -1,5 +1,5 @@
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
 
 import { AlertComponent } from '../../../ui-components/alert/alert.component';
@@ -148,7 +148,7 @@ export class DbTableSettingsComponent implements OnInit {
         } else {
           this.tableSettings = this.tableSettingsInitial;
         };
-        if (Object.keys(res).length === 0 || (res && res.list_fields && !res.list_fields.length)) {
+        if (Object.keys(res).length === 0 || (res?.list_fields && !res.list_fields.length)) {
           this.listFieldsOrder = [...this.fields];
         };
         this.title.setTitle(`${res.display_name || this.displayTableName} - Table settings | ${this._company.companyTabTitle || 'Rocketadmin'}`);

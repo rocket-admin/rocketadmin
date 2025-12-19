@@ -128,13 +128,13 @@ describe('AppComponent', () => {
     fixture.detectChanges();
 
     spyOn(app, 'logOut');
-    spyOn(app['router'], 'navigate');
+    spyOn(app.router, 'navigate');
   });
 
   afterEach(() => {
     localStorage.removeItem('token_expiration');
     (app.logOut as jasmine.Spy)?.calls.reset?.();
-    (app['router'].navigate as jasmine.Spy)?.calls.reset?.();
+    (app.router.navigate as jasmine.Spy)?.calls.reset?.();
     mockUiSettingsService.getUiSettings.calls.reset?.();
     mockCompanyService.getWhiteLabelProperties.calls.reset?.();
     mockUserService.fetchUser.calls.reset?.();
@@ -243,7 +243,7 @@ describe('AppComponent', () => {
       ['detectChanges', 'markForCheck', 'detach', 'checkNoChanges', 'reattach']
     );
 
-    app['changeDetector'] = mockChangeDetectorRef; // inject mock manually if needed
+    app.changeDetector = mockChangeDetectorRef; // inject mock manually if needed
 
     app.setUserLoggedIn(true);
 
@@ -256,7 +256,7 @@ describe('AppComponent', () => {
     mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
 
     const expirationDate = new Date(Date.now() + 10_000); // 10s from now
-    app['currentFeatureNotificationId'] = 'some-id';
+    app.currentFeatureNotificationId = 'some-id';
 
     app.ngOnInit();
 
@@ -294,7 +294,7 @@ describe('AppComponent', () => {
     tick(5000);
 
     expect(app.logOut).toHaveBeenCalledWith(true);
-    expect(app['router'].navigate).toHaveBeenCalledWith(['/login']);
+    expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
   }));
 
   it('should immediately log out and navigate to login if token is expired', fakeAsync(() => {
@@ -313,6 +313,6 @@ describe('AppComponent', () => {
 
     expect(app.initializeUserSession).not.toHaveBeenCalled();
     expect(app.logOut).toHaveBeenCalledWith(true);
-    expect(app['router'].navigate).toHaveBeenCalledWith(['/login']);
+    expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
   }));
 });

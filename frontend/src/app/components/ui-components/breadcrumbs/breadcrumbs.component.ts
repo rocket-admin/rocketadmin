@@ -14,8 +14,6 @@ import { MatButtonModule } from '@angular/material/button';
 export class BreadcrumbsComponent implements OnInit {
   @Input() crumbs;
 
-  constructor() { }
-
   ngOnInit(): void {
 
   }

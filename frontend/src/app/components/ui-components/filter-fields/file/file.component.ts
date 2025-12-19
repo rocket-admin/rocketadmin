@@ -10,8 +10,4 @@ import { Component } from '@angular/core';
 })
 export class FileFilterComponent extends BaseFilterFieldComponent {
   static type = 'file';
-
-  constructor() {
-    super();
-  }
 }

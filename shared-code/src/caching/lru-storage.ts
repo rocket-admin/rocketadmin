@@ -22,29 +22,29 @@ const tablePrimaryKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUC
 const redisClientCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_REDIS_CLIENT_CACHE_OPTIONS);
 export class LRUStorage {
   public static getRedisClientCache(connection: ConnectionParams): any | null {
-    const cachedClient = redisClientCache.get(this.getConnectionIdentifier(connection));
+    const cachedClient = redisClientCache.get(LRUStorage.getConnectionIdentifier(connection));
     return cachedClient ? cachedClient : null;
   }
 
   public static setRedisClientCache(connection: ConnectionParams, client: any): void {
-    redisClientCache.set(this.getConnectionIdentifier(connection), client);
+    redisClientCache.set(LRUStorage.getConnectionIdentifier(connection), client);
   }
 
   public static delRedisClientCache(connection: ConnectionParams): void {
-    redisClientCache.delete(this.getConnectionIdentifier(connection));
+    redisClientCache.delete(LRUStorage.getConnectionIdentifier(connection));
   }
 
   public static setCassandraClientCache(connection: ConnectionParams, client: Client): void {
-    cassandraClientCache.set(this.getConnectionIdentifier(connection), client);
+    cassandraClientCache.set(LRUStorage.getConnectionIdentifier(connection), client);
   }
 
   public static getCassandraClientCache(connection: ConnectionParams): Client | null {
-    const cachedClient = cassandraClientCache.get(this.getConnectionIdentifier(connection)) as Client;
+    const cachedClient = cassandraClientCache.get(LRUStorage.getConnectionIdentifier(connection)) as Client;
     return cachedClient ? cachedClient : null;
   }
 
   public static delCassandraClientCache(connection: ConnectionParams): void {
-    cassandraClientCache.delete(this.getConnectionIdentifier(connection));
+    cassandraClientCache.delete(LRUStorage.getConnectionIdentifier(connection));
   }
 
   public static getCassandraClientCount(): number {
@@ -56,55 +56,55 @@ export class LRUStorage {
   }
 
   public static setMongoDbCache(connection: ConnectionParams, newDb: MongoClientDB): void {
-    mongoDbCache.set(this.getConnectionIdentifier(connection), newDb);
+    mongoDbCache.set(LRUStorage.getConnectionIdentifier(connection), newDb);
   }
 
   public static getMongoDbCache(connection: ConnectionParams): MongoClientDB | null {
-    const cachedDb = mongoDbCache.get(this.getConnectionIdentifier(connection)) as MongoClientDB;
+    const cachedDb = mongoDbCache.get(LRUStorage.getConnectionIdentifier(connection)) as MongoClientDB;
     return cachedDb ? cachedDb : null;
   }
 
   public static delMongoDbCache(connection: ConnectionParams): void {
-    mongoDbCache.delete(this.getConnectionIdentifier(connection));
+    mongoDbCache.delete(LRUStorage.getConnectionIdentifier(connection));
   }
 
   public static getImdbDb2Cache(connection: ConnectionParams): Database | null {
-    const cachedDb = imdbDb2Cache.get(this.getConnectionIdentifier(connection)) as Database;
+    const cachedDb = imdbDb2Cache.get(LRUStorage.getConnectionIdentifier(connection)) as Database;
     return cachedDb ? cachedDb : null;
   }
 
   public static delImdbDb2Cache(connection: ConnectionParams): void {
-    imdbDb2Cache.delete(this.getConnectionIdentifier(connection));
+    imdbDb2Cache.delete(LRUStorage.getConnectionIdentifier(connection));
   }
 
   public static setImdbDb2Cache(connection: ConnectionParams, newDb: Database): void {
-    imdbDb2Cache.set(this.getConnectionIdentifier(connection), newDb);
+    imdbDb2Cache.set(LRUStorage.getConnectionIdentifier(connection), newDb);
   }
 
   public static getCachedKnex(connectionConfig: ConnectionParams): Knex | null {
-    const cachedKnex = knexCache.get(this.getConnectionIdentifier(connectionConfig)) as Knex;
+    const cachedKnex = knexCache.get(LRUStorage.getConnectionIdentifier(connectionConfig)) as Knex;
     return cachedKnex ? cachedKnex : null;
   }
 
   public static setKnexCache(connectionConfig: ConnectionParams, newKnex: Knex): void {
-    knexCache.set(this.getConnectionIdentifier(connectionConfig), newKnex);
+    knexCache.set(LRUStorage.getConnectionIdentifier(connectionConfig), newKnex);
   }
 
   public static delKnexCache(connectionConfig: ConnectionParams): void {
-    knexCache.delete(this.getConnectionIdentifier(connectionConfig));
+    knexCache.delete(LRUStorage.getConnectionIdentifier(connectionConfig));
   }
 
   public static getTunnelCache(connection: ConnectionParams): any {
-    const cachedTnl = tunnelCache.get(this.getConnectionIdentifier(connection));
+    const cachedTnl = tunnelCache.get(LRUStorage.getConnectionIdentifier(connection));
     return cachedTnl ? cachedTnl : null;
   }
 
   public static setTunnelCache(connection: ConnectionParams, tnlObj: Record<string, unknown>): void {
-    tunnelCache.set(this.getConnectionIdentifier(connection), tnlObj);
+    tunnelCache.set(LRUStorage.getConnectionIdentifier(connection), tnlObj);
   }
 
   public static delTunnelCache(connection: ConnectionParams): void {
-    tunnelCache.delete(this.getConnectionIdentifier(connection));
+    tunnelCache.delete(LRUStorage.getConnectionIdentifier(connection));
   }
 
   public static setTableForeignKeysCache(
@@ -180,7 +180,7 @@ export class LRUStorage {
   }
 
   public static getConnectionIdentifier(connectionParams: ConnectionParams | ConnectionAgentParams): string {
-    if (this.isConnectionAgentParams(connectionParams)) {
+    if (LRUStorage.isConnectionAgentParams(connectionParams)) {
       const cacheObj = {
         id: connectionParams.id,
         token: connectionParams.token,
@@ -220,7 +220,7 @@ export class LRUStorage {
   public static isConnectionAgentParams(
     connectionParams: ConnectionParams | ConnectionAgentParams,
   ): connectionParams is ConnectionAgentParams {
-    if (connectionParams.hasOwnProperty('token') && connectionParams['token']) {
+    if (Object.hasOwn(connectionParams, 'token') && connectionParams.token) {
       return true;
     }
     return false;

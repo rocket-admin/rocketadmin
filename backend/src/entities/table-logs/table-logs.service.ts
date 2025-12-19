@@ -212,7 +212,7 @@ export class TableLogsService {
       tableLogsEntities.push(newLogRecord);
     }
     const queue = new PQueue({ concurrency: 2 });
-    const createdLogs: Array<CreatedLogRecordDs | void> = await Promise.all(
+    const createdLogs: Array<CreatedLogRecordDs | undefined> = await Promise.all(
       tableLogsEntities.map(async (newLogRecord) => {
         return await queue.add(async () => {
           const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);

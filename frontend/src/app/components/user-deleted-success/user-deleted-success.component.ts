@@ -11,8 +11,6 @@ import { CommonModule } from '@angular/common';
 })
 export class UserDeletedSuccessComponent implements OnInit {
 
-  constructor() { }
-
   ngOnInit(): void {
   }
 

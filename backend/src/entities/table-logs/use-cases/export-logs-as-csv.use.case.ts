@@ -25,16 +25,16 @@ export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, Streamab
   public async implementation(inputData: FindLogsDs): Promise<StreamableFile> {
     const { connectionId, query, userId, operationTypes } = inputData;
     const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
-    const tableName = query['tableName'];
-    let order = query['order'];
-    let limit = query['limit'];
-    let page = parseInt(query['page']);
-    let perPage = parseInt(query['perPage']);
-    const dateFrom = query['dateFrom'];
-    const dateTo = query['dateTo'];
-    const searchedEmail = query['email']?.toLowerCase();
-    const operationType: LogOperationTypeEnum = query['operationType'];
-    const searchedAffectedPrimaryKey: string = query['affected_primary_key'];
+    const tableName = query.tableName;
+    let order = query.order;
+    let limit = query.limit;
+    let page = parseInt(query.page, 10);
+    let perPage = parseInt(query.perPage, 10);
+    const dateFrom = query.dateFrom;
+    const dateTo = query.dateTo;
+    const searchedEmail = query.email?.toLowerCase();
+    const operationType: LogOperationTypeEnum = query.operationType;
+    const searchedAffectedPrimaryKey: string = query.affected_primary_key;
 
     if (operationType) {
       const actionValidationResult = validateStringWithEnum(operationType, LogOperationTypeEnum);

@@ -27,7 +27,7 @@ const __dirname = path.dirname(__filename);
 let app: INestApplication;
 let currentTest: string;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 
 const mockFactory = new MockFactory();
 
@@ -37,7 +37,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -92,15 +92,15 @@ test.serial(`${currentTest} should return all found logs in connection`, async (
     const getRowInTableRO = JSON.parse(getTableLogs.text);
 
     t.is(getRowInTableRO.logs.length, 1);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('table_name'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('received_data'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('old_data'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('cognitoUserName'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('email'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('operationType'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('operationStatusResult'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('createdAt'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('connection_id'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'table_name'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'received_data'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'old_data'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'cognitoUserName'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'email'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'operationType'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'operationStatusResult'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'createdAt'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'connection_id'), true);
   } catch (error) {
     console.error(error);
     throw error;
@@ -139,7 +139,7 @@ test.serial(
       const getLogsInTableRO = JSON.parse(getTableLogs.text);
 
       t.is(getLogsInTableRO.logs.length, 1);
-      t.is(getLogsInTableRO.logs[0].hasOwnProperty('affected_primary_key'), true);
+      t.is(Object.hasOwn(getLogsInTableRO.logs[0], 'affected_primary_key'), true);
       const searchedAffectedPrimaryKey = JSON.stringify(getLogsInTableRO.logs[0].affected_primary_key);
 
       let additionalRowAddResponse = await request(app.getHttpServer())

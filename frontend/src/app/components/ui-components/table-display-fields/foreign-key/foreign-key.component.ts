@@ -21,10 +21,6 @@ export class ForeignKeyDisplayComponent extends BaseTableDisplayFieldComponent {
 
   @Output() onForeignKeyClick = new EventEmitter<{foreignKey: any, value: string}>();
 
-  constructor() {
-    super();
-  }
-
   handleForeignKeyClick($event): void {
     $event.stopPropagation();
     if (this.relations && this.value) {

@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, } from '@angular/router';
 
 import { UpgradeSuccessComponent } from './upgrade-success.component';
-import { of } from 'rxjs';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('UpgradeSuccessComponent', () => {

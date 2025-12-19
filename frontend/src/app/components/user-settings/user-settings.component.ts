@@ -1,7 +1,7 @@
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { ApiKey, User } from 'src/app/models/user';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -140,7 +140,7 @@ export class UserSettingsComponent implements OnInit {
   changeUserName() {
     this.submittingChangedName = true;
     this._userService.changeUserName(this.userName)
-      .subscribe((res) => {
+      .subscribe((_res) => {
         this.submittingChangedName = false;
         this.angulartics2.eventTrack.next({
           action: 'User settings: user name is updated successfully',

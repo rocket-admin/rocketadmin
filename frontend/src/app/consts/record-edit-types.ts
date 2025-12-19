@@ -1,4 +1,4 @@
-import { BinaryDataCaptionEditComponent } from '../components/ui-components/record-edit-fields/binary-data-caption/binary-data-caption.component';
+
 import { BooleanEditComponent } from 'src/app/components/ui-components/record-edit-fields/boolean/boolean.component'
 import { CodeEditComponent } from '../components/ui-components/record-edit-fields/code/code.component';
 import { ColorEditComponent } from '../components/ui-components/record-edit-fields/color/color.component';

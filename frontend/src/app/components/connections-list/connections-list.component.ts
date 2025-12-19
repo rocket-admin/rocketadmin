@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Connection, ConnectionItem } from 'src/app/models/connection';
+import { Connection, } from 'src/app/models/connection';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { Angulartics2Module } from 'angulartics2';

@@ -1,4 +1,4 @@
-import { BinaryDataCaptionFilterComponent } from '../components/ui-components/filter-fields/binary-data-caption/binary-data-caption.component';
+
 import { BooleanFilterComponent } from 'src/app/components/ui-components/filter-fields/boolean/boolean.component'
 import { CountryFilterComponent } from '../components/ui-components/filter-fields/country/country.component';
 import { DateFilterComponent } from '../components/ui-components/filter-fields/date/date.component';

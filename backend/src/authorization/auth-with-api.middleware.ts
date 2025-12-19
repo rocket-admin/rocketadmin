@@ -27,7 +27,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async use(req: Request, res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+  async use(req: Request, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
     try {
       await this.authenticateRequest(req);
       next();
@@ -61,11 +61,11 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     try {
       const jwtSecret = process.env.JWT_SECRET;
       const data = jwt.verify(tokenFromCookie, jwtSecret);
-      const userId = data['id'];
+      const userId = data.id;
       if (!userId) {
         throw new UnauthorizedException('JWT verification failed');
       }
-      const addedScope: Array<JwtScopesEnum> = data['scope'];
+      const addedScope: Array<JwtScopesEnum> = data.scope;
       if (addedScope && addedScope.length > 0) {
         if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
           throw new BadRequestException(Messages.TWO_FA_REQUIRED);
@@ -74,14 +74,14 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 
       const payload = {
         sub: userId,
-        email: data['email'],
-        exp: data['exp'],
-        iat: data['iat'],
+        email: data.email,
+        exp: data.exp,
+        iat: data.iat,
       };
       if (!payload || isObjectEmpty(payload)) {
         throw new UnauthorizedException('JWT verification failed');
       }
-      req['decoded'] = payload;
+      req.decoded = payload;
     } catch (error) {
       Sentry.captureException(error);
       throw error;
@@ -106,7 +106,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     if (!foundUserByApiKey) {
       throw new NotFoundException(Messages.NO_AUTH_KEYS_FOUND);
     }
-    req['decoded'] = {
+    req.decoded = {
       sub: foundUserByApiKey.id,
       email: foundUserByApiKey.email,
     };

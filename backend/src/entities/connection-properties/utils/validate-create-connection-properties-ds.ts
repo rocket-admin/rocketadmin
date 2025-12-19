@@ -34,13 +34,13 @@ export async function validateCreateConnectionPropertiesDs(
   }
 
   if (table_categories && table_categories.length > 0) {
-    const tablesInCategories = table_categories.map((category) => category.tables).flat();
+    const tablesInCategories = table_categories.flatMap((category) => category.tables);
     const uniqueTablesInCategories = Array.from(new Set(tablesInCategories));
     for (const table of uniqueTablesInCategories) {
       if (!tablesInConnection.includes(table)) {
         errors.push(Messages.TABLE_WITH_NAME_NOT_EXISTS(table));
       }
-      if (hidden_tables && hidden_tables.includes(table)) {
+      if (hidden_tables?.includes(table)) {
         errors.push(Messages.CANT_CATEGORIZE_HIDDEN_TABLE(table));
       }
     }

@@ -21,7 +21,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
     @InjectRepository(LogOutEntity)
     private readonly logOutRepository: Repository<LogOutEntity>,
   ) {}
-  async use(req: Request, res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+  async use(req: Request, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
     console.log(`auth middleware triggered ->: ${new Date().toISOString()}`);
     let token: string;
     try {
@@ -44,21 +44,21 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
     try {
       const jwtSecret = process.env.JWT_SECRET;
       const data = jwt.verify(token, jwtSecret);
-      const userId = data['id'];
+      const userId = data.id;
       if (!userId) {
         throw new UnauthorizedException('JWT verification failed');
       }
 
       const payload = {
         sub: userId,
-        email: data['email'],
-        exp: data['exp'],
-        iat: data['iat'],
+        email: data.email,
+        exp: data.exp,
+        iat: data.iat,
       };
       if (!payload || isObjectEmpty(payload)) {
         throw new UnauthorizedException('JWT verification failed');
       }
-      req['decoded'] = payload;
+      req.decoded = payload;
       next();
     } catch (e) {
       Sentry.captureException(e);

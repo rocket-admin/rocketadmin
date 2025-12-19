@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CodeEditComponent } from './code.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { provideHttpClient } from '@angular/common/http';
 
 describe('CodeComponent', () => {

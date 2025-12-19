@@ -33,9 +33,6 @@ export type MongoClientDB = {
 };
 
 export class DataAccessObjectMongo extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -256,19 +253,19 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
             acc[field] = new RegExp(String(value), 'i');
             break;
           case FilterCriteriaEnum.gt:
-            acc[field]['$gt'] = value;
+            acc[field].$gt = value;
             break;
           case FilterCriteriaEnum.lt:
-            acc[field]['$lt'] = value;
+            acc[field].$lt = value;
             break;
           case FilterCriteriaEnum.gte:
-            acc[field]['$gte'] = value;
+            acc[field].$gte = value;
             break;
           case FilterCriteriaEnum.lte:
-            acc[field]['$lte'] = value;
+            acc[field].$lte = value;
             break;
           case FilterCriteriaEnum.icontains:
-            acc[field]['$not'] = new RegExp(String(value), 'i');
+            acc[field].$not = new RegExp(String(value), 'i');
             break;
           case FilterCriteriaEnum.startswith:
             acc[field] = new RegExp(`^${String(value)}`, 'i');
@@ -277,7 +274,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
             acc[field] = new RegExp(`${String(value)}$`, 'i');
             break;
           case FilterCriteriaEnum.empty:
-            acc[field]['$exists'] = false;
+            acc[field].$exists = false;
             break;
           default:
             break;
@@ -421,11 +418,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     for await (const record of parser) {
       results.push(record);
     }
-    try {
       await collection.insertMany(results);
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async getTableRowsStream(
@@ -510,7 +503,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const connectionCopy = { ...connection };
     return new Promise<MongoClientDB>(async (resolve, reject): Promise<MongoClientDB> => {
       const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
-      if (cachedTnl && cachedTnl.mongo && cachedTnl.server && cachedTnl.client) {
+      if (cachedTnl?.mongo && cachedTnl.server && cachedTnl.client) {
         resolve(cachedTnl.db);
         return;
       }

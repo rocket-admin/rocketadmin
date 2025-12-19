@@ -137,67 +137,67 @@ describe('AuditLogDialogComponent', () => {
 
   describe('action labels', () => {
     it('should have label for create action', () => {
-      expect(component.actionLabels['create']).toBe('Created');
+      expect(component.actionLabels.create).toBe('Created');
     });
 
     it('should have label for view action', () => {
-      expect(component.actionLabels['view']).toBe('Viewed');
+      expect(component.actionLabels.view).toBe('Viewed');
     });
 
     it('should have label for copy action', () => {
-      expect(component.actionLabels['copy']).toBe('Copied');
+      expect(component.actionLabels.copy).toBe('Copied');
     });
 
     it('should have label for update action', () => {
-      expect(component.actionLabels['update']).toBe('Updated');
+      expect(component.actionLabels.update).toBe('Updated');
     });
 
     it('should have label for delete action', () => {
-      expect(component.actionLabels['delete']).toBe('Deleted');
+      expect(component.actionLabels.delete).toBe('Deleted');
     });
   });
 
   describe('action icons', () => {
     it('should have icon for create action', () => {
-      expect(component.actionIcons['create']).toBe('add_circle');
+      expect(component.actionIcons.create).toBe('add_circle');
     });
 
     it('should have icon for view action', () => {
-      expect(component.actionIcons['view']).toBe('visibility');
+      expect(component.actionIcons.view).toBe('visibility');
     });
 
     it('should have icon for copy action', () => {
-      expect(component.actionIcons['copy']).toBe('content_copy');
+      expect(component.actionIcons.copy).toBe('content_copy');
     });
 
     it('should have icon for update action', () => {
-      expect(component.actionIcons['update']).toBe('edit');
+      expect(component.actionIcons.update).toBe('edit');
     });
 
     it('should have icon for delete action', () => {
-      expect(component.actionIcons['delete']).toBe('delete');
+      expect(component.actionIcons.delete).toBe('delete');
     });
   });
 
   describe('action colors', () => {
     it('should have color for create action', () => {
-      expect(component.actionColors['create']).toBe('primary');
+      expect(component.actionColors.create).toBe('primary');
     });
 
     it('should have color for view action', () => {
-      expect(component.actionColors['view']).toBe('accent');
+      expect(component.actionColors.view).toBe('accent');
     });
 
     it('should have color for copy action', () => {
-      expect(component.actionColors['copy']).toBe('accent');
+      expect(component.actionColors.copy).toBe('accent');
     });
 
     it('should have color for update action', () => {
-      expect(component.actionColors['update']).toBe('primary');
+      expect(component.actionColors.update).toBe('primary');
     });
 
     it('should have color for delete action', () => {
-      expect(component.actionColors['delete']).toBe('warn');
+      expect(component.actionColors.delete).toBe('warn');
     });
   });
 

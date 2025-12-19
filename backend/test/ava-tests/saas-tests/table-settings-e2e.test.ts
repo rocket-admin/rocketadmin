@@ -22,7 +22,7 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest;
 
 test.before(async () => {
@@ -31,7 +31,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -90,7 +90,7 @@ test.serial(`${currentTest} should throw an exception when connectionId is missi
     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createdConnection = await request(app.getHttpServer())
+    const _createdConnection = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
       .set('Cookie', token)
@@ -191,7 +191,7 @@ test.serial(`${currentTest} should return connection settings object`, async (t)
       .set('Accept', 'application/json');
 
     const findSettingsRO = JSON.parse(findSettingsResponce.text);
-    t.is(findSettingsRO.hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(findSettingsRO, 'id'), true);
     t.is(findSettingsRO.table_name, 'connection');
     t.is(findSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.deepEqual(findSettingsRO.search_fields, ['title']);
@@ -257,7 +257,7 @@ test.serial(`${currentTest} should return created table settings`, async (t) => 
       .set('Accept', 'application/json');
 
     const findSettingsRO = JSON.parse(findSettingsResponce.text);
-    t.is(findSettingsRO.hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(findSettingsRO, 'id'), true);
     t.is(findSettingsRO.table_name, 'connection');
     t.is(findSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.deepEqual(findSettingsRO.search_fields, ['title']);
@@ -325,7 +325,7 @@ test.serial(`${currentTest} should throw exception when connectionId is missing`
     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createdConnection = await request(app.getHttpServer())
+    const _createdConnection = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
       .set('Cookie', token)

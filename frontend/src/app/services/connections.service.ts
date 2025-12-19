@@ -1,8 +1,8 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, of, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
-import { NavigationEnd, ResolveEnd, Router, RouterEvent } from '@angular/router';
+import { NavigationEnd, Router, } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { AccessLevel } from '../models/user';
@@ -83,7 +83,7 @@ export class ConnectionsService {
 				)
 			)
 			.subscribe(
-				( event: NavigationEnd ) : void => {
+				( _event: NavigationEnd ) : void => {
           const urlConnectionID = this.router.routerState.snapshot.root.firstChild.paramMap.get('connection-id');
           this.currentPage = this.router.routerState.snapshot.root.firstChild.url[0].path;
           this.setConnectionID(urlConnectionID);
@@ -182,7 +182,7 @@ export class ConnectionsService {
   }
 
   defineConnectionType(connection) {
-    if (connection.type && connection.type.startsWith('agent_')) {
+    if (connection.type?.startsWith('agent_')) {
       connection.type = connection.type.slice(6);
       connection.connectionType = ConnectionType.Agent;
     } else {
@@ -255,7 +255,7 @@ export class ConnectionsService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -385,7 +385,7 @@ export class ConnectionsService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: (_id: number) => this._notifications.dismissAlert()
           }
         ]);
         // this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);

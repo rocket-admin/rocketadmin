@@ -233,7 +233,7 @@ describe('UsersService', () => {
   it('should call createUsersGroup', () => {
     let isSubscribeCalled = false;
 
-    service.createUsersGroup('12345678', 'Managers').subscribe(res => {
+    service.createUsersGroup('12345678', 'Managers').subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Group of users has been created.');
       isSubscribeCalled = true;
     });
@@ -286,7 +286,7 @@ describe('UsersService', () => {
   it('should call updatePermission and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.updatePermission('12345678', permissionsApp).subscribe(res => {
+    service.updatePermission('12345678', permissionsApp).subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Permissions have been updated successfully.');
       isSubscribeCalled = true;
     });
@@ -313,7 +313,7 @@ describe('UsersService', () => {
   it('should call addGroupUser and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.addGroupUser('group12345678', 'eric.cartman@south.park').subscribe(res => {
+    service.addGroupUser('group12345678', 'eric.cartman@south.park').subscribe(_res => {
       // expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('User has been added to group.');
       isSubscribeCalled = true;
     });
@@ -348,7 +348,7 @@ describe('UsersService', () => {
       "affected": 1
     }
 
-    service.deleteUsersGroup('group12345678').subscribe(res => {
+    service.deleteUsersGroup('group12345678').subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Group has been removed.');
       isSubscribeCalled = true;
     });
@@ -379,7 +379,7 @@ describe('UsersService', () => {
       "affected": 1
     }
 
-    service.deleteGroupUser('eric.cartman@south.park', 'group12345678').subscribe(res => {
+    service.deleteGroupUser('eric.cartman@south.park', 'group12345678').subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('User has been removed from group.');
       isSubscribeCalled = true;
     });

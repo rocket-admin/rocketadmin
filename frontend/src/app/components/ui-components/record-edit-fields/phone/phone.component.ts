@@ -1,4 +1,4 @@
-import { AsYouType, CountryCode as LibPhoneCountryCode, getCountries, getCountryCallingCode, parsePhoneNumber } from 'libphonenumber-js';
+import { AsYouType, CountryCode as LibPhoneCountryCode, parsePhoneNumber } from 'libphonenumber-js';
 import { Component, Injectable, Input, OnInit } from '@angular/core';
 import { Observable, map, startWith } from 'rxjs';
 
@@ -299,7 +299,7 @@ export class PhoneEditComponent extends BaseEditFieldComponent implements OnInit
   }
 
   configureFromWidgetParams(): void {
-    if (this.widgetStructure && this.widgetStructure.widget_params) {
+    if (this.widgetStructure?.widget_params) {
       const params = this.widgetStructure.widget_params;
       
       if (params.preferred_countries && Array.isArray(params.preferred_countries)) {
@@ -333,7 +333,7 @@ export class PhoneEditComponent extends BaseEditFieldComponent implements OnInit
     try {
       // First try to parse as international number
       phoneNumber = parsePhoneNumber(fullNumber);
-    } catch (error) {
+    } catch (_error) {
       // Will try with default country below
     }
     
@@ -347,7 +347,7 @@ export class PhoneEditComponent extends BaseEditFieldComponent implements OnInit
       }
     }
     
-    if (phoneNumber && phoneNumber.country) {
+    if (phoneNumber?.country) {
       // Find the country in our list - exact match by country code
       const country = this.countries.find(c => c.code === phoneNumber.country);
       if (country) {
@@ -463,7 +463,7 @@ export class PhoneEditComponent extends BaseEditFieldComponent implements OnInit
 
     try {
       const phoneNumber = parsePhoneNumber(this.displayPhoneNumber);
-      if (phoneNumber && phoneNumber.country) {
+      if (phoneNumber?.country) {
         const detectedCountry = this.countries.find(c => c.code === phoneNumber.country);
         if (detectedCountry) {
           this.selectedCountry = detectedCountry;
@@ -502,7 +502,7 @@ export class PhoneEditComponent extends BaseEditFieldComponent implements OnInit
         phoneNumber = parsePhoneNumber(this.displayPhoneNumber, this.selectedCountry.code as LibPhoneCountryCode);
       }
       
-      if (phoneNumber && phoneNumber.isValid()) {
+      if (phoneNumber?.isValid()) {
         // Store in international format without spaces (E164)
         this.value = phoneNumber.number; // E164 format: +380671111111
       } else {
@@ -702,7 +702,7 @@ export class PhoneEditComponent extends BaseEditFieldComponent implements OnInit
       }
 
       return phoneNumber ? phoneNumber.isValid() : false;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

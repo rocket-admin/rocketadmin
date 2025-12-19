@@ -29,7 +29,7 @@ export class Logger {
     newRecord.operationType = operationType ? operationType : undefined;
     newRecord.operationStatusResult = operationStatusResult ? operationStatusResult : undefined;
     newRecord.old_data = oldData ? oldData : undefined;
-    this.printLogRecord(newRecord);
+    Logger.printLogRecord(newRecord);
   }
 
   private static printLogRecord(createLogRecordDto: CreateLogRecordDto): void {
@@ -44,8 +44,8 @@ export class Logger {
       old_data: createLogRecordDto.old_data,
        
     };
-    this.logger.info(log);
-    this.writeLogToFile(log);
+    Logger.logger.info(log);
+    Logger.writeLogToFile(log);
   }
 
   private static writeLogToFile(log): void {

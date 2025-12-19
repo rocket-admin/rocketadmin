@@ -1,4 +1,4 @@
-import * as validator from 'validator';
+
 
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from '@angular/forms';
 import { Directive, Input } from '@angular/core';

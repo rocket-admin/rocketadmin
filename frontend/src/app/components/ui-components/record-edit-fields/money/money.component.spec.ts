@@ -78,7 +78,7 @@ describe('MoneyEditComponent', () => {
 
   it('should format amount with correct decimal places', () => {
     component.decimalPlaces = 2;
-    const formatted = component['formatAmount'](123.456);
+    const formatted = component.formatAmount(123.456);
     expect(formatted).toBe('123.46');
   });
 
@@ -139,7 +139,7 @@ describe('MoneyEditComponent', () => {
     
     component.onAmountChange();
     
-    // @ts-ignore
+    // @ts-expect-error
     expect(component.amount).toBe('');
     expect(component.displayAmount).toBe('');
   });
@@ -215,7 +215,7 @@ describe('MoneyEditComponent', () => {
     component.amount = '';
     spyOn(component.onFieldChange, 'emit');
     
-    component['updateValue']();
+    component.updateValue();
     
     expect(component.onFieldChange.emit).toHaveBeenCalledWith('');
   });

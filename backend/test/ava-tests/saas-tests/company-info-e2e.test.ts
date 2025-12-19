@@ -31,9 +31,9 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const mockFactory = new MockFactory();
+const _mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest: string;
 
 test.before(async () => {
@@ -42,7 +42,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -89,10 +89,10 @@ test.serial(`${currentTest} should return found company info for user`, async (t
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(Object.keys(foundCompanyInfoRO).length, 10);
-    t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'createdAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'updatedAt'), true);
   } catch (error) {
     console.error(error);
   }
@@ -121,35 +121,35 @@ test.serial(`${currentTest} should return full found company info for company ad
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'createdAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'updatedAt'), true);
     t.is(Object.keys(foundCompanyInfoRO).length, 15);
-    t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'invitations'), true);
     t.is(foundCompanyInfoRO.invitations.length, 0);
     t.is(Object.keys(foundCompanyInfoRO.connections[0]).length, 7);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('title'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('updatedAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('author'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('groups'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'title'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'createdAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'updatedAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'author'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'groups'), true);
     t.is(foundCompanyInfoRO.connections[0].groups.length > 0, true);
     t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0]).length, 4);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('title'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('isMain'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('users'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'title'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'isMain'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'users'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
     t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 9);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('email'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('role'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('password'), false);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'email'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'role'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'createdAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'password'), false);
   } catch (error) {
     console.error(error);
     throw error;
@@ -178,10 +178,10 @@ test.serial(`${currentTest} should return found company info for non-admin user`
 
     t.is(foundCompanyInfo.status, 200);
     t.is(Object.keys(foundCompanyInfoRO).length, 10);
-    t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'createdAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'updatedAt'), true);
   } catch (error) {
     console.error(error);
     throw error;
@@ -212,9 +212,9 @@ test.serial(`${currentTest} should return found company infos for admin user`, a
     t.is(foundCompanyInfo.status, 200);
     t.is(Array.isArray(foundCompanyInfoRO), true);
     t.is(foundCompanyInfoRO.length, 1);
-    t.is(foundCompanyInfoRO[0].hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO[0], 'id'), true);
     t.is(Object.keys(foundCompanyInfoRO[0]).length, 2);
-    t.is(foundCompanyInfoRO[0].hasOwnProperty('name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO[0], 'name'), true);
   } catch (error) {
     console.error(error);
     throw error;
@@ -244,7 +244,7 @@ test.serial(`${currentTest} should return found company infos for non-admin user
     t.is(Array.isArray(foundCompanyInfoRO), true);
     t.is(foundCompanyInfoRO.length, 1);
     t.is(Object.keys(foundCompanyInfoRO[0]).length, 2);
-    t.is(foundCompanyInfoRO[0].hasOwnProperty('name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO[0], 'name'), true);
   } catch (error) {
     console.error(error);
     throw error;
@@ -275,8 +275,8 @@ test.serial(`${currentTest} should remove user from company`, async (t) => {
 
     t.is(foundCompanyInfo.status, 200);
 
-    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
-    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const allGroupsInResult = foundCompanyInfoRO.connections.flatMap((connection) => connection.groups);
+    const allUsersInResult = allGroupsInResult.flatMap((group) => group.users);
     const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail.toLowerCase());
 
     t.is(foundSimpleUserInResult.email, simpleUserEmail.toLowerCase());
@@ -301,9 +301,8 @@ test.serial(`${currentTest} should remove user from company`, async (t) => {
     const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
 
     const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
-      .map((connection) => connection.groups)
-      .flat();
-    const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
+      .flatMap((connection) => connection.groups);
+    const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.flatMap((group) => group.users);
     const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
       (user) => user.email === simpleUserEmail,
     );
@@ -340,8 +339,8 @@ test.serial(
 
       t.is(foundCompanyInfo.status, 200);
 
-      const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
-      const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+      const allGroupsInResult = foundCompanyInfoRO.connections.flatMap((connection) => connection.groups);
+      const allUsersInResult = allGroupsInResult.flatMap((group) => group.users);
       const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail.toLowerCase());
 
       t.is(foundSimpleUserInResult.email, simpleUserEmail.toLowerCase());
@@ -366,9 +365,8 @@ test.serial(
       const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
 
       const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
-        .map((connection) => connection.groups)
-        .flat();
-      const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
+        .flatMap((connection) => connection.groups);
+      const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.flatMap((group) => group.users);
       const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
         (user) => user.email === simpleUserEmail,
       );
@@ -415,8 +413,8 @@ test.serial(`${currentTest} should revoke user invitation from company`, async (
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(foundCompanyInfoRO.invitations.length, 0);
 
-    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
-    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const allGroupsInResult = foundCompanyInfoRO.connections.flatMap((connection) => connection.groups);
+    const allUsersInResult = allGroupsInResult.flatMap((group) => group.users);
     const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail.toLowerCase());
 
     const removeUserFromCompanyResult = await request(app.getHttpServer())
@@ -498,7 +496,7 @@ test.serial(`${currentTest} should update company name`, async (t) => {
 
   t.is(foundCompanyInfo.status, 200);
   const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-  t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+  t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
 
   const newName = `${faker.company.name()}_${nanoid(5)}`;
   const updateCompanyNameResult = await request(app.getHttpServer())
@@ -519,7 +517,7 @@ test.serial(`${currentTest} should update company name`, async (t) => {
 
   t.is(foundCompanyInfo.status, 200);
   const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
-  t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('name'), true);
+  t.is(Object.hasOwn(foundCompanyInfoROAfterUpdate, 'name'), true);
   t.is(foundCompanyInfoROAfterUpdate.name, newName);
 });
 
@@ -553,7 +551,7 @@ test.serial(`${currentTest} should return company name`, async (t) => {
 
   t.is(foundCompanyName.status, 200);
   const foundCompanyNameRO = JSON.parse(foundCompanyName.text);
-  t.is(foundCompanyNameRO.hasOwnProperty('name'), true);
+  t.is(Object.hasOwn(foundCompanyNameRO, 'name'), true);
   t.is(foundCompanyNameRO.name, foundCompanyInfoRO.name);
   t.pass();
 });
@@ -752,7 +750,7 @@ test.serial(`${currentTest} should enable 2fa for company`, async (t) => {
   t.is(foundCompanyInfo.status, 200);
 
   const foundCompanyRo = JSON.parse(foundCompanyInfo.text);
-  t.is(foundCompanyRo.hasOwnProperty('is2faEnabled'), true);
+  t.is(Object.hasOwn(foundCompanyRo, 'is2faEnabled'), true);
   t.is(foundCompanyRo.is2faEnabled, false);
 
   const requestBody = {
@@ -775,7 +773,7 @@ test.serial(`${currentTest} should enable 2fa for company`, async (t) => {
 
   t.is(foundCompanyInfoAfterUpdate.status, 200);
   const foundCompanyRoAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
-  t.is(foundCompanyRoAfterUpdate.hasOwnProperty('is2faEnabled'), true);
+  t.is(Object.hasOwn(foundCompanyRoAfterUpdate, 'is2faEnabled'), true);
   t.is(foundCompanyRoAfterUpdate.is2faEnabled, true);
 
   // user should not be able to use endpoints that require 2fa after login
@@ -866,7 +864,7 @@ test.serial(
       t.is(user.suspended, false);
     });
 
-    const subscriptionUpgradeResult = await fetch(
+    const _subscriptionUpgradeResult = await fetch(
       `http://rocketadmin-private-microservice:3001/saas/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
       {
         method: 'POST',
@@ -1118,7 +1116,7 @@ test.serial(
       .set('Accept', 'application/json');
 
     t.is(foundCompanyInfo.status, 200);
-    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+    const _foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     const foundUserTestConnectionsInfo = await request(app.getHttpServer())
       .get('/connections')
@@ -1205,7 +1203,7 @@ test.serial(`${currentTest} should create and return found company logo after cr
     .set('Cookie', adminUserToken)
     .set('Accept', 'image/png');
 
-  const createLogoRO = JSON.parse(createLogoResponse.text);
+  const _createLogoRO = JSON.parse(createLogoResponse.text);
   t.is(createLogoResponse.status, 201);
 
   const foundCompanyLogo = await request(app.getHttpServer())
@@ -1251,7 +1249,7 @@ test.serial(`${currentTest} should create and return found company logo after cr
 
   t.is(foundCompanyInfoWithLogo.status, 200);
   const foundCompanyInfoWithLogoRO = JSON.parse(foundCompanyInfoWithLogo.text);
-  t.is(foundCompanyInfoWithLogoRO.hasOwnProperty('logo'), true);
+  t.is(Object.hasOwn(foundCompanyInfoWithLogoRO, 'logo'), true);
   t.is(foundCompanyInfoWithLogoRO.logo.mimeType, 'image/png');
   t.is(foundCompanyInfoWithLogoRO.logo.image.length > 0, true);
 
@@ -1270,7 +1268,7 @@ test.serial(`${currentTest} should create and return found company logo after cr
 
   t.is(foundCompanyInfoWithLogoForSimpleUser.status, 200);
   const foundCompanyInfoWithLogoForSimpleUserRO = JSON.parse(foundCompanyInfoWithLogoForSimpleUser.text);
-  t.is(foundCompanyInfoWithLogoForSimpleUserRO.hasOwnProperty('logo'), true);
+  t.is(Object.hasOwn(foundCompanyInfoWithLogoForSimpleUserRO, 'logo'), true);
   t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.mimeType, 'image/png');
   t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.image.length > 0, true);
 
@@ -1316,7 +1314,7 @@ test.serial(`${currentTest} should create and return found company favicon after
     .set('Cookie', adminUserToken)
     .set('Accept', 'image/png');
 
-  const createFaviconRO = JSON.parse(createFaviconResponse.text);
+  const _createFaviconRO = JSON.parse(createFaviconResponse.text);
   t.is(createFaviconResponse.status, 201);
 
   const foundCompanyFavicon = await request(app.getHttpServer())
@@ -1362,7 +1360,7 @@ test.serial(`${currentTest} should create and return found company favicon after
 
   t.is(foundCompanyInfoWithFavicon.status, 200);
   const foundCompanyInfoWithFaviconRO = JSON.parse(foundCompanyInfoWithFavicon.text);
-  t.is(foundCompanyInfoWithFaviconRO.hasOwnProperty('favicon'), true);
+  t.is(Object.hasOwn(foundCompanyInfoWithFaviconRO, 'favicon'), true);
   t.is(foundCompanyInfoWithFaviconRO.favicon.mimeType, 'image/png');
   t.is(foundCompanyInfoWithFaviconRO.favicon.image.length > 0, true);
 
@@ -1384,7 +1382,7 @@ test.serial(`${currentTest} should create and return found company favicon after
 
   t.is(foundCompanyInfoWithFaviconForSimpleUser.status, 200);
   const foundCompanyInfoWithFaviconForSimpleUserRO = JSON.parse(foundCompanyInfoWithFaviconForSimpleUser.text);
-  t.is(foundCompanyInfoWithFaviconForSimpleUserRO.hasOwnProperty('favicon'), true);
+  t.is(Object.hasOwn(foundCompanyInfoWithFaviconForSimpleUserRO, 'favicon'), true);
   t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
   t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image.length > 0, true);
 
@@ -1443,7 +1441,7 @@ test.serial(`${currentTest} should create and return found company tab title aft
 
   t.is(foundCompanyInfoAfterUpdate.status, 200);
   const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
-  t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('tab_title'), true);
+  t.is(Object.hasOwn(foundCompanyInfoROAfterUpdate, 'tab_title'), true);
   t.is(foundCompanyInfoROAfterUpdate.tab_title, newTabTitle);
 
   const foundCompanyTabTitle = await request(app.getHttpServer())
@@ -1454,7 +1452,7 @@ test.serial(`${currentTest} should create and return found company tab title aft
 
   t.is(foundCompanyTabTitle.status, 200);
   const foundCompanyTabTitleRO = JSON.parse(foundCompanyTabTitle.text);
-  t.is(foundCompanyTabTitleRO.hasOwnProperty('tab_title'), true);
+  t.is(Object.hasOwn(foundCompanyTabTitleRO, 'tab_title'), true);
   t.is(foundCompanyTabTitleRO.tab_title, newTabTitle);
 
   //should return tab title in full company info for simple user
@@ -1467,7 +1465,7 @@ test.serial(`${currentTest} should create and return found company tab title aft
 
   t.is(foundCompanyTabTitleForSimpleUser.status, 200);
   const foundCompanyTabTitleForSimpleUserRO = JSON.parse(foundCompanyTabTitleForSimpleUser.text);
-  t.is(foundCompanyTabTitleForSimpleUserRO.hasOwnProperty('tab_title'), true);
+  t.is(Object.hasOwn(foundCompanyTabTitleForSimpleUserRO, 'tab_title'), true);
   t.is(foundCompanyTabTitleForSimpleUserRO.tab_title, newTabTitle);
 });
 
@@ -1495,7 +1493,7 @@ test.serial(`${currentTest} should return found company white label properties f
 
   // crete company logo
   const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-  const downloadedLogoPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_logo.png`);
+  const _downloadedLogoPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_logo.png`);
 
   const createLogoResponse = await request(app.getHttpServer())
     .post(`/company/logo/${foundCompanyInfoRO.id}`)
@@ -1504,12 +1502,12 @@ test.serial(`${currentTest} should return found company white label properties f
     .set('Cookie', adminUserToken)
     .set('Accept', 'image/png');
 
-  const createLogoRO = JSON.parse(createLogoResponse.text);
+  const _createLogoRO = JSON.parse(createLogoResponse.text);
   t.is(createLogoResponse.status, 201);
 
   // crete company favicon
   const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-  const downloadedFaviconPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_favicon.png`);
+  const _downloadedFaviconPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_favicon.png`);
 
   const createFaviconResponse = await request(app.getHttpServer())
     .post(`/company/favicon/${foundCompanyInfoRO.id}`)
@@ -1518,7 +1516,7 @@ test.serial(`${currentTest} should return found company white label properties f
     .set('Cookie', adminUserToken)
     .set('Accept', 'image/png');
 
-  const createFaviconRO = JSON.parse(createFaviconResponse.text);
+  const _createFaviconRO = JSON.parse(createFaviconResponse.text);
   t.is(createFaviconResponse.status, 201);
 
   // crete company tab title
@@ -1544,9 +1542,9 @@ test.serial(`${currentTest} should return found company white label properties f
 
   t.is(foundCompanyWhiteLabelProperties.status, 200);
   const foundCompanyWhiteLabelPropertiesRO = JSON.parse(foundCompanyWhiteLabelProperties.text);
-  t.is(foundCompanyWhiteLabelPropertiesRO.hasOwnProperty('logo'), true);
-  t.is(foundCompanyWhiteLabelPropertiesRO.hasOwnProperty('favicon'), true);
-  t.is(foundCompanyWhiteLabelPropertiesRO.hasOwnProperty('tab_title'), true);
+  t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesRO, 'logo'), true);
+  t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesRO, 'favicon'), true);
+  t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesRO, 'tab_title'), true);
   t.is(foundCompanyWhiteLabelPropertiesRO.logo.mimeType, 'image/png');
   t.is(foundCompanyWhiteLabelPropertiesRO.logo.image.length > 0, true);
   t.is(foundCompanyWhiteLabelPropertiesRO.favicon.mimeType, 'image/png');
@@ -1565,9 +1563,9 @@ test.serial(`${currentTest} should return found company white label properties f
   const foundCompanyWhiteLabelPropertiesForSimpleUserRO = JSON.parse(
     foundCompanyWhiteLabelPropertiesForSimpleUser.text,
   );
-  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.hasOwnProperty('logo'), true);
-  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.hasOwnProperty('favicon'), true);
-  t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.hasOwnProperty('tab_title'), true);
+  t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesForSimpleUserRO, 'logo'), true);
+  t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesForSimpleUserRO, 'favicon'), true);
+  t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesForSimpleUserRO, 'tab_title'), true);
   t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.logo.mimeType, 'image/png');
   t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.logo.image.length > 0, true);
   t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.favicon.mimeType, 'image/png');

@@ -36,14 +36,14 @@ export class DbTableImportDialogComponent {
 
   importCSV() {
     this.submitting = true;
-    this._tables.importTableCSV(this.data.connectionID, this.data.tableName, this.file).subscribe(res => {
+    this._tables.importTableCSV(this.data.connectionID, this.data.tableName, this.file).subscribe(_res => {
       this.dialogRef.close();
       this.submitting = false;
       this.angulartics2.eventTrack.next({
         action: 'Dashboard: db import is successful',
       });
     },
-    err => {this.submitting = false; },
+    _err => {this.submitting = false; },
     () => { this.submitting = false; }
     );
   }

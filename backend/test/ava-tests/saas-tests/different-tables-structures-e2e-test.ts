@@ -8,23 +8,17 @@ import test from 'ava';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
-import { Messages } from '../../../src/exceptions/text/messages.js';
-import { Constants } from '../../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
-import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { join } from 'path';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { clearAllTestKnex, getTestKnex } from '../../utils/get-test-knex.js';
 import { Knex } from 'knex';
@@ -35,9 +29,9 @@ const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
-const testSearchedUserName = 'Vasia';
-const testTables: Array<string> = [];
+let _testUtils: TestUtils;
+const _testSearchedUserName = 'Vasia';
+const _testTables: Array<string> = [];
 let currentTest;
 
 test.before(async () => {
@@ -46,7 +40,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -204,14 +198,14 @@ test.serial(`${currentTest} should return list of rows of the tables`, async (t)
 
     const foundRowsFromUsersTableRO = JSON.parse(foundRowsFromUsersTableResponse.text);
     t.is(typeof foundRowsFromUsersTableRO, 'object');
-    t.is(foundRowsFromUsersTableRO.hasOwnProperty('rows'), true);
-    t.is(foundRowsFromUsersTableRO.hasOwnProperty('primaryColumns'), true);
-    t.is(foundRowsFromUsersTableRO.hasOwnProperty('pagination'), true);
+    t.is(Object.hasOwn(foundRowsFromUsersTableRO, 'rows'), true);
+    t.is(Object.hasOwn(foundRowsFromUsersTableRO, 'primaryColumns'), true);
+    t.is(Object.hasOwn(foundRowsFromUsersTableRO, 'pagination'), true);
     t.is(foundRowsFromUsersTableRO.rows.length, 500);
     t.is(Object.keys(foundRowsFromUsersTableRO.rows[1]).length, 4);
-    t.is(foundRowsFromUsersTableRO.rows[0].hasOwnProperty('userid'), true);
-    t.is(foundRowsFromUsersTableRO.rows[1].hasOwnProperty('username'), true);
-    t.is(foundRowsFromUsersTableRO.rows[2].hasOwnProperty('created_at'), true);
+    t.is(Object.hasOwn(foundRowsFromUsersTableRO.rows[0], 'userid'), true);
+    t.is(Object.hasOwn(foundRowsFromUsersTableRO.rows[1], 'username'), true);
+    t.is(Object.hasOwn(foundRowsFromUsersTableRO.rows[2], 'created_at'), true);
 
     const foundRowsFromTransactionsTableResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTransactionsTableName}&page=1&perPage=500`)
@@ -221,24 +215,24 @@ test.serial(`${currentTest} should return list of rows of the tables`, async (t)
 
     const foundRowsFromTransactionsTableRO = JSON.parse(foundRowsFromTransactionsTableResponse.text);
     t.is(typeof foundRowsFromTransactionsTableRO, 'object');
-    t.is(foundRowsFromTransactionsTableRO.hasOwnProperty('rows'), true);
-    t.is(foundRowsFromTransactionsTableRO.hasOwnProperty('primaryColumns'), true);
-    t.is(foundRowsFromTransactionsTableRO.hasOwnProperty('pagination'), true);
+    t.is(Object.hasOwn(foundRowsFromTransactionsTableRO, 'rows'), true);
+    t.is(Object.hasOwn(foundRowsFromTransactionsTableRO, 'primaryColumns'), true);
+    t.is(Object.hasOwn(foundRowsFromTransactionsTableRO, 'pagination'), true);
     t.is(foundRowsFromTransactionsTableRO.rows.length, 500);
     t.is(Object.keys(foundRowsFromTransactionsTableRO.rows[1]).length, 7);
-    t.is(foundRowsFromTransactionsTableRO.rows[0].hasOwnProperty('buyerid'), true);
-    t.is(foundRowsFromTransactionsTableRO.rows[1].hasOwnProperty('reviewerid'), true);
-    t.is(foundRowsFromTransactionsTableRO.rows[2].hasOwnProperty('transaction_date'), true);
+    t.is(Object.hasOwn(foundRowsFromTransactionsTableRO.rows[0], 'buyerid'), true);
+    t.is(Object.hasOwn(foundRowsFromTransactionsTableRO.rows[1], 'reviewerid'), true);
+    t.is(Object.hasOwn(foundRowsFromTransactionsTableRO.rows[2], 'transaction_date'), true);
 
     for (const row of foundRowsFromTransactionsTableRO.rows) {
-      t.is(row.hasOwnProperty('buyerid'), true);
+      t.is(Object.hasOwn(row, 'buyerid'), true);
       const buyerId = row.buyerid;
       t.is(typeof buyerId, 'object');
-      t.is(buyerId.hasOwnProperty('userid'), true);
+      t.is(Object.hasOwn(buyerId, 'userid'), true);
       t.is(typeof buyerId.userid, 'number');
       const reviewerId = row.reviewerid;
       t.is(typeof reviewerId, 'object');
-      t.is(reviewerId.hasOwnProperty('userid'), true);
+      t.is(Object.hasOwn(reviewerId, 'userid'), true);
       t.is(typeof reviewerId.userid, 'number');
     }
   } catch (error) {

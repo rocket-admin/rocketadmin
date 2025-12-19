@@ -45,7 +45,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<number | Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -81,7 +81,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -119,7 +119,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -158,7 +158,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -200,7 +200,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -243,7 +243,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<FoundRowsDS> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -281,7 +281,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 
   public async getTableForeignKeys(tableName: string, userEmail: string): Promise<ForeignKeyDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     const cachedForeignKeys = LRUStorage.getTableForeignKeysCache(this.connection, tableName);
     if (cachedForeignKeys) {
@@ -318,7 +318,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 
   public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<PrimaryKeyDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     const cachedPrimaryColumns = LRUStorage.getTablePrimaryKeysCache(this.connection, tableName);
     if (cachedPrimaryColumns) {
@@ -355,7 +355,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 
   public async getTablesFromDB(userEmail: string): Promise<TableDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -385,7 +385,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 
   public async getTableStructure(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
     if (cachedTableStructure) {
@@ -422,7 +422,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 
   public async testConnect(userEmail: string = 'unknown'): Promise<TestConnectionResultDS> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -453,7 +453,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -491,7 +491,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -528,7 +528,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<number> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -564,7 +564,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<string[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -599,7 +599,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -630,7 +630,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 
   public async isView(tableName: string, userEmail: string): Promise<boolean> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -668,7 +668,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<never>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -703,7 +703,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -740,7 +740,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
     return this.executeWithRetry(async () => {
       try {
@@ -930,7 +930,6 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
             row[column] = date.toISOString();
           }
         } catch (_error) {
-          continue;
         }
       }
     }

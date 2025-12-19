@@ -8,7 +8,6 @@ import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PasswordChangeComponent } from './password-change.component';
 import { Router } from '@angular/router';
-import { RouterTestingModule } from "@angular/router/testing";
 import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
@@ -57,7 +56,7 @@ describe('PasswordChangeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('should change password', async (done) => {
+  xit('should change password', async (_done) => {
     component.oldPassword = 'hH12345678';
     component.newPassword = '12345678hH';
     component.currentUser = {

@@ -279,13 +279,6 @@ export class SharedJobsService {
     return urlRegex.test(value) && ValidationHelper.isValidUrl(value);
   }
 
-  private isValueJSON(value: unknown): boolean {
-    if (typeof value !== 'string') {
-      return false;
-    }
-    return ValidationHelper.isValidJSON(value);
-  }
-
   private isValueCountryCode(value: unknown): boolean {
     if (typeof value !== 'string') {
       return false;

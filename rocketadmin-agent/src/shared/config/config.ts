@@ -52,7 +52,7 @@ export class Config {
 
     if (config.ssl && rewrite) {
       try {
-        connectionConfig.cert = await this.readSslSertificate();
+        connectionConfig.cert = await Config.readSslSertificate();
         console.log('-> SSL certificate loaded from file');
       } catch (e) {
         console.log('-> Failed to load SSL certificate' + e);
@@ -182,7 +182,7 @@ export class Config {
       ssl: process.env.CONNECTION_SSL === '1',
       cert: process.env.CONNECTION_SSL_SERTIFICATE,
       token: process.env.CONNECTION_TOKEN,
-      app_port: parseInt(process.env.APP_PORT) || 3000,
+      app_port: parseInt(process.env.APP_PORT, 10) || 3000,
       azure_encryption: process.env.CONNECTION_AZURE_ENCRYPTION === '1',
       application_save_option: false,
       config_encryption_option: false,

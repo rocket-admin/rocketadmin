@@ -60,8 +60,8 @@ export class SignInAuditController {
       companyId,
       query: {
         order: query.order,
-        page: parseInt(query.page) || 1,
-        perPage: parseInt(query.perPage) || 50,
+        page: parseInt(query.page, 10) || 1,
+        perPage: parseInt(query.perPage, 10) || 50,
         dateFrom: query.dateFrom,
         dateTo: query.dateTo,
         email: query.email,

@@ -6,7 +6,7 @@ import { extractTokenFromHeader } from './utils/extract-token-from-header.js';
 
 @Injectable()
 export class SaaSAuthMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: (err?: any, res?: any) => void): void {
+  use(req: Request, _res: Response, next: (err?: any, res?: any) => void): void {
     console.log(`saas auth middleware triggered ->: ${new Date().toISOString()}`);
     const token = extractTokenFromHeader(req);
     if (!token) {
@@ -15,13 +15,13 @@ export class SaaSAuthMiddleware implements NestMiddleware {
     try {
       const jwtSecret = process.env.MICROSERVICE_JWT_SECRET;
       const data = jwt.verify(token, jwtSecret);
-      const requestId = data['request_id'];
+      const requestId = data.request_id;
 
       if (!requestId) {
         throw new UnauthorizedException(Messages.AUTHORIZATION_REJECTED);
       }
 
-      req['decoded'] = data;
+      req.decoded = data;
       next();
     } catch (_e) {
       throw new UnauthorizedException(Messages.AUTHORIZATION_REJECTED);

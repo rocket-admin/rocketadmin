@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
-// @ts-ignore
+// @ts-expect-error
 export class TestUtils {
   databaseService: DatabaseService;
   schedulerRegistry: SchedulerRegistry;
@@ -56,10 +56,10 @@ export class TestUtils {
     const jwtSecret = process.env.JWT_SECRET;
     const data = jwt.verify(tokenValue, jwtSecret);
     return {
-      sub: data['id'],
-      email: data['email'],
-      exp: data['exp'],
-      iat: data['iat'],
+      sub: data.id,
+      email: data.email,
+      exp: data.exp,
+      iat: data.iat,
     };
   }
 
@@ -85,14 +85,6 @@ export class TestUtils {
       //await this.addMockEntities();
     } catch (e) {
       console.log('reset db error ->', e);
-    }
-  }
-
-  private async cleanAll() {
-    try {
-      await this.databaseService.dropDatabase();
-    } catch (error) {
-      throw new Error(`ERROR: Cleaning test db: ${error}`);
     }
   }
 

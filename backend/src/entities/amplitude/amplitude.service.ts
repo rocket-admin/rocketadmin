@@ -19,7 +19,7 @@ export class AmplitudeService {
       if (!user_email && options) {
         user_email = options?.user_email;
       }
-      let event_properties = undefined;
+      let event_properties ;
       if (user_email) {
         event_properties = {
           user_properties: {

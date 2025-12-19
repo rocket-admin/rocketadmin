@@ -26,7 +26,7 @@ export class GroupEditGuard implements CanActivate {
       const cognitoUserName = request.decoded.sub;
       let groupId: string = request.params?.groupId || request.params?.slug;
       if (!groupId || !validateUuidByRegex(groupId)) {
-        groupId = request.body['groupId'];
+        groupId = request.body.groupId;
       }
       if (!groupId || !validateUuidByRegex(groupId)) {
         reject(new BadRequestException(Messages.GROUP_ID_MISSING));

@@ -231,7 +231,7 @@ export class DbTableViewComponent implements OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.name && changes.name.currentValue && this.paginator) {
+    if (changes.name?.currentValue && this.paginator) {
       this.paginator.pageIndex = 0;
       this.searchString = '';
     }
@@ -319,15 +319,15 @@ export class DbTableViewComponent implements OnInit {
     const displayedName = normalizeTableName(activeFilter.key);
     const comparator = Object.keys(activeFilter.value)[0];
     const filterValue = Object.values(activeFilter.value)[0];
-    if (comparator == 'startswith') {
+    if (comparator === 'startswith') {
       return `${displayedName} = ${filterValue}...`
-    } else if (comparator == 'endswith') {
+    } else if (comparator === 'endswith') {
       return `${displayedName} = ...${filterValue}`
-    } else if (comparator == 'contains') {
+    } else if (comparator === 'contains') {
       return `${displayedName} = ...${filterValue}...`
-    } else if (comparator == 'icontains') {
+    } else if (comparator === 'icontains') {
       return `${displayedName} != ...${filterValue}...`
-    } else if (comparator == 'empty') {
+    } else if (comparator === 'empty') {
       return `${displayedName} = ' '`
     } else {
       return `${displayedName} ${this.displayedComparators[Object.keys(activeFilter.value)[0]]} ${filterValue}`
@@ -514,7 +514,7 @@ export class DbTableViewComponent implements OnInit {
     this._notifications.showSuccessSnackbar(message);
   }
 
-  switchTable(e) {
+  switchTable(_e) {
 
   }
 
@@ -534,7 +534,7 @@ export class DbTableViewComponent implements OnInit {
       if (typeof value === 'object') {
         try {
           value = JSON.stringify(value);
-        } catch (e) {
+        } catch (_e) {
           value = '[Object]';
         }
       }

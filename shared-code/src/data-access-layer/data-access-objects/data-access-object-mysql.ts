@@ -5,7 +5,6 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { getPropertyValueByDescriptor } from '../../helpers/get-property-value-by-descriptor.js';
 import { setPropertyValue } from '../../helpers/set-property-value.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -31,9 +30,6 @@ import { isMySqlDateOrTimeType, isMySQLDateStringByRegexp } from '../../helpers/
 import { nanoid } from 'nanoid';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
   public async addRowInTable(
     tableName: string,
     row: Record<string, unknown>,
@@ -240,7 +236,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         return builder;
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields?.length) {
+        if (filteringFields?.length) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
             const operators = {
@@ -675,8 +671,6 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     for await (const record of parser) {
       results.push(record);
     }
-
-    try {
       await knex.transaction(async (trx) => {
         for (const row of results) {
           for (const column of timestampColumnNames) {
@@ -690,9 +684,6 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           await trx(tableName).insert(row);
         }
       });
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
@@ -761,7 +752,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     databaseName: string,
   ): Promise<number | null> {
     const fastCount = parseInt(
-      (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [databaseName, tableName]))[0][0].Rows,
+      (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [databaseName, tableName]))[0][0].Rows, 10
     );
     return fastCount;
   }

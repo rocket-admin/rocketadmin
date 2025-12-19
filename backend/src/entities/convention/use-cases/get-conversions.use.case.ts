@@ -22,17 +22,17 @@ export class GetConversionsUseCase extends AbstractUseCase<void, string> impleme
 
     for (const user of freshUsers) {
       conversionsArray.push({
-        ['Google Click ID']: user.gclid,
-        ['Conversion Name']: 'Registration',
-        ['Conversion Time']: user.createdAt,
+        "Google Click ID": user.gclid,
+        "Conversion Name": 'Registration',
+        "Conversion Time": user.createdAt,
       });
     }
 
     for (const connection of workedFreshConnections) {
       conversionsArray.push({
-        ['Google Click ID']: connection.author.gclid,
-        ['Conversion Name']: 'Connection added',
-        ['Conversion Time']: connection.createdAt,
+        "Google Click ID": connection.author.gclid,
+        "Conversion Name": 'Connection added',
+        "Conversion Time": connection.createdAt,
       });
     }
 

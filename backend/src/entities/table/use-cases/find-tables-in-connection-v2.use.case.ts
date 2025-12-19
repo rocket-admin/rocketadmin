@@ -250,7 +250,7 @@ export class FindTablesInConnectionV2UseCase
 
   private async saveTableInfoInDatabase(
     connectionId: string,
-    userId: string,
+    _userId: string,
     tables: Array<TableDS>,
     masterPwd: string,
   ): Promise<void> {

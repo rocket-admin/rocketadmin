@@ -3,7 +3,7 @@ import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
-export const UserId = createParamDecorator((data: any, ctx: ExecutionContext): string => {
+export const UserId = createParamDecorator((_data: any, ctx: ExecutionContext): string => {
   const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
   const userId = request.decoded?.sub;
   if (!userId) {

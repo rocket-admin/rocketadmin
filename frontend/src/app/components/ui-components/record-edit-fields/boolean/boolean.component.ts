@@ -1,9 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, } from '@angular/core';
 
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { DBtype } from 'src/app/models/connection';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
@@ -17,7 +16,6 @@ export class BooleanEditComponent extends BaseEditFieldComponent {
   @Input() value: boolean | number | string | null;
 
   public isRadiogroup: boolean;
-  private connectionType: DBtype;
 
   constructor(
     private _connections: ConnectionsService,

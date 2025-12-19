@@ -1,4 +1,4 @@
-import { LANGUAGES, getLanguageFlag, Language } from '../../../../consts/languages';
+import { LANGUAGES, getLanguageFlag, } from '../../../../consts/languages';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, Input } from '@angular/core';
 import { map, startWith } from 'rxjs/operators';
 
@@ -84,8 +84,8 @@ export class LanguageEditComponent extends BaseEditFieldComponent {
     const filterValue = value.toLowerCase();
     return this.languages.filter(language =>
       language.label?.toLowerCase().includes(filterValue) ||
-      (language.value && language.value.toLowerCase().includes(filterValue)) ||
-      (language.nativeName && language.nativeName.toLowerCase().includes(filterValue))
+      (language.value?.toLowerCase().includes(filterValue)) ||
+      (language.nativeName?.toLowerCase().includes(filterValue))
     );
   }
 

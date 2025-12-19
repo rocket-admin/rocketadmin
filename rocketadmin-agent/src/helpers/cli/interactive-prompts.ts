@@ -99,7 +99,7 @@ export class InteractivePrompts {
         message: chalk.cyan('Enter database port:'),
         default: defaultPort,
         validate: (input: number) => {
-          if (isNaN(input) || input < 1 || input > 65535) {
+          if (Number.isNaN(input) || input < 1 || input > 65535) {
             return chalk.red('Port must be a number between 1 and 65535');
           }
           return true;
@@ -325,7 +325,7 @@ export class InteractivePrompts {
   }
 
   static async runInteractiveSetup(): Promise<ICLIConnectionCredentials> {
-    this.displayWelcome();
+    InteractivePrompts.displayWelcome();
 
     const credentials: ICLIConnectionCredentials = {
       app_port: 3000,
@@ -349,35 +349,35 @@ export class InteractivePrompts {
       authSource: null,
     };
 
-    credentials.token = await this.askConnectionToken();
-    credentials.type = await this.askConnectionType();
-    credentials.host = await this.askConnectionHost();
-    credentials.port = await this.askConnectionPort(credentials.type as ConnectionTypesEnum);
+    credentials.token = await InteractivePrompts.askConnectionToken();
+    credentials.type = await InteractivePrompts.askConnectionType();
+    credentials.host = await InteractivePrompts.askConnectionHost();
+    credentials.port = await InteractivePrompts.askConnectionPort(credentials.type as ConnectionTypesEnum);
 
     if (credentials.type !== ConnectionTypesEnum.redis) {
-      credentials.username = await this.askConnectionUserName();
+      credentials.username = await InteractivePrompts.askConnectionUserName();
     }
-    credentials.password = await this.askConnectionPassword();
+    credentials.password = await InteractivePrompts.askConnectionPassword();
 
     if (credentials.type !== ConnectionTypesEnum.redis) {
-      credentials.database = await this.askConnectionDatabase();
-      credentials.schema = await this.askConnectionSchema();
+      credentials.database = await InteractivePrompts.askConnectionDatabase();
+      credentials.schema = await InteractivePrompts.askConnectionSchema();
     }
 
     if (credentials.type === ConnectionTypesEnum.oracledb) {
-      credentials.sid = await this.askConnectionSid();
+      credentials.sid = await InteractivePrompts.askConnectionSid();
     }
     if (credentials.type === ConnectionTypesEnum.mssql) {
-      credentials.azure_encryption = await this.askConnectionAzureEncryption();
+      credentials.azure_encryption = await InteractivePrompts.askConnectionAzureEncryption();
     }
     if (credentials.type === ConnectionTypesEnum.cassandra) {
-      credentials.dataCenter = await this.askConnectionDataCenter();
+      credentials.dataCenter = await InteractivePrompts.askConnectionDataCenter();
     }
     if (credentials.type === ConnectionTypesEnum.mongodb) {
-      credentials.authSource = await this.askConnectionAuthSource();
+      credentials.authSource = await InteractivePrompts.askConnectionAuthSource();
     }
 
-    credentials.ssl = await this.askConnectionSslOption();
+    credentials.ssl = await InteractivePrompts.askConnectionSslOption();
 
     console.log('');
     console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
@@ -385,16 +385,16 @@ export class InteractivePrompts {
     console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
     console.log('');
 
-    credentials.application_save_option = await this.askApplicationSaveConfig();
+    credentials.application_save_option = await InteractivePrompts.askApplicationSaveConfig();
 
     if (credentials.application_save_option) {
-      credentials.config_encryption_option = await this.askApplicationEncryptConfigOption();
+      credentials.config_encryption_option = await InteractivePrompts.askApplicationEncryptConfigOption();
       if (credentials.config_encryption_option) {
-        credentials.encryption_password = await this.askApplicationEncryptionPassword();
+        credentials.encryption_password = await InteractivePrompts.askApplicationEncryptionPassword();
       }
     }
 
-    credentials.saving_logs_option = await this.askApplicationSaveLogsOption();
+    credentials.saving_logs_option = await InteractivePrompts.askApplicationSaveLogsOption();
 
     console.log('');
     console.log(chalk.green('✓ Configuration complete!'));

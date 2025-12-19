@@ -28,7 +28,7 @@ const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
@@ -39,7 +39,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -101,12 +101,12 @@ test.serial(`${currentTest} create table filters`, async (t) => {
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
 
     t.is(createTableFiltersResponse.status, 201);
-    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'updatedAt'), true);
     t.is(createTableFiltersRO.name, filtersDTO.name);
     t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
   } catch (e) {
@@ -153,12 +153,12 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
 
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
     t.is(createTableFiltersResponse.status, 201);
-    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'updatedAt'), true);
     t.is(createTableFiltersRO.name, filtersDTO.name);
     t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
 
@@ -172,12 +172,12 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
     t.is(Array.isArray(getTableFiltersRO), true);
     t.is(getTableFiltersRO.length, 1);
     getTableFiltersRO.forEach((el) => {
-      t.is(el.hasOwnProperty('id'), true);
-      t.is(el.hasOwnProperty('name'), true);
-      t.is(el.hasOwnProperty('filters'), true);
-      t.is(el.hasOwnProperty('dynamic_column'), true);
-      t.is(el.hasOwnProperty('createdAt'), true);
-      t.is(el.hasOwnProperty('updatedAt'), true);
+      t.is(Object.hasOwn(el, 'id'), true);
+      t.is(Object.hasOwn(el, 'name'), true);
+      t.is(Object.hasOwn(el, 'filters'), true);
+      t.is(Object.hasOwn(el, 'dynamic_column'), true);
+      t.is(Object.hasOwn(el, 'createdAt'), true);
+      t.is(Object.hasOwn(el, 'updatedAt'), true);
       t.is(el.name, filtersDTO.name);
       t.deepEqual(el.filters, filtersDTO.filters);
     });
@@ -241,12 +241,12 @@ test.serial(`${currentTest} should return updated table filters`, async (t) => {
 
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
     t.is(createTableFiltersResponse.status, 201);
-    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'updatedAt'), true);
     t.is(createTableFiltersRO.name, filtersDTO.name);
     t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
 
@@ -260,12 +260,12 @@ test.serial(`${currentTest} should return updated table filters`, async (t) => {
     t.is(Array.isArray(getTableFiltersRO), true);
     t.is(getTableFiltersRO.length, 1);
     getTableFiltersRO.forEach((el) => {
-      t.is(el.hasOwnProperty('id'), true);
-      t.is(el.hasOwnProperty('name'), true);
-      t.is(el.hasOwnProperty('filters'), true);
-      t.is(el.hasOwnProperty('dynamic_column'), true);
-      t.is(el.hasOwnProperty('createdAt'), true);
-      t.is(el.hasOwnProperty('updatedAt'), true);
+      t.is(Object.hasOwn(el, 'id'), true);
+      t.is(Object.hasOwn(el, 'name'), true);
+      t.is(Object.hasOwn(el, 'filters'), true);
+      t.is(Object.hasOwn(el, 'dynamic_column'), true);
+      t.is(Object.hasOwn(el, 'createdAt'), true);
+      t.is(Object.hasOwn(el, 'updatedAt'), true);
       t.is(el.name, filtersDTO.name);
       t.deepEqual(el.filters, filtersDTO.filters);
     });
@@ -280,12 +280,12 @@ test.serial(`${currentTest} should return updated table filters`, async (t) => {
     const updateTableFiltersRO = JSON.parse(updateTableFiltersResponse.text);
 
     t.is(updateTableFiltersResponse.status, 200);
-    t.is(updateTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(updateTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(updateTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(updateTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(updateTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(updateTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(updateTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(updateTableFiltersRO, 'updatedAt'), true);
     t.is(updateTableFiltersRO.name, updatedFiltersDTO.name);
     t.is(updateTableFiltersRO.id, createTableFiltersRO.id);
     t.deepEqual(updateTableFiltersRO.filters, updatedFiltersDTO.filters);
@@ -300,12 +300,12 @@ test.serial(`${currentTest} should return updated table filters`, async (t) => {
     t.is(Array.isArray(getUpdatedTableFiltersRO), true);
     t.is(getUpdatedTableFiltersRO.length, 1);
     getUpdatedTableFiltersRO.forEach((el) => {
-      t.is(el.hasOwnProperty('id'), true);
-      t.is(el.hasOwnProperty('name'), true);
-      t.is(el.hasOwnProperty('filters'), true);
-      t.is(el.hasOwnProperty('dynamic_column'), true);
-      t.is(el.hasOwnProperty('createdAt'), true);
-      t.is(el.hasOwnProperty('updatedAt'), true);
+      t.is(Object.hasOwn(el, 'id'), true);
+      t.is(Object.hasOwn(el, 'name'), true);
+      t.is(Object.hasOwn(el, 'filters'), true);
+      t.is(Object.hasOwn(el, 'dynamic_column'), true);
+      t.is(Object.hasOwn(el, 'createdAt'), true);
+      t.is(Object.hasOwn(el, 'updatedAt'), true);
       t.is(el.name, updatedFiltersDTO.name);
       t.deepEqual(el.filters, updatedFiltersDTO.filters);
     });
@@ -357,12 +357,12 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
 
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
     t.is(createTableFiltersResponse.status, 201);
-    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'updatedAt'), true);
     t.is(createTableFiltersRO.name, filtersDTO.name);
     t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
 
@@ -373,12 +373,12 @@ test.serial(`${currentTest} should return table filters`, async (t) => {
       .set('Accept', 'application/json');
 
     const getTableFiltersRO = JSON.parse(getTableFiltersResponse.text);
-    t.is(getTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(getTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(getTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(getTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(getTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(getTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(getTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(getTableFiltersRO, 'updatedAt'), true);
     t.is(getTableFiltersRO.name, filtersDTO.name);
     t.deepEqual(getTableFiltersRO.filters, filtersDTO.filters);
     t.is(getTableFiltersRO.dynamic_column.column_name, filtersDTO.dynamic_column.column_name);
@@ -432,12 +432,12 @@ test.serial(`${currentTest} should delete table filters`, async (t) => {
 
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
     t.is(createTableFiltersResponse.status, 201);
-    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'updatedAt'), true);
     t.is(createTableFiltersRO.name, filtersDTO.name);
     t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
 
@@ -447,7 +447,7 @@ test.serial(`${currentTest} should delete table filters`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    const deleteTableFiltersRO = JSON.parse(deleteTableFiltersResponse.text);
+    const _deleteTableFiltersRO = JSON.parse(deleteTableFiltersResponse.text);
     t.is(deleteTableFiltersResponse.status, 200);
 
     // should return an empty array, when try to get deleted table filters
@@ -508,12 +508,12 @@ test.serial(`${currentTest} should delete table filters`, async (t) => {
 
     const createTableFiltersRO = JSON.parse(createTableFiltersResponse.text);
     t.is(createTableFiltersResponse.status, 201);
-    t.is(createTableFiltersRO.hasOwnProperty('id'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('name'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('filters'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('dynamic_column'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('createdAt'), true);
-    t.is(createTableFiltersRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'id'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'name'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'filters'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'dynamic_column'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'createdAt'), true);
+    t.is(Object.hasOwn(createTableFiltersRO, 'updatedAt'), true);
     t.is(createTableFiltersRO.name, filtersDTO.name);
     t.deepEqual(createTableFiltersRO.filters, filtersDTO.filters);
 
@@ -523,7 +523,7 @@ test.serial(`${currentTest} should delete table filters`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    const deleteTableFiltersRO = JSON.parse(deleteTableFiltersResponse.text);
+    const _deleteTableFiltersRO = JSON.parse(deleteTableFiltersResponse.text);
     t.is(deleteTableFiltersResponse.status, 200);
 
     // should return an empty array, when try to get deleted table filters
@@ -642,9 +642,9 @@ test.serial(
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
       t.is(typeof getTableRowsRO, 'object');
-      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(Object.hasOwn(getTableRowsRO, 'rows'), true);
+      t.is(Object.hasOwn(getTableRowsRO, 'primaryColumns'), true);
+      t.is(Object.hasOwn(getTableRowsRO, 'pagination'), true);
       t.is(getTableRowsRO.rows.length, 3);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
@@ -657,18 +657,18 @@ test.serial(
       t.is(getTableRowsRO.pagination.perPage, 200);
 
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
-      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-      t.is(getTableRowsRO.hasOwnProperty('saved_filters'), true);
+      t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'column_name'), true);
+      t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'data_type'), true);
+      t.is(Object.hasOwn(getTableRowsRO, 'saved_filters'), true);
       t.is(Array.isArray(getTableRowsRO.saved_filters), true);
       t.is(getTableRowsRO.saved_filters.length, 2);
       getTableRowsRO.saved_filters.forEach((el) => {
-        t.is(el.hasOwnProperty('id'), true);
-        t.is(el.hasOwnProperty('name'), true);
-        t.is(el.hasOwnProperty('filters'), true);
-        t.is(el.hasOwnProperty('dynamic_column'), true);
-        t.is(el.hasOwnProperty('createdAt'), true);
-        t.is(el.hasOwnProperty('updatedAt'), true);
+        t.is(Object.hasOwn(el, 'id'), true);
+        t.is(Object.hasOwn(el, 'name'), true);
+        t.is(Object.hasOwn(el, 'filters'), true);
+        t.is(Object.hasOwn(el, 'dynamic_column'), true);
+        t.is(Object.hasOwn(el, 'createdAt'), true);
+        t.is(Object.hasOwn(el, 'updatedAt'), true);
         const foundFilterDTO = filterDTOs.find((filterDTO) => filterDTO.name === el.name);
         t.is(el.name, foundFilterDTO.name);
         t.deepEqual(el.filters, foundFilterDTO.filters);

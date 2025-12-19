@@ -60,7 +60,7 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
     this.autocmpleteUpdate.pipe(
       debounceTime(500),
       distinctUntilChanged())
-      .subscribe(value => {
+      .subscribe(_value => {
         if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
         this.fetchSuggestions();
       });

@@ -98,7 +98,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
     ],
   };
 
-  const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+  const _createOrUpdatePermissionResponse = await request(app.getHttpServer())
     .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
@@ -231,7 +231,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
     ],
   };
 
-  const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+  const _createOrUpdatePermissionResponse = await request(app.getHttpServer())
     .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
@@ -378,7 +378,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
     ],
   };
 
-  const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+  const _createOrUpdatePermissionResponse = await request(app.getHttpServer())
     .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
@@ -446,11 +446,11 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
 
   const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
   const newConnection2 = mockFactory.generateConnectionToTestMySQLDBInDocker();
-  const newGroup1 = mockFactory.generateCreateGroupDto1();
+  const _newGroup1 = mockFactory.generateCreateGroupDto1();
   const firstTable = await createTestTable(newConnection);
   const secondTable = await createTestTable(newConnection2);
 
-  const tablePermissions = {
+  const _tablePermissions = {
     visibility: true,
     readonly: false,
     add: true,
