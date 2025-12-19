@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@amplitude/node": "1.10.2",
+    "@aws-sdk/client-bedrock-runtime": "^3.954.0",
     "@aws-sdk/lib-dynamodb": "^3.953.0",
     "@electric-sql/pglite": "^0.3.14",
     "@faker-js/faker": "^10.1.0",

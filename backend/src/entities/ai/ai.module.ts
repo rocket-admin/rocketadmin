@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { Global, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
@@ -7,7 +7,10 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { RequestInfoFromTableWithAIUseCaseV4 } from './use-cases/request-info-from-table-with-ai-v4.use.case.js';
 import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
+import { AiService } from './ai.service.js';
+import { AmazonBedrockAiProvider } from './amazon-bedrock/amazon-bedrock.ai.provider.js';
 
+@Global()
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
   providers: [
@@ -19,7 +22,10 @@ import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js'
       provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V2,
       useClass: RequestInfoFromTableWithAIUseCaseV4,
     },
+    AmazonBedrockAiProvider,
+    AiService,
   ],
+  exports: [AiService, AmazonBedrockAiProvider],
   controllers: [UserAIRequestsControllerV2],
 })
 export class AIModule implements NestModule {
