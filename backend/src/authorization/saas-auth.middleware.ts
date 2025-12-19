@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Messages } from '../exceptions/text/messages.js';
 import { extractTokenFromHeader } from './utils/extract-token-from-header.js';
