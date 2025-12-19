@@ -70,7 +70,7 @@ export class ConnectionsService {
     private router: Router,
     private _notifications: NotificationsService,
     private _masterPassword: MasterPasswordService,
-    private _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>
+    public _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>
   ) {
     this.connection = {...this.connectionInitialState};
     this.router = router;

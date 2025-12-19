@@ -146,7 +146,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
     }
   }
 
-  private formatAmount(amount: number | string): string {
+  public formatAmount(amount: number | string): string {
     if (amount === '' || amount === null || amount === undefined) {
       return '';
     }
@@ -160,7 +160,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
     return numericAmount.toFixed(this.decimalPlaces);
   }
 
-  private updateValue(): void {
+  public updateValue(): void {
     if (this.amount === '' || this.amount === null || this.amount === undefined) {
       this.value = '';
     } else {

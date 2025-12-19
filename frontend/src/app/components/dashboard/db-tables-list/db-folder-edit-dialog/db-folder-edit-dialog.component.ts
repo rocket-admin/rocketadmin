@@ -42,6 +42,7 @@ export class DbFolderEditDialogComponent {
   public folder: Folder;
   public tables: TableProperties[];
   public folderIconColors: { name: string; value: string }[];
+  originalFolderName: string;
 
   constructor(
     public dialogRef: MatDialogRef<DbFolderEditDialogComponent>,

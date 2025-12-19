@@ -58,7 +58,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
 
   public tableRowFields: Object;
   public tableRowStructure: Object;
-  public tableRowFieldsShown: Object = {};
+  public tableRowFieldsShown: Record<string, string> = {};
   public tableRowFieldsComparator: Object = {};
   public tableForeignKeys: {[key: string]: TableForeignKey};
   public tableFiltersCount: number;

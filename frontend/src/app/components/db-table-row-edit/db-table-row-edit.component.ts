@@ -74,7 +74,7 @@ export class DbTableRowEditComponent implements OnInit {
   public connectionName: string | null = null;
   public tableName: string | null = null;
   public dispalyTableName: string | null = null;
-  public tableRowValues: object;
+  public tableRowValues: Record<string, any>;
   public tableRowStructure: object;
   public tableRowRequiredValues: object;
   public identityColumn: string;
@@ -119,6 +119,7 @@ export class DbTableRowEditComponent implements OnInit {
   private confirmationDialogRef: any;
 
   originalOrder = () => { return 0; }
+  routeSub: any;
 
   constructor(
     private _connections: ConnectionsService,

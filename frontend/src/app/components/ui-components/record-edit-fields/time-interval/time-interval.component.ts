@@ -30,7 +30,6 @@ export class TimeIntervalEditComponent extends BaseEditFieldComponent {
 
   ngOnInit(): void {
     super.ngOnInit();
-    // @ts-expect-error
     if (this.value) this.interval = this.value;
   }
 

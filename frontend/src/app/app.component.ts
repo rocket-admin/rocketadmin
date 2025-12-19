@@ -86,7 +86,7 @@ export class AppComponent {
   public connections: Connection[] = [];
 
   constructor (
-    private changeDetector: ChangeDetectorRef,
+    public changeDetector: ChangeDetectorRef,
     // private ngZone: NgZone,
     public route: ActivatedRoute,
     public router: Router,

@@ -27,13 +27,13 @@ describe('MoneyEditComponent', () => {
 
     fixture = TestBed.createComponent(MoneyEditComponent);
     component = fixture.componentInstance;
-    
+
     // Set required properties from base component
     component.label = 'Test Money';
     component.required = false;
     component.disabled = false;
     component.readonly = false;
-    
+
     fixture.detectChanges();
   });
 
@@ -87,9 +87,9 @@ describe('MoneyEditComponent', () => {
     component.selectedCurrency = 'EUR';
     component.amount = 100;
     spyOn(component.onFieldChange, 'emit');
-    
+
     component.onCurrencyChange();
-    
+
     expect(component.onFieldChange.emit).toHaveBeenCalledWith({
       amount: 100,
       currency: 'EUR'
@@ -100,9 +100,9 @@ describe('MoneyEditComponent', () => {
     component.displayAmount = '123.45';
     component.selectedCurrency = 'USD';
     spyOn(component.onFieldChange, 'emit');
-    
+
     component.onAmountChange();
-    
+
     expect(component.amount).toBe(123.45);
     expect(component.onFieldChange.emit).toHaveBeenCalledWith(123.45);
   });
@@ -112,9 +112,9 @@ describe('MoneyEditComponent', () => {
     component.displayAmount = '123.45';
     component.selectedCurrency = 'USD';
     spyOn(component.onFieldChange, 'emit');
-    
+
     component.onAmountChange();
-    
+
     expect(component.amount).toBe(123.45);
     expect(component.onFieldChange.emit).toHaveBeenCalledWith({
       amount: 123.45,
@@ -125,10 +125,10 @@ describe('MoneyEditComponent', () => {
   it('should handle invalid amount input with letters', () => {
     component.amount = 100;
     component.displayAmount = 'abc123def'; // Contains letters which get stripped
-    
+
     component.onAmountChange();
     component.onAmountBlur();
-    
+
     expect(component.amount).toBe(123);
     expect(component.displayAmount).toBe('123.00');
   });
@@ -136,10 +136,9 @@ describe('MoneyEditComponent', () => {
   it('should handle completely invalid input', () => {
     component.amount = 100;
     component.displayAmount = 'invalid'; // All letters, becomes empty after strip
-    
+
     component.onAmountChange();
-    
-    // @ts-expect-error
+
     expect(component.amount).toBe('');
     expect(component.displayAmount).toBe('');
   });
@@ -147,18 +146,18 @@ describe('MoneyEditComponent', () => {
   it('should handle invalid amount input when amount is empty', () => {
     component.amount = '';
     component.displayAmount = 'invalid';
-    
+
     component.onAmountChange();
-    
+
     expect(component.displayAmount).toBe('');
   });
 
   it('should respect allow_negative configuration', () => {
     component.allowNegative = false;
     component.displayAmount = '-123.45';
-    
+
     component.onAmountChange();
-    
+
     expect(component.amount).toBe(123.45);
   });
 
@@ -175,9 +174,9 @@ describe('MoneyEditComponent', () => {
         allow_negative: false
       }
     };
-    
+
     component.configureFromWidgetParams();
-    
+
     expect(component.defaultCurrency).toBe('EUR');
     expect(component.showCurrencySelector).toBe(true);
     expect(component.decimalPlaces).toBe(3);
@@ -187,25 +186,25 @@ describe('MoneyEditComponent', () => {
   it('should return correct display value', () => {
     component.amount = 123.45;
     component.selectedCurrency = 'USD';
-    
+
     const displayValue = component.displayValue;
-    
+
     expect(displayValue).toBe('$123.45');
   });
 
   it('should return correct placeholder', () => {
     component.selectedCurrency = 'EUR';
-    
+
     const placeholder = component.placeholder;
-    
+
     expect(placeholder).toBe('Enter amount in Euro');
   });
 
   it('should find selected currency data', () => {
     component.selectedCurrency = 'GBP';
-    
+
     const currencyData = component.selectedCurrencyData;
-    
+
     expect(currencyData.code).toBe('GBP');
     expect(currencyData.name).toBe('British Pound');
     expect(currencyData.symbol).toBe('£');
@@ -214,9 +213,9 @@ describe('MoneyEditComponent', () => {
   it('should emit empty value when amount is cleared', () => {
     component.amount = '';
     spyOn(component.onFieldChange, 'emit');
-    
+
     component.updateValue();
-    
+
     expect(component.onFieldChange.emit).toHaveBeenCalledWith('');
   });
 });
