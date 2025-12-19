@@ -118,6 +118,10 @@
     grid-column: 1 / -1;
 }
 
+.full-width.filter-name-field {
+    max-width: 400px;
+}
+
 .default-filter-checkbox {
     margin-bottom: 16px;
 }
@@ -201,4 +205,12 @@
 .comparator-select-field ::ng-deep .mat-mdc-select-panel {
     min-width: max-content !important;
     width: max-content !important;
+}
+
+.conditions-error-message {
+    grid-column: 1 / span 6;
+    color: #f44336;
+    font-size: 12px;
+    margin: 8px 0 0 0;
+    padding-left: 16px;
 }

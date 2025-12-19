@@ -1,7 +1,7 @@
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicModule } from 'ng-dynamic-component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -70,6 +70,10 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
   public UIwidgets = UIwidgets;
   public dynamicColumn: string | null = null;
   public showAddConditionField = false;
+  public showNameError = false;
+  public showConditionsError = false;
+
+  @ViewChild('tableFiltersForm') tableFiltersForm: any;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -197,6 +201,10 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
   updateField = (updatedValue: any, field: string) => {
     this.tableRowFieldsShown[field] = updatedValue;
     this.updateFiltersCount();
+    // Reset conditions error when a filter is added
+    if (this.showConditionsError && Object.keys(this.tableRowFieldsShown).length > 0) {
+      this.showConditionsError = false;
+    }
   }
 
   addFilter(e) {
@@ -205,6 +213,8 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
     this.tableRowFieldsComparator = {...this.tableRowFieldsComparator, [key]: this.tableRowFieldsComparator[key] || 'eq'};
     this.fieldSearchControl.setValue('');
     this.updateFiltersCount();
+    // Reset conditions error when a filter is added
+    this.showConditionsError = false;
     if (this.hasSelectedFilters) {
       this.showAddConditionField = false;
     }
@@ -281,6 +291,8 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
       this.dynamicColumn = null;
     }
     this.updateFiltersCount();
+    // Reset conditions error when filters are removed (will be re-validated on save)
+    this.showConditionsError = false;
     if (!this.hasSelectedFilters) {
       this.showAddConditionField = false;
     }
@@ -299,6 +311,52 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
   }
 
   handleSaveFilters() {
+    // Reset error flags
+    this.showNameError = false;
+    this.showConditionsError = false;
+
+    // Validate filter name
+    if (!this.data.filtersSet.name || this.data.filtersSet.name.trim() === '') {
+      this.showNameError = true;
+      setTimeout(() => {
+        const nameInput = this.elementRef.nativeElement.querySelector('input[name="filters_set_name"]') as HTMLInputElement;
+        if (nameInput) {
+          nameInput.focus();
+          nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 0);
+      return;
+    }
+
+    // Validate conditions - check if there are any filters (excluding dynamic column)
+    // A valid filter must have a comparator defined
+    const hasFilters = Object.keys(this.tableRowFieldsShown).some(key => {
+      // Skip dynamic column as it's not a filter condition
+      if (key === this.dynamicColumn) {
+        return false;
+      }
+      // Check if comparator is defined (even if value is empty/null, comparator must exist)
+      return this.tableRowFieldsComparator[key] !== undefined && this.tableRowFieldsComparator[key] !== null;
+    });
+
+    if (!hasFilters) {
+      this.showConditionsError = true;
+      setTimeout(() => {
+        const conditionInput = this.elementRef.nativeElement.querySelector('input[name="filter_columns"]') as HTMLInputElement;
+        if (conditionInput) {
+          conditionInput.focus();
+          conditionInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // If input is not visible, show the add condition button area
+          const addButton = this.elementRef.nativeElement.querySelector('.add-condition-footer button') as HTMLElement;
+          if (addButton) {
+            addButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 0);
+      return;
+    }
+
     let payload;
     if (Object.keys(this.tableRowFieldsShown).length) {
       let filters = {};

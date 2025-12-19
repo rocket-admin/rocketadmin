@@ -6,12 +6,13 @@
     <ng-template #filterControls>
         <mat-dialog-content class="filters-content">
             <!-- Filter Name and Description Fields -->
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline" class="full-width filter-name-field" [class.mat-form-field-invalid]="showNameError">
                 <mat-label>Fast filter name</mat-label>
                 <input matInput required
                     name="filters_set_name"
-                    [(ngModel)]="data.filtersSet.name">
-                <mat-error *ngIf="!data.filtersSet.name">
+                    [(ngModel)]="data.filtersSet.name"
+                    (input)="showNameError = false">
+                <mat-error *ngIf="showNameError || !data.filtersSet.name">
                     Fast filter name is required
                 </mat-error>
             </mat-form-field>
@@ -47,7 +48,32 @@
             </ng-template>
 
             <ng-container *ngIf="!hasSelectedFilters; else addConditionControls">
-                <ng-container *ngTemplateOutlet="conditionInputField"></ng-container>
+                <mat-form-field class="filters-select" appearance="outline" [class.mat-form-field-invalid]="showConditionsError">
+                    <mat-label>Click here to add condition</mat-label>
+                    <input type="text" matInput name="filter_columns"
+                        [matAutocomplete]="auto"
+                        [formControl]="fieldSearchControl"
+                        (blur)="handleInputBlur()"
+                        (input)="showConditionsError = false">
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
+                        <mat-option *ngFor="let field of foundFields | async"
+                            [ngClass]="{'disabled': field === 'No matches'}"
+                            [value]="field">
+                            {{field}}
+                        </mat-option>
+                    </mat-autocomplete>
+                    <button *ngIf="hasSelectedFilters"
+                        mat-icon-button
+                        matSuffix
+                        type="button"
+                        aria-label="Cancel adding condition"
+                        (click)="cancelAddConditionInput()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                    <mat-error *ngIf="showConditionsError">
+                        At least one condition is required
+                    </mat-error>
+                </mat-form-field>
             </ng-container>
 
             <!-- Added Filters -->
@@ -183,8 +209,36 @@
                         add condition
                     </button>
                     <ng-container *ngIf="showAddConditionField">
-                        <ng-container *ngTemplateOutlet="conditionInputField"></ng-container>
+                        <mat-form-field class="filters-select" appearance="outline" [class.mat-form-field-invalid]="showConditionsError">
+                            <mat-label>Click here to add condition</mat-label>
+                            <input type="text" matInput name="filter_columns"
+                                [matAutocomplete]="auto2"
+                                [formControl]="fieldSearchControl"
+                                (blur)="handleInputBlur()"
+                                (input)="showConditionsError = false">
+                            <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete" (optionSelected)="addFilter($event)">
+                                <mat-option *ngFor="let field of foundFields | async"
+                                    [ngClass]="{'disabled': field === 'No matches'}"
+                                    [value]="field">
+                                    {{field}}
+                                </mat-option>
+                            </mat-autocomplete>
+                            <button *ngIf="hasSelectedFilters"
+                                mat-icon-button
+                                matSuffix
+                                type="button"
+                                aria-label="Cancel adding condition"
+                                (click)="cancelAddConditionInput()">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                            <mat-error *ngIf="showConditionsError">
+                                At least one condition is required
+                            </mat-error>
+                        </mat-form-field>
                     </ng-container>
+                    <p *ngIf="showConditionsError && !showAddConditionField" class="conditions-error-message">
+                        At least one condition is required
+                    </p>
                 </div>
             </ng-template>
         </mat-dialog-content>
