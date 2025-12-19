@@ -10,7 +10,7 @@ export function validateTableRowUtil(row: Record<string, unknown>, structure: Ar
 
   for (let i = 0; i < structure.length; i++) {
     try {
-      const index = keys.indexOf(structure.at(i).column_name || structure.at(i).COLUMN_NAME);
+      const index = keys.indexOf(structure.at(i).column_name);
       if (
         (index >= 0 &&
           structure.at(i).column_default != null &&

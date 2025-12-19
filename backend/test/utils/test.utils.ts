@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
-// @ts-expect-error
 export class TestUtils {
   databaseService: DatabaseService;
   schedulerRegistry: SchedulerRegistry;
@@ -54,7 +53,7 @@ export class TestUtils {
   } {
     const tokenValue = token.split('=')[1].split(';')[0];
     const jwtSecret = process.env.JWT_SECRET;
-    const data = jwt.verify(tokenValue, jwtSecret);
+    const data = jwt.verify(tokenValue, jwtSecret) as jwt.JwtPayload;
     return {
       sub: data.id,
       email: data.email,

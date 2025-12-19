@@ -45,11 +45,11 @@ export async function validateCreateWidgetsDs(
     //   }
     // }
     if (widget_type && widget_type === WidgetTypeEnum.Password) {
-      let { widget_params } = widgetDS;
+      let widget_params = widgetDS.widget_params as string | Record<string, any>;
       if (typeof widget_params === 'string') {
-        widget_params = JSON5.parse(widget_params);
+        widget_params = JSON5.parse<ForeignKeyDSInfo>(widget_params);
       }
-      
+
       if (
         widget_params.algorithm &&
         !Object.keys(EncryptionAlgorithmEnum).find((key) => key === widget_params.algorithm)

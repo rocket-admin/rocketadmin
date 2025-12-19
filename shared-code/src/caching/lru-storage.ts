@@ -220,7 +220,7 @@ export class LRUStorage {
   public static isConnectionAgentParams(
     connectionParams: ConnectionParams | ConnectionAgentParams,
   ): connectionParams is ConnectionAgentParams {
-    if (Object.hasOwn(connectionParams, 'token') && connectionParams.token) {
+    if (Object.hasOwn(connectionParams, 'token') && (connectionParams as ConnectionAgentParams).token) {
       return true;
     }
     return false;

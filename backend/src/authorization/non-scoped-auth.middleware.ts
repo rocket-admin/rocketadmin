@@ -14,6 +14,7 @@ import { Messages } from '../exceptions/text/messages.js';
 import { isObjectEmpty } from '../helpers/index.js';
 import { Constants } from '../helpers/constants/constants.js';
 import Sentry from '@sentry/minimal';
+import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
 export class NonScopedAuthMiddleware implements NestMiddleware {
@@ -21,7 +22,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
     @InjectRepository(LogOutEntity)
     private readonly logOutRepository: Repository<LogOutEntity>,
   ) {}
-  async use(req: Request, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+  async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
     console.log(`auth middleware triggered ->: ${new Date().toISOString()}`);
     let token: string;
     try {
@@ -43,7 +44,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
 
     try {
       const jwtSecret = process.env.JWT_SECRET;
-      const data = jwt.verify(token, jwtSecret);
+      const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
       const userId = data.id;
       if (!userId) {
         throw new UnauthorizedException('JWT verification failed');

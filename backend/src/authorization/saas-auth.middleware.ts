@@ -3,10 +3,11 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Messages } from '../exceptions/text/messages.js';
 import { extractTokenFromHeader } from './utils/extract-token-from-header.js';
+import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
 export class SaaSAuthMiddleware implements NestMiddleware {
-  use(req: Request, _res: Response, next: (err?: any, res?: any) => void): void {
+  use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): void {
     console.log(`saas auth middleware triggered ->: ${new Date().toISOString()}`);
     const token = extractTokenFromHeader(req);
     if (!token) {
@@ -14,7 +15,7 @@ export class SaaSAuthMiddleware implements NestMiddleware {
     }
     try {
       const jwtSecret = process.env.MICROSERVICE_JWT_SECRET;
-      const data = jwt.verify(token, jwtSecret);
+      const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
       const requestId = data.request_id;
 
       if (!requestId) {

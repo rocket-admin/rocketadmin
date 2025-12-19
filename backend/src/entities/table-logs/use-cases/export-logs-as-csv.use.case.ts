@@ -27,13 +27,13 @@ export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, Streamab
     const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
     const tableName = query.tableName;
     let order = query.order;
-    let limit = query.limit;
+    let limit: string | number = query.limit;
     let page = parseInt(query.page, 10);
-    let perPage = parseInt(query.perPage, 10);
+    let perPage: string | number = parseInt(query.perPage, 10);
     const dateFrom = query.dateFrom;
     const dateTo = query.dateTo;
     const searchedEmail = query.email?.toLowerCase();
-    const operationType: LogOperationTypeEnum = query.operationType;
+    const operationType = query.operationType as LogOperationTypeEnum;
     const searchedAffectedPrimaryKey: string = query.affected_primary_key;
 
     if (operationType) {
@@ -104,9 +104,9 @@ export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, Streamab
       currentUserId: userId,
       dateFrom: searchedDateFrom,
       dateTo: searchedDateTo,
-      order: order,
+      order: order as QueryOrderingEnum,
       page: page,
-      perPage: perPage,
+      perPage: perPage as number,
       searchedEmail: searchedEmail,
       tableName: tableName ? tableName : null,
       userConnectionEdit: userConnectionEdit,

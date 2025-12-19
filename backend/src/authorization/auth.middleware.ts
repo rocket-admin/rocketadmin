@@ -17,6 +17,7 @@ import { isObjectEmpty } from '../helpers/index.js';
 import { Constants } from '../helpers/constants/constants.js';
 import Sentry from '@sentry/minimal';
 import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
+import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -25,7 +26,7 @@ export class AuthMiddleware implements NestMiddleware {
     @InjectRepository(LogOutEntity)
     private readonly logOutRepository: Repository<LogOutEntity>,
   ) {}
-  async use(req: Request, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+  async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
     let token: string;
     try {
       token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
@@ -46,7 +47,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     try {
       const jwtSecret = process.env.JWT_SECRET;
-      const data = jwt.verify(token, jwtSecret);
+      const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
       const userId = data.id;
       if (!userId) {
         throw new UnauthorizedException('JWT verification failed');

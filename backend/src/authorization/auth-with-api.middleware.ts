@@ -19,6 +19,7 @@ import jwt from 'jsonwebtoken';
 import Sentry from '@sentry/minimal';
 import { Encryptor } from '../helpers/encryption/encryptor.js';
 import { EncryptionAlgorithmEnum } from '../enums/encryption-algorithm.enum.js';
+import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
 export class AuthWithApiMiddleware implements NestMiddleware {
@@ -27,7 +28,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async use(req: Request, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+  async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
     try {
       await this.authenticateRequest(req);
       next();
@@ -37,7 +38,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     }
   }
 
-  private async authenticateRequest(req: Request): Promise<void> {
+  private async authenticateRequest(req: IRequestWithCognitoInfo): Promise<void> {
     const tokenFromCookie = this.getTokenFromCookie(req);
     if (tokenFromCookie) {
       await this.authenticateWithToken(tokenFromCookie, req);
@@ -57,10 +58,10 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
   }
 
-  private async authenticateWithToken(tokenFromCookie: string, req: Request): Promise<void> {
+  private async authenticateWithToken(tokenFromCookie: string, req: IRequestWithCognitoInfo): Promise<void> {
     try {
       const jwtSecret = process.env.JWT_SECRET;
-      const data = jwt.verify(tokenFromCookie, jwtSecret);
+      const data = jwt.verify(tokenFromCookie, jwtSecret) as jwt.JwtPayload;
       const userId = data.id;
       if (!userId) {
         throw new UnauthorizedException('JWT verification failed');
@@ -88,7 +89,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     }
   }
 
-  private async authenticateWithApiKey(req: Request): Promise<void> {
+  private async authenticateWithApiKey(req: IRequestWithCognitoInfo): Promise<void> {
     let apiKey = req.headers?.['x-api-key'];
     if (Array.isArray(apiKey)) {
       apiKey = apiKey[0];
