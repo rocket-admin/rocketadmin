@@ -17,14 +17,6 @@ export class FoundSecretDto {
 
   @ApiProperty({
     type: String,
-    required: false,
-    description: 'Decrypted secret value (only included when retrieving a specific secret)',
-    example: 'my-secret-value-123',
-  })
-  value?: string;
-
-  @ApiProperty({
-    type: String,
     description: 'Company ID that owns this secret',
     example: '550e8400-e29b-41d4-a716-446655440001',
   })
