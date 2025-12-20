@@ -10,6 +10,7 @@ export enum DBtype {
     Cassandra = 'cassandra',
     Redis = 'redis',
     Elasticsearch = 'elasticsearch',
+    ClickHouse = 'clickhouse',
     DB2 = 'ibmdb2'
 }
 
