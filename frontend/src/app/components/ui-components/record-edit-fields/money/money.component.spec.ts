@@ -134,12 +134,12 @@ describe('MoneyEditComponent', () => {
   });
 
   it('should handle completely invalid input', () => {
-    component.amount = 100;
+    component.amount = 100 as string | number;
     component.displayAmount = 'invalid'; // All letters, becomes empty after strip
 
     component.onAmountChange();
 
-    expect(component.amount).toBe('');
+    expect(component.amount as string).toBe('');
     expect(component.displayAmount).toBe('');
   });
 
