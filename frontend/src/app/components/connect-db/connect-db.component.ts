@@ -47,6 +47,7 @@ import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
+import { ClickhouseCredentialsFormComponent } from './db-credentials-forms/clickhouse-credentials-form/clickhouse-credentials-form.component';
 
 @Component({
   selector: 'app-connect-db',
@@ -76,6 +77,7 @@ import isIP from 'validator/lib/isIP';
     PostgresCredentialsFormComponent,
     RedisCredentialsFormComponent,
     ElasticCredentialsFormComponent,
+    ClickhouseCredentialsFormComponent,
     IpAddressButtonComponent,
     AlertComponent,
     Angulartics2Module
@@ -107,6 +109,7 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.Cassandra]: '9042',
     [DBtype.Redis]: '6379',
     [DBtype.Elasticsearch]: '9200',
+    [DBtype.ClickHouse]: '8443',
     [DBtype.DB2]: '50000'
   }
 

@@ -417,7 +417,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
         character_maximum_length: this.extractLength(column.type),
         data_type_params: this.extractTypeParams(column.type),
         udt_name: column.type,
-        extra: column.is_in_primary_key ? 'primary_key' : undefined,
+        extra: this.buildExtraInfo(column.is_in_primary_key, column.default_expression),
       }));
 
       LRUStorage.setTableStructureCache(this.connection, tableName, structure);
@@ -789,6 +789,30 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
       return enumMatch[1];
     }
     return null;
+  }
+
+  private buildExtraInfo(isPrimaryKey: number, defaultExpression: string): string | undefined {
+    const parts: string[] = [];
+    if (isPrimaryKey) {
+      parts.push('primary_key');
+    }
+
+    if (defaultExpression) {
+      const lowerDefault = defaultExpression.toLowerCase();
+      if (
+        lowerDefault.includes('generateuuidv4') ||
+        lowerDefault.includes('generateuuid') ||
+        lowerDefault.includes('rownumberinallblocks') ||
+        lowerDefault.includes('rownumber') ||
+        lowerDefault.includes('auto_increment') ||
+        lowerDefault.includes('autoincrement') ||
+        lowerDefault.includes('nextval') ||
+        lowerDefault.includes('generate')
+      ) {
+        parts.push('auto_increment');
+      }
+    }
+    return parts.length > 0 ? parts.join(' ') : undefined;
   }
 
   private async getRowsCount(

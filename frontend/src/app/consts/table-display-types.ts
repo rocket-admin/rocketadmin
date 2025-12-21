@@ -320,5 +320,20 @@ export const tableDisplayTypes = {
         object: JsonEditorDisplayComponent,
         array: JsonEditorDisplayComponent,
         binary: FileDisplayComponent,
+    },
+    clickhouse: {
+        string: TextDisplayComponent,
+        uuid: UuidDisplayComponent,
+        boolean: BooleanDisplayComponent,
+        integer: NumberDisplayComponent,
+        bigint: NumberDisplayComponent,
+        float: NumberDisplayComponent,
+        double: NumberDisplayComponent,
+        decimal: NumberDisplayComponent,
+        date: DateDisplayComponent,
+        datetime: DateTimeDisplayComponent,
+        json: JsonEditorDisplayComponent,
+        object: JsonEditorDisplayComponent,
+        array: JsonEditorDisplayComponent,
     }
 }

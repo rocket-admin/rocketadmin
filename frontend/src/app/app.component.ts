@@ -110,6 +110,7 @@ export class AppComponent {
     this.matIconRegistry.addSvgIcon("cassandra", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/сassandra_logo.svg"));
     this.matIconRegistry.addSvgIcon("redis", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/redis_logo.svg"));
     this.matIconRegistry.addSvgIcon("elasticsearch", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/elasticsearch_logo.svg"));
+    this.matIconRegistry.addSvgIcon("clickhouse", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/clickhouse_logo.svg"));
     this.matIconRegistry.addSvgIcon("github", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/github.svg"));
     this.matIconRegistry.addSvgIcon("google", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/google.svg"));
     this.matIconRegistry.addSvgIcon("ai_rocket", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/ai-rocket.svg"));
