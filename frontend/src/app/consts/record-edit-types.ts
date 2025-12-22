@@ -327,5 +327,20 @@ export const recordEditTypes = {
         object: JsonEditorEditComponent,
         array: JsonEditorEditComponent,
         binary: FileEditComponent,
+    },
+    clickhouse: {
+        string: TextEditComponent,
+        uuid: UuidEditComponent,
+        boolean: BooleanEditComponent,
+        integer: NumberEditComponent,
+        bigint: NumberEditComponent,
+        float: NumberEditComponent,
+        double: NumberEditComponent,
+        decimal: NumberEditComponent,
+        date: DateEditComponent,
+        datetime: DateTimeEditComponent,
+        json: JsonEditorEditComponent,
+        object: JsonEditorEditComponent,
+        array: JsonEditorEditComponent,
     }
 }

@@ -227,7 +227,7 @@ export class DbTableRowEditComponent implements OnInit {
               .filter((field: TableField) => !this.getModifyingFields(res.structure).some(modifyingField => field.column_name === modifyingField.column_name))
               .map((field: TableField) => field.column_name);
             this.readonlyFields = [...res.readonly_fields, ...this.nonModifyingFields];
-            if (this.connectionType === DBtype.Dynamo) {
+            if (this.connectionType === DBtype.Dynamo || this.connectionType === DBtype.ClickHouse) {
               this.readonlyFields = [...this.readonlyFields, ...res.primaryColumns.map((field: TableField) => field.column_name)];
             }
             this.tableForeignKeys = res.foreignKeys;
@@ -584,7 +584,7 @@ export class DbTableRowEditComponent implements OnInit {
     //end crutch
 
     // don't ovverride primary key fields for dynamoDB
-    if (this.connectionType === DBtype.Dynamo) {
+    if (this.connectionType === DBtype.Dynamo || this.connectionType === DBtype.ClickHouse) {
       const primaryKeyFields = Object.keys(this.keyAttributesFromURL);
       primaryKeyFields.forEach((field) => {
         delete updatedRow[field];

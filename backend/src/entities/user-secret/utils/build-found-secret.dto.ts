@@ -5,7 +5,6 @@ export function buildFoundSecretDto(ds: FoundSecretDS): FoundSecretDto {
   return {
     id: ds.id,
     slug: ds.slug,
-    value: ds.value,
     companyId: ds.companyId,
     createdAt: ds.createdAt,
     updatedAt: ds.updatedAt,

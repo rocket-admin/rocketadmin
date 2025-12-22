@@ -128,12 +128,8 @@ export class UserSecretController {
   @ApiOperation({ summary: 'Get secret by slug' })
   @ApiResponse({
     status: 200,
-    description: 'Returns secret details with decrypted value.',
+    description: 'Returns secret metadata (value is never exposed).',
     type: FoundSecretDto,
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Master password required or incorrect.',
   })
   @ApiResponse({
     status: 404,
@@ -146,15 +142,10 @@ export class UserSecretController {
   @ApiParam({ name: 'slug', type: String, description: 'Unique secret identifier', example: 'database-password' })
   @UseGuards(CompanyUserGuard)
   @Get('/secrets/:slug')
-  async getSecretBySlug(
-    @UserId() userId: string,
-    @Param('slug') slug: string,
-    @MasterPassword() masterPassword?: string,
-  ): Promise<FoundSecretDto> {
+  async getSecretBySlug(@UserId() userId: string, @Param('slug') slug: string): Promise<FoundSecretDto> {
     const foundSecret = await this.getSecretBySlugUseCase.execute({
       userId,
       slug,
-      masterPassword,
     });
     return buildFoundSecretDto(foundSecret);
   }
