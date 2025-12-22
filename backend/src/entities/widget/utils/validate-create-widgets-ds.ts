@@ -92,6 +92,23 @@ export async function validateCreateWidgetsDs(
         );
       }
     }
+
+    if (widget_type && widget_type === WidgetTypeEnum.S3) {
+      let widget_params = widgetDS.widget_params as string | Record<string, any>;
+      if (typeof widget_params === 'string') {
+        widget_params = JSON5.parse(widget_params);
+      }
+
+      if (!widget_params.bucket) {
+        errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('bucket'));
+      }
+      if (!widget_params.aws_access_key_id_secret_name) {
+        errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('aws_access_key_id_secret_name'));
+      }
+      if (!widget_params.aws_secret_access_key_secret_name) {
+        errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('aws_secret_access_key_secret_name'));
+      }
+    }
   }
   return errors;
 }

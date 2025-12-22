@@ -21,5 +21,6 @@ export enum WidgetTypeEnum {
   Country = 'Country',
   Color = 'Color',
   Range = 'Range',
-  Timezone = 'Timezone'
+  Timezone = 'Timezone',
+  S3 = 'S3',
 }

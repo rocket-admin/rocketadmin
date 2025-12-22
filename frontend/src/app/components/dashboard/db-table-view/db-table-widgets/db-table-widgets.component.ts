@@ -279,6 +279,22 @@ export class DbTableWidgetsComponent implements OnInit {
   "name": ""
 }
 `,
+    S3: `// Configure AWS S3 widget for file storage
+// bucket: S3 bucket name (required)
+// prefix: Optional path prefix for uploaded files
+// region: AWS region (default: us-east-1)
+// aws_access_key_id_secret_name: Slug of the secret containing AWS Access Key ID
+// aws_secret_access_key_secret_name: Slug of the secret containing AWS Secret Access Key
+// Note: Create secrets in Settings -> Secrets before configuring this widget
+
+{
+  "bucket": "your-bucket-name",
+  "prefix": "uploads/",
+  "region": "us-east-1",
+  "aws_access_key_id_secret_name": "aws-access-key-id",
+  "aws_secret_access_key_secret_name": "aws-secret-access-key"
+}
+`,
   }
 
   constructor(

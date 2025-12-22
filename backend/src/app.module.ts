@@ -40,6 +40,7 @@ import { SharedJobsModule } from './entities/shared-jobs/shared-jobs.module.js';
 import { TableCategoriesModule } from './entities/table-categories/table-categories.module.js';
 import { UserSecretModule } from './entities/user-secret/user-secret.module.js';
 import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.module.js';
+import { S3WidgetModule } from './entities/s3-widget/s3-widget.module.js';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.m
     TableCategoriesModule,
     UserSecretModule,
     SignInAuditModule,
+    S3WidgetModule,
   ],
   controllers: [AppController],
   providers: [
