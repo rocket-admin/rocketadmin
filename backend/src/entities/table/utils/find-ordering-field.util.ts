@@ -15,8 +15,8 @@ export function findOrderingFieldUtil(
     return undefined;
   }
 
-  const sortByFieldName = query['sort_by'] as string;
-  const sortByOrder = query['sort_order'] as QueryOrderingEnum;
+  const sortByFieldName = query.sort_by as string;
+  const sortByOrder = query.sort_order as QueryOrderingEnum;
 
   const rowNames = new Set(tableStructure.map((el) => el.column_name));
 

@@ -82,7 +82,7 @@ export class EmailService {
   public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults | null>> {
     const queue = new PQueue({ concurrency: 3 });
 
-    const mailingResults: Array<SMTPTransport.SentMessageInfo | void> = [];
+    const mailingResults: Array<SMTPTransport.SentMessageInfo | undefined> = [];
 
     for (const email of userEmails) {
       try {
@@ -105,11 +105,11 @@ export class EmailService {
   public async send2faEnabledInCompany(
     userEmails: Array<string>,
     companyName: string,
-  ): Promise<Array<SMTPTransport.SentMessageInfo | void>> {
+  ): Promise<Array<SMTPTransport.SentMessageInfo | undefined>> {
     try {
       const queue = new PQueue({ concurrency: 3 });
 
-      const mailingResults: Array<SMTPTransport.SentMessageInfo | void> = await Promise.all(
+      const mailingResults: Array<SMTPTransport.SentMessageInfo | undefined> = await Promise.all(
         userEmails.map(async (email: string) => {
           return await queue.add(async () => {
             return await this.send2faEnabledInCompanyToUser(email, companyName);
@@ -285,7 +285,7 @@ export class EmailService {
   }
 
   private buildMailingResults(
-    results: Array<SMTPTransport.SentMessageInfo | void>,
+    results: Array<SMTPTransport.SentMessageInfo | undefined>,
   ): Array<ICronMessagingResults | null> {
     return results.map((result) => {
       if (!result) {

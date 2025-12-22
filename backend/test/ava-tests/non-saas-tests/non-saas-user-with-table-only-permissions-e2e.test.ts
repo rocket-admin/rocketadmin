@@ -20,17 +20,16 @@ import { TestUtils } from '../../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions } from '../../utils/user-with-different-permissions-utils.js';
 import { inviteUserInCompanyAndAcceptInvitation } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
-import { pauseCode } from '../../../src/helpers/pause-code.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest: string;
 
 const mockFactory = new MockFactory();
-const newConnectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
+const _newConnectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
 const updateConnection = mockFactory.generateUpdateConnectionDto();
 const newGroup1 = mockFactory.generateCreateGroupDto1();
 const tablePermissions = {
@@ -48,7 +47,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -96,7 +95,7 @@ test.serial(`${currentTest} should return connections, where second user have ac
       .set('Accept', 'application/json');
 
     t.is(findAll.status, 200);
-    const resultRO = JSON.parse(findAll.text);
+    const _resultRO = JSON.parse(findAll.text);
     const result = findAll.body.connections;
     t.is(result.length, 1);
     const nonTestConnection = result.find(({ connection }) => connection.id === connections.firstId);
@@ -166,7 +165,7 @@ test.serial(
       // todo add checking connection object properties
       t.is(findOneResponce.status, 200);
       const findOneRO = JSON.parse(findOneResponce.text);
-      t.is(findOneRO.hasOwnProperty('host'), false);
+      t.is(Object.hasOwn(findOneRO, 'host'), false);
     } catch (e) {
       console.error(e);
       throw e;
@@ -390,7 +389,7 @@ test.serial(`${currentTest} should return connection without deleted group resul
     let result = createGroupResponse.body;
     t.is(createGroupResponse.status, 201);
 
-    t.is(result.hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(result, 'id'), true);
     t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
@@ -438,7 +437,7 @@ test.serial(
 
       t.is(createGroupResponse.status, 201);
 
-      t.is(result.hasOwnProperty('id'), true);
+      t.is(Object.hasOwn(result, 'id'), true);
       t.is(result.title, newGroup1.title);
 
       const createGroupRO = JSON.parse(createGroupResponse.text);
@@ -492,9 +491,9 @@ test.serial(`${currentTest} should groups in connection`, async (t) => {
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
-    const groupId = result[0].group.id;
+    const _groupId = result[0].group.id;
 
-    t.is(result[0].group.hasOwnProperty('title'), true);
+    t.is(Object.hasOwn(result[0].group, 'title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.none);
 
     const index = result.findIndex((el: any) => {
@@ -576,9 +575,9 @@ test.serial(`${currentTest} should return permissions object for current group i
     const result = JSON.parse(response.text);
     t.is(response.status, 200);
 
-    t.is(result.hasOwnProperty('connection'), true);
-    t.is(result.hasOwnProperty('group'), true);
-    t.is(result.hasOwnProperty('tables'), true);
+    t.is(Object.hasOwn(result, 'connection'), true);
+    t.is(Object.hasOwn(result, 'group'), true);
+    t.is(Object.hasOwn(result, 'tables'), true);
     t.is(typeof result.connection, 'object');
     t.is(typeof result.group, 'object');
     t.is(result.connection.connectionId, connections.firstId);
@@ -591,7 +590,7 @@ test.serial(`${currentTest} should return permissions object for current group i
     const tableIndex = tables.findIndex((table: any) => table.tableName === firstTableInfo.testTableName);
     t.is(tables.length > 0, true);
     t.is(typeof tables[tableIndex], 'object');
-    t.is(tables[tableIndex].hasOwnProperty('accessLevel'), true);
+    t.is(Object.hasOwn(tables[tableIndex], 'accessLevel'), true);
     t.is(tables[tableIndex].accessLevel.visibility, tablePermissions.visibility);
     t.is(tables[tableIndex].accessLevel.readonly, tablePermissions.readonly);
     t.is(tables[tableIndex].accessLevel.add, tablePermissions.add);
@@ -634,9 +633,9 @@ test.serial(`${currentTest} should return permissions object for current group i
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
 
-    t.is(result.hasOwnProperty('connection'), true);
-    t.is(result.hasOwnProperty('group'), true);
-    t.is(result.hasOwnProperty('tables'), true);
+    t.is(Object.hasOwn(result, 'connection'), true);
+    t.is(Object.hasOwn(result, 'group'), true);
+    t.is(Object.hasOwn(result, 'tables'), true);
     t.is(typeof result.connection, 'object');
     t.is(typeof result.group, 'object');
     t.is(result.connection.connectionId, connections.firstId);
@@ -649,7 +648,7 @@ test.serial(`${currentTest} should return permissions object for current group i
     const foundTableIndex = tables.findIndex((table) => table.tableName === firstTableInfo.testTableName);
     t.is(tables.length > 0, true);
     t.is(typeof tables[foundTableIndex], 'object');
-    t.is(tables[foundTableIndex].hasOwnProperty('accessLevel'), true);
+    t.is(Object.hasOwn(tables[foundTableIndex], 'accessLevel'), true);
     t.is(tables[foundTableIndex].accessLevel.visibility, tablePermissions.visibility);
     t.is(tables[foundTableIndex].accessLevel.readonly, tablePermissions.readonly);
     t.is(tables[foundTableIndex].accessLevel.add, tablePermissions.add);
@@ -694,9 +693,9 @@ test.serial(
       t.is(response.status, 200);
       const result = JSON.parse(response.text);
 
-      t.is(result.hasOwnProperty('connection'), true);
-      t.is(result.hasOwnProperty('group'), true);
-      t.is(result.hasOwnProperty('tables'), true);
+      t.is(Object.hasOwn(result, 'connection'), true);
+      t.is(Object.hasOwn(result, 'group'), true);
+      t.is(Object.hasOwn(result, 'tables'), true);
       t.is(typeof result.connection, 'object');
       t.is(typeof result.group, 'object');
       t.is(result.connection.connectionId, connections.secondId);
@@ -732,11 +731,11 @@ test.serial(`${currentTest} should return found groups with current user`, async
     const { groups, groupsCount } = getGroupsRO;
     t.is(groupsCount, 1);
     t.is(groups.length, 1);
-    t.is(groups[0].hasOwnProperty('group'), true);
-    t.is(groups[0].hasOwnProperty('accessLevel'), true);
+    t.is(Object.hasOwn(groups[0], 'group'), true);
+    t.is(Object.hasOwn(groups[0], 'accessLevel'), true);
 
-    t.is(groups[0].group.hasOwnProperty('title'), true);
-    t.is(groups[0].group.hasOwnProperty('isMain'), true);
+    t.is(Object.hasOwn(groups[0].group, 'title'), true);
+    t.is(Object.hasOwn(groups[0].group, 'isMain'), true);
   } catch (e) {
     console.error(e);
     throw e;
@@ -773,7 +772,7 @@ test.serial(`${currentTest} it should throw exception ${Messages.DONT_HAVE_PERMI
       .set('Accept', 'application/json');
     t.is(response.status, 403);
     const getUsersRO = JSON.parse(response.text);
-    t.is(getUsersRO.hasOwnProperty('message'), true);
+    t.is(Object.hasOwn(getUsersRO, 'message'), true);
     t.is(getUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
@@ -852,7 +851,7 @@ test.serial(`${currentTest} should throw exception ${Messages.DONT_HAVE_PERMISSI
       .set('Accept', 'application/json');
     const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text);
     t.is(addUserInGroupResponse.status, 403);
-    t.is(addUserInGroupRO.hasOwnProperty('message'), true);
+    t.is(Object.hasOwn(addUserInGroupRO, 'message'), true);
     t.is(addUserInGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
@@ -880,7 +879,7 @@ test.serial(`${currentTest} should throw exception, when group id not passed in 
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const groupId = getGroupsRO[0].group.id;
+    const _groupId = getGroupsRO[0].group.id;
     const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
@@ -915,7 +914,7 @@ test.serial(`${currentTest} should throw exception, when group id passed in requ
       .set('Accept', 'application/json');
 
     t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
+    const _getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const email = faker.internet.email();
     const groupId = faker.string.uuid();
@@ -1025,7 +1024,7 @@ test.serial(`${currentTest} should throw an exception when group id not passed i
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const groupId = getGroupsRO[0].group.id;
+    const _groupId = getGroupsRO[0].group.id;
     const deleteGroupResponse = await request(app.getHttpServer())
       .delete(`/group/`)
       .set('Cookie', simpleUserToken)
@@ -1132,7 +1131,7 @@ test.serial(`${currentTest} should throw exception, when group id not passed in 
       .set('Accept', 'application/json');
 
     t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
+    const _getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app, undefined);
 
@@ -1699,15 +1698,15 @@ test.serial(`${currentTest} should return added row`, async (t) => {
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
     t.is(addRowInTable.status, 201);
-    t.is(addRowInTableRO.row.hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(addRowInTableRO.row, 'id'), true);
     t.is(addRowInTableRO.row[firstTableInfo.testTableColumnName], randomName);
     t.is(addRowInTableRO.row[firstTableInfo.testTableSecondColumnName], randomEmail);
-    t.is(addRowInTableRO.row.hasOwnProperty('created_at'), true);
-    t.is(addRowInTableRO.row.hasOwnProperty('updated_at'), true);
-    t.is(addRowInTableRO.hasOwnProperty('structure'), true);
-    t.is(addRowInTableRO.hasOwnProperty('foreignKeys'), true);
-    t.is(addRowInTableRO.hasOwnProperty('primaryColumns'), true);
-    t.is(addRowInTableRO.hasOwnProperty('readonly_fields'), true);
+    t.is(Object.hasOwn(addRowInTableRO.row, 'created_at'), true);
+    t.is(Object.hasOwn(addRowInTableRO.row, 'updated_at'), true);
+    t.is(Object.hasOwn(addRowInTableRO, 'structure'), true);
+    t.is(Object.hasOwn(addRowInTableRO, 'foreignKeys'), true);
+    t.is(Object.hasOwn(addRowInTableRO, 'primaryColumns'), true);
+    t.is(Object.hasOwn(addRowInTableRO, 'readonly_fields'), true);
   } catch (e) {
     console.error(e);
     throw e;
@@ -1993,12 +1992,12 @@ test.serial(`${currentTest} should return row`, async (t) => {
     const getRowInTableRO = JSON.parse(getRowInTable.text);
     t.is(getRowInTable.status, 200);
     t.is(getRowInTableRO.row.id, 7);
-    t.is(getRowInTableRO.row.hasOwnProperty('created_at'), true);
-    t.is(getRowInTableRO.row.hasOwnProperty('updated_at'), true);
-    t.is(getRowInTableRO.hasOwnProperty('structure'), true);
-    t.is(getRowInTableRO.hasOwnProperty('foreignKeys'), true);
-    t.is(getRowInTableRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getRowInTableRO.hasOwnProperty('readonly_fields'), true);
+    t.is(Object.hasOwn(getRowInTableRO.row, 'created_at'), true);
+    t.is(Object.hasOwn(getRowInTableRO.row, 'updated_at'), true);
+    t.is(Object.hasOwn(getRowInTableRO, 'structure'), true);
+    t.is(Object.hasOwn(getRowInTableRO, 'foreignKeys'), true);
+    t.is(Object.hasOwn(getRowInTableRO, 'primaryColumns'), true);
+    t.is(Object.hasOwn(getRowInTableRO, 'readonly_fields'), true);
   } catch (e) {
     console.error(e);
     throw e;
@@ -2095,15 +2094,15 @@ test.serial(`${currentTest} should return all found logs in connection'`, async 
     const getRowInTableRO = JSON.parse(getTableLogs.text);
 
     t.is(getRowInTableRO.logs.length, 1);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('table_name'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('received_data'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('old_data'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('cognitoUserName'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('email'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('operationType'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('operationStatusResult'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('createdAt'), true);
-    t.is(getRowInTableRO.logs[0].hasOwnProperty('connection_id'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'table_name'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'received_data'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'old_data'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'cognitoUserName'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'email'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'operationType'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'operationStatusResult'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'createdAt'), true);
+    t.is(Object.hasOwn(getRowInTableRO.logs[0], 'connection_id'), true);
   } catch (e) {
     console.error(e);
     throw e;
@@ -2153,7 +2152,7 @@ test.serial(
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
 
-      const connectionPropertiesResult = JSON.parse(createConnectionPropertiesResponse.text);
+      const _connectionPropertiesResult = JSON.parse(createConnectionPropertiesResponse.text);
 
       t.is(createConnectionPropertiesResponse.status, 201);
 
@@ -2725,7 +2724,7 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
       .set('Accept', 'application/json');
     t.is(getTableStructureResponse.status, 200);
     const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
-    t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
+    t.is(Object.hasOwn(getTableStructureRO, 'table_widgets'), true);
     t.is(getTableStructureRO.table_widgets.length, 2);
     getTableStructureRO.table_widgets.sort((a, b) => a.field_name.localeCompare(b.field_name))
     newTableWidgets.sort((a, b) => a.field_name.localeCompare(b.field_name))

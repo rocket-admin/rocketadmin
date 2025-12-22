@@ -57,7 +57,7 @@ export class CountryFilterComponent extends BaseFilterFieldComponent {
     const filterValue = value.toLowerCase();
     return this.countries.filter(country => 
       country.label?.toLowerCase().includes(filterValue) ||
-      (country.value && country.value.toLowerCase().includes(filterValue))
+      (country.value?.toLowerCase().includes(filterValue))
     );
   }
 

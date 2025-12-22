@@ -41,6 +41,6 @@ export function findAutocompleteFieldsUtil(
 
   return {
     fields: autocompleteFields,
-    value: query['autocomplete'] === '' ? '*' : (query['autocomplete'] as string),
+    value: query.autocomplete === '' ? '*' : (query.autocomplete as string),
   };
 }

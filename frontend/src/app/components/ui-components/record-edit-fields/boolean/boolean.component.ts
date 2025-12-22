@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, } from '@angular/core';
 
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { DBtype } from 'src/app/models/connection';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { DBtype } from 'src/app/models/connection';
 
 @Component({
   selector: 'app-edit-boolean',
@@ -17,7 +17,7 @@ export class BooleanEditComponent extends BaseEditFieldComponent {
   @Input() value: boolean | number | string | null;
 
   public isRadiogroup: boolean;
-  private connectionType: DBtype;
+  connectionType: DBtype;
 
   constructor(
     private _connections: ConnectionsService,
@@ -42,8 +42,8 @@ export class BooleanEditComponent extends BaseEditFieldComponent {
     // Parse widget parameters if available
     let parsedParams = null;
     if (this.widgetStructure?.widget_params) {
-      parsedParams = typeof this.widgetStructure.widget_params === 'string' 
-        ? JSON.parse(this.widgetStructure.widget_params) 
+      parsedParams = typeof this.widgetStructure.widget_params === 'string'
+        ? JSON.parse(this.widgetStructure.widget_params)
         : this.widgetStructure.widget_params;
     }
 

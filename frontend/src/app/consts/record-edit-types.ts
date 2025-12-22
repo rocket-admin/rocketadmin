@@ -1,4 +1,4 @@
-import { BinaryDataCaptionEditComponent } from '../components/ui-components/record-edit-fields/binary-data-caption/binary-data-caption.component';
+
 import { BooleanEditComponent } from 'src/app/components/ui-components/record-edit-fields/boolean/boolean.component'
 import { CodeEditComponent } from '../components/ui-components/record-edit-fields/code/code.component';
 import { ColorEditComponent } from '../components/ui-components/record-edit-fields/color/color.component';
@@ -327,5 +327,20 @@ export const recordEditTypes = {
         object: JsonEditorEditComponent,
         array: JsonEditorEditComponent,
         binary: FileEditComponent,
+    },
+    clickhouse: {
+        string: TextEditComponent,
+        uuid: UuidEditComponent,
+        boolean: BooleanEditComponent,
+        integer: NumberEditComponent,
+        bigint: NumberEditComponent,
+        float: NumberEditComponent,
+        double: NumberEditComponent,
+        decimal: NumberEditComponent,
+        date: DateEditComponent,
+        datetime: DateTimeEditComponent,
+        json: JsonEditorEditComponent,
+        object: JsonEditorEditComponent,
+        array: JsonEditorEditComponent,
     }
 }

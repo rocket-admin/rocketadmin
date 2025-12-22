@@ -70,8 +70,6 @@ export class GroupController {
   async findAll(@UserId() userId: string): Promise<FoundUserGroupsDs> {
     try {
       return await this.findAllUserGroupsUseCase.execute(userId, InTransactionEnum.OFF);
-    } catch (e) {
-      throw e;
     } finally {
       await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupListReceived, userId);
     }
@@ -91,8 +89,6 @@ export class GroupController {
   ): Promise<Array<FoundUserInGroupDs>> {
     try {
       return this.findAllUsersInGroupUseCase.execute(groupId, InTransactionEnum.OFF);
-    } catch (e) {
-      throw e;
     } finally {
       await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserListReceived, userId);
     }
@@ -128,8 +124,6 @@ export class GroupController {
     };
     try {
       return await this.addUserInGroupUseCase.execute(inputData, InTransactionEnum.ON);
-    } catch (e) {
-      throw e;
     } finally {
       await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserAdded, groupId);
     }
@@ -146,8 +140,6 @@ export class GroupController {
   async delete(@SlugUuid('groupId') groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
     try {
       return this.deleteGroupUseCase.execute(groupId, InTransactionEnum.ON);
-    } catch (e) {
-      throw e;
     } finally {
       await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupDeleted, userId);
     }
@@ -173,8 +165,6 @@ export class GroupController {
     };
     try {
       return await this.removeUserFromGroupUseCase.execute(inputData, InTransactionEnum.ON);
-    } catch (e) {
-      throw e;
     } finally {
       await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserRemoved, userId);
     }

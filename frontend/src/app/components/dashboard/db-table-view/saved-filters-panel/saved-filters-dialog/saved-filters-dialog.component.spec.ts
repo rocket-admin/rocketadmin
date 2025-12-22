@@ -1,4 +1,4 @@
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
@@ -14,7 +14,7 @@ describe('SavedFiltersDialogComponent', () => {
   let component: SavedFiltersDialogComponent;
   let fixture: ComponentFixture<SavedFiltersDialogComponent>;
   let tablesServiceMock: jasmine.SpyObj<TablesService>;
-  let connectionsServiceMock: jasmine.SpyObj<ConnectionsService>;
+  let _connectionsServiceMock: jasmine.SpyObj<ConnectionsService>;
 
   beforeEach(async () => {
     const tableSpy = jasmine.createSpyObj('TablesService', ['cast', 'createSavedFilter', 'deleteSavedFilter', 'updateSavedFilter']);
@@ -61,7 +61,7 @@ describe('SavedFiltersDialogComponent', () => {
     .compileComponents();
 
     tablesServiceMock = TestBed.inject(TablesService) as jasmine.SpyObj<TablesService>;
-    connectionsServiceMock = TestBed.inject(ConnectionsService) as jasmine.SpyObj<ConnectionsService>;
+    _connectionsServiceMock = TestBed.inject(ConnectionsService) as jasmine.SpyObj<ConnectionsService>;
 
     fixture = TestBed.createComponent(SavedFiltersDialogComponent);
     component = fixture.componentInstance;

@@ -8,9 +8,6 @@ import { FoundSassCompanyInfoDS } from './data-structures/found-saas-company-inf
 
 @Injectable()
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
-  constructor() {
-    super();
-  }
 
   public async getCompanyInfo(companyId: string): Promise<FoundSassCompanyInfoDS | null> {
     const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/`, 'GET', null);

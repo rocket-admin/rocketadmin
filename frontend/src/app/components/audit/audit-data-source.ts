@@ -30,11 +30,11 @@ export class AuditDataSource implements DataSource<Object> {
 
   constructor(private _connections: ConnectionsService) {}
 
-  connect(collectionViewer: CollectionViewer): Observable<Object[]> {
+  connect(_collectionViewer: CollectionViewer): Observable<Object[]> {
     return this.rowsSubject.asObservable();
   }
 
-  disconnect(collectionViewer: CollectionViewer): void {
+  disconnect(_collectionViewer: CollectionViewer): void {
       this.rowsSubject.complete();
       this.loadingSubject.complete();
   }
@@ -72,11 +72,11 @@ export class AuditDataSource implements DataSource<Object> {
             const date = new Date(log.createdAt);
             const formattedDate = format(date, "P p")
             return {
-              ['Table']: log.table_name,
-              ['User']: log.email,
-              ['Action']: actions[log.operationType],
-              ['Date']: formattedDate,
-              ['Status']: log.operationStatusResult,
+              "Table": log.table_name,
+              "User": log.email,
+              "Action": actions[log.operationType],
+              "Date": formattedDate,
+              "Status": log.operationStatusResult,
               operationType: log.operationType,
               createdAt: log.createdAt,
               prevValue: log.old_data,

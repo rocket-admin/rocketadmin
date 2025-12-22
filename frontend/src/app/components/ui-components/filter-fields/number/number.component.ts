@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { CommonModule } from '@angular/common';

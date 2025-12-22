@@ -21,7 +21,7 @@ export class MoneyDisplayComponent extends BaseTableDisplayFieldComponent implem
   ngOnInit(): void {
     // Get currency from widget params
     this.displayCurrency = '';
-    if (this.widgetStructure && this.widgetStructure.widget_params && this.widgetStructure.widget_params.default_currency) {
+    if (this.widgetStructure?.widget_params?.default_currency) {
       this.displayCurrency = this.widgetStructure.widget_params.default_currency;
       const currency = getCurrencyByCode(this.displayCurrency);
       this.currencySymbol = currency ? currency.symbol : '';
@@ -51,7 +51,7 @@ export class MoneyDisplayComponent extends BaseTableDisplayFieldComponent implem
       amount = parseFloat(amount);
     }
 
-    if (isNaN(amount as number)) {
+    if (Number.isNaN(amount as number)) {
       return '';
     }
 

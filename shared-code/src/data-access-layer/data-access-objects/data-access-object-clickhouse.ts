@@ -9,7 +9,6 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -26,9 +25,6 @@ import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { NodeClickHouseClientConfigOptions } from '@clickhouse/client/dist/config.js';
 
 export class DataAccessObjectClickHouse extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown>> {
     const client = await this.getClickHouseClient();
@@ -421,7 +417,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
         character_maximum_length: this.extractLength(column.type),
         data_type_params: this.extractTypeParams(column.type),
         udt_name: column.type,
-        extra: column.is_in_primary_key ? 'primary_key' : undefined,
+        extra: this.buildExtraInfo(column.is_in_primary_key, column.default_expression),
       }));
 
       LRUStorage.setTableStructureCache(this.connection, tableName, structure);
@@ -795,6 +791,30 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     return null;
   }
 
+  private buildExtraInfo(isPrimaryKey: number, defaultExpression: string): string | undefined {
+    const parts: string[] = [];
+    if (isPrimaryKey) {
+      parts.push('primary_key');
+    }
+
+    if (defaultExpression) {
+      const lowerDefault = defaultExpression.toLowerCase();
+      if (
+        lowerDefault.includes('generateuuidv4') ||
+        lowerDefault.includes('generateuuid') ||
+        lowerDefault.includes('rownumberinallblocks') ||
+        lowerDefault.includes('rownumber') ||
+        lowerDefault.includes('auto_increment') ||
+        lowerDefault.includes('autoincrement') ||
+        lowerDefault.includes('nextval') ||
+        lowerDefault.includes('generate')
+      ) {
+        parts.push('auto_increment');
+      }
+    }
+    return parts.length > 0 ? parts.join(' ') : undefined;
+  }
+
   private async getRowsCount(
     client: ClickHouseClient,
     tableName: string,
@@ -845,7 +865,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     const connectionCopy = { ...this.connection };
 
     const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
-    if (cachedTnl && cachedTnl.clickhouse && cachedTnl.server && cachedTnl.client) {
+    if (cachedTnl?.clickhouse && cachedTnl.server && cachedTnl.client) {
       return cachedTnl.clickhouse;
     }
 

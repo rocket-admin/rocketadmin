@@ -16,7 +16,6 @@ import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -39,9 +38,6 @@ type RefererencedConstraint = {
 };
 
 export class DataAccessObjectOracle extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -353,7 +349,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
     return {
       data: rows.map((row) => {
-        delete row['ROWNUM_'];
+        delete row.ROWNUM_;
         return row;
       }),
       pagination: {
@@ -388,13 +384,13 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     if (!fastCountQueryResult[0]) {
       return null;
     }
-    const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
+    const fastCount = fastCountQueryResult[0].NUM_ROWS;
     return fastCount;
   }
 
   public async slowCountWithTimeOut(knex: Knex<any, any[]>, tableName: string, tableSchema: string) {
     const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
-    const rowsCount = parseInt(count[0]['COUNT(*)']);
+    const rowsCount = parseInt(count[0]['COUNT(*)'], 10);
     return rowsCount;
   }
 
@@ -827,8 +823,6 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     for await (const record of parser) {
       results.push(record);
     }
-
-    try {
       await knex.transaction(async (trx) => {
         for (const row of results) {
           for (const column of timestampColumnNames) {
@@ -841,9 +835,6 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           await trx(tableName).withSchema(tableSchema).insert(row);
         }
       });
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {

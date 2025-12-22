@@ -9,7 +9,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 export async function validateCreateCustomFieldDto(
   createFieldDto: CreateFieldDto,
   connection: ConnectionEntity,
-  userId: string,
+  _userId: string,
   tableName: string,
 ): Promise<void> {
   const errors = [];
@@ -21,7 +21,7 @@ export async function validateCreateCustomFieldDto(
   const tableFieldsFromTemplate = getValuesBetweenCurlies(template_string);
   const dao = getDataAccessObject(connection);
   const tablesInConnection: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
-  const tableIndexInTables = tablesInConnection.findIndex((table_name) => table_name === tableName);
+  const tableIndexInTables = tablesInConnection.indexOf(tableName);
   if (tableIndexInTables < 0) {
     throw new HttpException(
       {

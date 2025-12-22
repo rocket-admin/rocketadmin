@@ -10,7 +10,7 @@ describe('RevokeInvitationDialogComponent', () => {
   let component: RevokeInvitationDialogComponent;
   let fixture: ComponentFixture<RevokeInvitationDialogComponent>;
 
-  const mockDialogRef = {
+  const _mockDialogRef = {
     close: () => { }
   };
 

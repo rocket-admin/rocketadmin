@@ -18,7 +18,7 @@ import { getComparatorsFromUrl, getFiltersFromUrl } from 'src/app/lib/parse-filt
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import * as JSON5 from 'json5';
 import { map, startWith } from 'rxjs/operators';
-import { Observable, Subject } from 'rxjs';
+import { Observable, } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import JsonURL from "@jsonurl/jsonurl";
 import { DynamicModule } from 'ng-dynamic-component';
@@ -58,7 +58,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
 
   public tableRowFields: Object;
   public tableRowStructure: Object;
-  public tableRowFieldsShown: Object = {};
+  public tableRowFieldsShown: Record<string, string> = {};
   public tableRowFieldsComparator: Object = {};
   public tableForeignKeys: {[key: string]: TableForeignKey};
   public tableFiltersCount: number;
@@ -162,7 +162,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
     );
   }
 
-  trackByFn(index: number, item: any) {
+  trackByFn(_index: number, item: any) {
     return item.key; // or item.id
   }
 

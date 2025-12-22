@@ -320,5 +320,20 @@ export const recordViewFieldTypes = {
         object: JsonEditorRecordViewComponent,
         array: JsonEditorRecordViewComponent,
         binary: FileRecordViewComponent,
+    },
+    clickhouse: {
+        string: TextRecordViewComponent,
+        uuid: UuidRecordViewComponent,
+        boolean: BooleanRecordViewComponent,
+        integer: NumberRecordViewComponent,
+        bigint: NumberRecordViewComponent,
+        float: NumberRecordViewComponent,
+        double: NumberRecordViewComponent,
+        decimal: NumberRecordViewComponent,
+        date: DateRecordViewComponent,
+        datetime: DateTimeRecordViewComponent,
+        json: JsonEditorRecordViewComponent,
+        object: JsonEditorRecordViewComponent,
+        array: JsonEditorRecordViewComponent,
     }
 }

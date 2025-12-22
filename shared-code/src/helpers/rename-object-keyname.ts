@@ -4,7 +4,7 @@ interface RenamableObject {
 }
 
 export function renameObjectKeyName(obj: RenamableObject, oldKey: string, newKey: string): void {
-  if (oldKey === newKey || !obj.hasOwnProperty(oldKey)) {
+  if (oldKey === newKey || !Object.hasOwn(obj, oldKey)) {
     return;
   }
   obj[newKey] = obj[oldKey];

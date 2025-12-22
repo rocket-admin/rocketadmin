@@ -82,7 +82,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
       {
         type: AlertActionType.Button,
         caption: 'Dismiss',
-        action: (id: number) => this._notifications.dismissAlert()
+        action: (_id: number) => this._notifications.dismissAlert()
       }
     ]);
   }
@@ -141,7 +141,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.angulartics2.eventTrack.next({
           action: 'Login: login success'
         });
-      }, (error) => {
+      }, (_error) => {
         this.angulartics2.eventTrack.next({
           action: 'Login: login unsuccessful'
         });
@@ -170,7 +170,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.angulartics2.eventTrack.next({
           action: 'Login: login with 2fa success'
         });
-      }, (error) => {
+      }, (_error) => {
         this.angulartics2.eventTrack.next({
           action: 'Login: login with 2fa unsuccessful'
         });

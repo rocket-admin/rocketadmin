@@ -11,7 +11,7 @@ export async function readSslCertificate(): Promise<string> {
     fs.readFile(
       join(__dirname, '..', '..', '..', '..', '..', 'files', 'certificates', fileName),
       'utf8',
-      function (err, data) {
+      (err, data) => {
         if (err) {
           reject(err);
         }

@@ -67,16 +67,16 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
       {
         type: AlertActionType.Button,
         caption: 'Dismiss',
-        action: (id: number) => this._notifications.dismissAlert()
+        action: (_id: number) => this._notifications.dismissAlert()
       }
     ]);
   }
 
   ngAfterViewInit() {
-    //@ts-ignore
+    //@ts-expect-error
     gtag('event', 'conversion', {'send_to': 'AW-419937947/auKoCOvwgoYDEJv9nsgB'});
 
-    //@ts-ignore
+    //@ts-expect-error
     google.accounts.id.initialize({
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
       callback: (authUser) => {
@@ -89,12 +89,12 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
         })
       }
     });
-    //@ts-ignore
+    //@ts-expect-error
     google.accounts.id.renderButton(
       document.getElementById("google_registration_button"),
       { theme: "filled_blue", size: "large", width: 400, text: "signup_with" }
     );
-    //@ts-ignore
+    //@ts-expect-error
     google.accounts.id.prompt();
   }
 
@@ -110,7 +110,7 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
       this.angulartics2.eventTrack.next({
         action: 'Reg: sing up success'
       });
-    }, (error) => {
+    }, (_error) => {
       this.angulartics2.eventTrack.next({
         action: 'Reg: sing up unsuccessful'
       });

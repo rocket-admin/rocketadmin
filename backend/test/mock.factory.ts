@@ -452,7 +452,7 @@ export class MockFactory {
 
   generatePermissions(
     connectionId: string,
-    groupId: string,
+    _groupId: string,
     firstTableName: string,
     secondTableName: string,
     connectionAccessLevel: string,
@@ -496,7 +496,7 @@ export class MockFactory {
 
   generateInternalPermissions(
     connectionId: string,
-    groupId: string,
+    _groupId: string,
     connectionAccessLevel: string,
     groupAccessLevel: string,
   ) {

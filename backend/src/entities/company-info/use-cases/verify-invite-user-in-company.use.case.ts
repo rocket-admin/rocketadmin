@@ -43,7 +43,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
     } = foundInvitation;
     const invitedUserEmail = foundInvitation.invitedUserEmail.toLowerCase();
     const foundUser = users.find((user) => user.email === invitedUserEmail);
-    if (foundUser && foundUser.isActive) {
+    if (foundUser?.isActive) {
       throw new HttpException(
         {
           message: Messages.USER_ALREADY_ADDED_IN_COMPANY,

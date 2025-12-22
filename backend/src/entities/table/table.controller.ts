@@ -203,8 +203,8 @@ export class TableController {
       );
     }
     if (page && perPage) {
-      page = parseInt(page);
-      perPage = parseInt(perPage);
+      page = parseInt(page, 10);
+      perPage = parseInt(perPage, 10);
       if ((page && page <= 0) || (perPage && perPage <= 0)) {
         throw new HttpException(
           {
@@ -263,8 +263,8 @@ export class TableController {
       );
     }
     if (page && perPage) {
-      page = parseInt(page);
-      perPage = parseInt(perPage);
+      page = parseInt(page, 10);
+      perPage = parseInt(perPage, 10);
       if ((page && page <= 0) || (perPage && perPage <= 0)) {
         throw new HttpException(
           {
@@ -577,8 +577,6 @@ export class TableController {
         userId: userId,
       };
       return await this.getRowByPrimaryKeyUseCase.execute(inputData, InTransactionEnum.OFF);
-    } catch (e) {
-      throw e;
     } finally {
       const isTest = await this._dbContext.connectionRepository.isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
@@ -624,8 +622,8 @@ export class TableController {
       );
     }
     if (page && perPage) {
-      page = parseInt(page);
-      perPage = parseInt(perPage);
+      page = parseInt(page, 10);
+      perPage = parseInt(perPage, 10);
       if ((page && page <= 0) || (perPage && perPage <= 0)) {
         throw new HttpException(
           {

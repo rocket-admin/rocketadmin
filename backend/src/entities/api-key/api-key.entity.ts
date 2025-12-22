@@ -15,7 +15,7 @@ export class UserApiKeyEntity {
   @Column({ type: 'varchar', unique: true, nullable: false })
   hash: string;
 
-  @ManyToOne((type) => UserEntity, (user) => user.api_keys, { onDelete: 'CASCADE' })
+  @ManyToOne((_type) => UserEntity, (user) => user.api_keys, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: Relation<UserEntity>;
 

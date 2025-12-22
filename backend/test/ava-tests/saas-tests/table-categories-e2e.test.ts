@@ -10,7 +10,6 @@ import path from 'path';
 import request from 'supertest';
 import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { QueryOrderingEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
@@ -29,9 +28,9 @@ const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
-const testSearchedUserName = 'Vasia';
-const testTables: Array<string> = [];
+let _testUtils: TestUtils;
+const _testSearchedUserName = 'Vasia';
+const _testTables: Array<string> = [];
 let currentTest;
 
 test.before(async () => {
@@ -40,7 +39,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -188,7 +187,7 @@ test.serial(`${currentTest} should throw validation exceptions, when table categ
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    const createTableCategoriesRO = JSON.parse(createTableCategoriesResponse.text);
+    const _createTableCategoriesRO = JSON.parse(createTableCategoriesResponse.text);
     // console.log('🚀 ~ createTableCategoriesRO:', createTableCategoriesRO);
 
     t.is(createTableCategoriesResponse.status, 400);
@@ -276,7 +275,7 @@ test.serial(`${currentTest} find table categories`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    const recreateTableCategoriesRO = JSON.parse(recreateTableCategoriesResponse.text);
+    const _recreateTableCategoriesRO = JSON.parse(recreateTableCategoriesResponse.text);
 
     t.is(recreateTableCategoriesResponse.status, 200);
 

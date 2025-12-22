@@ -4,7 +4,7 @@ import { IMessage } from './email.interface.js';
 export abstract class AbstractEmailLetter<TParams extends {}> {
   protected readonly _params: TParams;
 
-  protected constructor(params: TParams) {
+  constructor(params: TParams) {
     this._params = params;
   }
 

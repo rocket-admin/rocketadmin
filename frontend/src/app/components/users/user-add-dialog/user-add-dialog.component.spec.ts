@@ -8,7 +8,6 @@ import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
-import { group } from 'console';
 import { RouterTestingModule } from '@angular/router/testing';
 
 describe('UserAddDialogComponent', () => {

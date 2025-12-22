@@ -35,7 +35,7 @@ export class ActionEventsEntity {
   @Column({ default: false, type: 'boolean' })
   require_confirmation: boolean;
 
-  @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
+  @ManyToOne((_type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'action_rule_id' })
   action_rule: Relation<ActionRulesEntity>;
 }

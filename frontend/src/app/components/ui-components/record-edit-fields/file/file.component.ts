@@ -64,20 +64,20 @@ export class FileEditComponent extends BaseEditFieldComponent {
 
       if (this.fileType === 'hex') {
         this.hexData = this.value;
-        //@ts-ignore
+        //@ts-expect-error
         this.initError = hexValidation()({value: this.hexData});
         this.initError = 'Invalid hex format.';
       };
 
       if (this.fileType === 'base64') {
         this.base64Data = this.value;
-        //@ts-ignore
+        //@ts-expect-error
         this.initError = base64Validation()({value: this.hexData});
         this.initError = 'Invalid base64 format.';
       };
 
       if (this.fileType === 'file') {
-        //@ts-ignore
+        //@ts-expect-error
         const blob = new Blob([this.value]);
         this.fileURL = this.sanitazer.bypassSecurityTrustUrl(URL.createObjectURL(blob));
       };
@@ -99,7 +99,7 @@ export class FileEditComponent extends BaseEditFieldComponent {
   }
 
   onHexChange() {
-    //@ts-ignore
+    //@ts-expect-error
     this.isNotSwitcherActive = hexValidation()({value: this.hexData});
     this.onFieldChange.emit(this.hexData);
   }
@@ -137,7 +137,7 @@ export class FileEditComponent extends BaseEditFieldComponent {
       };
       this.hexData = result;
       this.isNotSwitcherActive = false;
-    } catch(e) {
+    } catch(_e) {
       this.isNotSwitcherActive = true;
     }
   }

@@ -20,7 +20,7 @@ async function testConnectionToDB2() {
     const query = `SELECT 1 FROM sysibm.sysdummy1`;
     const testResult = await databaseConnection.query(query);
     await databaseConnection.close();
-    if (testResult && testResult[0] && testResult[0]['1'] === 1) {
+    if (testResult?.[0] && testResult[0]['1'] === 1) {
       return true;
     }
   } catch (error) {
@@ -30,7 +30,7 @@ async function testConnectionToDB2() {
 }
 
 function checkDB2() {
-  waitOn(opts, async function (err) {
+  waitOn(opts, async (err) => {
     if (err) {
       console.error('Error waiting for DB2:', err);
       setTimeout(checkDB2, 5000);

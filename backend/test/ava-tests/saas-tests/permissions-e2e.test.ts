@@ -23,7 +23,7 @@ import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 
 const mockFactory = new MockFactory();
 
@@ -33,7 +33,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));

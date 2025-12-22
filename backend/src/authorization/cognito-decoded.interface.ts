@@ -1,7 +1,8 @@
+import type { Request } from 'express';
 export interface ICognitoDecodedData {
   at_hash: string;
   sub: string;
-  aud: string;
+  aud: string | string[];
   email_verified: boolean;
   event_id: string;
   token_use: string;
@@ -15,6 +16,6 @@ export interface ICognitoDecodedData {
 
 export interface IRequestWithCognitoInfo extends Request {
   query: any;
-  decoded: ICognitoDecodedData;
+  decoded: Partial<ICognitoDecodedData>;
   params: any;
 }
