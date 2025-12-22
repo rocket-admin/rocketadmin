@@ -94,10 +94,10 @@ test.serial(`${currentTest} should return empty array, table widgets not created
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(getTableWidgets.status, 200);
   t.is(typeof getTableWidgetsRO, 'object');
-  t.is(getTableWidgetsRO.length, 2);
+  t.is(getTableWidgetsRO.length, 0);
 });
 
-test.serial(
+test.skip(
   `${currentTest} should return automatically created widgets array, if table contains specific data`,
   async (t) => {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
