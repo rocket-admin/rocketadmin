@@ -84,6 +84,7 @@ import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.m
     TableCategoriesModule,
     UserSecretModule,
     SignInAuditModule,
+    AIModule,
   ],
   controllers: [AppController],
   providers: [

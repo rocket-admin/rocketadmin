@@ -3,6 +3,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/validate-table-settings-ds.builder.js';
 import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
@@ -13,12 +14,97 @@ import { ConnectionEntity } from '../connection/connection.entity.js';
 import { buildEmptyTableSettings } from '../table-settings/utils/build-empty-table-settings.js';
 import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
+import { AiService } from '../ai/ai.service.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { isTest } from '../../helpers/app/is-test.js';
+
 @Injectable()
 export class SharedJobsService {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private readonly aiService: AiService,
   ) {}
+
+  public async scanDatabaseAndCreateSettingsAndWidgetsWithAI(connection: ConnectionEntity): Promise<void> {
+    if (!connection || isTest()) {
+      return;
+    }
+    try {
+      const dao = getDataAccessObject(connection);
+      const tables: Array<TableDS> = await dao.getTablesFromDB();
+      const queue = new PQueue({ concurrency: 4 });
+      const tablesInformation = await Promise.all(
+        tables.map((table) =>
+          queue.add(async () => {
+            const structure = await dao.getTableStructure(table.tableName, null);
+            const primaryColumns = await dao.getTablePrimaryColumns(table.tableName, null);
+            const foreignKeys = await dao.getTableForeignKeys(table.tableName, null);
+            return {
+              table_name: table.tableName,
+              structure,
+              primaryColumns,
+              foreignKeys,
+            };
+          }),
+        ),
+      );
+
+      const generatedTableSettings = await this.aiService.generateNewTableSettingsWithAI(tablesInformation);
+
+      const widgetsByTable = new Map<string, Array<TableWidgetEntity>>();
+      for (const setting of generatedTableSettings) {
+        if (setting.table_widgets && setting.table_widgets.length > 0) {
+          widgetsByTable.set(setting.table_name, setting.table_widgets);
+        }
+      }
+
+      const normalizedSettings = this.normalizeAISettings(generatedTableSettings, connection);
+
+      const validationQueue = new PQueue({ concurrency: 4 });
+      const validatedSettings = await Promise.all(
+        normalizedSettings.map((setting) =>
+          validationQueue.add(async () => {
+            const validateSettingsDS = buildValidateTableSettingsDS(setting);
+            const errors = await dao.validateSettings(validateSettingsDS, setting.table_name, undefined);
+            if (errors.length > 0) {
+              console.error(`Validation errors for table "${setting.table_name}":`, errors);
+              return null;
+            }
+            return setting;
+          }),
+        ),
+      );
+
+      const settingsToSave = validatedSettings.filter((setting) => setting !== null);
+      if (settingsToSave.length > 0) {
+        const savedSettings = await this._dbContext.tableSettingsRepository.save(settingsToSave);
+        const widgetsToSave: Array<TableWidgetEntity> = [];
+        for (const savedSetting of savedSettings) {
+          const widgets = widgetsByTable.get(savedSetting.table_name);
+          if (widgets && widgets.length > 0) {
+            for (const widget of widgets) {
+              const widgetEntity = new TableWidgetEntity();
+              widgetEntity.field_name = widget.field_name;
+              widgetEntity.widget_type = widget.widget_type;
+              widgetEntity.widget_params = widget.widget_params || null;
+              widgetEntity.widget_options = widget.widget_options || null;
+              widgetEntity.name = widget.name || null;
+              widgetEntity.description = widget.description || null;
+              widgetEntity.settings = savedSetting;
+              widgetsToSave.push(widgetEntity);
+            }
+          }
+        }
+
+        if (widgetsToSave.length > 0) {
+          await this._dbContext.tableWidgetsRepository.save(widgetsToSave);
+        }
+      }
+    } catch (error) {
+      Sentry.captureException(error);
+    }
+  }
 
   public async scanDatabaseAndCreateWidgets(connection: ConnectionEntity): Promise<void> {
     if (!connection) {
@@ -44,6 +130,18 @@ export class SharedJobsService {
     } catch (error) {
       Sentry.captureException(error);
     }
+  }
+
+  private normalizeAISettings(
+    aiSettings: Array<TableSettingsEntity>,
+    connection: ConnectionEntity,
+  ): Array<TableSettingsEntity> {
+    aiSettings.forEach((setting) => {
+      delete setting.id;
+      setting.connection_id = connection;
+      delete setting.table_widgets;
+    });
+    return aiSettings;
   }
 
   private async scanTableAndCreateWidgets(
