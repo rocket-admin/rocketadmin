@@ -10,9 +10,6 @@
       }
     }
   },
-  "scripts": {
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
-  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.952.0",
     "@aws-sdk/lib-dynamodb": "^3.952.0",
@@ -45,12 +42,6 @@
   "devDependencies": {
     "@types/oracledb": "^6.10.0",
     "@types/pg-copy-streams": "^1.2.5",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import": "^2.32.0",
-    "prettier": "^3.7.4",
     "typescript": "^5.9.3"
   }
 }
