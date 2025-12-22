@@ -2,39 +2,6 @@ services:
   backend:
     build:
       context: .
-    ports:
-      - 3000:3000
-    env_file: ./backend/.development.env
-    environment:
-      DATABASE_URL: "postgres://postgres:abc123@postgres:5432/postgres"
-    volumes:
-      - ./backend/src/migrations:/app/src/migrations
-    depends_on:
-      - postgres
-      - testMySQL-e2e-testing
-      - testPg-e2e-testing
-      - mssql-e2e-testing
-      - test-oracle-e2e-testing
-      - test-ibm-db2-e2e-testing
-      - test-dynamodb-e2e-testing
-      - test-redis-e2e-testing
-      - test-cassandra-e2e-testing
-      - test-clickhouse-e2e-testing
-    links:
-      - postgres
-      - testMySQL-e2e-testing
-      - testPg-e2e-testing
-      - mssql-e2e-testing
-      - test-oracle-e2e-testing
-      - test-ibm-db2-e2e-testing
-      - test-dynamodb-e2e-testing
-      - test-redis-e2e-testing
-      - test-cassandra-e2e-testing
-      - test-clickhouse-e2e-testing
-    command: ["yarn", "start"]
-  backend_test:
-    build:
-      context: .
     env_file: ./backend/.development.env
     environment:
       - "DATABASE_URL=postgres://postgres:abc123@postgres:5432/postgres"
