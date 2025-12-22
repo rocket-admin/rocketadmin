@@ -241,6 +241,80 @@ export class DbTableViewComponent implements OnInit {
     return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
   }
 
+  getSortIcon(column: string): string {
+    if (this.sort && this.sort.active === column) {
+      return this.sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward';
+    }
+    return 'sync_alt';
+  }
+
+  getSortTooltip(column: string): string {
+    if (this.sort && this.sort.active === column) {
+      return this.sort.direction === 'asc' 
+        ? 'Sort ascending (A-Z)' 
+        : 'Sort descending (Z-A)';
+    }
+    return 'Sort column';
+  }
+
+  applySort(column: string, direction: 'asc' | 'desc') {
+    if (!this.sort || !this.paginator) return;
+
+    // Если колонка уже отсортирована в том же направлении, отменяем сортировку
+    if (this.sort.active === column && this.sort.direction === direction) {
+      this.clearSort();
+      return;
+    }
+
+    // Применяем сортировку программно через MatSort API
+    this.sort.sort({
+      id: column,
+      start: direction,
+      disableClear: true
+    });
+
+    // Триггерим событие сортировки вручную, чтобы обновить URL и загрузить данные
+    const filters = JsonURL.stringify(this.activeFilters);
+    const saved_filter = this.route.snapshot.queryParams.saved_filter;
+    const dynamic_column = this.route.snapshot.queryParams.dynamic_column;
+
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
+      queryParams: {
+        filters,
+        saved_filter,
+        dynamic_column,
+        sort_active: column,
+        sort_direction: direction.toUpperCase(),
+        page_index: this.paginator.pageIndex,
+        page_size: this.paginator.pageSize
+      }
+    });
+    this.loadRowsPage();
+  }
+
+  clearSort() {
+    if (!this.sort || !this.paginator) return;
+
+    // Очищаем сортировку, вызывая sort с пустым id
+    this.sort.sort({ id: '', start: 'asc', disableClear: false });
+
+    const filters = JsonURL.stringify(this.activeFilters);
+    const saved_filter = this.route.snapshot.queryParams.saved_filter;
+    const dynamic_column = this.route.snapshot.queryParams.dynamic_column;
+
+    // Навигация без параметров сортировки (они будут удалены из URL)
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
+      queryParams: {
+        filters,
+        saved_filter,
+        dynamic_column,
+        page_index: this.paginator.pageIndex,
+        page_size: this.paginator.pageSize
+      }
+    });
+    this.loadRowsPage();
+  }
+
   isForeignKey(column: string) {
     return this.tableData.foreignKeysList.includes(column);
   }
