@@ -58,7 +58,7 @@ export class CompanyService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -76,7 +76,7 @@ export class CompanyService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -99,7 +99,7 @@ export class CompanyService {
   updateCompanyName(companyId: string, name: string) {
     return this._http.put<any>(`/company/name/${companyId}`, {name})
       .pipe(
-        map(res => this._notifications.showSuccessSnackbar('Company name has been updated.')),
+        map(_res => this._notifications.showSuccessSnackbar('Company name has been updated.')),
         catchError((err) => {
           console.log(err);
           this._notifications.showErrorSnackbar(err.error.message || err.message);
@@ -156,7 +156,7 @@ export class CompanyService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -178,7 +178,7 @@ export class CompanyService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -200,7 +200,7 @@ export class CompanyService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -222,7 +222,7 @@ export class CompanyService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -248,7 +248,7 @@ export class CompanyService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -291,7 +291,7 @@ export class CompanyService {
               {
                 type: AlertActionType.Button,
                 caption: 'Dismiss',
-                action: (id: number) => this._notifications.dismissAlert()
+                action: (_id: number) => this._notifications.dismissAlert()
               }
             ]
           );
@@ -449,13 +449,13 @@ export class CompanyService {
     return this._http.get<any>(`/company/white-label-properties/${companyId}`)
       .pipe(
         map(res => {
-          if (res.logo && res.logo.image && res.logo.mimeType) {
+          if (res.logo?.image && res.logo.mimeType) {
             this.companyLogo = `data:${res.logo.mimeType};base64,${res.logo.image}`;
           } else {
             this.companyLogo = null;
           }
 
-          if (res.favicon && res.favicon.image && res.favicon.mimeType) {
+          if (res.favicon?.image && res.favicon.mimeType) {
             this.companyFavicon = `data:${res.favicon.mimeType};base64,${res.favicon.image}`;
           } else {
             this.companyFavicon = null;

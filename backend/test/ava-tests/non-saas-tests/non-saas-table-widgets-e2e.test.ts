@@ -23,12 +23,12 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest;
 
 const tableNameForWidgets = 'connection';
 
-const uuidRegex: RegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const _uuidRegex: RegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 test.before(async () => {
   setSaasEnvVariable();
@@ -37,7 +37,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -142,7 +142,7 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
     .set('Accept', 'application/json');
   t.is(getTableStructureResponse.status, 200);
   const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
-  t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
+  t.is(Object.hasOwn(getTableStructureRO, 'table_widgets'), true);
   t.is(getTableStructureRO.table_widgets.length, 2);
   t.is(getTableStructureRO.table_widgets[0].field_name, newTableWidgets[0].field_name);
   t.is(getTableStructureRO.table_widgets[1].widget_type, newTableWidgets[1].widget_type);
@@ -345,7 +345,7 @@ test.serial(`${currentTest} should return created table widgets`, async (t) => {
     .set('Cookie', token)
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
-  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  const _createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
   t.is(createTableWidgetResponse.status, 201);
 
   const getTableWidgets = await request(app.getHttpServer())
@@ -383,7 +383,7 @@ test.serial(`${currentTest} hould return updated table widgets`, async (t) => {
     .set('Cookie', token)
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
-  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  const _createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
   t.is(createTableWidgetResponse.status, 201);
   const updatedTableWidgets = mockFactory.generateUpdateWidgetDTOsArrayForConnectionTable();
   const updateTableWidgetResponse = await request(app.getHttpServer())
@@ -393,7 +393,7 @@ test.serial(`${currentTest} hould return updated table widgets`, async (t) => {
     .set('Cookie', token)
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
-  const updateTableWidgetRO = JSON.parse(updateTableWidgetResponse.text);
+  const _updateTableWidgetRO = JSON.parse(updateTableWidgetResponse.text);
 
   t.is(updateTableWidgetResponse.status, 201);
 
@@ -432,7 +432,7 @@ test.serial(`${currentTest} should return updated table widgets when old widget 
     .set('Cookie', token)
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
-  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  const _createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
   t.is(createTableWidgetResponse.status, 201);
   const updatedTableWidgets = mockFactory.generateUpdateWidgetDTOsArrayForConnectionTable();
   const updateTableWidgetResponse = await request(app.getHttpServer())
@@ -442,7 +442,7 @@ test.serial(`${currentTest} should return updated table widgets when old widget 
     .set('Cookie', token)
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
-  const updateTableWidgetRO = JSON.parse(updateTableWidgetResponse.text);
+  const _updateTableWidgetRO = JSON.parse(updateTableWidgetResponse.text);
 
   t.is(updateTableWidgetResponse.status, 201);
 
@@ -482,7 +482,7 @@ test.serial(`${currentTest} should return table widgets without deleted widget`,
     .set('Cookie', token)
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
-  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  const _createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
   t.is(createTableWidgetResponse.status, 201);
 
   const copyWidgets = [...newTableWidgets];
@@ -580,7 +580,7 @@ test.serial(`${currentTest} should throw exception when connection id not passed
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const connectionId = JSON.parse(createdConnection.text).id;
+  const _connectionId = JSON.parse(createdConnection.text).id;
   const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
   const emptyId = '';
   const createTableWidgetResponse = await request(app.getHttpServer())
@@ -604,7 +604,7 @@ test.serial(`${currentTest} should throw exception when connection id passed in 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
-  const connectionId = JSON.parse(createdConnection.text).id;
+  const _connectionId = JSON.parse(createdConnection.text).id;
   const fakeConnectionId = faker.string.uuid();
   const createTableWidgetResponse = await request(app.getHttpServer())
     .post(`/widget/${fakeConnectionId}?tableName=${tableNameForWidgets}`)

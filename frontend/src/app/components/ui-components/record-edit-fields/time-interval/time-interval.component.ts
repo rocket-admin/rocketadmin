@@ -30,12 +30,11 @@ export class TimeIntervalEditComponent extends BaseEditFieldComponent {
 
   ngOnInit(): void {
     super.ngOnInit();
-    // @ts-ignore
     if (this.value) this.interval = this.value;
   }
 
   onInputChange() {
-    // @ts-ignore
+    // @ts-expect-error
     const currentInterval = pgInterval.prototype.toPostgres.call(this.interval);
     this.onFieldChange.emit(currentInterval);
   }

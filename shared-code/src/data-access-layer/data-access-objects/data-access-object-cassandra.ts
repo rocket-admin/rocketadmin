@@ -9,7 +9,6 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -26,9 +25,6 @@ import { IDataAccessObject } from '../../shared/interfaces/data-access-object.in
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectCassandra extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -241,7 +237,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
           if (type === 'uuid' && isUuid(searchedFieldValue)) {
             valid = true;
             param = searchedFieldValue;
-          } else if ((type === 'int' || type === 'bigint') && !isNaN(Number(searchedFieldValue))) {
+          } else if ((type === 'int' || type === 'bigint') && !Number.isNaN(Number(searchedFieldValue))) {
             valid = true;
             param = Number(searchedFieldValue);
           } else if (type === 'date') {
@@ -360,7 +356,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
     }
 
     if (type && typeof type === 'object') {
-      if (type.info && type.info.name) {
+      if (type.info?.name) {
         return this.stripGenerics(type.info.name);
       }
 
@@ -477,7 +473,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       );
       for (const row of tablesResult.rows) {
         tables.push({
-          tableName: row['table_name'],
+          tableName: row.table_name,
           isView: false,
         });
       }
@@ -488,7 +484,7 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       );
       for (const row of viewsResult.rows) {
         tables.push({
-          tableName: row['view_name'],
+          tableName: row.view_name,
           isView: true,
         });
       }
@@ -511,9 +507,9 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
       );
       for (const row of columnsResult.rows) {
         tableStructure.push({
-          column_name: row['column_name'],
+          column_name: row.column_name,
           column_default: null,
-          data_type: this.cassandraTypeToReadable(row['type']),
+          data_type: this.cassandraTypeToReadable(row.type),
           allow_null: true,
           character_maximum_length: null,
           data_type_params: null,
@@ -710,8 +706,8 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
               field.data_type.includes('float') ||
               field.data_type.includes('double')
             ) {
-              value = isNaN(parseFloat(value)) ? null : parseFloat(value);
-            } else if (field.data_type === 'timestamp' && !isNaN(Number(value))) {
+              value = Number.isNaN(parseFloat(value)) ? null : parseFloat(value);
+            } else if (field.data_type === 'timestamp' && !Number.isNaN(Number(value))) {
               const timestamp = Number(value);
               value = new Date(timestamp);
             } else if (field.data_type.includes('boolean')) {

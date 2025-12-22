@@ -64,8 +64,7 @@ export class AuditLogDialogComponent implements OnInit {
   };
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { secret: Secret },
-    private dialogRef: MatDialogRef<AuditLogDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { secret: Secret },_dialogRef: MatDialogRef<AuditLogDialogComponent>,
     private _secrets: SecretsService
   ) {}
 

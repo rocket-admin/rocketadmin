@@ -30,7 +30,7 @@ export class AuthService {
       .pipe(
         map(res => {
           if ((environment as any).saas) {
-            // @ts-ignore
+            // @ts-expect-error
             window.fbq?.('trackCustom', 'Signup');
           }
           this._notifications.showSuccessSnackbar(`Confirmation email has been sent to you.`);
@@ -67,7 +67,7 @@ export class AuthService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: (_id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -142,7 +142,7 @@ export class AuthService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: (_id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -251,7 +251,7 @@ export class AuthService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;

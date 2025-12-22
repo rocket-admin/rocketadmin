@@ -19,7 +19,7 @@ export const CONSTANTS = Object.freeze({
 
   RES_CACHE_OPTIONS: {
     max: 5000,
-    dispose: function(key, n) {
+    dispose: (_key, n) => {
       n?.send('Connection was closed by timeout');
     },
     maxAge: 600000,

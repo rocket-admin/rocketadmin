@@ -61,7 +61,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       companyId,
     );
 
-    if (foundInvitedUser && foundInvitedUser.isActive) {
+    if (foundInvitedUser?.isActive) {
       throw new HttpException(
         {
           message: Messages.USER_ALREADY_ADDED_IN_COMPANY,

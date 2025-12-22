@@ -19,7 +19,7 @@ export class JsonEditorDisplayComponent extends BaseTableDisplayFieldComponent {
     try {
       const parsedValue = typeof this.value === 'string' ? JSON.parse(this.value) : this.value;
       return JSON.stringify(parsedValue, null, 2);
-    } catch (e) {
+    } catch (_e) {
       return String(this.value);
     }
   }

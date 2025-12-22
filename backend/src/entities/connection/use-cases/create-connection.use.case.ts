@@ -111,8 +111,6 @@ export class CreateConnectionUseCase
       );
       const connectionRO = buildCreatedConnectionDs(savedConnection, token, masterPwd);
       return connectionRO;
-    } catch (e) {
-      throw e;
     } finally {
       if (isConnectionTestedSuccessfully && !isConnectionTypeAgent(connectionCopy.type)) {
         await this.sharedJobsService.scanDatabaseAndCreateWidgets(connectionCopy);

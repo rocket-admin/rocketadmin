@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SsoComponent } from './sso.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ActivatedRoute, convertToParamMap, Router, RouterLink, RouterModule } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router, RouterModule } from '@angular/router';
 import { CompanyService } from 'src/app/services/company.service';
 import { of } from 'rxjs';
 

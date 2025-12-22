@@ -15,7 +15,7 @@ describe('UserService', () => {
   let fakeNotifications;
   let routerSpy;
 
-  const authUser = {
+  const _authUser = {
     email: 'eric.cartman@south.park',
     password: '12345678'
   }
@@ -404,7 +404,7 @@ describe('UserService', () => {
     }
     const requestResponse = true;
 
-    service.deleteAccount(metadata).subscribe((res) => {
+    service.deleteAccount(metadata).subscribe((_res) => {
       // expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('You account has been deleted.');
       isDeleteuserCalled = true;
     });

@@ -37,7 +37,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
   }
 
   configureFromWidgetParams(): void {
-    if (this.widgetStructure && this.widgetStructure.widget_params) {
+    if (this.widgetStructure?.widget_params) {
       const params = this.widgetStructure.widget_params;
 
       if (typeof params.default_currency === 'string') {
@@ -122,7 +122,7 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
     // Parse the number
     const numericValue = parseFloat(cleanValue);
 
-    if (!isNaN(numericValue)) {
+    if (!Number.isNaN(numericValue)) {
       this.amount = numericValue;
       // Don't reformat while user is typing to preserve focus
       if (this.displayAmount !== cleanValue) {
@@ -146,21 +146,21 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
     }
   }
 
-  private formatAmount(amount: number | string): string {
+  public formatAmount(amount: number | string): string {
     if (amount === '' || amount === null || amount === undefined) {
       return '';
     }
 
     const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
 
-    if (isNaN(numericAmount)) {
+    if (Number.isNaN(numericAmount)) {
       return '';
     }
 
     return numericAmount.toFixed(this.decimalPlaces);
   }
 
-  private updateValue(): void {
+  public updateValue(): void {
     if (this.amount === '' || this.amount === null || this.amount === undefined) {
       this.value = '';
     } else {

@@ -22,17 +22,17 @@ import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 
 const mockFactory = new MockFactory();
 
 const masterPwd = 'ahalaimahalai';
 
-const decryptValue = (data) => {
+const _decryptValue = (data) => {
   return Encryptor.decryptData(data);
 };
 
-const decryptValueMaterPwd = (data) => {
+const _decryptValueMaterPwd = (data) => {
   return Encryptor.decryptDataMasterPwd(data, masterPwd);
 };
 
@@ -42,7 +42,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -119,7 +119,7 @@ test.serial(`${currentTest} should return custom fields array, when custom field
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -149,7 +149,7 @@ test.serial(`${currentTest} should return custom fields array, when custom field
 
   t.is(getTableRowsRO.rows.length > 0, true);
   for (const row of getTableRowsRO.rows) {
-    t.is(row.hasOwnProperty('#autoadmin:customFields'), true);
+    t.is(Object.hasOwn(row, '#autoadmin:customFields'), true);
     t.is(typeof row['#autoadmin:customFields'], 'object');
     t.is(row['#autoadmin:customFields'].length, 1);
     t.is(row['#autoadmin:customFields'][0].type, newCustomField.type);
@@ -310,7 +310,7 @@ test.serial(`${currentTest} should return table settings with created custom fie
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -354,7 +354,7 @@ test.serial(
       .set('Content-Type', 'application/json')
       .set('masterpwd', 'ahalaimahalai')
       .set('Accept', 'application/json');
-    const createCustomField = JSON.parse(createCustomFieldResponse.text);
+    const _createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
     // t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
@@ -386,7 +386,7 @@ test.serial(
       .set('Cookie', token)
       .set('masterpwd', 'ahalaimahalai')
       .set('Accept', 'application/json');
-    const createCustomField = JSON.parse(createCustomFieldResponse.text);
+    const _createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
     // t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
@@ -420,7 +420,7 @@ test.serial(
       .set('masterpwd', 'ahalaimahalai')
       .set('Accept', 'application/json');
 
-    const createCustomField = JSON.parse(createCustomFieldResponse.text);
+    const _createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
     // t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
@@ -483,7 +483,7 @@ test.serial(
       .set('Cookie', token)
       .set('masterpwd', 'ahalaimahalai')
       .set('Accept', 'application/json');
-    const createCustomField = JSON.parse(createCustomFieldResponse.text);
+    const _createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
     // t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
@@ -627,7 +627,7 @@ test.serial(`${currentTest} should return updated custom field`, async (t) => {
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -691,7 +691,7 @@ test.serial(`${currentTest} should throw exception, when connection id not passe
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -750,7 +750,7 @@ test.serial(`${currentTest} should throw exception, when connection id passed in
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -812,7 +812,7 @@ test.serial(`${currentTest} should throw exception, when tableName passed in req
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -874,7 +874,7 @@ test.serial(`${currentTest} should throw exception, when tableName not passed in
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -936,7 +936,7 @@ test.serial(`${currentTest} should throw exception, when field id not passed in 
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -969,7 +969,7 @@ test.serial(`${currentTest} should throw exception, when field id not passed in 
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
 
-  const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
+  const _updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
   // t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
@@ -998,7 +998,7 @@ test.serial(`${currentTest} should throw exception, when field type not passed i
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1031,7 +1031,7 @@ test.serial(`${currentTest} should throw exception, when field type not passed i
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
 
-  const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
+  const _updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
   // t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
@@ -1059,7 +1059,7 @@ test.serial(`${currentTest} should throw exception, when field type passed in re
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1120,7 +1120,7 @@ test.serial(`${currentTest} should throw exception, when field text is not passe
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1153,7 +1153,7 @@ test.serial(`${currentTest} should throw exception, when field text is not passe
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
 
-  const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
+  const _updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
   // t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
@@ -1182,7 +1182,7 @@ test.serial(`${currentTest} should throw exception, when field template_string i
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1215,7 +1215,7 @@ test.serial(`${currentTest} should throw exception, when field template_string i
     .set('masterpwd', 'ahalaimahalai')
     .set('Accept', 'application/json');
 
-  const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
+  const _updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
   // t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
@@ -1243,7 +1243,7 @@ test.serial(`${currentTest} should throw exception, when fields passed in templa
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1311,7 +1311,7 @@ test.serial(
       .set('Accept', 'application/json');
     const createCustomField = JSON.parse(createCustomFieldResponse.text);
     t.is(createCustomFieldResponse.status, 201);
-    t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+    t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
     t.is(typeof createCustomField.custom_fields, 'object');
 
     const getCustomFields = await request(app.getHttpServer())
@@ -1344,7 +1344,7 @@ test.serial(
       .set('masterpwd', 'ahalaimahalai')
       .set('Accept', 'application/json');
 
-    const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
+    const _updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
     t.is(updateCustomFieldResponse.status, 400);
     // t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
   },
@@ -1375,7 +1375,7 @@ test.serial(`${currentTest} should return table settings without deleted custom 
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   let getCustomFields = await request(app.getHttpServer())
@@ -1446,7 +1446,7 @@ test.serial(`${currentTest} should throw exception, when connection id not passe
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1498,7 +1498,7 @@ test.serial(`${currentTest} should throw exception, when connection id passed in
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1552,7 +1552,7 @@ test.serial(`${currentTest} should throw exception, when tableName not passed in
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1606,7 +1606,7 @@ test.serial(`${currentTest} should throw exception, when tableName passed in req
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1660,7 +1660,7 @@ test.serial(`${currentTest} should throw exception, when field id is not passed 
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())
@@ -1714,7 +1714,7 @@ test.serial(`${currentTest} should throw exception, when field id passed in requ
     .set('Accept', 'application/json');
   const createCustomField = JSON.parse(createCustomFieldResponse.text);
   t.is(createCustomFieldResponse.status, 201);
-  t.is(createCustomField.hasOwnProperty('custom_fields'), true);
+  t.is(Object.hasOwn(createCustomField, 'custom_fields'), true);
   t.is(typeof createCustomField.custom_fields, 'object');
 
   const getCustomFields = await request(app.getHttpServer())

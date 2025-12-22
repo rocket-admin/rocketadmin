@@ -37,7 +37,7 @@ export class PointRecordViewComponent extends BaseRecordViewFieldComponent imple
         const y = this.value.y || this.value[1];
         this.formattedPoint = `(${x}, ${y})`;
       }
-    } catch (e) {
+    } catch (_e) {
       this.formattedPoint = String(this.value);
     }
   }

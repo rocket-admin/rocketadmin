@@ -76,10 +76,6 @@ export class NgMatTableQueryReflectorDirective implements OnInit, OnDestroy {
       // Picked a hack from: https://github.com/angular/components/issues/10242#issuecomment-421490991
       const activeSortHeader = this.dataSource.sort.sortables.get(sortActiveColumn);
       if (!activeSortHeader) { return; }
-      activeSortHeader['_setAnimationTransitionState']({
-        fromState: this.dataSource.sort.direction,
-        toState: 'active',
-      });
     }
 
   }
@@ -88,7 +84,7 @@ export class NgMatTableQueryReflectorDirective implements OnInit, OnDestroy {
 
     const queryParams = this._activatedRoute.snapshot.queryParams;
 
-    if (queryParams.hasOwnProperty('sort_active') || queryParams.hasOwnProperty('sort_direction')) {
+    if (Object.hasOwn(queryParams, 'sort_active') || Object.hasOwn(queryParams, 'sort_direction')) {
       return {
         sort_active: queryParams.sort_active,
         sort_direction: queryParams.sort_direction
@@ -102,7 +98,7 @@ export class NgMatTableQueryReflectorDirective implements OnInit, OnDestroy {
 
     const queryParams = this._activatedRoute.snapshot.queryParams;
 
-    if (queryParams.hasOwnProperty('page_size') || queryParams.hasOwnProperty('page_index')) {
+    if (Object.hasOwn(queryParams, 'page_size') || Object.hasOwn(queryParams, 'page_index')) {
       return {
         page_size: queryParams.page_size,
         page_index: queryParams.page_index
@@ -155,7 +151,7 @@ export class NgMatTableQueryReflectorDirective implements OnInit, OnDestroy {
     const titleCheckingInterval$ = interval(500);
 
     return new Promise((resolve) => {
-      this._dataSourceChecker$ = titleCheckingInterval$.subscribe(val => {
+      this._dataSourceChecker$ = titleCheckingInterval$.subscribe(_val => {
         if (this.dataSource?.sort && this.dataSource?.paginator) {
           this._dataSourceChecker$.unsubscribe();
           return resolve();

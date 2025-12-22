@@ -93,7 +93,7 @@ async function bootstrap() {
 
 const temp = process.exit;
 
-process.exit = function () {
+process.exit = () => {
   console.trace();
   process.exit = temp;
   process.exit();

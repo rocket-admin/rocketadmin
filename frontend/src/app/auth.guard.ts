@@ -1,4 +1,4 @@
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, Router } from '@angular/router';
 import { differenceInMilliseconds } from 'date-fns'
 
 import { Injectable } from '@angular/core';
@@ -13,8 +13,8 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    _route: ActivatedRouteSnapshot,
+    _state: RouterStateSnapshot
   ) {
     try {
       const expirationToken = localStorage.getItem('token_expiration');

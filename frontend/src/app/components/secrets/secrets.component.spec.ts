@@ -315,7 +315,7 @@ describe('SecretsComponent', () => {
 
   describe('ngOnDestroy', () => {
     it('should unsubscribe from all subscriptions', () => {
-      const unsubscribeSpy = spyOn(component['subscriptions'][0], 'unsubscribe');
+      const unsubscribeSpy = spyOn(component.subscriptions[0], 'unsubscribe');
 
       component.ngOnDestroy();
 

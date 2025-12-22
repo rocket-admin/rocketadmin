@@ -47,10 +47,10 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-419937947"></script>
 
   <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  <script>((w,d,s,l,i)=> {w[l]=w[l]||[];w[l].push({'gtm.start':
     // biome-ignore lint: third-party code snippet
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    j=d.createElement(s),dl=l!=='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-W64RBP8');</script>
   <!-- End Google Tag Manager -->
@@ -58,9 +58,9 @@
   <!-- Event snippet for Page view conversion page
   In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
   <script>
-  function gtag_report_conversion(url) {
-    var callback = function () {
-      if (typeof(url) != 'undefined') {
+  function _gtag_report_conversion(url) {
+    var callback = () => {
+      if (typeof(url) !== 'undefined') {
         window.location = url;
       }
     };
@@ -77,14 +77,14 @@
 
   <!-- Facebook Pixel Code -->
   <script>
-    !function(f,b,e,v,n,t,s)
+    !((f,b,e,v,n,t,s)=> 
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     // biome-ignore lint: third-party code snippet
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
     n.queue=[];t=b.createElement(e);t.async=!0;
     t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    s.parentNode.insertBefore(t,s)})(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '3069782323239519');
     fbq('track', 'PageView');
@@ -178,9 +178,9 @@
             animationData: animationData
         };
 
-        var anim;
+        var _anim;
 
-        anim = lottie.loadAnimation(params);
+        _anim = lottie.loadAnimation(params);
 
     </script>
   </app-root>

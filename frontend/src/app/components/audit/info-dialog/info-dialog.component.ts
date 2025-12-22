@@ -47,7 +47,7 @@ export class InfoDialogComponent implements OnInit {
       }
     };
 
-    if (this.log && this.log.createdAt) {
+    if (this.log?.createdAt) {
       const datetime = new Date(this.log.createdAt);
       this.formattedCrreatedAt = format(datetime, 'PPPpp');
       this.action = actions[this.log.Status][this.log.operationType];

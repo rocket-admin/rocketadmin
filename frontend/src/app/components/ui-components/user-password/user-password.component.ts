@@ -32,8 +32,6 @@ export class UserPasswordComponent implements OnInit {
 
   public passwordHidden: boolean;
 
-  constructor() { }
-
   ngOnInit(): void {
   }
 

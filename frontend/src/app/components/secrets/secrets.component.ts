@@ -59,9 +59,9 @@ export class SecretsComponent implements OnInit, OnDestroy {
   public loading = true;
   public searchQuery = '';
   public displayedColumns = ['slug', 'masterEncryption', 'expiresAt', 'updatedAt', 'actions'];
+  public subscriptions: Subscription[] = [];
 
   private searchSubject = new Subject<string>();
-  private subscriptions: Subscription[] = [];
 
   constructor(
     private _secrets: SecretsService,

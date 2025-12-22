@@ -1,6 +1,6 @@
 export function isObjectPropertyExists(obj: unknown, property: string): boolean {
-  if (!obj) {
+  if (!obj || typeof obj !== 'object') {
     return false;
   }
-  return Object.prototype.hasOwnProperty.call(obj, property);
+  return Object.hasOwn(obj, property);
 }

@@ -29,7 +29,6 @@ import { TextEditComponent } from '../../../ui-components/record-edit-fields/tex
 import { Title } from '@angular/platform-browser';
 import { UIwidgets } from "src/app/consts/record-edit-types";
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { UrlEditComponent } from '../../../ui-components/record-edit-fields/url/url.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
@@ -299,7 +298,7 @@ export class DbTableWidgetsComponent implements OnInit {
     this.tableName = this._tables.currentTableName;
     this.widgetsWithSettings = Object
       .entries(this.defaultParams)
-      .filter(([key, value]) => value !== '// No settings required')
+      .filter(([_key, value]) => value !== '// No settings required')
       .map(widgetDefault => widgetDefault[0]);
 
     this._tables.fetchTableStructure(this.connectionID, this.tableName)

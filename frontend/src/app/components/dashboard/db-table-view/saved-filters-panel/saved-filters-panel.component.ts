@@ -125,7 +125,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 
       if (arg === 'filters set updated') {
         // Get the current saved filter ID from URL
-        const savedFilterIdFromUrl = this.route.snapshot.queryParams['saved_filter'];
+        const savedFilterIdFromUrl = this.route.snapshot.queryParams.saved_filter;
 
         if (savedFilterIdFromUrl) {
           // If we have a filter selected in URL, get latest data and update URL
@@ -210,11 +210,11 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
           }));
 
           const params = this.route.snapshot.queryParams;
-          const dynamicColumn = params['dynamic_column'] ? JsonURL.parse(params['dynamic_column']) : null;
+          const dynamicColumn = params.dynamic_column ? JsonURL.parse(params.dynamic_column) : null;
 
           if (this.selectedFilterSetId && this.savedFilterData.length > 0) {
             if (dynamicColumn && this.savedFilterMap[this.selectedFilterSetId]) {
-              const filters = params['filters'] ? JsonURL.parse(params['filters']) : {};
+              const filters = params.filters ? JsonURL.parse(params.filters) : {};
 
               this.savedFilterMap[this.selectedFilterSetId].dynamicColumn = {
                 column: dynamicColumn.column_name,
@@ -244,7 +244,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
   }
 
   handleOpenSavedFiltersDialog(filtersSet: any = null) {
-    const dialogRef = this.dialog.open(SavedFiltersDialogComponent, {
+    const _dialogRef = this.dialog.open(SavedFiltersDialogComponent, {
       width: '56em',
       data: {
         connectionID: this.connectionID,
@@ -290,14 +290,14 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
       dynamicColumn: null as { column: string; operator: string; value: any } | null
     };
 
-    if (filter.dynamic_column && filter.dynamic_column.column_name) {
+    if (filter.dynamic_column?.column_name) {
       transformedFilter.dynamicColumn = {
         column: filter.dynamic_column.column_name,
         operator: filter.dynamic_column.comparator,
         value: null
       };
 
-      const dynamicColFilters = filter.filters && filter.filters[filter.dynamic_column.column_name];
+      const dynamicColFilters = filter.filters?.[filter.dynamic_column.column_name];
       if (dynamicColFilters) {
         const operator = filter.dynamic_column.comparator;
         transformedFilter.dynamicColumn.value = dynamicColFilters[operator];
@@ -315,17 +315,17 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     // Start with pagination parameters
     const queryParams: any = {
       page_index: 0,
-      page_size: currentParams['page_size'] || 30,
+      page_size: currentParams.page_size || 30,
       ...additionalParams
     };
 
     // Preserve sort parameters if present
-    if (currentParams['sort_active']) {
-      queryParams.sort_active = currentParams['sort_active'];
+    if (currentParams.sort_active) {
+      queryParams.sort_active = currentParams.sort_active;
     }
 
-    if (currentParams['sort_direction']) {
-      queryParams.sort_direction = currentParams['sort_direction'];
+    if (currentParams.sort_direction) {
+      queryParams.sort_direction = currentParams.sort_direction;
     }
 
     return queryParams;
@@ -375,15 +375,15 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     const displayedName = normalizeTableName(activeFilter.column);
     const comparator = activeFilter.operator;
     const filterValue = activeFilter.value;
-    if (comparator == 'startswith') {
+    if (comparator === 'startswith') {
       return `${displayedName} = ${filterValue}...`
-    } else if (comparator == 'endswith') {
+    } else if (comparator === 'endswith') {
       return `${displayedName} = ...${filterValue}`
-    } else if (comparator == 'contains') {
+    } else if (comparator === 'contains') {
       return `${displayedName} = ...${filterValue}...`
-    } else if (comparator == 'icontains') {
+    } else if (comparator === 'icontains') {
       return `${displayedName} != ...${filterValue}...`
-    } else if (comparator == 'empty') {
+    } else if (comparator === 'empty') {
       return `${displayedName} = ' '`
     } else {
       return `${displayedName} ${this.displayedComparators[comparator]} ${filterValue}`
@@ -426,7 +426,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
         if (widget.widget_params !== '// No settings required') {
           try {
             params = JSON.parse(widget.widget_params);
-          } catch (e) {
+          } catch (_e) {
             params = '';
           }
         } else {
@@ -439,7 +439,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     );
   }
 
-  trackByFn(index: number, item: any) {
+  trackByFn(_index: number, item: any) {
     return item.key;
   }
 

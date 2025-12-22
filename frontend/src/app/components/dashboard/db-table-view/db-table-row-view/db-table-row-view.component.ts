@@ -76,7 +76,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
 
       console.log('Selected row:', this.selectedRow);
 
-      if (row && row.columnsOrder) {
+      if (row?.columnsOrder) {
         const columnsOrder = this.selectedRow.columnsOrder.length ? this.selectedRow.columnsOrder : Object.keys(this.selectedRow.record);
 
         this.columns = columnsOrder.map(column => {
@@ -278,7 +278,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
     if (this.selectedRow) {
       const params = {};
       for (const key in this.selectedRow.primaryKeys) {
-        if (this.selectedRow.primaryKeys.hasOwnProperty(key)) {
+        if (Object.hasOwn(this.selectedRow.primaryKeys, key)) {
           if (this.selectedRow.foreignKeysList.includes(key)) {
             const referencedColumnName = this.selectedRow.foreignKeys[key].referenced_column_name;
             params[key] = this.selectedRow.record[key][referencedColumnName];
@@ -299,7 +299,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
       const paramsObj = this.getDedicatedPageLinkParams();
       const params = new URLSearchParams();
       for (const key in paramsObj) {
-        if (paramsObj.hasOwnProperty(key)) {
+        if (Object.hasOwn(paramsObj, key)) {
           params.set(key, paramsObj[key]);
         }
       }

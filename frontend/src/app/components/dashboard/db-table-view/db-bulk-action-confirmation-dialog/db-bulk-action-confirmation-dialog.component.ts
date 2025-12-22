@@ -54,7 +54,7 @@ export class BbBulkActionConfirmationDialogComponent implements OnInit {
         .subscribe(
           (res) => {
             this.onActionsComplete();
-            if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
+            if (res?.location) this.dialog.open(DbActionLinkDialogComponent, {
               width: '25em',
               data: {href: res.location, actionName: this.data.title, primaryKeys: this.data.primaryKeys[0]}
             })

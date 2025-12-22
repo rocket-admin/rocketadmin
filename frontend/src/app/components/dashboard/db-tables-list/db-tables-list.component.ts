@@ -1,8 +1,8 @@
-import { Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DbFolderDeleteDialogComponent, DbFolderDeleteDialogData } from './db-folder-delete-dialog/db-folder-delete-dialog.component';
 import { DbFolderEditDialogComponent, DbFolderEditDialogData } from './db-folder-edit-dialog/db-folder-edit-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TableProperties, TableSettings } from 'src/app/models/table';
+import { TableProperties, } from 'src/app/models/table';
 
 import { AccessLevel } from 'src/app/models/user';
 import { CommonModule } from '@angular/common';
@@ -83,9 +83,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   private preservedFolderStates: { [key: string]: boolean } = {};
   private preservedActiveFolder: string | null = null;
 
-  // Table icons cache
-  private tableIcons: { [key: string]: string } = {};
-
   // Folder icon colors
   public folderIconColors = [
     { name: 'Default', value: '#212121' },
@@ -99,8 +96,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   ];
 
   constructor(
-    private _tableState: TableStateService,
-    private _tablesService: TablesService,
+    private _tableState: TableStateService,_tablesService: TablesService,
     private _connectionsService: ConnectionsService,
     private _uiSettingsService: UiSettingsService,
     private dialog: MatDialog
@@ -113,11 +109,11 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['collapsed']) {
-      if (changes['collapsed'].currentValue === true) {
+    if (changes.collapsed) {
+      if (changes.collapsed.currentValue === true) {
         // Sidebar is being collapsed - preserve current state
         this.preserveFolderStates();
-      } else if (changes['collapsed'].currentValue === false) {
+      } else if (changes.collapsed.currentValue === false) {
         // Sidebar is being expanded - restore preserved state
         this.restoreFolderStates();
       }
@@ -153,8 +149,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     // Filter all tables by search term
     this.foundTables = allTables.filter(tableItem =>
       tableItem.table.toLowerCase().includes(searchTerm) ||
-      (tableItem.display_name && tableItem.display_name.toLowerCase().includes(searchTerm)) ||
-      (tableItem.normalizedTableName && tableItem.normalizedTableName.toLowerCase().includes(searchTerm))
+      (tableItem.display_name?.toLowerCase().includes(searchTerm)) ||
+      (tableItem.normalizedTableName?.toLowerCase().includes(searchTerm))
     );
 
     // Remove duplicates
@@ -257,7 +253,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     return tables;
   }
 
-  navigateToTable(table: TableProperties) {
+  navigateToTable(_table: TableProperties) {
     // This method is called when clicking on a table in collapsed mode
     // The actual navigation is handled by routerLink in the template
     // We just need to close the sidebar after navigation
@@ -308,8 +304,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       const searchTerm = this.substringToSearch.toLowerCase();
       return folderTables.filter(table =>
         table.table.toLowerCase().includes(searchTerm) ||
-        (table.display_name && table.display_name.toLowerCase().includes(searchTerm)) ||
-        (table.normalizedTableName && table.normalizedTableName.toLowerCase().includes(searchTerm))
+        (table.display_name?.toLowerCase().includes(searchTerm)) ||
+        (table.normalizedTableName?.toLowerCase().includes(searchTerm))
       );
     }
 
@@ -371,7 +367,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
 
     // Check if we're in dark theme
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
       // In dark theme, use #212121 for folders without custom color
       return folder.iconColor || '#212121';
     }
@@ -425,7 +421,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     this.saveFolders();
   }
 
-  trackByFolderId(index: number, folder: Folder): string {
+  trackByFolderId(_index: number, folder: Folder): string {
     return folder.id;
   }
 
@@ -481,7 +477,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 
     // Restore expanded states of all folders
     this.folders.forEach(folder => {
-      if (this.preservedFolderStates.hasOwnProperty(folder.id)) {
+      if (Object.hasOwn(this.preservedFolderStates, folder.id)) {
         folder.expanded = this.preservedFolderStates[folder.id];
       }
     });
@@ -599,7 +595,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
   }
 
-  onTableDragEnd(event: DragEvent) {
+  onTableDragEnd(_event: DragEvent) {
     this.draggedTable = null;
     this.dragOverFolder = null;
   }
@@ -612,7 +608,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     this.dragOverFolder = folderId;
   }
 
-  onFolderDragLeave(event: DragEvent, folderId: string) {
+  onFolderDragLeave(event: DragEvent, _folderId: string) {
     // Only clear if we're actually leaving the collection (not moving to a child element)
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX;

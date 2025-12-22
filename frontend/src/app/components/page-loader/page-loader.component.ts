@@ -11,8 +11,7 @@ import { Router } from '@angular/router';
 export class PageLoaderComponent implements OnInit {
 
   constructor(
-    public router: Router,
-    private ngZone: NgZone
+    public router: Router,_ngZone: NgZone
   ) { }
 
   ngOnInit() {

@@ -3,9 +3,6 @@ import { IEmailMessage } from './email-message.interface.js';
 import { IMessage } from '../email/email.interface.js';
 
 export class EmailLetter extends AbstractEmailLetter<IEmailMessage> {
-  constructor(params: IEmailMessage) {
-    super(params);
-  }
 
   getEmail(): IMessage {
     return {

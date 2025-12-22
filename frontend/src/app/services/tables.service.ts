@@ -1,7 +1,7 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
-import { CustomAction, Rule, TableSettings, Widget } from '../models/table';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Rule, TableSettings, Widget } from '../models/table';
+import { HttpClient, } from '@angular/common/http';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
@@ -57,7 +57,7 @@ export class TablesService {
 				)
 			)
 			.subscribe(
-				( event: NavigationEnd ) : void => {
+				( _event: NavigationEnd ) : void => {
           this.setTableName(this.router.routerState.snapshot.root.firstChild.paramMap.get('table-name'));
 				}
 			)
@@ -122,7 +122,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -162,7 +162,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -253,7 +253,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -279,7 +279,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -301,7 +301,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -327,7 +327,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -354,7 +354,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -376,7 +376,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -384,7 +384,7 @@ export class TablesService {
       );
   }
 
-  saveRule(connectionID: string, tableName: string, rule: Rule) {
+  saveRule(connectionID: string, _tableName: string, rule: Rule) {
     return this._http.post<any>(`/action/rule/${connectionID}`, rule)
       .pipe(
         map(res => {
@@ -397,7 +397,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -405,7 +405,7 @@ export class TablesService {
       );
   }
 
-  updateRule(connectionID: string, tableName: string, rule: Rule) {
+  updateRule(connectionID: string, _tableName: string, rule: Rule) {
     return this._http.put<any>(`/action/rule/${rule.id}/${connectionID}`, rule)
       .pipe(
         map(res => {
@@ -418,7 +418,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -426,7 +426,7 @@ export class TablesService {
       );
   }
 
-  deleteRule(connectionID: string, tableName: string, ruleId: string) {
+  deleteRule(connectionID: string, _tableName: string, ruleId: string) {
     return this._http.delete<any>(`/action/rule/${ruleId}/${connectionID}`)
       .pipe(
         map(res => {
@@ -440,7 +440,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -448,7 +448,7 @@ export class TablesService {
       );
   }
 
-  activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object[], confirmed?: boolean) {
+  activateActions(connectionID: string, _tableName: string, actionId: string, actionTitle: string, primaryKeys: object[], _confirmed?: boolean) {
     return this._http.post<any>(`/event/actions/activate/${actionId}/${connectionID}`, primaryKeys)
       .pipe(
         map((res) => {
@@ -462,7 +462,7 @@ export class TablesService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;

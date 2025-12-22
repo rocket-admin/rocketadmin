@@ -22,9 +22,9 @@ import { SignInMethodEnum } from '../../../src/entities/user-sign-in-audit/enums
 
 let app: INestApplication;
 let currentTest: string;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 
-const mockFactory = new MockFactory();
+const _mockFactory = new MockFactory();
 
 async function getCompanyIdByToken(app: INestApplication, token: string): Promise<string> {
   const getCompanyResult = await request(app.getHttpServer())
@@ -42,7 +42,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -94,8 +94,8 @@ test.serial(`${currentTest} should return sign-in audit logs after successful lo
     t.is(getAuditLogsResult.status, 200);
     const auditLogsRO = JSON.parse(getAuditLogsResult.text);
 
-    t.is(auditLogsRO.hasOwnProperty('logs'), true);
-    t.is(auditLogsRO.hasOwnProperty('pagination'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'logs'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'pagination'), true);
     t.true(auditLogsRO.logs.length >= 1);
 
     // Check that the log entry has expected structure
@@ -103,8 +103,8 @@ test.serial(`${currentTest} should return sign-in audit logs after successful lo
     t.truthy(logEntry);
     t.is(logEntry.status, SignInStatusEnum.SUCCESS);
     t.is(logEntry.signInMethod, SignInMethodEnum.EMAIL);
-    t.is(logEntry.hasOwnProperty('createdAt'), true);
-    t.is(logEntry.hasOwnProperty('ipAddress'), true);
+    t.is(Object.hasOwn(logEntry, 'createdAt'), true);
+    t.is(Object.hasOwn(logEntry, 'ipAddress'), true);
   } catch (err) {
     console.error(err);
     throw err;
@@ -138,7 +138,7 @@ test.serial(`${currentTest} should return sign-in audit logs with failed login a
     t.is(getAuditLogsResult.status, 200);
     const auditLogsRO = JSON.parse(getAuditLogsResult.text);
 
-    t.is(auditLogsRO.hasOwnProperty('logs'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'logs'), true);
     t.true(auditLogsRO.logs.length >= 1);
 
     // Find the failed login entry
@@ -187,7 +187,7 @@ test.serial(`${currentTest} should filter sign-in audit logs by status`, async (
     t.is(getFailedLogsResult.status, 200);
     const failedLogsRO = JSON.parse(getFailedLogsResult.text);
 
-    t.is(failedLogsRO.hasOwnProperty('logs'), true);
+    t.is(Object.hasOwn(failedLogsRO, 'logs'), true);
     // All returned logs should have failed status
     failedLogsRO.logs.forEach((log: any) => {
       t.is(log.status, SignInStatusEnum.FAILED);
@@ -203,7 +203,7 @@ test.serial(`${currentTest} should filter sign-in audit logs by status`, async (
     t.is(getSuccessLogsResult.status, 200);
     const successLogsRO = JSON.parse(getSuccessLogsResult.text);
 
-    t.is(successLogsRO.hasOwnProperty('logs'), true);
+    t.is(Object.hasOwn(successLogsRO, 'logs'), true);
     // All returned logs should have success status
     successLogsRO.logs.forEach((log: any) => {
       t.is(log.status, SignInStatusEnum.SUCCESS);
@@ -239,7 +239,7 @@ test.serial(`${currentTest} should filter sign-in audit logs by email`, async (t
     t.is(getAuditLogsResult.status, 200);
     const auditLogsRO = JSON.parse(getAuditLogsResult.text);
 
-    t.is(auditLogsRO.hasOwnProperty('logs'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'logs'), true);
     // All returned logs should have the searched email
     auditLogsRO.logs.forEach((log: any) => {
       t.is(log.email, email.toLowerCase());
@@ -275,7 +275,7 @@ test.serial(`${currentTest} should filter sign-in audit logs by sign-in method`,
     t.is(getAuditLogsResult.status, 200);
     const auditLogsRO = JSON.parse(getAuditLogsResult.text);
 
-    t.is(auditLogsRO.hasOwnProperty('logs'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'logs'), true);
     // All returned logs should have email sign-in method
     auditLogsRO.logs.forEach((log: any) => {
       t.is(log.signInMethod, SignInMethodEnum.EMAIL);
@@ -313,13 +313,13 @@ test.serial(`${currentTest} should support pagination for sign-in audit logs`, a
     t.is(getAuditLogsResult.status, 200);
     const auditLogsRO = JSON.parse(getAuditLogsResult.text);
 
-    t.is(auditLogsRO.hasOwnProperty('logs'), true);
-    t.is(auditLogsRO.hasOwnProperty('pagination'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'logs'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'pagination'), true);
     t.true(auditLogsRO.logs.length <= 2);
-    t.is(auditLogsRO.pagination.hasOwnProperty('total'), true);
-    t.is(auditLogsRO.pagination.hasOwnProperty('lastPage'), true);
-    t.is(auditLogsRO.pagination.hasOwnProperty('perPage'), true);
-    t.is(auditLogsRO.pagination.hasOwnProperty('currentPage'), true);
+    t.is(Object.hasOwn(auditLogsRO.pagination, 'total'), true);
+    t.is(Object.hasOwn(auditLogsRO.pagination, 'lastPage'), true);
+    t.is(Object.hasOwn(auditLogsRO.pagination, 'perPage'), true);
+    t.is(Object.hasOwn(auditLogsRO.pagination, 'currentPage'), true);
   } catch (err) {
     console.error(err);
     throw err;
@@ -408,7 +408,7 @@ test.serial(`${currentTest} should filter sign-in audit logs by date range`, asy
     t.is(getAuditLogsResult.status, 200);
     const auditLogsRO = JSON.parse(getAuditLogsResult.text);
 
-    t.is(auditLogsRO.hasOwnProperty('logs'), true);
+    t.is(Object.hasOwn(auditLogsRO, 'logs'), true);
     t.true(auditLogsRO.logs.length >= 1);
   } catch (err) {
     console.error(err);

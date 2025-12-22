@@ -35,7 +35,7 @@ export class TimeIntervalFilterComponent extends BaseFilterFieldComponent {
   }
 
   onInputChange() {
-    // @ts-ignore
+    // @ts-expect-error
     const currentInterval = pgInterval.prototype.toPostgres.call(this.interval);
     this.onFieldChange.emit(currentInterval);
   }
