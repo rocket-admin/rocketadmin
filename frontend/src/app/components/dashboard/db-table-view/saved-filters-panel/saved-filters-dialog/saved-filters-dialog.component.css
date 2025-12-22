@@ -3,7 +3,7 @@
     grid-template-columns: 32px auto 228px 0 1fr 120px;
     grid-column-gap: 8px;
     align-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
     padding-top: 4px !important;
 }
 
@@ -120,7 +120,8 @@
 
 .dynamic-column-radio {
     grid-column: 6;
-    margin-top: 8px;
+    margin-top: 0;
+    align-self: center;
 }
 
 .comparator-select-field {
@@ -285,7 +286,8 @@
 
 .column-name {
     grid-column: 2;
-    margin-top: 12px;
+    margin-top: 0;
+    align-self: center;
 }
 
 .conditions-vertical-line {
@@ -307,10 +309,10 @@
 
 .filter-delete-button {
     grid-column: 1;
-    margin-top: 4px;
+    margin-top: 0;
     margin-right: 0;
     margin-left: 0;
-    align-self: flex-start;
+    align-self: center;
     justify-self: center;
     position: relative;
     z-index: 1;
