@@ -32,14 +32,12 @@ describe('RegistrationComponent', () => {
       ]
     }).compileComponents();
 
-    // @ts-ignore
+    // @ts-expect-error
     global.window.gtag = jasmine.createSpy();
 
-    // @ts-ignore
     global.window.google  = jasmine.createSpyObj(['accounts']);
-    // @ts-ignore
+    // @ts-expect-error
     global.window.google.accounts = jasmine.createSpyObj(['id']);
-    // @ts-ignore
     global.window.google.accounts.id = jasmine.createSpyObj(['initialize', 'renderButton', 'prompt']);
   });
 

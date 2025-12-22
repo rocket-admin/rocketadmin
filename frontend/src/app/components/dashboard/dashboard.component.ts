@@ -3,7 +3,7 @@ import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
@@ -251,8 +251,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const queryParams = this.route.snapshot.queryParams;
     this.filters = JsonURL.parse(queryParams.filters);
     this.comparators = getComparatorsFromUrl(this.filters);
-    this.pageIndex = parseInt(queryParams.page_index) || 0;
-    this.pageSize = parseInt(queryParams.page_size) || 30;
+    this.pageIndex = parseInt(queryParams.page_index, 10) || 0;
+    this.pageSize = parseInt(queryParams.page_size, 10) || 30;
     this.sortColumn = queryParams.sort_active;
     this.sortOrder = queryParams.sort_direction;
 
@@ -260,7 +260,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getRows(search);
     console.log('getRows from setTable');
 
-    const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
+    const selectedTableProperties = this.tablesList.find( (table: any) => table.table === this.selectedTableName);
     if (selectedTableProperties) {
       this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
     } else {
@@ -404,7 +404,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   openIntercome() {
-    // @ts-ignore
+    // @ts-expect-error
     Intercom('show');
   }
 
@@ -417,7 +417,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
         .subscribe((res) => {
-          if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
+          if (res?.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
             data: {href: res.location, actionName: action.title, primaryKeys: primaryKeys[0]}
           })

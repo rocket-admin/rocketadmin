@@ -40,9 +40,6 @@ interface RedisTableMetadata {
 }
 
 export class DataAccessObjectRedis extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -259,7 +256,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           }
         }
       } catch (_error) {
-        continue;
       }
     }
     return results;
@@ -436,7 +432,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           results.push(row);
         }
       } catch (_error) {
-        continue;
       }
     }
     return results;
@@ -633,7 +628,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
             const type = await redisClient.type(key);
             keyTypes.push({ key, type });
           } catch (_error) {
-            continue;
           }
         }
 
@@ -730,7 +724,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
               allRows.push(rowData);
             }
           } catch (_error) {
-            continue;
           }
         }
       }
@@ -834,7 +827,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           standaloneKeys.push({ key, type: keyType });
           //  }
         } catch (_error) {
-          continue;
         }
       }
     } 
@@ -959,7 +951,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
           fieldTypes.set('value', keyType);
         }
       } catch (_error) {
-        continue;
       }
     }
 
@@ -1182,7 +1173,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         const updatedRow = await this.updateRowInTable(tableName, newValues, primaryKey);
         results.push(updatedRow);
       } catch (_error) {
-        continue;
       }
     }
 
@@ -1197,7 +1187,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
         await this.deleteRowInTable(tableName, primaryKey);
         deletedCount++;
       } catch (_error) {
-        continue;
       }
     }
 
@@ -1277,15 +1266,11 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     for await (const record of parser) {
       results.push(record);
     }
-    try {
       await Promise.allSettled(
         results.map(async (row) => {
           return await this.addRowInTable(tableName, row);
         }),
       );
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async executeRawQuery(query: string, _tableName: string): Promise<Array<Record<string, unknown>>> {
@@ -1387,7 +1372,6 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
               stringKeys.push(key);
             }
           } catch (_error) {
-            continue;
           }
         }
 
@@ -1567,7 +1551,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
         if (shouldUseTLS) {
           socketConfig.tls = true;
-          socketConfig.rejectUnauthorized = this.connection.ssl === false ? false : true;
+          socketConfig.rejectUnauthorized = this.connection.ssl !==false;
 
           if (this.connection.cert) {
             socketConfig.ca = this.connection.cert;
@@ -1602,7 +1586,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
     const connectionCopy = { ...connection };
     return new Promise<RedisClientType>(async (resolve, reject): Promise<RedisClientType> => {
       const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
-      if (cachedTnl && cachedTnl.redis && cachedTnl.server && cachedTnl.client) {
+      if (cachedTnl?.redis && cachedTnl.server && cachedTnl.client) {
         resolve(cachedTnl.redis);
         return;
       }

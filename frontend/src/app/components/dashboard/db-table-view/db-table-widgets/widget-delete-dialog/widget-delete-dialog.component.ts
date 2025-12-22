@@ -13,8 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class WidgetDeleteDialogComponent implements OnInit {
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public widgetFieldName: any,
-    private dialogRef: MatDialogRef<WidgetDeleteDialogComponent>
+    @Inject(MAT_DIALOG_DATA) public widgetFieldName: any,_dialogRef: MatDialogRef<WidgetDeleteDialogComponent>
   ) { }
 
   ngOnInit(): void {

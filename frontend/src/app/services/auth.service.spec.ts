@@ -61,7 +61,7 @@ describe('AuthService', () => {
       expires: "2022-04-11T15:56:51.599Z"
     }
 
-    // @ts-ignore
+    // @ts-expect-error
     global.window.fbq = jasmine.createSpy();
 
     service.signUpUser(userData).subscribe((res) => {

@@ -70,7 +70,7 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
   }
 
   openIntercome() {
-    // @ts-ignore
+    // @ts-expect-error
     Intercom('show');
   }
 }

@@ -3,7 +3,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CustomActionMethod, CustomActionType } from 'src/app/models/table';
+import { CustomActionMethod, } from 'src/app/models/table';
 import { DbTableActionsComponent } from './db-table-actions.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from 'src/app/services/notifications.service';

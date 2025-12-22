@@ -12,7 +12,7 @@ export function urlValidation(prefix: string = ''):ValidatorFn {
             try {
                 new URL(fullUrl);
             }
-            catch (e) {
+            catch (_e) {
                 return { 'isInvalidURL': true };
             }
         }

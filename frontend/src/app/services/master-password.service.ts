@@ -1,4 +1,4 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, } from '@angular/material/dialog';
 
 import { Injectable } from '@angular/core';
 import { MasterPasswordDialogComponent } from '../components/master-password-dialog/master-password-dialog.component';

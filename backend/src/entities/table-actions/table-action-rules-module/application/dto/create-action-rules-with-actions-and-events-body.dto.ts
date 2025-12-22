@@ -20,7 +20,7 @@ import { applyDecorators } from '@nestjs/common';
 import { IsURLOptions } from 'validator';
 
 function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
-  return function (object: NonNullable<unknown>, propertyName: string) {
+  return (object: NonNullable<unknown>, propertyName: string) => {
     const decorators = [IsString()];
     if (process.env.NODE_ENV !== 'test') {
       decorators.push(IsUrl(validationOptions));

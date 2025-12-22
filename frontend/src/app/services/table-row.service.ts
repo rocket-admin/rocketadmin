@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
+import { EMPTY, Subject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -55,7 +55,7 @@ export class TableRowService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -81,7 +81,7 @@ export class TableRowService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;

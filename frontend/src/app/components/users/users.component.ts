@@ -1,9 +1,9 @@
-import { Alert, AlertType } from 'src/app/models/alert';
+
 import { CommonModule, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
-import { Observable, Subscription, first, forkJoin, take, tap } from 'rxjs';
+import { Observable, Subscription, forkJoin, take, tap } from 'rxjs';
 
 import { Angulartics2 } from 'angulartics2';
 import { Angulartics2OnModule } from 'angulartics2';
@@ -57,8 +57,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   public connectionID: string | null = null;
   public companyMembers: [];
   public companyMembersWithoutAccess: any = [];
-
-  private getTitleSubscription: Subscription;
   private usersSubscription: Subscription;
 
   constructor(
@@ -67,8 +65,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     private _connections: ConnectionsService,
     private _company: CompanyService,
     public dialog: MatDialog,
-    private title: Title,
-    private angulartics2: Angulartics2,
+    private title: Title,_angulartics2: Angulartics2,
   ) { }
 
   ngOnInit() {
@@ -139,7 +136,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
         // Wait until all these Observables complete
         forkJoin(groupRequests).subscribe({
-          next: results => {
+          next: _results => {
             // Here, 'results' is an array of the user arrays from each group.
             // By this point, this.users[...] is updated for ALL groups.
             // Update any shared state

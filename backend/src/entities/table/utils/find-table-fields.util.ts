@@ -4,7 +4,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 export async function findTableFieldsUtil(
   connection: ConnectionEntity,
   tableName: string,
-  userId: string,
+  _userId: string,
   userEmail = 'unknown',
 ): Promise<Array<string>> {
   const dao = getDataAccessObject(connection);

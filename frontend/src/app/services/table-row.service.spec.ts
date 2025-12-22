@@ -135,7 +135,7 @@ describe('TableRowService', () => {
   it('should call updateTableRow and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.updateTableRow('12345678', 'users_table', {id: 1}, tableRowValues).subscribe(res => {
+    service.updateTableRow('12345678', 'users_table', {id: 1}, tableRowValues).subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('The row has been updated successfully in "users_table" table.');
       isSubscribeCalled = true;
     });
@@ -165,7 +165,7 @@ describe('TableRowService', () => {
   it('should call deleteTableRow and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.deleteTableRow('12345678', 'users_table', {id: 1}).subscribe(res => {
+    service.deleteTableRow('12345678', 'users_table', {id: 1}).subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Row has been deleted successfully from "users_table" table.');
       isSubscribeCalled = true;
     });

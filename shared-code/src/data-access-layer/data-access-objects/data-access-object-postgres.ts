@@ -8,7 +8,6 @@ import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { isPostgresDateOrTimeType, isPostgresDateStringByRegexp } from '../../helpers/is-database-date.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -25,9 +24,6 @@ import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { nanoid } from 'nanoid';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -404,7 +400,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
           customTypeInTableName,
         );
         let enumLabelRows = [];
-        if (enumLabelQueryResult && enumLabelQueryResult.rows && enumLabelQueryResult.rows.length > 0) {
+        if (enumLabelQueryResult?.rows && enumLabelQueryResult.rows.length > 0) {
           enumLabelRows = enumLabelQueryResult.rows.map((el) => el.enumlabel);
         }
         if (enumLabelRows.length > 0) {
@@ -696,8 +692,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     for await (const record of parser) {
       results.push(record);
     }
-
-    try {
       await knex.transaction(async (trx) => {
         for (const row of results) {
           for (const column of timestampColumnNames) {
@@ -712,9 +706,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             .insert(row);
         }
       });
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
@@ -767,7 +758,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
       try {
         const count = (await countRowsQB.count('*')) as any;
-        const slowCount = parseInt(count[0].count);
+        const slowCount = parseInt(count[0].count, 10);
         resolve(slowCount);
       } catch (_error) {
         resolve(null);
@@ -779,7 +770,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const count = (await knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
       .count('*')) as any;
-    const slowCount = parseInt(count[0].count);
+    const slowCount = parseInt(count[0].count, 10);
     return slowCount;
   }
 
@@ -800,7 +791,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     WHERE  oid = '??.??'::regclass;`,
       [tableSchema, tableName, tableSchema, tableName],
     );
-    return parseInt(fastCount);
+    return parseInt(fastCount, 10);
   }
 
   private attachSchemaNameToTableName(tableName: string): string {

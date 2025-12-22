@@ -28,12 +28,12 @@ export class TextEditComponent extends BaseEditFieldComponent implements OnInit 
     super.ngOnInit();
     
     // Use character_maximum_length from the field structure if available
-    if (this.structure && this.structure.character_maximum_length) {
+    if (this.structure?.character_maximum_length) {
       this.maxLength = this.structure.character_maximum_length;
     }
 
     // Parse widget parameters for validation
-    if (this.widgetStructure && this.widgetStructure.widget_params) {
+    if (this.widgetStructure?.widget_params) {
       const params = typeof this.widgetStructure.widget_params === 'string' 
         ? JSON.parse(this.widgetStructure.widget_params) 
         : this.widgetStructure.widget_params;

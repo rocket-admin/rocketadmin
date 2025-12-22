@@ -3,9 +3,9 @@ import * as JSON5 from 'json5';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
+import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule, } from '@angular/material/progress-spinner';
 import { UIwidgets, defaultTimestampValues, recordEditTypes, timestampTypes } from 'src/app/consts/record-edit-types';
 import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
 
@@ -33,16 +33,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { PlaceholderRowEditComponent } from '../skeletons/placeholder-row-edit/placeholder-row-edit.component';
-import { PlaceholderTableViewComponent } from '../skeletons/placeholder-table-view/placeholder-table-view.component';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import { isSet } from 'lodash';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -77,7 +74,7 @@ export class DbTableRowEditComponent implements OnInit {
   public connectionName: string | null = null;
   public tableName: string | null = null;
   public dispalyTableName: string | null = null;
-  public tableRowValues: object;
+  public tableRowValues: Record<string, any>;
   public tableRowStructure: object;
   public tableRowRequiredValues: object;
   public identityColumn: string;
@@ -119,11 +116,10 @@ export class DbTableRowEditComponent implements OnInit {
     type: AlertType.Error,
     message: 'This is a TEST DATABASE, public to all. Avoid entering sensitive data!'
   }
-
-  private routeSub: Subscription | undefined;
   private confirmationDialogRef: any;
 
   originalOrder = () => { return 0; }
+  routeSub: any;
 
   constructor(
     private _connections: ConnectionsService,
@@ -310,7 +306,7 @@ export class DbTableRowEditComponent implements OnInit {
                     }
                   });
 
-                  if (res.rows && res.rows.length) {
+                  if (res.rows?.length) {
                     const firstRow = res.rows[0];
 
                     const relatedTableForeignKeys = Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey})));
@@ -491,7 +487,7 @@ export class DbTableRowEditComponent implements OnInit {
       return {[field.column_name]: field}
     }))
 
-    const foreignKeysList = this.tableForeignKeys.map((field: TableForeignKey) => {return field['column_name']});
+    const foreignKeysList = this.tableForeignKeys.map((field: TableForeignKey) => {return field.column_name});
     this.tableTypes = getTableTypes(structure, foreignKeysList);
 
     this.tableRowRequiredValues = Object.assign({}, ...structure.map((field: TableField) => {
@@ -562,7 +558,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     if (this.connectionType === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes)
-        .filter(([key, value]) => value === 'datetime' || value === 'timestamp');
+        .filter(([_key, value]) => value === 'datetime' || value === 'timestamp');
       if (datetimeFields.length) {
         for (const datetimeField of datetimeFields) {
           if (updatedRow[datetimeField[0]]) {
@@ -572,7 +568,7 @@ export class DbTableRowEditComponent implements OnInit {
       };
 
       const dateFields = Object.entries(this.tableTypes)
-        .filter(([key, value]) => value === 'date');
+        .filter(([_key, value]) => value === 'date');
       if (dateFields.length) {
         for (const dateField of dateFields) {
           if (updatedRow[dateField[0]]) {
@@ -593,7 +589,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)
-      .filter(([key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'ARRAY' || value === 'object' || value === 'set' || value === 'list' || value === 'map')
+      .filter(([_key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'ARRAY' || value === 'object' || value === 'set' || value === 'list' || value === 'map')
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
@@ -702,14 +698,14 @@ export class DbTableRowEditComponent implements OnInit {
       });
 
       if (!action.id) {
-        this.confirmationDialogRef.afterClosed().subscribe((res) => {
+        this.confirmationDialogRef.afterClosed().subscribe((_res) => {
           this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], { queryParams: this.backUrlParams});
         });
       }
     } else {
       this._tables.activateActions(this.connectionID, this.tableName, action.id, action.title, [this.keyAttributesFromURL])
         .subscribe((res) => {
-          if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
+          if (res?.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
             data: {href: res.location, actionName: action.title, primaryKeys: this.keyAttributesFromURL}
           })

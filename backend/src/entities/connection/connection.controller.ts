@@ -160,8 +160,6 @@ export class ConnectionController {
   ): Promise<Array<FoundUserDto>> {
     try {
       return await this.findAllUsersInConnectionUseCase.execute(connectionId, InTransactionEnum.OFF);
-    } catch (e) {
-      throw e;
     } finally {
       const isConnectionTest = await this._dbContext.connectionRepository.isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
@@ -217,8 +215,6 @@ export class ConnectionController {
       };
       foundConnection = await this.findOneConnectionUseCase.execute(findOneConnectionInput, InTransactionEnum.OFF);
       return foundConnection;
-    } catch (e) {
-      throw e;
     } finally {
       if (foundConnection?.connection) {
         const isTest = await this._dbContext.connectionRepository.isTestConnectionById(connectionId);

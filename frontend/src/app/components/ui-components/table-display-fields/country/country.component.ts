@@ -1,5 +1,5 @@
 import { COUNTRIES, getCountryFlag } from '../../../../consts/countries';
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit, } from '@angular/core';
 
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';

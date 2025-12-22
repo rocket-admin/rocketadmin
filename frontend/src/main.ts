@@ -25,7 +25,6 @@ import { TablesService } from "./app/services/tables.service";
 import { TokenInterceptor } from "./app/services/token.interceptor";
 import { UsersService } from "./app/services/users.service";
 import { environment } from './environments/environment';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { provideAnimations } from "@angular/platform-browser/animations";
 
 const saasExtraProviders = (environment as any).saas ? [

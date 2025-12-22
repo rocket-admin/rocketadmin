@@ -19,12 +19,12 @@ export class DateTimeRecordViewComponent extends BaseRecordViewFieldComponent im
     if (this.value) {
       try {
         const date = new Date(this.value);
-        if (!isNaN(date.getTime())) {
+        if (!Number.isNaN(date.getTime())) {
           this.formattedDateTime = format(date, "P p");
         } else {
           this.formattedDateTime = this.value;
         }
-      } catch (error) {
+      } catch (_error) {
         this.formattedDateTime = this.value;
       }
     }

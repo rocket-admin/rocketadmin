@@ -9,7 +9,6 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -26,9 +25,6 @@ import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { NodeClickHouseClientConfigOptions } from '@clickhouse/client/dist/config.js';
 
 export class DataAccessObjectClickHouse extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown>> {
     const client = await this.getClickHouseClient();
@@ -869,7 +865,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     const connectionCopy = { ...this.connection };
 
     const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
-    if (cachedTnl && cachedTnl.clickhouse && cachedTnl.server && cachedTnl.client) {
+    if (cachedTnl?.clickhouse && cachedTnl.server && cachedTnl.client) {
       return cachedTnl.clickhouse;
     }
 

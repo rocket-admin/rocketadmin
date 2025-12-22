@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { fa, faker, th } from '@faker-js/faker';
+import { faker, } from '@faker-js/faker';
 import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
 import { getTestKnex } from './get-test-knex.js';
-import ibmdb, { Database } from 'ibm_db';
-import { MongoClient, Db, ObjectId } from 'mongodb';
+import ibmdb from 'ibm_db';
+import { MongoClient, } from 'mongodb';
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
-import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { Client } from '@elastic/elasticsearch';
 import * as cassandra from 'cassandra-driver';
 import { v4 as uuidv4 } from 'uuid';
@@ -59,7 +59,7 @@ export async function createTestTable(
   }
   const Knex = getTestKnex(connectionParamsCopy);
   // await Knex.schema.dropTableIfExists(testTableName);
-  await Knex.schema.createTable(testTableName, function (table) {
+  await Knex.schema.createTable(testTableName, (table) => {
     table.increments();
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
@@ -67,7 +67,7 @@ export async function createTestTable(
   });
 
   if (withJsonField) {
-    await Knex.schema.table(testTableName, function (table) {
+    await Knex.schema.table(testTableName, (table) => {
       table.json('json_field');
       table.jsonb('jsonb_field');
     });
@@ -82,7 +82,7 @@ export async function createTestTable(
   // hslColorColumns,
   // email columns already exists as some of the test columns
   if (withWidgetsData) {
-    await Knex.schema.table(testTableName, function (table) {
+    await Knex.schema.table(testTableName, (table) => {
       table.string('telephone');
       table.string('uuid');
       table.string('countryCode');
@@ -149,7 +149,7 @@ async function createTestElasticsearchTable(
     },
   };
   const client = new Client(options);
-  const response = await client.indices.create({
+  const _response = await client.indices.create({
     index: testTableName,
   });
   await client.indices.putMapping({
@@ -361,7 +361,7 @@ export async function createTestTableForMSSQLWithChema(
   connectionParams,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
-  schemaName = 'test_chema',
+  _schemaName = 'test_chema',
 ) {
   const testTableName = getRandomTestTableName();
   const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
@@ -377,7 +377,7 @@ EXEC('CREATE SCHEMA [test_schema]');`);
   }
 
   await Knex.schema.dropTableIfExists(`test_schema.${testTableName}`);
-  await Knex.schema.createTable(`test_schema.${testTableName}`, function (table) {
+  await Knex.schema.createTable(`test_schema.${testTableName}`, (table) => {
     table.increments();
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
@@ -426,14 +426,14 @@ export async function createTestOracleTable(
   const testTableName = getRandomTestTableName().toUpperCase();
   const Knex = getTestKnex(connectionParams);
   await Knex.schema.dropTableIfExists(testTableName);
-  await Knex.schema.createTable(testTableName, function (table) {
+  await Knex.schema.createTable(testTableName, (table) => {
     table.integer(pColumnName);
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
     table.timestamp('created_at');
     table.date('updated_at');
   });
-  await Knex.schema.alterTable(testTableName, function (t) {
+  await Knex.schema.alterTable(testTableName, (t) => {
     t.primary([pColumnName], primaryKeyConstraintName);
   });
   let counter = 0;
@@ -496,16 +496,16 @@ export async function createTestOracleTableWithDifferentData(
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
 ) {
-  const primaryKeyConstraintName = getRandomConstraintName();
-  const pColumnName = 'id';
-  const testTableColumnName = 'name';
-  const testTableSecondColumnName = 'email';
+  const _primaryKeyConstraintName = getRandomConstraintName();
+  const _pColumnName = 'id';
+  const _testTableColumnName = 'name';
+  const _testTableSecondColumnName = 'email';
   const { shema, username } = connectionParams;
   const testTableName = getRandomTestTableName().toUpperCase();
   const Knex = getTestKnex(connectionParams);
   await Knex.schema.dropTableIfExists(testTableName);
 
-  await Knex.schema.createTable(testTableName, function (table) {
+  await Knex.schema.createTable(testTableName, (table) => {
     table.specificType('patient_id', 'RAW(16) DEFAULT SYS_GUID()').primary();
     table.string('first_name', 100).notNullable();
     table.string('last_name', 100).notNullable();
@@ -522,11 +522,11 @@ export async function createTestOracleTableWithDifferentData(
     await Knex.raw(
       `ALTER TABLE ${testTableName} ADD CONSTRAINT chk_gender_${testTableName} CHECK ("gender" IN ('M','F','O'))`,
     );
-  } catch (error) {
+  } catch (_error) {
     console.log('Warning: Could not add CHECK constraint for gender field');
   }
 
-  let counter = 0;
+  let _counter = 0;
 
   if (shema) {
     for (let i = 0; i < testEntitiesSeedsCount; i++) {
@@ -608,7 +608,7 @@ export async function createTestPostgresTableWithSchema(
 
   await Knex.schema.createSchemaIfNotExists(testSchema);
   await Knex.schema.withSchema(testSchema).dropTableIfExists(testSchema);
-  await Knex.schema.withSchema(testSchema).createTable(testTableName, function (table) {
+  await Knex.schema.withSchema(testSchema).createTable(testTableName, (table) => {
     table.increments();
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
@@ -834,7 +834,7 @@ async function createTestRedisTable(
       port: connectionParams.port,
       ca: connectionParams.cert || undefined,
       cert: connectionParams.cert || undefined,
-      rejectUnauthorized: connectionParams.ssl === false ? false : true,
+      rejectUnauthorized: connectionParams.ssl !==false,
     },
     password: connectionParams.password || undefined,
   });

@@ -24,7 +24,7 @@ import { MatRadioModule } from '@angular/material/radio';
 })
 export class DbTableExportDialogComponent {
 
-  public recordsNumber: Number = 10;
+  public recordsNumber: number = 10;
   public recordsExportType: string = 'export-all';
   public submitting: boolean = false;
 
@@ -53,7 +53,7 @@ export class DbTableExportDialogComponent {
         action: 'Dashboard: db export is successful',
       });
     },
-    err => { this.submitting = false; },
+    _err => { this.submitting = false; },
     () => { this.submitting = false; });
   }
 

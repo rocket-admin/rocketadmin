@@ -154,7 +154,7 @@ describe('DbTableFiltersDialogComponent', () => {
     component.tableRowFieldsShown = { name: 'John' };
     component.updateField('new user name', 'name');
 
-    expect(component.tableRowFieldsShown['name']).toEqual('new user name');
+    expect(component.tableRowFieldsShown.name).toEqual('new user name');
   })
 
   it('should reset filters', () => {

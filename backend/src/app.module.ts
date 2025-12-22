@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
-import { DataSource } from 'typeorm';
 import { AppController } from './app.controller.js';
 import { GlobalDatabaseContext } from './common/application/global-database-context.js';
 import { BaseType, UseCaseType } from './common/data-injection.tokens.js';
@@ -108,7 +107,6 @@ import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.m
   ],
 })
 export class ApplicationModule implements NestModule {
-  constructor(private dataSource: DataSource) {}
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(AppLoggerMiddleware).forRoutes('*');
   }

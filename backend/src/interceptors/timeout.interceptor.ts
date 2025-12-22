@@ -5,7 +5,7 @@ import { Messages } from '../exceptions/text/messages.js';
 
 @Injectable()
 export class TimeoutInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
     const timeoutMs = process.env.NODE_ENV !== 'test' ? 15000 : 200000;
     return next.handle().pipe(
       timeout(timeoutMs),
