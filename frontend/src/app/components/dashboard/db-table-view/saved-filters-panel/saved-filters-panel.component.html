@@ -50,16 +50,16 @@
         </mat-menu>
     </div>
 
-    <div class="filters-container">
+    <div class="filters-container" *ngIf="savedFilterMap[selectedFilterSetId]?.dynamicColumn || savedFilterMap[selectedFilterSetId]?.staticFilters?.length">
+        <span class="filters-where-label mat-body-1">
+            <mat-icon class="column-name-icon">subdirectory_arrow_right</mat-icon>
+            where
+        </span>
         <form *ngIf="savedFilterMap[selectedFilterSetId]?.dynamicColumn"
             class="dynamic-column-editor"
             (ngSubmit)="applyDynamicColumnChanges()">
-            <span class="column-name mat-body-1">
-                <mat-icon class="column-name-icon">subdirectory_arrow_right</mat-icon>
-                where
-                <strong *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
-                    {{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}
-                </strong>
+            <span class="column-name mat-body-1" *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
+                <strong>{{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}</strong>
             </span>
             <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" appearance="outline">
                 <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
@@ -172,7 +172,7 @@
                 ></ndc-dynamic>
             </div>
         </form>
-        <div class="static-filters">
+        <div class="static-filters" *ngIf="savedFilterMap[selectedFilterSetId]?.staticFilters?.length">
             <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip" data-hj-suppress>
                 {{ getFilter(filter) }}
             </mat-chip>

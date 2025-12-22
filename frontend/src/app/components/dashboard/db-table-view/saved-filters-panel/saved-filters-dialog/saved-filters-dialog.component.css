@@ -7,6 +7,11 @@
     padding-top: 4px !important;
 }
 
+::ng-deep mat-dialog-content.filters-content {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+}
+
 .filters-select {
     grid-column: 2 / span 5;
     margin-bottom: 16px;
@@ -17,6 +22,15 @@
 }
 
 .empty-conditions-container {
+    grid-column: 1 / span 6;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.add-condition-container {
     grid-column: 1 / span 6;
     display: flex;
     align-items: center;
@@ -37,7 +51,7 @@
     }
 }
 
-.empty-conditions-container .add-condition-button {
+.add-condition-button {
     width: auto;
     min-width: auto;
     min-height: 36px;
@@ -51,15 +65,15 @@
     gap: 4px;
 }
 
-.empty-conditions-container .add-condition-button.accent-button {
+.add-condition-button.accent-button {
     color: #C177FC;
 }
 
-.empty-conditions-container .add-condition-button.accent-button:hover {
+.add-condition-button.accent-button:hover {
     background-color: rgba(193, 119, 252, 0.04);
 }
 
-.empty-conditions-container .add-condition-button.accent-button .add-icon {
+.add-condition-button.accent-button .add-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
@@ -247,6 +261,24 @@
     flex-direction: column;
 }
 
+.filters-header-description {
+    margin: 0 24px 16px 24px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+@media (prefers-color-scheme: light) {
+    .filters-header-description {
+        color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .filters-header-description {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
 ::ng-deep .mat-dialog-container {
     display: flex;
 }
@@ -256,11 +288,44 @@
     margin-top: 12px;
 }
 
+.conditions-vertical-line {
+    grid-column: 1;
+    grid-row: 2 / -1;
+    width: 1px;
+    background-color: rgba(0, 0, 0, 0.12);
+    margin-left: 9px;
+    margin-top: 0;
+    margin-bottom: 0;
+    z-index: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .conditions-vertical-line {
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+}
+
 .filter-delete-button {
     grid-column: 1;
     margin-top: 4px;
-    margin-right: 8px;
+    margin-right: 0;
+    margin-left: 0;
     align-self: flex-start;
+    justify-self: center;
+    position: relative;
+    z-index: 1;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-delete-button ::ng-deep .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
 }
 
 .settings-form__reset-button {
@@ -307,6 +372,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .comparator-select-field ::ng-deep .mat-mdc-select-value-text {
@@ -317,9 +383,10 @@
 
 .comparator-select-field ::ng-deep .mat-mdc-select-arrow-wrapper {
     position: absolute;
-    right: 0;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .comparator-select-field ::ng-deep .mat-mdc-select-panel {
