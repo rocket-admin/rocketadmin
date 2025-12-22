@@ -24,6 +24,7 @@ import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IAISettingsAndWidgetsCreation, IRequestInfoFromTableV2 } from './ai-use-cases.interface.js';
 import { RequestInfoFromTableDSV2 } from './application/data-structures/request-info-from-table.ds.js';
 import { RequestInfoFromTableBodyDTO } from './application/dto/request-info-from-table-body.dto.js';
+import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -80,6 +81,7 @@ export class UserAIRequestsControllerV2 {
     status: 200,
     description: 'AI settings and widgets creation job has been queued.',
   })
+  @UseGuards(ConnectionEditGuard)
   @Get('/ai/v2/setup/:connectionId')
   public async requestAISettingsAndWidgetsCreation(
     @SlugUuid('connectionId') connectionId: string,
