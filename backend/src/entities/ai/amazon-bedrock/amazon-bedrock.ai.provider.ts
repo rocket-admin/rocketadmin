@@ -5,7 +5,7 @@ import { IAIProvider } from './ai-provider.interface.js';
 @Injectable()
 export class AmazonBedrockAiProvider implements IAIProvider {
   private readonly bedrockRuntimeClient: BedrockRuntimeClient;
-  private readonly modelId: string = 'global.anthropic.claude-sonnet-4-20250514-v1:0';
+  private readonly modelId: string = 'global.anthropic.claude-sonnet-4-5-20250929-v1:0';
   private readonly temperature: number = 0.7;
   private readonly maxTokens: number = 1024;
   private readonly region: string = 'us-west-2';
