@@ -427,6 +427,178 @@ th.mat-header-cell, td.mat-cell {
     text-align: left;
 }
 
+.sort-header-cell {
+    padding: 0 !important;
+}
+
+.sort-header-cell:hover .sort-header-button,
+.sort-header-cell.sort-header-active .sort-header-button,
+.sort-header-button[aria-expanded="true"],
+.sort-header-button:focus {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sort-header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 16px 0 0;
+    text-align: left;
+}
+
+.sort-header-button {
+    width: 32px;
+    height: 32px;
+    --mdc-icon-button-icon-size: 18px;
+    margin-left: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+.sort-header-button .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.sort-header-button .mat-icon.sort-icon-sync {
+    transform: rotate(90deg);
+    color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+    .sort-header-button .mat-icon.sort-icon-sync {
+        color: rgba(255, 255, 255, 0.54);
+    }
+}
+
+.sort-menu {
+    min-width: 280px;
+}
+
+.sort-menu .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.sort-menu-item-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sort-menu .mat-mdc-menu-item.sort-menu-item-active {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+    .sort-menu .mat-mdc-menu-item.sort-menu-item-active {
+        background-color: rgba(255, 255, 255, 0.04);
+    }
+}
+
+.sort-menu-item-check {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-left: 24px;
+    margin-right: 0;
+    opacity: 0.6;
+    order: 2;
+}
+
+.sort-menu-item-content {
+    order: 1;
+}
+
+.sort-icon-container {
+    position: relative;
+    width: 28px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+}
+
+.sort-icon-custom {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.sort-icon-custom::before,
+.sort-icon-custom::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    height: 2px;
+    background-color: currentColor;
+    border-radius: 1px;
+}
+
+/* A-Z: короткая, длинная, короткая */
+.sort-icon-asc .sort-icon-custom {
+    background-color: currentColor;
+    width: 6px;
+    height: 2px;
+    border-radius: 1px;
+    top: 0;
+}
+
+.sort-icon-asc .sort-icon-custom::before {
+    top: 5px;
+    width: 12px;
+}
+
+.sort-icon-asc .sort-icon-custom::after {
+    top: 10px;
+    width: 6px;
+}
+
+/* Z-A: короткая, длинная, короткая */
+.sort-icon-desc .sort-icon-custom {
+    background-color: currentColor;
+    width: 6px;
+    height: 2px;
+    border-radius: 1px;
+    top: 0;
+}
+
+.sort-icon-desc .sort-icon-custom::before {
+    top: 5px;
+    width: 12px;
+}
+
+.sort-icon-desc .sort-icon-custom::after {
+    top: 10px;
+    width: 6px;
+}
+
+.sort-icon-arrow {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sort-icon-arrow {
+    transform: rotate(180deg);
+}
+
+.sort-icon-arrow-down {
+    transform: rotate(180deg);
+}
+
 .db-table-cell-checkbox {
     display: flex;
     align-items: center;
