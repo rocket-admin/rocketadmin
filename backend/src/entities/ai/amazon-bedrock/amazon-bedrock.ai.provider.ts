@@ -1,12 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
+import { Injectable } from '@nestjs/common';
 import { IAIProvider } from './ai-provider.interface.js';
 
 @Injectable()
 export class AmazonBedrockAiProvider implements IAIProvider {
 	private readonly bedrockRuntimeClient: BedrockRuntimeClient;
 	private readonly modelId: string = 'global.anthropic.claude-sonnet-4-5-20250929-v1:0';
-	private readonly maxTokens: number = 1024;
 
 	constructor() {
 		this.bedrockRuntimeClient = new BedrockRuntimeClient();
@@ -22,7 +21,6 @@ export class AmazonBedrockAiProvider implements IAIProvider {
 		const command = new ConverseCommand({
 			modelId: this.modelId,
 			messages: conversation,
-			inferenceConfig: { maxTokens: this.maxTokens },
 		});
 		try {
 			const response = await this.bedrockRuntimeClient.send(command);
