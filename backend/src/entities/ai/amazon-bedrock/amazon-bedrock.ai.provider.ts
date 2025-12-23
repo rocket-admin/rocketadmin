@@ -14,10 +14,6 @@ export class AmazonBedrockAiProvider implements IAIProvider {
   constructor() {
     this.bedrockRuntimeClient = new BedrockRuntimeClient({
       region: this.region,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
     });
   }
   public async generateResponse(prompt: string): Promise<string> {
