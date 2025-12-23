@@ -330,10 +330,11 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // Validate conditions - check if there are any filters (excluding dynamic column)
+    // Validate conditions - check if there are any filters
     // A valid filter must have a comparator defined
-    const hasFilters = Object.keys(this.tableRowFieldsShown).some(key => {
-      // Skip dynamic column as it's not a filter condition
+    // Either regular filters OR dynamic column with comparator should exist
+    const hasRegularFilters = Object.keys(this.tableRowFieldsShown).some(key => {
+      // Skip dynamic column for regular filter check
       if (key === this.dynamicColumn) {
         return false;
       }
@@ -341,7 +342,12 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
       return this.tableRowFieldsComparator[key] !== undefined && this.tableRowFieldsComparator[key] !== null;
     });
 
-    if (!hasFilters) {
+    // Check if dynamic column has a comparator (it counts as a valid filter condition)
+    const hasDynamicColumnFilter = this.dynamicColumn && 
+      this.tableRowFieldsComparator[this.dynamicColumn] !== undefined && 
+      this.tableRowFieldsComparator[this.dynamicColumn] !== null;
+
+    if (!hasRegularFilters && !hasDynamicColumnFilter) {
       this.showConditionsError = true;
       setTimeout(() => {
         const conditionInput = this.elementRef.nativeElement.querySelector('input[name="filter_columns"]') as HTMLInputElement;
