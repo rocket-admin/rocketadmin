@@ -6,15 +6,10 @@ import { IAIProvider } from './ai-provider.interface.js';
 export class AmazonBedrockAiProvider implements IAIProvider {
 	private readonly bedrockRuntimeClient: BedrockRuntimeClient;
 	private readonly modelId: string = 'global.anthropic.claude-sonnet-4-5-20250929-v1:0';
-	private readonly temperature: number = 0.7;
 	private readonly maxTokens: number = 1024;
-	private readonly region: string = 'us-west-2';
-	private readonly topP: number = 0.9;
 
 	constructor() {
-		this.bedrockRuntimeClient = new BedrockRuntimeClient({
-			region: this.region,
-		});
+		this.bedrockRuntimeClient = new BedrockRuntimeClient();
 	}
 	public async generateResponse(prompt: string): Promise<string> {
 		const conversation = [
@@ -27,7 +22,7 @@ export class AmazonBedrockAiProvider implements IAIProvider {
 		const command = new ConverseCommand({
 			modelId: this.modelId,
 			messages: conversation,
-			inferenceConfig: { maxTokens: this.maxTokens, temperature: this.temperature, topP: this.topP },
+			inferenceConfig: { maxTokens: this.maxTokens },
 		});
 		try {
 			const response = await this.bedrockRuntimeClient.send(command);
