@@ -31,7 +31,10 @@ enum RedisTableType {
 	ZSET = 'zset',
 	STRING = 'string',
 	HASH = 'hash',
+	STANDALONE_COLLECTION = 'standalone_collection',
 }
+
+const STANDALONE_TABLE_NAME = '[other]';
 
 interface RedisTableMetadata {
 	tableName: string;
@@ -46,11 +49,39 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 	): Promise<Record<string, unknown> | number> {
 		const tableMetadata = this.parseTableName(tableName);
 
+		if (tableMetadata.tableType === RedisTableType.STANDALONE_COLLECTION) {
+			return this.addRowToStandaloneCollection(row);
+		}
+
 		if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
 			return this.addRowToStandaloneTable(tableMetadata, row);
 		}
 
 		return this.addRowToPrefixedTable(tableName, row);
+	}
+
+	private async addRowToStandaloneCollection(row: Record<string, unknown>): Promise<Record<string, unknown>> {
+		const redisClient = await this.getClient();
+
+		if (!row.key) {
+			throw new Error('Field "key" is required for adding to standalone collection');
+		}
+
+		const key = String(row.key);
+		const value = row.value !== undefined ? String(row.value) : '';
+
+		const exists = await redisClient.exists(key);
+		if (exists) {
+			throw new Error(`Key "${key}" already exists`);
+		}
+
+		await redisClient.set(key, value);
+
+		return {
+			key: key,
+			type: 'string',
+			value: value,
+		};
 	}
 
 	private async addRowToStandaloneTable(
@@ -134,11 +165,29 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 	): Promise<Record<string, unknown>> {
 		const tableMetadata = this.parseTableName(tableName);
 
+		if (tableMetadata.tableType === RedisTableType.STANDALONE_COLLECTION) {
+			return this.deleteRowFromStandaloneCollection(primaryKey);
+		}
+
 		if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
 			return this.deleteRowFromStandaloneTable(tableMetadata, primaryKey);
 		}
 
 		return this.deleteRowFromPrefixedTable(tableName, primaryKey);
+	}
+
+	private async deleteRowFromStandaloneCollection(
+		primaryKey: Record<string, unknown>,
+	): Promise<Record<string, unknown>> {
+		const redisClient = await this.getClient();
+
+		if (!primaryKey.key) {
+			throw new Error('Primary key "key" is required');
+		}
+
+		const key = String(primaryKey.key);
+		await redisClient.del(key);
+		return primaryKey;
 	}
 
 	private async deleteRowFromStandaloneTable(
@@ -220,7 +269,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 		const results: Array<Record<string, unknown>> = [];
 
 		const pattern = `${tableName}:*`;
-		const keys = await redisClient.keys(pattern);
+		const keys = await this.getKeysWithPattern(redisClient, pattern);
 
 		for (const key of keys) {
 			try {
@@ -266,11 +315,76 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 	): Promise<Record<string, unknown>> {
 		const tableMetadata = this.parseTableName(tableName);
 
+		if (tableMetadata.tableType === RedisTableType.STANDALONE_COLLECTION) {
+			return this.getStandaloneCollectionRowByPrimaryKey(primaryKey, settings);
+		}
+
 		if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
 			return this.getStandaloneRowByPrimaryKey(tableMetadata, primaryKey, settings);
 		}
 
 		return this.getPrefixedRowByPrimaryKey(tableName, primaryKey, settings);
+	}
+
+	private async getStandaloneCollectionRowByPrimaryKey(
+		primaryKey: Record<string, unknown>,
+		settings: TableSettingsDS,
+	): Promise<Record<string, unknown>> {
+		const redisClient = await this.getClient();
+
+		if (!primaryKey.key) {
+			throw new Error('Primary key "key" is required');
+		}
+
+		const key = String(primaryKey.key);
+		const keyType = await redisClient.type(key);
+
+		if (keyType === 'none') {
+			return null;
+		}
+
+		let value: unknown;
+		switch (keyType) {
+			case 'string':
+				value = await redisClient.get(key);
+				break;
+			case 'list':
+				value = `[list: ${await redisClient.lLen(key)} items]`;
+				break;
+			case 'set':
+				value = `[set: ${await redisClient.sCard(key)} members]`;
+				break;
+			case 'zset':
+				value = `[zset: ${await redisClient.zCard(key)} members]`;
+				break;
+			case 'hash':
+				value = `[hash: ${await redisClient.hLen(key)} fields]`;
+				break;
+			default:
+				value = `[${keyType}]`;
+		}
+
+		let result: Record<string, unknown> = {
+			key: key,
+			type: keyType,
+			value: value,
+		};
+
+		if (settings) {
+			const tableStructure = await this.getTableStructure(STANDALONE_TABLE_NAME);
+			const availableFields = this.findAvailableFields(settings, tableStructure);
+			if (availableFields.length > 0) {
+				const filteredResult: Record<string, unknown> = {};
+				availableFields.forEach((field) => {
+					if (result[field] !== undefined) {
+						filteredResult[field] = result[field];
+					}
+				});
+				result = filteredResult;
+			}
+		}
+
+		return result;
 	}
 
 	private async getStandaloneRowByPrimaryKey(
@@ -460,6 +574,17 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
 		const tableMetadata = this.parseTableName(tableName);
 
+		if (tableMetadata.tableType === RedisTableType.STANDALONE_COLLECTION) {
+			return this.getStandaloneCollectionRows(
+				safeSettings,
+				page,
+				perPage,
+				searchedFieldValue,
+				filteringFields,
+				tableStructure,
+			);
+		}
+
 		if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
 			return this.getStandaloneTableRows(
 				tableMetadata,
@@ -566,6 +691,154 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
 		if (!tableStructure) {
 			tableStructure = await this.getTableStructure(metadata.tableName);
+		}
+
+		const availableFields = this.findAvailableFields(settings, tableStructure);
+
+		const finalRows = paginatedRows.map((row) => {
+			if (availableFields.length > 0) {
+				const filteredRow: Record<string, unknown> = {};
+				availableFields.forEach((field) => {
+					if (row[field] !== undefined) {
+						filteredRow[field] = row[field];
+					}
+				});
+				return filteredRow;
+			}
+			return row;
+		});
+
+		return {
+			data: finalRows,
+			pagination: {
+				total: totalRows,
+				lastPage: Math.ceil(totalRows / perPage),
+				perPage: perPage,
+				currentPage: page,
+			},
+			large_dataset: totalRows > 1000,
+		};
+	}
+
+	private async getStandaloneCollectionRows(
+		settings: TableSettingsDS,
+		page: number,
+		perPage: number,
+		searchedFieldValue: string,
+		filteringFields: Array<FilteringFieldsDS>,
+		tableStructure: TableStructureDS[] | null,
+	): Promise<FoundRowsDS> {
+		const redisClient = await this.getClient();
+
+		const allKeys = await this.getAllKeysWithTimeout(redisClient);
+		const standaloneKeys = allKeys.filter((key) => !key.includes(':'));
+
+		let allRows: Array<Record<string, unknown>> = [];
+
+		const BATCH_SIZE = 1000;
+		for (let i = 0; i < standaloneKeys.length; i += BATCH_SIZE) {
+			const batch = standaloneKeys.slice(i, i + BATCH_SIZE);
+			const pipeline = redisClient.multi();
+			batch.forEach((key) => pipeline.type(key));
+
+			try {
+				const typeResults = await pipeline.exec();
+				if (typeResults) {
+					for (let j = 0; j < batch.length; j++) {
+						const key = batch[j];
+						const keyType = typeof typeResults[j] === 'string' ? typeResults[j] : String(typeResults[j]);
+
+						if (keyType === 'none') continue;
+
+						try {
+							let value: unknown;
+							switch (keyType) {
+								case 'string':
+									value = await redisClient.get(key);
+									break;
+								case 'list':
+									value = `[list: ${await redisClient.lLen(key)} items]`;
+									break;
+								case 'set':
+									value = `[set: ${await redisClient.sCard(key)} members]`;
+									break;
+								case 'zset':
+									value = `[zset: ${await redisClient.zCard(key)} members]`;
+									break;
+								case 'hash':
+									value = `[hash: ${await redisClient.hLen(key)} fields]`;
+									break;
+								default:
+									value = `[${keyType}]`;
+							}
+
+							allRows.push({
+								key: key,
+								type: keyType,
+								value: value,
+							});
+						} catch (_error) {}
+					}
+				}
+			} catch (_error) {
+				for (const key of batch) {
+					try {
+						const keyType = await redisClient.type(key);
+						if (keyType === 'none') continue;
+
+						let value: unknown;
+						if (keyType === 'string') {
+							value = await redisClient.get(key);
+						} else {
+							value = `[${keyType}]`;
+						}
+
+						allRows.push({
+							key: key,
+							type: keyType,
+							value: value,
+						});
+					} catch (_innerError) {}
+				}
+			}
+		}
+
+		if (filteringFields?.length > 0 || searchedFieldValue) {
+			const filteredRows: Array<Record<string, unknown>> = [];
+			for (const row of allRows) {
+				const passes = await this.passesFilters(
+					row,
+					filteringFields,
+					searchedFieldValue,
+					settings,
+					STANDALONE_TABLE_NAME,
+				);
+				if (passes) {
+					filteredRows.push(row);
+				}
+			}
+			allRows = filteredRows;
+		}
+
+		if (settings.ordering_field && settings.ordering) {
+			allRows.sort((a, b) => {
+				const aVal = a[settings.ordering_field];
+				const bVal = b[settings.ordering_field];
+				const modifier = settings.ordering === 'ASC' ? 1 : -1;
+
+				if (aVal < bVal) return -1 * modifier;
+				if (aVal > bVal) return 1 * modifier;
+				return 0;
+			});
+		}
+
+		const totalRows = allRows.length;
+		console.log('🚀 ~ DataAccessObjectRedis ~ getStandaloneCollectionRows ~ allRows:', allRows);
+		const offset = (page - 1) * perPage;
+		const paginatedRows = allRows.slice(offset, offset + perPage);
+
+		if (!tableStructure) {
+			tableStructure = await this.getTableStructure(STANDALONE_TABLE_NAME);
 		}
 
 		const availableFields = this.findAvailableFields(settings, tableStructure);
@@ -779,6 +1052,9 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 		const tableMetadata = this.parseTableName(tableName);
 
 		switch (tableMetadata.tableType) {
+			case RedisTableType.STANDALONE_COLLECTION:
+				return [{ column_name: 'key', data_type: 'string' }];
+
 			case RedisTableType.LIST:
 				return [{ column_name: 'index', data_type: 'integer' }];
 
@@ -809,34 +1085,29 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
 		const allKeys = await this.getAllKeysWithTimeout(redisClient);
 		const prefixedTableNames = new Set<string>();
-		const standaloneKeys: Array<{ key: string; type: string }> = [];
+		let hasStandaloneKeys = false;
 
 		for (const key of allKeys) {
 			const parts = key.split(':');
 			if (parts.length >= 2) {
 				prefixedTableNames.add(parts[0]);
 			} else {
-				try {
-					const keyType = await redisClient.type(key);
-					//  if (keyType !== 'none') {
-					standaloneKeys.push({ key, type: keyType });
-					//  }
-				} catch (_error) {}
+				hasStandaloneKeys = true;
 			}
 		}
 
 		const tables: Array<TableDS> = [];
 
-		for (const tableName of prefixedTableNames) {
+		if (hasStandaloneKeys) {
 			tables.push({
-				tableName: tableName,
+				tableName: STANDALONE_TABLE_NAME,
 				isView: false,
 			});
 		}
 
-		for (const { key, type } of standaloneKeys) {
+		for (const tableName of prefixedTableNames) {
 			tables.push({
-				tableName: `[${type}]${key}`,
+				tableName: tableName,
 				isView: false,
 			});
 		}
@@ -847,11 +1118,50 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 	public async getTableStructure(tableName: string): Promise<Array<TableStructureDS>> {
 		const tableMetadata = this.parseTableName(tableName);
 
+		if (tableMetadata.tableType === RedisTableType.STANDALONE_COLLECTION) {
+			return this.getStandaloneCollectionStructure();
+		}
+
 		if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
 			return this.getStandaloneTableStructure(tableMetadata);
 		}
 
 		return this.getPrefixedTableStructure(tableName);
+	}
+
+	private getStandaloneCollectionStructure(): Array<TableStructureDS> {
+		return [
+			{
+				column_name: 'key',
+				data_type: 'string',
+				allow_null: false,
+				column_default: null,
+				character_maximum_length: null,
+				data_type_params: '',
+				udt_name: 'string',
+				extra: 'primary_key',
+			},
+			{
+				column_name: 'type',
+				data_type: 'string',
+				allow_null: false,
+				column_default: null,
+				character_maximum_length: null,
+				data_type_params: '',
+				udt_name: 'string',
+				extra: null,
+			},
+			{
+				column_name: 'value',
+				data_type: 'string',
+				allow_null: true,
+				column_default: null,
+				character_maximum_length: null,
+				data_type_params: '',
+				udt_name: 'string',
+				extra: null,
+			},
+		];
 	}
 
 	private async getStandaloneTableStructure(metadata: RedisTableMetadata): Promise<Array<TableStructureDS>> {
@@ -904,7 +1214,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 	private async getPrefixedTableStructure(tableName: string): Promise<Array<TableStructureDS>> {
 		const redisClient = await this.getClient();
 		const pattern = `${tableName}:*`;
-		const keys = await redisClient.keys(pattern);
+		const keys = await this.getKeysWithPattern(redisClient, pattern);
 		const fieldTypes = new Map<string, string>();
 		fieldTypes.set('key', 'string');
 
@@ -994,11 +1304,48 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 	): Promise<Record<string, unknown>> {
 		const tableMetadata = this.parseTableName(tableName);
 
+		if (tableMetadata.tableType === RedisTableType.STANDALONE_COLLECTION) {
+			return this.updateRowInStandaloneCollection(row, primaryKey);
+		}
+
 		if (tableMetadata.tableType !== RedisTableType.PREFIXED_KEYS) {
 			return this.updateRowInStandaloneTable(tableMetadata, row, primaryKey);
 		}
 
 		return this.updateRowInPrefixedTable(tableName, row, primaryKey);
+	}
+
+	private async updateRowInStandaloneCollection(
+		row: Record<string, unknown>,
+		primaryKey: Record<string, unknown>,
+	): Promise<Record<string, unknown>> {
+		const redisClient = await this.getClient();
+
+		if (!primaryKey.key) {
+			throw new Error('Primary key "key" is required');
+		}
+
+		const key = String(primaryKey.key);
+		const keyType = await redisClient.type(key);
+
+		if (keyType === 'none') {
+			throw new Error(`Key "${key}" does not exist`);
+		}
+
+		if (keyType !== 'string') {
+			throw new Error(
+				`Cannot update value for key of type "${keyType}". Only string keys can be updated from this view.`,
+			);
+		}
+
+		const newValue = row.value !== undefined ? String(row.value) : '';
+		await redisClient.set(key, newValue);
+
+		return {
+			key: key,
+			type: keyType,
+			value: newValue,
+		};
 	}
 
 	private async updateRowInStandaloneTable(
@@ -1189,6 +1536,12 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 		const tableMetadata = this.parseTableName(tableName);
 
 		switch (tableMetadata.tableType) {
+			case RedisTableType.STANDALONE_COLLECTION:
+				if (settings.excluded_fields?.includes('key')) {
+					errors.push('Cannot exclude the "key" field in standalone collection table');
+				}
+				break;
+
 			case RedisTableType.PREFIXED_KEYS:
 				if (settings.excluded_fields?.includes('key')) {
 					errors.push('Cannot exclude the "key" field in prefixed Redis tables');
@@ -1280,7 +1633,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 
 				case 'KEYS': {
 					if (parts.length !== 2) throw new Error('KEYS requires exactly one pattern');
-					const keys = await redisClient.keys(parts[1]);
+					const keys = await this.getKeysWithPattern(redisClient, parts[1]);
 					return keys.map((key) => ({ key }));
 				}
 
@@ -1298,6 +1651,14 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 	}
 
 	private parseTableName(tableName: string): RedisTableMetadata {
+		if (tableName === STANDALONE_TABLE_NAME) {
+			return {
+				tableName,
+				tableType: RedisTableType.STANDALONE_COLLECTION,
+				redisKey: '',
+			};
+		}
+
 		const standalonePattern = /^\[(list|set|zset|string|hash)\](.+)$/;
 		const match = tableName.match(standalonePattern);
 
@@ -1626,8 +1987,19 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 			cursor = result.cursor.toString();
 			allKeys.push(...result.keys);
 		} while (cursor !== '0');
-		console.log('🚀 ~ DataAccessObjectRedis ~ getAllKeysWithScan ~ allKeys:', allKeys);
+
 		return allKeys;
+	}
+
+	private async getKeysWithPattern(redisClient: RedisClientType, pattern: string): Promise<string[]> {
+		try {
+			return await redisClient.keys(pattern);
+		} catch (error) {
+			if (error?.message?.includes('KEYS command is disabled') || error?.message?.includes('please use SCAN')) {
+				return this.getAllKeysWithScan(redisClient, pattern);
+			}
+			throw error;
+		}
 	}
 
 	private async getAllKeysWithTimeout(redisClient: RedisClientType, timeoutMs: number = 5000): Promise<string[]> {
