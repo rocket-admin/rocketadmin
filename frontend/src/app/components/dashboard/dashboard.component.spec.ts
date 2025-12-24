@@ -22,7 +22,8 @@ describe('DashboardComponent', () => {
     },
     get currentConnectionAccessLevel(): AccessLevel {
       return AccessLevel.None;
-    }
+    },
+    getTablesFolders: () => of([])
   };
   const fakeRouter = jasmine.createSpyObj('Router', {navigate: Promise.resolve('')});
 
