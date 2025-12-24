@@ -1,0 +1,57 @@
+.s3-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.s3-widget__key {
+  width: 100%;
+}
+
+.s3-widget__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.s3-widget__actions button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.s3-widget__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.s3-widget__thumbnail {
+  max-width: 200px;
+  max-height: 150px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.s3-widget__file-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+.s3-widget__file-icon mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.s3-widget__filename {
+  font-size: 12px;
+  word-break: break-all;
+  text-align: center;
+}

@@ -1,22 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/validate-table-settings-ds.builder.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
+import { isTest } from '../../helpers/app/is-test.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import { AiService } from '../ai/ai.service.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { buildEmptyTableSettings } from '../table-settings/utils/build-empty-table-settings.js';
 import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
-import { AiService } from '../ai/ai.service.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
-import { isTest } from '../../helpers/app/is-test.js';
 
 @Injectable()
 export class SharedJobsService {

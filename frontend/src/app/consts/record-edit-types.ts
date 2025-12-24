@@ -27,6 +27,7 @@ import { TimeIntervalEditComponent } from '../components/ui-components/record-ed
 import { TimezoneEditComponent } from '../components/ui-components/record-edit-fields/timezone/timezone.component';
 import { UrlEditComponent } from '../components/ui-components/record-edit-fields/url/url.component';
 import { UuidEditComponent } from '../components/ui-components/record-edit-fields/uuid/uuid.component';
+import { S3EditComponent } from '../components/ui-components/record-edit-fields/s3/s3.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time', 'datetime', 'date time', 'datetime2', 'datetimeoffset', 'curdate', 'curtime', 'now', 'localtime', 'localtimestamp'];
 export const defaultTimestampValues = {
@@ -61,6 +62,7 @@ export const UIwidgets = {
     Timezone: TimezoneEditComponent,
     URL: UrlEditComponent,
     UUID: UuidEditComponent,
+    S3: S3EditComponent,
 }
 
 export const recordEditTypes = {

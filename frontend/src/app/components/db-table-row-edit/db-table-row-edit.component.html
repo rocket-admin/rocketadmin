@@ -126,7 +126,8 @@
                                     readonly: (!permissions?.edit && pageAction !== 'dub') || pageMode === 'view',
                                     disabled: isReadonlyField(value),
                                     widgetStructure: tableWidgets[value],
-                                    relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
+                                    relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined,
+                                    rowPrimaryKey: keyAttributesFromURL
                                 }"
                                 [ndcDynamicOutputs]="{
                                     onFieldChange: { handler: updateField, args: ['$event', value] }

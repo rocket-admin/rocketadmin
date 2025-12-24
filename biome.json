@@ -18,7 +18,7 @@
 		"rules": {
 			"recommended": false,
 			"a11y": {
-			  "noAccessKey": "error",
+				"noAccessKey": "error",
 				"noAriaHiddenOnFocusable": "error",
 				"noAriaUnsupportedElements": "error",
 				"noAutofocus": "error",
@@ -45,17 +45,17 @@
 				"useIframeTitle": "error",
 				"useKeyWithClickEvents": "error",
 				"useKeyWithMouseEvents": "error",
-        "useMediaCaption": "error",
-        "useSemanticElements": "error",
-        "useValidAnchor": "error",
-        "useValidAriaProps": "error",
-        "useValidAriaRole": "error",
-        "useValidAriaValues": "error",
-        "useValidAutocomplete": "error",
-        "useValidLang": "error"
+				"useMediaCaption": "error",
+				"useSemanticElements": "error",
+				"useValidAnchor": "error",
+				"useValidAriaProps": "error",
+				"useValidAriaRole": "error",
+				"useValidAriaValues": "error",
+				"useValidAutocomplete": "error",
+				"useValidLang": "error"
 			},
 			"complexity": {
-			  "noAdjacentSpacesInRegex": "error",
+				"noAdjacentSpacesInRegex": "error",
 				"noArguments": "error",
 				"noBannedTypes": "on",
 				"noCommaOperator": "on",
@@ -91,7 +91,7 @@
 				"useSimpleNumberKeys": "error"
 			},
 			"correctness": {
-	      "noConstAssign": "error",
+				"noConstAssign": "error",
 				"noConstantCondition": "error",
 				"noConstantMathMinMaxClamp": "error",
 				"noConstructorReturn": "error",
@@ -126,7 +126,7 @@
 				"useYield": "error"
 			},
 			"performance": {
-			  "noAccumulatingSpread": "error",
+				"noAccumulatingSpread": "error",
 				"noDynamicNamespaceImportAccess": "error"
 			},
 			"security": {
@@ -134,7 +134,7 @@
 				"noGlobalEval": "error"
 			},
 			"suspicious": {
-			  "noApproximativeNumericConstant": "error",
+				"noApproximativeNumericConstant": "error",
 				"noAssignInExpressions": "off",
 				"noAsyncPromiseExecutor": "off",
 				"noCatchAssign": "error",
@@ -161,41 +161,40 @@
 				"noFunctionAssign": "error",
 				"noGlobalAssign": "error",
 				"noGlobalIsFinite": "error",
-        "noGlobalIsNan": "on",
-        "noHeadImportInDocument": "error",
-        "noImplicitAnyLet": "off",
-        "noImportAssign": "error",
-        "noIrregularWhitespace": "error",
-        "noLabelVar": "error",
-        "noMisleadingCharacterClass": "error",
-        "noMisleadingInstantiator": "error",
-        "noMisrefactoredShorthandAssign": "error",
-        "noNonNullAssertedOptionalChain": "error",
-        "noOctalEscape": "error",
-        "noPrototypeBuiltins": "on",
-        "noRedeclare": "error",
-        "noRedundantUseStrict": "error",
-        "noSelfCompare": "error",
-        "noShadowRestrictedNames": "error",
-        "noSparseArray": "error",
-        "noSuspiciousSemicolonInJsx": "error",
-        "noTemplateCurlyInString": "error",
-        "noThenProperty": "error",
-        "noTsIgnore": "on",
-        "noUnsafeDeclarationMerging": "error",
-        "noUnsafeNegation": "error",
-        "noUselessEscapeInString": "error",
-        "noUselessRegexBackrefs": "error",
-        "noWith": "error",
-        "useAdjacentOverloadSignatures": "error",
-        "useAwait": "on",
-        "useDefaultSwitchClauseLast": "error",
-        "useGetterReturn": "error",
-        "useGoogleFontDisplay": "error",
-        "useIsArray": "error",
-        "useIterableCallbackReturn": "off",
-        "useNamespaceKeyword": "error"
-
+				"noGlobalIsNan": "on",
+				"noHeadImportInDocument": "error",
+				"noImplicitAnyLet": "off",
+				"noImportAssign": "error",
+				"noIrregularWhitespace": "error",
+				"noLabelVar": "error",
+				"noMisleadingCharacterClass": "error",
+				"noMisleadingInstantiator": "error",
+				"noMisrefactoredShorthandAssign": "error",
+				"noNonNullAssertedOptionalChain": "error",
+				"noOctalEscape": "error",
+				"noPrototypeBuiltins": "on",
+				"noRedeclare": "error",
+				"noRedundantUseStrict": "error",
+				"noSelfCompare": "error",
+				"noShadowRestrictedNames": "error",
+				"noSparseArray": "error",
+				"noSuspiciousSemicolonInJsx": "error",
+				"noTemplateCurlyInString": "error",
+				"noThenProperty": "error",
+				"noTsIgnore": "on",
+				"noUnsafeDeclarationMerging": "error",
+				"noUnsafeNegation": "error",
+				"noUselessEscapeInString": "error",
+				"noUselessRegexBackrefs": "error",
+				"noWith": "error",
+				"useAdjacentOverloadSignatures": "error",
+				"useAwait": "on",
+				"useDefaultSwitchClauseLast": "error",
+				"useGetterReturn": "error",
+				"useGoogleFontDisplay": "error",
+				"useIsArray": "error",
+				"useIterableCallbackReturn": "off",
+				"useNamespaceKeyword": "error"
 			}
 		}
 	},
@@ -208,9 +207,9 @@
 		}
 	},
 	"html": {
-    "parser": {
-      "interpolation": true
-    }
+		"parser": {
+			"interpolation": true
+		}
 	},
 	"assist": {
 		"enabled": true,

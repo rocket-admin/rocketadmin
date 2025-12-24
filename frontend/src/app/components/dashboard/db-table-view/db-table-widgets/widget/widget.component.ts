@@ -79,7 +79,7 @@ export class WidgetComponent implements OnInit, OnChanges {
     Date: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
     DateTime: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
     Time: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
-
+    S3: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#s3',
   };
 
   ngOnInit(): void {
