@@ -963,6 +963,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aws-sdk/s3-request-presigner@npm:^3.958.0":
+  version: 3.958.0
+  resolution: "@aws-sdk/s3-request-presigner@npm:3.958.0"
+  dependencies:
+    "@aws-sdk/signature-v4-multi-region": 3.957.0
+    "@aws-sdk/types": 3.957.0
+    "@aws-sdk/util-format-url": 3.957.0
+    "@smithy/middleware-endpoint": ^4.4.1
+    "@smithy/protocol-http": ^5.3.7
+    "@smithy/smithy-client": ^4.10.2
+    "@smithy/types": ^4.11.0
+    tslib: ^2.6.2
+  checksum: 9b6d504dfee3382cf06568aa02d9d8b21dd8ec1c01c62e544f33f05d11277fdddcf81383a72cb96cf25291f4ca591230b43d0e49b51223ac695d126be47485e6
+  languageName: node
+  linkType: hard
+
 "@aws-sdk/signature-v4-multi-region@npm:3.957.0":
   version: 3.957.0
   resolution: "@aws-sdk/signature-v4-multi-region@npm:3.957.0"
@@ -5275,6 +5291,7 @@ __metadata:
     "@aws-sdk/client-bedrock-runtime": ^3.954.0
     "@aws-sdk/client-s3": ^3.958.0
     "@aws-sdk/lib-dynamodb": ^3.953.0
+    "@aws-sdk/s3-request-presigner": ^3.958.0
     "@electric-sql/pglite": ^0.3.14
     "@faker-js/faker": ^10.1.0
     "@nestjs/cli": ^11.0.14
