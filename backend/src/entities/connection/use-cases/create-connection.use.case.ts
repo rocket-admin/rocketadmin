@@ -113,7 +113,8 @@ export class CreateConnectionUseCase
       return connectionRO;
     } finally {
       if (isConnectionTestedSuccessfully && !isConnectionTypeAgent(connectionCopy.type)) {
-        await this.sharedJobsService.scanDatabaseAndCreateWidgets(connectionCopy);
+        // await this.sharedJobsService.scanDatabaseAndCreateWidgets(connectionCopy);
+        await this.sharedJobsService.scanDatabaseAndCreateSettingsAndWidgetsWithAI(connectionCopy);
       }
     }
   }
