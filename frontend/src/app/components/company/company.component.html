@@ -491,7 +491,7 @@
         </div>
     </ng-container >
 
-    <div *ngIf="currentUser && currentUser.role === 'USER' && currentPlan !== 'free' && companyCustomDomainHostname">
+    <div *ngIf="isSaas && currentUser && currentUser.role === 'USER' && currentPlan !== 'free' && companyCustomDomainHostname">
         <strong>Your admin panel address: </strong>
         <span data-testid="company-custom-domain">{{companyCustomDomainHostname}}</span>
     </div>

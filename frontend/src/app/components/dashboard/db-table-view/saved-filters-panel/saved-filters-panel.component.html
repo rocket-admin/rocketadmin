@@ -48,8 +48,14 @@
                 <strong *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
                     {{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}
                 </strong>
+                <span *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" class="comparator-text">
+                    {{ {startswith: 'starts with', endswith: 'ends with', eq: 'equal', contains: 'contains', icontains: 'not contains', empty: 'is empty'}[savedFilterMap[selectedFilterSetId].dynamicColumn.operator] }}
+                </span>
+                <span *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'number'" class="comparator-text">
+                    {{ {eq: '=', gt: '>', lt: '<', gte: '≥', lte: '≤'}[savedFilterMap[selectedFilterSetId].dynamicColumn.operator] }}
+                </span>
             </span>
-            <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" appearance="outline">
+            <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" appearance="outline" class="comparator-select">
                 <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
                         name="textComparator"
                         (ngModelChange)="updateDynamicColumnComparator($event)">
@@ -62,7 +68,7 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'number'" appearance="outline">
+            <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'number'" appearance="outline" class="comparator-select">
                 <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
                             name="numberComparator"
                             (ngModelChange)="updateDynamicColumnComparator($event)">

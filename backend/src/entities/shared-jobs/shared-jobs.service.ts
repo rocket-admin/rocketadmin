@@ -1,22 +1,22 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { getDataAccessObject } from "@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js";
-import { TableDS } from "@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js";
-import { buildValidateTableSettingsDS } from "@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/validate-table-settings-ds.builder.js";
-import { IDataAccessObject } from "@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js";
-import { IDataAccessObjectAgent } from "@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js";
-import * as Sentry from "@sentry/node";
-import PQueue from "p-queue";
-import { IGlobalDatabaseContext } from "../../common/application/global-database-context.interface.js";
-import { BaseType } from "../../common/data-injection.tokens.js";
-import { WidgetTypeEnum } from "../../enums/widget-type.enum.js";
-import { isTest } from "../../helpers/app/is-test.js";
-import { ValidationHelper } from "../../helpers/validators/validation-helper.js";
-import { AiService } from "../ai/ai.service.js";
-import { ConnectionEntity } from "../connection/connection.entity.js";
-import { TableSettingsEntity } from "../table-settings/table-settings.entity.js";
-import { buildEmptyTableSettings } from "../table-settings/utils/build-empty-table-settings.js";
-import { buildNewTableSettingsEntity } from "../table-settings/utils/build-new-table-settings-entity.js";
-import { TableWidgetEntity } from "../widget/table-widget.entity.js";
+import { Inject, Injectable } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
+import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/validate-table-settings-ds.builder.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import * as Sentry from '@sentry/node';
+import PQueue from 'p-queue';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../common/data-injection.tokens.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
+import { isTest } from '../../helpers/app/is-test.js';
+import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import { AiService } from '../ai/ai.service.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { buildEmptyTableSettings } from '../table-settings/utils/build-empty-table-settings.js';
+import { buildNewTableSettingsEntity } from '../table-settings/utils/build-new-table-settings-entity.js';
+import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 
 @Injectable()
 export class SharedJobsService {
@@ -26,12 +26,11 @@ export class SharedJobsService {
 		private readonly aiService: AiService,
 	) {}
 
-	public async scanDatabaseAndCreateSettingsAndWidgetsWithAI(
-		connection: ConnectionEntity,
-	): Promise<void> {
+	public async scanDatabaseAndCreateSettingsAndWidgetsWithAI(connection: ConnectionEntity): Promise<void> {
 		if (!connection || isTest()) {
 			return;
 		}
+		console.info(`Starting AI scan for connection with id "${connection.id}"`);
 		try {
 			const dao = getDataAccessObject(connection);
 			const tables: Array<TableDS> = await dao.getTablesFromDB();
@@ -39,18 +38,9 @@ export class SharedJobsService {
 			const tablesInformation = await Promise.all(
 				tables.map((table) =>
 					queue.add(async () => {
-						const structure = await dao.getTableStructure(
-							table.tableName,
-							null,
-						);
-						const primaryColumns = await dao.getTablePrimaryColumns(
-							table.tableName,
-							null,
-						);
-						const foreignKeys = await dao.getTableForeignKeys(
-							table.tableName,
-							null,
-						);
+						const structure = await dao.getTableStructure(table.tableName, null);
+						const primaryColumns = await dao.getTablePrimaryColumns(table.tableName, null);
+						const foreignKeys = await dao.getTableForeignKeys(table.tableName, null);
 						return {
 							table_name: table.tableName,
 							structure,
@@ -61,8 +51,7 @@ export class SharedJobsService {
 				),
 			);
 
-			const generatedTableSettings =
-				await this.aiService.generateNewTableSettingsWithAI(tablesInformation);
+			const generatedTableSettings = await this.aiService.generateNewTableSettingsWithAI(tablesInformation);
 
 			const widgetsByTable = new Map<string, Array<TableWidgetEntity>>();
 			for (const setting of generatedTableSettings) {
@@ -71,26 +60,16 @@ export class SharedJobsService {
 				}
 			}
 
-			const normalizedSettings = this.normalizeAISettings(
-				generatedTableSettings,
-				connection,
-			);
+			const normalizedSettings = this.normalizeAISettings(generatedTableSettings, connection);
 
 			const validationQueue = new PQueue({ concurrency: 4 });
 			const validatedSettings = await Promise.all(
 				normalizedSettings.map((setting) =>
 					validationQueue.add(async () => {
 						const validateSettingsDS = buildValidateTableSettingsDS(setting);
-						const errors = await dao.validateSettings(
-							validateSettingsDS,
-							setting.table_name,
-							undefined,
-						);
+						const errors = await dao.validateSettings(validateSettingsDS, setting.table_name, undefined);
 						if (errors.length > 0) {
-							console.error(
-								`Validation errors for table "${setting.table_name}":`,
-								errors,
-							);
+							console.error(`Validation errors for table "${setting.table_name}":`, errors);
 							return null;
 						}
 						return setting;
@@ -98,12 +77,9 @@ export class SharedJobsService {
 				),
 			);
 
-			const settingsToSave = validatedSettings.filter(
-				(setting) => setting !== null,
-			);
+			const settingsToSave = validatedSettings.filter((setting) => setting !== null);
 			if (settingsToSave.length > 0) {
-				const savedSettings =
-					await this._dbContext.tableSettingsRepository.save(settingsToSave);
+				const savedSettings = await this._dbContext.tableSettingsRepository.save(settingsToSave);
 				const widgetsToSave: Array<TableWidgetEntity> = [];
 				for (const savedSetting of savedSettings) {
 					const widgets = widgetsByTable.get(savedSetting.table_name);
@@ -127,13 +103,12 @@ export class SharedJobsService {
 				}
 			}
 		} catch (error) {
+			console.error('Error during AI scan and creation of settings/widgets: ', error);
 			Sentry.captureException(error);
 		}
 	}
 
-	public async scanDatabaseAndCreateWidgets(
-		connection: ConnectionEntity,
-	): Promise<void> {
+	public async scanDatabaseAndCreateWidgets(connection: ConnectionEntity): Promise<void> {
 		if (!connection) {
 			return;
 		}
@@ -148,10 +123,7 @@ export class SharedJobsService {
 					try {
 						await this.scanTableAndCreateWidgets(tableName, connection, dao);
 					} catch (error) {
-						console.error(
-							`Error scanning table "${tableName}" in connection with id "${connection.id}": `,
-							error,
-						);
+						console.error(`Error scanning table "${tableName}" in connection with id "${connection.id}": `, error);
 					}
 				});
 			}
@@ -179,17 +151,7 @@ export class SharedJobsService {
 		connection: ConnectionEntity,
 		dao: IDataAccessObject | IDataAccessObjectAgent,
 	): Promise<void> {
-		const { data } = await dao.getRowsFromTable(
-			tableName,
-			{} as any,
-			1,
-			10,
-			null,
-			null,
-			null,
-			null,
-			null,
-		);
+		const { data } = await dao.getRowsFromTable(tableName, {} as any, 1, 10, null, null, null, null, null);
 		if (data && data.length > 0) {
 			const columnNames: Set<string> = new Set();
 			data.forEach((row) => {
@@ -221,9 +183,7 @@ export class SharedJobsService {
 				}
 
 				switch (true) {
-					case sampleValues.every((value) =>
-						this.isValueTelephoneNumber(value),
-					):
+					case sampleValues.every((value) => this.isValueTelephoneNumber(value)):
 						widgetColumnNames.telephone.add(column);
 						break;
 					case sampleValues.every((value) => this.isValueUUID(value)):
@@ -275,16 +235,9 @@ export class SharedJobsService {
 				return;
 			}
 
-			const newTableSettingsDS = buildEmptyTableSettings(
-				connection.id,
-				tableName,
-			);
-			const newTableSettings = buildNewTableSettingsEntity(
-				newTableSettingsDS,
-				connection,
-			);
-			const savedTableSettings =
-				await this._dbContext.tableSettingsRepository.save(newTableSettings);
+			const newTableSettingsDS = buildEmptyTableSettings(connection.id, tableName);
+			const newTableSettings = buildNewTableSettingsEntity(newTableSettingsDS, connection);
+			const savedTableSettings = await this._dbContext.tableSettingsRepository.save(newTableSettings);
 
 			if (telephoneColumns.length) {
 				for (const column of telephoneColumns) {
@@ -379,7 +332,7 @@ export class SharedJobsService {
 	}
 
 	private isValueTelephoneNumber(value: unknown): boolean {
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return false;
 		}
 		const phoneRegex = /^\+\d{10,}$/;
@@ -387,28 +340,28 @@ export class SharedJobsService {
 	}
 
 	private isValueRgbColor(value: unknown): boolean {
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return false;
 		}
 		return ValidationHelper.isValidRgbColor(value);
 	}
 
 	private isValueHexColor(value: unknown): boolean {
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return false;
 		}
 		return ValidationHelper.isValidHexColor(value);
 	}
 
 	private isHslColor(value: unknown): boolean {
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return false;
 		}
 		return ValidationHelper.isValidHslColor(value);
 	}
 
 	private isValueUUID(value: unknown): boolean {
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return false;
 		}
 		return ValidationHelper.isValidUUID(value);
@@ -419,7 +372,7 @@ export class SharedJobsService {
 	}
 
 	private isValueURL(value: unknown): boolean {
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return false;
 		}
 		const urlRegex = /^https?:\/\/.+/;
@@ -427,7 +380,7 @@ export class SharedJobsService {
 	}
 
 	private isValueCountryCode(value: unknown): boolean {
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return false;
 		}
 		return ValidationHelper.isValidCountryCode(value);

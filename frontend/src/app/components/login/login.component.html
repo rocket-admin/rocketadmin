@@ -4,8 +4,8 @@
     <div class="login-page">
         <form
             [ngClass]="{
-                'login-form': !isCustomDomain,
-                'login-form--native-login': isCustomDomain
+                'login-form': isSaas && !isCustomDomain,
+                'login-form--native-login': !isSaas || isCustomDomain
             }"
             [hidden]="is2FAShown"
             #loginForm="ngForm"
@@ -65,9 +65,9 @@
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <div *ngIf="!isCustomDomain" class="divider"><span class="divider__label">or</span></div>
+            <div *ngIf="isSaas && !isCustomDomain" class="divider"><span class="divider__label">or</span></div>
 
-	        <div id="google_login_button" *ngIf="!isCustomDomain"
+	        <div id="google_login_button" *ngIf="isSaas && !isCustomDomain"
                 class="login-form__google-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with google is clicked">
@@ -82,7 +82,7 @@
                 <span class="login-form__github-caption">Continue with GitHub</span>
             </button>
 
-            <div *ngIf="!isCustomDomain" class="login-form__sso-button-box">
+            <div *ngIf="isSaas && !isCustomDomain" class="login-form__sso-button-box">
                 <button type="button" mat-stroked-button color="primary"
                     data-testid="login-sso-button"
                     class="login-form__sso-button"
