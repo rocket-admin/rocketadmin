@@ -1,0 +1,12 @@
+<ng-container *ngIf="isImageType; else fileDisplay">
+  <mat-spinner *ngIf="isLoading" diameter="30" class="s3-spinner"></mat-spinner>
+  <img *ngIf="previewUrl && !isLoading"
+    class="s3-preview"
+    [src]="previewUrl"
+    alt="S3 Image">
+  <span *ngIf="!previewUrl && !isLoading && value" class="field-view-value">[S3 Image]</span>
+</ng-container>
+
+<ng-template #fileDisplay>
+  <span class="field-view-value">{{value || '—'}}</span>
+</ng-template>

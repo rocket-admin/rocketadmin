@@ -1,15 +1,15 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { ConnectionsService } from "src/app/services/connections.service";
-import { S3Service } from "src/app/services/s3.service";
-import { TablesService } from "src/app/services/tables.service";
-import { BaseEditFieldComponent } from "../base-row-field/base-row-field.component";
+import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { S3Service } from 'src/app/services/s3.service';
+import { TablesService } from 'src/app/services/tables.service';
+import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 
 interface S3WidgetParams {
 	bucket: string;
@@ -17,12 +17,13 @@ interface S3WidgetParams {
 	region?: string;
 	aws_access_key_id_secret_name: string;
 	aws_secret_access_key_secret_name: string;
+	type?: 'file' | 'image'; // 'file' (default) - accepts all files, 'image' - accepts only images
 }
 
 @Component({
-	selector: "app-edit-s3",
-	templateUrl: "./s3.component.html",
-	styleUrl: "./s3.component.css",
+	selector: 'app-edit-s3',
+	templateUrl: './s3.component.html',
+	styleUrl: './s3.component.css',
 	imports: [
 		CommonModule,
 		FormsModule,
@@ -41,6 +42,10 @@ export class S3EditComponent extends BaseEditFieldComponent implements OnInit {
 	public previewUrl: string | null = null;
 	public isImage: boolean = false;
 	public isLoading: boolean = false;
+
+	get fileAccept(): string {
+		return this.params?.type === 'image' ? 'image/*' : '*/*';
+	}
 
 	private connectionId: string;
 	private tableName: string;
@@ -78,13 +83,7 @@ export class S3EditComponent extends BaseEditFieldComponent implements OnInit {
 		this.isLoading = true;
 
 		this.s3Service
-			.getUploadUrl(
-				this.connectionId,
-				this.tableName,
-				this.widgetStructure.field_name,
-				file.name,
-				file.type,
-			)
+			.getUploadUrl(this.connectionId, this.tableName, this.widgetStructure.field_name, file.name, file.type)
 			.subscribe({
 				next: (response) => {
 					this.s3Service.uploadToS3(response.uploadUrl, file).subscribe({
@@ -106,7 +105,7 @@ export class S3EditComponent extends BaseEditFieldComponent implements OnInit {
 
 	openFile(): void {
 		if (this.previewUrl) {
-			window.open(this.previewUrl, "_blank");
+			window.open(this.previewUrl, '_blank');
 		}
 	}
 
@@ -114,34 +113,24 @@ export class S3EditComponent extends BaseEditFieldComponent implements OnInit {
 		if (this.widgetStructure?.widget_params) {
 			try {
 				this.params =
-					typeof this.widgetStructure.widget_params === "string"
+					typeof this.widgetStructure.widget_params === 'string'
 						? JSON.parse(this.widgetStructure.widget_params)
 						: this.widgetStructure.widget_params;
 			} catch (e) {
-				console.error("Error parsing S3 widget params:", e);
+				console.error('Error parsing S3 widget params:', e);
 			}
 		}
 	}
 
 	private _loadPreview(): void {
-		if (
-			!this.value ||
-			!this.connectionId ||
-			!this.tableName ||
-			!this.rowPrimaryKey
-		)
-			return;
+		if (!this.value || !this.connectionId || !this.tableName || !this.rowPrimaryKey) return;
 
 		this.isLoading = true;
-		this.isImage = this._isImageFile(this.value);
+		// If type=image, always treat as image; otherwise detect by extension
+		this.isImage = this.params?.type === 'image' || this._isImageFile(this.value);
 
 		this.s3Service
-			.getFileUrl(
-				this.connectionId,
-				this.tableName,
-				this.widgetStructure.field_name,
-				this.rowPrimaryKey,
-			)
+			.getFileUrl(this.connectionId, this.tableName, this.widgetStructure.field_name, this.rowPrimaryKey)
 			.subscribe({
 				next: (response) => {
 					this.previewUrl = response.url;
@@ -154,15 +143,7 @@ export class S3EditComponent extends BaseEditFieldComponent implements OnInit {
 	}
 
 	private _isImageFile(key: string): boolean {
-		const imageExtensions = [
-			".jpg",
-			".jpeg",
-			".png",
-			".gif",
-			".webp",
-			".svg",
-			".bmp",
-		];
+		const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
 		const lowerKey = key.toLowerCase();
 		return imageExtensions.some((ext) => lowerKey.endsWith(ext));
 	}

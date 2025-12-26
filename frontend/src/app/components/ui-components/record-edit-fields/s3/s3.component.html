@@ -8,7 +8,7 @@
   </mat-form-field>
 
   <div class="s3-widget__actions">
-    <input type="file" #fileInput hidden (change)="onFileSelected($event)">
+    <input type="file" #fileInput hidden [accept]="fileAccept" (change)="onFileSelected($event)">
     <button mat-stroked-button type="button"
             [disabled]="disabled || readonly || isLoading"
             (click)="fileInput.click()">

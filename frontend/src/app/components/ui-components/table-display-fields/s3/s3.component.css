@@ -1,0 +1,17 @@
+.field-value {
+	font-style: italic;
+	color: #666;
+}
+
+.s3-thumbnail {
+	display: block;
+	max-height: 60px;
+	max-width: 100px;
+	margin: 4px 0;
+	object-fit: contain;
+}
+
+.s3-spinner {
+	display: inline-block;
+	margin: 4px 0;
+}

@@ -1,0 +1,23 @@
+<div class="field-display">
+  <ng-container *ngIf="isImageType; else fileDisplay">
+    <mat-spinner *ngIf="isLoading" diameter="24" class="s3-spinner"></mat-spinner>
+    <img *ngIf="previewUrl && !isLoading"
+      class="s3-thumbnail"
+      [src]="previewUrl"
+      alt="S3 Image">
+    <span *ngIf="!previewUrl && !isLoading && value" class="field-value">[S3 Image]</span>
+  </ng-container>
+
+  <ng-template #fileDisplay>
+    <span class="field-value">{{value || '—'}}</span>
+  </ng-template>
+
+  <button *ngIf="value" type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy S3 key"
+      [cdkCopyToClipboard]="value"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('S3 key was copied to clipboard.')"
+      (click)="$event.stopPropagation()">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

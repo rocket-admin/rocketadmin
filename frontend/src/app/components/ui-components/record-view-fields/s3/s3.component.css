@@ -1,0 +1,11 @@
+.s3-preview {
+	width: 100%;
+	max-width: 300px;
+	height: auto;
+	margin-bottom: 8px;
+}
+
+.s3-spinner {
+	display: block;
+	margin: 8px 0;
+}
