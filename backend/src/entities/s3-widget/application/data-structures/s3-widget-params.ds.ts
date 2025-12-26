@@ -1,7 +1,8 @@
 export interface S3WidgetParams {
-  bucket: string;
-  prefix?: string;
-  region?: string;
-  aws_access_key_id_secret_name: string;
-  aws_secret_access_key_secret_name: string;
+	bucket: string;
+	prefix?: string;
+	region?: string;
+	aws_access_key_id_secret_name: string;
+	aws_secret_access_key_secret_name: string;
+	type?: 'file' | 'image'; // 'file' (default) - accepts all files, 'image' - accepts only images
 }

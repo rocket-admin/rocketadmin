@@ -254,7 +254,9 @@
                                 [ndcDynamicInputs]="{
                                     key: i,
                                     value: element[column],
-                                    widgetStructure: tableData.widgets[column]
+                                    widgetStructure: tableData.widgets[column],
+                                    rowData: element,
+                                    primaryKeys: tableData.keyAttributes
                                 }"
                                 [ndcDynamicOutputs]="{
                                     onCopyToClipboard: { handler: showCopyNotification, args: ['$event'] }

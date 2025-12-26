@@ -1,94 +1,88 @@
-import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { TableField, Widget } from 'src/app/models/table';
-
-import { AlertComponent } from '../../../ui-components/alert/alert.component';
-import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcrumbs.component';
-import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
-import { CommonModule } from '@angular/common';
-import { CompanyService } from 'src/app/services/company.service';
-import { ConnectionsService } from 'src/app/services/connections.service';
 import { FormsModule } from '@angular/forms';
-import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
-import { Location } from '@angular/common';
-import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
-import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { PasswordEditComponent } from '../../../ui-components/record-edit-fields/password/password.component';
-import { PlaceholderTableWidgetsComponent } from '../../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
-import { Router } from '@angular/router';
-import { RouterModule } from '@angular/router';
-import { SelectEditComponent } from '../../../ui-components/record-edit-fields/select/select.component';
-import { TablesService } from 'src/app/services/tables.service';
-import { TextEditComponent } from '../../../ui-components/record-edit-fields/text/text.component';
 import { Title } from '@angular/platform-browser';
-import { UIwidgets } from "src/app/consts/record-edit-types";
+import { Router, RouterModule } from '@angular/router';
+import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
+import { difference } from 'lodash';
+import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { normalizeTableName } from 'src/app/lib/normalize';
+import { TableField, Widget } from 'src/app/models/table';
+import { CompanyService } from 'src/app/services/company.service';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { PlaceholderTableWidgetsComponent } from '../../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
+import { AlertComponent } from '../../../ui-components/alert/alert.component';
+import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcrumbs.component';
+import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
+import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
+import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
+import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
+import { PasswordEditComponent } from '../../../ui-components/record-edit-fields/password/password.component';
+import { SelectEditComponent } from '../../../ui-components/record-edit-fields/select/select.component';
+import { TextEditComponent } from '../../../ui-components/record-edit-fields/text/text.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
-import { difference } from "lodash";
-import { normalizeTableName } from 'src/app/lib/normalize';
 
 @Component({
-  selector: 'app-db-table-widgets',
-  templateUrl: './db-table-widgets.component.html',
-  styleUrls: ['./db-table-widgets.component.css'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    RouterModule,
-    AlertComponent,
-    PlaceholderTableWidgetsComponent,
-    BreadcrumbsComponent,
-    PasswordEditComponent,
-    ImageEditComponent,
-    CodeEditComponent,
-    MarkdownEditComponent,
-    WidgetComponent,
-    TextEditComponent,
-    LongTextEditComponent,
-    SelectEditComponent,
-    Angulartics2OnModule
-  ],
+	selector: 'app-db-table-widgets',
+	templateUrl: './db-table-widgets.component.html',
+	styleUrls: ['./db-table-widgets.component.css'],
+	imports: [
+		CommonModule,
+		FormsModule,
+		MatButtonModule,
+		MatDialogModule,
+		MatIconModule,
+		MatInputModule,
+		MatSelectModule,
+		RouterModule,
+		AlertComponent,
+		PlaceholderTableWidgetsComponent,
+		BreadcrumbsComponent,
+		PasswordEditComponent,
+		ImageEditComponent,
+		CodeEditComponent,
+		MarkdownEditComponent,
+		WidgetComponent,
+		TextEditComponent,
+		LongTextEditComponent,
+		SelectEditComponent,
+		Angulartics2OnModule,
+	],
 })
 export class DbTableWidgetsComponent implements OnInit {
-
-  public connectionID: string | null = null;
-  public tableName: string | null = null;
-  public dispalyTableName: string;
-  public fields: string[] = [];
-  public fieldsCount: number;
-  public widgets: Widget[] = null;
-  public widgetTypes = Object.keys(UIwidgets);
-  public submitting: boolean = false;
-  public widgetsWithSettings: string[];
-  public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
-  public paramsEditorOptions = {
-    minimap: { enabled: false },
-    lineNumbersMinChars:  3,
-    folding: false,
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    wordWrap: 'on',
-  };
-  public widgetCodeEample = `<h1 class="post-title">Why UI Customization Matters in Admin Panels</h1>
+	public connectionID: string | null = null;
+	public tableName: string | null = null;
+	public dispalyTableName: string;
+	public fields: string[] = [];
+	public fieldsCount: number;
+	public widgets: Widget[] = null;
+	public widgetTypes = Object.keys(UIwidgets);
+	public submitting: boolean = false;
+	public widgetsWithSettings: string[];
+	public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
+	public paramsEditorOptions = {
+		minimap: { enabled: false },
+		lineNumbersMinChars: 3,
+		folding: false,
+		automaticLayout: true,
+		scrollBeyondLastLine: false,
+		wordWrap: 'on',
+	};
+	public widgetCodeEample = `<h1 class="post-title">Why UI Customization Matters in Admin Panels</h1>
 <p class="post-paragraph">
   A well-designed <strong>admin panel</strong> isn’t just about managing data — it’s about making that data easier to understand and interact with. By customizing how each field is displayed, you can turn raw database values into meaningful, user-friendly interfaces that save time and reduce errors.
 </p>`;
-  // JSON5-formatted default params
-  public defaultParams = {
-    Boolean:
-`// Display "Yes/No" buttons with configurable options:
+	// JSON5-formatted default params
+	public defaultParams = {
+		Boolean: `// Display "Yes/No" buttons with configurable options:
 // - allow_null: Use "false" to require selection, "true" if field can be left unspecified
 // - invert_colors: Swap the color scheme (typically green=Yes, red=No becomes red=Yes, green=No)
 
@@ -97,14 +91,13 @@ export class DbTableWidgetsComponent implements OnInit {
 	"invert_colors": false
 }
 `,
-    Code:
-`// provide language of code to highlight: 'html', 'css', 'typescript', 'yaml', 'markdown'
+		Code: `// provide language of code to highlight: 'html', 'css', 'typescript', 'yaml', 'markdown'
 // example:
 {
   "language": "html"
 }
 `,
-    Color: `// Optional: Specify output format for color values
+		Color: `// Optional: Specify output format for color values
 // Supported formats: "hex", "hex_hash" (default), "rgb", "hsl"
 // Example configuration:
 
@@ -117,42 +110,40 @@ export class DbTableWidgetsComponent implements OnInit {
 // - "hex_hash": Display as "#FF5733" (default)
 // - "rgb": Display as "rgb(255, 87, 51)"
 // - "hsl": Display as "hsl(9, 100%, 60%)"`,
-    Country: `// Configure country display options
+		Country: `// Configure country display options
 // Example:
 {
   "show_flag": true,
   "allow_null": false
 }
 `,
-    Date: `// Configure date display options
+		Date: `// Configure date display options
 // formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
 // Default: 0 hours. Set to 0 to disable relative time display
 {
   "formatDistanceWithinHours": 0
 }`,
-    DateTime: `// Configure datetime display options
+		DateTime: `// Configure datetime display options
 // formatDistanceWithinHours: Shows relative time (e.g., "2 hours ago") for dates within the specified hours
 // Default: 0 hours. Set to 0 to disable relative time display
 {
   "formatDistanceWithinHours": 0
 }`,
-    Default: `// No settings required`,
-    File:
-`// provide type of file: 'hex', 'base64' or 'file'
+		Default: `// No settings required`,
+		File: `// provide type of file: 'hex', 'base64' or 'file'
 // example:
 {
   "type": "hex"
 }
 `,
-    Foreign_key: `// Provide settings for foreign key widget
+		Foreign_key: `// Provide settings for foreign key widget
 {
   "column_name": "", // copy the name of the column you selected
   "referenced_column_name": "",
   "referenced_table_name": ""
 }
 `,
-    Image:
-`// provide image height in px to dispaly in table
+		Image: `// provide image height in px to dispaly in table
 // prefix: optional URL prefix to prepend to image source
 // example:
 {
@@ -160,15 +151,15 @@ export class DbTableWidgetsComponent implements OnInit {
   "prefix": "https://example.com/images/"
 }
 `,
-    JSON: `// No settings required`,
-    Language: `// Configure language display options
+		JSON: `// No settings required`,
+		Language: `// Configure language display options
 // show_flag: Display country flag emoji next to language name
 // Example:
 {
   "show_flag": true
 }`,
-    Markdown: `// No settings required`,
-    Money: `// Configure money widget settings
+		Markdown: `// No settings required`,
+		Money: `// Configure money widget settings
 // example:
 {
   "default_currency": "USD",
@@ -176,7 +167,7 @@ export class DbTableWidgetsComponent implements OnInit {
   "allow_negative": true
 }
 `,
-    Number: `// Configure number display with unit conversion and threshold validation
+		Number: `// Configure number display with unit conversion and threshold validation
 // Example units: "bytes", "meters", "seconds", "grams"
 // threshold_min/threshold_max: Values outside these limits will be highlighted
 {
@@ -184,8 +175,7 @@ export class DbTableWidgetsComponent implements OnInit {
   "threshold_min": null,
   "threshold_max": null
 }`,
-    Password:
-`// provide algorithm to encrypt your password, one of:
+		Password: `// provide algorithm to encrypt your password, one of:
 //sha1, sha3, sha224, sha256, sha512, sha384, bcrypt, scrypt, argon2, pbkdf2.
 // example:
 
@@ -195,8 +185,7 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 
 `,
-    Phone:
-`// Configure international phone number widget
+		Phone: `// Configure international phone number widget
 // example:
 {
   "preferred_countries": ["US", "GB", "CA"],
@@ -204,7 +193,7 @@ export class DbTableWidgetsComponent implements OnInit {
   "phone_validation": true
 }
 `,
-    Range: `// Configure the minimum, maximum and step values for the range
+		Range: `// Configure the minimum, maximum and step values for the range
 // Default: min = 0, max = 100, step = 1
 {
   "min": 0,
@@ -212,9 +201,8 @@ export class DbTableWidgetsComponent implements OnInit {
   "step": 1
 }
 `,
-    Readonly: `// No settings required`,
-    Select:
-`// provide array of options to map database value (key 'value') in human readable value (key 'label');
+		Readonly: `// No settings required`,
+		Select: `// provide array of options to map database value (key 'value') in human readable value (key 'label');
 // for example:
 // AK => Alaska,
 // CA => California
@@ -239,7 +227,7 @@ export class DbTableWidgetsComponent implements OnInit {
     }
   ]
 }`,
-    String: `// Optional validation for string values
+		String: `// Optional validation for string values
 // validate: Any validator.js method (e.g., "isEmail", "isURL", "isUUID", "isJSON", "isAlpha", "isNumeric")
 // Full list: isEmail, isURL, isMACAddress, isIP, isIPRange, isFQDN, isBoolean, isIBAN, isBIC,
 // isAlpha, isAlphanumeric, isNumeric, isPort, isLowercase, isUppercase, isAscii, isBase64,
@@ -252,25 +240,25 @@ export class DbTableWidgetsComponent implements OnInit {
   "validate": null,
   "regex": null
 }`,
-    Textarea: `// provide number of strings to show.
+		Textarea: `// provide number of strings to show.
 {
   "rows": 5
 }`,
-    Time: `// No settings required`,
-    Timezone: `// Configure timezone widget options
+		Time: `// No settings required`,
+		Timezone: `// Configure timezone widget options
 // Uses Intl API to populate timezone list automatically
 // allow_null: Allow empty/null value selection
 {
   "allow_null": false
 }
 `,
-    URL: `// prefix: optional URL prefix to prepend to the href
+		URL: `// prefix: optional URL prefix to prepend to the href
 // example:
 {
   "prefix": "https://example.com/"
 }
 `,
-    UUID: `// Configure UUID generation version and parameters
+		UUID: `// Configure UUID generation version and parameters
 // Available versions: "v1", "v3", "v4" (default), "v5", "v7"
 // For v3/v5: provide namespace and optionally name
 {
@@ -279,171 +267,175 @@ export class DbTableWidgetsComponent implements OnInit {
   "name": ""
 }
 `,
-    S3: `// Configure AWS S3 widget for file storage
+		S3: `// Configure AWS S3 widget for file storage
 // bucket: S3 bucket name (required)
 // prefix: Optional path prefix for uploaded files
 // region: AWS region (default: us-east-1)
+// type: "file" (default) - accepts all file types, "image" - accepts only images
 // aws_access_key_id_secret_name: Slug of the secret containing AWS Access Key ID
 // aws_secret_access_key_secret_name: Slug of the secret containing AWS Secret Access Key
-// Note: Create secrets in Settings -> Secrets before configuring this widget
+//
+// ⚠️ IMPORTANT: DO NOT INCLUDE AWS SECRETS DIRECTLY IN WIDGET SETTINGS!
+// Store your AWS credentials as secrets in Settings -> Secrets first,
+// then reference them by their slug names in the settings below.
 
 {
   "bucket": "your-bucket-name",
   "prefix": "uploads/",
   "region": "us-east-1",
+  "type": "file",
   "aws_access_key_id_secret_name": "aws-access-key-id",
   "aws_secret_access_key_secret_name": "aws-secret-access-key"
 }
 `,
-  }
+	};
 
-  constructor(
-    private _connections: ConnectionsService,
-    private _tables: TablesService,
-    private _location: Location,
-    private _uiSettings: UiSettingsService,
-    private _company: CompanyService,
-    public dialog: MatDialog,
-    public router: Router,
-    private title: Title,
-    private angulartics2: Angulartics2,
-  ) {}
+	constructor(
+		private _connections: ConnectionsService,
+		private _tables: TablesService,
+		private _location: Location,
+		private _uiSettings: UiSettingsService,
+		private _company: CompanyService,
+		public dialog: MatDialog,
+		public router: Router,
+		private title: Title,
+		private angulartics2: Angulartics2,
+	) {}
 
-  ngOnInit(): void {
-    this.connectionID = this._connections.currentConnectionID;
-    this.tableName = this._tables.currentTableName;
-    this.widgetsWithSettings = Object
-      .entries(this.defaultParams)
-      .filter(([_key, value]) => value !== '// No settings required')
-      .map(widgetDefault => widgetDefault[0]);
+	ngOnInit(): void {
+		this.connectionID = this._connections.currentConnectionID;
+		this.tableName = this._tables.currentTableName;
+		this.widgetsWithSettings = Object.entries(this.defaultParams)
+			.filter(([_key, value]) => value !== '// No settings required')
+			.map((widgetDefault) => widgetDefault[0]);
 
-    this._tables.fetchTableStructure(this.connectionID, this.tableName)
-      .subscribe(res => {
-        this.fieldsCount = res.structure.length;
-        this.fields = res.structure.map((field: TableField) => field.column_name);
-        this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
-        this.title.setTitle(`${this.dispalyTableName} - Field display | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-        this.getWidgets();
-      })
-    this.codeEditorTheme = this._uiSettings.editorTheme;
-  }
+		this._tables.fetchTableStructure(this.connectionID, this.tableName).subscribe((res) => {
+			this.fieldsCount = res.structure.length;
+			this.fields = res.structure.map((field: TableField) => field.column_name);
+			this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
+			this.title.setTitle(
+				`${this.dispalyTableName} - Field display | ${this._company.companyTabTitle || 'Rocketadmin'}`,
+			);
+			this.getWidgets();
+		});
+		this.codeEditorTheme = this._uiSettings.editorTheme;
+	}
 
-  get currentConnection() {
-    return this._connections.currentConnection;
-  }
+	get currentConnection() {
+		return this._connections.currentConnection;
+	}
 
-  getCrumbs(name: string) {
-    return [
-      {
-        label: name,
-        link: `/dashboard/${this.connectionID}`
-      },
-      {
-        label: this.dispalyTableName,
-        link: `/dashboard/${this.connectionID}/${this.tableName}`
-      },
-      {
-        label: 'UI Widgets',
-        link: null
-      }
-    ]
-  }
+	getCrumbs(name: string) {
+		return [
+			{
+				label: name,
+				link: `/dashboard/${this.connectionID}`,
+			},
+			{
+				label: this.dispalyTableName,
+				link: `/dashboard/${this.connectionID}/${this.tableName}`,
+			},
+			{
+				label: 'UI Widgets',
+				link: null,
+			},
+		];
+	}
 
-  goBack() {
-    this._location.back();
-  }
+	goBack() {
+		this._location.back();
+	}
 
-  addNewWidget() {
-    this.widgets.push({
-      field_name: '',
-      widget_type: 'Default',
-      widget_params: '// No settings required',
-      name: '',
-      description: ''
-    });
-  }
+	addNewWidget() {
+		this.widgets.push({
+			field_name: '',
+			widget_type: 'Default',
+			widget_params: '// No settings required',
+			name: '',
+			description: '',
+		});
+	}
 
-  selectWidgetField(column_name: string) {
-    this.fields.splice(this.fields.indexOf(column_name), 1)
-  }
+	selectWidgetField(column_name: string) {
+		this.fields.splice(this.fields.indexOf(column_name), 1);
+	}
 
-  widgetTypeChange(fieldName) {
-    let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
-    currentWidget.widget_params = this.defaultParams[currentWidget.widget_type || 'Default'];
+	widgetTypeChange(fieldName) {
+		let currentWidget = this.widgets.find((widget) => widget.field_name === fieldName);
+		currentWidget.widget_params = this.defaultParams[currentWidget.widget_type || 'Default'];
 
-    this.widgetParamsChange({fieldName: currentWidget.field_name, value: currentWidget.widget_params});
-  }
+		this.widgetParamsChange({ fieldName: currentWidget.field_name, value: currentWidget.widget_params });
+	}
 
-  isReadOnly(type: string) {
-    return !this.widgetsWithSettings.includes(type);
-  }
+	isReadOnly(type: string) {
+		return !this.widgetsWithSettings.includes(type);
+	}
 
-  widgetParamsChange(e: {
-    fieldName: string,
-    value: any
-  }) {
-    let currentWidget = this.widgets.find(widget => widget.field_name === e.fieldName);
-    currentWidget.widget_params = e.value;
-  }
+	widgetParamsChange(e: { fieldName: string; value: any }) {
+		let currentWidget = this.widgets.find((widget) => widget.field_name === e.fieldName);
+		currentWidget.widget_params = e.value;
+	}
 
-  openDeleteWidgetDialog(widgetFieldName: string) {
-    const dialogRef = this.dialog.open(WidgetDeleteDialogComponent, {
-      width: '25em',
-      data: widgetFieldName
-    })
+	openDeleteWidgetDialog(widgetFieldName: string) {
+		const dialogRef = this.dialog.open(WidgetDeleteDialogComponent, {
+			width: '25em',
+			data: widgetFieldName,
+		});
 
-    dialogRef.afterClosed().subscribe(action => {
-      if (action === 'delete') {
-        this.fields.push(widgetFieldName);
-        this.widgets = this.widgets.filter((widget) => widget.field_name !== widgetFieldName);
-        this.updateWidgets(true);
-      }
-    })
-  }
+		dialogRef.afterClosed().subscribe((action) => {
+			if (action === 'delete') {
+				this.fields.push(widgetFieldName);
+				this.widgets = this.widgets.filter((widget) => widget.field_name !== widgetFieldName);
+				this.updateWidgets(true);
+			}
+		});
+	}
 
-  openClearAllConfirmation() {
-    const dialogRef = this.dialog.open(WidgetDeleteDialogComponent, {
-      width: '25em'
-    })
+	openClearAllConfirmation() {
+		const dialogRef = this.dialog.open(WidgetDeleteDialogComponent, {
+			width: '25em',
+		});
 
-    dialogRef.afterClosed().subscribe(action => {
-      if (action === 'delete') {
-        const widgetsToDelete = this.widgets.map(widget => widget.field_name);
-        this.fields = [...this.fields, ...widgetsToDelete];
-        this.widgets = [];
-        this.updateWidgets(true);
-      }
-    })
-  }
+		dialogRef.afterClosed().subscribe((action) => {
+			if (action === 'delete') {
+				const widgetsToDelete = this.widgets.map((widget) => widget.field_name);
+				this.fields = [...this.fields, ...widgetsToDelete];
+				this.widgets = [];
+				this.updateWidgets(true);
+			}
+		});
+	}
 
-  getWidgets() {
-    this._tables.fetchTableWidgets(this.connectionID, this.tableName)
-      .subscribe(res => {
-        const currentWidgetTypes = res.map((widget: Widget) => widget.field_name);
-        this.fields = difference(this.fields, currentWidgetTypes);
-        res.forEach((widget: Widget) => {
-          if (widget.widget_type === '') widget.widget_type = 'Default';
-        })
-        this.widgets = res;
-      });
-  }
+	getWidgets() {
+		this._tables.fetchTableWidgets(this.connectionID, this.tableName).subscribe((res) => {
+			const currentWidgetTypes = res.map((widget: Widget) => widget.field_name);
+			this.fields = difference(this.fields, currentWidgetTypes);
+			res.forEach((widget: Widget) => {
+				if (widget.widget_type === '') widget.widget_type = 'Default';
+			});
+			this.widgets = res;
+		});
+	}
 
-  updateWidgets(afterDeleteAll?: boolean) {
-    this.submitting = true;
+	updateWidgets(afterDeleteAll?: boolean) {
+		this.submitting = true;
 
-    this.widgets.forEach(widget => {
-      if (widget.widget_type === 'Default') widget.widget_type = '';
-    });
+		this.widgets.forEach((widget) => {
+			if (widget.widget_type === 'Default') widget.widget_type = '';
+		});
 
-    this._tables.updateTableWidgets(this.connectionID, this.tableName, this.widgets)
-      .subscribe(() => {
-        this.submitting = false;
-        this.angulartics2.eventTrack.next({
-          action: 'Widgets: widgets are updated successfully'
-        });
-        if (!afterDeleteAll) this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
-      },
-      undefined,
-      () => {this.submitting = false});
-  }
+		this._tables.updateTableWidgets(this.connectionID, this.tableName, this.widgets).subscribe(
+			() => {
+				this.submitting = false;
+				this.angulartics2.eventTrack.next({
+					action: 'Widgets: widgets are updated successfully',
+				});
+				if (!afterDeleteAll) this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+			},
+			undefined,
+			() => {
+				this.submitting = false;
+			},
+		);
+	}
 }
