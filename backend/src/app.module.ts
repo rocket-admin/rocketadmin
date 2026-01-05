@@ -86,6 +86,8 @@ import { PersonalTableSettingsModule } from './entities/table-settings/personal-
 		TableCategoriesModule,
 		UserSecretModule,
 		SignInAuditModule,
+		PersonalTableSettingsModule,
+		S3WidgetModule,
 	],
 	controllers: [AppController],
 	providers: [
