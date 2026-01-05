@@ -212,6 +212,38 @@ export class SavedFiltersDialogComponent implements OnInit {
     }
   }
 
+  getOperatorIcon(operator: string): string {
+    const iconMap: { [key: string]: string } = {
+      'startswith': 'play_arrow',
+      'endswith': 'play_arrow',
+      'eq': 'drag_handle',
+      'contains': 'search',
+      'icontains': 'block',
+      'empty': 'space_bar',
+      'gt': 'keyboard_arrow_right',
+      'lt': 'keyboard_arrow_left',
+      'gte': 'keyboard_double_arrow_right',
+      'lte': 'keyboard_double_arrow_left'
+    };
+    return iconMap[operator] || 'drag_handle';
+  }
+
+  getOperatorText(operator: string): string {
+    const textMap: { [key: string]: string } = {
+      'startswith': 'starts with',
+      'endswith': 'ends with',
+      'eq': 'equal',
+      'contains': 'contains',
+      'icontains': 'not contains',
+      'empty': 'is empty',
+      'gt': 'greater than',
+      'lt': 'less than',
+      'gte': 'greater than or equal',
+      'lte': 'less than or equal'
+    };
+    return textMap[operator] || 'equal';
+  }
+
   removeFilter(field) {
     delete this.tableRowFieldsShown[field];
     delete this.tableRowFieldsComparator[field];
@@ -230,6 +262,10 @@ export class SavedFiltersDialogComponent implements OnInit {
       this.dynamicColumn = null;
     } else {
       this.dynamicColumn = field;
+      // Ensure comparator is set (default to 'eq' if not set)
+      if (!this.tableRowFieldsComparator[field]) {
+        this.tableRowFieldsComparator[field] = 'eq';
+      }
     }
   }
 

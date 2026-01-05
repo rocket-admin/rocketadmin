@@ -114,6 +114,9 @@ export class AppComponent {
     this.matIconRegistry.addSvgIcon("github", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/github.svg"));
     this.matIconRegistry.addSvgIcon("google", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/google.svg"));
     this.matIconRegistry.addSvgIcon("ai_rocket", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/ai-rocket.svg"));
+    this.matIconRegistry.addSvgIcon("sort_ascending", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/sort-ascending.svg"));
+    this.matIconRegistry.addSvgIcon("sort_descending", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/sort-descending.svg"));
+    this.matIconRegistry.addSvgIcon("sorting", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/sorting.svg"));
     angulartics2Amplitude.startTracking();
   }
 

@@ -463,15 +463,10 @@ th.mat-header-cell, td.mat-cell {
     height: 18px;
 }
 
-.sort-header-button .mat-icon.sort-icon-sync {
-    transform: rotate(90deg);
-    color: rgba(0, 0, 0, 0.54);
-}
-
-@media (prefers-color-scheme: dark) {
-    .sort-header-button .mat-icon.sort-icon-sync {
-        color: rgba(255, 255, 255, 0.54);
-    }
+.sort-header-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
 }
 
 .sort-menu {
@@ -488,7 +483,58 @@ th.mat-header-cell, td.mat-cell {
 .sort-menu-item-content {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
+}
+
+.sort-menu-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.sort-menu-icon-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    width: 28px;
+    height: 16px;
+}
+
+.sort-menu-icon-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-items: flex-start;
+    width: 12px;
+    height: 14px;
+}
+
+.sort-menu-line {
+    display: inline-block;
+    height: 2px;
+    background-color: currentColor;
+    border-radius: 1px;
+}
+
+.sort-menu-line-1 {
+    width: 6px;
+}
+
+.sort-menu-line-2 {
+    width: 8px;
+}
+
+.sort-menu-line-3 {
+    width: 12px;
+}
+
+
+.sort-menu-icon-arrow {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
 }
 
 .sort-menu .mat-mdc-menu-item.sort-menu-item-active {
@@ -499,20 +545,6 @@ th.mat-header-cell, td.mat-cell {
     .sort-menu .mat-mdc-menu-item.sort-menu-item-active {
         background-color: rgba(255, 255, 255, 0.04);
     }
-}
-
-.sort-menu-item-check {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    margin-left: 24px;
-    margin-right: 0;
-    opacity: 0.6;
-    order: 2;
-}
-
-.sort-menu-item-content {
-    order: 1;
 }
 
 .sort-icon-container {

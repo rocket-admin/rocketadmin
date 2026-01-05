@@ -44,35 +44,13 @@
         <form *ngIf="savedFilterMap[selectedFilterSetId]?.dynamicColumn"
             class="dynamic-column-editor"
             (ngSubmit)="applyDynamicColumnChanges()">
-            <span class="column-name mat-body-1">where
-                <strong *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
-                    {{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}
-                </strong>
+            <!-- Column name and operator in one row -->
+            <span class="column-name mat-body-1" *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
+                <strong>{{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}</strong>
+                <span class="comparator-text">
+                    {{ getOperatorText(savedFilterMap[selectedFilterSetId]?.dynamicColumn.operator || 'eq') }}
+                </span>
             </span>
-            <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" appearance="outline">
-                <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
-                        name="textComparator"
-                        (ngModelChange)="updateDynamicColumnComparator($event)">
-                    <mat-option value="startswith">starts with</mat-option>
-                    <mat-option value="endswith">ends with</mat-option>
-                    <mat-option value="eq">equal</mat-option>
-                    <mat-option value="contains">contains</mat-option>
-                    <mat-option value="icontains">not contains</mat-option>
-                    <mat-option value="empty">is empty</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'number'" appearance="outline">
-                <mat-select [(ngModel)]="savedFilterMap[selectedFilterSetId].dynamicColumn.operator"
-                            name="numberComparator"
-                            (ngModelChange)="updateDynamicColumnComparator($event)">
-                    <mat-option value="eq">equal</mat-option>
-                    <mat-option value="gt">greater than</mat-option>
-                    <mat-option value="lt">less than</mat-option>
-                    <mat-option value="gte">greater than or equal</mat-option>
-                    <mat-option value="lte">less than or equal</mat-option>
-                </mat-select>
-            </mat-form-field>
 
             <!-- Non-comparable field (uses ndc-dynamic) -->
             <div *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'nonComparable'">

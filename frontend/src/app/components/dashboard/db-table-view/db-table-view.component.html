@@ -245,24 +245,26 @@
                             [matMenuTriggerFor]="columnSortMenu"
                             (click)="$event.stopPropagation()"
                             [matTooltip]="getSortTooltip(column)">
-                            <mat-icon [class.sort-icon-sync]="!(sort && sort.active === column)">{{ getSortIcon(column) }}</mat-icon>
+                            <mat-icon *ngIf="sort && sort.active === column && sort.direction === 'asc'" svgIcon="sort_ascending" class="sort-header-icon"></mat-icon>
+                            <mat-icon *ngIf="sort && sort.active === column && sort.direction === 'desc'" svgIcon="sort_descending" class="sort-header-icon"></mat-icon>
+                            <mat-icon *ngIf="!sort || sort.active !== column" svgIcon="sorting" class="sort-header-icon"></mat-icon>
                         </button>
                         <mat-menu #columnSortMenu="matMenu" class="sort-menu">
                             <button mat-menu-item 
                                 [class.sort-menu-item-active]="sort && sort.active === column && sort.direction === 'asc'"
                                 (click)="applySort(column, 'asc')">
                                 <div class="sort-menu-item-content">
-                                    <span>Sort ascending (A-Z)</span>
+                                    <mat-icon svgIcon="sort_ascending" class="sort-menu-icon"></mat-icon>
+                                    <span>Sort ascending</span>
                                 </div>
-                                <mat-icon *ngIf="sort && sort.active === column && sort.direction === 'asc'" class="sort-menu-item-check">close</mat-icon>
                             </button>
                             <button mat-menu-item 
                                 [class.sort-menu-item-active]="sort && sort.active === column && sort.direction === 'desc'"
                                 (click)="applySort(column, 'desc')">
                                 <div class="sort-menu-item-content">
-                                    <span>Sort descending (Z-A)</span>
+                                    <mat-icon svgIcon="sort_descending" class="sort-menu-icon"></mat-icon>
+                                    <span>Sort descending</span>
                                 </div>
-                                <mat-icon *ngIf="sort && sort.active === column && sort.direction === 'desc'" class="sort-menu-item-check">close</mat-icon>
                             </button>
                         </mat-menu>
                     </div>

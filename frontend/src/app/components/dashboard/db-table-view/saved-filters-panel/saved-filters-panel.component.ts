@@ -371,6 +371,38 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     this.selectedFilter = entry;
   }
 
+  getOperatorIcon(operator: string): string {
+    const iconMap: { [key: string]: string } = {
+      'startswith': 'play_arrow',
+      'endswith': 'play_arrow',
+      'eq': 'drag_handle',
+      'contains': 'search',
+      'icontains': 'block',
+      'empty': 'space_bar',
+      'gt': 'keyboard_arrow_right',
+      'lt': 'keyboard_arrow_left',
+      'gte': 'keyboard_double_arrow_right',
+      'lte': 'keyboard_double_arrow_left'
+    };
+    return iconMap[operator] || 'drag_handle';
+  }
+
+  getOperatorText(operator: string): string {
+    const textMap: { [key: string]: string } = {
+      'startswith': 'starts with',
+      'endswith': 'ends with',
+      'eq': 'equal',
+      'contains': 'contains',
+      'icontains': 'not contains',
+      'empty': 'is empty',
+      'gt': 'greater than',
+      'lt': 'less than',
+      'gte': 'greater than or equal',
+      'lte': 'less than or equal'
+    };
+    return textMap[operator] || 'equal';
+  }
+
   getFilter(activeFilter: {column: string, operator: string, value: any}) {
     const displayedName = normalizeTableName(activeFilter.column);
     const comparator = activeFilter.operator;
