@@ -10,12 +10,10 @@ import { CollectionViewer } from '@angular/cdk/collections';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 // import { MatSort } from '@angular/material/sort';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { UserService } from 'src/app/services/user.service';
 import { filter } from "lodash";
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
@@ -95,11 +93,11 @@ export class TablesDataSource implements DataSource<Object> {
     private _tableRow: TableRowService,
   ) {}
 
-  connect(collectionViewer: CollectionViewer): Observable<Object[]> {
+  connect(_collectionViewer: CollectionViewer): Observable<Object[]> {
     return this.rowsSubject.asObservable();
   }
 
-  disconnect(collectionViewer: CollectionViewer): void {
+  disconnect(_collectionViewer: CollectionViewer): void {
       this.rowsSubject.complete();
       this.loadingSubject.complete();
   }
@@ -153,10 +151,10 @@ export class TablesDataSource implements DataSource<Object> {
             finalize(() => this.loadingSubject.next(false))
         )
         .subscribe((res: any) => {
-          if (res.rows && res.rows.length) {
+          if (res.rows?.length) {
             const firstRow = res.rows[0];
 
-            this.foreignKeysList = res.foreignKeys.map((field) => {return field['column_name']});
+            this.foreignKeysList = res.foreignKeys.map((field) => {return field.column_name});
             this.foreignKeys = Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey})));
 
             this._tableRow.fetchTableRow(
@@ -193,7 +191,7 @@ export class TablesDataSource implements DataSource<Object> {
           this.tableBulkActions = res.action_events.filter((action: CustomEvent) => action.type === CustomActionType.Multiple);
 
           if (res.widgets) {
-            this.widgetsList = res.widgets.map((widget: Widget) => {return widget['field_name']});
+            this.widgetsList = res.widgets.map((widget: Widget) => {return widget.field_name});
             this.widgetsCount = this.widgetsList.length;
             this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => {
                 let parsedParams;
@@ -226,7 +224,7 @@ export class TablesDataSource implements DataSource<Object> {
           if (isTablePageSwitched === undefined) this.columns = orderedColumns
             .filter (item => item.isExcluded === false)
             .map((item, index) => {
-              if (shownColumns && shownColumns.length) {
+              if (shownColumns?.length) {
                 return {
                   title: item.column_name,
                   normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
@@ -285,7 +283,7 @@ export class TablesDataSource implements DataSource<Object> {
 
           this.sortByColumns = res.sortable_by;
 
-          const widgetsConfigured = res.widgets && res.widgets.length;
+          const widgetsConfigured = res.widgets?.length;
           if (!res.configured && !widgetsConfigured
             && this._connections.connectionAccessLevel !== AccessLevel.None
             && this._connections.connectionAccessLevel !== AccessLevel.Readonly)

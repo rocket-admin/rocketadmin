@@ -7,9 +7,7 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { TestUtils } from '../../utils/test.utils.js';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
-import { Constants } from '../../../src/helpers/constants/constants.js';
 import { IUserInfo } from '../../../src/entities/user/user.interface.js';
-import { faker } from '@faker-js/faker';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import cookieParser from 'cookie-parser';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
@@ -21,7 +19,7 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
 let currentTest: string;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 
 test.beforeEach(async () => {
   setSaasEnvVariable();
@@ -30,7 +28,7 @@ test.beforeEach(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
   // await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -57,7 +55,6 @@ test.after(async () => {
 currentTest = 'GET /user';
 
 test.serial(`${currentTest} should return user info for this user`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -70,17 +67,13 @@ test.serial(`${currentTest} should return user info for this user`, async (t) =>
 
     t.is(getUserRO.isActive, true);
     t.is(getUserRO.email, adminUserRegisterInfo.email);
-    t.is(getUserRO.hasOwnProperty('createdAt'), true);
-  } catch (err) {
-    throw err;
-  }
+    t.is(Object.hasOwn(getUserRO, 'createdAt'), true);
   t.pass();
 });
 
 currentTest = 'DELETE /user';
 
 test.serial(`${currentTest} should return user deletion result`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -103,14 +96,10 @@ test.serial(`${currentTest} should return user deletion result`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getUserResult.status, 404);
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 test.serial(`${currentTest} should return expiration token when user login`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
 
@@ -120,15 +109,11 @@ test.serial(`${currentTest} should return expiration token when user login`, asy
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserRO.hasOwnProperty('expires'), true);
-  } catch (err) {
-    throw err;
-  }
+    t.is(Object.hasOwn(loginUserRO, 'expires'), true);
   t.pass();
 });
 
 test.serial(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
 
@@ -148,16 +133,12 @@ test.serial(`${currentTest} reject authorization when try to login with wrong pa
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserRO.hasOwnProperty('expires'), true);
-  } catch (err) {
-    throw err;
-  }
+    t.is(Object.hasOwn(loginUserRO, 'expires'), true);
   t.pass();
 });
 
 currentTest = 'GET /user/settings';
 test.serial(`${currentTest} should return empty user settings when it was not created`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -168,17 +149,13 @@ test.serial(`${currentTest} should return empty user settings when it was not cr
       .set('Accept', 'application/json');
     const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
     t.is(getUserSettingsResult.status, 200);
-    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(Object.hasOwn(getUserSettingsRO, 'userSettings'), true);
     t.is(getUserSettingsRO.userSettings, null);
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 currentTest = 'POST /user/settings';
 test.serial(`${currentTest} should return created user settings`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -193,16 +170,12 @@ test.serial(`${currentTest} should return created user settings`, async (t) => {
 
     t.is(saveUserSettingsResult.status, 201);
     const saveUserSettingsRO = JSON.parse(saveUserSettingsResult.text);
-    t.is(saveUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(Object.hasOwn(saveUserSettingsRO, 'userSettings'), true);
     t.is(JSON.parse(saveUserSettingsRO.userSettings).test, 'test');
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 test.serial(`${currentTest} should return user settings when it was created`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -224,10 +197,7 @@ test.serial(`${currentTest} should return user settings when it was created`, as
       .set('Accept', 'application/json');
     const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
     t.is(getUserSettingsResult.status, 200);
-    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(Object.hasOwn(getUserSettingsRO, 'userSettings'), true);
     t.is(JSON.parse(getUserSettingsRO.userSettings).test, 'test');
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });

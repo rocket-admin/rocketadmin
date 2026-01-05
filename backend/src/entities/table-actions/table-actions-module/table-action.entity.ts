@@ -36,10 +36,10 @@ export class TableActionEntity {
   @Column('varchar', { array: true, default: {} })
   emails: string[];
 
-  @ManyToOne((type) => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
+  @ManyToOne((_type) => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
   settings: Relation<TableSettingsEntity>;
 
-  @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
+  @ManyToOne((_type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'action_rule_id' })
   action_rule: Relation<ActionRulesEntity>;
 

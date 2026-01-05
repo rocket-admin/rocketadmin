@@ -60,7 +60,7 @@ export class TimezoneEditComponent extends BaseEditFieldComponent {
       const parts = formatter.formatToParts(now);
       const offsetPart = parts.find(part => part.type === 'timeZoneName');
 
-      if (offsetPart && offsetPart.value.includes('GMT')) {
+      if (offsetPart?.value.includes('GMT')) {
         // Extract offset from "GMT+XX:XX" format
         const offset = offsetPart.value.replace('GMT', '');
         return offset === '' ? '+00:00' : offset;
@@ -74,7 +74,7 @@ export class TimezoneEditComponent extends BaseEditFieldComponent {
       const minutes = Math.abs(offsetMinutes) % 60;
       const sign = offsetMinutes >= 0 ? '+' : '-';
       return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-    } catch (error) {
+    } catch (_error) {
       return '';
     }
   }

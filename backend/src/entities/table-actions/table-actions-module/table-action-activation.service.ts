@@ -188,9 +188,7 @@ export class TableActionActivationService {
       result = await axios.post(tableAction.url, actionRequestBody, {
         headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
         maxRedirects: 0,
-        validateStatus: function (status) {
-          return status <= 599;
-        },
+        validateStatus: (status) => status <= 599,
       });
       if (!isSaaS()) {
         console.info('HTTP action result data', result.data);

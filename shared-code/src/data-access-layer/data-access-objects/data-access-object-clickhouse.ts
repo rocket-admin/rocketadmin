@@ -1,13 +1,14 @@
 /* eslint-disable security/detect-object-injection */
 import { createClient, ClickHouseClient } from '@clickhouse/client';
 import * as csv from 'csv';
+import getPort from 'get-port';
 import { Readable, Stream } from 'stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
+import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -24,12 +25,9 @@ import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { NodeClickHouseClientConfigOptions } from '@clickhouse/client/dist/config.js';
 
 export class DataAccessObjectClickHouse extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       await client.insert({
         table: tableName,
@@ -46,7 +44,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     tableName: string,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const whereClause = this.buildWhereClause(primaryKey);
       const query = `ALTER TABLE ${this.escapeIdentifier(tableName)} DELETE WHERE ${whereClause}`;
@@ -66,7 +64,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     if (!referencedFieldName || !fieldValues.length) {
       return [];
     }
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const columnsToSelect = identityColumnName
         ? `${this.escapeIdentifier(referencedFieldName)}, ${this.escapeIdentifier(identityColumnName)}`
@@ -92,7 +90,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     primaryKey: Record<string, unknown>,
     settings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       let availableFields: string[] = [];
       if (settings) {
@@ -127,7 +125,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
       return [];
     }
 
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       let availableFields: string[] = [];
       if (settings) {
@@ -172,7 +170,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const offset = (page - 1) * perPage;
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
 
     try {
       if (!tableStructure) {
@@ -318,7 +316,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
       return cachedPrimaryColumns;
     }
 
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const query = `
         SELECT name, type
@@ -349,7 +347,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
   }
 
   public async getTablesFromDB(): Promise<Array<TableDS>> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const database = this.connection.database || 'default';
       const query = `
@@ -382,7 +380,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
       return cachedTableStructure;
     }
 
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const database = this.connection.database || 'default';
       const query = `
@@ -419,7 +417,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
         character_maximum_length: this.extractLength(column.type),
         data_type_params: this.extractTypeParams(column.type),
         udt_name: column.type,
-        extra: column.is_in_primary_key ? 'primary_key' : undefined,
+        extra: this.buildExtraInfo(column.is_in_primary_key, column.default_expression),
       }));
 
       LRUStorage.setTableStructureCache(this.connection, tableName, structure);
@@ -430,7 +428,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const result = await client.query({
         query: 'SELECT 1',
@@ -457,7 +455,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const setClause = Object.entries(row)
         .map(([key, value]) => {
@@ -486,7 +484,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
       return [];
     }
 
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const setClause = Object.entries(newValues)
         .map(([key, value]) => {
@@ -511,7 +509,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
       return 0;
     }
 
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const whereConditions = primaryKeys.map((pk) => `(${this.buildWhereClause(pk)})`).join(' OR ');
 
@@ -537,7 +535,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
   }
 
   public async isView(tableName: string): Promise<boolean> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const database = this.connection.database || 'default';
       const query = `
@@ -597,7 +595,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const stream = new Readable();
       stream.push(file.buffer);
@@ -623,7 +621,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
   }
 
   public async executeRawQuery(query: string, _tableName?: string): Promise<Array<Record<string, unknown>>> {
-    const client = this.getClickHouseClient();
+    const client = await this.getClickHouseClient();
     try {
       const result = await client.query({
         query,
@@ -793,6 +791,30 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     return null;
   }
 
+  private buildExtraInfo(isPrimaryKey: number, defaultExpression: string): string | undefined {
+    const parts: string[] = [];
+    if (isPrimaryKey) {
+      parts.push('primary_key');
+    }
+
+    if (defaultExpression) {
+      const lowerDefault = defaultExpression.toLowerCase();
+      if (
+        lowerDefault.includes('generateuuidv4') ||
+        lowerDefault.includes('generateuuid') ||
+        lowerDefault.includes('rownumberinallblocks') ||
+        lowerDefault.includes('rownumber') ||
+        lowerDefault.includes('auto_increment') ||
+        lowerDefault.includes('autoincrement') ||
+        lowerDefault.includes('nextval') ||
+        lowerDefault.includes('generate')
+      ) {
+        parts.push('auto_increment');
+      }
+    }
+    return parts.length > 0 ? parts.join(' ') : undefined;
+  }
+
   private async getRowsCount(
     client: ClickHouseClient,
     tableName: string,
@@ -811,8 +833,15 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     };
   }
 
-  private getClickHouseClient(): ClickHouseClient {
-    const { host, port, username, password, database, ssl, cert } = this.connection;
+  private async getClickHouseClient(): Promise<ClickHouseClient> {
+    if (this.connection.ssh) {
+      return this.createTunneledClickHouseClient();
+    }
+    return this.createDirectClickHouseClient(this.connection.host, this.connection.port);
+  }
+
+  private createDirectClickHouseClient(host: string, port: number): ClickHouseClient {
+    const { username, password, database, ssl, cert } = this.connection;
     const protocol = ssl ? 'https' : 'http';
     const url = `${protocol}://${host}:${port}`;
 
@@ -830,5 +859,45 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
     }
 
     return createClient(clientConfig);
+  }
+
+  private async createTunneledClickHouseClient(): Promise<ClickHouseClient> {
+    const connectionCopy = { ...this.connection };
+
+    const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
+    if (cachedTnl?.clickhouse && cachedTnl.server && cachedTnl.client) {
+      return cachedTnl.clickhouse;
+    }
+
+    const freePort = await getPort();
+
+    return new Promise<ClickHouseClient>(async (resolve, reject): Promise<void> => {
+      try {
+        const [server, client] = await getTunnel(connectionCopy, freePort);
+        const clickhouseClient = this.createDirectClickHouseClient('127.0.0.1', freePort);
+
+        const tnlCachedObj = {
+          server: server,
+          client: client,
+          clickhouse: clickhouseClient,
+        };
+
+        LRUStorage.setTunnelCache(connectionCopy, tnlCachedObj);
+        resolve(clickhouseClient);
+
+        client.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+        });
+
+        server.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+        });
+      } catch (error) {
+        LRUStorage.delTunnelCache(connectionCopy);
+        reject(error);
+      }
+    });
   }
 }

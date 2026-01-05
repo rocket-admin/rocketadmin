@@ -30,7 +30,7 @@ export class TimeIntervalRecordViewComponent extends BaseRecordViewFieldComponen
       if (interval.milliseconds) parts.push(`${interval.milliseconds}ms`);
 
       this.formattedInterval = parts.length > 0 ? parts.join(' ') : '0';
-    } catch (e) {
+    } catch (_e) {
       this.formattedInterval = String(this.value);
     }
   }

@@ -18,7 +18,7 @@ export class TimezoneRecordViewComponent extends BaseRecordViewFieldComponent {
     try {
       const offset = this.getTimezoneOffset(this.value);
       return `${this.value} (UTC${offset})`;
-    } catch (error) {
+    } catch (_error) {
       return this.value;
     }
   }
@@ -34,7 +34,7 @@ export class TimezoneRecordViewComponent extends BaseRecordViewFieldComponent {
       const parts = formatter.formatToParts(now);
       const offsetPart = parts.find(part => part.type === 'timeZoneName');
 
-      if (offsetPart && offsetPart.value.includes('GMT')) {
+      if (offsetPart?.value.includes('GMT')) {
         const offset = offsetPart.value.replace('GMT', '');
         return offset === '' ? '+00:00' : offset;
       }

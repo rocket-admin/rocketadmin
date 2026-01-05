@@ -1,6 +1,6 @@
 import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Subscription, merge } from 'rxjs';
+import { merge } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 
 import { Angulartics2OnModule } from 'angulartics2';
@@ -66,7 +66,6 @@ export class AuditComponent implements OnInit {
   public noTablesError: boolean = false;
 
   public dataSource: AuditDataSource = null;
-  private getTitleSubscription: Subscription;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -140,7 +139,7 @@ export class AuditComponent implements OnInit {
   }
 
   openIntercome() {
-    // @ts-ignore
+    // @ts-expect-error
     Intercom('show');
   }
 }

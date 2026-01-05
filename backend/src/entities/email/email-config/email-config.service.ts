@@ -9,7 +9,7 @@ export class EmailConfigService implements IEmailConfigService {
       return pullConfig;
     }
     const emailServiceHost = process.env.EMAIL_SERVICE_HOST;
-    const emailServicePort = parseInt(process.env.EMAIL_SERVICE_PORT) || 25;
+    const emailServicePort = parseInt(process.env.EMAIL_SERVICE_PORT, 10) || 25;
     const emailServiceUserName = process.env.EMAIL_SERVICE_USERNAME;
     const emailServicePassword = process.env.EMAIL_SERVICE_PASSWORD;
     const nonSecure = !process.env.NON_SSL_EMAIL;

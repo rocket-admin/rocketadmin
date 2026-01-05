@@ -13,7 +13,7 @@ import { provideRouter } from '@angular/router';
 describe('DbTableRowEditComponent', () => {
   let component: DbTableRowEditComponent;
   let fixture: ComponentFixture<DbTableRowEditComponent>;
-  let tablesService: TablesService;
+  let _tablesService: TablesService;
   let connectionsService: ConnectionsService;
 
   beforeEach(async () => {
@@ -37,7 +37,7 @@ describe('DbTableRowEditComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DbTableRowEditComponent);
     component = fixture.componentInstance;
-    tablesService = TestBed.inject(TablesService);
+    _tablesService = TestBed.inject(TablesService);
     connectionsService = TestBed.inject(ConnectionsService);
     fixture.detectChanges();
   });
@@ -268,25 +268,25 @@ describe('DbTableRowEditComponent', () => {
 
     it('should update tableRowValues when password field receives a value', () => {
       component.updateField('newPassword', 'password');
-      expect(component.tableRowValues['password']).toBe('newPassword');
+      expect(component.tableRowValues.password).toBe('newPassword');
     });
 
     it('should update tableRowValues when password field receives empty string', () => {
       component.updateField('', 'password');
-      expect(component.tableRowValues['password']).toBe('');
+      expect(component.tableRowValues.password).toBe('');
     });
 
     it('should update tableRowValues when password field receives null (clear password)', () => {
       component.updateField(null, 'password');
-      expect(component.tableRowValues['password']).toBe(null);
+      expect(component.tableRowValues.password).toBe(null);
     });
 
     it('should handle password field update alongside other fields', () => {
       component.updateField('updatedUser', 'username');
       component.updateField('newPassword', 'password');
       
-      expect(component.tableRowValues['username']).toBe('updatedUser');
-      expect(component.tableRowValues['password']).toBe('newPassword');
+      expect(component.tableRowValues.username).toBe('updatedUser');
+      expect(component.tableRowValues.password).toBe('newPassword');
     });
   });
 

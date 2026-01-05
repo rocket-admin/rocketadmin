@@ -25,7 +25,7 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest;
 
 test.before(async () => {
@@ -35,7 +35,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -73,7 +73,7 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
     const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
     const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
     const Knex = getTestKnex(connectionParamsCopy);
-    await Knex.schema.createTable(testTableName, function (table) {
+    await Knex.schema.createTable(testTableName, (table) => {
       table.increments();
       table.binary(testTableColumnName);
       table.string(testTableSecondColumnName);

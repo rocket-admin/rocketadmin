@@ -442,7 +442,7 @@ describe('ConnectionsService', () => {
   });
 
     xit('should call updateConnection and show Success Snackbar', async () => {
-    service.updateConnection(connectionCredsApp, 'master_key_12345678').subscribe(res => {
+    service.updateConnection(connectionCredsApp, 'master_key_12345678').subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Connection has been updated successfully.');
     });
 
@@ -476,7 +476,7 @@ describe('ConnectionsService', () => {
       message: 'i want to add tables'
     }
 
-    service.deleteConnection('12345678', metadata).subscribe(res => {
+    service.deleteConnection('12345678', metadata).subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection has been deleted successfully.');
       isSubscribeCalled = true;
     });
@@ -513,7 +513,7 @@ describe('ConnectionsService', () => {
       userEmail: 'eric.cartman@south.park',
       requstedPage: 2,
       chunkSize: 10
-    }).subscribe(res => {
+    }).subscribe(_res => {
       isSubscribeCalled = true;
     });
 
@@ -533,7 +533,7 @@ describe('ConnectionsService', () => {
       userEmail: 'eric.cartman@south.park',
       requstedPage: 2,
       chunkSize: 10
-    }).subscribe(res => {
+    }).subscribe(_res => {
       isSubscribeCalled = true;
     });
 
@@ -552,7 +552,7 @@ describe('ConnectionsService', () => {
       userEmail: 'showAll',
       requstedPage: 2,
       chunkSize: 10
-    }).subscribe(res => {
+    }).subscribe(_res => {
       isSubscribeCalled = true;
     });
 
@@ -595,7 +595,7 @@ describe('ConnectionsService', () => {
     }
 
     const mockThemeService = jasmine.createSpyObj('_themeService', ['updateColors']);
-    service['_themeService'] = mockThemeService;
+    service._themeService = mockThemeService;
 
     service.getConnectionSettings('12345678').subscribe(res => {
         expect(res).toEqual(connectionSettingsNetwork);
@@ -624,7 +624,7 @@ describe('ConnectionsService', () => {
   it('should call createConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders'], default_showing_table: ''}).subscribe(res => {
+    service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders'], default_showing_table: ''}).subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been created successfully.');
       isSubscribeCalled = true;
     });
@@ -671,7 +671,7 @@ describe('ConnectionsService', () => {
   it('should call updateConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products'], default_showing_table: 'users'}).subscribe(res => {
+    service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products'], default_showing_table: 'users'}).subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been updated successfully.');
       isSubscribeCalled = true;
     });
@@ -721,7 +721,7 @@ describe('ConnectionsService', () => {
   it('should call deleteConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.deleteConnectionSettings('12345678').subscribe(res => {
+    service.deleteConnectionSettings('12345678').subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been removed successfully.');
       isSubscribeCalled = true;
     });

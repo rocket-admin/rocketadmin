@@ -20,7 +20,7 @@ export async function validateTableCategories(
   });
   const dao = getDataAccessObject(connection);
   const tablesInConnection = (await dao.getTablesFromDB()).map((table) => table.tableName);
-  const tables = tableCategoriesData.map((category) => category.tables).flat();
+  const tables = tableCategoriesData.flatMap((category) => category.tables);
   const uniqueTables = Array.from(new Set(tables));
   const errors = [];
   for (const table of uniqueTables) {

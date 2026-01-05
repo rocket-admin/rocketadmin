@@ -4,7 +4,7 @@ import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
-import { Subscription, take } from 'rxjs';
+import { take } from 'rxjs';
 import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -47,6 +47,7 @@ import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
+import { ClickhouseCredentialsFormComponent } from './db-credentials-forms/clickhouse-credentials-form/clickhouse-credentials-form.component';
 
 @Component({
   selector: 'app-connect-db',
@@ -76,6 +77,7 @@ import isIP from 'validator/lib/isIP';
     PostgresCredentialsFormComponent,
     RedisCredentialsFormComponent,
     ElasticCredentialsFormComponent,
+    ClickhouseCredentialsFormComponent,
     IpAddressButtonComponent,
     AlertComponent,
     Angulartics2Module
@@ -107,10 +109,9 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.Cassandra]: '9042',
     [DBtype.Redis]: '6379',
     [DBtype.Elasticsearch]: '9200',
+    [DBtype.ClickHouse]: '8443',
     [DBtype.DB2]: '50000'
   }
-
-  private getTitleSubscription: Subscription;
 
   // public isDemo: boolean = false;
 
@@ -159,7 +160,7 @@ export class ConnectDBComponent implements OnInit {
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
       if (this.isSaas) {
-        // @ts-ignore
+        // @ts-expect-error
         fbq('trackCustom', 'Add_connection');
       }
     };
@@ -194,7 +195,7 @@ export class ConnectDBComponent implements OnInit {
               {
                 type: AlertActionType.Button,
                 caption: 'Dismiss',
-                action: (id: number) => this._notifications.dismissAlert()
+                action: (_id: number) => this._notifications.dismissAlert()
               }
             ]);
           };
@@ -303,7 +304,7 @@ export class ConnectDBComponent implements OnInit {
     };
   }
 
-  createConnection(connectForm: NgForm) {
+  createConnection(_connectForm: NgForm) {
     if (this.db.connectionType === 'direct') {
       if (this.db.type !== DBtype.Dynamo) {
         const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
@@ -327,12 +328,12 @@ export class ConnectDBComponent implements OnInit {
                 properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage: credsCorrect.message }
               });
 
-              if (credsCorrect && credsCorrect.result) {
+              if (credsCorrect?.result) {
                 this.createConnectionRequest();
               } else {
                 this.handleConnectionError(credsCorrect.message);
               };
-            } catch (e) {
+            } catch (_e) {
               credsCorrect = null;
               this.submitting = false;
             }
@@ -353,13 +354,13 @@ export class ConnectDBComponent implements OnInit {
                 errorMessage: credsCorrect.message
               }
             });
-            if (credsCorrect && credsCorrect.result) {
+            if (credsCorrect?.result) {
               this.createConnectionRequest();
             } else {
               this.handleConnectionError(credsCorrect.message);
             }
           })
-          .catch((e) => {
+          .catch((_e) => {
             credsCorrect = null;
             this.submitting = false;
           });

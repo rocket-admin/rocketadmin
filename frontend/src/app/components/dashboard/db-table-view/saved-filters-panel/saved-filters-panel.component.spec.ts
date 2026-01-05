@@ -19,7 +19,7 @@ class JsonURLMock {
   static parse(str: string): any {
     try {
       return JSON.parse(str);
-    } catch (e) {
+    } catch (_e) {
       return {};
     }
   }
@@ -31,8 +31,8 @@ class JsonURLMock {
 describe('SavedFiltersPanelComponent', () => {
   let component: SavedFiltersPanelComponent;
   let fixture: ComponentFixture<SavedFiltersPanelComponent>;
-  let tablesServiceSpy: jasmine.SpyObj<TablesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let _tablesServiceSpy: jasmine.SpyObj<TablesService>;
+  let _routerSpy: jasmine.SpyObj<Router>;
 
   const mockFilter = {
     id: 'filter1',
@@ -61,10 +61,10 @@ describe('SavedFiltersPanelComponent', () => {
       snapshot: {
         queryParams: {},
         paramMap: {
-          get: (key: string) => null
+          get: (_key: string) => null
         },
         queryParamMap: {
-          get: (key: string) => null
+          get: (_key: string) => null
         }
       }
     };
@@ -90,8 +90,8 @@ describe('SavedFiltersPanelComponent', () => {
       ]
     }).compileComponents();
 
-    tablesServiceSpy = TestBed.inject(TablesService) as jasmine.SpyObj<TablesService>;
-    routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    _tablesServiceSpy = TestBed.inject(TablesService) as jasmine.SpyObj<TablesService>;
+    _routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
 
     fixture = TestBed.createComponent(SavedFiltersPanelComponent);
     component = fixture.componentInstance;

@@ -404,11 +404,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public async commitTransaction(): Promise<void> {
     if (!this._queryRunner) return;
-    try {
       await this._queryRunner.commitTransaction();
-    } catch (e) {
-      throw e;
-    }
   }
 
   public async rollbackTransaction(): Promise<void> {

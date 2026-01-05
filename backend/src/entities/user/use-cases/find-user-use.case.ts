@@ -17,8 +17,7 @@ export class FindUserUseCase
 {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly amplitudeService: AmplitudeService,
+    protected _dbContext: IGlobalDatabaseContext,readonly _amplitudeService: AmplitudeService,
     private readonly userHelperService: UserHelperService,
   ) {
     super();

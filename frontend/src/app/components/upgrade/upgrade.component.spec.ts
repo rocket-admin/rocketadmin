@@ -9,7 +9,7 @@ import { provideHttpClient } from '@angular/common/http';
 describe('UpgradeComponent', () => {
   let component: UpgradeComponent;
   let fixture: ComponentFixture<UpgradeComponent>;
-  let userService: UserService;
+  let _userService: UserService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -25,7 +25,7 @@ describe('UpgradeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(UpgradeComponent);
     component = fixture.componentInstance;
-    userService = TestBed.get(UserService);
+    _userService = TestBed.get(UserService);
     fixture.detectChanges();
   });
 

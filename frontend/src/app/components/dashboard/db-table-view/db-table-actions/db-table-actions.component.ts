@@ -1,4 +1,4 @@
-import { AlertActionType, AlertType } from 'src/app/models/alert';
+
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Component, OnInit } from '@angular/core';
 import { CustomAction, CustomActionMethod, CustomActionType, CustomEvent, EventType, Rule } from 'src/app/models/table';
@@ -271,7 +271,7 @@ export class DbTableActionsComponent implements OnInit {
   }
 
   removeRuleFromLocalList(ruleTitle: string) {
-    this.rules = this.rules.filter((rule: Rule)  => rule.title != ruleTitle);
+    this.rules = this.rules.filter((rule: Rule)  => rule.title !== ruleTitle);
     if (this.rules.length) this.setSelectedRule(this.rules[0]);
   }
 

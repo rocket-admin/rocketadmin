@@ -1,5 +1,5 @@
 import { Subject, EMPTY } from 'rxjs';
-import { catchError, filter, map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';

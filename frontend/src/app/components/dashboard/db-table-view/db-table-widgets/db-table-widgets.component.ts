@@ -29,7 +29,6 @@ import { TextEditComponent } from '../../../ui-components/record-edit-fields/tex
 import { Title } from '@angular/platform-browser';
 import { UIwidgets } from "src/app/consts/record-edit-types";
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { UrlEditComponent } from '../../../ui-components/record-edit-fields/url/url.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
@@ -280,6 +279,22 @@ export class DbTableWidgetsComponent implements OnInit {
   "name": ""
 }
 `,
+    S3: `// Configure AWS S3 widget for file storage
+// bucket: S3 bucket name (required)
+// prefix: Optional path prefix for uploaded files
+// region: AWS region (default: us-east-1)
+// aws_access_key_id_secret_name: Slug of the secret containing AWS Access Key ID
+// aws_secret_access_key_secret_name: Slug of the secret containing AWS Secret Access Key
+// Note: Create secrets in Settings -> Secrets before configuring this widget
+
+{
+  "bucket": "your-bucket-name",
+  "prefix": "uploads/",
+  "region": "us-east-1",
+  "aws_access_key_id_secret_name": "aws-access-key-id",
+  "aws_secret_access_key_secret_name": "aws-secret-access-key"
+}
+`,
   }
 
   constructor(
@@ -299,7 +314,7 @@ export class DbTableWidgetsComponent implements OnInit {
     this.tableName = this._tables.currentTableName;
     this.widgetsWithSettings = Object
       .entries(this.defaultParams)
-      .filter(([key, value]) => value !== '// No settings required')
+      .filter(([_key, value]) => value !== '// No settings required')
       .map(widgetDefault => widgetDefault[0]);
 
     this._tables.fetchTableStructure(this.connectionID, this.tableName)

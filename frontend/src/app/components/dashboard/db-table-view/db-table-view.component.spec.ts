@@ -18,7 +18,7 @@ describe('DbTableViewComponent', () => {
   let component: DbTableViewComponent;
   let fixture: ComponentFixture<DbTableViewComponent>;
 
-  const mockWidgets = {
+  const _mockWidgets = {
     "Region": {
       "id": "c768dde8-7348-46e8-a522-718a29b705e8",
       "field_name": "Region",
@@ -50,7 +50,7 @@ describe('DbTableViewComponent', () => {
     }
   }
 
-  const mockSelectOption = {
+  const _mockSelectOption = {
     "Region": [
       {
         "value": "AK",

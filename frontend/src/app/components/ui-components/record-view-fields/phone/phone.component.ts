@@ -32,7 +32,7 @@ export class PhoneRecordViewComponent extends BaseRecordViewFieldComponent imple
     try {
       const phoneNumber = parsePhoneNumber(this.value);
 
-      if (phoneNumber && phoneNumber.country) {
+      if (phoneNumber?.country) {
         const country = COUNTRIES.find(c => c.code === phoneNumber.country);
 
         if (country) {
@@ -49,7 +49,7 @@ export class PhoneRecordViewComponent extends BaseRecordViewFieldComponent imple
         this.countryName = '';
         this.formattedNumber = this.value;
       }
-    } catch (error) {
+    } catch (_error) {
       this.countryFlag = '';
       this.countryName = '';
       this.formattedNumber = this.value;

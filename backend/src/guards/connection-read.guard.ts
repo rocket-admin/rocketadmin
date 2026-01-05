@@ -27,7 +27,7 @@ export class ConnectionReadGuard implements CanActivate {
       const cognitoUserName = request.decoded.sub;
       let connectionId: string = request.params?.slug || request.params?.connectionId;
       if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
-        connectionId = request.query['connectionId'];
+        connectionId = request.query.connectionId;
       }
       if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
         reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
