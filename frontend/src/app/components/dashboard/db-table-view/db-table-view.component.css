@@ -55,6 +55,25 @@
     }
 }
 
+.dashboard-toggle {
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+    margin-right: 8px;
+}
+
+.dashboard-toggle .toggle-label {
+    margin-left: 8px;
+    font-size: 14px;
+}
+
+@media (width <= 600px) {
+    .dashboard-toggle {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+}
+
 .table-switcher-option ::ng-deep .mdc-list-item__primary-text {
     width: 100%;
 }

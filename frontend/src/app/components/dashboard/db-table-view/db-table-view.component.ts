@@ -34,6 +34,25 @@ import { MatSort } from '@angular/material/sort';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import JsonURL from '@jsonurl/jsonurl';
+import { Angulartics2OnModule } from 'angulartics2';
+import * as JSON5 from 'json5';
+import { DynamicModule } from 'ng-dynamic-component';
+import { merge } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { formatFieldValue } from 'src/app/lib/format-field-value';
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
+import {
+	CustomAction,
+	TableForeignKey,
+	TablePermissions,
+	TableProperties,
+	TableRow,
+	Widget,
+} from 'src/app/models/table';
+import { AccessLevel } from 'src/app/models/user';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { RouterModule } from '@angular/router';
@@ -41,11 +60,13 @@ import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
-import { formatFieldValue } from 'src/app/lib/format-field-value';
-import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import { merge } from 'rxjs';
-import { normalizeTableName } from '../../../lib/normalize'
-import { tap } from 'rxjs/operators';
+import { tableDisplayTypes, UIwidgets } from '../../../consts/table-display-types';
+import { normalizeTableName } from '../../../lib/normalize';
+import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
+import { DbTableExportDialogComponent } from './db-table-export-dialog/db-table-export-dialog.component';
+import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
+import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-panel.component';
 
 interface Column {
   title: string,
@@ -53,35 +74,36 @@ interface Column {
 }
 
 @Component({
-  selector: 'app-db-table-view',
-  templateUrl: './db-table-view.component.html',
-  styleUrls: ['./db-table-view.component.css'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCheckboxModule,
-    MatChipsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatMenuModule,
-    MatTooltipModule,
-    ClipboardModule,
-    DragDropModule,
-    Angulartics2OnModule,
-    PlaceholderTableDataComponent,
-    DynamicModule,
-    ForeignKeyDisplayComponent,
-    SavedFiltersPanelComponent
-  ]
+	selector: 'app-db-table-view',
+	templateUrl: './db-table-view.component.html',
+	styleUrls: ['./db-table-view.component.css'],
+	imports: [
+		CommonModule,
+		FormsModule,
+		RouterModule,
+		MatTableModule,
+		MatPaginatorModule,
+		MatSortModule,
+		MatButtonModule,
+		MatIconModule,
+		MatCheckboxModule,
+		MatChipsModule,
+		MatDialogModule,
+		MatFormFieldModule,
+		ReactiveFormsModule,
+		MatInputModule,
+		MatAutocompleteModule,
+		MatSelectModule,
+		MatMenuModule,
+		MatTooltipModule,
+		ClipboardModule,
+		DragDropModule,
+		Angulartics2OnModule,
+		PlaceholderTableDataComponent,
+		DynamicModule,
+		ForeignKeyDisplayComponent,
+		SavedFiltersPanelComponent,
+	],
 })
 
 export class DbTableViewComponent implements OnInit {
@@ -110,31 +132,31 @@ export class DbTableViewComponent implements OnInit {
 
   @Output() applyFilter = new EventEmitter();
 
-  // public tablesSwitchControl = new FormControl('');
-  public tableData: any;
-  public filteredTables: TableProperties[];
-  // public selection: any;
-  public columns: Column[];
-  public displayedColumns: string[] = [];
-  public columnsToDisplay: string[] = [];
-  public searchString: string;
-  public staticSearchString: string;
-  public actionsColumnWidth: string;
-  public bulkActions: CustomAction[];
-  public bulkRows: string[];
-  public displayedComparators = {
-    eq: "=",
-    gt: ">",
-    lt: "<",
-    gte: ">=",
-    lte: "<="
-  }
-  public selectedRow: TableRow = null;
-  public selectedRowType: 'record' | 'foreignKey' = 'record';
-  public tableRelatedRecords: any = null;
-  public displayCellComponents;
-  public UIwidgets = UIwidgets;
-  // public tableTypes: object;
+	// public tablesSwitchControl = new FormControl('');
+	public tableData: any;
+	public filteredTables: TableProperties[];
+	// public selection: any;
+	public columns: Column[];
+	public displayedColumns: string[] = [];
+	public columnsToDisplay: string[] = [];
+	public searchString: string;
+	public staticSearchString: string;
+	public actionsColumnWidth: string;
+	public bulkActions: CustomAction[];
+	public bulkRows: string[];
+	public displayedComparators = {
+		eq: '=',
+		gt: '>',
+		lt: '<',
+		gte: '>=',
+		lte: '<=',
+	};
+	public selectedRow: TableRow = null;
+	public selectedRowType: 'record' | 'foreignKey' = 'record';
+	public tableRelatedRecords: any = null;
+	public displayCellComponents;
+	public UIwidgets = UIwidgets;
+	// public tableTypes: object;
 
   @Input() set table(value){
     if (value) this.tableData = value;
@@ -628,10 +650,10 @@ export class DbTableViewComponent implements OnInit {
     const blob = new Blob([csvArray], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
 
-    a.href = url;
-    a.download = 'myFile.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-    a.remove();
-  }
+		a.href = url;
+		a.download = 'myFile.csv';
+		a.click();
+		window.URL.revokeObjectURL(url);
+		a.remove();
+	}
 }
