@@ -73,6 +73,12 @@ export class TableSettingsEntity {
   @Column({ default: true, type: 'boolean' })
   allow_csv_import: boolean;
 
+  @Column({ default: false, type: 'boolean' })
+  save_ordering_by_default: boolean;
+
+  @Column('jsonb', { default: null, nullable: true })
+  save_ordering_by_default_columns: { [columnName: string]: boolean } | null;
+
   @Column('varchar', { array: true, default: null })
   sensitive_fields: string[];
 

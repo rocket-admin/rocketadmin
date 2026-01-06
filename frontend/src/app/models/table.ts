@@ -37,6 +37,8 @@ export interface TableSettings {
     allow_csv_export: boolean,
     allow_csv_import: boolean,
     can_delete: boolean,
+    save_ordering_by_default: boolean,
+    save_ordering_by_default_columns?: { [columnName: string]: boolean },
 }
 
 export interface TableRow {

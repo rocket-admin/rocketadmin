@@ -82,4 +82,10 @@ export class FoundTableSettingsDs {
 
   @ApiProperty()
   allow_csv_import: boolean;
+
+  @ApiProperty()
+  save_ordering_by_default: boolean;
+
+  @ApiProperty({ required: false })
+  save_ordering_by_default_columns?: { [columnName: string]: boolean };
 }

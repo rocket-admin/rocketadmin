@@ -486,6 +486,48 @@ th.mat-header-cell, td.mat-cell {
     gap: 6px;
 }
 
+.sort-menu-item-content.sort-menu-item-active-content {
+    background-color: rgba(0, 0, 0, 0.08);
+    padding: 4px 8px;
+    margin: -4px -8px;
+    border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .sort-menu-item-content.sort-menu-item-active-content {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+}
+
+:host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content,
+:host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    padding: 4px 8px !important;
+    margin: -4px -8px !important;
+    border-radius: 4px !important;
+    display: inline-flex !important;
+}
+
+:host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content span,
+:host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content span {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    display: inline-block !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    :host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content,
+    :host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    :host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content span,
+    :host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active .sort-menu-item-content span {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+}
+
 .sort-menu-icon {
     font-size: 16px;
     width: 16px;
@@ -537,13 +579,45 @@ th.mat-header-cell, td.mat-cell {
     line-height: 16px;
 }
 
-.sort-menu .mat-mdc-menu-item.sort-menu-item-active {
-    background-color: rgba(0, 0, 0, 0.04);
+:host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active,
+:host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active:hover,
+:host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active:hover {
+    background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+:host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active:focus,
+:host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active:focus {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active:focus-visible,
+:host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active:focus-visible {
+    background-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 @media (prefers-color-scheme: dark) {
-    .sort-menu .mat-mdc-menu-item.sort-menu-item-active {
-        background-color: rgba(255, 255, 255, 0.04);
+    :host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active,
+    :host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    :host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active:hover,
+    :host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active:hover {
+        background-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    :host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active:focus,
+    :host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active:focus {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    :host ::ng-deep .sort-menu button.mat-mdc-menu-item.sort-menu-item-active:focus-visible,
+    :host ::ng-deep .sort-menu .mat-mdc-menu-item.sort-menu-item-active:focus-visible {
+        background-color: rgba(255, 255, 255, 0.08) !important;
     }
 }
 

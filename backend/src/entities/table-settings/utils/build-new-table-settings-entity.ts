@@ -32,6 +32,8 @@ export function buildNewTableSettingsEntity(
     icon,
     allow_csv_export,
     allow_csv_import,
+    save_ordering_by_default,
+    save_ordering_by_default_columns,
   } = settings;
   newSettings.connection_id = connection;
   newSettings.display_name = display_name;
@@ -58,5 +60,7 @@ export function buildNewTableSettingsEntity(
   newSettings.icon = icon;
   newSettings.allow_csv_export = allow_csv_export;
   newSettings.allow_csv_import = allow_csv_import;
+  newSettings.save_ordering_by_default = save_ordering_by_default;
+  newSettings.save_ordering_by_default_columns = save_ordering_by_default_columns || null;
   return newSettings;
 }

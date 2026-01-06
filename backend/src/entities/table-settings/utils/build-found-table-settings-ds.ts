@@ -29,6 +29,8 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     icon,
     allow_csv_export,
     allow_csv_import,
+    save_ordering_by_default,
+    save_ordering_by_default_columns,
   } = tableSettings;
   let connection_id = tableSettings.connection_id as unknown;
   if (connection_id instanceof ConnectionEntity) {
@@ -61,5 +63,7 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     icon: icon,
     allow_csv_export: allow_csv_export,
     allow_csv_import: allow_csv_import,
+    save_ordering_by_default: save_ordering_by_default,
+    save_ordering_by_default_columns: save_ordering_by_default_columns || undefined,
   };
 }

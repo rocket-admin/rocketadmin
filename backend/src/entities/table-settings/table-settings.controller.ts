@@ -120,6 +120,8 @@ export class TableSettingsController {
     @Body('icon') icon: string,
     @Body('allow_csv_export') allow_csv_export: boolean,
     @Body('allow_csv_import') allow_csv_import: boolean,
+    @Body('save_ordering_by_default') save_ordering_by_default: boolean,
+    @Body('save_ordering_by_default_columns') save_ordering_by_default_columns: { [columnName: string]: boolean },
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -150,6 +152,8 @@ export class TableSettingsController {
       icon: icon,
       allow_csv_export: allow_csv_export,
       allow_csv_import: allow_csv_import,
+      save_ordering_by_default: save_ordering_by_default,
+      save_ordering_by_default_columns: save_ordering_by_default_columns,
     };
 
     const errors = this.validateParameters(inputData);
@@ -200,6 +204,8 @@ export class TableSettingsController {
     @Body('icon') icon: string,
     @Body('allow_csv_export') allow_csv_export: boolean,
     @Body('allow_csv_import') allow_csv_import: boolean,
+    @Body('save_ordering_by_default') save_ordering_by_default: boolean,
+    @Body('save_ordering_by_default_columns') save_ordering_by_default_columns: { [columnName: string]: boolean },
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -229,6 +235,8 @@ export class TableSettingsController {
       icon: icon,
       allow_csv_export: allow_csv_export,
       allow_csv_import: allow_csv_import,
+      save_ordering_by_default: save_ordering_by_default,
+      save_ordering_by_default_columns: save_ordering_by_default_columns,
     };
 
     const errors = this.validateParameters(inputData);

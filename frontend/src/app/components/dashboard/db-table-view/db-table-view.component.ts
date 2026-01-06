@@ -40,6 +40,7 @@ import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-
 import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { TablesService } from 'src/app/services/tables.service';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { merge } from 'rxjs';
@@ -133,6 +134,8 @@ export class DbTableViewComponent implements OnInit {
   public tableRelatedRecords: any = null;
   public displayCellComponents;
   public UIwidgets = UIwidgets;
+  private tableSettings: any = null;
+  private isSettingsExist: boolean = false;
   // public tableTypes: object;
 
   @Input() set table(value){
@@ -147,6 +150,7 @@ export class DbTableViewComponent implements OnInit {
     private _notifications: NotificationsService,
     private _tableRow: TableRowService,
     private _connections: ConnectionsService,
+    private _tables: TablesService,
     private route: ActivatedRoute,
     public router: Router,
     public dialog: MatDialog,
@@ -178,9 +182,110 @@ export class DbTableViewComponent implements OnInit {
               }
             });
             this.loadRowsPage();
+
+            // Save ordering to table settings when sort changes
+            if (this.sort.active) {
+              this.saveOrderingToSettings(this.sort.active, this.sort.direction.toUpperCase());
+            } else {
+              this.saveOrderingToSettings('', 'ASC');
+            }
           })
       )
       .subscribe();
+
+    // Apply saved sorting after view is initialized
+    // Use setTimeout to ensure settings are loaded from ngOnInit
+    setTimeout(() => {
+      this.applySavedSorting();
+    }, 100);
+  }
+
+  applySavedSorting() {
+    if (!this.connectionID || !this.name || !this.sort || !this.paginator) return;
+
+    // Check if there's a saved sort in URL params first
+    const urlSortActive = this.route.snapshot.queryParams.sort_active;
+    const urlSortDirection = this.route.snapshot.queryParams.sort_direction;
+
+    if (urlSortActive && urlSortDirection) {
+      // URL params take precedence - apply them
+      const direction = urlSortDirection.toLowerCase() as 'asc' | 'desc';
+      this.sort.sort({
+        id: urlSortActive,
+        start: direction,
+        disableClear: true
+      });
+      return;
+    }
+
+    // If no URL params, load from table settings and apply
+    if (this.tableSettings && this.tableSettings.ordering_field && this.tableSettings.ordering) {
+      const direction = this.tableSettings.ordering.toLowerCase() as 'asc' | 'desc';
+      this.sort.sort({
+        id: this.tableSettings.ordering_field,
+        start: direction,
+        disableClear: true
+      });
+
+      // Update URL to reflect saved sorting
+      const filters = JsonURL.stringify(this.activeFilters);
+      const saved_filter = this.route.snapshot.queryParams.saved_filter;
+      const dynamic_column = this.route.snapshot.queryParams.dynamic_column;
+
+      this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
+        queryParams: {
+          filters,
+          saved_filter,
+          dynamic_column,
+          sort_active: this.tableSettings.ordering_field,
+          sort_direction: this.tableSettings.ordering,
+          page_index: this.paginator.pageIndex,
+          page_size: this.paginator.pageSize
+        },
+        replaceUrl: true
+      });
+      this.loadRowsPage();
+    } else {
+      // Load settings if not loaded yet
+      this._tables.fetchTableSettings(this.connectionID, this.name)
+        .subscribe(settings => {
+          if (settings && Object.keys(settings).length > 0) {
+            this.isSettingsExist = true;
+            this.tableSettings = settings;
+
+            if (settings.ordering_field && settings.ordering) {
+              const direction = settings.ordering.toLowerCase() as 'asc' | 'desc';
+              this.sort.sort({
+                id: settings.ordering_field,
+                start: direction,
+                disableClear: true
+              });
+
+              // Update URL to reflect saved sorting
+              const filters = JsonURL.stringify(this.activeFilters);
+              const saved_filter = this.route.snapshot.queryParams.saved_filter;
+              const dynamic_column = this.route.snapshot.queryParams.dynamic_column;
+
+              this.router.navigate([`/dashboard/${this.connectionID}/${this.name}`], {
+                queryParams: {
+                  filters,
+                  saved_filter,
+                  dynamic_column,
+                  sort_active: settings.ordering_field,
+                  sort_direction: settings.ordering,
+                  page_index: this.paginator.pageIndex,
+                  page_size: this.paginator.pageSize
+                },
+                replaceUrl: true
+              });
+              this.loadRowsPage();
+            }
+          } else {
+            this.isSettingsExist = false;
+            this.tableSettings = null;
+          }
+        });
+    }
   }
 
   ngOnInit() {
@@ -198,6 +303,20 @@ export class DbTableViewComponent implements OnInit {
       this.hasSavedFilterActive = !!params.saved_filter;
       if (this.hasSavedFilterActive ) this.searchString = '';
     });
+
+    // Load table settings - will be applied in ngAfterViewInit
+    if (this.connectionID && this.name) {
+      this._tables.fetchTableSettings(this.connectionID, this.name)
+        .subscribe(settings => {
+          if (settings && Object.keys(settings).length > 0) {
+            this.isSettingsExist = true;
+            this.tableSettings = settings;
+          } else {
+            this.isSettingsExist = false;
+            this.tableSettings = null;
+          }
+        });
+    }
   }
 
   onInput(searchValue: string) {
@@ -234,6 +353,27 @@ export class DbTableViewComponent implements OnInit {
     if (changes.name?.currentValue && this.paginator) {
       this.paginator.pageIndex = 0;
       this.searchString = '';
+
+      // Reload table settings when table name changes
+      if (this.connectionID && this.name) {
+        this._tables.fetchTableSettings(this.connectionID, this.name)
+          .subscribe(settings => {
+            if (settings && Object.keys(settings).length > 0) {
+              this.isSettingsExist = true;
+              this.tableSettings = settings;
+            } else {
+              this.isSettingsExist = false;
+              this.tableSettings = null;
+            }
+
+            // Apply saved sorting after a short delay to ensure sort is ready
+            if (this.sort && this.paginator) {
+              setTimeout(() => {
+                this.applySavedSorting();
+              }, 100);
+            }
+          });
+      }
     }
   }
 
@@ -250,8 +390,8 @@ export class DbTableViewComponent implements OnInit {
 
   getSortTooltip(column: string): string {
     if (this.sort && this.sort.active === column) {
-      return this.sort.direction === 'asc' 
-        ? 'Sort ascending (A-Z)' 
+      return this.sort.direction === 'asc'
+        ? 'Sort ascending (A-Z)'
         : 'Sort descending (Z-A)';
     }
     return 'Sort column';
@@ -290,6 +430,46 @@ export class DbTableViewComponent implements OnInit {
       }
     });
     this.loadRowsPage();
+
+    // Always save ordering to table settings
+    this.saveOrderingToSettings(column, direction.toUpperCase());
+  }
+
+  saveOrderingToSettings(column: string, direction: string) {
+    if (!this.connectionID || !this.name) return;
+
+    if (!this.tableSettings) {
+      // Create new settings if they don't exist
+      this.tableSettings = {
+        connection_id: this.connectionID,
+        table_name: this.name,
+        icon: '',
+        display_name: '',
+        autocomplete_columns: [],
+        identity_column: '',
+        search_fields: [],
+        excluded_fields: [],
+        list_fields: [],
+        ordering: direction,
+        ordering_field: column,
+        readonly_fields: [],
+        sortable_by: [],
+        columns_view: [],
+        sensitive_fields: [],
+        allow_csv_export: true,
+        allow_csv_import: true,
+        can_delete: true,
+      };
+    } else {
+      // Update existing settings - set ordering
+      this.tableSettings.ordering = direction;
+      this.tableSettings.ordering_field = column;
+    }
+
+    this._tables.updateTableSettings(this.isSettingsExist, this.connectionID, this.name, this.tableSettings)
+      .subscribe(() => {
+        // Settings updated successfully
+      });
   }
 
   clearSort() {
@@ -313,6 +493,9 @@ export class DbTableViewComponent implements OnInit {
       }
     });
     this.loadRowsPage();
+
+    // Save cleared sorting to table settings
+    this.saveOrderingToSettings('', 'ASC');
   }
 
   isForeignKey(column: string) {

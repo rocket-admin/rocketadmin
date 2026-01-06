@@ -253,7 +253,7 @@
                             <button mat-menu-item 
                                 [class.sort-menu-item-active]="sort && sort.active === column && sort.direction === 'asc'"
                                 (click)="applySort(column, 'asc')">
-                                <div class="sort-menu-item-content">
+                                <div class="sort-menu-item-content" [class.sort-menu-item-active-content]="sort && sort.active === column && sort.direction === 'asc'">
                                     <mat-icon svgIcon="sort_ascending" class="sort-menu-icon"></mat-icon>
                                     <span>Sort ascending</span>
                                 </div>
@@ -261,7 +261,7 @@
                             <button mat-menu-item 
                                 [class.sort-menu-item-active]="sort && sort.active === column && sort.direction === 'desc'"
                                 (click)="applySort(column, 'desc')">
-                                <div class="sort-menu-item-content">
+                                <div class="sort-menu-item-content" [class.sort-menu-item-active-content]="sort && sort.active === column && sort.direction === 'desc'">
                                     <mat-icon svgIcon="sort_descending" class="sort-menu-icon"></mat-icon>
                                     <span>Sort descending</span>
                                 </div>
