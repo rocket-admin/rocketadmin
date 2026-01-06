@@ -1,47 +1,33 @@
-import * as JSON5 from 'json5';
-
-import { ActivatedRoute, Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { CustomAction, TableForeignKey, TablePermissions, TableProperties, TableRow, Widget } from 'src/app/models/table';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { UIwidgets, tableDisplayTypes } from '../../../consts/table-display-types';
-
-import { AccessLevel } from 'src/app/models/user';
-import { Angulartics2OnModule } from 'angulartics2';
-import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { DbTableExportDialogComponent } from './db-table-export-dialog/db-table-export-dialog.component';
-import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
-import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { SelectionModel } from '@angular/cdk/collections';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { DynamicModule } from 'ng-dynamic-component';
-import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
-import JsonURL from "@jsonurl/jsonurl";
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2OnModule } from 'angulartics2';
+import JsonURL from '@jsonurl/jsonurl';
 import * as JSON5 from 'json5';
 import { DynamicModule } from 'ng-dynamic-component';
 import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { tableDisplayTypes, UIwidgets } from '../../../consts/table-display-types';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
+import { normalizeTableName } from '../../../lib/normalize';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import {
 	CustomAction,
@@ -54,19 +40,14 @@ import {
 import { AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
-import { RouterModule } from '@angular/router';
-import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-panel.component';
-import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
-import { tableDisplayTypes, UIwidgets } from '../../../consts/table-display-types';
-import { normalizeTableName } from '../../../lib/normalize';
-import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
-import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
 import { DbTableExportDialogComponent } from './db-table-export-dialog/db-table-export-dialog.component';
+import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
 import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-panel.component';
+import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
+import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
 
 interface Column {
   title: string,
