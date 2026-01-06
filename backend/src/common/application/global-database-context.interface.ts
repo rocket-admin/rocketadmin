@@ -30,8 +30,8 @@ import { ITableFiltersCustomRepository } from '../../entities/table-filters/repo
 import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
-import { ITableSettingsRepository } from '../../entities/table-settings/repository/table-settings.repository.interface.js';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
+import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
 import { IUserAccessRepository } from '../../entities/user-access/repository/user-access.repository.interface.js';
 import { IUserActionRepository } from '../../entities/user-actions/repository/user-action.repository.interface.js';
 import { IUserRepository } from '../../entities/user/repository/user.repository.interface.js';
@@ -54,6 +54,8 @@ import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-a
 import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
+import { IPersonalTableSettingsRepository } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings.repository.interface.js';
+import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -92,4 +94,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
   secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
   signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
+  personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
 }

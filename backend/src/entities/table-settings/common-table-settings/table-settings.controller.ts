@@ -14,18 +14,18 @@ import {
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators/index.js';
-import { InTransactionEnum, QueryOrderingEnum } from '../../enums/index.js';
-import { Messages } from '../../exceptions/text/messages.js';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import { toPrettyErrorsMsg } from '../../helpers/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
-import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
-import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds.js';
-import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds.js';
-import { FindTableSettingsDs } from './application/data-structures/find-table-settings.ds.js';
-import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds.js';
+import { UseCaseType } from '../../../common/data-injection.tokens.js';
+import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../../decorators/index.js';
+import { InTransactionEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../../guards/index.js';
+import { toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { SentryInterceptor } from '../../../interceptors/index.js';
+import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { DeleteTableSettingsDs } from '../application/data-structures/delete-table-settings.ds.js';
+import { FindTableSettingsDs } from '../application/data-structures/find-table-settings.ds.js';
+import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds.js';
 import { CreateTableSettingsDto } from './dto/index.js';
 import {
   ICreateTableSettings,
@@ -98,21 +98,15 @@ export class TableSettingsController {
   async createSettings(
     @QueryUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
-    @Body('list_fields') list_fields: Array<string>,
     @Body('identification_fields') identification_fields: Array<string>,
-    @Body('list_per_page') list_per_page: number,
-    @Body('ordering') ordering: QueryOrderingEnum,
-    @Body('ordering_field') ordering_field: string,
     @Body('readonly_fields') readonly_fields: Array<string>,
     @Body('sensitive_fields') sensitive_fields: Array<string>,
     @Body('sortable_by') sortable_by: Array<string>,
     @Body('autocomplete_columns') autocomplete_columns: Array<string>,
     @Body('customFields') customFields: Array<CustomFieldsEntity>,
-    @Body('columns_view') columns_view: Array<string>,
     @Body('identity_column') identity_column: string,
     @Body('can_delete') can_delete: boolean,
     @Body('can_update') can_update: boolean,
@@ -129,17 +123,12 @@ export class TableSettingsController {
       connection_id: connectionId,
       search_fields: search_fields,
       excluded_fields: excluded_fields,
-      list_fields: list_fields,
-      list_per_page: list_per_page,
-      ordering: ordering,
-      ordering_field: ordering_field,
       readonly_fields: readonly_fields,
       sortable_by: sortable_by,
       autocomplete_columns: autocomplete_columns,
       custom_fields: customFields,
       identification_fields: identification_fields,
       sensitive_fields: sensitive_fields,
-      columns_view: columns_view,
       identity_column: identity_column,
       masterPwd: masterPwd,
       userId: userId,
@@ -178,21 +167,15 @@ export class TableSettingsController {
   async updateSettings(
     @QueryUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
-    @Body('list_fields') list_fields: Array<string>,
     @Body('identification_fields') identification_fields: Array<string>,
-    @Body('list_per_page') list_per_page: number,
-    @Body('ordering') ordering: QueryOrderingEnum,
-    @Body('ordering_field') ordering_field: string,
     @Body('readonly_fields') readonly_fields: Array<string>,
     @Body('sensitive_fields') sensitive_fields: Array<string>,
     @Body('sortable_by') sortable_by: Array<string>,
     @Body('autocomplete_columns') autocomplete_columns: Array<string>,
     @Body('customFields') customFields: Array<CustomFieldsEntity>,
-    @Body('columns_view') columns_view: Array<string>,
     @Body('identity_column') identity_column: string,
     @Body('can_delete') can_delete: boolean,
     @Body('can_update') can_update: boolean,
@@ -205,18 +188,13 @@ export class TableSettingsController {
   ): Promise<FoundTableSettingsDs> {
     const inputData: CreateTableSettingsDs = {
       autocomplete_columns: autocomplete_columns,
-      columns_view: columns_view,
       connection_id: connectionId,
       custom_fields: customFields,
       display_name: display_name,
       excluded_fields: excluded_fields,
       identification_fields: identification_fields,
       identity_column: identity_column,
-      list_fields: list_fields,
-      list_per_page: list_per_page,
       masterPwd: masterPwd,
-      ordering: ordering,
-      ordering_field: ordering_field,
       readonly_fields: readonly_fields,
       search_fields: search_fields,
       sensitive_fields: sensitive_fields,

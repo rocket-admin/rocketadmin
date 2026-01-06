@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
+import { ConnectionEntity } from '../../../connection/connection.entity.js';
+import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings.entity.js';
 import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
 import { FoundTableSettingsData, ITableSettingsRepository } from './table-settings.repository.interface.js';

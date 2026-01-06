@@ -1,4 +1,4 @@
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { CustomFieldsEntity } from '../custom-fields.entity.js';
 
 export const cusomFieldsCustomRepositoryExtension = {

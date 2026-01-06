@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { QueryOrderingEnum } from '../../../../enums/index.js';
 import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity.js';
 import { TableActionEntity } from '../../../table-actions/table-actions-module/table-action.entity.js';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
@@ -21,19 +20,7 @@ export class FoundTableSettingsDs {
   excluded_fields: Array<string>;
 
   @ApiProperty({ isArray: true, type: String })
-  list_fields: Array<string>;
-
-  @ApiProperty({ isArray: true, type: String })
   identification_fields: Array<string>;
-
-  @ApiProperty()
-  list_per_page: number;
-
-  @ApiProperty({ enum: QueryOrderingEnum })
-  ordering: QueryOrderingEnum;
-
-  @ApiProperty()
-  ordering_field: string;
 
   @ApiProperty()
   identity_column: string;

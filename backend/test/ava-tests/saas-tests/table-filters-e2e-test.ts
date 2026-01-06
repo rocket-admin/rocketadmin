@@ -568,15 +568,28 @@ test.serial(
         [testTableColumnName],
         undefined,
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
         undefined,
         undefined,
         undefined,
         undefined,
       );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${createConnectionRO.id}`)
+        .query({ tableName: testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
       const createTableSettingsResponse = await request(app.getHttpServer())
         .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)

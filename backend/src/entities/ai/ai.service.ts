@@ -1,18 +1,14 @@
-import { Injectable } from "@nestjs/common";
-import { QueryOrderingEnum } from "../../enums/query-ordering.enum.js";
-import { WidgetTypeEnum } from "../../enums/widget-type.enum.js";
-import { checkFieldAutoincrement } from "../../helpers/check-field-autoincrement.js";
-import { TableSettingsEntity } from "../table-settings/table-settings.entity.js";
-import { TableWidgetEntity } from "../widget/table-widget.entity.js";
-import { TableInformation } from "./ai-data-entities/types/ai-module-types.js";
-import { AmazonBedrockAiProvider } from "./amazon-bedrock/amazon-bedrock.ai.provider.js";
+import { Injectable } from '@nestjs/common';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
+import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { TableWidgetEntity } from '../widget/table-widget.entity.js';
+import { TableInformation } from './ai-data-entities/types/ai-module-types.js';
+import { AmazonBedrockAiProvider } from './amazon-bedrock/amazon-bedrock.ai.provider.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 
 interface AIGeneratedTableSettings {
 	table_name: string;
 	display_name: string;
-	list_fields: string[];
-	ordering_field: string | null;
-	ordering: "ASC" | "DESC";
 	search_fields: string[];
 	readonly_fields: string[];
 	columns_view: string[];
@@ -42,47 +38,39 @@ export class AiService {
 	}
 
 	private buildPrompt(tablesInformation: Array<TableInformation>): string {
-		const widgetTypes = Object.values(WidgetTypeEnum).join(", ");
+		const widgetTypes = Object.values(WidgetTypeEnum).join(', ');
 
 		const tablesDescription = tablesInformation
 			.map((table) => {
 				const columns = table.structure
 					.map(
 						(col) =>
-							`    - ${col.column_name}: ${col.data_type}${col.allow_null ? " (nullable)" : ""}${checkFieldAutoincrement(col.column_default, col.extra) ? " (auto_increment)" : ""}`,
+							`    - ${col.column_name}: ${col.data_type}${col.allow_null ? ' (nullable)' : ''}${checkFieldAutoincrement(col.column_default, col.extra) ? ' (auto_increment)' : ''}`,
 					)
-					.join("\n");
-				const primaryKeys = table.primaryColumns
-					.map((pk) => pk.column_name)
-					.join(", ");
+					.join('\n');
+				const primaryKeys = table.primaryColumns.map((pk) => pk.column_name).join(', ');
 				const foreignKeys = table.foreignKeys
-					.map(
-						(fk) =>
-							`    - ${fk.column_name} -> ${fk.referenced_table_name}.${fk.referenced_column_name}`,
-					)
-					.join("\n");
+					.map((fk) => `    - ${fk.column_name} -> ${fk.referenced_table_name}.${fk.referenced_column_name}`)
+					.join('\n');
 
 				return `
 Table: ${table.table_name}
-  Primary Keys: ${primaryKeys || "none"}
+  Primary Keys: ${primaryKeys || 'none'}
   Columns:
 ${columns}
   Foreign Keys:
-${foreignKeys || "    none"}`;
+${foreignKeys || '    none'}`;
 			})
-			.join("\n\n");
+			.join('\n\n');
 
 		return `You are a database administration assistant. Analyze the following database tables and generate optimal settings for displaying and managing them in a web admin panel.
 
 For each table, provide:
 1. display_name: A human-readable name for the table
-2. list_fields: Columns to display in the table list view (most important columns first, max 5-7 columns)
-3. ordering_field: The best column to sort by default (usually created_at, id, or a timestamp)
-4. ordering: ASC or DESC
-5. search_fields: Columns that should be searchable
-6. readonly_fields: Columns that should not be editable (like auto_increment, timestamps)
-7. columns_view: All columns in preferred display order
-8. widgets: For each column, suggest the best widget type from: ${widgetTypes}
+2. search_fields: Columns that should be searchable (text fields like name, email, title)
+3. readonly_fields: Columns that should not be editable (like auto_increment, timestamps)
+4. columns_view: All columns in preferred display order
+5. widgets: For each column, suggest the best widget type from: ${widgetTypes}
 
 Available widget types and when to use them:
 - Password: for password fields
@@ -118,9 +106,6 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
     {
       "table_name": "table_name",
       "display_name": "Human Readable Name",
-      "list_fields": ["col1", "col2"],
-      "ordering_field": "created_at",
-      "ordering": "DESC",
       "search_fields": ["name", "email"],
       "readonly_fields": ["id", "created_at"],
       "columns_view": ["id", "name", "email", "created_at"],
@@ -139,12 +124,12 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 
 	private parseAIResponse(aiResponse: string): AIResponse {
 		let cleanedResponse = aiResponse.trim();
-		if (cleanedResponse.startsWith("```json")) {
+		if (cleanedResponse.startsWith('```json')) {
 			cleanedResponse = cleanedResponse.slice(7);
-		} else if (cleanedResponse.startsWith("```")) {
+		} else if (cleanedResponse.startsWith('```')) {
 			cleanedResponse = cleanedResponse.slice(3);
 		}
-		if (cleanedResponse.endsWith("```")) {
+		if (cleanedResponse.endsWith('```')) {
 			cleanedResponse = cleanedResponse.slice(0, -3);
 		}
 		cleanedResponse = cleanedResponse.trim();
@@ -161,36 +146,15 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 		tablesInformation: Array<TableInformation>,
 	): Array<TableSettingsEntity> {
 		return aiResponse.tables.map((tableSettings) => {
-			const tableInfo = tablesInformation.find(
-				(t) => t.table_name === tableSettings.table_name,
-			);
-			const validColumnNames =
-				tableInfo?.structure.map((col) => col.column_name) || [];
+			const tableInfo = tablesInformation.find((t) => t.table_name === tableSettings.table_name);
+			const validColumnNames = tableInfo?.structure.map((col) => col.column_name) || [];
 
 			const settings = new TableSettingsEntity();
 			settings.table_name = tableSettings.table_name;
 			settings.display_name = tableSettings.display_name;
-			settings.list_fields = this.filterValidColumns(
-				tableSettings.list_fields,
-				validColumnNames,
-			);
-			settings.ordering_field = tableSettings.ordering_field;
-			settings.ordering =
-				tableSettings.ordering === "DESC"
-					? QueryOrderingEnum.DESC
-					: QueryOrderingEnum.ASC;
-			settings.search_fields = this.filterValidColumns(
-				tableSettings.search_fields,
-				validColumnNames,
-			);
-			settings.readonly_fields = this.filterValidColumns(
-				tableSettings.readonly_fields,
-				validColumnNames,
-			);
-			settings.columns_view = this.filterValidColumns(
-				tableSettings.columns_view,
-				validColumnNames,
-			);
+			settings.search_fields = this.filterValidColumns(tableSettings.search_fields, validColumnNames);
+			settings.readonly_fields = this.filterValidColumns(tableSettings.readonly_fields, validColumnNames);
+			settings.columns_view = this.filterValidColumns(tableSettings.columns_view, validColumnNames);
 			settings.table_widgets = tableSettings.widgets
 				.filter((w) => validColumnNames.includes(w.field_name))
 				.map((widgetData) => {
@@ -206,38 +170,35 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 		});
 	}
 
-	private filterValidColumns(
-		columns: string[],
-		validColumnNames: string[],
-	): string[] {
+	private filterValidColumns(columns: string[], validColumnNames: string[]): string[] {
 		return columns?.filter((col) => validColumnNames.includes(col)) || [];
 	}
 
 	private mapWidgetType(widgetType: string): WidgetTypeEnum | undefined {
 		const widgetTypeMap = new Map<string, WidgetTypeEnum>([
-			["Password", WidgetTypeEnum.Password],
-			["Boolean", WidgetTypeEnum.Boolean],
-			["Date", WidgetTypeEnum.Date],
-			["Time", WidgetTypeEnum.Time],
-			["DateTime", WidgetTypeEnum.DateTime],
-			["JSON", WidgetTypeEnum.JSON],
-			["Textarea", WidgetTypeEnum.Textarea],
-			["String", WidgetTypeEnum.String],
-			["Readonly", WidgetTypeEnum.Readonly],
-			["Number", WidgetTypeEnum.Number],
-			["Select", WidgetTypeEnum.Select],
-			["UUID", WidgetTypeEnum.UUID],
-			["Enum", WidgetTypeEnum.Enum],
-			["Foreign_key", WidgetTypeEnum.Foreign_key],
-			["File", WidgetTypeEnum.File],
-			["Image", WidgetTypeEnum.Image],
-			["URL", WidgetTypeEnum.URL],
-			["Code", WidgetTypeEnum.Code],
-			["Phone", WidgetTypeEnum.Phone],
-			["Country", WidgetTypeEnum.Country],
-			["Color", WidgetTypeEnum.Color],
-			["Range", WidgetTypeEnum.Range],
-			["Timezone", WidgetTypeEnum.Timezone],
+			['Password', WidgetTypeEnum.Password],
+			['Boolean', WidgetTypeEnum.Boolean],
+			['Date', WidgetTypeEnum.Date],
+			['Time', WidgetTypeEnum.Time],
+			['DateTime', WidgetTypeEnum.DateTime],
+			['JSON', WidgetTypeEnum.JSON],
+			['Textarea', WidgetTypeEnum.Textarea],
+			['String', WidgetTypeEnum.String],
+			['Readonly', WidgetTypeEnum.Readonly],
+			['Number', WidgetTypeEnum.Number],
+			['Select', WidgetTypeEnum.Select],
+			['UUID', WidgetTypeEnum.UUID],
+			['Enum', WidgetTypeEnum.Enum],
+			['Foreign_key', WidgetTypeEnum.Foreign_key],
+			['File', WidgetTypeEnum.File],
+			['Image', WidgetTypeEnum.Image],
+			['URL', WidgetTypeEnum.URL],
+			['Code', WidgetTypeEnum.Code],
+			['Phone', WidgetTypeEnum.Phone],
+			['Country', WidgetTypeEnum.Country],
+			['Color', WidgetTypeEnum.Color],
+			['Range', WidgetTypeEnum.Range],
+			['Timezone', WidgetTypeEnum.Timezone],
 		]);
 		return widgetTypeMap.get(widgetType);
 	}

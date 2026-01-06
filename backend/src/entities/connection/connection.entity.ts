@@ -19,13 +19,14 @@ import { ConnectionPropertiesEntity } from '../connection-properties/connection-
 import { GroupEntity } from '../group/group.entity.js';
 import { TableInfoEntity } from '../table-info/table-info.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';
 import { nanoid } from 'nanoid';
 import { Constants } from '../../helpers/constants/constants.js';
 import { TableFiltersEntity } from '../table-filters/table-filters.entity.js';
+import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -219,6 +220,9 @@ export class ConnectionEntity {
 
   @OneToMany((_) => TableSettingsEntity, (settings) => settings.connection_id)
   settings: Relation<TableSettingsEntity>[];
+
+  @OneToMany((_) => PersonalTableSettingsEntity, (personal_table_settings) => personal_table_settings.connection)
+  personal_table_settings: Relation<PersonalTableSettingsEntity>[];
 
   @OneToMany((_) => TableLogsEntity, (logs) => logs.connection_id)
   logs: Relation<TableLogsEntity>[];

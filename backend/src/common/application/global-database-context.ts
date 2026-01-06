@@ -32,9 +32,9 @@ import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js'
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
 import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity.js';
-import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/repository/table-settings-custom-repository-extension.js';
-import { ITableSettingsRepository } from '../../entities/table-settings/repository/table-settings.repository.interface.js';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/common-table-settings/repository/table-settings-custom-repository-extension.js';
+import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
+import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
 import { userAccessCustomReposiotoryExtension } from '../../entities/user-access/repository/user-access-custom-repository-extension.js';
 import { IUserAccessRepository } from '../../entities/user-access/repository/user-access.repository.interface.js';
 import { userActionCustomRepositoryExtension } from '../../entities/user-actions/repository/user-action-custom-repository-extension.js';
@@ -99,6 +99,9 @@ import { secretAccessLogRepositoryExtension } from '../../entities/secret-access
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
 import { signInAuditCustomRepositoryExtension } from '../../entities/user-sign-in-audit/repository/sign-in-audit-custom-repository-extension.js';
+import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
+import { IPersonalTableSettingsRepository } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings.repository.interface.js';
+import { personalTableSettingsCustomRepositoryExtension } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -140,6 +143,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
   private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
   private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
+  private _personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -237,6 +241,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._signInAuditRepository = this.appDataSource
       .getRepository(SignInAuditEntity)
       .extend(signInAuditCustomRepositoryExtension);
+    this._personalTableSettingsRepository = this.appDataSource
+      .getRepository(PersonalTableSettingsEntity)
+      .extend(personalTableSettingsCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -283,7 +290,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userInvitationRepository;
   }
 
-  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository {
+  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> &
+    IConnectionPropertiesRepository {
     return this._connectionPropertiesRepository;
   }
 
@@ -381,6 +389,11 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get signInAuditRepository(): Repository<SignInAuditEntity> & ISignInAuditRepository {
     return this._signInAuditRepository;
+  }
+
+  public get personalTableSettingsRepository(): Repository<PersonalTableSettingsEntity> &
+    IPersonalTableSettingsRepository {
+    return this._personalTableSettingsRepository;
   }
 
   public startTransaction(): Promise<void> {
