@@ -1,20 +1,15 @@
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 
 export function buildEmptyTableSettings(connectionId: string, tableName: string): CreateTableSettingsDs {
   return {
     autocomplete_columns: undefined,
-    columns_view: undefined,
     connection_id: connectionId,
     custom_fields: undefined,
     display_name: undefined,
     excluded_fields: undefined,
     identification_fields: undefined,
     identity_column: undefined,
-    list_fields: undefined,
-    list_per_page: undefined,
     masterPwd: undefined,
-    ordering: undefined,
-    ordering_field: undefined,
     readonly_fields: undefined,
     search_fields: undefined,
     sensitive_fields: undefined,
@@ -39,18 +34,13 @@ export function buildEmptyTableSettingsWithEmptyWidgets(
 ): CreateTableSettingsDs {
   return {
     autocomplete_columns: undefined,
-    columns_view: undefined,
     connection_id: connectionId,
     custom_fields: undefined,
     display_name: undefined,
     excluded_fields: undefined,
     identification_fields: undefined,
     identity_column: undefined,
-    list_fields: undefined,
-    list_per_page: undefined,
     masterPwd: undefined,
-    ordering: undefined,
-    ordering_field: undefined,
     readonly_fields: undefined,
     search_fields: undefined,
     sensitive_fields: undefined,

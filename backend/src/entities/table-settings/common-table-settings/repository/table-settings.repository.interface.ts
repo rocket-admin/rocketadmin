@@ -1,6 +1,6 @@
-import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
-import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity.js';
+import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
+import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings.entity.js';
 
 export type FoundTableSettingsData = {

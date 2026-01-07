@@ -376,4 +376,5 @@ export const Messages = {
   SECRET_MASTER_PASSWORD_INVALID: 'Invalid master password',
   SECRET_DELETED_SUCCESSFULLY: 'Secret deleted successfully',
   USER_NOT_FOUND_OR_NOT_IN_COMPANY: 'User not found or not associated with a company',
+  PERSONAL_TABLE_SETTINGS_NOT_FOUND: 'Personal table settings with this parameters not found',
 };

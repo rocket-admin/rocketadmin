@@ -67,13 +67,15 @@ export class GetTableStructureUseCase
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       }
       // eslint-disable-next-line prefer-const
-      let [tableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
-        dao.getTablePrimaryColumns(tableName, userEmail),
-        dao.getTableForeignKeys(tableName, userEmail),
-        dao.getTableStructure(tableName, userEmail),
-        this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
-      ]);
+      let [tableSettings, personalTableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets] =
+        await Promise.all([
+          this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+          this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
+          dao.getTablePrimaryColumns(tableName, userEmail),
+          dao.getTableForeignKeys(tableName, userEmail),
+          dao.getTableStructure(tableName, userEmail),
+          this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
+        ]);
       const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
         .filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
         .map((widget) => {
@@ -132,7 +134,7 @@ export class GetTableStructureUseCase
         foreignKeys: transformedTableForeignKeys,
         readonly_fields: readonly_fields,
         table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
-        list_fields: tableSettings?.list_fields ? tableSettings.list_fields : [],
+        list_fields: personalTableSettings?.list_fields ? personalTableSettings.list_fields : [],
         display_name: tableSettings?.display_name ? tableSettings.display_name : null,
         excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
       };

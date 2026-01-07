@@ -26,7 +26,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { buildCreatedTableFilterRO } from '../../table-filters/utils/build-created-table-filters-response-object.util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs, ForeignKeyDSInfo } from '../table-datastructures.js';
@@ -41,6 +41,8 @@ import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
+import { PersonalTableSettingsEntity } from '../../table-settings/personal-table-settings/personal-table-settings.entity.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -98,6 +100,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         userTablePermissions,
         customActionEvents,
         savedTableFilters,
+        personalTableSettings,
         /* eslint-enable */
       ] = await Promise.all([
         dao.getTablePrimaryColumns(tableName, userEmail),
@@ -106,6 +109,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
         this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
         this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(tableName, connectionId),
+        this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
       ]);
       const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
         ? findFilteringFieldsUtil(query, tableStructure)
@@ -123,6 +127,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
+      personalTableSettings = personalTableSettings ? personalTableSettings : ({} as PersonalTableSettingsEntity);
+      
       const { autocomplete, referencedColumn } = query;
 
       const autocompleteFields =
@@ -130,9 +136,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           ? findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn)
           : undefined;
 
+      const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
       if (orderingField) {
-        tableSettings.ordering_field = orderingField.field;
-        tableSettings.ordering = orderingField.value;
+        builtDAOsTableSettings.ordering_field = orderingField.field;
+        builtDAOsTableSettings.ordering = orderingField.value;
       }
       if (
         isHexString(searchingFieldValue) &&
@@ -141,11 +148,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           connection.type === ConnectionTypesEnum.agent_mongodb)
       ) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-        tableSettings.search_fields = tableStructure
+        builtDAOsTableSettings.search_fields = tableStructure
           .filter((field) => isBinary(field.data_type))
           .map((field) => field.column_name);
         if (connection.type === 'mongodb' || connection.type === 'agent_mongodb') {
-          tableSettings.search_fields.push('_id');
+          builtDAOsTableSettings.search_fields.push('_id');
         }
       }
 
@@ -153,7 +160,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       try {
         rows = await dao.getRowsFromTable(
           tableName,
-          tableSettings,
+          builtDAOsTableSettings,
           page,
           perPage,
           searchingFieldValue,
@@ -213,7 +220,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       const largeDataset = rows.large_dataset || rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT;
 
-      const listFields = findAvailableFields(tableSettings, tableStructure);
+      const listFields = findAvailableFields(builtDAOsTableSettings, tableStructure);
       const actionEventsDtos = customActionEvents.map((el) => buildActionEventDto(el));
       const savedFiltersRO = savedTableFilters.map((el) => buildCreatedTableFilterRO(el));
 
@@ -221,15 +228,15 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         rows: rows.data,
         primaryColumns: tablePrimaryColumns,
         pagination: rows.pagination,
-        sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
-        ordering_field: tableSettings.ordering_field ? tableSettings.ordering_field : undefined,
-        ordering: tableSettings.ordering ? tableSettings.ordering : undefined,
-        columns_view: tableSettings.columns_view ? tableSettings.columns_view : undefined,
+        sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
+        ordering_field: personalTableSettings.ordering_field ? personalTableSettings.ordering_field : undefined,
+        ordering: personalTableSettings.ordering ? personalTableSettings.ordering : undefined,
+        columns_view: builtDAOsTableSettings.columns_view ? builtDAOsTableSettings.columns_view : undefined,
         structure: formedTableStructure,
         foreignKeys: tableForeignKeys,
         configured: configured,
         widgets: tableWidgets,
-        identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
+        identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
         table_permissions: userTablePermissions,
         list_fields: listFields,
         action_events: actionEventsDtos,
@@ -242,10 +249,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         can_update: can_update,
         can_add: can_add,
         table_settings: {
-          sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
-          ordering: tableSettings.ordering ? tableSettings.ordering : undefined,
-          identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
-          list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+          sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
+          ordering: personalTableSettings.ordering ? personalTableSettings.ordering : undefined,
+          identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
+          list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
           allow_csv_export: allowCsvExport,
           allow_csv_import: allowCsvImport,
           can_delete: can_delete,
@@ -291,11 +298,12 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
         const identityPromises = Array.from(foreignKeyDataMap.values()).map(async ({ foreignKey, values }) => {
           const foreignTableSettings = foreignTableSettingsMap.get(foreignKey.referenced_table_name);
+          const builtDAOsForeignTableSettings = buildDAOsTableSettingsDs(foreignTableSettings, {} as any);
           const identityColumns = await this.getBatchedIdentityColumns(
             Array.from(values),
             foreignKey,
             dao,
-            foreignTableSettings,
+            builtDAOsForeignTableSettings,
             userEmail,
           );
           return { foreignKey, identityColumns };

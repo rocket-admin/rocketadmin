@@ -3609,21 +3609,35 @@ test.serial(
 					app,
 				);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.firstTableInfo.testTableName,
-				["id"],
-				[testData.firstTableInfo.testTableSecondColumnName],
-				[testData.firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      testData.connections.firstId,
+      testData.firstTableInfo.testTableName,
+      ['id'],
+      [testData.firstTableInfo.testTableSecondColumnName],
+
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      [testData.firstTableInfo.testTableColumnName],
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${testData.connections.firstId}`)
+      .query({ tableName: testData.firstTableInfo.testTableName })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', testData.users.adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3636,71 +3650,28 @@ test.serial(
 
 			t.is(createTableSettingsResponse.status, 201);
 
-			const getTableSettings = await request(app.getHttpServer())
-				.get(
-					`/settings/?connectionId=${testData.connections.firstId}&tableName=${testData.firstTableInfo.testTableName}`,
-				)
-				.set("Cookie", testData.users.simpleUserToken)
-				.set("Content-Type", "application/json")
-				.set("Accept", "application/json");
-			const getTableSettingsRO = JSON.parse(getTableSettings.text);
-			t.is(getTableSettings.status, 200);
-			t.is(Object.hasOwn(getTableSettingsRO, "id"), true);
-			t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
-			t.is(
-				getTableSettingsRO.display_name,
-				createTableSettingsDTO.display_name,
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.search_fields),
-				JSON.stringify(createTableSettingsDTO.search_fields),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.excluded_fields),
-				JSON.stringify(createTableSettingsDTO.excluded_fields),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.list_fields),
-				JSON.stringify(
-					createTableSettingsDTO.list_fields.concat([
-						"id",
-						"created_at",
-						"updated_at",
-					]),
-				),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.identification_fields),
-				JSON.stringify([]),
-			);
-			t.is(
-				getTableSettingsRO.list_per_page,
-				createTableSettingsDTO.list_per_page,
-			);
-			t.is(getTableSettingsRO.ordering, createTableSettingsDTO.ordering);
-			t.is(
-				getTableSettingsRO.ordering_field,
-				createTableSettingsDTO.ordering_field,
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.readonly_fields),
-				JSON.stringify(createTableSettingsDTO.readonly_fields),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.sortable_by),
-				JSON.stringify(createTableSettingsDTO.sortable_by),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.autocomplete_columns),
-				JSON.stringify([]),
-			);
-			t.is(getTableSettingsRO.connection_id, testData.connections.firstId);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	},
-);
+    const getTableSettings = await request(app.getHttpServer())
+      .get(`/settings/?connectionId=${testData.connections.firstId}&tableName=${testData.firstTableInfo.testTableName}`)
+      .set('Cookie', testData.users.simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getTableSettingsRO = JSON.parse(getTableSettings.text);
+    t.is(getTableSettings.status, 200);
+    t.is(getTableSettingsRO.hasOwnProperty('id'), true);
+    t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
+    t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
+    t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
+    t.is(JSON.stringify(getTableSettingsRO.excluded_fields), JSON.stringify(createTableSettingsDTO.excluded_fields));
+    t.is(JSON.stringify(getTableSettingsRO.identification_fields), JSON.stringify([]));
+    t.is(JSON.stringify(getTableSettingsRO.readonly_fields), JSON.stringify(createTableSettingsDTO.readonly_fields));
+    t.is(JSON.stringify(getTableSettingsRO.sortable_by), JSON.stringify(createTableSettingsDTO.sortable_by));
+    t.is(JSON.stringify(getTableSettingsRO.autocomplete_columns), JSON.stringify([]));
+    t.is(getTableSettingsRO.connection_id, testData.connections.firstId);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
 
 test.serial(
 	`${currentTest} should throw an exception when you try get settings in connection where you do not have permission`,
@@ -3711,21 +3682,34 @@ test.serial(
 					app,
 				);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.firstTableInfo.testTableName,
-				["id"],
-				[testData.firstTableInfo.testTableSecondColumnName],
-				[testData.firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        testData.connections.firstId,
+        testData.firstTableInfo.testTableName,
+        ['id'],
+        [testData.firstTableInfo.testTableSecondColumnName],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        [testData.firstTableInfo.testTableColumnName],
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${testData.connections.firstId}`)
+        .query({ tableName: testData.firstTableInfo.testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', testData.users.adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3765,21 +3749,34 @@ test.serial(
 					app,
 				);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.firstTableInfo.testTableName,
-				["id"],
-				[testData.firstTableInfo.testTableSecondColumnName],
-				[testData.firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      testData.connections.firstId,
+      testData.firstTableInfo.testTableName,
+      ['id'],
+      [testData.firstTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      [testData.firstTableInfo.testTableColumnName],
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${testData.connections.firstId}`)
+      .query({ tableName: testData.firstTableInfo.testTableName })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', testData.users.adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3791,59 +3788,22 @@ test.serial(
 				.set("Accept", "application/json");
 			t.is(createTableSettingsResponse.status, 201);
 
-			const createTableSettingsRO = JSON.parse(
-				createTableSettingsResponse.text,
-			);
-			t.is(Object.hasOwn(createTableSettingsRO, "id"), true);
-			t.is(createTableSettingsRO.table_name, createTableSettingsDTO.table_name);
-			t.is(
-				createTableSettingsRO.display_name,
-				createTableSettingsDTO.display_name,
-			);
-			t.is(
-				JSON.stringify(createTableSettingsRO.search_fields),
-				JSON.stringify(createTableSettingsDTO.search_fields),
-			);
-			t.is(
-				JSON.stringify(createTableSettingsRO.excluded_fields),
-				JSON.stringify(createTableSettingsDTO.excluded_fields),
-			);
-			t.is(
-				JSON.stringify(createTableSettingsRO.list_fields),
-				JSON.stringify(createTableSettingsDTO.list_fields),
-			);
-			t.is(
-				JSON.stringify(createTableSettingsRO.identification_fields),
-				JSON.stringify([]),
-			);
-			t.is(
-				createTableSettingsRO.list_per_page,
-				createTableSettingsDTO.list_per_page,
-			);
-			t.is(createTableSettingsRO.ordering, createTableSettingsDTO.ordering);
-			t.is(
-				createTableSettingsRO.ordering_field,
-				createTableSettingsDTO.ordering_field,
-			);
-			t.is(
-				JSON.stringify(createTableSettingsRO.readonly_fields),
-				JSON.stringify(createTableSettingsDTO.readonly_fields),
-			);
-			t.is(
-				JSON.stringify(createTableSettingsRO.sortable_by),
-				JSON.stringify(createTableSettingsDTO.sortable_by),
-			);
-			t.is(
-				JSON.stringify(createTableSettingsRO.autocomplete_columns),
-				JSON.stringify([]),
-			);
-			t.is(createTableSettingsRO.connection_id, testData.connections.firstId);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	},
-);
+    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
+    t.is(createTableSettingsRO.hasOwnProperty('id'), true);
+    t.is(createTableSettingsRO.table_name, createTableSettingsDTO.table_name);
+    t.is(createTableSettingsRO.display_name, createTableSettingsDTO.display_name);
+    t.is(JSON.stringify(createTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
+    t.is(JSON.stringify(createTableSettingsRO.excluded_fields), JSON.stringify(createTableSettingsDTO.excluded_fields));
+    t.is(JSON.stringify(createTableSettingsRO.identification_fields), JSON.stringify([]));
+    t.is(JSON.stringify(createTableSettingsRO.readonly_fields), JSON.stringify(createTableSettingsDTO.readonly_fields));
+    t.is(JSON.stringify(createTableSettingsRO.sortable_by), JSON.stringify(createTableSettingsDTO.sortable_by));
+    t.is(JSON.stringify(createTableSettingsRO.autocomplete_columns), JSON.stringify([]));
+    t.is(createTableSettingsRO.connection_id, testData.connections.firstId);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
 
 test.serial(
 	`${currentTest} should throw an exception when you try create settings in connection where you do not have permission`,
@@ -3854,21 +3814,34 @@ test.serial(
 					app,
 				);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.firstTableInfo.testTableName,
-				["id"],
-				[testData.firstTableInfo.testTableSecondColumnName],
-				[testData.firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        testData.connections.firstId,
+        testData.firstTableInfo.testTableName,
+        ['id'],
+        [testData.firstTableInfo.testTableSecondColumnName],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+        [testData.firstTableInfo.testTableColumnName],
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+      );
+
+      const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings/personal/${testData.connections.firstId}`)
+        .query({ tableName: testData.firstTableInfo.testTableName })
+        .send(createPersonalTableSettingsDTO)
+        .set('Cookie', testData.users.adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3902,21 +3875,34 @@ test.serial(
 					app,
 				);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.firstTableInfo.testTableName,
-				["id"],
-				[testData.firstTableInfo.testTableSecondColumnName],
-				[testData.firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      testData.connections.firstId,
+      testData.firstTableInfo.testTableName,
+      ['id'],
+      [testData.firstTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+      [testData.firstTableInfo.testTableColumnName],
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+    );
+
+    const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+      .put(`/settings/personal/${testData.connections.firstId}`)
+      .query({ tableName: testData.firstTableInfo.testTableName })
+      .send(createPersonalTableSettingsDTO)
+      .set('Cookie', testData.users.adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3928,21 +3914,17 @@ test.serial(
 				.set("Accept", "application/json");
 			t.is(createTableSettingsResponse.status, 201);
 
-			const updateTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.firstTableInfo.testTableName,
-				["id"],
-				[testData.firstTableInfo.testTableSecondColumnName],
-				[testData.firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.ASC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const updateTableSettingsDTO = mockFactory.generateTableSettings(
+      testData.connections.firstId,
+      testData.firstTableInfo.testTableName,
+      ['id'],
+      [testData.firstTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
 			const updateTableSettingsResponse = await request(app.getHttpServer())
 				.put(
@@ -3957,122 +3939,76 @@ test.serial(
 			);
 			t.is(updateTableSettingsResponse.status, 200);
 
-			t.is(Object.hasOwn(updateTableSettingsRO, "id"), true);
-			t.is(updateTableSettingsRO.table_name, updateTableSettingsDTO.table_name);
-			t.is(
-				updateTableSettingsRO.display_name,
-				updateTableSettingsDTO.display_name,
-			);
-			t.is(
-				JSON.stringify(updateTableSettingsRO.search_fields),
-				JSON.stringify(updateTableSettingsDTO.search_fields),
-			);
-			t.is(
-				JSON.stringify(updateTableSettingsRO.excluded_fields),
-				JSON.stringify(updateTableSettingsDTO.excluded_fields),
-			);
-			t.is(
-				JSON.stringify(updateTableSettingsRO.list_fields),
-				JSON.stringify(updateTableSettingsDTO.list_fields),
-			);
-			//   t.is(JSON.stringify(updateTableSettingsRO.identification_fields)).toBe(JSON.stringify([]));
-			t.is(
-				updateTableSettingsRO.list_per_page,
-				updateTableSettingsDTO.list_per_page,
-			);
-			t.is(updateTableSettingsRO.ordering, updateTableSettingsDTO.ordering);
-			t.is(
-				updateTableSettingsRO.ordering_field,
-				updateTableSettingsDTO.ordering_field,
-			);
-			t.is(
-				JSON.stringify(updateTableSettingsRO.readonly_fields),
-				JSON.stringify(updateTableSettingsDTO.readonly_fields),
-			);
-			t.is(
-				JSON.stringify(updateTableSettingsRO.sortable_by),
-				JSON.stringify(updateTableSettingsDTO.sortable_by),
-			);
-			// t.is(JSON.stringify(updateTableSettingsRO.autocomplete_columns)).toBe(JSON.stringify([]));
-			t.is(updateTableSettingsRO.connection_id, testData.connections.firstId);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	},
-);
+    t.is(updateTableSettingsRO.hasOwnProperty('id'), true);
+    t.is(updateTableSettingsRO.table_name, updateTableSettingsDTO.table_name);
+    t.is(updateTableSettingsRO.display_name, updateTableSettingsDTO.display_name);
+    t.is(JSON.stringify(updateTableSettingsRO.search_fields), JSON.stringify(updateTableSettingsDTO.search_fields));
+    t.is(JSON.stringify(updateTableSettingsRO.excluded_fields), JSON.stringify(updateTableSettingsDTO.excluded_fields));
+    //   t.is(JSON.stringify(updateTableSettingsRO.identification_fields)).toBe(JSON.stringify([]));
+    t.is(JSON.stringify(updateTableSettingsRO.readonly_fields), JSON.stringify(updateTableSettingsDTO.readonly_fields));
+    t.is(JSON.stringify(updateTableSettingsRO.sortable_by), JSON.stringify(updateTableSettingsDTO.sortable_by));
+    // t.is(JSON.stringify(updateTableSettingsRO.autocomplete_columns)).toBe(JSON.stringify([]));
+    t.is(updateTableSettingsRO.connection_id, testData.connections.firstId);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
 
-test.serial(
-	`${currentTest} should throw an exception when you try update settings in connection where you do not have permission`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(
-					app,
-				);
+test.serial(`${currentTest} should throw an exception when you try update settings in connection where you do not have permission`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.secondId,
-				testData.secondTableInfo.testTableName,
-				["id"],
-				[testData.secondTableInfo.testTableSecondColumnName],
-				[testData.secondTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      testData.connections.secondId,
+      testData.secondTableInfo.testTableName,
+      ['id'],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
-			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(
-					`/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
-				)
-				.send(createTableSettingsDTO)
-				.set("Cookie", testData.users.adminUserToken)
-				.set("Content-Type", "application/json")
-				.set("Accept", "application/json");
+    const createTableSettingsResponse = await request(app.getHttpServer())
+      .post(
+        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
+      )
+      .send(createTableSettingsDTO)
+      .set('Cookie', testData.users.adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-			t.is(createTableSettingsResponse.status, 201);
+    t.is(createTableSettingsResponse.status, 201);
 
-			const updateTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.secondTableInfo.testTableName,
-				["id"],
-				[testData.secondTableInfo.testTableSecondColumnName],
-				[testData.secondTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.ASC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const updateTableSettingsDTO = mockFactory.generateTableSettings(
+      testData.connections.firstId,
+      testData.secondTableInfo.testTableName,
+      ['id'],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
-			const updateTableSettingsResponse = await request(app.getHttpServer())
-				.put(
-					`/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
-				)
-				.send(updateTableSettingsDTO)
-				.set("Cookie", testData.users.simpleUserToken)
-				.set("Content-Type", "application/json")
-				.set("Accept", "application/json");
-			t.is(updateTableSettingsResponse.status, 403);
-			t.is(
-				JSON.parse(updateTableSettingsResponse.text).message,
-				Messages.DONT_HAVE_PERMISSIONS,
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	},
-);
+    const updateTableSettingsResponse = await request(app.getHttpServer())
+      .put(
+        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
+      )
+      .send(updateTableSettingsDTO)
+      .set('Cookie', testData.users.simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(updateTableSettingsResponse.status, 403);
+    t.is(JSON.parse(updateTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
 
 currentTest = "DELETE /settings/";
 
@@ -4085,21 +4021,17 @@ test.serial(
 					app,
 				);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.firstId,
-				testData.firstTableInfo.testTableName,
-				["id"],
-				[testData.firstTableInfo.testTableSecondColumnName],
-				[testData.firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      testData.connections.firstId,
+      testData.firstTableInfo.testTableName,
+      ['id'],
+      [testData.firstTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -4147,21 +4079,17 @@ test.serial(
 					app,
 				);
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				testData.connections.secondId,
-				testData.secondTableInfo.testTableName,
-				["id"],
-				[testData.secondTableInfo.testTableSecondColumnName],
-				[testData.secondTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        testData.connections.secondId,
+        testData.secondTableInfo.testTableName,
+        ['id'],
+        [testData.secondTableInfo.testTableSecondColumnName],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(

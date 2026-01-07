@@ -2784,21 +2784,17 @@ test.serial(
 				users: { adminUserToken, simpleUserToken },
 			} = testData;
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				firstTableInfo.testTableName,
-				["id"],
-				[firstTableInfo.testTableSecondColumnName],
-				[firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      connections.firstId,
+      firstTableInfo.testTableName,
+      ['id'],
+      [firstTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -2810,70 +2806,27 @@ test.serial(
 				.set("Accept", "application/json");
 			t.is(createTableSettingsResponse.status, 201);
 
-			const getTableSettings = await request(app.getHttpServer())
-				.get(
-					`/settings/?connectionId=${connections.firstId}&tableName=${firstTableInfo.testTableName}`,
-				)
-				.set("Cookie", simpleUserToken)
-				.set("Content-Type", "application/json")
-				.set("Accept", "application/json");
-			const getTableSettingsRO = JSON.parse(getTableSettings.text);
-			t.is(getTableSettings.status, 200);
-			t.is(Object.hasOwn(getTableSettingsRO, "id"), true);
-			t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
-			t.is(
-				getTableSettingsRO.display_name,
-				createTableSettingsDTO.display_name,
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.search_fields),
-				JSON.stringify(createTableSettingsDTO.search_fields),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.excluded_fields),
-				JSON.stringify(createTableSettingsDTO.excluded_fields),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.list_fields),
-				JSON.stringify(
-					createTableSettingsDTO.list_fields.concat([
-						"id",
-						"created_at",
-						"updated_at",
-					]),
-				),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.identification_fields),
-				JSON.stringify([]),
-			);
-			t.is(
-				getTableSettingsRO.list_per_page,
-				createTableSettingsDTO.list_per_page,
-			);
-			t.is(getTableSettingsRO.ordering, createTableSettingsDTO.ordering);
-			t.is(
-				getTableSettingsRO.ordering_field,
-				createTableSettingsDTO.ordering_field,
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.readonly_fields),
-				JSON.stringify(createTableSettingsDTO.readonly_fields),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.sortable_by),
-				JSON.stringify(createTableSettingsDTO.sortable_by),
-			);
-			t.is(
-				JSON.stringify(getTableSettingsRO.autocomplete_columns),
-				JSON.stringify([]),
-			);
-			t.is(getTableSettingsRO.connection_id, connections.firstId);
-		} catch (e) {
-			console.error(e);
-		}
-	},
-);
+    const getTableSettings = await request(app.getHttpServer())
+      .get(`/settings/?connectionId=${connections.firstId}&tableName=${firstTableInfo.testTableName}`)
+      .set('Cookie', simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getTableSettingsRO = JSON.parse(getTableSettings.text);
+    t.is(getTableSettings.status, 200);
+    t.is(getTableSettingsRO.hasOwnProperty('id'), true);
+    t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
+    t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
+    t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
+    t.is(JSON.stringify(getTableSettingsRO.excluded_fields), JSON.stringify(createTableSettingsDTO.excluded_fields));
+    t.is(JSON.stringify(getTableSettingsRO.identification_fields), JSON.stringify([]));
+    t.is(JSON.stringify(getTableSettingsRO.readonly_fields), JSON.stringify(createTableSettingsDTO.readonly_fields));
+    t.is(JSON.stringify(getTableSettingsRO.sortable_by), JSON.stringify(createTableSettingsDTO.sortable_by));
+    t.is(JSON.stringify(getTableSettingsRO.autocomplete_columns), JSON.stringify([]));
+    t.is(getTableSettingsRO.connection_id, connections.firstId);
+  } catch (e) {
+    console.error(e);
+  }
+});
 
 test.serial(
 	`${currentTest} should throw an exception when you try get settings in connection where you do not have permission`,
@@ -2892,21 +2845,17 @@ test.serial(
 				users: { adminUserToken, simpleUserToken },
 			} = testData;
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.secondId,
-				secondTableInfo.testTableName,
-				["id"],
-				[secondTableInfo.testTableSecondColumnName],
-				[secondTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -2954,21 +2903,17 @@ test.serial(
 				users: { adminUserToken, simpleUserToken },
 			} = testData;
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				"users",
-				["id"],
-				["email"],
-				["name"],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      connections.firstId,
+      'users',
+      ['id'],
+      ['email'],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3006,21 +2951,17 @@ test.serial(
 				users: { adminUserToken, simpleUserToken },
 			} = testData;
 
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.secondId,
-				secondTableInfo.testTableName,
-				["id"],
-				[secondTableInfo.testTableSecondColumnName],
-				[secondTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3044,37 +2985,28 @@ test.serial(
 
 currentTest = "PUT /settings/";
 
-test.serial(
-	`${currentTest} should throw an exception do not have permission`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(
-					app,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				groups,
-				permissions,
-				secondTableInfo,
-				users: { adminUserToken, simpleUserToken },
-			} = testData;
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				firstTableInfo.testTableName,
-				["id"],
-				[firstTableInfo.testTableSecondColumnName],
-				[firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+test.serial(`${currentTest} should throw an exception do not have permission`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      connections.firstId,
+      firstTableInfo.testTableName,
+      ['id'],
+      [firstTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3086,21 +3018,17 @@ test.serial(
 				.set("Accept", "application/json");
 			t.is(createTableSettingsResponse.status, 201);
 
-			const updateTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				firstTableInfo.testTableName,
-				[firstTableInfo.testTableSecondColumnName],
-				["id"],
-				[firstTableInfo.testTableColumnName],
-				50,
-				QueryOrderingEnum.ASC,
-				"created_at",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+    const updateTableSettingsDTO = mockFactory.generateTableSettings(
+      connections.firstId,
+      firstTableInfo.testTableName,
+      [firstTableInfo.testTableSecondColumnName],
+      ['id'],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
 			const updateTableSettingsResponse = await request(app.getHttpServer())
 				.put(
@@ -3122,36 +3050,29 @@ test.serial(
 );
 
 test.serial(
-	`${currentTest} should throw an exception when you try update settings in connection where you do not have permission`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(
-					app,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				groups,
-				permissions,
-				secondTableInfo,
-				users: { adminUserToken, simpleUserToken },
-			} = testData;
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.secondId,
-				secondTableInfo.testTableName,
-				["id"],
-				[secondTableInfo.testTableSecondColumnName],
-				[secondTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+  `${currentTest} should throw an exception when you try update settings in connection where you do not have permission`,
+  async (t) => {
+    try {
+      const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3163,21 +3084,17 @@ test.serial(
 				.set("Accept", "application/json");
 			t.is(createTableSettingsResponse.status, 201);
 
-			const updateTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				firstTableInfo.testTableName,
-				[firstTableInfo.testTableSecondColumnName],
-				["id"],
-				[firstTableInfo.testTableColumnName],
-				50,
-				QueryOrderingEnum.ASC,
-				"created_at",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+      const updateTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.firstId,
+        firstTableInfo.testTableName,
+        [firstTableInfo.testTableSecondColumnName],
+        ['id'],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
 			const updateTableSettingsResponse = await request(app.getHttpServer())
 				.put(
@@ -3200,37 +3117,28 @@ test.serial(
 
 currentTest = "DELETE /settings/";
 
-test.serial(
-	`${currentTest} should return array without deleted table settings`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(
-					app,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				groups,
-				permissions,
-				secondTableInfo,
-				users: { adminUserToken, simpleUserToken },
-			} = testData;
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				firstTableInfo.testTableName,
-				["id"],
-				[firstTableInfo.testTableSecondColumnName],
-				[firstTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+test.serial(`${currentTest} should return array without deleted table settings`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      connections.firstId,
+      firstTableInfo.testTableName,
+      ['id'],
+      [firstTableInfo.testTableSecondColumnName],
+      ['updated_at'],
+      ['created_at'],
+      undefined,
+      undefined,
+      undefined,
+    );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
@@ -3262,36 +3170,29 @@ test.serial(
 );
 
 test.serial(
-	`${currentTest} should throw an exception when you try delete settings in connection where you do not have permission`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(
-					app,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				groups,
-				permissions,
-				secondTableInfo,
-				users: { adminUserToken, simpleUserToken },
-			} = testData;
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.secondId,
-				secondTableInfo.testTableName,
-				["id"],
-				[secondTableInfo.testTableSecondColumnName],
-				[secondTableInfo.testTableColumnName],
-				3,
-				QueryOrderingEnum.DESC,
-				"id",
-				["updated_at"],
-				["created_at"],
-				undefined,
-				undefined,
-				undefined,
-			);
+  `${currentTest} should throw an exception when you try delete settings in connection where you do not have permission`,
+  async (t) => {
+    try {
+      const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
 				.post(
