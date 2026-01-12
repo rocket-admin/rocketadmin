@@ -27,6 +27,7 @@ import { nanoid } from 'nanoid';
 import { Constants } from '../../helpers/constants/constants.js';
 import { TableFiltersEntity } from '../table-filters/table-filters.entity.js';
 import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
+import { SavedDbQueryEntity } from '../visualizations/saved-db-query/saved-db-query.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -245,4 +246,7 @@ export class ConnectionEntity {
 
   @OneToMany((_) => TableFiltersEntity, (table_filters) => table_filters.connection)
   table_filters: Relation<TableFiltersEntity>[];
+
+  @OneToMany(() => SavedDbQueryEntity, (saved_db_query) => saved_db_query.connection)
+  saved_db_queries: Relation<SavedDbQueryEntity>[];
 }

@@ -42,6 +42,7 @@ import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger
 import { DatabaseModule } from './shared/database/database.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 import { PersonalTableSettingsModule } from './entities/table-settings/personal-table-settings/personal-table-settings.module.js';
+import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/saved-db-query.module.js';
 
 @Module({
 	imports: [
@@ -88,6 +89,7 @@ import { PersonalTableSettingsModule } from './entities/table-settings/personal-
 		SignInAuditModule,
 		PersonalTableSettingsModule,
 		S3WidgetModule,
+		SavedDbQueryModule,
 	],
 	controllers: [AppController],
 	providers: [
