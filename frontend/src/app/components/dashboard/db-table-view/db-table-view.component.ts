@@ -500,7 +500,6 @@ export class DbTableViewComponent implements OnInit {
   }
 
   isRowSelected(primaryKeys) {
-    // console.log('isRowSelected', this.selectedRowType, this.selectedRow, primaryKeys);
     if (this.selectedRowType === 'record' && this.selectedRow && this.selectedRow.primaryKeys !== null) return Object.keys(this.selectedRow.primaryKeys).length && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
     return false;
   }
@@ -541,6 +540,16 @@ export class DbTableViewComponent implements OnInit {
   onColumnVisibilityChange() {
     this.tableData.changleColumnList(this.connectionID, this.name);
     this.cdr.detectChanges();
+    this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
+      columns_view: this.tableData.displayedDataColumns
+    }).subscribe({
+      next: () => {
+        console.log('Personal table view settings updated with custom ordering');
+      },
+      error: (error) => {
+        console.error('Error updating personal table view settings:', error);
+      }
+    });
   }
 
   onColumnsMenuDrop(event: CdkDragDrop<string[]>) {
@@ -582,14 +591,8 @@ export class DbTableViewComponent implements OnInit {
       this.tableData.displayedColumns = [...newDisplayedOrder];
     }
     
-    // Update normalized columns mapping to maintain consistency
-    // this.updateNormalizedColumnsMapping();
-    
     // Force Angular to detect changes and re-render the table immediately
     this.cdr.detectChanges();
-    
-    // Save the new order to table settings (list_fields)
-    // this.saveColumnsOrderToSettings(this.tableData.columns.map(col => col.title));
 
     this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
       list_fields: this.tableData.columns.map(col => col.title)
@@ -604,42 +607,4 @@ export class DbTableViewComponent implements OnInit {
     
     console.log('Columns reordered in menu - table updated:', newDisplayedOrder);
   }
-
-  // private updateNormalizedColumnsMapping() {
-  //   // Rebuild normalized columns mapping to match new order
-  //   const newNormalizedColumns = {};
-  //   this.tableData.columns.forEach(column => {
-  //     if (this.tableData.dataNormalizedColumns[column.title]) {
-  //       newNormalizedColumns[column.title] = this.tableData.dataNormalizedColumns[column.title];
-  //     }
-  //   });
-  //   this.tableData.dataNormalizedColumns = newNormalizedColumns;
-  // }
-
-  // private saveColumnsOrderToSettings(columnsOrder: string[]) {
-  //   this._tables.fetchTableSettings(this.connectionID, this.name).subscribe({
-  //     next: (currentSettings) => {
-  //       const isSettingsExist = Object.keys(currentSettings).length !== 0;
-        
-  //       const updatedSettings = {
-  //         ...currentSettings,
-  //         connection_id: this.connectionID,
-  //         table_name: this.name,
-  //         list_fields: columnsOrder
-  //       };
-        
-  //       this._tables.updateTableSettings(isSettingsExist, this.connectionID, this.name, updatedSettings).subscribe({
-  //         next: () => {
-  //           console.log('Column order saved to table settings');
-  //         },
-  //         error: (error) => {
-  //           console.error('Error saving column order:', error);
-  //         }
-  //       });
-  //     },
-  //     error: (error) => {
-  //       console.error('Error fetching table settings:', error);
-  //     }
-  //   });
-  // }
 }

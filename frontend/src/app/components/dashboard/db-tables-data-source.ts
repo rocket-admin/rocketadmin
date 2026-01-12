@@ -10,12 +10,8 @@ import { CollectionViewer } from '@angular/cdk/collections';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
-// import { MatSort } from '@angular/material/sort';
 import { TablesService } from 'src/app/services/tables.service';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { UserService } from 'src/app/services/user.service';
 import { filter } from "lodash";
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
@@ -37,8 +33,7 @@ interface RowsParams {
   filters?: object,
   comparators?: object,
   search?: string,
-  isTablePageSwitched?: boolean,
-  shownColumns?: string[]
+  isTablePageSwitched?: boolean
 }
 
 export class TablesDataSource implements DataSource<Object> {
@@ -91,7 +86,6 @@ export class TablesDataSource implements DataSource<Object> {
   constructor(
     private _tables: TablesService,
     private _connections: ConnectionsService,
-    private _uiSettings: UiSettingsService,
     private _tableRow: TableRowService,
   ) {}
 
@@ -125,8 +119,7 @@ export class TablesDataSource implements DataSource<Object> {
     sortOrder,
     filters, comparators,
     search,
-    isTablePageSwitched,
-    shownColumns
+    isTablePageSwitched
   }: RowsParams) {
       this.loadingSubject.next(true);
       this.alert_primaryKeysInfo = null;
@@ -217,8 +210,8 @@ export class TablesDataSource implements DataSource<Object> {
           this.tableTypes = getTableTypes(res.structure, this.foreignKeysList);
 
           let orderedColumns: TableField[];
-          if (res.list_fields.length) {
-            orderedColumns = res.structure.sort((fieldA: TableField, fieldB: TableField) => res.list_fields.indexOf(fieldA.column_name) - res.list_fields.indexOf(fieldB.column_name));
+          if (res.table_settings.list_fields.length) {
+            orderedColumns = res.structure.sort((fieldA: TableField, fieldB: TableField) => res.table_settings.list_fields.indexOf(fieldA.column_name) - res.table_settings.list_fields.indexOf(fieldB.column_name));
           } else {
             orderedColumns = [...res.structure];
           };
@@ -226,17 +219,11 @@ export class TablesDataSource implements DataSource<Object> {
           if (isTablePageSwitched === undefined) this.columns = orderedColumns
             .filter (item => item.isExcluded === false)
             .map((item, index) => {
-              if (shownColumns && shownColumns.length) {
+              if (res.table_settings.columns_view && res.table_settings.columns_view.length !== 0) {
                 return {
                   title: item.column_name,
                   normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
-                  selected: shownColumns.includes(item.column_name)
-                }
-              } else if (res.columns_view && res.columns_view.length !== 0) {
-                return {
-                  title: item.column_name,
-                  normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
-                  selected: res.columns_view.includes(item.column_name)
+                  selected: res.table_settings.columns_view.includes(item.column_name)
                 }
               } else {
                 if (index < 6) {
@@ -328,8 +315,6 @@ export class TablesDataSource implements DataSource<Object> {
     } else {
       this.displayedColumns = [...this.displayedDataColumns];
     };
-
-    this._uiSettings.updateTableSetting(connectionId, tableName, 'shownColumns', this.displayedDataColumns);
   }
 
   getQueryParams(row, action) {
