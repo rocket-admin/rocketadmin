@@ -1,6 +1,6 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
-import { CustomAction, Rule, TableSettings, Widget } from '../models/table';
+import { CustomAction, PersonalTableViewSettings, Rule, TableSettings, Widget } from '../models/table';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
@@ -147,29 +147,6 @@ export class TablesService {
       );
   }
 
-  fetchTableSettings(connectionID: string, tableName: string) {
-    return this._http.get<any>('/settings', {
-      params: {
-        connectionId: connectionID,
-        tableName
-      }
-    })
-      .pipe(
-        map(res => res),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
-          return EMPTY;
-        })
-      );
-  }
-
   exportTableCSV({
     connectionID,
     tableName,
@@ -230,6 +207,29 @@ export class TablesService {
       );
   }
 
+  fetchTableSettings(connectionID: string, tableName: string) {
+    return this._http.get<any>('/settings', {
+      params: {
+        connectionId: connectionID,
+        tableName
+      }
+    })
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
   updateTableSettings(isSettingsExist: boolean, connectionID: string, tableName: string, settings: TableSettings) {
     let method: string;
     if (isSettingsExist) {
@@ -272,6 +272,53 @@ export class TablesService {
         map(() => {
           this.tables.next('settings');
           this._notifications.showSuccessSnackbar('Table settings has been reset.')
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  // fetchPersonalTableViewSettings(connectionID: string, tableName: string) {
+  //   return this._http.get<any>(`/settings/personal/${connectionID}`, {
+  //     params: {
+  //       tableName
+  //     }
+  //   })
+  //     .pipe(
+  //       map(res => res),
+  //       catchError((err) => {
+  //         console.log(err);
+  //         this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+  //           {
+  //             type: AlertActionType.Button,
+  //             caption: 'Dismiss',
+  //             action: (id: number) => this._notifications.dismissAlert()
+  //           }
+  //         ]);
+  //         return EMPTY;
+  //       })
+  //     );
+  // }
+  
+  updatePersonalTableViewSettings(connectionID: string, tableName: string, settings: PersonalTableViewSettings) {
+    return this._http.put<any>(`/settings/personal/${connectionID}`, settings, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(() => {
+          this.tables.next('settings');
+          // this._notifications.showSuccessSnackbar('Table settings has been updated.')
         }),
         catchError((err) => {
           console.log(err);

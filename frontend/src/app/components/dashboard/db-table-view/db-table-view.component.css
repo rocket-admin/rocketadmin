@@ -375,10 +375,7 @@
 }
 
 .db-table_withActions ::ng-deep .mat-header-row .mat-column-select {
-    padding-top: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding-top: 18px;
 }
 
 th.mat-header-cell, td.mat-cell {
@@ -386,40 +383,7 @@ th.mat-header-cell, td.mat-cell {
 }
 
 .db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-content {
-    text-align: left !important;
-    justify-content: flex-start !important;
-    align-items: flex-start !important;
-    display: flex !important;
-    width: 100%;
-    padding-top: 8px !important;
-}
-
-.db-table ::ng-deep .mat-sort-header-container {
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    padding-top: 0 !important;
-    display: flex !important;
-}
-
-.db-table ::ng-deep .mat-mdc-header-cell {
-    vertical-align: top !important;
-    text-align: left !important;
-    justify-content: flex-start !important;
-    align-items: flex-start !important;
-    display: flex !important;
-}
-
-.db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-content > div {
-    text-align: left !important;
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    line-height: 1.2 !important;
-    align-self: flex-start !important;
-}
-
-.db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-arrow {
-    align-self: flex-start !important;
-    margin-top: 8px !important;
+    text-align: left;
 }
 
 .db-table-cell-checkbox {
@@ -464,10 +428,6 @@ th.mat-header-cell, td.mat-cell {
 
 .db-table-cell-actions, .db-table-header-actions {
     justify-content: flex-end;
-}
-
-.db-table-header-actions {
-    padding-top: 8px !important;
 }
 
 .table-cell-content {

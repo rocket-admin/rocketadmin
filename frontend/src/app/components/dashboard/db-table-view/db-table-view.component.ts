@@ -548,8 +548,22 @@ export class DbTableViewComponent implements OnInit {
       return;
     }
 
+    // The drag indices are based on sortedColumns (visible first, then hidden)
+    // We need to map these to the actual indices in this.tableData.columns
+    const sorted = this.sortedColumns;
+    const draggedColumn = sorted[event.previousIndex];
+    const targetColumn = sorted[event.currentIndex];
+
+    // Find actual indices in the original columns array
+    const actualPreviousIndex = this.tableData.columns.findIndex(col => col.title === draggedColumn.title);
+    const actualCurrentIndex = this.tableData.columns.findIndex(col => col.title === targetColumn.title);
+
+    if (actualPreviousIndex === -1 || actualCurrentIndex === -1) {
+      return;
+    }
+
     // Reorder columns array in the menu
-    moveItemInArray(this.tableData.columns, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.tableData.columns, actualPreviousIndex, actualCurrentIndex);
     
     // Update dataColumns array
     this.tableData.dataColumns = this.tableData.columns.map(column => column.title);
@@ -569,52 +583,63 @@ export class DbTableViewComponent implements OnInit {
     }
     
     // Update normalized columns mapping to maintain consistency
-    this.updateNormalizedColumnsMapping();
+    // this.updateNormalizedColumnsMapping();
     
     // Force Angular to detect changes and re-render the table immediately
     this.cdr.detectChanges();
     
     // Save the new order to table settings (list_fields)
-    this.saveColumnsOrderToSettings(this.tableData.columns.map(col => col.title));
+    // this.saveColumnsOrderToSettings(this.tableData.columns.map(col => col.title));
+
+    this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
+      list_fields: this.tableData.columns.map(col => col.title)
+    }).subscribe({
+      next: () => {
+        console.log('Personal table view settings updated with custom ordering');
+      },
+      error: (error) => {
+        console.error('Error updating personal table view settings:', error);
+      }
+    });
     
     console.log('Columns reordered in menu - table updated:', newDisplayedOrder);
   }
 
-  private updateNormalizedColumnsMapping() {
-    // Rebuild normalized columns mapping to match new order
-    const newNormalizedColumns = {};
-    this.tableData.columns.forEach(column => {
-      if (this.tableData.dataNormalizedColumns[column.title]) {
-        newNormalizedColumns[column.title] = this.tableData.dataNormalizedColumns[column.title];
-      }
-    });
-    this.tableData.dataNormalizedColumns = newNormalizedColumns;
-  }
+  // private updateNormalizedColumnsMapping() {
+  //   // Rebuild normalized columns mapping to match new order
+  //   const newNormalizedColumns = {};
+  //   this.tableData.columns.forEach(column => {
+  //     if (this.tableData.dataNormalizedColumns[column.title]) {
+  //       newNormalizedColumns[column.title] = this.tableData.dataNormalizedColumns[column.title];
+  //     }
+  //   });
+  //   this.tableData.dataNormalizedColumns = newNormalizedColumns;
+  // }
 
-  private saveColumnsOrderToSettings(columnsOrder: string[]) {
-    this._tables.fetchTableSettings(this.connectionID, this.name).subscribe({
-      next: (currentSettings) => {
-        const isSettingsExist = Object.keys(currentSettings).length !== 0;
+  // private saveColumnsOrderToSettings(columnsOrder: string[]) {
+  //   this._tables.fetchTableSettings(this.connectionID, this.name).subscribe({
+  //     next: (currentSettings) => {
+  //       const isSettingsExist = Object.keys(currentSettings).length !== 0;
         
-        const updatedSettings = {
-          ...currentSettings,
-          connection_id: this.connectionID,
-          table_name: this.name,
-          list_fields: columnsOrder
-        };
+  //       const updatedSettings = {
+  //         ...currentSettings,
+  //         connection_id: this.connectionID,
+  //         table_name: this.name,
+  //         list_fields: columnsOrder
+  //       };
         
-        this._tables.updateTableSettings(isSettingsExist, this.connectionID, this.name, updatedSettings).subscribe({
-          next: () => {
-            console.log('Column order saved to table settings');
-          },
-          error: (error) => {
-            console.error('Error saving column order:', error);
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error fetching table settings:', error);
-      }
-    });
-  }
+  //       this._tables.updateTableSettings(isSettingsExist, this.connectionID, this.name, updatedSettings).subscribe({
+  //         next: () => {
+  //           console.log('Column order saved to table settings');
+  //         },
+  //         error: (error) => {
+  //           console.error('Error saving column order:', error);
+  //         }
+  //       });
+  //     },
+  //     error: (error) => {
+  //       console.error('Error fetching table settings:', error);
+  //     }
+  //   });
+  // }
 }

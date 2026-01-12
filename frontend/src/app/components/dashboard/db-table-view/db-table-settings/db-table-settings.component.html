@@ -61,7 +61,7 @@
                 Allow row deletion
             </mat-slide-toggle>
 
-            <h2 class="mat-heading-2 settings-fields__heading">Table view</h2>
+            <!--<h2 class="mat-heading-2 settings-fields__heading">Table view</h2>
             <mat-form-field appearance="outline">
                 <mat-label>Columns visible by default</mat-label>
                 <mat-select multiple
@@ -70,9 +70,9 @@
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
                 <mat-hint>Choose the columns you want users to see when they first open this table. Changes made to a table's Columns view are saved over the default values.</mat-hint>
-            </mat-form-field>
+            </mat-form-field>-->
 
-            <div class="order-settings">
+            <!--<div class="order-settings">
                 <div class="order-settings__panel">
                     <span class="order__title">
                         Columns order
@@ -103,7 +103,7 @@
                     (click)="resetColumnsOrder()">
                     <mat-icon>restart_alt</mat-icon>
                 </button>
-            </div>
+            </div>-->
 
             <mat-form-field appearance="outline">
                 <mat-label>Searchable columns</mat-label>
@@ -115,7 +115,7 @@
                 <mat-hint>Choose the columns Rocketadmin scans when using the Search bar.</mat-hint>
             </mat-form-field>
 
-            <div class="form-group-ordering">
+            <!--<div class="form-group-ordering">
                 <mat-form-field appearance="outline" class="form-group-ordering__ordering-by">
                     <mat-label>Order by</mat-label>
                     <mat-select name="ordering_field" [(ngModel)]="tableSettings.ordering_field">
@@ -132,7 +132,7 @@
                     <mat-radio-button value="ASC" checked>Ascending</mat-radio-button>
                     <mat-radio-button value="DESC">Descending</mat-radio-button>
                 </mat-radio-group>
-            </div>
+            </div>-->
 
             <mat-form-field appearance="outline">
                 <mat-label>Sortable columns</mat-label>
@@ -189,7 +189,7 @@
             <button mat-flat-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
-                [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !orderChanged && !iconChanged">
+                [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !iconChanged">
                 Save
             </button>
         </div>
