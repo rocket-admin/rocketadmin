@@ -491,13 +491,22 @@ th.mat-header-cell, td.mat-cell {
     height: 18px;
 }
 
-.sort-menu__item_active {
-    background-color: rgba(0, 0, 0, 0.06) !important;
+.sort-menu__item-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin: -4px -10px;
+}
+
+.sort-menu__item-content_active {
+    background-color: rgba(0, 0, 0, 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
-    .sort-menu__item_active {
-        background-color: rgba(255, 255, 255, 0.1) !important;
+    .sort-menu__item-content_active {
+        background-color: rgba(255, 255, 255, 0.06);
     }
 }
 

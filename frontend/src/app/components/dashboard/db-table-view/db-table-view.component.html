@@ -249,19 +249,25 @@
                     </div>
                     <mat-menu #sortMenu="matMenu" class="sort-menu">
                         <button mat-menu-item (click)="applySort(column, 'asc'); $event.stopPropagation()"
-                            class="sort-menu__item"
-                            [class.sort-menu__item_active]="sort.active === column && sort.direction === 'asc'">
-                            <mat-icon>arrow_upward</mat-icon>
-                            <span>Ascending (A-Z)</span>
+                            class="sort-menu__item">
+                            <span class="sort-menu__item-content" [class.sort-menu__item-content_active]="sort.active === column && sort.direction === 'asc'">
+                                <mat-icon>arrow_upward</mat-icon>
+                                <span>Ascending (A-Z)</span>
+                            </span>
                         </button>
                         <button mat-menu-item (click)="applySort(column, 'desc'); $event.stopPropagation()"
-                            class="sort-menu__item"
-                            [class.sort-menu__item_active]="sort.active === column && sort.direction === 'desc'">
-                            <mat-icon>arrow_downward</mat-icon>
-                            <span>Descending (Z-A)</span>
+                            class="sort-menu__item">
+                            <span class="sort-menu__item-content" [class.sort-menu__item-content_active]="sort.active === column && sort.direction === 'desc'">
+                                <mat-icon>arrow_downward</mat-icon>
+                                <span>Descending (Z-A)</span>
+                            </span>
                         </button>
                         <mat-divider></mat-divider>
-                        <button mat-menu-item (click)="toggleDefaultSort(column); $event.stopPropagation()" class="sort-menu__item">
+                        <button mat-menu-item (click)="toggleDefaultSort(column); $event.stopPropagation()"
+                            class="sort-menu__item"
+                            [disabled]="sort.active !== column && !isDefaultSort(column)"
+                            [matTooltip]="sort.active !== column && !isDefaultSort(column) ? 'Select sort order first' : ''"
+                            matTooltipPosition="left">
                             <mat-icon class="sort-menu__lock-icon">{{ isDefaultSort(column) ? 'lock' : 'lock_open' }}</mat-icon>
                             <span>{{ isDefaultSort(column) ? 'Remove default' : 'Set as default' }}</span>
                         </button>

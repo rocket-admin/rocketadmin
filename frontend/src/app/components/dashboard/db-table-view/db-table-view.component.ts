@@ -261,19 +261,17 @@ export class DbTableViewComponent implements OnInit {
 	}
 
 	applySort(column: string, direction: 'asc' | 'desc') {
-		// If clicking on already selected sort - revert to default or clear
+		// If clicking on already selected sort - clear it
 		if (this.sort.active === column && this.sort.direction === direction) {
-			if (this.defaultSort) {
-				// Revert to default sort
-				this.sort.active = this.defaultSort.column;
-				this.sort.direction = this.defaultSort.direction;
-				this.sort.sortChange.emit({ active: this.defaultSort.column, direction: this.defaultSort.direction });
-			} else {
-				// Clear sort
-				this.sort.active = '';
-				this.sort.direction = '';
-				this.sort.sortChange.emit({ active: '', direction: '' });
+			// If this column was the default, remove the default too
+			if (this.defaultSort?.column === column) {
+				this.defaultSort = null;
+				this._uiSettings.updateTableSetting(this.connectionID, this.name, 'defaultSort', null);
 			}
+			// Clear sort
+			this.sort.active = '';
+			this.sort.direction = '';
+			this.sort.sortChange.emit({ active: '', direction: '' });
 		} else {
 			this.sort.active = column;
 			this.sort.direction = direction;
