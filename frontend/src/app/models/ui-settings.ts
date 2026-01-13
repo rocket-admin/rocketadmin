@@ -4,7 +4,7 @@ export interface GlobalSettingsUI {
 }
 
 export interface TableSettingsUI {
-    // shownColumns: string[];
+    shownColumns?: string[];
 }
 
 export interface ConnectionSettingsUI {
