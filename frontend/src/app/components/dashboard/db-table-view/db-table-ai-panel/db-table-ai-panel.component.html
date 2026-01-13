@@ -1,10 +1,8 @@
-<div *ngIf="isAIpanelOpened"
-    class="ai-panel-sidebar"
-    [ngClass]="{'ai-panel-sidebar_open': isAIpanelOpened, 'ai-panel-sidebar_expanded': isExpanded}">
+<div class="ai-panel-sidebar ai-panel-sidebar_open"
+    [ngClass]="{'ai-panel-sidebar_expanded': isExpanded}">
 </div>
-<div *ngIf="isAIpanelOpened"
-    class="ai-panel-sidebar-content"
-    [ngClass]="{'ai-panel-sidebar-content_open': isAIpanelOpened, 'ai-panel-sidebar-content_expanded': isExpanded}">
+<div class="ai-panel-sidebar-content ai-panel-sidebar-content_open"
+    [ngClass]="{'ai-panel-sidebar-content_expanded': isExpanded}">
     <div class="ai-panel-sidebar__header">
         <h2 class="mat-heading-2 ai-panel-sidebar__title">
             <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>

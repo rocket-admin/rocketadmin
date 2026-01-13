@@ -10,7 +10,7 @@ export class TableStateService {
   private selectedRowSubject = new BehaviorSubject<any>(null);
   cast = this.selectedRowSubject.asObservable();
 
-  private aiPanelSubject = new BehaviorSubject<any>(null);
+  private aiPanelSubject = new BehaviorSubject<boolean>(false);
   aiPanelCast = this.aiPanelSubject.asObservable();
 
   private aiPanelExpandedSubject = new BehaviorSubject<boolean>(false);
