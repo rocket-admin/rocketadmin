@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
@@ -7,6 +8,7 @@ import { CreateSavedDbQueryDs } from '../data-structures/create-saved-db-query.d
 import { FoundSavedDbQueryDto } from '../dto/found-saved-db-query.dto.js';
 import { SavedDbQueryEntity } from '../saved-db-query.entity.js';
 import { buildFoundSavedDbQueryDto } from '../utils/build-found-saved-db-query-dto.util.js';
+import { validateQuerySafety } from '../utils/check-query-is-safe.util.js';
 import { ICreateSavedDbQuery } from './saved-db-query-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -32,6 +34,8 @@ export class CreateSavedDbQueryUseCase
 		if (!foundConnection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
+
+		validateQuerySafety(query_text, foundConnection.type as ConnectionTypesEnum);
 
 		const newQuery = new SavedDbQueryEntity();
 		newQuery.name = name;

@@ -8,6 +8,7 @@ import { Messages } from '../../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { TestDbQueryDs } from '../data-structures/test-db-query.ds.js';
 import { TestDbQueryResultDto } from '../dto/test-db-query-result.dto.js';
+import { validateQuerySafety } from '../utils/check-query-is-safe.util.js';
 import { ITestDbQuery } from './saved-db-query-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -30,6 +31,8 @@ export class TestDbQueryUseCase extends AbstractUseCase<TestDbQueryDs, TestDbQue
 		if (!foundConnection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
+
+		validateQuerySafety(query_text, foundConnection.type as ConnectionTypesEnum);
 
 		let userEmail: string | null = null;
 		if (isConnectionTypeAgent(foundConnection.type)) {

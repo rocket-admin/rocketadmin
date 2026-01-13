@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
@@ -6,6 +7,7 @@ import { Messages } from '../../../../exceptions/text/messages.js';
 import { UpdateSavedDbQueryDs } from '../data-structures/update-saved-db-query.ds.js';
 import { FoundSavedDbQueryDto } from '../dto/found-saved-db-query.dto.js';
 import { buildFoundSavedDbQueryDto } from '../utils/build-found-saved-db-query-dto.util.js';
+import { validateQuerySafety } from '../utils/check-query-is-safe.util.js';
 import { IUpdateSavedDbQuery } from './saved-db-query-use-cases.interface.js';
 import { SavedDbQueryEntity } from '../saved-db-query.entity.js';
 
@@ -46,6 +48,7 @@ export class UpdateSavedDbQueryUseCase
 			foundQuery.description = description;
 		}
 		if (query_text !== undefined) {
+			validateQuerySafety(query_text, foundConnection.type as ConnectionTypesEnum);
 			foundQuery.query_text = query_text;
 		}
 		const resultQueryText = foundQuery.query_text;

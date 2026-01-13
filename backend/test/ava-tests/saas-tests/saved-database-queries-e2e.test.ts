@@ -770,3 +770,197 @@ test.serial(`${currentTest} should test a query with specific columns`, async (t
 	t.true(testQueryRO.data.length <= 5);
 	t.truthy(testQueryRO.execution_time_ms >= 0);
 });
+
+currentTest = 'Query safety validation';
+
+test.serial(`${currentTest} should reject INSERT query in test endpoint`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const testQueryDTO: TestDbQueryDto = {
+		query_text: `INSERT INTO "${testTableName}" (id) VALUES (999)`,
+	};
+
+	const testQueryResponse = await request(app.getHttpServer())
+		.post(`/connection/${createConnectionRO.id}/query/test`)
+		.send(testQueryDTO)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(testQueryResponse.status, 400);
+	t.true(testQueryResponse.text.includes('Unsafe query'));
+});
+
+test.serial(`${currentTest} should reject DELETE query in test endpoint`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const testQueryDTO: TestDbQueryDto = {
+		query_text: `DELETE FROM "${testTableName}" WHERE id = 1`,
+	};
+
+	const testQueryResponse = await request(app.getHttpServer())
+		.post(`/connection/${createConnectionRO.id}/query/test`)
+		.send(testQueryDTO)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(testQueryResponse.status, 400);
+	t.true(testQueryResponse.text.includes('Unsafe query'));
+});
+
+test.serial(`${currentTest} should reject UPDATE query in test endpoint`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const testQueryDTO: TestDbQueryDto = {
+		query_text: `UPDATE "${testTableName}" SET id = 999 WHERE id = 1`,
+	};
+
+	const testQueryResponse = await request(app.getHttpServer())
+		.post(`/connection/${createConnectionRO.id}/query/test`)
+		.send(testQueryDTO)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(testQueryResponse.status, 400);
+	t.true(testQueryResponse.text.includes('Unsafe query'));
+});
+
+test.serial(`${currentTest} should reject DROP TABLE query in test endpoint`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const testQueryDTO: TestDbQueryDto = {
+		query_text: `DROP TABLE "${testTableName}"`,
+	};
+
+	const testQueryResponse = await request(app.getHttpServer())
+		.post(`/connection/${createConnectionRO.id}/query/test`)
+		.send(testQueryDTO)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(testQueryResponse.status, 400);
+	t.true(testQueryResponse.text.includes('Unsafe query'));
+});
+
+test.serial(`${currentTest} should reject unsafe query when creating saved query`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const createSavedQueryDTO: CreateSavedDbQueryDto = {
+		name: 'Unsafe Query',
+		description: 'This should be rejected',
+		query_text: `DELETE FROM "${testTableName}"`,
+	};
+
+	const createSavedQueryResponse = await request(app.getHttpServer())
+		.post(`/connection/${createConnectionRO.id}/saved-query`)
+		.send(createSavedQueryDTO)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(createSavedQueryResponse.status, 400);
+	t.true(createSavedQueryResponse.text.includes('Unsafe query'));
+});
+
+test.serial(`${currentTest} should reject unsafe query when updating saved query`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const createSavedQueryDTO: CreateSavedDbQueryDto = {
+		name: 'Safe Query',
+		description: 'This is safe',
+		query_text: `SELECT * FROM "${testTableName}"`,
+	};
+
+	const createSavedQueryResponse = await request(app.getHttpServer())
+		.post(`/connection/${createConnectionRO.id}/saved-query`)
+		.send(createSavedQueryDTO)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	t.is(createSavedQueryResponse.status, 201);
+
+	const updateSavedQueryDTO: UpdateSavedDbQueryDto = {
+		query_text: `DROP TABLE "${testTableName}"`,
+	};
+
+	const updateSavedQueryResponse = await request(app.getHttpServer())
+		.put(`/connection/${createConnectionRO.id}/saved-query/${createSavedQueryRO.id}`)
+		.send(updateSavedQueryDTO)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(updateSavedQueryResponse.status, 400);
+	t.true(updateSavedQueryResponse.text.includes('Unsafe query'));
+});

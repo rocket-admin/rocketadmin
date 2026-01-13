@@ -7,6 +7,7 @@ import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { ExecuteSavedDbQueryDs } from '../data-structures/execute-saved-db-query.ds.js';
 import { ExecuteSavedDbQueryResultDto } from '../dto/execute-saved-db-query-result.dto.js';
+import { validateQuerySafety } from '../utils/check-query-is-safe.util.js';
 import { IExecuteSavedDbQuery } from './saved-db-query-use-cases.interface.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 
@@ -39,6 +40,8 @@ export class ExecuteSavedDbQueryUseCase
 		if (!foundQuery) {
 			throw new NotFoundException(Messages.SAVED_QUERY_NOT_FOUND);
 		}
+
+		validateQuerySafety(foundQuery.query_text, foundConnection.type as ConnectionTypesEnum);
 
 		let userEmail: string | null = null;
 		if (isConnectionTypeAgent(foundConnection.type)) {
