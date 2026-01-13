@@ -16,7 +16,6 @@ export async function validateFiltersData(
 ): Promise<Array<string>> {
   const { table_name, filters, dynamic_filtered_column } = inputData;
   const errors: Array<string> = [];
-  try {
     const dao = getDataAccessObject(foundConnection);
     const tablesInConnection = await dao.getTablesFromDB();
     const tableNames = tablesInConnection.map((table) => table.tableName);
@@ -49,7 +48,4 @@ export async function validateFiltersData(
       }
     }
     return errors;
-  } catch (error) {
-    throw error;
-  }
 }

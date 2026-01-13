@@ -71,6 +71,12 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  async ngAfterViewInit() {
+    const mermaid = await import("mermaid")
+    //@ts-expect-error dynamic load of mermaid
+    window.mermaid = mermaid.default ?? mermaid;
+  };
+
   ngOnDestroy() {
     this.angulartics2.eventTrack.next({
       action: 'AI panel: destroyed',

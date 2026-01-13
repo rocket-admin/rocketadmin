@@ -1,0 +1,59 @@
+import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
+
+export function buildEmptyTableSettings(connectionId: string, tableName: string): CreateTableSettingsDs {
+  return {
+    autocomplete_columns: undefined,
+    connection_id: connectionId,
+    custom_fields: undefined,
+    display_name: undefined,
+    excluded_fields: undefined,
+    identification_fields: undefined,
+    identity_column: undefined,
+    masterPwd: undefined,
+    readonly_fields: undefined,
+    search_fields: undefined,
+    sensitive_fields: undefined,
+    sortable_by: undefined,
+    table_name: tableName,
+    table_widgets: undefined,
+    table_actions: undefined,
+    userId: undefined,
+    can_add: undefined,
+    can_delete: undefined,
+    can_update: undefined,
+    icon: undefined,
+    allow_csv_export: true,
+    allow_csv_import: true,
+  };
+}
+
+export function buildEmptyTableSettingsWithEmptyWidgets(
+  connectionId: string,
+  tableName: string,
+  userId: string,
+): CreateTableSettingsDs {
+  return {
+    autocomplete_columns: undefined,
+    connection_id: connectionId,
+    custom_fields: undefined,
+    display_name: undefined,
+    excluded_fields: undefined,
+    identification_fields: undefined,
+    identity_column: undefined,
+    masterPwd: undefined,
+    readonly_fields: undefined,
+    search_fields: undefined,
+    sensitive_fields: undefined,
+    sortable_by: undefined,
+    table_name: tableName,
+    table_widgets: [],
+    table_actions: [],
+    userId: userId,
+    can_add: undefined,
+    can_delete: undefined,
+    can_update: undefined,
+    icon: undefined,
+    allow_csv_export: true,
+    allow_csv_import: true,
+  };
+}

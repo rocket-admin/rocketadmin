@@ -1,0 +1,96 @@
+.markdown-container {
+  padding: 16px;
+  border-radius: 4px;
+  min-height: 100px;
+}
+
+@media (prefers-color-scheme: light) {
+  .markdown-container {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    color: rgba(0, 0, 0, 0.64);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .markdown-container {
+    background: #2a2a2a;
+    border: 1px solid #404040;
+    color: rgba(255, 255, 255, 0.64);
+  }
+}
+
+.markdown-container ::ng-deep h1,
+.markdown-container ::ng-deep h2,
+.markdown-container ::ng-deep h3,
+.markdown-container ::ng-deep h4,
+.markdown-container ::ng-deep h5,
+.markdown-container ::ng-deep h6 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.markdown-container ::ng-deep p {
+  margin-bottom: 8px;
+}
+
+.markdown-container ::ng-deep ul,
+.markdown-container ::ng-deep ol {
+  margin-left: 20px;
+  margin-bottom: 8px;
+}
+
+.markdown-container ::ng-deep code {
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  .markdown-container ::ng-deep code {
+    background: #f5f5f5;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .markdown-container ::ng-deep code {
+    background: #3a3a3a;
+  }
+}
+
+.markdown-container ::ng-deep pre {
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+@media (prefers-color-scheme: light) {
+  .markdown-container ::ng-deep pre {
+    background: #f5f5f5;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .markdown-container ::ng-deep pre {
+    background: #3a3a3a;
+  }
+}
+
+.markdown-container ::ng-deep blockquote {
+  padding-left: 16px;
+  margin-left: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .markdown-container ::ng-deep blockquote {
+    border-left: 4px solid #ddd;
+    color: #666;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .markdown-container ::ng-deep blockquote {
+    border-left: 4px solid #555;
+    color: #aaa;
+  }
+}

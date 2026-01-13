@@ -1,4 +1,4 @@
-import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { ConnectionSettingsUI, GlobalSettingsUI, UiSettings } from '../models/ui-settings';
 import { catchError, map } from 'rxjs/operators';
 

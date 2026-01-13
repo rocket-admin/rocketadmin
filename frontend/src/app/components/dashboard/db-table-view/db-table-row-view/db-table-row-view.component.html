@@ -82,7 +82,7 @@
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns; let i = index" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <div data-hj-suppress>
+            <div data-hj-suppress class="row-preview-sidebar__value">
                 <ng-container *ngIf="isForeignKey(column.title); else recordContent">
                     <app-foreign-key-record-view
                         [key]="i"
@@ -99,7 +99,9 @@
                         [ndcDynamicInputs]="{
                             key: column.title,
                             value: selectedRow.record[column.title],
-                            widgetStructure: selectedRow.widgets[column.title]
+                            widgetStructure: selectedRow.widgets[column.title],
+                            rowData: selectedRow.record,
+                            primaryKeys: selectedRow.primaryKeys
                         }">
                     </ndc-dynamic>
                     <ng-template #simpleValue>

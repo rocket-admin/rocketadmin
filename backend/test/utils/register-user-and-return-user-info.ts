@@ -2,10 +2,16 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { TestUtils } from './test.utils.js';
 import { isSaaS } from '../../src/helpers/app/is-saas.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from '../../src/entities/company-info/application/data-structures/invited-user-in-company-and-connection-group.ds.js';
+import { BaseType } from '../../src/common/data-injection.tokens.js';
+import { UserEntity } from '../../src/entities/user/user.entity.js';
+import { CompanyInfoEntity } from '../../src/entities/company-info/company-info.entity.js';
+import { generateGwtToken } from '../../src/entities/user/utils/generate-gwt-token.js';
+import { UserRoleEnum } from '../../src/entities/user/enums/user-role.enum.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function registerUserAndReturnUserInfo(app: INestApplication): Promise<{
@@ -13,59 +19,39 @@ export async function registerUserAndReturnUserInfo(app: INestApplication): Prom
   email: string;
   password: string;
 }> {
-  if (!isSaaS()) {
-    return await loginTestAdminUserAndReturnInfo(app);
+  if (isSaaS()) {
+    return await registerUserOnSaasAndReturnUserInfo();
   }
-  // return await registerUserOnCoreAndReturnUserInfo(app);
-  return await registerUserOnSaasAndReturnUserInfo();
-}
+  const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+  const userRepository = dataSource.getRepository(UserEntity);
+  const companyRepository = dataSource.getRepository(CompanyInfoEntity);
 
-export async function loginTestAdminUserAndReturnInfo(app: INestApplication): Promise<{
-  token: string;
-  email: string;
-  password: string;
-}> {
-  const userLoginInfo = {
-    email: 'admin@email.local',
-    password: 'test12345',
-  };
-  const loginAdminUserResponse = await request(app.getHttpServer())
-    .post('/user/login/')
-    .send(userLoginInfo)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+  const email = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`.toLowerCase();
+  const password = `#r@dY^e&7R4b5Ib@31iE4xbn`;
+  const companyName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`;
 
-  const loginAdminUserResponseJson = JSON.parse(loginAdminUserResponse.text);
-  if (loginAdminUserResponse.status > 201) {
-    console.info('loginAdminUserResponseJson.text -> ', loginAdminUserResponseJson);
-  }
+  // Create company
+  const company = companyRepository.create({
+    id: faker.string.uuid(),
+    name: companyName,
+  });
+  const savedCompany = await companyRepository.save(company);
 
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(loginAdminUserResponse)}`;
-  return { token: token, ...userLoginInfo };
-}
+  // Create user
+  const user = userRepository.create({
+    email,
+    password,
+    isActive: true,
+    company: savedCompany,
+    role: UserRoleEnum.ADMIN,
+  });
+  const savedUser = await userRepository.save(user);
 
-export async function registerUserOnCoreAndReturnUserInfo(app: INestApplication): Promise<{
-  token: string;
-  email: string;
-  password: string;
-}> {
-  const userRegisterInfo: RegisterUserData = {
-    email: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
-    password: '#r@dY^e&7R4b5Ib@31iE4xbn',
-  };
+  // Generate JWT token
+  const tokenData = generateGwtToken(savedUser, []);
+  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${tokenData.token}`;
 
-  const registerAdminUserResponse = await request(app.getHttpServer())
-    .post('/user/register/')
-    .send(userRegisterInfo)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  if (registerAdminUserResponse.status > 300) {
-    console.info('registerAdminUserResponse.text -> ', registerAdminUserResponse.text);
-  }
-
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
-  return { token: token, ...userRegisterInfo };
+  return { token, email, password };
 }
 
 export async function registerUserOnSaasAndReturnUserInfo(

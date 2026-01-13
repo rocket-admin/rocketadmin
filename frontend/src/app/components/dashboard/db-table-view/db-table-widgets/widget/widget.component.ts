@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { T } from '@angular/cdk/portal-directives.d-BoG39gYN';
 import { Widget } from 'src/app/models/table';
 
 @Component({
@@ -80,7 +79,7 @@ export class WidgetComponent implements OnInit, OnChanges {
     Date: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
     DateTime: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
     Time: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#date-time-and-datetime',
-
+    S3: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#s3',
   };
 
   ngOnInit(): void {

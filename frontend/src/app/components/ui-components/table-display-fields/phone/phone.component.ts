@@ -34,7 +34,7 @@ export class PhoneDisplayComponent extends BaseTableDisplayFieldComponent implem
     try {
       const phoneNumber = parsePhoneNumber(this.value);
       
-      if (phoneNumber && phoneNumber.country) {
+      if (phoneNumber?.country) {
         const country = COUNTRIES.find(c => c.code === phoneNumber.country);
         
         if (country) {
@@ -51,7 +51,7 @@ export class PhoneDisplayComponent extends BaseTableDisplayFieldComponent implem
         this.countryName = '';
         this.formattedNumber = this.value;
       }
-    } catch (error) {
+    } catch (_error) {
       this.countryFlag = '';
       this.countryName = '';
       this.formattedNumber = this.value;

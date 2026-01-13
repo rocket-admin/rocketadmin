@@ -89,11 +89,11 @@ export class TablesDataSource implements DataSource<Object> {
     private _tableRow: TableRowService,
   ) {}
 
-  connect(collectionViewer: CollectionViewer): Observable<Object[]> {
+  connect(_collectionViewer: CollectionViewer): Observable<Object[]> {
     return this.rowsSubject.asObservable();
   }
 
-  disconnect(collectionViewer: CollectionViewer): void {
+  disconnect(_collectionViewer: CollectionViewer): void {
       this.rowsSubject.complete();
       this.loadingSubject.complete();
   }
@@ -146,10 +146,10 @@ export class TablesDataSource implements DataSource<Object> {
             finalize(() => this.loadingSubject.next(false))
         )
         .subscribe((res: any) => {
-          if (res.rows && res.rows.length) {
+          if (res.rows?.length) {
             const firstRow = res.rows[0];
 
-            this.foreignKeysList = res.foreignKeys.map((field) => {return field['column_name']});
+            this.foreignKeysList = res.foreignKeys.map((field) => {return field.column_name});
             this.foreignKeys = Object.assign({}, ...res.foreignKeys.map((foreignKey: TableForeignKey) => ({[foreignKey.column_name]: foreignKey})));
 
             this._tableRow.fetchTableRow(
@@ -186,7 +186,7 @@ export class TablesDataSource implements DataSource<Object> {
           this.tableBulkActions = res.action_events.filter((action: CustomEvent) => action.type === CustomActionType.Multiple);
 
           if (res.widgets) {
-            this.widgetsList = res.widgets.map((widget: Widget) => {return widget['field_name']});
+            this.widgetsList = res.widgets.map((widget: Widget) => {return widget.field_name});
             this.widgetsCount = this.widgetsList.length;
             this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => {
                 let parsedParams;
@@ -272,7 +272,7 @@ export class TablesDataSource implements DataSource<Object> {
 
           this.sortByColumns = res.sortable_by;
 
-          const widgetsConfigured = res.widgets && res.widgets.length;
+          const widgetsConfigured = res.widgets?.length;
           if (!res.configured && !widgetsConfigured
             && this._connections.connectionAccessLevel !== AccessLevel.None
             && this._connections.connectionAccessLevel !== AccessLevel.Readonly)
@@ -304,7 +304,7 @@ export class TablesDataSource implements DataSource<Object> {
   getActionsColumnWidth(actions, permissions) {
     const defaultActionsCount = permissions.edit + permissions.add + (!!permissions.delete && !!this.canDelete);
     const totalActionsCount = actions.length + defaultActionsCount;
-    const lengthValue = ((totalActionsCount * 36) + 32);
+    const lengthValue = ((totalActionsCount * 30) + 32);
     return totalActionsCount === 0 ? '0' : `${lengthValue}px`
   }
 

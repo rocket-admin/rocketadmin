@@ -17,6 +17,7 @@ import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 
 @Injectable()
 export class BulkUpdateRowsInTableUseCase
@@ -74,10 +75,11 @@ export class BulkUpdateRowsInTableUseCase
       );
     }
 
-    const [tableStructure, primaryColumns, tableSettings, tableWidgets] = await Promise.all([
+    const [tableStructure, primaryColumns, tableSettings, personalTableSettings, tableWidgets] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+      this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
     ]);
 
@@ -99,8 +101,9 @@ export class BulkUpdateRowsInTableUseCase
       }
     }
 
+    const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
     const oldRowsData: Array<Record<string, unknown>> = await Promise.all(
-      primaryKeys.map((primaryKey) => dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail)),
+      primaryKeys.map((primaryKey) => dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail)),
     );
 
     try {

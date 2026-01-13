@@ -15,13 +15,13 @@ export class ActionRulesEntity {
   @Column({ default: null })
   title: string;
 
-  @OneToMany((type) => TableActionEntity, (action) => action.action_rule)
+  @OneToMany((_type) => TableActionEntity, (action) => action.action_rule)
   table_actions: Relation<TableActionEntity>[];
 
-  @OneToMany((type) => ActionEventsEntity, (event) => event.action_rule)
+  @OneToMany((_type) => ActionEventsEntity, (event) => event.action_rule)
   action_events: Relation<ActionEventsEntity>[];
 
-  @ManyToOne((type) => ConnectionEntity, (connection) => connection.action_rules, { onDelete: 'CASCADE' })
+  @ManyToOne((_type) => ConnectionEntity, (connection) => connection.action_rules, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'connection_id' })
   connection: Relation<ConnectionEntity>;
 

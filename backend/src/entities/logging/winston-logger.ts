@@ -18,6 +18,10 @@ export class WinstonLogger implements LoggerService {
     this.logger.info(message, ...optionalParams);
   }
 
+  public info(message: any, ...optionalParams: any[]) {
+    this.logger.info(message, ...optionalParams);
+  }
+
   public error(message: any, ...optionalParams: any[]) {
     this.logger.error(message, ...optionalParams);
   }

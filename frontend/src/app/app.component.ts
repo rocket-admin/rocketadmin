@@ -1,7 +1,7 @@
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Angulartics2, Angulartics2Amplitude, Angulartics2OnModule } from 'angulartics2';
-import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
-import { catchError, filter, map } from 'rxjs/operators';
+import { ChangeDetectorRef, Component, } from '@angular/core';
+import { filter, } from 'rxjs/operators';
 
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -31,7 +31,7 @@ import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { version } from './version';
 
-//@ts-ignore
+//@ts-expect-error
 window.amplitude = amplitude;
 amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
 
@@ -86,15 +86,14 @@ export class AppComponent {
   public connections: Connection[] = [];
 
   constructor (
-    private changeDetector: ChangeDetectorRef,
+    public changeDetector: ChangeDetectorRef,
     // private ngZone: NgZone,
     public route: ActivatedRoute,
     public router: Router,
     public _connections: ConnectionsService,
     public _company: CompanyService,
     public _user: UserService,
-    public _auth: AuthService,
-    private _tables: TablesService,
+    public _auth: AuthService,_tables: TablesService,
     private _uiSettings: UiSettingsService,
     angulartics2Amplitude: Angulartics2Amplitude,
     private angulartics2: Angulartics2,
@@ -109,6 +108,9 @@ export class AppComponent {
     this.matIconRegistry.addSvgIcon("dynamodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/dynamodb_logo.svg"));
     this.matIconRegistry.addSvgIcon("ibmdb2", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/db2_logo.svg"));
     this.matIconRegistry.addSvgIcon("cassandra", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/сassandra_logo.svg"));
+    this.matIconRegistry.addSvgIcon("redis", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/redis_logo.svg"));
+    this.matIconRegistry.addSvgIcon("elasticsearch", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/elasticsearch_logo.svg"));
+    this.matIconRegistry.addSvgIcon("clickhouse", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/db-logos/clickhouse_logo.svg"));
     this.matIconRegistry.addSvgIcon("github", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/github.svg"));
     this.matIconRegistry.addSvgIcon("google", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/google.svg"));
     this.matIconRegistry.addSvgIcon("ai_rocket", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/ai-rocket.svg"));
@@ -121,7 +123,9 @@ export class AppComponent {
         filter(event => event instanceof NavigationEnd)
       )
       .subscribe(() => {
-        this.page = this.router.routerState.snapshot.url;
+        this.page = this.router.routerState.snapshot.url.split('?')[0];
+
+        console.log('Navigated to page:', this.page);
 
         if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
           console.log('App component, demo mode search params found');
@@ -136,7 +140,7 @@ export class AppComponent {
     const expirationDateFromURL = new URLSearchParams(location.search).get('expires');
 
     if (expirationDateFromURL) {
-      const expirationDateString = new Date(parseInt(expirationDateFromURL));
+      const expirationDateString = new Date(parseInt(expirationDateFromURL, 10));
       localStorage.setItem('token_expiration', expirationDateString.toString());
     };
 
@@ -252,16 +256,16 @@ export class AppComponent {
         this.isDemo = this.currentUser.email.startsWith('demo_') && this.currentUser.email.endsWith('@rocketadmin.com');
         this._user.setIsDemo(this.isDemo);
         this.setUserLoggedIn(true);
-        // @ts-ignore
+        // @ts-expect-error
         if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
-          // @ts-ignore
+          // @ts-expect-error
           ...window.intercomSettings,
           user_hash: res.intercom_hash,
           user_id: res.id,
           email: res.email
         });
 
-        //@ts-ignore
+        //@ts-expect-error
         if (this.isDemo) window.hj?.('identify', this.currentUser.id, {
           'mode': 'demo'
         });
@@ -342,7 +346,7 @@ export class AppComponent {
 
   logOut(isTokenExpired?: boolean) {
     try {
-      // @ts-ignore
+      // @ts-expect-error
       google.accounts.id.revoke(this.currentUser.email, done => {
         console.log('consent revoked');
         console.log(done);

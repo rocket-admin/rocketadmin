@@ -1,4 +1,4 @@
-import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
+import { QueryOrderingEnum } from '../../../shared/enums/query-ordering.enum.js';
 import { CustomFieldDS } from './custom-field.ds.js';
 import { TableWidgetDS } from './table-widget.ds.js';
 

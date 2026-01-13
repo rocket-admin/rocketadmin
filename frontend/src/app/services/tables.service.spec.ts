@@ -467,7 +467,7 @@ describe('TablesService', () => {
   it('should call updateTableSettings for existing settings', () => {
     let isSubscribeCalled = false;
 
-    service.updateTableSettings(true, '12345678', 'users_table', tableSettingsApp).subscribe(res => {
+    service.updateTableSettings(true, '12345678', 'users_table', tableSettingsApp).subscribe(_res => {
       // expect(res).toEqual(tableSettingsNetwork);
       isSubscribeCalled = true;
     });
@@ -483,7 +483,7 @@ describe('TablesService', () => {
   it('should call updateTableSettings and create settings', () => {
     let isSubscribeCalled = false;
 
-    service.updateTableSettings(false, '12345678', 'users_table', tableSettingsApp).subscribe(res => {
+    service.updateTableSettings(false, '12345678', 'users_table', tableSettingsApp).subscribe(_res => {
       // expect(res).toEqual(tableSettingsNetwork);
       isSubscribeCalled = true;
     });
@@ -513,7 +513,7 @@ describe('TablesService', () => {
   it('should call deleteTableSettings', () => {
     let isSubscribeCalled = false;
 
-    service.deleteTableSettings('12345678', 'users_table').subscribe(res => {
+    service.deleteTableSettings('12345678', 'users_table').subscribe(_res => {
       isSubscribeCalled = true;
     });
 
@@ -541,7 +541,7 @@ describe('TablesService', () => {
   it('should call fetchTableWidgets', () => {
     let isSubscribeCalled = false;
 
-    service.fetchTableWidgets('12345678', 'users_table').subscribe(res => {
+    service.fetchTableWidgets('12345678', 'users_table').subscribe(_res => {
       isSubscribeCalled = true;
     });
 

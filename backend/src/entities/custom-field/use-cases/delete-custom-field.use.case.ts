@@ -5,7 +5,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds.js';
-import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds.js';
+import { buildFoundTableSettingsDs } from '../../table-settings/common-table-settings/utils/build-found-table-settings-ds.js';
 import { DeleteCustomFieldsDs } from '../application/data-structures/delete-custom-fields.ds.js';
 import { IDeleteCustomField } from './custom-field-use-cases.interface.js';
 
@@ -47,9 +47,8 @@ export class DeleteCustomFieldUseCase
     const delIndex = tableSettingsToUpdate.custom_fields.findIndex((field) => field.id === fieldId);
     tableSettingsToUpdate.custom_fields.splice(delIndex, 1);
     await this._dbContext.customFieldsRepository.removeCustomFieldsEntity(fieldToDelete);
-    const updatedTableSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(
-      tableSettingsToUpdate,
-    );
+    const updatedTableSettings =
+      await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettingsToUpdate);
     return buildFoundTableSettingsDs(updatedTableSettings);
   }
 }

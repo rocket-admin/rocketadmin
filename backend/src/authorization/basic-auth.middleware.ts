@@ -5,7 +5,7 @@ import { Messages } from '../exceptions/text/messages.js';
 
 @Injectable()
 export class BasicAuthMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: (err?: any, res?: any) => void): void {
+  use(req: Request, _res: Response, next: (err?: any, res?: any) => void): void {
     const basicAuthLogin = process.env.BASIC_AUTH_LOGIN;
     const basicAuthPassword = process.env.BASIC_AUTH_PWD;
     const userCredentials = auth(req);

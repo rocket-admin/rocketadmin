@@ -16,6 +16,7 @@ import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { slackPostMessage } from '../../../helpers/index.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 
 @Injectable()
 export class ExportCSVFromTableUseCase
@@ -55,9 +56,10 @@ export class ExportCSVFromTableUseCase
       }
 
       // eslint-disable-next-line prefer-const
-      let [tableSettings, tableStructure] = await Promise.all([
+      let [tableSettings, tableStructure, personalTableSettings] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
         dao.getTableStructure(tableName, userEmail),
+        this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
       ]);
       if (!tableSettings) {
         tableSettings = {} as any;
@@ -78,9 +80,11 @@ export class ExportCSVFromTableUseCase
 
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
+      const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+
       if (orderingField) {
-        tableSettings.ordering_field = orderingField.field;
-        tableSettings.ordering = orderingField.value;
+        builtDAOsTableSettings.ordering_field = orderingField.field;
+        builtDAOsTableSettings.ordering = orderingField.value;
       }
 
       if (isHexString(searchingFieldValue)) {
@@ -92,7 +96,7 @@ export class ExportCSVFromTableUseCase
 
       const rowsStream = await dao.getTableRowsStream(
         tableName,
-        tableSettings,
+        builtDAOsTableSettings,
         page,
         perPage,
         searchingFieldValue,

@@ -12,7 +12,7 @@
     background-color: var(--mat-sidenav-content-background-color);
     border-left: solid 1px rgba(0, 0, 0, 0.12);
     opacity: 1;
-    transform: translateX(24px);
+    transform: translateX(0);
     width: clamp(200px, 22vw, 400px);
 }
 
@@ -25,7 +25,14 @@
 
 @media (width <= 600px) {
     .row-preview-sidebar_open {
-        width: 0;
+        position: fixed;
+        top: 44px;
+        bottom: 0;
+        left: 0;
+        min-height: initial;
+        max-height: initial;
+        width: 100vw;
+        z-index: 2;
     }
 }
 
@@ -67,10 +74,9 @@
     }
 }
 
-.row-preview-sidebar__image {
+.row-preview-sidebar__value:has(app-json-editor-record-view),
+.row-preview-sidebar__value:has(app-code-record-view) {
     width: 100%;
-    margin-top: 8px;
-    margin-bottom: 16px;
 }
 
 .related-records-panel {

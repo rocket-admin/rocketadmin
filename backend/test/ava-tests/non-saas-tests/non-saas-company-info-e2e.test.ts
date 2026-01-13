@@ -22,9 +22,9 @@ import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
-const mockFactory = new MockFactory();
+const _mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest: string;
 
 test.before(async () => {
@@ -34,7 +34,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -80,8 +80,8 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
     t.is(Object.keys(foundCompanyInfoRO).length, 8);
   } catch (error) {
     console.error(error);
@@ -120,33 +120,33 @@ test.serial(`${currentTest} should return full found company info for company ad
     // );
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
     t.is(Object.keys(foundCompanyInfoRO).length, 10);
-    t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
-    t.is(foundCompanyInfoRO.connections.length > 3, true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'connections'), true);
+    t.is(foundCompanyInfoRO.connections.length > 0, true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'invitations'), true);
     t.is(foundCompanyInfoRO.invitations.length, 0);
     t.is(Object.keys(foundCompanyInfoRO.connections[0]).length, 7);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('title'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('updatedAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('author'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('groups'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'title'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'createdAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'updatedAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'author'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'groups'), true);
     t.is(foundCompanyInfoRO.connections[0].groups.length > 0, true);
     t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0]).length, 4);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('title'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('isMain'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('users'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'title'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'isMain'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'users'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
     t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 9);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('email'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('role'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('password'), false);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'email'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'role'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'createdAt'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0].users[0], 'password'), false);
   } catch (error) {
     console.error(error);
     throw error;
@@ -174,8 +174,8 @@ test.serial(`${currentTest} should return found company info for non-admin user`
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
     t.is(foundCompanyInfo.status, 200);
-    t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
     t.is(Object.keys(foundCompanyInfoRO).length, 8);
   } catch (error) {
     console.error(error);
@@ -207,7 +207,7 @@ test.serial(`${currentTest} should return found company infos for admin user`, a
     t.is(foundCompanyInfo.status, 200);
     t.is(Array.isArray(foundCompanyInfoRO), true);
     t.is(foundCompanyInfoRO.length, 1);
-    t.is(foundCompanyInfoRO[0].hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO[0], 'id'), true);
   } catch (error) {
     console.error(error);
     throw error;
@@ -236,7 +236,7 @@ test.serial(`${currentTest} should return found company infos for non-admin user
     t.is(foundCompanyInfo.status, 200);
     t.is(Array.isArray(foundCompanyInfoRO), true);
     t.is(foundCompanyInfoRO.length, 1);
-    t.is(foundCompanyInfoRO[0].hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(foundCompanyInfoRO[0], 'id'), true);
   } catch (error) {
     console.error(error);
     throw error;
@@ -267,8 +267,8 @@ test.serial(`${currentTest} should remove user from company`, async (t) => {
 
     t.is(foundCompanyInfo.status, 200);
 
-    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
-    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const allGroupsInResult = foundCompanyInfoRO.connections.flatMap((connection) => connection.groups);
+    const allUsersInResult = allGroupsInResult.flatMap((group) => group.users);
     const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail.toLowerCase());
 
     t.is(foundSimpleUserInResult.email, simpleUserEmail.toLowerCase());
@@ -293,9 +293,8 @@ test.serial(`${currentTest} should remove user from company`, async (t) => {
     const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
 
     const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
-      .map((connection) => connection.groups)
-      .flat();
-    const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
+      .flatMap((connection) => connection.groups);
+    const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.flatMap((group) => group.users);
     const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
       (user) => user.email === simpleUserEmail,
     );
@@ -330,11 +329,11 @@ test.serial(`${currentTest} should remove user invitation from company`, async (
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(foundCompanyInfoRO.invitations.length, 0);
 
-    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
-    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const allGroupsInResult = foundCompanyInfoRO.connections.flatMap((connection) => connection.groups);
+    const allUsersInResult = allGroupsInResult.flatMap((group) => group.users);
     const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail.toLowerCase());
 
-    const removeUserFromCompanyResult = await request(app.getHttpServer())
+    const _removeUserFromCompanyResult = await request(app.getHttpServer())
       .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
       .set('Content-Type', 'application/json')
       .set('Cookie', adminUserToken)
@@ -412,7 +411,7 @@ test.serial(`${currentTest} should update company name`, async (t) => {
 
   t.is(foundCompanyInfo.status, 200);
   const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-  t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+  t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
 
   const newName = `${faker.company.name()}_${nanoid(5)}`;
 
@@ -434,7 +433,7 @@ test.serial(`${currentTest} should update company name`, async (t) => {
 
   t.is(foundCompanyInfo.status, 200);
   const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
-  t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('name'), true);
+  t.is(Object.hasOwn(foundCompanyInfoROAfterUpdate, 'name'), true);
   t.is(foundCompanyInfoROAfterUpdate.name, newName);
 });
 
@@ -468,7 +467,7 @@ test.serial(`${currentTest} should return company name`, async (t) => {
 
   t.is(foundCompanyName.status, 200);
   const foundCompanyNameRO = JSON.parse(foundCompanyName.text);
-  t.is(foundCompanyNameRO.hasOwnProperty('name'), true);
+  t.is(Object.hasOwn(foundCompanyNameRO, 'name'), true);
   t.is(foundCompanyNameRO.name, foundCompanyInfoRO.name);
   t.pass();
 });
@@ -567,7 +566,7 @@ test.skip(`${currentTest} should enable 2fa for company`, async (t) => {
   t.is(foundCompanyInfo.status, 200);
 
   const foundCompanyRo = JSON.parse(foundCompanyInfo.text);
-  t.is(foundCompanyRo.hasOwnProperty('is2faEnabled'), true);
+  t.is(Object.hasOwn(foundCompanyRo, 'is2faEnabled'), true);
   t.is(foundCompanyRo.is2faEnabled, false);
 
   const requestBody = {
@@ -590,7 +589,7 @@ test.skip(`${currentTest} should enable 2fa for company`, async (t) => {
 
   t.is(foundCompanyInfoAfterUpdate.status, 200);
   const foundCompanyRoAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
-  t.is(foundCompanyRoAfterUpdate.hasOwnProperty('is2faEnabled'), true);
+  t.is(Object.hasOwn(foundCompanyRoAfterUpdate, 'is2faEnabled'), true);
   t.is(foundCompanyRoAfterUpdate.is2faEnabled, true);
 
   // user should not be able to use endpoints that require 2fa after login

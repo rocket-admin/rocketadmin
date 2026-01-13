@@ -1,5 +1,5 @@
 import { Component, Injectable, OnInit } from '@angular/core';
-import { format, parseISO } from 'date-fns';
+import { format, } from 'date-fns';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
@@ -19,12 +19,12 @@ export class DateRecordViewComponent extends BaseRecordViewFieldComponent implem
     if (this.value) {
       try {
         const date = new Date(this.value);
-        if (!isNaN(date.getTime())) {
+        if (!Number.isNaN(date.getTime())) {
           this.formattedDate = format(date, "P");
         } else {
           this.formattedDate = this.value;
         }
-      } catch (error) {
+      } catch (_error) {
         this.formattedDate = this.value;
       }
     }

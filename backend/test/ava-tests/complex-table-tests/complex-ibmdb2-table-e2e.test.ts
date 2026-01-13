@@ -27,8 +27,8 @@ const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
-const testSearchedUserName = 'Vasia';
+let _testUtils: TestUtils;
+const _testSearchedUserName = 'Vasia';
 const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
 
 let testTablesCompositeKeysData: TableCreationResult;
@@ -40,7 +40,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -113,7 +113,7 @@ test.serial(
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
 
-      const getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
+      const _getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
       t.is(getMainTableRowsResponse.status, 200);
 
       const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
@@ -129,11 +129,11 @@ test.serial(
 
       for (const row of firstReturnedRows) {
         t.is(typeof row.ORDER_ID, 'object');
-        t.truthy(row.ORDER_ID.hasOwnProperty('ORDER_ID'));
+        t.truthy(Object.hasOwn(row.ORDER_ID, 'ORDER_ID'));
         t.truthy(row.ORDER_ID.ORDER_ID);
         t.truthy(typeof row.ORDER_ID.ORDER_ID === 'number');
         t.is(typeof row.CUSTOMER_ID, 'object');
-        t.truthy(row.CUSTOMER_ID.hasOwnProperty('CUSTOMER_ID'));
+        t.truthy(Object.hasOwn(row.CUSTOMER_ID, 'CUSTOMER_ID'));
         t.truthy(row.CUSTOMER_ID.CUSTOMER_ID);
         t.truthy(typeof row.CUSTOMER_ID.CUSTOMER_ID === 'number');
       }
@@ -149,11 +149,11 @@ test.serial(
       const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
       for (const row of secondReturnedRows) {
         t.is(typeof row.ORDER_ID, 'object');
-        t.truthy(row.ORDER_ID.hasOwnProperty('ORDER_ID'));
+        t.truthy(Object.hasOwn(row.ORDER_ID, 'ORDER_ID'));
         t.truthy(row.ORDER_ID.ORDER_ID);
         t.truthy(typeof row.ORDER_ID.ORDER_ID === 'number');
         t.is(typeof row.CUSTOMER_ID, 'object');
-        t.truthy(row.CUSTOMER_ID.hasOwnProperty('CUSTOMER_ID'));
+        t.truthy(Object.hasOwn(row.CUSTOMER_ID, 'CUSTOMER_ID'));
         t.truthy(row.CUSTOMER_ID.CUSTOMER_ID);
         t.truthy(typeof row.CUSTOMER_ID.CUSTOMER_ID === 'number');
       }
@@ -187,7 +187,7 @@ test.serial(
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
 
-      const getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
+      const _getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
       t.is(getMainTableRowsResponse.status, 200);
 
       const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
@@ -203,7 +203,7 @@ test.serial(
 
       for (const element of firstReturnedRows) {
         t.is(typeof element.ORDER_ID, 'object');
-        t.truthy(element.ORDER_ID.hasOwnProperty('ORDER_ID'));
+        t.truthy(Object.hasOwn(element.ORDER_ID, 'ORDER_ID'));
         t.truthy(element.ORDER_ID.ORDER_ID);
         t.truthy(typeof element.ORDER_ID.ORDER_ID === 'number');
       }
@@ -220,7 +220,7 @@ test.serial(
       const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
       for (const element of secondReturnedRows) {
         t.is(typeof element.ORDER_ID, 'object');
-        t.truthy(element.ORDER_ID.hasOwnProperty('ORDER_ID'));
+        t.truthy(Object.hasOwn(element.ORDER_ID, 'ORDER_ID'));
         t.truthy(element.ORDER_ID.ORDER_ID);
         t.truthy(typeof element.ORDER_ID.ORDER_ID === 'number');
       }

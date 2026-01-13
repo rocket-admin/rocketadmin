@@ -11,7 +11,6 @@ import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -22,15 +21,12 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -146,7 +142,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     const tableNameWithoutSchema = receivedTableName;
     const tableNameWithSchema = tableSchema ? `${tableSchema}.[${receivedTableName}]` : receivedTableName;
 
-    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
+    if (autocompleteFields?.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableNameWithSchema)
         .select(autocompleteFields.fields)
         .modify((builder) => {
@@ -385,7 +381,7 @@ WHERE TABLE_TYPE = 'VIEW'
     }
     const knex = await this.configureKnex();
     try {
-      await knex().select(1);
+      await knex.queryBuilder().select(1);
       return {
         result: true,
         message: 'Successfully connected',
@@ -472,18 +468,18 @@ WHERE TABLE_TYPE = 'VIEW'
       knex
         .raw(
           `
-  SELECT 
+  SELECT
     OBJECT_NAME(f.parent_object_id) "table_name",
     COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
-  FROM 
+  FROM
      sys.foreign_keys AS f
-  INNER JOIN 
-    sys.foreign_key_columns AS fc 
+  INNER JOIN
+    sys.foreign_key_columns AS fc
       ON f.OBJECT_ID = fc.constraint_object_id
-  INNER JOIN 
-    sys.tables t 
+  INNER JOIN
+    sys.tables t
      ON t.OBJECT_ID = fc.referenced_object_id
-  WHERE 
+  WHERE
      OBJECT_NAME (f.referenced_object_id) = ?
         `,
           tableName,
@@ -625,8 +621,6 @@ WHERE TABLE_TYPE = 'VIEW'
     for await (const record of parser) {
       results.push(record);
     }
-
-    try {
       await knex.transaction(async (trx) => {
         for (const row of results) {
           for (const column of timestampColumnNames) {
@@ -639,9 +633,6 @@ WHERE TABLE_TYPE = 'VIEW'
           await trx(tableWithSchema).insert(row);
         }
       });
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
@@ -751,6 +742,6 @@ WHERE TABLE_TYPE = 'VIEW'
        ORDER BY [TableName]`,
       [tableName],
     );
-    return parseInt(fastCountQueryResult[0].RowCount);
+    return parseInt(fastCountQueryResult[0].RowCount, 10);
   }
 }

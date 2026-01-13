@@ -1,7 +1,7 @@
 import { PrimaryKeyDS } from '../../data-access-layer/shared/data-structures/primary-key.ds.js';
 import { TableSettingsDS } from '../../data-access-layer/shared/data-structures/table-settings.ds.js';
 import { ValidateTableSettingsDS } from '../../data-access-layer/shared/data-structures/validate-table-settings.ds.js';
-import { QueryOrderingEnum } from '../../data-access-layer/shared/enums/query-ordering.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
 import { isObjectEmpty } from '../is-object-empty.js';
 import { TABLE_SETTINGS_VALIDATION_ERRORS } from './table-settings-validation-errors.js';
 
@@ -10,7 +10,6 @@ export function tableSettingsFieldValidator(
   primaryColumns: Array<PrimaryKeyDS>,
   settings: ValidateTableSettingsDS | TableSettingsDS,
 ): Array<string> {
-   
   const errorMessages = [];
   if (isObjectEmpty(settings)) {
     return errorMessages;
@@ -150,5 +149,4 @@ export function tableSettingsFieldValidator(
   }
 
   return errorMessages;
-   
 }

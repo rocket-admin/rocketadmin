@@ -99,7 +99,7 @@ class ConfigService {
       migrationsRun: false,
       logging: false,
       extra: {
-        max: 2,
+        max: 10,
       },
       logger: 'advanced-console',
       driver: pgLiteDriver ? pgLiteDriver : undefined,
@@ -121,7 +121,7 @@ class ConfigService {
 
     return {
       host,
-      port: parseInt(port),
+      port: parseInt(port, 10),
       username: user,
       password,
       database,

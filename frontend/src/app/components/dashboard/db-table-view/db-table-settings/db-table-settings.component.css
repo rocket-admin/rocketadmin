@@ -27,6 +27,23 @@
     }
 }
 
+.settings-fields__subheading {
+    margin-top: -4px !important;
+    margin-bottom: 0 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .settings-fields__subheading {
+        color: rgba(255,255,255,0.64);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .settings-fields__subheading {
+        color: rgba(0,0,0,0.64);
+    }
+}
+
 .settings-table-display {
     display: flex;
     align-items: center;
@@ -94,11 +111,23 @@
     top: -12px;
     left: 8px;
     display: inline-block;
-    background: #fff;
-    color: rgba(0, 0, 0, 0.6);
     font-size: 0.75em;
     padding: 4px;
     z-index: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .order__title {
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .order__title {
+        background: #fff;
+        color: rgba(0, 0, 0, 0.6);
+    }
 }
 
 .order-item {

@@ -21,12 +21,11 @@ import { Messages } from '../../../src/exceptions/text/messages.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
-import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 
 const mockFactory = new MockFactory();
 
@@ -37,7 +36,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -113,9 +112,9 @@ test.serial(`${currentTest} should return all user groups`, async (t) => {
 
     t.is(result.length, 2);
 
-    t.is(result[1].group.hasOwnProperty('users'), true);
-    t.is(result[0].group.hasOwnProperty('title'), true);
-    t.is(result[0].group.hasOwnProperty('connection'), false);
+    t.is(Object.hasOwn(result[1].group, 'users'), true);
+    t.is(Object.hasOwn(result[0].group, 'title'), true);
+    t.is(Object.hasOwn(result[0].group, 'connection'), false);
     t.is(result[1].accessLevel, AccessLevelEnum.edit);
   } catch (e) {
     console.error(e);
@@ -435,7 +434,7 @@ test.serial(`${currentTest} should throw an error when user email not passed in 
       .set('Accept', 'application/json');
 
     t.is(addUserInGroup.status, 400);
-    const responseObject = JSON.parse(addUserInGroup.text);
+    const _responseObject = JSON.parse(addUserInGroup.text);
     // t.is(responseObject.message, ErrorsMessages.VALIDATION_FAILED);
   } catch (e) {
     console.error(e);
@@ -630,7 +629,7 @@ test.serial(`${currentTest} should return an delete result`, async (t) => {
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
-    const groupId = result[0].group.id;
+    const _groupId = result[0].group.id;
     t.is(result.length, 1);
 
     t.is(result[0].group.title, 'Admin');
@@ -820,7 +819,7 @@ test.serial(`${currentTest} should return a group without deleted user`, async (
     t.is(typeof result, 'object');
     t.is(result.title, newGroup1.title);
 
-    t.is(result.hasOwnProperty('users'), true);
+    t.is(Object.hasOwn(result, 'users'), true);
     t.is(typeof result.users, 'object');
     t.is(result.users.length, 1);
 
@@ -1167,7 +1166,7 @@ test.serial(`${currentTest} should throw an error, trying delete last user from 
       .set('Accept', 'application/json');
     t.is(createGroupResponse.status, 201);
 
-    const createGroupRO = JSON.parse(createGroupResponse.text);
+    const _createGroupRO = JSON.parse(createGroupResponse.text);
     const groupId = createConnectionRO.groups[0].id;
     const requestBody = {
       email: firstUserRegisterInfo.email,

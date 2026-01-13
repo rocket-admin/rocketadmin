@@ -13,10 +13,10 @@ export class ConnectionPropertiesEntity {
   @Column({ default: null })
   logo_url: string;
 
-  @Column({ default: null })
+  @Column({ default: '' })
   primary_color: string;
 
-  @Column({ default: null })
+  @Column({ default: '' })
   secondary_color: string;
 
   @Column({ default: null })

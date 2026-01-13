@@ -1,5 +1,5 @@
 import { COUNTRIES, getCountryFlag } from '../../../../consts/countries';
-import { Component, Injectable, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Injectable, OnInit, } from '@angular/core';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 import { CommonModule } from '@angular/common';

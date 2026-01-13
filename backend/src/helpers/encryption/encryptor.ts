@@ -13,7 +13,7 @@ export class Encryptor {
 
   static encryptData(data: string): string {
     try {
-      const privateKey = this.getPrivateKey();
+      const privateKey = Encryptor.getPrivateKey();
       return CryptoJS.AES.encrypt(data, privateKey).toString();
     } catch (e) {
       console.log('-> Encryption error', e);
@@ -23,7 +23,7 @@ export class Encryptor {
 
   static decryptData(encryptedData: string): string {
     try {
-      const privateKey = this.getPrivateKey();
+      const privateKey = Encryptor.getPrivateKey();
       const bytes = CryptoJS.AES.decrypt(encryptedData, privateKey);
       return bytes.toString(CryptoJS.enc.Utf8);
     } catch (e) {
@@ -45,44 +45,44 @@ export class Encryptor {
   }
 
   static encryptConnectionCredentials(connection: ConnectionEntity, masterPwd: string): ConnectionEntity {
-    if (connection.username) connection.username = this.encryptDataMasterPwd(connection.username, masterPwd);
-    if (connection.database) connection.database = this.encryptDataMasterPwd(connection.database, masterPwd);
-    if (connection.password) connection.password = this.encryptDataMasterPwd(connection.password, masterPwd);
-    if (connection.authSource) connection.authSource = this.encryptDataMasterPwd(connection.authSource, masterPwd);
+    if (connection.username) connection.username = Encryptor.encryptDataMasterPwd(connection.username, masterPwd);
+    if (connection.database) connection.database = Encryptor.encryptDataMasterPwd(connection.database, masterPwd);
+    if (connection.password) connection.password = Encryptor.encryptDataMasterPwd(connection.password, masterPwd);
+    if (connection.authSource) connection.authSource = Encryptor.encryptDataMasterPwd(connection.authSource, masterPwd);
     if (connection.ssh) {
       if (connection.privateSSHKey)
-        connection.privateSSHKey = this.encryptDataMasterPwd(connection.privateSSHKey, masterPwd);
-      if (connection.sshHost) connection.sshHost = this.encryptDataMasterPwd(connection.sshHost, masterPwd);
-      if (connection.sshUsername) connection.sshUsername = this.encryptDataMasterPwd(connection.sshUsername, masterPwd);
+        connection.privateSSHKey = Encryptor.encryptDataMasterPwd(connection.privateSSHKey, masterPwd);
+      if (connection.sshHost) connection.sshHost = Encryptor.encryptDataMasterPwd(connection.sshHost, masterPwd);
+      if (connection.sshUsername) connection.sshUsername = Encryptor.encryptDataMasterPwd(connection.sshUsername, masterPwd);
     }
     if (connection.ssl) {
-      if (connection.cert) connection.cert = this.encryptDataMasterPwd(connection.cert, masterPwd);
+      if (connection.cert) connection.cert = Encryptor.encryptDataMasterPwd(connection.cert, masterPwd);
     }
     return connection;
   }
 
   //todo types
   static decryptConnectionCredentials(connection: ConnectionEntity, masterPwd: string): ConnectionEntity {
-    if (connection.username) connection.username = this.decryptDataMasterPwd(connection.username, masterPwd);
-    if (connection.database) connection.database = this.decryptDataMasterPwd(connection.database, masterPwd);
+    if (connection.username) connection.username = Encryptor.decryptDataMasterPwd(connection.username, masterPwd);
+    if (connection.database) connection.database = Encryptor.decryptDataMasterPwd(connection.database, masterPwd);
     if (connection.password) {
-      connection.password = this.decryptDataMasterPwd(connection.password, masterPwd);
+      connection.password = Encryptor.decryptDataMasterPwd(connection.password, masterPwd);
     }
-    if (connection.authSource) connection.authSource = this.decryptDataMasterPwd(connection.authSource, masterPwd);
+    if (connection.authSource) connection.authSource = Encryptor.decryptDataMasterPwd(connection.authSource, masterPwd);
     if (connection.ssh) {
       if (connection.privateSSHKey)
-        connection.privateSSHKey = this.decryptDataMasterPwd(connection.privateSSHKey, masterPwd);
-      if (connection.sshHost) connection.sshHost = this.decryptDataMasterPwd(connection.sshHost, masterPwd);
-      if (connection.sshUsername) connection.sshUsername = this.decryptDataMasterPwd(connection.sshUsername, masterPwd);
+        connection.privateSSHKey = Encryptor.decryptDataMasterPwd(connection.privateSSHKey, masterPwd);
+      if (connection.sshHost) connection.sshHost = Encryptor.decryptDataMasterPwd(connection.sshHost, masterPwd);
+      if (connection.sshUsername) connection.sshUsername = Encryptor.decryptDataMasterPwd(connection.sshUsername, masterPwd);
     }
     if (connection.ssl) {
-      if (connection.cert) connection.cert = this.decryptDataMasterPwd(connection.cert, masterPwd);
+      if (connection.cert) connection.cert = Encryptor.decryptDataMasterPwd(connection.cert, masterPwd);
     }
     return connection;
   }
 
   static hashDataHMAC(dataToHash: string): string {
-    const privateKey = this.getPrivateKey();
+    const privateKey = Encryptor.getPrivateKey();
     const hmac = createHmac('sha256', privateKey);
     hmac.update(dataToHash);
     return hmac.digest('hex');
@@ -140,15 +140,17 @@ export class Encryptor {
           hash = CryptoJS.SHA384(data);
           return hash.toString(CryptoJS.enc.Hex);
 
-        case EncryptionAlgorithmEnum.pbkdf2:
+        case EncryptionAlgorithmEnum.pbkdf2: {
           const salt = CryptoJS.lib.WordArray.random(128 / 8);
           return CryptoJS.PBKDF2(data, salt, {
             keySize: 256 / 32,
           }).toString();
+        }
 
-        case EncryptionAlgorithmEnum.bcrypt:
+        case EncryptionAlgorithmEnum.bcrypt: {
           const bSalt = await bcrypt.genSalt();
           return await bcrypt.hash(data, bSalt);
+        }
 
         case EncryptionAlgorithmEnum.argon2:
           return await argon2.hash(data);
@@ -207,7 +209,7 @@ export class Encryptor {
       try {
         const passwordHashParts: Array<string> = hashedPassword.split('$');
         const alg = passwordHashParts[0];
-        const iterations = parseInt(passwordHashParts[1]);
+        const iterations = parseInt(passwordHashParts[1], 10);
         const passwordHash = passwordHashParts[2];
         const salt = passwordHashParts[3];
         if (passwordHashParts.length !== 4 || alg !== 'pbkdf2' || iterations !== Constants.PASSWORD_HASH_ITERATIONS) {

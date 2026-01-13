@@ -20,14 +20,11 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -218,7 +215,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     const lastPage = Math.ceil(rowsCount / perPage);
     let rowsRO: FoundRowsDS;
 
-    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
+    if (autocompleteFields?.value && autocompleteFields.fields.length > 0) {
       const fields = autocompleteFields.fields.join(', ');
       const autocompleteQuery = `SELECT ${fields} FROM ${connectionSchema}.${tableName} WHERE ${fields} LIKE '${autocompleteFields.value}%' FETCH FIRST ${DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT} ROWS ONLY`;
       const rows = await connectionToDb.query(autocompleteQuery);
@@ -438,7 +435,7 @@ ORDER BY
   `;
     try {
       const testResult = await connectionToDb.query(query);
-      if (testResult && testResult[0] && testResult[0]['1'] === 1) {
+      if (testResult?.[0] && testResult[0]['1'] === 1) {
         return {
           result: true,
           message: 'Successfully connected',
@@ -617,7 +614,7 @@ ORDER BY
     FROM ${tableSchema}.${tableName}
   `;
     const countResult = await connectionToDb.query(countQuery);
-    const rowsCount = parseInt(countResult[0]['1']);
+    const rowsCount = parseInt(countResult[0]['1'], 10);
     return { rowsCount: rowsCount, large_dataset: false };
   }
 
@@ -631,7 +628,7 @@ ORDER BY
   `;
     const fastCountParams = [tableName, tableSchema];
     const fastCountQueryResult = await connectionToDb.query(fastCountQuery, fastCountParams);
-    const fastCount = fastCountQueryResult[0]['CARD'];
+    const fastCount = fastCountQueryResult[0].CARD;
     return fastCount;
   }
 
@@ -645,15 +642,11 @@ ORDER BY
     for await (const record of parser) {
       results.push(record);
     }
-    try {
       await Promise.allSettled(
         results.map(async (row) => {
           return await this.addRowInTable(tableName, row);
         }),
       );
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
@@ -691,7 +684,7 @@ ORDER BY
     const connectionCopy = { ...connection };
     return new Promise<Database>(async (resolve, reject): Promise<Database> => {
       const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
-      if (cachedTnl && cachedTnl.database && cachedTnl.server && cachedTnl.client && cachedTnl.database.connected) {
+      if (cachedTnl?.database && cachedTnl.server && cachedTnl.client && cachedTnl.database.connected) {
         resolve(cachedTnl.database);
         return;
       }
@@ -727,13 +720,5 @@ ORDER BY
         return;
       }
     });
-  }
-
-  private sanitize(value: unknown): string {
-    if (typeof value === 'string') {
-      return value.replace(/'/g, "''");
-    } else {
-      return String(value);
-    }
   }
 }

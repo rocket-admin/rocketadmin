@@ -13,4 +13,8 @@ export class UsualLoginDs {
   gclidValue: string;
 
   request_domain: string;
+
+  ipAddress?: string;
+
+  userAgent?: string;
 }

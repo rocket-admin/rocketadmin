@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums/index.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { CreateLogRecordDs } from './application/data-structures/create-log-record.ds.js';
 import { CreatedLogRecordDs } from './application/data-structures/created-log-record.ds.js';
@@ -212,7 +212,7 @@ export class TableLogsService {
       tableLogsEntities.push(newLogRecord);
     }
     const queue = new PQueue({ concurrency: 2 });
-    const createdLogs: Array<CreatedLogRecordDs | void> = await Promise.all(
+    const createdLogs: Array<CreatedLogRecordDs | undefined> = await Promise.all(
       tableLogsEntities.map(async (newLogRecord) => {
         return await queue.add(async () => {
           const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);

@@ -10,14 +10,15 @@
     "target": "ESNext",
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./",
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",
     "skipLibCheck": true
   },
-  /*"references": [
-    { "path": "../shared-code" },
-],*/
+  // "references": [
+  //   { "path": "../shared-code" },
+  // ],
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist", "../node_modules"]
 }

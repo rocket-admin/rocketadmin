@@ -28,7 +28,7 @@ import { SubscriptionPlans } from 'src/app/models/user';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
-import { orderBy } from "lodash";
+import { orderBy } from "lodash-es";
 
 @Component({
   selector: 'app-company',
@@ -346,24 +346,24 @@ export class CompanyComponent {
       companyLogoFile = null;
     }
 
-    this._company.uploadLogo(this.company.id, companyLogoFile).subscribe(res => {
+    this._company.uploadLogo(this.company.id, companyLogoFile).subscribe(_res => {
       this.submittingLogo = false;
       this.angulartics2.eventTrack.next({
         action: 'Company: logo is uploaded successfully',
       });
-    }, err => {
+    }, _err => {
       this.submittingLogo = false;
     });
   }
 
   removeLogo() {
     this.submittingLogo = true;
-    this._company.removeLogo(this.company.id).subscribe(res => {
+    this._company.removeLogo(this.company.id).subscribe(_res => {
       this.submittingLogo = false;
       this.angulartics2.eventTrack.next({
         action: 'Company: logo is removed successfully',
       });
-    }, err => {
+    }, _err => {
       this.submittingLogo = false;
     });
   }
@@ -382,24 +382,24 @@ export class CompanyComponent {
       faviconFile = null;
     }
 
-    this._company.uploadFavicon(this.company.id, faviconFile).subscribe(res => {
+    this._company.uploadFavicon(this.company.id, faviconFile).subscribe(_res => {
       this.submittingFavicon = false;
       this.angulartics2.eventTrack.next({
         action: 'Company: favicon is uploaded successfully',
       });
-    }, err => {
+    }, _err => {
       this.submittingFavicon = false;
     });
   }
 
   removeFavicon() {
     this.submittingFavicon = true;
-    this._company.removeFavicon(this.company.id).subscribe(res => {
+    this._company.removeFavicon(this.company.id).subscribe(_res => {
       this.submittingFavicon = false;
       this.angulartics2.eventTrack.next({
         action: 'Company: favicon is removed successfully',
       });
-    }, err => {
+    }, _err => {
       this.submittingFavicon = false;
     });
   }
@@ -411,7 +411,7 @@ export class CompanyComponent {
       this.angulartics2.eventTrack.next({
         action: 'Company: tab title is updated successfully',
       });
-    }, err => {
+    }, _err => {
       this.submittingTabTitle = false;
     });
   }

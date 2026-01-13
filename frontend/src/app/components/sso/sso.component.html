@@ -71,6 +71,7 @@
     </mat-form-field>
 
     <mat-checkbox name="active" #active="ngModel"
+        class="samlConfigForm__checkbox"
         data-testid="active-checkbox"
         labelPosition="after"
         [disabled]="submitting"
@@ -78,12 +79,22 @@
         Active
     </mat-checkbox>
 
+    <mat-checkbox name="assertionsSignedValidation" #assertionsSignedValidation="ngModel"
+        class="samlConfigForm__checkbox"
+        data-testid="assertionsSignedValidation-checkbox"
+        labelPosition="after"
+        [disabled]="submitting"
+        [(ngModel)]="samlConfig.assertionsSignedValidation">
+        Assertions signed validation
+    </mat-checkbox>
+
     <mat-checkbox name="authnResponseSignedValidation" #authnResponseSignedValidation="ngModel"
+        class="samlConfigForm__checkbox"
         data-testid="authnResponseSignedValidation-checkbox"
         labelPosition="after"
         [disabled]="submitting"
         [(ngModel)]="samlConfig.authnResponseSignedValidation">
-        Authn Response Signed Validation
+        Authn response signed validation
     </mat-checkbox>
 
     <mat-form-field appearance="outline">
@@ -94,7 +105,7 @@
             [(ngModel)]="samlConfig.allowedDomains">
     </mat-form-field>
     <mat-form-field appearance="outline">
-        <mat-label>Display Name</mat-label>
+        <mat-label>Display name</mat-label>
         <input matInput name="display-name" #displayName="ngModel"
             data-testid="display-name-input"
             required
@@ -110,7 +121,7 @@
             [(ngModel)]="samlConfig.logoUrl">
     </mat-form-field>
     <mat-form-field appearance="outline">
-        <mat-label>Expected Issuer</mat-label>
+        <mat-label>Expected issuer</mat-label>
         <input matInput name="expected-issuer" #expectedIssuer="ngModel"
             data-testid="expected-issuer-input"
             required

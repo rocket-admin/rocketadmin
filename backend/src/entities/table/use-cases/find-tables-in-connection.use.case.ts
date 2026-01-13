@@ -18,7 +18,7 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { TableInfoEntity } from '../../table-info/table-info.entity.js';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
 import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
@@ -112,7 +112,7 @@ export class FindTablesInConnectionUseCase
     const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
     const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
     let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
-    if (excludedTables && excludedTables.hidden_tables?.length) {
+    if (excludedTables?.hidden_tables?.length) {
       if (!hiddenTablesOption) {
         tablesRO = tablesRO.filter((tableRO) => {
           return !excludedTables.hidden_tables.includes(tableRO.table);
@@ -246,7 +246,7 @@ export class FindTablesInConnectionUseCase
 
   private async saveTableInfoInDatabase(
     connectionId: string,
-    userId: string,
+    _userId: string,
     tables: Array<TableDS>,
     masterPwd: string,
   ): Promise<void> {

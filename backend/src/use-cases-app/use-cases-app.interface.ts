@@ -1,5 +1,5 @@
 import { InTransactionEnum } from '../enums/index.js';
 
 export interface IGetHello {
-  execute(inputData: void, inTransaction: InTransactionEnum): Promise<string>;
+  execute(inputData: undefined, inTransaction: InTransactionEnum): Promise<string>;
 }

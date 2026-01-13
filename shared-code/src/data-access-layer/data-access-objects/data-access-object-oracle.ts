@@ -16,7 +16,6 @@ import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -27,8 +26,8 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 type RefererencedConstraint = {
@@ -39,9 +38,6 @@ type RefererencedConstraint = {
 };
 
 export class DataAccessObjectOracle extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -94,7 +90,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
         .where(primaryKey)
         .del();
     } catch (error) {
-      console.error(`Error deleting row in table ${tableName}:`, error);
+      console.error('Error deleting row in table: %s', tableName, error);
       throw error;
     }
   }
@@ -353,7 +349,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
     return {
       data: rows.map((row) => {
-        delete row['ROWNUM_'];
+        delete row.ROWNUM_;
         return row;
       }),
       pagination: {
@@ -388,13 +384,13 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     if (!fastCountQueryResult[0]) {
       return null;
     }
-    const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
+    const fastCount = fastCountQueryResult[0].NUM_ROWS;
     return fastCount;
   }
 
   public async slowCountWithTimeOut(knex: Knex<any, any[]>, tableName: string, tableSchema: string) {
     const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
-    const rowsCount = parseInt(count[0]['COUNT(*)']);
+    const rowsCount = parseInt(count[0]['COUNT(*)'], 10);
     return rowsCount;
   }
 
@@ -494,7 +490,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     }
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
-    const structureColumns = await knex()
+    const structureColumns = await knex
+      .queryBuilder()
       .select('COLUMN_NAME', 'DATA_DEFAULT', 'DATA_TYPE', 'NULLABLE', 'DATA_LENGTH')
       .from('ALL_TAB_COLUMNS')
       .orderBy('COLUMN_ID')
@@ -826,8 +823,6 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     for await (const record of parser) {
       results.push(record);
     }
-
-    try {
       await knex.transaction(async (trx) => {
         for (const row of results) {
           for (const column of timestampColumnNames) {
@@ -840,9 +835,6 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           await trx(tableName).withSchema(tableSchema).insert(row);
         }
       });
-    } catch (error) {
-      throw error;
-    }
   }
 
   public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {

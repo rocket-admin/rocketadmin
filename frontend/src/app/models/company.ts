@@ -1,5 +1,6 @@
-import { User } from "@sentry/angular-ivy"
 import { SubscriptionPlans, UserGroup } from "./user"
+
+import { User } from "@sentry/angular-ivy"
 
 export interface Address {
     street: string,
@@ -60,7 +61,7 @@ export interface CompanyMemberInvitation {
 }
 
 export interface SamlConfig {
-  id: string;
+  id?: string;
   name: string;
   entryPoint: string;
   issuer: string;
@@ -69,7 +70,8 @@ export interface SamlConfig {
   signatureAlgorithm: string;
   digestAlgorithm: "sha256",
   active: true,
-  authnResponseSignedValidation: true,
+  authnResponseSignedValidation: boolean,
+  assertionsSignedValidation: boolean,
   allowedDomains: string[],
   displayName: string,
   logoUrl: string,

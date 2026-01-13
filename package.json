@@ -1,13 +1,31 @@
 {
-  "name": "root",
-  "private": true,
-  "workspaces": [
-    "backend",
-    "rocketadmin-agent",
-    "shared-code"
-  ],
-  "packageManager": "yarn@3.4.1",
-  "dependencies": {
-    "monaco-editor": "^0.53.0"
-  }
+	"name": "root",
+	"private": true,
+	"workspaces": [
+		"backend",
+		"rocketadmin-agent",
+		"shared-code"
+	],
+	"packageManager": "yarn@3.4.1",
+	"dependencies": {
+		"monaco-editor": "^0.53.0"
+	},
+	"resolutions": {
+		"cipher-base": "1.0.7",
+		"tar-fs": "1.16.6"
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.8",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.2.7"
+	},
+	"lint-staged": {
+		"*.{js,ts,jsx,tsx,json,html,css}": [
+			"biome check --write"
+		]
+	}
 }

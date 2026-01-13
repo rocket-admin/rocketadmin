@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map } from 'rxjs/operators';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { EMPTY } from 'rxjs';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { NotificationsService } from './notifications.service';
 import { AlertActionType, AlertType } from '../models/alert';
@@ -30,7 +30,7 @@ export class PaymentService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -50,7 +50,7 @@ export class PaymentService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -70,7 +70,7 @@ export class PaymentService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;

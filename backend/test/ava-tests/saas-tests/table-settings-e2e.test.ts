@@ -22,7 +22,7 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest;
 
 test.before(async () => {
@@ -31,7 +31,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -90,7 +90,7 @@ test.serial(`${currentTest} should throw an exception when connectionId is missi
     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createdConnection = await request(app.getHttpServer())
+    const _createdConnection = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
       .set('Cookie', token)
@@ -166,10 +166,6 @@ test.serial(`${currentTest} should return connection settings object`, async (t)
       ['title'],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
       undefined,
@@ -191,15 +187,11 @@ test.serial(`${currentTest} should return connection settings object`, async (t)
       .set('Accept', 'application/json');
 
     const findSettingsRO = JSON.parse(findSettingsResponce.text);
-    t.is(findSettingsRO.hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(findSettingsRO, 'id'), true);
     t.is(findSettingsRO.table_name, 'connection');
     t.is(findSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.deepEqual(findSettingsRO.search_fields, ['title']);
     t.deepEqual(findSettingsRO.excluded_fields, []);
-    t.deepEqual(findSettingsRO.list_fields, []);
-    t.is(findSettingsRO.list_per_page, 3);
-    t.is(findSettingsRO.ordering, 'DESC');
-    t.is(findSettingsRO.ordering_field, 'port');
     t.deepEqual(findSettingsRO.readonly_fields, []);
     t.deepEqual(findSettingsRO.sortable_by, []);
     t.deepEqual(findSettingsRO.autocomplete_columns, []);
@@ -232,10 +224,6 @@ test.serial(`${currentTest} should return created table settings`, async (t) => 
       ['title'],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
       undefined,
@@ -257,15 +245,11 @@ test.serial(`${currentTest} should return created table settings`, async (t) => 
       .set('Accept', 'application/json');
 
     const findSettingsRO = JSON.parse(findSettingsResponce.text);
-    t.is(findSettingsRO.hasOwnProperty('id'), true);
+    t.is(Object.hasOwn(findSettingsRO, 'id'), true);
     t.is(findSettingsRO.table_name, 'connection');
     t.is(findSettingsRO.display_name, createTableSettingsDTO.display_name);
     t.deepEqual(findSettingsRO.search_fields, ['title']);
     t.deepEqual(findSettingsRO.excluded_fields, []);
-    t.deepEqual(findSettingsRO.list_fields, []);
-    t.is(findSettingsRO.list_per_page, 3);
-    t.is(findSettingsRO.ordering, 'DESC');
-    t.is(findSettingsRO.ordering_field, 'port');
     t.deepEqual(findSettingsRO.readonly_fields, []);
     t.deepEqual(findSettingsRO.sortable_by, []);
     t.deepEqual(findSettingsRO.autocomplete_columns, []);
@@ -295,10 +279,6 @@ test.serial(`${currentTest} should throw exception when tableName is missing`, a
       ['title'],
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
       undefined,
@@ -325,7 +305,7 @@ test.serial(`${currentTest} should throw exception when connectionId is missing`
     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createdConnection = await request(app.getHttpServer())
+    const _createdConnection = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
       .set('Cookie', token)
@@ -339,10 +319,6 @@ test.serial(`${currentTest} should throw exception when connectionId is missing`
       'connection',
       ['title'],
       undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
       undefined,
       undefined,
       undefined,
@@ -385,10 +361,6 @@ test.serial(`${currentTest} should throw exception when search_fields is not an 
       'title',
       undefined,
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
     );
@@ -428,10 +400,6 @@ test.serial(`${currentTest} should throw exception when excluded_fields is not a
       ['title'],
       'type',
       undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
       undefined,
       undefined,
     );
@@ -446,49 +414,6 @@ test.serial(`${currentTest} should throw exception when excluded_fields is not a
     t.is(createTableSettingsResponse.status, 400);
     const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
     t.is(createTableSettingsRO.message, 'The field "excluded_fields" must be an array');
-  } catch (e) {
-    console.error(e);
-  }
-});
-
-test.serial(`${currentTest} should throw exception when list_fields is not an array`, async (t) => {
-  try {
-    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
-    const { token } = await registerUserAndReturnUserInfo(app);
-
-    const createdConnection = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    const connectionId = JSON.parse(createdConnection.text).id;
-
-    const createTableSettingsDTO = mockFactory.generateTableSettingsWithoutTypes(
-      connectionId,
-      'connection',
-      ['title'],
-      undefined,
-      'type',
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const tableName = 'connection';
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 400);
-    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-    t.is(createTableSettingsRO.message, 'The field "list_fields" must be an array');
   } catch (e) {
     console.error(e);
   }
@@ -513,10 +438,6 @@ test.serial(`${currentTest} should throw exception when readonly_fields is not a
       'connection',
       ['title'],
       undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
       'type',
       undefined,
       undefined,
@@ -556,10 +477,6 @@ test.serial(`${currentTest} should throw exception when sortable_by is not an ar
       'connection',
       ['title'],
       undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
       undefined,
       'type',
       undefined,
@@ -601,10 +518,6 @@ test.serial(
         'connection',
         ['testField'],
         undefined,
-        undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
         undefined,
         undefined,
         undefined,
@@ -648,10 +561,6 @@ test.serial(
         ['type'],
         ['testField'],
         undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
-        undefined,
         undefined,
         undefined,
       );
@@ -671,49 +580,6 @@ test.serial(
     }
   },
 );
-
-test.serial(`${currentTest} should throw exception when there are no such field in the table for list`, async (t) => {
-  try {
-    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
-    const { token } = await registerUserAndReturnUserInfo(app);
-
-    const createdConnection = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    const connectionId = JSON.parse(createdConnection.text).id;
-
-    const createTableSettingsDTO = mockFactory.generateTableSettingsWithoutTypes(
-      connectionId,
-      'connection',
-      ['type'],
-      undefined,
-      ['testField'],
-      3,
-      QueryOrderingEnum.DESC,
-      'port',
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const tableName = 'connection';
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 400);
-    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-    t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
-  } catch (e) {
-    console.error(e);
-  }
-});
 
 test.serial(
   `${currentTest} should throw exception when there are no such field in the table for read only`,
@@ -736,10 +602,6 @@ test.serial(
         'connection',
         ['type'],
         undefined,
-        undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
         ['testField'],
         undefined,
         undefined,
@@ -753,52 +615,6 @@ test.serial(
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
 
-      t.is(createTableSettingsResponse.status, 400);
-      const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-      t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
-    } catch (e) {
-      console.error(e);
-    }
-  },
-);
-
-test.serial(
-  `${currentTest} should throw exception when there are no such field in the table for sorting`,
-  async (t) => {
-    try {
-      const newConnection = getTestData(mockFactory).newConnectionToTestDB;
-      const { token } = await registerUserAndReturnUserInfo(app);
-
-      const createdConnection = await request(app.getHttpServer())
-        .post('/connection')
-        .send(newConnection)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-
-      const connectionId = JSON.parse(createdConnection.text).id;
-
-      const createTableSettingsDTO = mockFactory.generateTableSettingsWithoutTypes(
-        connectionId,
-        'connection',
-        ['type'],
-        undefined,
-        undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'port',
-        undefined,
-        ['testField'],
-        undefined,
-      );
-
-      const tableName = 'connection';
-      const createTableSettingsResponse = await request(app.getHttpServer())
-        .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
-        .send(createTableSettingsDTO)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
       t.is(createTableSettingsResponse.status, 400);
       const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
       t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');

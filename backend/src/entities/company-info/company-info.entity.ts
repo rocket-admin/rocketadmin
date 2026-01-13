@@ -6,6 +6,7 @@ import { generateCompanyName } from './utils/get-company-name.js';
 import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
 import { CompanyFaviconEntity } from '../company-favicon/company-favicon.entity.js';
 import { CompanyTabTitleEntity } from '../company-tab-title/company-tab-title.entity.js';
+import { UserSecretEntity } from '../user-secret/user-secret.entity.js';
 
 @Entity('company_info')
 export class CompanyInfoEntity {
@@ -60,4 +61,9 @@ export class CompanyInfoEntity {
     onDelete: 'NO ACTION',
   })
   tab_title: Relation<CompanyTabTitleEntity>;
+
+  @OneToMany((_) => UserSecretEntity, (secret) => secret.company, {
+    onDelete: 'NO ACTION',
+  })
+  secrets: Relation<UserSecretEntity>[];
 }

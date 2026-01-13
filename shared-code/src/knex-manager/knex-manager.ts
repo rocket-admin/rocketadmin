@@ -84,7 +84,7 @@ export class KnexManager {
     const connectionCopy = { ...connection };
     return new Promise<Knex<any, any[]>>(async (resolve, reject): Promise<Knex<any, any[]>> => {
       const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
-      if (cachedTnl && cachedTnl.knex && cachedTnl.server && cachedTnl.client) {
+      if (cachedTnl?.knex && cachedTnl.server && cachedTnl.client) {
         resolve(cachedTnl.knex);
         return;
       }

@@ -68,8 +68,7 @@ export class PaymentFormComponent implements OnInit {
   constructor(
     private _paymentService: PaymentService,
     private _userService: UserService,
-    private _notifications: NotificationsService,
-    private http: HttpClient,
+    private _notifications: NotificationsService,_http: HttpClient,
     private fb: FormBuilder,
     private stripeService: StripeService,
     private route: ActivatedRoute,
@@ -103,7 +102,7 @@ export class PaymentFormComponent implements OnInit {
     this._userService.cast.subscribe(user => {
       console.log('user');
       console.log(user);
-      if (user && user.company.id) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
+      if (user?.company.id) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
         this.companyId = user.company.id;
         this.paymentElementForm = this.fb.group({
           name: [user.name],
@@ -146,14 +145,14 @@ export class PaymentFormComponent implements OnInit {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (_id: number) => this._notifications.dismissAlert()
             }
           ]);
         } else {
           // The payment has been processed!
           if (result.setupIntent.status === 'succeeded') {
             this._paymentService.createSubscription(this.companyId, result.setupIntent.payment_method, this.subscriptionLevel)
-              .subscribe(res => {
+              .subscribe(_res => {
                 this._notifications.showSuccessSnackbar('Subscription successfully started.');
                 this.router.navigate(['/upgrade']);
               })
@@ -162,7 +161,7 @@ export class PaymentFormComponent implements OnInit {
               {
                 type: AlertActionType.Button,
                 caption: 'Dismiss',
-                action: (id: number) => this._notifications.dismissAlert()
+                action: (_id: number) => this._notifications.dismissAlert()
               }
             ]);
           }

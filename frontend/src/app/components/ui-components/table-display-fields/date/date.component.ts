@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { format, parseISO, formatDistanceToNow, differenceInHours } from 'date-fns';
+import { format, formatDistanceToNow, differenceInHours } from 'date-fns';
 
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -26,7 +26,7 @@ export class DateDisplayComponent extends BaseTableDisplayFieldComponent impleme
     if (this.value) {
       try {
         const date = new Date(this.value);
-        if (!isNaN(date.getTime())) {
+        if (!Number.isNaN(date.getTime())) {
           // Always store the full date format for tooltip
           this.fullDate = format(date, "PPP"); // e.g., "April 29th, 2023"
           
@@ -40,7 +40,7 @@ export class DateDisplayComponent extends BaseTableDisplayFieldComponent impleme
           this.formattedDate = this.value;
           this.fullDate = this.value;
         }
-      } catch (error) {
+      } catch (_error) {
         this.formattedDate = this.value;
         this.fullDate = this.value;
       }

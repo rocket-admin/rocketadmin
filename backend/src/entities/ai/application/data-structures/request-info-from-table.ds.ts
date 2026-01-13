@@ -1,5 +1,5 @@
 import { Response } from 'express';
-export class RequestInfoFromTableDS {
+class RequestInfoFromTableDS {
   connectionId: string;
   tableName: string;
   user_message: string;

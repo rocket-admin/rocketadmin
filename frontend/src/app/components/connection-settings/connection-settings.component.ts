@@ -14,7 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { ServerError } from 'src/app/models/alert';
-import { Subscription, take } from 'rxjs';
+import { take } from 'rxjs';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
@@ -68,8 +68,6 @@ export class ConnectionSettingsComponent implements OnInit {
   public noTablesError: boolean = false;
   public isServerError: boolean = false;
   public serverError: ServerError;
-
-  private getTitleSubscription: Subscription;
 
   constructor(
     private _connections: ConnectionsService,
@@ -180,7 +178,7 @@ export class ConnectionSettingsComponent implements OnInit {
 
     for (const [key, value] of Object.entries(this.connectionSettings)) {
       if (key === 'hidden_tables') {
-        updatedSettings[key] = value.length > 0;
+        updatedSettings[key] = value?.length > 0;
       } else {
         updatedSettings[key] = Boolean(value);
       }
@@ -228,7 +226,7 @@ export class ConnectionSettingsComponent implements OnInit {
   }
 
   openIntercome() {
-    // @ts-ignore
+    // @ts-expect-error
     Intercom('show');
   }
 }

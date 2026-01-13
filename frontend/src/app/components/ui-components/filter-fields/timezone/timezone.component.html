@@ -1,0 +1,15 @@
+<mat-form-field class="timezone-form-field" appearance="outline">
+  <mat-label>{{normalizedLabel}}</mat-label>
+  <mat-select
+    name="{{label}}-{{key}}"
+    [required]="required"
+    [disabled]="disabled"
+    [readonly]="readonly"
+    attr.data-testid="filter-{{label}}-timezone"
+    [(ngModel)]="value"
+    (ngModelChange)="onFieldChange.emit($event)">
+    <mat-option *ngFor="let timezone of timezones" [value]="timezone.value">
+      {{timezone.label}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

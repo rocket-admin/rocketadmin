@@ -1,7 +1,7 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 
-import isFQDN from 'validator/lib/isFQDN';
-import isIP from 'validator/lib/isIP';
+import isFQDN from 'validator/es/lib/isFQDN';
+import isIP from 'validator/es/lib/isIP';
 import is_ip_private from 'private-ip';
 import { DBtype } from "../models/connection";
 

@@ -17,7 +17,6 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -28,9 +27,9 @@ import { DynamoDBType, TableStructureDS } from '../shared/data-structures/table-
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export type DdAndClient = {
@@ -38,9 +37,6 @@ export type DdAndClient = {
   documentClient: DynamoDBDocumentClient;
 };
 export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -78,10 +74,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         const foundKeySchema = tableStructure.find((el) => el.column_name === key);
         if (foundKeySchema?.data_type === 'number') {
           const numericValue = Number(primaryKey[key]);
-          if (!isNaN(numericValue)) {
+          if (!Number.isNaN(numericValue)) {
             primaryKey[key] = numericValue;
           } else {
-            continue;
           }
         }
       }
@@ -155,10 +150,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const foundKeySchema = tableStructure.find((el) => el.column_name === key);
       if (foundKeySchema?.data_type === 'number') {
         const numericValue = Number(primaryKey[key]);
-        if (!isNaN(numericValue)) {
+        if (!Number.isNaN(numericValue)) {
           primaryKey[key] = numericValue;
         } else {
-          continue;
         }
       }
     }
@@ -194,7 +188,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       for (const key in primaryKey) {
         const schema = tableStructure.find((element) => element.column_name === key);
         const value = schema?.data_type === 'number' ? Number(primaryKey[key]) : primaryKey[key];
-        if (schema?.data_type === 'number' && isNaN(value as number)) {
+        if (schema?.data_type === 'number' && Number.isNaN(value as number)) {
           throw new Error(`Invalid number value for key: ${key}`);
         }
         marshalledKey[key] = value;
@@ -285,7 +279,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           const isNumberField = fieldInfo?.data_type === 'number';
           if (isNumberField) {
             const numericValue = Number(searchedFieldValue);
-            if (!isNaN(numericValue)) {
+            if (!Number.isNaN(numericValue)) {
               expressionAttributeValues[`:${field}_value`] = { N: String(numericValue) };
               return `#${field} = :${field}_value`;
             }
@@ -486,10 +480,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         const foundKeySchema = tableStructure.find((el) => el.column_name === key);
         if (foundKeySchema?.data_type === 'number') {
           const numericValue = Number(primaryKey[key]);
-          if (!isNaN(numericValue)) {
+          if (!Number.isNaN(numericValue)) {
             primaryKey[key] = numericValue;
           } else {
-            continue;
           }
         }
       }
@@ -535,7 +528,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const updateExpression =
         'SET ' +
         Object.keys(newValues)
-          .map((key, index) => `#key${index} = :value${index}`)
+          .map((_key, index) => `#key${index} = :value${index}`)
           .join(', ');
       const expressionAttributeNames = Object.keys(newValues).reduce((acc, key, index) => {
         acc[`#key${index}`] = key;
@@ -576,7 +569,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         const foundKeySchema = tableStructure.find((el) => el.column_name === key);
         if (foundKeySchema?.data_type === 'number') {
           const numericValue = Number(primaryKey[key]);
-          if (!isNaN(numericValue)) {
+          if (!Number.isNaN(numericValue)) {
             primaryKey[key] = numericValue;
           }
         }
@@ -683,7 +676,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           try {
             row[column.column_name] = (row[column.column_name] as string[]).map((value) => hexToBinary(value));
           } catch (_e) {
-            continue;
           }
         }
       }
@@ -752,7 +744,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const fieldInfo = tableStructure.find((el) => el.column_name === key);
       if (fieldInfo?.data_type === 'number' || attributeType === 'N') {
         const valueToNumber = Number(transformedRow[key]);
-        if (!isNaN(valueToNumber)) {
+        if (!Number.isNaN(valueToNumber)) {
           transformedRow[key] = valueToNumber;
         }
       }
@@ -792,7 +784,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     expressionAttributeValues: { [key: string]: any },
     expressionAttributeNames: { [key: string]: string },
   ): Promise<number> {
-    try {
       let lastEvaluatedKey = null;
       let totalRowsCount = 0;
       const { dynamoDb } = this.getDynamoDb();
@@ -820,9 +811,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       } while (lastEvaluatedKey);
 
       return totalRowsCount;
-    } catch (error) {
-      throw error;
-    }
   }
 
   private sortRows(rows: any[], orderingField: string, ordering: QueryOrderingEnum): any[] {

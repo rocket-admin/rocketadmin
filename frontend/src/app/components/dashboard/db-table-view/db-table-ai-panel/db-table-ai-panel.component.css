@@ -47,6 +47,51 @@
     z-index: 0;
 }
 
+.ai-panel-sidebar-content ::ng-deep .ai-message table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.ai-panel-sidebar-content ::ng-deep .ai-message table thead {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-panel-sidebar-content ::ng-deep .ai-message table thead {
+        background-color: rgba(255, 255, 255, 0.04);
+    }
+}
+
+.ai-panel-sidebar-content ::ng-deep .ai-message table th,
+.ai-panel-sidebar-content ::ng-deep .ai-message table td {
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-panel-sidebar-content ::ng-deep .ai-message table th,
+    .ai-panel-sidebar-content ::ng-deep .ai-message table td {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+}
+
+.ai-panel-sidebar-content ::ng-deep .ai-message table th {
+    font-weight: 600;
+}
+
+.ai-panel-sidebar-content ::ng-deep .ai-message table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-panel-sidebar-content ::ng-deep .ai-message table tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     .ai-panel-sidebar-content {
         border-left: 1px solid var(--mat-sidenav-container-divider-color);
@@ -144,7 +189,21 @@
 
 .ai-message ::ng-deep ol,
 .ai-message ::ng-deep ul {
-    padding-left: 28px;
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.ai-message ::ng-deep li {
+    margin: 4px 0;
+    line-height: 1.5;
+}
+
+.ai-message ::ng-deep ol {
+    list-style-position: outside;
+}
+
+.ai-message ::ng-deep ul {
+    list-style-position: outside;
 }
 
 .ai-message ::ng-deep pre {
