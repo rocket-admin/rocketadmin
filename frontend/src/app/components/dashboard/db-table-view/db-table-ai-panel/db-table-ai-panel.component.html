@@ -2,7 +2,8 @@
     class="ai-panel-sidebar"
     [ngClass]="{'ai-panel-sidebar_open': isAIpanelOpened, 'ai-panel-sidebar_expanded': isExpanded}">
 </div>
-<div class="ai-panel-sidebar-content"
+<div *ngIf="isAIpanelOpened"
+    class="ai-panel-sidebar-content"
     [ngClass]="{'ai-panel-sidebar-content_open': isAIpanelOpened, 'ai-panel-sidebar-content_expanded': isExpanded}">
     <div class="ai-panel-sidebar__header">
         <h2 class="mat-heading-2 ai-panel-sidebar__title">
