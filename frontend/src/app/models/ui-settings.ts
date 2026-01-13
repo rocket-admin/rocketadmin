@@ -5,6 +5,10 @@ export interface GlobalSettingsUI {
 
 export interface TableSettingsUI {
     shownColumns: string[];
+    defaultSort?: {
+        column: string;
+        direction: 'asc' | 'desc';
+    };
 }
 
 export interface ConnectionSettingsUI {

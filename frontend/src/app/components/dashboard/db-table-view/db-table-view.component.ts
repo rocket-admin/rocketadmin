@@ -17,6 +17,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
@@ -40,6 +41,7 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { tableDisplayTypes, UIwidgets } from '../../../consts/table-display-types';
 import { normalizeTableName } from '../../../lib/normalize';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
@@ -81,6 +83,7 @@ export interface Folder {
 		MatAutocompleteModule,
 		MatSelectModule,
 		MatMenuModule,
+		MatDividerModule,
 		MatTooltipModule,
 		ClipboardModule,
 		DragDropModule,
@@ -150,11 +153,14 @@ export class DbTableViewComponent implements OnInit {
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 	@ViewChild(MatSort) sort: MatSort;
 
+	public defaultSort: { column: string; direction: 'asc' | 'desc' } | null = null;
+
 	constructor(
 		private _tableState: TableStateService,
 		private _notifications: NotificationsService,
 		private _tableRow: TableRowService,
 		private _connections: ConnectionsService,
+		private _uiSettings: UiSettingsService,
 		private route: ActivatedRoute,
 		public router: Router,
 		public dialog: MatDialog,
@@ -164,7 +170,15 @@ export class DbTableViewComponent implements OnInit {
 		this.tableData.paginator = this.paginator;
 
 		this.tableData.sort = this.sort;
-		// this.sort.sortChange.subscribe(() => { this.paginator.pageIndex = 0 });
+
+		// Load default sort from settings
+		this.loadDefaultSort();
+
+		// Initialize sort - default sort takes priority
+		if (this.defaultSort) {
+			this.sort.active = this.defaultSort.column;
+			this.sort.direction = this.defaultSort.direction;
+		}
 
 		merge(this.sort.sortChange, this.paginator.page)
 			.pipe(
@@ -244,6 +258,51 @@ export class DbTableViewComponent implements OnInit {
 
 	isSortable(column: string) {
 		return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
+	}
+
+	applySort(column: string, direction: 'asc' | 'desc') {
+		// If clicking on already selected sort - revert to default or clear
+		if (this.sort.active === column && this.sort.direction === direction) {
+			if (this.defaultSort) {
+				// Revert to default sort
+				this.sort.active = this.defaultSort.column;
+				this.sort.direction = this.defaultSort.direction;
+				this.sort.sortChange.emit({ active: this.defaultSort.column, direction: this.defaultSort.direction });
+			} else {
+				// Clear sort
+				this.sort.active = '';
+				this.sort.direction = '';
+				this.sort.sortChange.emit({ active: '', direction: '' });
+			}
+		} else {
+			this.sort.active = column;
+			this.sort.direction = direction;
+			this.sort.sortChange.emit({ active: column, direction: direction });
+		}
+	}
+
+	loadDefaultSort() {
+		const tableSettings = this._uiSettings.settings?.connections?.[this.connectionID]?.tables?.[this.name];
+		if (tableSettings?.defaultSort) {
+			this.defaultSort = tableSettings.defaultSort;
+		}
+	}
+
+	toggleDefaultSort(column: string) {
+		if (this.isDefaultSort(column)) {
+			// Remove default sort
+			this.defaultSort = null;
+			this._uiSettings.updateTableSetting(this.connectionID, this.name, 'defaultSort', null);
+		} else {
+			// Set current sort as default
+			const direction = this.sort.active === column ? this.sort.direction : 'asc';
+			this.defaultSort = { column, direction: direction as 'asc' | 'desc' };
+			this._uiSettings.updateTableSetting(this.connectionID, this.name, 'defaultSort', this.defaultSort);
+		}
+	}
+
+	isDefaultSort(column: string): boolean {
+		return this.defaultSort?.column === column;
 	}
 
 	isForeignKey(column: string) {

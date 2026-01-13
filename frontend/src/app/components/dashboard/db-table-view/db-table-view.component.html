@@ -235,7 +235,38 @@
             </ng-container>
 
             <ng-container [matColumnDef]="column" *ngFor="let column of tableData.displayedDataColumns">
-                <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef class="sortable-header" [class.sortable-header_active]="sort.active === column">
+                    <div class="sortable-header__content">
+                        <span class="sortable-header__text">{{ tableData.dataNormalizedColumns[column] }}</span>
+                        <button *ngIf="isSortable(column)"
+                            mat-icon-button
+                            class="sortable-header__button"
+                            [matMenuTriggerFor]="sortMenu">
+                            <mat-icon class="sortable-header__icon">
+                                {{ sort.active === column ? (sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}
+                            </mat-icon>
+                        </button>
+                    </div>
+                    <mat-menu #sortMenu="matMenu" class="sort-menu">
+                        <button mat-menu-item (click)="applySort(column, 'asc'); $event.stopPropagation()"
+                            class="sort-menu__item"
+                            [class.sort-menu__item_active]="sort.active === column && sort.direction === 'asc'">
+                            <mat-icon>arrow_upward</mat-icon>
+                            <span>Ascending (A-Z)</span>
+                        </button>
+                        <button mat-menu-item (click)="applySort(column, 'desc'); $event.stopPropagation()"
+                            class="sort-menu__item"
+                            [class.sort-menu__item_active]="sort.active === column && sort.direction === 'desc'">
+                            <mat-icon>arrow_downward</mat-icon>
+                            <span>Descending (Z-A)</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item (click)="toggleDefaultSort(column); $event.stopPropagation()" class="sort-menu__item">
+                            <mat-icon class="sort-menu__lock-icon">{{ isDefaultSort(column) ? 'lock' : 'lock_open' }}</mat-icon>
+                            <span>{{ isDefaultSort(column) ? 'Remove default' : 'Set as default' }}</span>
+                        </button>
+                    </mat-menu>
+                </mat-header-cell>
                 <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
                     <div class="table-cell-content">
                         <ng-container *ngIf="isForeignKey(column); else contentCell">
