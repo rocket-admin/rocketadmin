@@ -66,6 +66,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   ];
   public aiSuggestions: { title: string; prompt: string }[] = [];
   public submitting: boolean = false;
+  public isExpanded: boolean = false;
   public textareaRows: number = 4;
 
   constructor(
@@ -82,6 +83,10 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
     this._tableState.aiPanelCast.subscribe((isAIpanelOpened) => {
       this.isAIpanelOpened = isAIpanelOpened;
+    });
+
+    this._tableState.aiPanelExpandedCast.subscribe((isExpanded) => {
+      this.isExpanded = isExpanded;
     });
 
     this.adjustTextareaRows();
@@ -219,6 +224,10 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   handleClose() {
     this._tableState.handleViewAIpanel();
+  }
+
+  toggleExpand() {
+    this._tableState.toggleAIPanelExpanded();
   }
 
   @HostListener('window:resize')
