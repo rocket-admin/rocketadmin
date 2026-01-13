@@ -29,7 +29,7 @@
 		"@jsonurl/jsonurl": "^1.1.8",
 		"@ngstack/code-editor": "^9.0.0",
 		"@sentry-internal/rrweb": "^2.31.0",
-		"@sentry/angular-ivy": "^7.116.0",
+		"@sentry/angular": "^10.33.0",
 		"@sentry/tracing": "^7.116.0",
 		"@stripe/stripe-js": "^5.3.0",
 		"@types/google-one-tap": "^1.2.6",
@@ -65,7 +65,7 @@
 		"zone.js": "~0.15.0"
 	},
 	"devDependencies": {
-		"@angular-devkit/build-angular": "~19.2.19",
+		"@angular-devkit/build-angular": "20",
 		"@angular/cli": "~19.0.5",
 		"@angular/compiler-cli": "~19.0.4",
 		"@angular/language-service": "~19.0.4",
