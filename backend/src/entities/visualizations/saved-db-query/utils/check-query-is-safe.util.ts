@@ -222,27 +222,31 @@ export function checkDynamoDbQueryIsSafe(query: string): QuerySafetyResult {
 	return checkSqlQueryIsSafe(query);
 }
 
-export function validateQuerySafety(query: string, connectionType: ConnectionTypesEnum): void {
-	let result: QuerySafetyResult;
+type QuerySafetyChecker = (query: string) => QuerySafetyResult;
 
-	if (MONGODB_CONNECTION_TYPES.includes(connectionType)) {
-		result = checkMongoQueryIsSafe(query);
-	} else if (ELASTICSEARCH_CONNECTION_TYPES.includes(connectionType)) {
-		result = checkElasticsearchQueryIsSafe(query);
-	} else if (REDIS_CONNECTION_TYPES.includes(connectionType)) {
-		result = checkRedisQueryIsSafe(query);
-	} else if (DYNAMODB_CONNECTION_TYPES.includes(connectionType)) {
-		result = checkDynamoDbQueryIsSafe(query);
-	} else if (SQL_CONNECTION_TYPES.includes(connectionType)) {
-		result = checkSqlQueryIsSafe(query);
-	} else {
-		result = checkSqlQueryIsSafe(query);
-	}
+const CONNECTION_TYPE_CHECKERS: ReadonlyMap<ConnectionTypesEnum, QuerySafetyChecker> = new Map([
+	...SQL_CONNECTION_TYPES.map((type): [ConnectionTypesEnum, QuerySafetyChecker] => [type, checkSqlQueryIsSafe]),
+	...MONGODB_CONNECTION_TYPES.map((type): [ConnectionTypesEnum, QuerySafetyChecker] => [type, checkMongoQueryIsSafe]),
+	...ELASTICSEARCH_CONNECTION_TYPES.map((type): [ConnectionTypesEnum, QuerySafetyChecker] => [
+		type,
+		checkElasticsearchQueryIsSafe,
+	]),
+	...REDIS_CONNECTION_TYPES.map((type): [ConnectionTypesEnum, QuerySafetyChecker] => [type, checkRedisQueryIsSafe]),
+	...DYNAMODB_CONNECTION_TYPES.map((type): [ConnectionTypesEnum, QuerySafetyChecker] => [
+		type,
+		checkDynamoDbQueryIsSafe,
+	]),
+]);
+
+export function validateQuerySafety(query: string, connectionType: ConnectionTypesEnum): void {
+	const checker = CONNECTION_TYPE_CHECKERS.get(connectionType) ?? checkSqlQueryIsSafe;
+	const result = checker(query);
 
 	if (!result.isSafe) {
 		throw new BadRequestException(`Unsafe query: ${result.reason}. Only read-only queries are allowed.`);
 	}
 }
+
 function normalizeQuery(query: string): string {
 	return query
 		.replace(/--.*$/gm, '')
