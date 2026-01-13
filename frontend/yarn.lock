@@ -476,17 +476,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/cdk@npm:~19.2.14":
-  version: 19.2.19
-  resolution: "@angular/cdk@npm:19.2.19"
+"@angular/cdk@npm:~20.2.14":
+  version: 20.2.14
+  resolution: "@angular/cdk@npm:20.2.14"
   dependencies:
-    parse5: ^7.1.2
+    parse5: ^8.0.0
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/common": ^19.0.0 || ^20.0.0
-    "@angular/core": ^19.0.0 || ^20.0.0
+    "@angular/common": ^20.0.0 || ^21.0.0
+    "@angular/core": ^20.0.0 || ^21.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 7728a7ebf34fa1a7d97135b96be91d07d69d7e76adc86427f6683e783b7b124266074f6fc78ee9b065e6e1891be793afef963493011a1c645fd27a6ace6f070a
+  checksum: 5c2f178fe019a97b8e878ff245eb41676f1a687910a93f698ecef041d8353dc6eaddaf29361dabbdc06a264f9c3256bf50786629e6ba5a024d0d65c3a58498e5
   languageName: node
   linkType: hard
 
@@ -620,19 +620,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/material@npm:~19.2.14":
-  version: 19.2.19
-  resolution: "@angular/material@npm:19.2.19"
+"@angular/material@npm:~20.2.14":
+  version: 20.2.14
+  resolution: "@angular/material@npm:20.2.14"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/cdk": 19.2.19
-    "@angular/common": ^19.0.0 || ^20.0.0
-    "@angular/core": ^19.0.0 || ^20.0.0
-    "@angular/forms": ^19.0.0 || ^20.0.0
-    "@angular/platform-browser": ^19.0.0 || ^20.0.0
+    "@angular/cdk": 20.2.14
+    "@angular/common": ^20.0.0 || ^21.0.0
+    "@angular/core": ^20.0.0 || ^21.0.0
+    "@angular/forms": ^20.0.0 || ^21.0.0
+    "@angular/platform-browser": ^20.0.0 || ^21.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: c1591501736f3ee61e2452682c7dcafd8dfb89a680a478d518f0df565ee8fc096dabfaa51f5bd620c12b91173f42dc0be2dbc08aa2b1ee237349b58c1513b51c
+  checksum: 3042cc2180244881e7e734d864b65130ed1b0f7bc52394e5b2ca22119594c54b962dc5d0cfc490fbb24a5751786b116acd470c4994d5c1faf9200fd2367ee58d
   languageName: node
   linkType: hard
 
@@ -4368,17 +4368,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry-internal/tracing@npm:7.120.2":
-  version: 7.120.2
-  resolution: "@sentry-internal/tracing@npm:7.120.2"
-  dependencies:
-    "@sentry/core": 7.120.2
-    "@sentry/types": 7.120.2
-    "@sentry/utils": 7.120.2
-  checksum: 7019ba1dee310d6238bade9611b434cc41b1ab128763365535d152ddaadd064d6c4331e4553685d639a97e3bd4d5f052912e2106a046a51ac2fac62836ec92e8
-  languageName: node
-  linkType: hard
-
 "@sentry/angular@npm:^10.33.0":
   version: 10.33.0
   resolution: "@sentry/angular@npm:10.33.0"
@@ -4412,41 +4401,6 @@ __metadata:
   version: 10.33.0
   resolution: "@sentry/core@npm:10.33.0"
   checksum: 25eb49f6f4277889e2823e1a09c5ae1a4c6d1361365d31fecc7ead630dd9304fab80c71aad46ac001158cfdbd11852668f75384b86186fd0b0431b3ff00ace95
-  languageName: node
-  linkType: hard
-
-"@sentry/core@npm:7.120.2":
-  version: 7.120.2
-  resolution: "@sentry/core@npm:7.120.2"
-  dependencies:
-    "@sentry/types": 7.120.2
-    "@sentry/utils": 7.120.2
-  checksum: ffb0881fd62d780282bfca233c18bb3d5128995ab951fca8ec23d95e4cef20711b998974404620a2536296786d2bb4cddf92731e77882f8bdfc297334b3cc390
-  languageName: node
-  linkType: hard
-
-"@sentry/tracing@npm:^7.116.0":
-  version: 7.120.2
-  resolution: "@sentry/tracing@npm:7.120.2"
-  dependencies:
-    "@sentry-internal/tracing": 7.120.2
-  checksum: b18ec9fe0ddb8f11bfbc9b59846302aaf55794586d370bb0e019ce2d26678ae0e524bd2e13cfd689666022e89de98ec7e00748a3d949f3d8ba7bf2628f440269
-  languageName: node
-  linkType: hard
-
-"@sentry/types@npm:7.120.2":
-  version: 7.120.2
-  resolution: "@sentry/types@npm:7.120.2"
-  checksum: 45a46cd13f2b7a0590439c0b98e14b50cd1a0a610d8b5d977934a82336ad88a9fd0efb6a93c86063ae25ae2e587994b6b7ad122e808c82110d71c132cc55b02b
-  languageName: node
-  linkType: hard
-
-"@sentry/utils@npm:7.120.2":
-  version: 7.120.2
-  resolution: "@sentry/utils@npm:7.120.2"
-  dependencies:
-    "@sentry/types": 7.120.2
-  checksum: 294f7f4d9763a11617d3ee471a4d0ebca26c31d39d4a4beface432fff948bc669b5573c5303041e9fc3e01f77cac96839d7518fd237f3c348959aad8f4325b54
   languageName: node
   linkType: hard
 
@@ -7281,7 +7235,7 @@ __metadata:
   dependencies:
     "@angular-devkit/build-angular": 20
     "@angular/animations": ~20.3.16
-    "@angular/cdk": ~19.2.14
+    "@angular/cdk": ~20.2.14
     "@angular/cli": ~20.3.14
     "@angular/common": ~20.3.16
     "@angular/compiler": ~20.3.16
@@ -7289,7 +7243,7 @@ __metadata:
     "@angular/core": ~20.3.16
     "@angular/forms": ~20.3.16
     "@angular/language-service": ~20.3.16
-    "@angular/material": ~19.2.14
+    "@angular/material": ~20.2.14
     "@angular/platform-browser": ~20.3.16
     "@angular/platform-browser-dynamic": ~20.3.16
     "@angular/router": ~20.3.16
@@ -7298,7 +7252,6 @@ __metadata:
     "@ngstack/code-editor": ^9.0.0
     "@sentry-internal/rrweb": ^2.16.0
     "@sentry/angular": ^10.33.0
-    "@sentry/tracing": ^7.116.0
     "@stripe/stripe-js": ^5.3.0
     "@types/google-one-tap": ^1.2.6
     "@types/jasmine": ~5.1.5
@@ -7578,7 +7531,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^4.2.0, entities@npm:^4.5.0":
+"entities@npm:^4.2.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: 853f8ebd5b425d350bffa97dd6958143179a5938352ccae092c62d1267c4e392a039be1bae7d51b6e4ffad25f51f9617531fedf5237f15df302ccfb452cbf2d7
@@ -11126,15 +11079,6 @@ __metadata:
   dependencies:
     parse5: ^8.0.0
   checksum: 050593edc8f0241f0971d824dd80fbfff3c2f8d4981420fa688ee47fca79e6b73d8c6bfb85fa059ac27718662e87dcaffa538189f4319422e7fdd2dff40bc9a4
-  languageName: node
-  linkType: hard
-
-"parse5@npm:^7.1.2":
-  version: 7.2.1
-  resolution: "parse5@npm:7.2.1"
-  dependencies:
-    entities: ^4.5.0
-  checksum: 11253cf8aa2e7fc41c004c64cba6f2c255f809663365db65bd7ad0e8cf7b89e436a563c20059346371cc543a6c1b567032088883ca6a2cbc88276c666b68236d
   languageName: node
   linkType: hard
 

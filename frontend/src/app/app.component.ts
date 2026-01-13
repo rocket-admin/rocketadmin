@@ -288,17 +288,14 @@ export class AppComponent {
 			this.isDemo = this.currentUser.email.startsWith('demo_') && this.currentUser.email.endsWith('@rocketadmin.com');
 			this._user.setIsDemo(this.isDemo);
 			this.setUserLoggedIn(true);
-			// @ts-expect-error
 			if (typeof window.Intercom !== 'undefined')
 				window.Intercom('boot', {
-					// @ts-expect-error
 					...window.intercomSettings,
 					user_hash: res.intercom_hash,
 					user_id: res.id,
 					email: res.email,
 				});
 
-			//@ts-expect-error
 			if (this.isDemo)
 				window.hj?.('identify', this.currentUser.id, {
 					mode: 'demo',

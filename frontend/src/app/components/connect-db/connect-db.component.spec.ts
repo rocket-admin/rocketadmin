@@ -99,7 +99,6 @@ describe('ConnectDBComponent', () => {
 
 		// @ts-expect-error
 		global.window.fbq = jasmine.createSpy();
-		// @ts-expect-error
 		global.window.Intercom = jasmine.createSpy();
 
 		fakeConnectionsService.currentConnection.and.returnValue(connectionCredsApp);
