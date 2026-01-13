@@ -113,6 +113,7 @@
             ></app-db-table-row-view>
             <app-db-table-ai-panel *ngIf="isAIpanelOpened"
                 [displayName]="selectedTableDisplayName"
+                [tableColumns]="dataSource?.dataColumns || []"
             ></app-db-table-ai-panel>
         </mat-sidenav-content>
     </mat-sidenav-container>

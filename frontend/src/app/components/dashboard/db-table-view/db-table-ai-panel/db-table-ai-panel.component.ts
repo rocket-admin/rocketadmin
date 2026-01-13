@@ -1,5 +1,5 @@
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -10,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 
@@ -25,7 +24,6 @@ import { TablesService } from 'src/app/services/tables.service';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatListModule,
     MatButtonModule,
     Angulartics2Module
   ]
@@ -33,6 +31,7 @@ import { TablesService } from 'src/app/services/tables.service';
 export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   @Input() public displayName: string;
+  @Input() public tableColumns: string[] = [];
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
   public connectionID: string;
@@ -45,14 +44,29 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     type: string;
     text: string
   }[] = [];
-  public aiRequestSuggestions: string[] = [
-    'How many records were created last month?',
-    'Are there any duplicate rows in this table?',
-    // 'Are there any columns with inconsistent data types?',
-    'Which columns have empty values?',
-    'What trends can you predict based on this table?'
-  ]
+  public aiRequestTemplates: { title: string; description: string; icon: string; prompt: string }[] = [
+    {
+      title: 'Summarize this table',
+      description: 'Quick overview of columns, types, and size',
+      icon: 'bar_chart',
+      prompt: 'Summarize this table structure and data'
+    },
+    {
+      title: 'Top values',
+      description: 'See most frequent values per column',
+      icon: 'trending_up',
+      prompt: 'Show top 10 most common values in each column'
+    },
+    {
+      title: 'Missing data',
+      description: 'Find NULLs and empty fields',
+      icon: 'warning',
+      prompt: 'Find records with NULL or empty values'
+    }
+  ];
+  public aiSuggestions: { title: string; prompt: string }[] = [];
   public submitting: boolean = false;
+  public textareaRows: number = 4;
 
   constructor(
     private _connections: ConnectionsService,
@@ -69,6 +83,13 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     this._tableState.aiPanelCast.subscribe((isAIpanelOpened) => {
       this.isAIpanelOpened = isAIpanelOpened;
     });
+
+    this.adjustTextareaRows();
+    this.generateSuggestions();
+  }
+
+  ngOnChanges(): void {
+    this.generateSuggestions();
   }
 
   async ngAfterViewInit() {
@@ -198,5 +219,79 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   handleClose() {
     this._tableState.handleViewAIpanel();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.adjustTextareaRows();
+  }
+
+  private adjustTextareaRows() {
+    const windowHeight = window.innerHeight;
+
+    if (windowHeight < 500) {
+      this.textareaRows = 1;
+    } else if (windowHeight < 650) {
+      this.textareaRows = 2;
+    } else if (windowHeight < 800) {
+      this.textareaRows = 3;
+    } else if (windowHeight < 950) {
+      this.textareaRows = 4;
+    } else {
+      this.textareaRows = 5;
+    }
+  }
+
+  private generateSuggestions(): void {
+    if (!this.tableColumns || this.tableColumns.length === 0) {
+      this.aiSuggestions = [];
+      return;
+    }
+
+    const suggestions: { title: string; prompt: string }[] = [];
+    const columns = this.tableColumns.slice(0, 5);
+
+    columns.forEach(column => {
+      const columnName = this.formatColumnName(column);
+
+      if (column.toLowerCase().includes('date') || column.toLowerCase().includes('time') || column.toLowerCase().includes('created') || column.toLowerCase().includes('updated')) {
+        suggestions.push({
+          title: `Analyze ${columnName} trends`,
+          prompt: `Analyze trends and patterns in the "${column}" column over time`
+        });
+      } else if (column.toLowerCase().includes('status') || column.toLowerCase().includes('state') || column.toLowerCase().includes('type')) {
+        suggestions.push({
+          title: `${columnName} distribution`,
+          prompt: `Show the distribution of values in the "${column}" column`
+        });
+      } else if (column.toLowerCase().includes('price') || column.toLowerCase().includes('amount') || column.toLowerCase().includes('cost') || column.toLowerCase().includes('total')) {
+        suggestions.push({
+          title: `${columnName} statistics`,
+          prompt: `Calculate statistics (min, max, average, sum) for the "${column}" column`
+        });
+      } else if (column.toLowerCase().includes('email') || column.toLowerCase().includes('name') || column.toLowerCase().includes('user')) {
+        suggestions.push({
+          title: `Unique ${columnName}`,
+          prompt: `How many unique values are in the "${column}" column?`
+        });
+      } else {
+        suggestions.push({
+          title: `Analyze ${columnName}`,
+          prompt: `What are the most common values in the "${column}" column?`
+        });
+      }
+    });
+
+    this.aiSuggestions = suggestions.slice(0, 3);
+  }
+
+  private formatColumnName(column: string): string {
+    return column
+      .replace(/_/g, ' ')
+      .replace(/([A-Z])/g, ' $1')
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
 }

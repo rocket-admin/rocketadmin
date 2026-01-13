@@ -6,15 +6,11 @@
     <div class="ai-panel-sidebar__header">
         <h2 class="mat-heading-2 ai-panel-sidebar__title">
             <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
-            <span>AI insights</span>
+            <span>AI insights for {{displayName}}</span>
         </h2>
         <button mat-icon-button (click)="handleClose()">
             <mat-icon>close</mat-icon>
         </button>
-    </div>
-
-    <div *ngIf="messagesChain.length === 0" class="ai-placeholder">
-        Insights from <strong>"{{displayName}}"</strong> table are waiting — type your query to unlock them.
     </div>
 
     <div class="ai-panel-chat">
@@ -28,33 +24,60 @@
         </div>
 
         <ng-template #suggestions>
-            <div class="mat-elevation-z2 suggestions">
-                <span class="suggestions-title">Suggested insights</span>
-                <mat-action-list role="list">
-                    <button mat-list-item *ngFor="let suggestion of aiRequestSuggestions"
-                        class="suggestion-button"
-                        (click)="createThread(suggestion)"
-                        angulartics2On="click"
-                        angularticsAction="AI panel: suggested request is clicked">
-                        {{suggestion}}
-                    </button>
-                </mat-action-list>
-            </div>
+            <div class="ai-welcome">
+                <div class="ai-welcome__message">
+                    <p>Explore patterns, issues, and summaries instantly.</p>
+                </div>
 
+                <div class="ai-welcome__section" *ngIf="aiSuggestions.length">
+                    <p class="ai-welcome__section-title">Suggestions for this table:</p>
+                    <div class="suggestions-container">
+                        <button *ngFor="let suggestion of aiSuggestions"
+                            class="suggestion-chip"
+                            (click)="createThread(suggestion.prompt)"
+                            angulartics2On="click"
+                            angularticsAction="AI panel: suggestion is clicked">
+                            <span>{{suggestion.title}}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ai-welcome__section">
+                    <p class="ai-welcome__section-title">Templates:</p>
+                    <div class="templates-container">
+                        <button *ngFor="let template of aiRequestTemplates"
+                            class="template-card"
+                            (click)="createThread(template.prompt)"
+                            angulartics2On="click"
+                            angularticsAction="AI panel: template is clicked">
+                            <mat-icon class="template-card__icon" fontSet="material-icons-outlined">{{template.icon}}</mat-icon>
+                            <div class="template-card__content">
+                                <span class="template-card__title">{{template.title}}</span>
+                                <span class="template-card__description">{{template.description}}</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </ng-template>
 
-        <div class="loading">
-            <div *ngIf="submitting">
-                loading...
+        <div class="loading" *ngIf="submitting">
+            <div class="loading-content">
+                <span class="loading-text">Generating an answer</span>
+                <div class="loading-dots">
+                    <span class="loading-dot"></span>
+                    <span class="loading-dot"></span>
+                    <span class="loading-dot"></span>
+                </div>
             </div>
         </div>
 
         <form (ngSubmit)="threadID ? sendMessage() : createThread()" class="ai-message-form">
             <mat-form-field class="form-field" appearance="outline" class="ai-message-form__textarea">
-                <mat-label class="ai-message-form__label">What should I analyze?</mat-label>
+                <mat-label class="ai-message-form__label">Ask a question about this table...</mat-label>
                 <textarea matInput name="message"
                     class="ai-panel-sidebar__message"
-                    rows="4"
+                    [rows]="textareaRows"
                     data-testid="user-message"
                     maxlength="255"
                     (keydown)="onKeydown($event)"
@@ -63,7 +86,7 @@
             </mat-form-field>
 
             <div class="ai-message-form__footer">
-                <span> {{charactrsNumber}} / 256</span>
+                <span class="ai-message-form__char-count">{{charactrsNumber}} / 256</span>
                 <button mat-icon-button type="submit"
                     class="ai-message-form__button">
                     <mat-icon>send</mat-icon>
