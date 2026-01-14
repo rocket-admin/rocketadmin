@@ -43,6 +43,7 @@ import { DatabaseModule } from './shared/database/database.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 import { PersonalTableSettingsModule } from './entities/table-settings/personal-table-settings/personal-table-settings.module.js';
 import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/saved-db-query.module.js';
+import { DashboardModule } from './entities/visualizations/dashboard/dashboards.module.js';
 
 @Module({
 	imports: [
@@ -90,6 +91,7 @@ import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/sav
 		PersonalTableSettingsModule,
 		S3WidgetModule,
 		SavedDbQueryModule,
+		DashboardModule,
 	],
 	controllers: [AppController],
 	providers: [
