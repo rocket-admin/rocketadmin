@@ -6,7 +6,8 @@
     <div class="ai-panel-sidebar__header">
         <h2 class="mat-heading-2 ai-panel-sidebar__title">
             <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
-            <span>AI insights for {{displayName}}</span>
+            <span *ngIf="isExpanded">AI insights for {{displayName}}</span>
+            <span *ngIf="!isExpanded">AI insights</span>
         </h2>
         <div class="ai-panel-sidebar__actions">
             <button mat-icon-button (click)="toggleExpand()">

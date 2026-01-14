@@ -582,11 +582,19 @@
 }
 
 .ai-panel-sidebar-content_expanded .ai-panel-sidebar__header {
+    position: relative;
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
     padding-left: 0;
     padding-right: 0;
+    justify-content: flex-start;
+}
+
+.ai-panel-sidebar-content_expanded .ai-panel-sidebar__actions {
+    position: fixed;
+    right: 16px;
+    top: 64px;
 }
 
 .ai-panel-sidebar-content_expanded .ai-welcome__section {
