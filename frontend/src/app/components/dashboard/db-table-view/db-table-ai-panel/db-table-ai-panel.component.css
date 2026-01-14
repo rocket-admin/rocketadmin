@@ -5,9 +5,9 @@
     height: calc(100vh - 44px);
     width: 0;
     overflow-y: auto;
-    transition: width 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
-                transform 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
-                opacity 350ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: width 400ms ease-out,
+                transform 400ms ease-out,
+                opacity 300ms ease-out;
 }
 
 @media (width <= 600px) {
@@ -25,7 +25,6 @@
 
 .ai-panel-sidebar_open.ai-panel-sidebar_expanded {
     width: calc(100vw - 65px);
-    transition: none;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -51,8 +50,8 @@
     height: calc(100vh - 44px);
     width: clamp(200px, 22vw, 400px);
     z-index: 100;
-    transition: width 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
-                left 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    transition: width 400ms ease-out,
+                left 400ms ease-out,
                 border-left 300ms ease;
     visibility: hidden;
 }
@@ -69,8 +68,7 @@
     padding-left: 175px;
     border-left: none;
     z-index: 1;
-    transition: padding-left 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
-                border-left 300ms ease;
+    transition: padding-left 400ms ease-out;
 }
 
 .ai-panel-sidebar-content_open.ai-panel-sidebar-content_expanded.ai-panel-sidebar-content_sidebar-collapsed {
