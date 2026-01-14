@@ -32,6 +32,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   @Input() public displayName: string;
   @Input() public tableColumns: string[] = [];
+  @Input() public sidebarExpanded: boolean = true;
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
   public connectionID: string;

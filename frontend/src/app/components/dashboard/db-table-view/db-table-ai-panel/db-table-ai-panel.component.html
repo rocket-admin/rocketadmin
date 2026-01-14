@@ -2,7 +2,7 @@
     [ngClass]="{'ai-panel-sidebar_expanded': isExpanded}">
 </div>
 <div class="ai-panel-sidebar-content ai-panel-sidebar-content_open"
-    [ngClass]="{'ai-panel-sidebar-content_expanded': isExpanded}">
+    [ngClass]="{'ai-panel-sidebar-content_expanded': isExpanded, 'ai-panel-sidebar-content_sidebar-collapsed': !sidebarExpanded}">
     <div class="ai-panel-sidebar__header">
         <h2 class="mat-heading-2 ai-panel-sidebar__title">
             <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
