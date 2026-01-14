@@ -59,11 +59,9 @@ import { PersonalTableSettingsEntity } from '../../entities/table-settings/perso
 import { SavedDbQueryEntity } from '../../entities/visualizations/saved-db-query/saved-db-query.entity.js';
 import { ISavedDbQueryRepository } from '../../entities/visualizations/saved-db-query/repository/saved-db-query.repository.interface.js';
 import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
-import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard/dashboard-widget.entity.js';
-import {
-	IDashboardRepository,
-	IDashboardWidgetRepository,
-} from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
+import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
 	userRepository: Repository<UserEntity> & IUserRepository;

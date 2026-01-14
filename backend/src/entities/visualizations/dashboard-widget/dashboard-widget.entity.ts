@@ -11,7 +11,7 @@ import {
 	Relation,
 } from 'typeorm';
 import { DashboardWidgetTypeEnum } from '../../../enums/dashboard-widget-type.enum.js';
-import { DashboardEntity } from './dashboard.entity.js';
+import { DashboardEntity } from '../dashboard/dashboard.entity.js';
 import { SavedDbQueryEntity } from '../saved-db-query/saved-db-query.entity.js';
 
 @Entity('dashboard_widget')

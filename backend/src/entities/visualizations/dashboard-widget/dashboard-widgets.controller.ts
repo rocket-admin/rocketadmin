@@ -28,7 +28,7 @@ import {
 	ICreateDashboardWidget,
 	IDeleteDashboardWidget,
 	IUpdateDashboardWidget,
-} from './use-cases/dashboard-use-cases.interface.js';
+} from './use-cases/dashboard-widget-use-cases.interface.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()

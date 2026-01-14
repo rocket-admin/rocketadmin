@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { DashboardWidgetEntity } from '../dashboard/dashboard-widget.entity.js';
+import { DashboardWidgetEntity } from '../dashboard-widget/dashboard-widget.entity.js';
 
 @Entity('saved_db_query')
 export class SavedDbQueryEntity {

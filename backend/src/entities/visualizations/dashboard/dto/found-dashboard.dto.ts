@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { FoundDashboardWidgetDto } from './found-dashboard-widget.dto.js';
+import { FoundDashboardWidgetDto } from '../../dashboard-widget/dto/found-dashboard-widget.dto.js';
 
 export class FoundDashboardDto {
 	@ApiProperty({ description: 'Dashboard ID' })

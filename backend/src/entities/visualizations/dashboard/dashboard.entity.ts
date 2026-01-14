@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { DashboardWidgetEntity } from './dashboard-widget.entity.js';
+import { DashboardWidgetEntity } from '../dashboard-widget/dashboard-widget.entity.js';
 
 @Entity('dashboard')
 export class DashboardEntity {

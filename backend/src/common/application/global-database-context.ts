@@ -106,13 +106,11 @@ import { SavedDbQueryEntity } from '../../entities/visualizations/saved-db-query
 import { ISavedDbQueryRepository } from '../../entities/visualizations/saved-db-query/repository/saved-db-query.repository.interface.js';
 import { savedDbQueryCustomRepositoryExtension } from '../../entities/visualizations/saved-db-query/repository/saved-db-query-custom-repository-extension.js';
 import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
-import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard/dashboard-widget.entity.js';
-import {
-	IDashboardRepository,
-	IDashboardWidgetRepository,
-} from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
+import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
 import { dashboardCustomRepositoryExtension } from '../../entities/visualizations/dashboard/repository/dashboard-custom-repository-extension.js';
-import { dashboardWidgetCustomRepositoryExtension } from '../../entities/visualizations/dashboard/repository/dashboard-widget-custom-repository-extension.js';
+import { dashboardWidgetCustomRepositoryExtension } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {

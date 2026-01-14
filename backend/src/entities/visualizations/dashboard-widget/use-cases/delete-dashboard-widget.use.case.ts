@@ -6,7 +6,7 @@ import { Messages } from '../../../../exceptions/text/messages.js';
 import { DeleteDashboardWidgetDs } from '../data-structures/delete-dashboard-widget.ds.js';
 import { FoundDashboardWidgetDto } from '../dto/found-dashboard-widget.dto.js';
 import { buildFoundDashboardWidgetDto } from '../utils/build-found-dashboard-widget-dto.util.js';
-import { IDeleteDashboardWidget } from './dashboard-use-cases.interface.js';
+import { IDeleteDashboardWidget } from './dashboard-widget-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteDashboardWidgetUseCase
