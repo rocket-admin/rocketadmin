@@ -50,9 +50,9 @@
     height: calc(100vh - 44px);
     width: clamp(200px, 22vw, 400px);
     z-index: 100;
-    transition: width 350ms cubic-bezier(0.4, 0, 0.2, 1),
-                left 350ms cubic-bezier(0.4, 0, 0.2, 1),
-                border-left 200ms ease;
+    transition: width 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                left 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                border-left 300ms ease;
     visibility: hidden;
 }
 
@@ -68,8 +68,10 @@
     padding-left: 175px;
     border-left: none;
     z-index: 1;
-    transition: padding-left 350ms cubic-bezier(0.4, 0, 0.2, 1),
-                border-left 200ms ease;
+    transition: left 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                width 550ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                padding-left 450ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                border-left 300ms ease;
 }
 
 .ai-panel-sidebar-content_open.ai-panel-sidebar-content_expanded.ai-panel-sidebar-content_sidebar-collapsed {
