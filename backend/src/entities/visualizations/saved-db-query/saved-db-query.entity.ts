@@ -6,11 +6,13 @@ import {
 	Entity,
 	JoinColumn,
 	ManyToOne,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	Relation,
 } from 'typeorm';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { DashboardWidgetEntity } from '../dashboard-widget/dashboard-widget.entity.js';
 
 @Entity('saved_db_query')
 export class SavedDbQueryEntity {
@@ -64,4 +66,10 @@ export class SavedDbQueryEntity {
 
 	@Column({ type: 'varchar', length: 38 })
 	connection_id: string;
+
+	@OneToMany(
+		() => DashboardWidgetEntity,
+		(widget) => widget.query,
+	)
+	widgets: Relation<DashboardWidgetEntity>[];
 }

@@ -105,6 +105,12 @@ import { personalTableSettingsCustomRepositoryExtension } from '../../entities/t
 import { SavedDbQueryEntity } from '../../entities/visualizations/saved-db-query/saved-db-query.entity.js';
 import { ISavedDbQueryRepository } from '../../entities/visualizations/saved-db-query/repository/saved-db-query.repository.interface.js';
 import { savedDbQueryCustomRepositoryExtension } from '../../entities/visualizations/saved-db-query/repository/saved-db-query-custom-repository-extension.js';
+import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
+import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
+import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
+import { dashboardCustomRepositoryExtension } from '../../entities/visualizations/dashboard/repository/dashboard-custom-repository-extension.js';
+import { dashboardWidgetCustomRepositoryExtension } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -148,6 +154,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 	private _personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
 	private _savedDbQueryRepository: Repository<SavedDbQueryEntity> & ISavedDbQueryRepository;
+	private _dashboardRepository: Repository<DashboardEntity> & IDashboardRepository;
+	private _dashboardWidgetRepository: Repository<DashboardWidgetEntity> & IDashboardWidgetRepository;
 
 	public constructor(
 		@Inject(BaseType.DATA_SOURCE)
@@ -251,6 +259,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._savedDbQueryRepository = this.appDataSource
 			.getRepository(SavedDbQueryEntity)
 			.extend(savedDbQueryCustomRepositoryExtension);
+		this._dashboardRepository = this.appDataSource
+			.getRepository(DashboardEntity)
+			.extend(dashboardCustomRepositoryExtension);
+		this._dashboardWidgetRepository = this.appDataSource
+			.getRepository(DashboardWidgetEntity)
+			.extend(dashboardWidgetCustomRepositoryExtension);
 	}
 
 	public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -405,6 +419,14 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
 	public get savedDbQueryRepository(): Repository<SavedDbQueryEntity> & ISavedDbQueryRepository {
 		return this._savedDbQueryRepository;
+	}
+
+	public get dashboardRepository(): Repository<DashboardEntity> & IDashboardRepository {
+		return this._dashboardRepository;
+	}
+
+	public get dashboardWidgetRepository(): Repository<DashboardWidgetEntity> & IDashboardWidgetRepository {
+		return this._dashboardWidgetRepository;
 	}
 
 	public startTransaction(): Promise<void> {
