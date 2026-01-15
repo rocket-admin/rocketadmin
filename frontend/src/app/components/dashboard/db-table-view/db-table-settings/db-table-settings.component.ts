@@ -61,7 +61,7 @@ export class DbTableSettingsComponent implements OnInit {
   public loading: boolean = true;
   public fields: string[];
   public fields_to_exclude: string[];
-  public orderChanged: boolean = false;
+  // public orderChanged: boolean = false;
   public iconChanged: boolean = false;
   public listFieldsOrder: string[];
   public tableSettingsInitial: TableSettings = {
@@ -73,12 +73,8 @@ export class DbTableSettingsComponent implements OnInit {
     identity_column: '',
     search_fields: [],
     excluded_fields: [],
-    list_fields: [],
-    ordering: TableOrdering.Ascending,
-    ordering_field: '',
     readonly_fields: [],
     sortable_by: [],
-    columns_view: [],
     sensitive_fields: [],
     allow_csv_export: true,
     allow_csv_import: true,
@@ -161,17 +157,17 @@ export class DbTableSettingsComponent implements OnInit {
     this.iconChanged = true;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.listFieldsOrder, event.previousIndex, event.currentIndex);
-    this.tableSettings.list_fields = [...this.listFieldsOrder];
-    this.orderChanged = true;
-  }
+  // drop(event: CdkDragDrop<string[]>) {
+  //   // moveItemInArray(this.listFieldsOrder, event.previousIndex, event.currentIndex);
+  //   // this.tableSettings.list_fields = [...this.listFieldsOrder];
+  //   // this.orderChanged = true;
+  // }
 
-  resetColumnsOrder() {
-    this.tableSettings.list_fields = [];
-    this.listFieldsOrder = [...this.fields];
-    this.orderChanged = true;
-  }
+  // resetColumnsOrder() {
+  //   // this.tableSettings.list_fields = [];
+  //   this.listFieldsOrder = [...this.fields];
+  //   // this.orderChanged = true;
+  // }
 
   updateSettings() {
     this.submitting = true;
@@ -183,11 +179,7 @@ export class DbTableSettingsComponent implements OnInit {
     for (const [key, value] of Object.entries(this.tableSettings)) {
       if (key !== 'connection_id' && key !== 'table_name' && key !== 'ordering') {
         if (Array.isArray(value)) {
-          if (key === 'list_fields') {
-            updatedSettings[key] = this.orderChanged;
-          } else {
-            updatedSettings[key] = value.length > 0;
-          }
+          updatedSettings[key] = value.length > 0
         } else {
           updatedSettings[key] = Boolean(value);
         }

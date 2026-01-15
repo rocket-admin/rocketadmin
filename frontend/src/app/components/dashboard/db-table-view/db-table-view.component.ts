@@ -1,9 +1,18 @@
+import * as JSON5 from 'json5';
+
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { AccessLevel } from 'src/app/models/user';
+import { Angulartics2OnModule } from 'angulartics2';
+import { CommonModule } from '@angular/common';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { DynamicModule } from 'ng-dynamic-component';
+import JsonURL from "@jsonurl/jsonurl";
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { SelectionModel } from '@angular/cdk/collections';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -14,16 +23,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TablesService } from 'src/app/services/tables.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import JsonURL from '@jsonurl/jsonurl';
-import { Angulartics2OnModule } from 'angulartics2';
-import * as JSON5 from 'json5';
-import { DynamicModule } from 'ng-dynamic-component';
 import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
@@ -36,8 +41,6 @@ import {
 	TableRow,
 	Widget,
 } from 'src/app/models/table';
-import { AccessLevel } from 'src/app/models/user';
-import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
@@ -47,8 +50,8 @@ import { normalizeTableName } from '../../../lib/normalize';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
 import { DbTableExportDialogComponent } from './db-table-export-dialog/db-table-export-dialog.component';
-import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
 import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-panel.component';
+import { MatSelectModule } from '@angular/material/select';
 
 interface Column {
 	title: string;
@@ -62,37 +65,38 @@ export interface Folder {
 }
 
 @Component({
-	selector: 'app-db-table-view',
-	templateUrl: './db-table-view.component.html',
-	styleUrls: ['./db-table-view.component.css'],
-	imports: [
-		CommonModule,
-		FormsModule,
-		RouterModule,
-		MatTableModule,
-		MatPaginatorModule,
-		MatSortModule,
-		MatButtonModule,
-		MatIconModule,
-		MatCheckboxModule,
-		MatChipsModule,
-		MatDialogModule,
-		MatFormFieldModule,
-		ReactiveFormsModule,
-		MatInputModule,
-		MatAutocompleteModule,
-		MatSelectModule,
-		MatMenuModule,
-		MatDividerModule,
-		MatTooltipModule,
-		ClipboardModule,
-		DragDropModule,
-		Angulartics2OnModule,
-		PlaceholderTableDataComponent,
-		DynamicModule,
-		ForeignKeyDisplayComponent,
-		SavedFiltersPanelComponent,
-	],
+  selector: 'app-db-table-view',
+  standalone: true,
+  templateUrl: './db-table-view.component.html',
+  styleUrls: ['./db-table-view.component.css'],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatMenuModule,
+    MatTooltipModule,
+	MatDividerModule,
+    ClipboardModule,
+    DragDropModule,
+    Angulartics2OnModule,
+    PlaceholderTableDataComponent,
+    DynamicModule,
+    ForeignKeyDisplayComponent,
+    SavedFiltersPanelComponent
+  ]
 })
 export class DbTableViewComponent implements OnInit {
 	@Input() name: string;
@@ -161,9 +165,11 @@ export class DbTableViewComponent implements OnInit {
 		private _tableRow: TableRowService,
 		private _connections: ConnectionsService,
 		private _uiSettings: UiSettingsService,
+		private _tables: TablesService,
 		private route: ActivatedRoute,
 		public router: Router,
 		public dialog: MatDialog,
+    	private cdr: ChangeDetectorRef,
 	) {}
 
 	ngAfterViewInit() {
@@ -249,12 +255,12 @@ export class DbTableViewComponent implements OnInit {
 		});
 	}
 
-	ngOnChanges(changes: SimpleChanges) {
-		if (changes.name?.currentValue && this.paginator) {
-			this.paginator.pageIndex = 0;
-			this.searchString = '';
-		}
-	}
+	// ngOnChanges(changes: SimpleChanges) {
+	// 	if (changes.name?.currentValue && this.paginator) {
+	// 		this.paginator.pageIndex = 0;
+	// 		this.searchString = '';
+	// 	}
+	// }
 
 	isSortable(column: string) {
 		return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
@@ -621,6 +627,87 @@ export class DbTableViewComponent implements OnInit {
 		this.applyFilter.emit($event);
 	}
 
+  get sortedColumns() {
+    if (!this.tableData || !this.tableData.columns) {
+      return [];
+    }
+    // Sort columns: visible (selected=true) first, then hidden (selected=false)
+    return [...this.tableData.columns].sort((a, b) => {
+      if (a.selected === b.selected) return 0;
+      return a.selected ? -1 : 1;
+    });
+  }
+
+  onColumnVisibilityChange() {
+    this.tableData.changleColumnList(this.connectionID, this.name);
+    this.cdr.detectChanges();
+    this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
+      columns_view: this.tableData.displayedDataColumns
+    }).subscribe({
+      next: () => {
+        console.log('Personal table view settings updated with custom ordering');
+      },
+      error: (error) => {
+        console.error('Error updating personal table view settings:', error);
+      }
+    });
+  }
+
+  onColumnsMenuDrop(event: CdkDragDrop<string[]>) {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+
+    // The drag indices are based on sortedColumns (visible first, then hidden)
+    // We need to map these to the actual indices in this.tableData.columns
+    const sorted = this.sortedColumns;
+    const draggedColumn = sorted[event.previousIndex];
+    const targetColumn = sorted[event.currentIndex];
+
+    // Find actual indices in the original columns array
+    const actualPreviousIndex = this.tableData.columns.findIndex(col => col.title === draggedColumn.title);
+    const actualCurrentIndex = this.tableData.columns.findIndex(col => col.title === targetColumn.title);
+
+    if (actualPreviousIndex === -1 || actualCurrentIndex === -1) {
+      return;
+    }
+
+    // Reorder columns array in the menu
+    moveItemInArray(this.tableData.columns, actualPreviousIndex, actualCurrentIndex);
+    
+    // Update dataColumns array
+    this.tableData.dataColumns = this.tableData.columns.map(column => column.title);
+    
+    // Update displayedDataColumns to match the new order (only visible columns)
+    const newDisplayedOrder = this.tableData.columns
+      .filter(col => col.selected)
+      .map(col => col.title);
+    
+    this.tableData.displayedDataColumns = newDisplayedOrder;
+    
+    // Update full displayed columns list - THIS UPDATES THE TABLE IMMEDIATELY
+    if (this.tableData.keyAttributes && this.tableData.keyAttributes.length) {
+      this.tableData.displayedColumns = ['select', ...newDisplayedOrder, 'actions'];
+    } else {
+      this.tableData.displayedColumns = [...newDisplayedOrder];
+    }
+    
+    // Force Angular to detect changes and re-render the table immediately
+    this.cdr.detectChanges();
+
+    this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
+      list_fields: this.tableData.columns.map(col => col.title)
+    }).subscribe({
+      next: () => {
+        console.log('Personal table view settings updated with custom ordering');
+      },
+      error: (error) => {
+        console.error('Error updating personal table view settings:', error);
+      }
+    });
+    
+    console.log('Columns reordered in menu - table updated:', newDisplayedOrder);
+  }
 	exportData() {
 		const convertToCSVValue = (value: any): string => {
 			// Handle null and undefined
