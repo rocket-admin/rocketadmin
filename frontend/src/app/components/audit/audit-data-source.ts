@@ -68,19 +68,35 @@ export class AuditDataSource implements DataSource<Object> {
             rowReceived: 'received row',
             rowsReceived: 'received rows'
           }
+
+          const actionIcons = {
+            addRow: 'add',
+            deleteRow: 'delete',
+            updateRow: 'create',
+            rowReceived: 'visibility',
+            rowsReceived: 'visibility'
+          }
+
           const formattedLogs = res.logs.map(log => {
             const date = new Date(log.createdAt);
-            const formattedDate = format(date, "d MMM yyyy 'at' h:mm a")
+            const formattedDate = format(date, "d MMM yyyy 'at' h:mm a");
+            const dateOnly = format(date, "d MMM yyyy");
+            const timeOnly = format(date, "h:mm a");
+
             return {
               "Table": log.table_name,
               "User": log.email,
               "Action": actions[log.operationType],
+              "ActionIcon": actionIcons[log.operationType],
               "Date": formattedDate,
+              "DateOnly": dateOnly,
+              "TimeOnly": timeOnly,
               "Status": log.operationStatusResult,
               operationType: log.operationType,
               createdAt: log.createdAt,
               prevValue: log.old_data,
               currentValue: log.received_data,
+              IsAddAction: log.operationType === 'addRow'
             }
           });
           this.rowsSubject.next(formattedLogs);

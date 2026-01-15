@@ -122,3 +122,31 @@ th.mat-header-cell, td.mat-cell {
     background-color: #EBF9EB;
     color: #1A5E20;
 }
+
+.action-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.action-icon--add {
+    color: #1A5E20;
+}
+
+.action-icon--delete {
+    color: #C62828;
+}
+
+.action-icon--create {
+    color: #1565C0;
+}
+
+.action-icon--visibility {
+    color: #6A6A6A;
+}

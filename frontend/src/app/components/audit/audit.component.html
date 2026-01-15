@@ -78,7 +78,11 @@
                             [ngClass]="{'status-succeed': element[column] === 'successfully'}">
                             {{element[column] || '—'}}
                         </span>
-                        <span *ngIf="column !== 'Status'">{{element[column] || '—'}}</span>
+                        <span *ngIf="column === 'Action'" class="action-cell">
+                            <mat-icon class="action-icon" [ngClass]="'action-icon--' + element.ActionIcon">{{element.ActionIcon}}</mat-icon>
+                            {{element[column] || '—'}}
+                        </span>
+                        <span *ngIf="column !== 'Status' && column !== 'Action'">{{element[column] || '—'}}</span>
                     </div>
                 </td>
             </ng-container>

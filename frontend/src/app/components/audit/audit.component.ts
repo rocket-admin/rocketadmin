@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 import { Log } from 'src/app/models/logs';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginator } from '@angular/material/paginator';
@@ -40,6 +41,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
     MatTableModule,
     MatPaginatorModule,
     FormsModule,
