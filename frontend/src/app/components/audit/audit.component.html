@@ -72,8 +72,13 @@
             <ng-container [matColumnDef]="column" *ngFor="let column of dataColumns">
                 <th mat-header-cell *matHeaderCellDef> {{ column }} </th>
                 <td mat-cell *matCellDef="let element">
-                    <div class="table-cell-content" >
-                        {{element[column] || '—'}}
+                    <div class="table-cell-content">
+                        <span *ngIf="column === 'Status'"
+                            class="status-badge"
+                            [ngClass]="{'status-succeed': element[column] === 'successfully'}">
+                            {{element[column] || '—'}}
+                        </span>
+                        <span *ngIf="column !== 'Status'">{{element[column] || '—'}}</span>
                     </div>
                 </td>
             </ng-container>
