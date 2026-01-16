@@ -83,7 +83,11 @@ describe('DbTableActionsComponent', () => {
 			id: 'rule_12345678',
 			title: 'rule 1',
 			table_name: 'user',
-			events: [],
+			events: [
+				{
+					event: null,
+				},
+			],
 			table_actions: [],
 		};
 		const mockSetSelectedAction = vi.spyOn(component, 'setSelectedRule');
@@ -255,11 +259,28 @@ describe('DbTableActionsComponent', () => {
 	});
 
 	it('should call remove action from the list when it is not saved', () => {
+		component.rules = [
+			{
+				id: '',
+				title: 'rule 1',
+				table_name: 'user',
+				events: [
+					{
+						event: null,
+					},
+				],
+				table_actions: [],
+			},
+		];
 		component.selectedRule = {
 			id: '',
 			title: 'rule 1',
 			table_name: 'user',
-			events: [],
+			events: [
+				{
+					event: null,
+				},
+			],
 			table_actions: [],
 		};
 		const mockRemoveRuleFromLocalList = vi.spyOn(component, 'removeRuleFromLocalList');

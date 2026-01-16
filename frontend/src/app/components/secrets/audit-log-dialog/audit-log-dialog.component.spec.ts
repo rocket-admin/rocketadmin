@@ -15,8 +15,8 @@ import { Secret, AuditLogEntry, AuditLogResponse } from 'src/app/models/secret';
 describe('AuditLogDialogComponent', () => {
   let component: AuditLogDialogComponent;
   let fixture: ComponentFixture<AuditLogDialogComponent>;
-  let mockSecretsService: jasmine.SpyObj<SecretsService>;
-  let mockDialogRef: jasmine.SpyObj<MatDialogRef<AuditLogDialogComponent>>;
+  let mockSecretsService: { getAuditLog: ReturnType<typeof vi.fn> };
+  let mockDialogRef: { close: ReturnType<typeof vi.fn> };
 
   const mockSecret: Secret = {
     id: '1',
@@ -77,10 +77,11 @@ describe('AuditLogDialogComponent', () => {
   });
 
   beforeEach(async () => {
-    mockSecretsService = jasmine.createSpyObj('SecretsService', ['getAuditLog']);
-    mockSecretsService.getAuditLog.mockImplementation(() => of(createMockAuditLogResponse()));
+    mockSecretsService = {
+      getAuditLog: vi.fn().mockImplementation(() => of(createMockAuditLogResponse()))
+    };
 
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockDialogRef = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [

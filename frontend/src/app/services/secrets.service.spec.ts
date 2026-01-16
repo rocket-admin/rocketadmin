@@ -17,7 +17,7 @@ import {
 describe('SecretsService', () => {
   let service: SecretsService;
   let httpMock: HttpTestingController;
-  let fakeNotifications: jasmine.SpyObj<NotificationsService>;
+  let fakeNotifications: { showErrorSnackbar: ReturnType<typeof vi.fn>; showSuccessSnackbar: ReturnType<typeof vi.fn> };
 
   const mockSecret: Secret = {
     id: '1',
@@ -79,10 +79,10 @@ describe('SecretsService', () => {
   };
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', [
-      'showErrorSnackbar',
-      'showSuccessSnackbar',
-    ]);
+    fakeNotifications = {
+      showErrorSnackbar: vi.fn(),
+      showSuccessSnackbar: vi.fn()
+    };
 
     TestBed.configureTestingModule({
       imports: [MatSnackBarModule],

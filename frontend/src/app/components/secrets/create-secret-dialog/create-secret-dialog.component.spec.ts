@@ -13,8 +13,8 @@ import { CreateSecretDialogComponent } from './create-secret-dialog.component';
 describe('CreateSecretDialogComponent', () => {
 	let component: CreateSecretDialogComponent;
 	let fixture: ComponentFixture<CreateSecretDialogComponent>;
-	let mockSecretsService: jasmine.SpyObj<SecretsService>;
-	let mockDialogRef: jasmine.SpyObj<MatDialogRef<CreateSecretDialogComponent>>;
+	let mockSecretsService: { createSecret: ReturnType<typeof vi.fn> };
+	let mockDialogRef: { close: ReturnType<typeof vi.fn> };
 
 	const mockSecret: Secret = {
 		id: '1',
@@ -26,10 +26,13 @@ describe('CreateSecretDialogComponent', () => {
 	};
 
 	beforeEach(async () => {
-		mockSecretsService = jasmine.createSpyObj('SecretsService', ['createSecret']);
-		mockSecretsService.createSecret.mockReturnValue(of(mockSecret));
+		mockSecretsService = {
+			createSecret: vi.fn().mockReturnValue(of(mockSecret))
+		};
 
-		mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+		mockDialogRef = {
+			close: vi.fn()
+		};
 
 		await TestBed.configureTestingModule({
 			imports: [CreateSecretDialogComponent, BrowserAnimationsModule, MatSnackBarModule, Angulartics2Module.forRoot()],
@@ -370,7 +373,8 @@ describe('CreateSecretDialogComponent', () => {
 
 			component.onSubmit();
 
-			const callArgs = mockSecretsService.createSecret.calls.mostRecent().args[0];
+			const calls = mockSecretsService.createSecret.mock.calls;
+			const callArgs = calls[calls.length - 1][0];
 			expect(callArgs.masterPassword).toBeUndefined();
 		});
 	});

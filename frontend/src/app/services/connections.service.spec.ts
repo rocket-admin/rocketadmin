@@ -93,8 +93,14 @@ describe('ConnectionsService', () => {
   };
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
-    fakeMasterPassword = jasmine.createSpyObj('MasterPasswordService', ['showMasterPasswordDialog']);
+    fakeNotifications = {
+      showErrorSnackbar: vi.fn(),
+      showSuccessSnackbar: vi.fn(),
+      showAlert: vi.fn()
+    };
+    fakeMasterPassword = {
+      showMasterPasswordDialog: vi.fn()
+    };
 
     TestBed.configureTestingModule({
       imports: [
@@ -437,7 +443,7 @@ describe('ConnectionsService', () => {
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
 
-    await expectAsync(createdConnection).toBeRejectedWith(fakeError.message);
+    await expect(createdConnection).rejects.toEqual(fakeError.message);
     expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, []);
   });
 
@@ -461,7 +467,7 @@ describe('ConnectionsService', () => {
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
 
-    await expectAsync(updatedConnection).toBeRejectedWith(new Error(fakeError.message));
+    await expect(updatedConnection).rejects.toEqual(new Error(fakeError.message));
 
     expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,

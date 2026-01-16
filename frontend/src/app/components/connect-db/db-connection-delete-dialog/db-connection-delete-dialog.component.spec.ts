@@ -15,7 +15,7 @@ describe.skip('DbConnectionDeleteDialogComponent', () => {
   let component: DbConnectionDeleteDialogComponent;
   let fixture: ComponentFixture<DbConnectionDeleteDialogComponent>;
   let routerSpy;
-  let fakeConnectionsService = jasmine.createSpyObj('connectionsService', ['deleteConnection']);
+  let fakeConnectionsService = { deleteConnection: vi.fn() };
 
   const mockDialogRef = {
     close: () => { }

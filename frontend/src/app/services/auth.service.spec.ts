@@ -20,7 +20,11 @@ describe('AuthService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
+    fakeNotifications = {
+      showErrorSnackbar: vi.fn(),
+      showSuccessSnackbar: vi.fn(),
+      showAlert: vi.fn()
+    };
 
     TestBed.configureTestingModule({
       imports: [

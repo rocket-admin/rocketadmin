@@ -28,7 +28,11 @@ describe('UserService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
+    fakeNotifications = {
+      showErrorSnackbar: vi.fn(),
+      showSuccessSnackbar: vi.fn(),
+      showAlert: vi.fn()
+    };
     routerSpy = {navigate: vi.fn()};
 
     TestBed.configureTestingModule({

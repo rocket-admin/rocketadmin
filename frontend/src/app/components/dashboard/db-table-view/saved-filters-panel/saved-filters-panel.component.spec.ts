@@ -10,7 +10,6 @@ import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 
 // We need to mock the JsonURL import used in the component
-jasmine.getEnv().allowRespy(true); // Allow respying on the same object
 class JsonURLMock {
   static stringify(obj: any): string {
     return JSON.stringify(obj);
@@ -31,8 +30,8 @@ class JsonURLMock {
 describe('SavedFiltersPanelComponent', () => {
   let component: SavedFiltersPanelComponent;
   let fixture: ComponentFixture<SavedFiltersPanelComponent>;
-  let _tablesServiceSpy: jasmine.SpyObj<TablesService>;
-  let _routerSpy: jasmine.SpyObj<Router>;
+  let _tablesServiceSpy: TablesService;
+  let _routerSpy: Router;
 
   const mockFilter = {
     id: 'filter1',
@@ -96,8 +95,8 @@ describe('SavedFiltersPanelComponent', () => {
       ]
     }).compileComponents();
 
-    _tablesServiceSpy = TestBed.inject(TablesService) as jasmine.SpyObj<TablesService>;
-    _routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    _tablesServiceSpy = TestBed.inject(TablesService);
+    _routerSpy = TestBed.inject(Router);
 
     fixture = TestBed.createComponent(SavedFiltersPanelComponent);
     component = fixture.componentInstance;

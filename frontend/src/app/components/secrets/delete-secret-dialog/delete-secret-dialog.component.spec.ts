@@ -14,8 +14,8 @@ import { Secret, DeleteSecretResponse } from 'src/app/models/secret';
 describe('DeleteSecretDialogComponent', () => {
   let component: DeleteSecretDialogComponent;
   let fixture: ComponentFixture<DeleteSecretDialogComponent>;
-  let mockSecretsService: jasmine.SpyObj<SecretsService>;
-  let mockDialogRef: jasmine.SpyObj<MatDialogRef<DeleteSecretDialogComponent>>;
+  let mockSecretsService: { deleteSecret: ReturnType<typeof vi.fn> };
+  let mockDialogRef: { close: ReturnType<typeof vi.fn> };
 
   const mockSecret: Secret = {
     id: '1',
@@ -37,10 +37,11 @@ describe('DeleteSecretDialogComponent', () => {
   };
 
   const createComponent = async (secret: Secret = mockSecret) => {
-    mockSecretsService = jasmine.createSpyObj('SecretsService', ['deleteSecret']);
-    mockSecretsService.deleteSecret.mockReturnValue(of(mockDeleteResponse));
+    mockSecretsService = {
+      deleteSecret: vi.fn().mockReturnValue(of(mockDeleteResponse))
+    };
 
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockDialogRef = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [

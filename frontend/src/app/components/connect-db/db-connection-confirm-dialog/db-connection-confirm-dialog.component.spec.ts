@@ -14,7 +14,10 @@ describe('DbConnectionConfirmDialogComponent', () => {
   let fixture: ComponentFixture<DbConnectionConfirmDialogComponent>;
 
   let routerSpy;
-  let fakeConnectionsService = jasmine.createSpyObj('connectionsService', ['updateConnection', 'createConnection']);
+  let fakeConnectionsService = {
+    updateConnection: vi.fn(),
+    createConnection: vi.fn()
+  };
 
   beforeEach(async (): Promise<void> => {
     routerSpy = {navigate: vi.fn()};

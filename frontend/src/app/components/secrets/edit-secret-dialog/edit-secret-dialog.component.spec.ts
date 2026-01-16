@@ -13,8 +13,8 @@ import { EditSecretDialogComponent } from './edit-secret-dialog.component';
 describe('EditSecretDialogComponent', () => {
 	let component: EditSecretDialogComponent;
 	let fixture: ComponentFixture<EditSecretDialogComponent>;
-	let mockSecretsService: jasmine.SpyObj<SecretsService>;
-	let mockDialogRef: jasmine.SpyObj<MatDialogRef<EditSecretDialogComponent>>;
+	let mockSecretsService: { updateSecret: ReturnType<typeof vi.fn> };
+	let mockDialogRef: { close: ReturnType<typeof vi.fn> };
 
 	const mockSecret: Secret = {
 		id: '1',
@@ -36,10 +36,11 @@ describe('EditSecretDialogComponent', () => {
 	};
 
 	const createComponent = async (secret: Secret = mockSecret) => {
-		mockSecretsService = jasmine.createSpyObj('SecretsService', ['updateSecret']);
-		mockSecretsService.updateSecret.mockReturnValue(of(secret));
+		mockSecretsService = {
+			updateSecret: vi.fn().mockReturnValue(of(secret))
+		};
 
-		mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+		mockDialogRef = { close: vi.fn() };
 
 		await TestBed.configureTestingModule({
 			imports: [EditSecretDialogComponent, BrowserAnimationsModule, MatSnackBarModule, Angulartics2Module.forRoot()],

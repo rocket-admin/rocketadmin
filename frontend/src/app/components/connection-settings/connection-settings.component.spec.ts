@@ -72,7 +72,7 @@ describe('ConnectionSettingsComponent', () => {
   };
 
   beforeEach(async () => {
-    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    const matSnackBarSpy = { open: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [

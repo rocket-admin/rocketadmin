@@ -1,8 +1,6 @@
 import {
 	ComponentFixture,
-	fakeAsync,
 	TestBed,
-	tick,
 } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -182,7 +180,7 @@ describe("S3EditComponent", () => {
 	});
 
 	describe("onFileSelected", () => {
-		it("should upload file and update value on success", fakeAsync(() => {
+		it("should upload file and update value on success", async () => {
 			fixture.detectChanges();
 			fakeS3Service.getUploadUrl.mockReturnValue(of(mockUploadUrlResponse));
 			fakeS3Service.uploadToS3.mockReturnValue(of(undefined));
@@ -199,7 +197,7 @@ describe("S3EditComponent", () => {
 
 			vi.spyOn(component.onFieldChange, "emit");
 			component.onFileSelected(event);
-			tick();
+			await fixture.whenStable();
 
 			expect(fakeS3Service.getUploadUrl).toHaveBeenCalledWith(
 				"conn-123",
@@ -216,7 +214,7 @@ describe("S3EditComponent", () => {
 			expect(component.onFieldChange.emit).toHaveBeenCalledWith(
 				"uploads/newfile.pdf",
 			);
-		}));
+		});
 
 		it("should do nothing if no files selected", () => {
 			fixture.detectChanges();
@@ -259,7 +257,7 @@ describe("S3EditComponent", () => {
 			expect(component.isLoading).toBe(true);
 		});
 
-		it("should set isLoading to false on getUploadUrl error", fakeAsync(() => {
+		it("should set isLoading to false on getUploadUrl error", async () => {
 			fixture.detectChanges();
 			fakeS3Service.getUploadUrl.mockReturnValue(
 				throwError(() => new Error("Upload URL error")),
@@ -269,12 +267,12 @@ describe("S3EditComponent", () => {
 			const event = { target: { files: [file] } } as unknown as Event;
 
 			component.onFileSelected(event);
-			tick();
+			await fixture.whenStable();
 
 			expect(component.isLoading).toBe(false);
-		}));
+		});
 
-		it("should set isLoading to false on uploadToS3 error", fakeAsync(() => {
+		it("should set isLoading to false on uploadToS3 error", async () => {
 			fixture.detectChanges();
 			fakeS3Service.getUploadUrl.mockReturnValue(of(mockUploadUrlResponse));
 			fakeS3Service.uploadToS3.mockReturnValue(
@@ -285,10 +283,10 @@ describe("S3EditComponent", () => {
 			const event = { target: { files: [file] } } as unknown as Event;
 
 			component.onFileSelected(event);
-			tick();
+			await fixture.whenStable();
 
 			expect(component.isLoading).toBe(false);
-		}));
+		});
 	});
 
 	describe("openFile", () => {
@@ -344,27 +342,27 @@ describe("S3EditComponent", () => {
 	});
 
 	describe("_loadPreview", () => {
-		it("should set previewUrl and isImage on successful load", fakeAsync(() => {
+		it("should set previewUrl and isImage on successful load", async () => {
 			component.value = "uploads/photo.jpg";
 			fakeS3Service.getFileUrl.mockReturnValue(of(mockFileUrlResponse));
 
 			fixture.detectChanges();
-			tick();
+			await fixture.whenStable();
 
 			expect(component.previewUrl).toBe(mockFileUrlResponse.url);
 			expect(component.isImage).toBe(true);
 			expect(component.isLoading).toBe(false);
-		}));
+		});
 
-		it("should set isImage to false for non-image files", fakeAsync(() => {
+		it("should set isImage to false for non-image files", async () => {
 			component.value = "uploads/document.pdf";
 			fakeS3Service.getFileUrl.mockReturnValue(of(mockFileUrlResponse));
 
 			fixture.detectChanges();
-			tick();
+			await fixture.whenStable();
 
 			expect(component.isImage).toBe(false);
-		}));
+		});
 
 		it("should not load preview if value is empty", () => {
 			component.value = "";
@@ -400,17 +398,17 @@ describe("S3EditComponent", () => {
 			expect(fakeS3Service.getFileUrl).not.toHaveBeenCalled();
 		});
 
-		it("should set isLoading to false on error", fakeAsync(() => {
+		it("should set isLoading to false on error", async () => {
 			component.value = "uploads/file.pdf";
 			fakeS3Service.getFileUrl.mockReturnValue(
 				throwError(() => new Error("File URL error")),
 			);
 
 			fixture.detectChanges();
-			tick();
+			await fixture.whenStable();
 
 			expect(component.isLoading).toBe(false);
-		}));
+		});
 	});
 
 	describe("_parseWidgetParams", () => {

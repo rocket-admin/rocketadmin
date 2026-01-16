@@ -13,16 +13,20 @@ import { Angulartics2Module } from 'angulartics2';
 describe('SavedFiltersDialogComponent', () => {
   let component: SavedFiltersDialogComponent;
   let fixture: ComponentFixture<SavedFiltersDialogComponent>;
-  let tablesServiceMock: jasmine.SpyObj<TablesService>;
-  let _connectionsServiceMock: jasmine.SpyObj<ConnectionsService>;
+  let tablesServiceMock: any;
+  let _connectionsServiceMock: any;
 
   beforeEach(async () => {
-    const tableSpy = jasmine.createSpyObj('TablesService', ['cast', 'createSavedFilter', 'deleteSavedFilter', 'updateSavedFilter']);
-    tableSpy.cast = jasmine.createSpyObj('BehaviorSubject', ['subscribe']);
+    const tableSpy = {
+      cast: { subscribe: vi.fn() },
+      createSavedFilter: vi.fn(),
+      deleteSavedFilter: vi.fn(),
+      updateSavedFilter: vi.fn()
+    };
 
-    const connectionSpy = jasmine.createSpyObj('ConnectionsService', [], {
+    const connectionSpy = {
       currentConnection: { type: 'postgres' }
-    });
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -60,8 +64,8 @@ describe('SavedFiltersDialogComponent', () => {
     })
     .compileComponents();
 
-    tablesServiceMock = TestBed.inject(TablesService) as jasmine.SpyObj<TablesService>;
-    _connectionsServiceMock = TestBed.inject(ConnectionsService) as jasmine.SpyObj<ConnectionsService>;
+    tablesServiceMock = TestBed.inject(TablesService);
+    _connectionsServiceMock = TestBed.inject(ConnectionsService);
 
     fixture = TestBed.createComponent(SavedFiltersDialogComponent);
     component = fixture.componentInstance;

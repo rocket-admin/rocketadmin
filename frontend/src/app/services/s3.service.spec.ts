@@ -11,7 +11,7 @@ import { S3Service } from "./s3.service";
 describe("S3Service", () => {
 	let service: S3Service;
 	let httpMock: HttpTestingController;
-	let fakeNotifications: jasmine.SpyObj<NotificationsService>;
+	let fakeNotifications: { showAlert: ReturnType<typeof vi.fn>; dismissAlert: ReturnType<typeof vi.fn> };
 
 	const mockFileUrlResponse = {
 		url: "https://s3.amazonaws.com/bucket/file.pdf?signature=abc123",
@@ -32,10 +32,10 @@ describe("S3Service", () => {
 	};
 
 	beforeEach(() => {
-		fakeNotifications = jasmine.createSpyObj("NotificationsService", [
-			"showAlert",
-			"dismissAlert",
-		]);
+		fakeNotifications = {
+			showAlert: vi.fn(),
+			dismissAlert: vi.fn()
+		};
 
 		TestBed.configureTestingModule({
 			imports: [MatSnackBarModule],

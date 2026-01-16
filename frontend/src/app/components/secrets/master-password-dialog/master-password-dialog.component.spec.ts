@@ -7,10 +7,10 @@ import { MasterPasswordDialogComponent } from './master-password-dialog.componen
 describe('MasterPasswordDialogComponent', () => {
   let component: MasterPasswordDialogComponent;
   let fixture: ComponentFixture<MasterPasswordDialogComponent>;
-  let mockDialogRef: jasmine.SpyObj<MatDialogRef<MasterPasswordDialogComponent>>;
+  let mockDialogRef: { close: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockDialogRef = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
