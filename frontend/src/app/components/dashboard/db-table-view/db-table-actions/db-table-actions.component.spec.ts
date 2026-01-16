@@ -19,13 +19,14 @@ describe('DbTableActionsComponent', () => {
 	let component: DbTableActionsComponent;
 	let fixture: ComponentFixture<DbTableActionsComponent>;
 	let tablesService: TablesService;
-	let dialog: MatDialog;
+	let mockMatDialog: { open: ReturnType<typeof vi.fn> };
 	let fakeNotifications;
 
 	beforeEach(async () => {
 		fakeNotifications = {
 			showSuccessSnackbar: vi.fn(),
 		};
+		mockMatDialog = { open: vi.fn() };
 
 		await TestBed.configureTestingModule({
 			imports: [
@@ -42,6 +43,7 @@ describe('DbTableActionsComponent', () => {
 					provide: NotificationsService,
 					useValue: fakeNotifications,
 				},
+				{ provide: MatDialog, useValue: mockMatDialog },
 			],
 		})
 			.overrideComponent(DbTableActionsComponent, {
@@ -52,7 +54,6 @@ describe('DbTableActionsComponent', () => {
 
 		fixture = TestBed.createComponent(DbTableActionsComponent);
 		tablesService = TestBed.inject(TablesService);
-		dialog = TestBed.inject(MatDialog);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -374,8 +375,6 @@ describe('DbTableActionsComponent', () => {
 	});
 
 	it('should open dialog for delete action confirmation', () => {
-		const fakeConfirmationDialog = vi.spyOn(dialog, 'open');
-
 		const mockRule = {
 			id: '',
 			title: 'rule 2',
@@ -389,7 +388,7 @@ describe('DbTableActionsComponent', () => {
 
 		component.openDeleteRuleDialog();
 
-		expect(fakeConfirmationDialog).toHaveBeenCalledWith(ActionDeleteDialogComponent, {
+		expect(mockMatDialog.open).toHaveBeenCalledWith(ActionDeleteDialogComponent, {
 			width: '25em',
 			data: {
 				connectionID: '12345678',

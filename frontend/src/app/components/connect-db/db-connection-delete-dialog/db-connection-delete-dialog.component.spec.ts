@@ -6,7 +6,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter, Router } from '@angular/router';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog.component';
 
@@ -21,7 +21,7 @@ describe('DbConnectionDeleteDialogComponent', () => {
 	};
 
 	beforeEach(async (): Promise<void> => {
-		routerSpy = { navigate: vi.fn() };
+		routerSpy = { navigate: vi.fn(), events: new Subject() };
 
 		await TestBed.configureTestingModule({
 			imports: [

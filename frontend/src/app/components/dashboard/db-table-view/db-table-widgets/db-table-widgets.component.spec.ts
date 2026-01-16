@@ -23,7 +23,7 @@ describe('DbTableWidgetsComponent', () => {
 	let fixture: ComponentFixture<DbTableWidgetsComponent>;
 	let tablesService: TablesService;
 	let connectionsService: ConnectionsService;
-	let dialog: MatDialog;
+	let mockMatDialog: { open: ReturnType<typeof vi.fn> };
 	const dialogRefSpyObj = {
 		afterClosed: vi.fn().mockReturnValue(of('delete')),
 		close: vi.fn(),
@@ -104,7 +104,11 @@ describe('DbTableWidgetsComponent', () => {
 				Angulartics2Module.forRoot(),
 				DbTableWidgetsComponent,
 			],
-			providers: [provideHttpClient(), { provide: MatDialogRef, useValue: {} }],
+			providers: [
+				provideHttpClient(),
+				{ provide: MatDialogRef, useValue: {} },
+				{ provide: MatDialog, useFactory: () => mockMatDialog },
+			],
 		})
 			.overrideComponent(WidgetComponent, {
 				remove: { imports: [CodeEditorModule] },
@@ -122,11 +126,11 @@ describe('DbTableWidgetsComponent', () => {
 	});
 
 	beforeEach(() => {
+		mockMatDialog = { open: vi.fn() };
 		fixture = TestBed.createComponent(DbTableWidgetsComponent);
 		component = fixture.componentInstance;
 		tablesService = TestBed.inject(TablesService);
 		connectionsService = TestBed.inject(ConnectionsService);
-		dialog = TestBed.inject(MatDialog);
 		fixture.detectChanges();
 	});
 
@@ -206,10 +210,10 @@ describe('DbTableWidgetsComponent', () => {
 			},
 		];
 
-		const fakeDialog = vi.spyOn(dialog, 'open').mockReturnValue(dialogRefSpyObj as any);
+		mockMatDialog.open.mockReturnValue(dialogRefSpyObj as any);
 		component.openDeleteWidgetDialog('user_name');
 
-		expect(fakeDialog).toHaveBeenCalledWith(WidgetDeleteDialogComponent, {
+		expect(mockMatDialog.open).toHaveBeenCalledWith(WidgetDeleteDialogComponent, {
 			width: '25em',
 			data: 'user_name',
 		});

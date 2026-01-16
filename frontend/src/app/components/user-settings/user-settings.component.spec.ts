@@ -20,9 +20,11 @@ describe('UserSettingsComponent', () => {
 	let component: UserSettingsComponent;
 	let fixture: ComponentFixture<UserSettingsComponent>;
 	let userService: UserService;
-	let dialog: MatDialog;
+	let mockMatDialog: { open: ReturnType<typeof vi.fn> };
 
 	beforeEach(async () => {
+		mockMatDialog = { open: vi.fn() };
+
 		await TestBed.configureTestingModule({
 			imports: [
 				RouterTestingModule,
@@ -42,6 +44,7 @@ describe('UserSettingsComponent', () => {
 					useExisting: forwardRef(() => UserSettingsComponent),
 					multi: true,
 				},
+				{ provide: MatDialog, useValue: mockMatDialog },
 			],
 		}).compileComponents();
 	});
@@ -50,7 +53,6 @@ describe('UserSettingsComponent', () => {
 		fixture = TestBed.createComponent(UserSettingsComponent);
 		component = fixture.componentInstance;
 		userService = TestBed.inject(UserService);
-		dialog = TestBed.inject(MatDialog);
 		fixture.detectChanges();
 	});
 
@@ -68,7 +70,6 @@ describe('UserSettingsComponent', () => {
 	});
 
 	it('should open delete account dialog', () => {
-		const fakeDeleteAccountOpen = vi.spyOn(dialog, 'open');
 		component.currentUser = {
 			id: 'user-12345678',
 			createdAt: '2021-10-01T13:43:02.034Z',
@@ -85,7 +86,7 @@ describe('UserSettingsComponent', () => {
 		};
 
 		component.confirmDeleteAccount();
-		expect(fakeDeleteAccountOpen).toHaveBeenCalledWith(AccountDeleteDialogComponent, {
+		expect(mockMatDialog.open).toHaveBeenCalledWith(AccountDeleteDialogComponent, {
 			width: '32em',
 			data: {
 				id: 'user-12345678',

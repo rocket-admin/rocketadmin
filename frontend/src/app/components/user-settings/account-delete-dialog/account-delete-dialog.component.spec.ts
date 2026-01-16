@@ -12,13 +12,15 @@ import { AccountDeleteDialogComponent } from './account-delete-dialog.component'
 describe('AccountDeleteDialogComponent', () => {
 	let component: AccountDeleteDialogComponent;
 	let fixture: ComponentFixture<AccountDeleteDialogComponent>;
-	let dialog: MatDialog;
+	let mockMatDialog: { open: ReturnType<typeof vi.fn> };
 
 	const mockDialogRef = {
 		close: () => {},
 	};
 
 	beforeEach(async () => {
+		mockMatDialog = { open: vi.fn() };
+
 		await TestBed.configureTestingModule({
 			imports: [
 				MatDialogModule,
@@ -33,13 +35,13 @@ describe('AccountDeleteDialogComponent', () => {
 				provideHttpClient(),
 				{ provide: MAT_DIALOG_DATA, useValue: {} },
 				{ provide: MatDialogRef, useValue: mockDialogRef },
+				{ provide: MatDialog, useValue: mockMatDialog },
 			],
 		}).compileComponents();
 	});
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(AccountDeleteDialogComponent);
-		dialog = TestBed.inject(MatDialog);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -52,10 +54,9 @@ describe('AccountDeleteDialogComponent', () => {
 		component.reason = 'technical-issues';
 		component.message = 'I cannot add connection';
 
-		const fakeDeleteUserDialogOpen = vi.spyOn(dialog, 'open');
 		component.openDeleteConfirmation();
 
-		expect(fakeDeleteUserDialogOpen).toHaveBeenCalledWith(AccountDeleteConfirmationComponent, {
+		expect(mockMatDialog.open).toHaveBeenCalledWith(AccountDeleteConfirmationComponent, {
 			width: '20em',
 			data: {
 				reason: 'technical-issues',

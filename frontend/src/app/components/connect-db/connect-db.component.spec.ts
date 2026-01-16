@@ -22,7 +22,7 @@ import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog
 describe('ConnectDBComponent', () => {
 	let component: ConnectDBComponent;
 	let fixture: ComponentFixture<ConnectDBComponent>;
-	let dialog: MatDialog;
+	let mockMatDialog: { open: ReturnType<typeof vi.fn> };
 
 	const fakeNotifications = {
 		showErrorSnackbar: vi.fn(),
@@ -63,6 +63,8 @@ describe('ConnectDBComponent', () => {
 	};
 
 	beforeEach(async () => {
+		mockMatDialog = { open: vi.fn() };
+
 		await TestBed.configureTestingModule({
 			imports: [
 				MatSnackBarModule,
@@ -85,6 +87,7 @@ describe('ConnectDBComponent', () => {
 				},
 				{ provide: NotificationsService, useValue: fakeNotifications },
 				{ provide: ConnectionsService, useValue: fakeConnectionsService },
+				{ provide: MatDialog, useValue: mockMatDialog },
 			],
 		}).compileComponents();
 	});
@@ -92,7 +95,6 @@ describe('ConnectDBComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(ConnectDBComponent);
 		component = fixture.componentInstance;
-		dialog = TestBed.inject(MatDialog);
 
 		// @ts-expect-error
 		global.window.fbq = vi.fn();
@@ -161,11 +163,10 @@ describe('ConnectDBComponent', () => {
 	});
 
 	it('should open delete connection dialog', () => {
-		const fakeDialogOpen = vi.spyOn(dialog, 'open');
 		const event = { preventDefault: vi.fn(), stopImmediatePropagation: vi.fn() } as unknown as Event;
 
 		component.confirmDeleteConnection(connectionCredsApp, event);
-		expect(fakeDialogOpen).toHaveBeenCalledWith(DbConnectionDeleteDialogComponent, {
+		expect(mockMatDialog.open).toHaveBeenCalledWith(DbConnectionDeleteDialogComponent, {
 			width: '32em',
 			data: connectionCredsApp,
 		});
@@ -239,12 +240,11 @@ describe('ConnectDBComponent', () => {
 	});
 
 	it('should open dialog on test error', () => {
-		const fakeDialogOpen = vi.spyOn(dialog, 'open');
 		vi.spyOn(component, 'db', 'get').mockReturnValue(connectionCredsApp);
 		component.masterKey = 'master_password_12345678';
 		component.handleConnectionError('Hostname is invalid');
 
-		expect(fakeDialogOpen).toHaveBeenCalledWith(DbConnectionConfirmDialogComponent, {
+		expect(mockMatDialog.open).toHaveBeenCalledWith(DbConnectionConfirmDialogComponent, {
 			width: '25em',
 			data: {
 				dbCreds: connectionCredsApp,

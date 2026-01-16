@@ -5,6 +5,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
 import { ForeignKeyFilterComponent } from './foreign-key.component';
@@ -126,6 +127,7 @@ describe('ForeignKeyFilterComponent', () => {
 				MatDialogModule,
 				ForeignKeyFilterComponent,
 				BrowserAnimationsModule,
+				Angulartics2Module.forRoot(),
 			],
 			providers: [provideHttpClient(), provideRouter([])],
 		}).compileComponents();
