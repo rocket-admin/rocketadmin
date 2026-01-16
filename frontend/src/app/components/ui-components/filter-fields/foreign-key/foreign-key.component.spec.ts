@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { ForeignKeyFilterComponent } from './foreign-key.component';
 
@@ -14,6 +15,7 @@ describe('ForeignKeyFilterComponent', () => {
 	let component: ForeignKeyFilterComponent;
 	let fixture: ComponentFixture<ForeignKeyFilterComponent>;
 	let tablesService: TablesService;
+	let connectionsService: ConnectionsService;
 
 	const structureNetwork = [
 		{
@@ -138,10 +140,15 @@ describe('ForeignKeyFilterComponent', () => {
 		component = fixture.componentInstance;
 		component.relations = fakeRelations;
 		tablesService = TestBed.inject(TablesService);
-		fixture.detectChanges();
+		connectionsService = TestBed.inject(ConnectionsService);
+		// Mock the connectionID getter before ngOnInit runs
+		vi.spyOn(connectionsService, 'currentConnectionID', 'get').mockReturnValue('12345678');
+		// Don't call fixture.detectChanges() here - let tests set up mocks first
 	});
 
 	it('should create', () => {
+		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
+		fixture.detectChanges();
 		expect(component).toBeTruthy();
 	});
 
@@ -151,10 +158,9 @@ describe('ForeignKeyFilterComponent', () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetworkWithIdentityColumn));
 
 		component.connectionID = '12345678';
-		component.value = '';
+		component.value = '33'; // Must be truthy to trigger currentDisplayedString setting
 
-		component.ngOnInit();
-		fixture.detectChanges();
+		fixture.detectChanges(); // This triggers ngOnInit
 
 		expect(component.identityColumn).toEqual('lastname');
 		expect(component.currentDisplayedString).toEqual('Taylor (Alex | new-user-5@email.com)');
@@ -184,10 +190,9 @@ describe('ForeignKeyFilterComponent', () => {
 
 		component.connectionID = '12345678';
 
-		component.value = '';
+		component.value = '33'; // Must be truthy to trigger currentDisplayedString setting
 
-		component.ngOnInit();
-		fixture.detectChanges();
+		fixture.detectChanges(); // This triggers ngOnInit
 
 		expect(component.identityColumn).toBeUndefined;
 		expect(component.currentDisplayedString).toEqual('Alex | Taylor | new-user-5@email.com');
@@ -224,10 +229,9 @@ describe('ForeignKeyFilterComponent', () => {
 			referenced_table_name: 'users',
 			column_default: '',
 		};
-		component.value = '';
+		component.value = '33'; // Must be truthy to trigger currentDisplayedString setting
 
-		component.ngOnInit();
-		fixture.detectChanges();
+		fixture.detectChanges(); // This triggers ngOnInit
 
 		expect(component.identityColumn).toBeUndefined;
 		expect(component.currentDisplayedString).toEqual('33 | Alex | Taylor | new-user-5@email.com | 24');
@@ -253,6 +257,8 @@ describe('ForeignKeyFilterComponent', () => {
 	});
 
 	it('should set current value if necessary row is in suggestions list', () => {
+		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
+		fixture.detectChanges();
 		component.suggestions = [
 			{
 				displayString: 'Alex | Taylor | new-user-5@email.com',
@@ -278,6 +284,8 @@ describe('ForeignKeyFilterComponent', () => {
 	});
 
 	it('should fetch suggestions list if user types search query and identity column is set', () => {
+		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
+		fixture.detectChanges();
 		const searchSuggestionsNetwork = {
 			rows: [
 				{
@@ -365,7 +373,7 @@ describe('ForeignKeyFilterComponent', () => {
 
 		expect(component.suggestions).toEqual([
 			{
-				displayString: 'No matches',
+				displayString: 'No field starts with "skjfhskjdf" in foreign entity.',
 			},
 		]);
 	});

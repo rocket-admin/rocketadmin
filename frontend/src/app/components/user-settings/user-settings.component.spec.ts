@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { forwardRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -31,7 +31,6 @@ describe('UserSettingsComponent', () => {
 				FormsModule,
 				MatInputModule,
 				MatSlideToggleModule,
-				MatDialogModule,
 				MatSnackBarModule,
 				BrowserAnimationsModule,
 				Angulartics2Module.forRoot(),
@@ -44,9 +43,14 @@ describe('UserSettingsComponent', () => {
 					useExisting: forwardRef(() => UserSettingsComponent),
 					multi: true,
 				},
-				{ provide: MatDialog, useValue: mockMatDialog },
 			],
-		}).compileComponents();
+		})
+			.overrideComponent(UserSettingsComponent, {
+				set: {
+					providers: [{ provide: MatDialog, useFactory: () => mockMatDialog }],
+				},
+			})
+			.compileComponents();
 	});
 
 	beforeEach(() => {
@@ -98,6 +102,9 @@ describe('UserSettingsComponent', () => {
 				is_2fa_enabled: false,
 				role: CompanyMemberRole.Member,
 				externalRegistrationProvider: null,
+				company: {
+					id: 'company_123',
+				},
 			},
 		});
 	});

@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -23,7 +23,6 @@ describe('AccountDeleteDialogComponent', () => {
 
 		await TestBed.configureTestingModule({
 			imports: [
-				MatDialogModule,
 				MatSnackBarModule,
 				FormsModule,
 				MatRadioModule,
@@ -35,9 +34,14 @@ describe('AccountDeleteDialogComponent', () => {
 				provideHttpClient(),
 				{ provide: MAT_DIALOG_DATA, useValue: {} },
 				{ provide: MatDialogRef, useValue: mockDialogRef },
-				{ provide: MatDialog, useValue: mockMatDialog },
 			],
-		}).compileComponents();
+		})
+			.overrideComponent(AccountDeleteDialogComponent, {
+				set: {
+					providers: [{ provide: MatDialog, useFactory: () => mockMatDialog }],
+				},
+			})
+			.compileComponents();
 	});
 
 	beforeEach(() => {

@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -25,13 +25,14 @@ describe('DbTableActionsComponent', () => {
 	beforeEach(async () => {
 		fakeNotifications = {
 			showSuccessSnackbar: vi.fn(),
+			showAlert: vi.fn(),
+			showErrorSnackbar: vi.fn(),
 		};
 		mockMatDialog = { open: vi.fn() };
 
 		await TestBed.configureTestingModule({
 			imports: [
 				RouterTestingModule,
-				MatDialogModule,
 				MatSnackBarModule,
 				BrowserAnimationsModule,
 				Angulartics2Module.forRoot(),
@@ -43,18 +44,30 @@ describe('DbTableActionsComponent', () => {
 					provide: NotificationsService,
 					useValue: fakeNotifications,
 				},
-				{ provide: MatDialog, useValue: mockMatDialog },
 			],
 		})
 			.overrideComponent(DbTableActionsComponent, {
 				remove: { imports: [CodeEditorModule] },
-				add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] },
+				add: {
+					imports: [MockCodeEditorComponent],
+					schemas: [NO_ERRORS_SCHEMA],
+					providers: [{ provide: MatDialog, useFactory: () => mockMatDialog }],
+				},
 			})
 			.compileComponents();
 
 		fixture = TestBed.createComponent(DbTableActionsComponent);
 		tablesService = TestBed.inject(TablesService);
 		component = fixture.componentInstance;
+
+		// Mock fetchRules before detectChanges to prevent ngOnInit errors
+		vi.spyOn(tablesService, 'fetchRules').mockReturnValue(
+			of({
+				action_rules: [],
+				display_name: 'Test Table',
+			}),
+		);
+
 		fixture.detectChanges();
 	});
 

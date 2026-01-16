@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { forwardRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -72,7 +72,6 @@ describe('ConnectDBComponent', () => {
 				MatSelectModule,
 				MatRadioModule,
 				MatInputModule,
-				MatDialogModule,
 				BrowserAnimationsModule,
 				Angulartics2Module.forRoot({}),
 				ConnectDBComponent,
@@ -87,9 +86,14 @@ describe('ConnectDBComponent', () => {
 				},
 				{ provide: NotificationsService, useValue: fakeNotifications },
 				{ provide: ConnectionsService, useValue: fakeConnectionsService },
-				{ provide: MatDialog, useValue: mockMatDialog },
 			],
-		}).compileComponents();
+		})
+			.overrideComponent(ConnectDBComponent, {
+				set: {
+					providers: [{ provide: MatDialog, useFactory: () => mockMatDialog }],
+				},
+			})
+			.compileComponents();
 	});
 
 	beforeEach(() => {
@@ -245,9 +249,10 @@ describe('ConnectDBComponent', () => {
 		component.handleConnectionError('Hostname is invalid');
 
 		expect(mockMatDialog.open).toHaveBeenCalledWith(DbConnectionConfirmDialogComponent, {
-			width: '25em',
+			width: '32em',
 			data: {
 				dbCreds: connectionCredsApp,
+				provider: 'amazon',
 				masterKey: 'master_password_12345678',
 				errorMessage: 'Hostname is invalid',
 			},

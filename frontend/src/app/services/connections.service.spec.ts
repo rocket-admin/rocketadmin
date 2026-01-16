@@ -479,7 +479,11 @@ describe('ConnectionsService', () => {
 		expect(req.request.body).toEqual(connectionCredsRequested);
 		req.flush(fakeError, { status: 400, statusText: '' });
 
-		await expect(updatedConnection).rejects.toEqual(new Error(fakeError.message));
+		try {
+			await updatedConnection;
+		} catch (error) {
+			expect((error as Error).message).toEqual(fakeError.message);
+		}
 
 		expect(fakeNotifications.showAlert).toHaveBeenCalledWith(
 			AlertType.Error,

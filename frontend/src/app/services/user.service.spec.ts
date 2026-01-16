@@ -401,7 +401,12 @@ describe('UserService', () => {
 		expect(req.request.method).toBe('POST');
 		expect(req.request.body).toEqual({ otpToken: '123456' });
 		req.flush(fakeError, { status: 400, statusText: '' });
-		await resMessage;
+
+		try {
+			await resMessage;
+		} catch {
+			// Expected to throw
+		}
 
 		expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
 	});
