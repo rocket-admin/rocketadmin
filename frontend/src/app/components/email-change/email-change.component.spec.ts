@@ -39,9 +39,9 @@ describe('EmailChangeComponent', () => {
   it('should update email', () => {
     component.token = '12345678';
     component.newEmail = 'new@email.com'
-    const fakeUpdateEmail = spyOn(userService, 'changeEmail').and.returnValue(of());
+    const fakeUpdateEmail = vi.spyOn(userService, 'changeEmail').mockReturnValue(of());
 
     component.updateEmail();
-    expect(fakeUpdateEmail).toHaveBeenCalledOnceWith('12345678', 'new@email.com');
+    expect(fakeUpdateEmail).toHaveBeenCalledWith('12345678', 'new@email.com');
   });
 });

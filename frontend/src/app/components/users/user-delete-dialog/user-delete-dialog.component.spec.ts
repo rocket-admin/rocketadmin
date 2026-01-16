@@ -39,12 +39,12 @@ describe('UserDeleteDialogComponent', () => {
   });
 
   it('should call delete user service', () => {
-    const fakeDeleteUser = spyOn(usersService, 'deleteGroupUser').and.returnValue(of());
-    spyOn(mockDialogRef, 'close');
+    const fakeDeleteUser = vi.spyOn(usersService, 'deleteGroupUser').mockReturnValue(of());
+    vi.spyOn(mockDialogRef, 'close');
 
     component.deleteGroupUser();
-    expect(fakeDeleteUser).toHaveBeenCalledOnceWith('user@test.com', '12345678-123');
+    expect(fakeDeleteUser).toHaveBeenCalledWith('user@test.com', '12345678-123');
     // expect(component.dialogRef.close).toHaveBeenCalled();
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   });
 });

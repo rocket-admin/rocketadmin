@@ -62,7 +62,7 @@ describe('AuthService', () => {
     }
 
     // @ts-expect-error
-    global.window.fbq = jasmine.createSpy();
+    global.window.fbq = vi.fn();
 
     service.signUpUser(userData).subscribe((res) => {
       expect(res).toEqual(signUpResponse);
@@ -74,7 +74,7 @@ describe('AuthService', () => {
     expect(req.request.body).toEqual(userData);
     req.flush(signUpResponse);
 
-    expect(isSignUpUserCalled).toBeTrue();
+    expect(isSignUpUserCalled).toBe(true);
   });
 
   it('should fall for signUpUser and show Error alert', async () => {
@@ -90,7 +90,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -119,7 +119,7 @@ describe('AuthService', () => {
     expect(req.request.body).toEqual(userData);
     req.flush(loginResponse);
 
-    expect(isSignUpUserCalled).toBeTrue();
+    expect(isSignUpUserCalled).toBe(true);
   });
 
   it('should fall for loginUser and show Error alert', async () => {
@@ -136,7 +136,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -157,7 +157,7 @@ describe('AuthService', () => {
     expect(req.request.body).toEqual({ otpToken: '123456'});
     req.flush(twofaResponse);
 
-    expect(isLoginWith2FACalled).toBeTrue();
+    expect(isLoginWith2FACalled).toBe(true);
   });
 
   it('should fall for loginWith2FA and show Error alert', async () => {
@@ -169,7 +169,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await twofaResponse;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -190,7 +190,7 @@ describe('AuthService', () => {
     expect(req.request.body).toEqual({ token: 'google-token-12345678'});
     req.flush(googleResponse);
 
-    expect(isLoginWithGoogleCalled).toBeTrue();
+    expect(isLoginWithGoogleCalled).toBe(true);
   });
 
   it('should fall for loginWithGoogle and show Error alert', async () => {
@@ -202,7 +202,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await googleResponse;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -222,7 +222,7 @@ describe('AuthService', () => {
     expect(req.request.method).toBe("GET");
     req.flush(googleResponse);
 
-    expect(isRequestEmailVerificationsCalled).toBeTrue();
+    expect(isRequestEmailVerificationsCalled).toBe(true);
   });
 
   it('should fall for requestEmailVerifications and show Error alert', async () => {
@@ -233,7 +233,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await googleResponse;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -255,7 +255,7 @@ describe('AuthService', () => {
     expect(req.request.method).toBe("GET");
     req.flush(verifyResponse);
 
-    expect(isSignUpUserCalled).toBeTrue();
+    expect(isSignUpUserCalled).toBe(true);
   });
 
   it('should fall for verifyEmail and show Error alert', async () => {
@@ -266,7 +266,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await verifyResponse;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -285,7 +285,7 @@ describe('AuthService', () => {
     expect(req.request.method).toBe("POST");
     req.flush(logoutResponse);
 
-    expect(isLogoutCalled).toBeTrue();
+    expect(isLogoutCalled).toBe(true);
   });
 
   it('should fall for logOutUser and show Error snackbar', async () => {

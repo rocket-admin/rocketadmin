@@ -11,7 +11,7 @@ describe('DbTableAiPanelComponent', () => {
 	let fixture: ComponentFixture<DbTableAiPanelComponent>;
 
 	const mockMarkdownService = {
-		parse: jasmine.createSpy('parse').and.returnValue('parsed markdown'),
+		parse: vi.fn().mockReturnValue('parsed markdown'),
 	};
 
 	beforeEach(async () => {

@@ -319,7 +319,7 @@ describe('SecretsService', () => {
       service.updateSecret('test-secret', updatePayload).subscribe();
 
       const req = httpMock.expectOne('/secrets/test-secret');
-      expect(req.request.headers.has('masterpwd')).toBeFalse();
+      expect(req.request.headers.has('masterpwd')).toBe(false);
       req.flush(mockSecret);
     });
 
@@ -350,7 +350,7 @@ describe('SecretsService', () => {
       const req = httpMock.expectOne('/secrets/test-secret');
       req.flush({ message: 'Invalid master password' }, { status: 403, statusText: 'Forbidden' });
 
-      expect(errorThrown).toBeTrue();
+      expect(errorThrown).toBe(true);
     });
 
     it('should show error for expired secret (410)', async () => {

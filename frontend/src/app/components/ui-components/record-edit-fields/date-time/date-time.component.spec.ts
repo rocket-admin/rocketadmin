@@ -45,7 +45,7 @@ describe('DateTimeEditComponent', () => {
     component.connectionType = DBtype.Postgres;
     component.date = '2021-08-26';
     component.time = '07:22:00';
-    const event = spyOn(component.onFieldChange, 'emit');
+    const event = vi.spyOn(component.onFieldChange, 'emit');
     component.onDateChange();
 
     expect(event).toHaveBeenCalledWith('2021-08-26T07:22:00Z');
@@ -55,7 +55,7 @@ describe('DateTimeEditComponent', () => {
     component.connectionType = DBtype.MySQL;
     component.date = '2021-08-26';
     component.time = '07:22:00';
-    const event = spyOn(component.onFieldChange, 'emit');
+    const event = vi.spyOn(component.onFieldChange, 'emit');
     component.onDateChange();
 
     expect(event).toHaveBeenCalledWith('2021-08-26 07:22:00');
@@ -65,7 +65,7 @@ describe('DateTimeEditComponent', () => {
     component.connectionType = DBtype.Postgres;
     component.date = '2021-07-26';
     component.time = '07:20:00';
-    const event = spyOn(component.onFieldChange, 'emit');
+    const event = vi.spyOn(component.onFieldChange, 'emit');
     component.onTimeChange();
 
     expect(event).toHaveBeenCalledWith('2021-07-26T07:20:00Z');
@@ -75,7 +75,7 @@ describe('DateTimeEditComponent', () => {
     component.connectionType = DBtype.MySQL;
     component.date = '2021-07-26';
     component.time = '07:20:00';
-    const event = spyOn(component.onFieldChange, 'emit');
+    const event = vi.spyOn(component.onFieldChange, 'emit');
     component.onTimeChange();
 
     expect(event).toHaveBeenCalledWith('2021-07-26 07:20:00');

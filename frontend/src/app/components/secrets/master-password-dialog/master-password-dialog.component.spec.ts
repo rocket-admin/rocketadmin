@@ -32,9 +32,9 @@ describe('MasterPasswordDialogComponent', () => {
   });
 
   it('should toggle password visibility', () => {
-    expect(component.showPassword).toBeFalse();
+    expect(component.showPassword).toBe(false);
     component.togglePasswordVisibility();
-    expect(component.showPassword).toBeTrue();
+    expect(component.showPassword).toBe(true);
   });
 
   it('should show error when submitting empty password', () => {

@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 describe('SsoComponent', () => {
   let component: SsoComponent;
   let fixture: ComponentFixture<SsoComponent>;
-  let companyServiceSpy: jasmine.SpyObj<CompanyService>;
+  let companyServiceSpy: any;
 
   const mockActivatedRoute = {
     snapshot: {
@@ -31,16 +31,19 @@ describe('SsoComponent', () => {
         }
       }
     },
-    navigate: jasmine.createSpy('navigate'),
+    navigate: vi.fn(),
     events: of(null),
     url: '/company',
-    createUrlTree: jasmine.createSpy('createUrlTree').and.returnValue({}),
-    serializeUrl: jasmine.createSpy('serializeUrl').and.returnValue('company')
+    createUrlTree: vi.fn().mockReturnValue({}),
+    serializeUrl: vi.fn().mockReturnValue('company')
   };
 
   beforeEach(async () => {
-    companyServiceSpy = jasmine.createSpyObj('CompanyService', ['fetchSamlConfiguration', 'createSamlConfiguration', 'updateSamlConfiguration']);
-    companyServiceSpy.fetchSamlConfiguration.and.returnValue(of([]));
+    companyServiceSpy = {
+      fetchSamlConfiguration: vi.fn().mockReturnValue(of([])),
+      createSamlConfiguration: vi.fn(),
+      updateSamlConfiguration: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [

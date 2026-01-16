@@ -149,7 +149,7 @@ describe('ForeignKeyEditComponent', () => {
   it('should fill initial dropdown values when identity_column is set', () => {
     const usersTableNetworkWithIdentityColumn = {...usersTableNetwork, identity_column: 'lastname'}
 
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetworkWithIdentityColumn));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetworkWithIdentityColumn));
 
     component.connectionID = '12345678';
     component.value = '';
@@ -181,7 +181,7 @@ describe('ForeignKeyEditComponent', () => {
   });
 
   it('should fill initial dropdown values when identity_column is not set', () => {
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
     component.connectionID = '12345678';
 
@@ -214,7 +214,7 @@ describe('ForeignKeyEditComponent', () => {
   });
 
   it('should fill initial dropdown values when autocomplete_columns and field value is not set', () => {
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
     component.connectionID = '12345678';
     component.relations = {
@@ -300,7 +300,7 @@ describe('ForeignKeyEditComponent', () => {
       identity_column: 'lastname'
     }
 
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 
     component.relations = fakeRelations;
 
@@ -341,7 +341,7 @@ describe('ForeignKeyEditComponent', () => {
       rows: []
     }
 
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 
     component.suggestions = [
       {
@@ -392,7 +392,7 @@ describe('ForeignKeyEditComponent', () => {
       primaryColumns: [{ column_name: "id", data_type: "integer" }]
     }
 
-    const fakeFetchTable = spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
+    const fakeFetchTable = vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
     component.connectionID = '12345678';
     component.relations = fakeRelations;
 

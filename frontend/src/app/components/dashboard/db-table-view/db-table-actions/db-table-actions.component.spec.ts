@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -11,6 +12,8 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { DbTableActionsComponent } from './db-table-actions.component';
+import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
+import { CodeEditorModule } from '@ngstack/code-editor';
 
 describe('DbTableActionsComponent', () => {
 	let component: DbTableActionsComponent;
@@ -20,7 +23,9 @@ describe('DbTableActionsComponent', () => {
 	let fakeNotifications;
 
 	beforeEach(async () => {
-		fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showSuccessSnackbar']);
+		fakeNotifications = {
+			showSuccessSnackbar: vi.fn(),
+		};
 
 		await TestBed.configureTestingModule({
 			imports: [
@@ -38,7 +43,12 @@ describe('DbTableActionsComponent', () => {
 					useValue: fakeNotifications,
 				},
 			],
-		}).compileComponents();
+		})
+		.overrideComponent(DbTableActionsComponent, {
+			remove: { imports: [CodeEditorModule] },
+			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
+		})
+		.compileComponents();
 
 		fixture = TestBed.createComponent(DbTableActionsComponent);
 		tablesService = TestBed.inject(TablesService);
@@ -76,11 +86,11 @@ describe('DbTableActionsComponent', () => {
 			events: [],
 			table_actions: [],
 		};
-		const mockSetSelectedAction = spyOn(component, 'setSelectedRule');
+		const mockSetSelectedAction = vi.spyOn(component, 'setSelectedRule');
 
 		component.switchRulesView(rule);
 
-		expect(mockSetSelectedAction).toHaveBeenCalledOnceWith(rule);
+		expect(mockSetSelectedAction).toHaveBeenCalledWith(rule);
 	});
 
 	it('should set the new rule', () => {
@@ -252,11 +262,11 @@ describe('DbTableActionsComponent', () => {
 			events: [],
 			table_actions: [],
 		};
-		const mockRemoveRuleFromLocalList = spyOn(component, 'removeRuleFromLocalList');
+		const mockRemoveRuleFromLocalList = vi.spyOn(component, 'removeRuleFromLocalList');
 
 		component.handleRemoveRule();
 
-		expect(mockRemoveRuleFromLocalList).toHaveBeenCalledOnceWith('rule 1');
+		expect(mockRemoveRuleFromLocalList).toHaveBeenCalledWith('rule 1');
 	});
 
 	it('should call open delete confirm dialog when action is saved', () => {
@@ -267,11 +277,11 @@ describe('DbTableActionsComponent', () => {
 			events: [],
 			table_actions: [],
 		};
-		const mockOpenDeleteRuleDialog = spyOn(component, 'openDeleteRuleDialog');
+		const mockOpenDeleteRuleDialog = vi.spyOn(component, 'openDeleteRuleDialog');
 
 		component.handleRemoveRule();
 
-		expect(mockOpenDeleteRuleDialog).toHaveBeenCalledOnceWith();
+		expect(mockOpenDeleteRuleDialog).toHaveBeenCalledWith();
 	});
 
 	it('should remove rule from the list if it is not saved and if it is only one actions in the list', () => {
@@ -335,15 +345,15 @@ describe('DbTableActionsComponent', () => {
 		};
 		component.connectionID = '12345678';
 		component.selectedRule = mockRule;
-		const fakeSaveAction = spyOn(tablesService, 'saveRule').and.returnValue(of());
+		const fakeSaveAction = vi.spyOn(tablesService, 'saveRule').mockReturnValue(of());
 
 		component.addRule();
 
-		expect(fakeSaveAction).toHaveBeenCalledOnceWith('12345678', 'users', mockRule);
+		expect(fakeSaveAction).toHaveBeenCalledWith('12345678', 'users', mockRule);
 	});
 
-	xit('should open dialog for delete action confirmation', () => {
-		const fakeConfirmationDialog = spyOn(dialog, 'open');
+	it.skip('should open dialog for delete action confirmation', () => {
+		const fakeConfirmationDialog = vi.spyOn(dialog, 'open');
 
 		const mockRule = {
 			id: '',
@@ -358,7 +368,7 @@ describe('DbTableActionsComponent', () => {
 
 		component.openDeleteRuleDialog();
 
-		expect(fakeConfirmationDialog).toHaveBeenCalledOnceWith(ActionDeleteDialogComponent, {
+		expect(fakeConfirmationDialog).toHaveBeenCalledWith(ActionDeleteDialogComponent, {
 			width: '25em',
 			data: {
 				connectionID: '12345678',
@@ -370,8 +380,8 @@ describe('DbTableActionsComponent', () => {
 
 	it('should show Copy message', () => {
 		component.showCopyNotification('PHP code snippet was copied to clipboard.');
-		expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('PHP code snippet was copied to clipboard.');
+		expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('PHP code snippet was copied to clipboard.');
 
-		fakeNotifications.showSuccessSnackbar.calls.reset();
+		fakeNotifications.showSuccessSnackbar.mockClear();
 	});
 });

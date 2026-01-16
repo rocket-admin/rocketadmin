@@ -140,7 +140,7 @@ describe('ConnectionsService', () => {
   })
 
   it('should set connectionInfo if connection exists', () => {
-    const fakeFetchConnection = spyOn(service, 'fetchConnection').and.returnValue(of({
+    const fakeFetchConnection = vi.spyOn(service, 'fetchConnection').mockReturnValue(of({
         "connection": connectionCredsApp,
         "accessLevel": "edit",
         "groupManagement": true
@@ -150,7 +150,7 @@ describe('ConnectionsService', () => {
     expect(service.connectionAccessLevel).toEqual('edit');
     expect(service.groupsAccessLevel).toEqual(true);
 
-    fakeFetchConnection.calls.reset();
+    fakeFetchConnection.mockClear();
   })
 
   it('should set connectionInfo in initial state if connection does not exist', () => {
@@ -338,7 +338,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await connections;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -372,7 +372,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await connection;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
   });
 
   it('should fall for fetchConnection and show Master password request', async () => {
@@ -416,7 +416,7 @@ describe('ConnectionsService', () => {
     expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, []);
   });
 
-    xit('should call createConnection and show Success Snackbar', async () => {
+    it.skip('should call createConnection and show Success Snackbar', async () => {
     service.createConnection(connectionCredsApp, 'master_key_12345678').subscribe(res => {
       expect(res).toEqual(connectionCredsNetwork);
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Connection was added successfully.');
@@ -441,7 +441,7 @@ describe('ConnectionsService', () => {
     expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, []);
   });
 
-    xit('should call updateConnection and show Success Snackbar', async () => {
+    it.skip('should call updateConnection and show Success Snackbar', async () => {
     service.updateConnection(connectionCredsApp, 'master_key_12345678').subscribe(_res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Connection has been updated successfully.');
     });
@@ -463,7 +463,7 @@ describe('ConnectionsService', () => {
 
     await expectAsync(updatedConnection).toBeRejectedWith(new Error(fakeError.message));
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -477,7 +477,7 @@ describe('ConnectionsService', () => {
     }
 
     service.deleteConnection('12345678', metadata).subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection has been deleted successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Connection has been deleted successfully.');
       isSubscribeCalled = true;
     });
 
@@ -501,7 +501,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await deletedConnection;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
   });
 
   it('should call fetchAuditLog', () => {
@@ -576,10 +576,10 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await logs;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
   });
 
-  it('should call getConnectionSettings', (done) => {
+  it('should call getConnectionSettings', async () => {
     const connectionSettingsNetwork = {
         "id": "dd58c614-866d-4293-8c65-351c667d29ca",
         "connectionId": "12345678",
@@ -594,20 +594,20 @@ describe('ConnectionsService', () => {
         "tables_audit": true
     }
 
-    const mockThemeService = jasmine.createSpyObj('_themeService', ['updateColors']);
-    service._themeService = mockThemeService;
+    const mockThemeService = { updateColors: vi.fn() };
+    service._themeService = mockThemeService as any;
 
-    service.getConnectionSettings('12345678').subscribe(res => {
-        expect(res).toEqual(connectionSettingsNetwork);
-        expect(mockThemeService.updateColors).toHaveBeenCalledWith({
-            palettes: { primaryPalette: '#123456', accentedPalette: '#654321' },
-        });
-        done();
-    });
+    const promise = service.getConnectionSettings('12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(connectionSettingsNetwork);
+
+    const res = await promise;
+    expect(res).toEqual(connectionSettingsNetwork);
+    expect(mockThemeService.updateColors).toHaveBeenCalledWith({
+        palettes: { primaryPalette: '#123456', accentedPalette: '#654321' },
+    });
   });
 
   it('should fall for getConnectionSettings and show Error snackbar', async () => {
@@ -618,14 +618,14 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await settings;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(`${fakeError.message}.`);
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(`${fakeError.message}.`);
   });
 
   it('should call createConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
     service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders'], default_showing_table: ''}).subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been created successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Connection settings has been created successfully.');
       isSubscribeCalled = true;
     });
 
@@ -672,7 +672,7 @@ describe('ConnectionsService', () => {
     let isSubscribeCalled = false;
 
     service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products'], default_showing_table: 'users'}).subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been updated successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Connection settings has been updated successfully.');
       isSubscribeCalled = true;
     });
 
@@ -722,7 +722,7 @@ describe('ConnectionsService', () => {
     let isSubscribeCalled = false;
 
     service.deleteConnectionSettings('12345678').subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been removed successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Connection settings has been removed successfully.');
       isSubscribeCalled = true;
     });
 

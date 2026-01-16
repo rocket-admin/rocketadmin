@@ -22,16 +22,19 @@ describe('CompanyComponent', () => {
 	let fixture: ComponentFixture<CompanyComponent>;
 	let dialog: MatDialog;
 
-	let fakeCompanyService = jasmine.createSpyObj('CompanyService', [
-		'isCustomDomain',
-		'fetchCompany',
-		'fetchCompanyMembers',
-		'getCustomDomain',
-		'updateCompanyName',
-		'updateCompanyMemberRole',
-		'cast',
-	]);
-	let fakeUserService = jasmine.createSpyObj('UserService', ['cast']);
+	const fakeCompanyService = {
+		isCustomDomain: vi.fn(),
+		fetchCompany: vi.fn(),
+		fetchCompanyMembers: vi.fn(),
+		getCustomDomain: vi.fn(),
+		updateCompanyName: vi.fn(),
+		updateCompanyMemberRole: vi.fn(),
+		getCurrentTabTitle: vi.fn(),
+		cast: of(''),
+	};
+	const fakeUserService = {
+		cast: of({}),
+	};
 
 	const mockCompany: Company = {
 		id: 'company-12345678',
@@ -115,14 +118,16 @@ describe('CompanyComponent', () => {
 		domain_info: null,
 	};
 
-	fakeCompanyService.cast = of('');
-	fakeCompanyService.fetchCompany.and.returnValue(of(mockCompany));
-	fakeCompanyService.fetchCompanyMembers.and.returnValue(of(mockMembers));
-	fakeCompanyService.getCustomDomain.and.returnValue(of(mockCompanyDomain));
-	fakeCompanyService.updateCompanyName.and.returnValue(of({}));
-	fakeCompanyService.updateCompanyMemberRole.and.returnValue(of({}));
-	fakeCompanyService.getCurrentTabTitle = jasmine.createSpy().and.returnValue(of('Rocketadmin'));
-	fakeUserService.cast = of(mockMembers[1]);
+	beforeEach(() => {
+		fakeCompanyService.cast = of('');
+		fakeCompanyService.fetchCompany.mockReturnValue(of(mockCompany));
+		fakeCompanyService.fetchCompanyMembers.mockReturnValue(of(mockMembers));
+		fakeCompanyService.getCustomDomain.mockReturnValue(of(mockCompanyDomain));
+		fakeCompanyService.updateCompanyName.mockReturnValue(of({}));
+		fakeCompanyService.updateCompanyMemberRole.mockReturnValue(of({}));
+		fakeCompanyService.getCurrentTabTitle.mockReturnValue(of('Rocketadmin'));
+		fakeUserService.cast = of(mockMembers[1]);
+	});
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
@@ -154,8 +159,8 @@ describe('CompanyComponent', () => {
 	});
 
 	it('should set initial values and call functions to define plan and receive company members', () => {
-		const fakeSetCompanyPlan = spyOn(component, 'setCompanyPlan');
-		spyOn(fakeCompanyService.cast, 'subscribe');
+		const fakeSetCompanyPlan = vi.spyOn(component, 'setCompanyPlan');
+		vi.spyOn(fakeCompanyService.cast, 'subscribe');
 
 		component.ngOnInit();
 		fixture.detectChanges();
@@ -237,18 +242,18 @@ describe('CompanyComponent', () => {
 	});
 
 	it('should open Add member dialog and pass company id and name', () => {
-		const fakeAddMemberDialogOpen = spyOn(dialog, 'open');
+		const fakeAddMemberDialogOpen = vi.spyOn(dialog, 'open');
 		component.company = mockCompany;
 
 		component.handleAddMemberDialogOpen();
-		expect(fakeAddMemberDialogOpen).toHaveBeenCalledOnceWith(InviteMemberDialogComponent, {
+		expect(fakeAddMemberDialogOpen).toHaveBeenCalledWith(InviteMemberDialogComponent, {
 			width: '25em',
 			data: mockCompany,
 		});
 	});
 
 	it('should open Delete member dialog and pass company id and member', () => {
-		const fakeDeleteMemberDialogOpen = spyOn(dialog, 'open');
+		const fakeDeleteMemberDialogOpen = vi.spyOn(dialog, 'open');
 		component.company.id = 'company-12345678';
 		const fakeMember: CompanyMember = {
 			id: '61582cb5-5577-43d2-811f-900668ecfff1',
@@ -261,18 +266,18 @@ describe('CompanyComponent', () => {
 		};
 
 		component.handleDeleteMemberDialogOpen(fakeMember);
-		expect(fakeDeleteMemberDialogOpen).toHaveBeenCalledOnceWith(DeleteMemberDialogComponent, {
+		expect(fakeDeleteMemberDialogOpen).toHaveBeenCalledWith(DeleteMemberDialogComponent, {
 			width: '25em',
 			data: { companyId: 'company-12345678', user: fakeMember },
 		});
 	});
 
 	it('should open Revoke invitation dialog and pass company id and member email', () => {
-		const fakeRevokeInvitationDialogOpen = spyOn(dialog, 'open');
+		const fakeRevokeInvitationDialogOpen = vi.spyOn(dialog, 'open');
 		component.company.id = 'company-12345678';
 
 		component.handleRevokeInvitationDialogOpen('user1@test.com');
-		expect(fakeRevokeInvitationDialogOpen).toHaveBeenCalledOnceWith(RevokeInvitationDialogComponent, {
+		expect(fakeRevokeInvitationDialogOpen).toHaveBeenCalledWith(RevokeInvitationDialogComponent, {
 			width: '25em',
 			data: { companyId: 'company-12345678', userEmail: 'user1@test.com' },
 		});
@@ -283,7 +288,7 @@ describe('CompanyComponent', () => {
 		component.company.name = 'New company name';
 
 		component.changeCompanyName();
-		expect(fakeCompanyService.updateCompanyName).toHaveBeenCalledOnceWith('company-12345678', 'New company name');
+		expect(fakeCompanyService.updateCompanyName).toHaveBeenCalledWith('company-12345678', 'New company name');
 	});
 
 	it('should call update company member role to ADMIN and request company members list', () => {
@@ -291,7 +296,7 @@ describe('CompanyComponent', () => {
 		component.company.name = 'New company name';
 
 		component.updateRole('user-12345678', CompanyMemberRole.CAO);
-		expect(fakeCompanyService.updateCompanyMemberRole).toHaveBeenCalledOnceWith(
+		expect(fakeCompanyService.updateCompanyMemberRole).toHaveBeenCalledWith(
 			'company-12345678',
 			'user-12345678',
 			'ADMIN',

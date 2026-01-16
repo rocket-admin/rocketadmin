@@ -78,7 +78,7 @@ describe('AuditLogDialogComponent', () => {
 
   beforeEach(async () => {
     mockSecretsService = jasmine.createSpyObj('SecretsService', ['getAuditLog']);
-    mockSecretsService.getAuditLog.and.callFake(() => of(createMockAuditLogResponse()));
+    mockSecretsService.getAuditLog.mockImplementation(() => of(createMockAuditLogResponse()));
 
     mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
 
@@ -127,7 +127,7 @@ describe('AuditLogDialogComponent', () => {
     });
 
     it('should initialize loading as false after load', () => {
-      expect(component.loading).toBeFalse();
+      expect(component.loading).toBe(false);
     });
 
     it('should have correct displayed columns', () => {
@@ -204,15 +204,15 @@ describe('AuditLogDialogComponent', () => {
   describe('loadAuditLog', () => {
     it('should set loading to true while fetching', () => {
       component.loading = false;
-      mockSecretsService.getAuditLog.and.callFake(() => of(createMockAuditLogResponse()));
+      mockSecretsService.getAuditLog.mockImplementation(() => of(createMockAuditLogResponse()));
 
       component.loadAuditLog();
 
-      expect(component.loading).toBeFalse();
+      expect(component.loading).toBe(false);
     });
 
     it('should update logs on successful fetch', () => {
-      mockSecretsService.getAuditLog.and.callFake(() => of(createMockMultipleLogsResponse()));
+      mockSecretsService.getAuditLog.mockImplementation(() => of(createMockMultipleLogsResponse()));
 
       component.loadAuditLog();
 
@@ -220,7 +220,7 @@ describe('AuditLogDialogComponent', () => {
     });
 
     it('should update pagination on successful fetch', () => {
-      mockSecretsService.getAuditLog.and.callFake(() => of(createMockMultipleLogsResponse()));
+      mockSecretsService.getAuditLog.mockImplementation(() => of(createMockMultipleLogsResponse()));
 
       component.loadAuditLog();
 
@@ -228,7 +228,7 @@ describe('AuditLogDialogComponent', () => {
     });
 
     it('should call getAuditLog with current pagination', () => {
-      mockSecretsService.getAuditLog.calls.reset();
+      mockSecretsService.getAuditLog.mockClear();
       component.pagination.currentPage = 2;
       component.pagination.perPage = 10;
 
@@ -247,11 +247,11 @@ describe('AuditLogDialogComponent', () => {
       };
 
       // Update mock to return pagination matching the page change
-      mockSecretsService.getAuditLog.and.callFake(() => of({
+      mockSecretsService.getAuditLog.mockImplementation(() => of({
         data: [mockAuditLogEntry],
         pagination: { total: 100, currentPage: 3, perPage: 50, lastPage: 2 }
       }));
-      mockSecretsService.getAuditLog.calls.reset();
+      mockSecretsService.getAuditLog.mockClear();
       component.onPageChange(pageEvent);
 
       expect(component.pagination.currentPage).toBe(3);
@@ -266,7 +266,7 @@ describe('AuditLogDialogComponent', () => {
         length: 100
       };
 
-      mockSecretsService.getAuditLog.calls.reset();
+      mockSecretsService.getAuditLog.mockClear();
       component.onPageChange(pageEvent);
 
       expect(component.pagination.currentPage).toBe(1);
@@ -275,7 +275,7 @@ describe('AuditLogDialogComponent', () => {
 
   describe('with multiple audit log entries', () => {
     beforeEach(() => {
-      mockSecretsService.getAuditLog.and.callFake(() => of(createMockMultipleLogsResponse()));
+      mockSecretsService.getAuditLog.mockImplementation(() => of(createMockMultipleLogsResponse()));
       component.loadAuditLog();
     });
 

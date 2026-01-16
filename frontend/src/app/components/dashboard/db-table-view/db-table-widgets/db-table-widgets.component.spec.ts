@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -11,6 +12,11 @@ import { TablesService } from 'src/app/services/tables.service';
 import { DashboardComponent } from '../../dashboard.component';
 import { DbTableWidgetsComponent } from './db-table-widgets.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
+import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
+import { CodeEditorModule } from '@ngstack/code-editor';
+import { WidgetComponent } from './widget/widget.component';
+import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
+import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
 
 describe('DbTableWidgetsComponent', () => {
 	let component: DbTableWidgetsComponent;
@@ -18,8 +24,11 @@ describe('DbTableWidgetsComponent', () => {
 	let tablesService: TablesService;
 	let connectionsService: ConnectionsService;
 	let dialog: MatDialog;
-	let dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of('delete'), close: null });
-	dialogRefSpyObj.componentInstance = { deleteWidget: of('user_name') };
+	const dialogRefSpyObj = {
+		afterClosed: vi.fn().mockReturnValue(of('delete')),
+		close: vi.fn(),
+		componentInstance: { deleteWidget: of('user_name') },
+	};
 
 	const fakeFirstName = {
 		column_name: 'FirstName',
@@ -96,7 +105,20 @@ describe('DbTableWidgetsComponent', () => {
 				DbTableWidgetsComponent,
 			],
 			providers: [provideHttpClient(), { provide: MatDialogRef, useValue: {} }],
-		}).compileComponents();
+		})
+		.overrideComponent(WidgetComponent, {
+			remove: { imports: [CodeEditorModule] },
+			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
+		})
+		.overrideComponent(CodeEditComponent, {
+			remove: { imports: [CodeEditorModule] },
+			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
+		})
+		.overrideComponent(MarkdownEditComponent, {
+			remove: { imports: [CodeEditorModule] },
+			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
+		})
+		.compileComponents();
 	});
 
 	beforeEach(() => {
@@ -113,10 +135,10 @@ describe('DbTableWidgetsComponent', () => {
 	});
 
 	it('should set connection id and table name', () => {
-		spyOnProperty(connectionsService, 'currentConnectionID').and.returnValue('12345678');
-		spyOnProperty(tablesService, 'currentTableName').and.returnValue('Users');
-		spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
-		spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
+		vi.spyOn(connectionsService, 'currentConnectionID', 'get').mockReturnValue('12345678');
+		vi.spyOn(tablesService, 'currentTableName', 'get').mockReturnValue('Users');
+		vi.spyOn(tablesService, 'fetchTableStructure').mockReturnValue(of(mockTableStructure));
+		vi.spyOn(tablesService, 'fetchTableWidgets').mockReturnValue(of(tableWidgetsNetwork));
 
 		component.ngOnInit();
 		fixture.detectChanges();
@@ -165,7 +187,7 @@ describe('DbTableWidgetsComponent', () => {
 		expect(component.fields).toEqual(['user_id', 'last_name', 'email']);
 	});
 
-	xit('should open dialog to confirm deletion of widget', () => {
+	it.skip('should open dialog to confirm deletion of widget', () => {
 		component.fields = ['user_age'];
 		component.widgets = [
 			{
@@ -184,10 +206,10 @@ describe('DbTableWidgetsComponent', () => {
 			},
 		];
 
-		const fakeDialog = spyOn(dialog, 'open').and.returnValue(dialogRefSpyObj);
+		const fakeDialog = vi.spyOn(dialog, 'open').mockReturnValue(dialogRefSpyObj as any);
 		component.openDeleteWidgetDialog('user_name');
 
-		expect(fakeDialog).toHaveBeenCalledOnceWith(WidgetDeleteDialogComponent, {
+		expect(fakeDialog).toHaveBeenCalledWith(WidgetDeleteDialogComponent, {
 			width: '25em',
 			data: 'user_name',
 		});
@@ -216,12 +238,12 @@ describe('DbTableWidgetsComponent', () => {
 				description: '',
 			},
 		];
-		const fakeUpdateTableWidgets = spyOn(tablesService, 'updateTableWidgets').and.returnValue(of());
-		// const fakeFatchWidgets = spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
+		const fakeUpdateTableWidgets = vi.spyOn(tablesService, 'updateTableWidgets').mockReturnValue(of());
+		// const fakeFatchWidgets = vi.spyOn(tablesService, 'fetchTableWidgets').mockReturnValue(of(tableWidgetsNetwork));
 
 		component.updateWidgets();
 
-		expect(fakeUpdateTableWidgets).toHaveBeenCalledOnceWith('12345678', 'users', [
+		expect(fakeUpdateTableWidgets).toHaveBeenCalledWith('12345678', 'users', [
 			{
 				field_name: 'email',
 				widget_type: 'Textarea',
@@ -230,6 +252,6 @@ describe('DbTableWidgetsComponent', () => {
 				description: '',
 			},
 		]);
-		expect(component.submitting).toBeFalse();
+		expect(component.submitting).toBe(false);
 	});
 });

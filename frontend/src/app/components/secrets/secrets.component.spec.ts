@@ -20,9 +20,9 @@ import { Secret } from 'src/app/models/secret';
 describe('SecretsComponent', () => {
   let component: SecretsComponent;
   let fixture: ComponentFixture<SecretsComponent>;
-  let mockSecretsService: jasmine.SpyObj<SecretsService>;
-  let mockCompanyService: jasmine.SpyObj<CompanyService>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
+  let mockSecretsService: any;
+  let mockCompanyService: any;
+  let mockDialog: any;
   let secretsUpdatedSubject: BehaviorSubject<string>;
 
   const mockSecret: Secret = {
@@ -42,15 +42,18 @@ describe('SecretsComponent', () => {
   beforeEach(async () => {
     secretsUpdatedSubject = new BehaviorSubject<string>('');
 
-    mockSecretsService = jasmine.createSpyObj('SecretsService', ['fetchSecrets'], {
-      cast: secretsUpdatedSubject.asObservable()
-    });
-    mockSecretsService.fetchSecrets.and.callFake(() => of(createMockSecretsResponse()));
+    mockSecretsService = {
+      fetchSecrets: vi.fn().mockImplementation(() => of(createMockSecretsResponse())),
+      cast: secretsUpdatedSubject.asObservable(),
+    } as any;
 
-    mockCompanyService = jasmine.createSpyObj('CompanyService', ['getCurrentTabTitle']);
-    mockCompanyService.getCurrentTabTitle.and.returnValue(of('Test Company'));
+    mockCompanyService = {
+      getCurrentTabTitle: vi.fn().mockReturnValue(of('Test Company')),
+    } as any;
 
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+    mockDialog = {
+      open: vi.fn(),
+    } as any;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -92,7 +95,7 @@ describe('SecretsComponent', () => {
   });
 
   it('should initialize with loading true then false after load', () => {
-    expect(component.loading).toBeFalse();
+    expect(component.loading).toBe(false);
   });
 
   it('should have correct displayed columns', () => {
@@ -105,7 +108,7 @@ describe('SecretsComponent', () => {
         ...mockSecret,
         expiresAt: '2024-01-01',
       };
-      expect(component.isExpired(expiredSecret)).toBeTrue();
+      expect(component.isExpired(expiredSecret)).toBe(true);
     });
 
     it('should return false for non-expired secrets', () => {
@@ -115,11 +118,11 @@ describe('SecretsComponent', () => {
         ...mockSecret,
         expiresAt: futureDate.toISOString(),
       };
-      expect(component.isExpired(validSecret)).toBeFalse();
+      expect(component.isExpired(validSecret)).toBe(false);
     });
 
     it('should return false for secrets without expiration', () => {
-      expect(component.isExpired(mockSecret)).toBeFalse();
+      expect(component.isExpired(mockSecret)).toBe(false);
     });
   });
 
@@ -131,7 +134,7 @@ describe('SecretsComponent', () => {
         ...mockSecret,
         expiresAt: soonDate.toISOString(),
       };
-      expect(component.isExpiringSoon(expiringSoonSecret)).toBeTrue();
+      expect(component.isExpiringSoon(expiringSoonSecret)).toBe(true);
     });
 
     it('should return false for secrets expiring beyond 7 days', () => {
@@ -141,7 +144,7 @@ describe('SecretsComponent', () => {
         ...mockSecret,
         expiresAt: laterDate.toISOString(),
       };
-      expect(component.isExpiringSoon(notExpiringSoonSecret)).toBeFalse();
+      expect(component.isExpiringSoon(notExpiringSoonSecret)).toBe(false);
     });
 
     it('should return false for already expired secrets', () => {
@@ -149,11 +152,11 @@ describe('SecretsComponent', () => {
         ...mockSecret,
         expiresAt: '2024-01-01',
       };
-      expect(component.isExpiringSoon(expiredSecret)).toBeFalse();
+      expect(component.isExpiringSoon(expiredSecret)).toBe(false);
     });
 
     it('should return false for secrets without expiration', () => {
-      expect(component.isExpiringSoon(mockSecret)).toBeFalse();
+      expect(component.isExpiringSoon(mockSecret)).toBe(false);
     });
 
     it('should return true for secrets expiring exactly in 7 days', () => {
@@ -163,7 +166,7 @@ describe('SecretsComponent', () => {
         ...mockSecret,
         expiresAt: exactlySevenDays.toISOString(),
       };
-      expect(component.isExpiringSoon(secret)).toBeTrue();
+      expect(component.isExpiringSoon(secret)).toBe(true);
     });
   });
 
@@ -216,11 +219,11 @@ describe('SecretsComponent', () => {
       };
 
       // Update mock to return pagination matching the page change
-      mockSecretsService.fetchSecrets.and.callFake(() => of({
+      mockSecretsService.fetchSecrets.mockImplementation(() => of({
         data: [mockSecret],
         pagination: { total: 100, currentPage: 2, perPage: 10, lastPage: 10 }
       }));
-      mockSecretsService.fetchSecrets.calls.reset();
+      mockSecretsService.fetchSecrets.mockClear();
       component.onPageChange(pageEvent);
 
       expect(component.pagination.currentPage).toBe(2);
@@ -231,7 +234,7 @@ describe('SecretsComponent', () => {
 
   describe('onSearchChange', () => {
     it('should debounce search and reload secrets', fakeAsync(() => {
-      mockSecretsService.fetchSecrets.calls.reset();
+      mockSecretsService.fetchSecrets.mockClear();
 
       component.onSearchChange('api');
       component.onSearchChange('api-');
@@ -244,7 +247,7 @@ describe('SecretsComponent', () => {
 
     it('should reset to page 1 on search', fakeAsync(() => {
       component.pagination.currentPage = 3;
-      mockSecretsService.fetchSecrets.calls.reset();
+      mockSecretsService.fetchSecrets.mockClear();
 
       component.onSearchChange('test');
       tick(300);
@@ -255,7 +258,7 @@ describe('SecretsComponent', () => {
 
   describe('secretsUpdated subscription', () => {
     it('should reload secrets when secretsUpdated emits', () => {
-      mockSecretsService.fetchSecrets.calls.reset();
+      mockSecretsService.fetchSecrets.mockClear();
 
       secretsUpdatedSubject.next('created');
 
@@ -263,7 +266,7 @@ describe('SecretsComponent', () => {
     });
 
     it('should not reload secrets when secretsUpdated emits empty string', () => {
-      mockSecretsService.fetchSecrets.calls.reset();
+      mockSecretsService.fetchSecrets.mockClear();
 
       secretsUpdatedSubject.next('');
 
@@ -274,11 +277,11 @@ describe('SecretsComponent', () => {
   describe('loadSecrets', () => {
     it('should set loading to true while fetching', () => {
       component.loading = false;
-      mockSecretsService.fetchSecrets.and.callFake(() => of(createMockSecretsResponse()));
+      mockSecretsService.fetchSecrets.mockImplementation(() => of(createMockSecretsResponse()));
 
       component.loadSecrets();
 
-      expect(component.loading).toBeFalse();
+      expect(component.loading).toBe(false);
     });
 
     it('should update secrets and pagination on successful fetch', () => {
@@ -286,7 +289,7 @@ describe('SecretsComponent', () => {
         data: [mockSecret, { ...mockSecret, id: '2', slug: 'test-2' }],
         pagination: { total: 2, currentPage: 1, perPage: 20, lastPage: 1 }
       };
-      mockSecretsService.fetchSecrets.and.returnValue(of(newResponse));
+      mockSecretsService.fetchSecrets.mockReturnValue(of(newResponse));
 
       component.loadSecrets();
 
@@ -295,7 +298,7 @@ describe('SecretsComponent', () => {
     });
 
     it('should pass search query to fetchSecrets', () => {
-      mockSecretsService.fetchSecrets.calls.reset();
+      mockSecretsService.fetchSecrets.mockClear();
       component.searchQuery = 'api-key';
 
       component.loadSecrets();
@@ -304,7 +307,7 @@ describe('SecretsComponent', () => {
     });
 
     it('should pass undefined for empty search query', () => {
-      mockSecretsService.fetchSecrets.calls.reset();
+      mockSecretsService.fetchSecrets.mockClear();
       component.searchQuery = '';
 
       component.loadSecrets();
@@ -315,7 +318,7 @@ describe('SecretsComponent', () => {
 
   describe('ngOnDestroy', () => {
     it('should unsubscribe from all subscriptions', () => {
-      const unsubscribeSpy = spyOn(component.subscriptions[0], 'unsubscribe');
+      const unsubscribeSpy = vi.spyOn(component.subscriptions[0], 'unsubscribe');
 
       component.ngOnDestroy();
 

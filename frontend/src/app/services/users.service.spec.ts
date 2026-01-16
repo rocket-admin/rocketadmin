@@ -1,6 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { TestBed, waitForAsync } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { UsersService } from './users.service';
 import { NotificationsService } from './notifications.service';
 import { AccessLevel } from '../models/user';
@@ -102,7 +102,10 @@ describe('UsersService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar']);
+    fakeNotifications = {
+      showErrorSnackbar: vi.fn(),
+      showSuccessSnackbar: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       imports: [MatSnackBarModule],
@@ -148,7 +151,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchConnectionUsers and show Error snackbar', waitForAsync(async () => {
+  it('should fall fetchConnectionUsers and show Error snackbar', async () => {
     const fetchConnectionUsers = service.fetchConnectionUsers('12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/users/12345678`);
@@ -156,8 +159,8 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchConnectionUsers;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call fetchConnectionGroups', () => {
     let isSubscribeCalled = false;
@@ -184,7 +187,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchConnectionGroups and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall fetchConnectionGroups and show Error snackbar', async () => { // Updated test case
     const fetchConnectionGroups = service.fetchConnectionGroups('12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/groups/12345678`);
@@ -192,8 +195,8 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchConnectionGroups;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call fetcGroupUsers', () => {
     let isSubscribeCalled = false;
@@ -219,7 +222,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchConnectionGroups and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall fetchConnectionGroups and show Error snackbar', async () => { // Updated test case
     const fetchConnectionGroups = service.fetcGroupUsers('12345678').toPromise();
 
     const req = httpMock.expectOne(`/group/users/12345678`);
@@ -227,14 +230,14 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchConnectionGroups;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call createUsersGroup', () => {
     let isSubscribeCalled = false;
 
     service.createUsersGroup('12345678', 'Managers').subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Group of users has been created.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Group of users has been created.');
       isSubscribeCalled = true;
     });
 
@@ -246,7 +249,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall createUsersGroup and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall createUsersGroup and show Error snackbar', async () => { // Updated test case
     const createUsersGroup = service.createUsersGroup('12345678', 'Managers').toPromise();
 
     const req = httpMock.expectOne(`/connection/group/12345678`);
@@ -254,8 +257,8 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await createUsersGroup;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call fetchPermission', () => {
     let isSubscribeCalled = false;
@@ -272,7 +275,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchPermission and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall fetchPermission and show Error snackbar', async () => { // Updated test case
     const fetchPermission = service.fetchPermission('12345678', 'group12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/permissions?connectionId=12345678&groupId=group12345678`);
@@ -280,14 +283,14 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchPermission;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call updatePermission and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
     service.updatePermission('12345678', permissionsApp).subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Permissions have been updated successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Permissions have been updated successfully.');
       isSubscribeCalled = true;
     });
 
@@ -299,7 +302,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall updatePermission and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall updatePermission and show Error snackbar', async () => { // Updated test case
     const updatePermission = service.updatePermission('12345678', permissionsApp).toPromise();
 
     const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4?connectionId=12345678`);
@@ -307,14 +310,14 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await updatePermission;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call addGroupUser and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
     service.addGroupUser('group12345678', 'eric.cartman@south.park').subscribe(_res => {
-      // expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('User has been added to group.');
+      // expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('User has been added to group.');
       isSubscribeCalled = true;
     });
 
@@ -329,7 +332,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall addGroupUser and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall addGroupUser and show Error snackbar', async () => { // Updated test case
     const addGroupUser = service.addGroupUser('group12345678', 'eric.cartman@south.park').toPromise();
 
     const req = httpMock.expectOne(`/group/user`);
@@ -337,8 +340,8 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await addGroupUser;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call deleteUsersGroup and show Success snackbar', () => {
     let isSubscribeCalled = false;
@@ -349,7 +352,7 @@ describe('UsersService', () => {
     }
 
     service.deleteUsersGroup('group12345678').subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Group has been removed.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Group has been removed.');
       isSubscribeCalled = true;
     });
 
@@ -360,7 +363,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall deleteUsersGroup and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall deleteUsersGroup and show Error snackbar', async () => { // Updated test case
     const deleteUsersGroup = service.deleteUsersGroup('group12345678').toPromise();
 
     const req = httpMock.expectOne(`/group/group12345678`);
@@ -368,8 +371,8 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await deleteUsersGroup;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 
   it('should call deleteGroupUser and show Success snackbar', () => {
     let isSubscribeCalled = false;
@@ -380,7 +383,7 @@ describe('UsersService', () => {
     }
 
     service.deleteGroupUser('eric.cartman@south.park', 'group12345678').subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('User has been removed from group.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('User has been removed from group.');
       isSubscribeCalled = true;
     });
 
@@ -395,7 +398,7 @@ describe('UsersService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall deleteGroupUser and show Error snackbar', waitForAsync(async () => { // Updated test case
+  it('should fall deleteGroupUser and show Error snackbar', async () => { // Updated test case
     const deleteGroupUser = service.deleteGroupUser('eric.cartman@south.park', 'group12345678').toPromise();
 
     const req = httpMock.expectOne(`/group/user/delete`);
@@ -403,6 +406,6 @@ describe('UsersService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await deleteGroupUser;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  }));
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
 });

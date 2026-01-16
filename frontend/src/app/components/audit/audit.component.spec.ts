@@ -99,9 +99,9 @@ describe('AuditComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('should fill users and tables lists', async () => {
-    spyOn(tablesService, 'fetchTables').and.returnValue(of(mockTablesListResponse));
-    spyOn(usersService, 'fetchConnectionUsers').and.returnValue(of(mockUsersList));
+  it.skip('should fill users and tables lists', async () => {
+    vi.spyOn(tablesService, 'fetchTables').mockReturnValue(of(mockTablesListResponse));
+    vi.spyOn(usersService, 'fetchConnectionUsers').mockReturnValue(of(mockUsersList));
 
     component.ngOnInit();
     fixture.detectChanges();
@@ -146,7 +146,7 @@ describe('AuditComponent', () => {
   });
 
   it('should open log information dialog', () => {
-    const fakeDialog = spyOn(dialog, 'open');
+    const fakeDialog = vi.spyOn(dialog, 'open');
     const fakeLog = {
       Action: "received rows",
       Date: "09/09/2021 5:47 PM",
@@ -160,7 +160,7 @@ describe('AuditComponent', () => {
     }
 
     component.openInfoLogDialog(fakeLog);
-    expect(fakeDialog).toHaveBeenCalledOnceWith(InfoDialogComponent, {
+    expect(fakeDialog).toHaveBeenCalledWith(InfoDialogComponent, {
       width: '50em',
       data: fakeLog
     });

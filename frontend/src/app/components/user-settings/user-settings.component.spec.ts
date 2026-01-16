@@ -59,7 +59,7 @@ describe('UserSettingsComponent', () => {
 	});
 
 	it('should request email change', () => {
-		const fakeRequestEmailChange = spyOn(userService, 'requestEmailChange').and.returnValue(
+		const fakeRequestEmailChange = vi.spyOn(userService, 'requestEmailChange').mockReturnValue(
 			of({ message: 'requested' }),
 		);
 
@@ -67,8 +67,8 @@ describe('UserSettingsComponent', () => {
 		expect(fakeRequestEmailChange).toHaveBeenCalled();
 	});
 
-	xit('should open delete account dialog', () => {
-		const fakeDeleteAccountOpen = spyOn(dialog, 'open');
+	it.skip('should open delete account dialog', () => {
+		const fakeDeleteAccountOpen = vi.spyOn(dialog, 'open');
 		component.currentUser = {
 			id: 'user-12345678',
 			createdAt: '2021-10-01T13:43:02.034Z',
@@ -85,7 +85,7 @@ describe('UserSettingsComponent', () => {
 		};
 
 		component.confirmDeleteAccount();
-		expect(fakeDeleteAccountOpen).toHaveBeenCalledOnceWith(AccountDeleteDialogComponent, {
+		expect(fakeDeleteAccountOpen).toHaveBeenCalledWith(AccountDeleteDialogComponent, {
 			width: '32em',
 			data: {
 				id: 'user-12345678',

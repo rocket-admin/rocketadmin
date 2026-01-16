@@ -27,7 +27,7 @@ describe('CreateSecretDialogComponent', () => {
 
 	beforeEach(async () => {
 		mockSecretsService = jasmine.createSpyObj('SecretsService', ['createSecret']);
-		mockSecretsService.createSecret.and.returnValue(of(mockSecret));
+		mockSecretsService.createSecret.mockReturnValue(of(mockSecret));
 
 		mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
 
@@ -52,7 +52,7 @@ describe('CreateSecretDialogComponent', () => {
 
 	describe('form initialization', () => {
 		it('should have invalid form initially', () => {
-			expect(component.form.invalid).toBeTrue();
+			expect(component.form.invalid).toBe(true);
 		});
 
 		it('should have all required form controls', () => {
@@ -67,14 +67,14 @@ describe('CreateSecretDialogComponent', () => {
 			expect(component.form.get('slug')?.value).toBe('');
 			expect(component.form.get('value')?.value).toBe('');
 			expect(component.form.get('expiresAt')?.value).toBeNull();
-			expect(component.form.get('masterEncryption')?.value).toBeFalse();
+			expect(component.form.get('masterEncryption')?.value).toBe(false);
 			expect(component.form.get('masterPassword')?.value).toBe('');
 		});
 
 		it('should initialize component properties', () => {
-			expect(component.submitting).toBeFalse();
-			expect(component.showValue).toBeFalse();
-			expect(component.showMasterPassword).toBeFalse();
+			expect(component.submitting).toBe(false);
+			expect(component.showValue).toBe(false);
+			expect(component.showMasterPassword).toBe(false);
 			expect(component.minDate).toBeTruthy();
 		});
 	});
@@ -83,50 +83,50 @@ describe('CreateSecretDialogComponent', () => {
 		it('should require slug', () => {
 			const slugControl = component.form.get('slug');
 			slugControl?.setValue('');
-			expect(slugControl?.hasError('required')).toBeTrue();
+			expect(slugControl?.hasError('required')).toBe(true);
 		});
 
 		it('should validate slug pattern - reject spaces', () => {
 			const slugControl = component.form.get('slug');
 			slugControl?.setValue('invalid slug');
-			expect(slugControl?.hasError('pattern')).toBeTrue();
+			expect(slugControl?.hasError('pattern')).toBe(true);
 		});
 
 		it('should validate slug pattern - reject special characters', () => {
 			const slugControl = component.form.get('slug');
 			slugControl?.setValue('invalid!slug');
-			expect(slugControl?.hasError('pattern')).toBeTrue();
+			expect(slugControl?.hasError('pattern')).toBe(true);
 
 			slugControl?.setValue('invalid@slug');
-			expect(slugControl?.hasError('pattern')).toBeTrue();
+			expect(slugControl?.hasError('pattern')).toBe(true);
 
 			slugControl?.setValue('invalid#slug');
-			expect(slugControl?.hasError('pattern')).toBeTrue();
+			expect(slugControl?.hasError('pattern')).toBe(true);
 		});
 
 		it('should validate slug pattern - accept valid slugs', () => {
 			const slugControl = component.form.get('slug');
 
 			slugControl?.setValue('valid-slug');
-			expect(slugControl?.hasError('pattern')).toBeFalse();
+			expect(slugControl?.hasError('pattern')).toBe(false);
 
 			slugControl?.setValue('valid_slug');
-			expect(slugControl?.hasError('pattern')).toBeFalse();
+			expect(slugControl?.hasError('pattern')).toBe(false);
 
 			slugControl?.setValue('ValidSlug123');
-			expect(slugControl?.hasError('pattern')).toBeFalse();
+			expect(slugControl?.hasError('pattern')).toBe(false);
 
 			slugControl?.setValue('valid-slug_123');
-			expect(slugControl?.hasError('pattern')).toBeFalse();
+			expect(slugControl?.hasError('pattern')).toBe(false);
 		});
 
 		it('should validate max length', () => {
 			const slugControl = component.form.get('slug');
 			slugControl?.setValue('a'.repeat(256));
-			expect(slugControl?.hasError('maxlength')).toBeTrue();
+			expect(slugControl?.hasError('maxlength')).toBe(true);
 
 			slugControl?.setValue('a'.repeat(255));
-			expect(slugControl?.hasError('maxlength')).toBeFalse();
+			expect(slugControl?.hasError('maxlength')).toBe(false);
 		});
 	});
 
@@ -134,16 +134,16 @@ describe('CreateSecretDialogComponent', () => {
 		it('should require value', () => {
 			const valueControl = component.form.get('value');
 			valueControl?.setValue('');
-			expect(valueControl?.hasError('required')).toBeTrue();
+			expect(valueControl?.hasError('required')).toBe(true);
 		});
 
 		it('should validate max length', () => {
 			const valueControl = component.form.get('value');
 			valueControl?.setValue('a'.repeat(10001));
-			expect(valueControl?.hasError('maxlength')).toBeTrue();
+			expect(valueControl?.hasError('maxlength')).toBe(true);
 
 			valueControl?.setValue('a'.repeat(10000));
-			expect(valueControl?.hasError('maxlength')).toBeFalse();
+			expect(valueControl?.hasError('maxlength')).toBe(false);
 		});
 	});
 
@@ -151,7 +151,7 @@ describe('CreateSecretDialogComponent', () => {
 		it('should require master password when encryption is enabled', () => {
 			component.form.get('masterEncryption')?.setValue(true);
 			const masterPasswordControl = component.form.get('masterPassword');
-			expect(masterPasswordControl?.hasError('required')).toBeTrue();
+			expect(masterPasswordControl?.hasError('required')).toBe(true);
 		});
 
 		it('should validate master password min length', () => {
@@ -159,10 +159,10 @@ describe('CreateSecretDialogComponent', () => {
 			const masterPasswordControl = component.form.get('masterPassword');
 
 			masterPasswordControl?.setValue('short');
-			expect(masterPasswordControl?.hasError('minlength')).toBeTrue();
+			expect(masterPasswordControl?.hasError('minlength')).toBe(true);
 
 			masterPasswordControl?.setValue('12345678');
-			expect(masterPasswordControl?.hasError('minlength')).toBeFalse();
+			expect(masterPasswordControl?.hasError('minlength')).toBe(false);
 		});
 
 		it('should clear master password validators when encryption is disabled', () => {
@@ -173,7 +173,7 @@ describe('CreateSecretDialogComponent', () => {
 
 			const masterPasswordControl = component.form.get('masterPassword');
 			expect(masterPasswordControl?.value).toBe('');
-			expect(masterPasswordControl?.valid).toBeTrue();
+			expect(masterPasswordControl?.valid).toBe(true);
 		});
 
 		it('should accept valid master password', () => {
@@ -181,7 +181,7 @@ describe('CreateSecretDialogComponent', () => {
 			const masterPasswordControl = component.form.get('masterPassword');
 
 			masterPasswordControl?.setValue('validpassword123');
-			expect(masterPasswordControl?.valid).toBeTrue();
+			expect(masterPasswordControl?.valid).toBe(true);
 		});
 	});
 
@@ -228,19 +228,19 @@ describe('CreateSecretDialogComponent', () => {
 
 	describe('visibility toggles', () => {
 		it('should toggle value visibility', () => {
-			expect(component.showValue).toBeFalse();
+			expect(component.showValue).toBe(false);
 			component.toggleValueVisibility();
-			expect(component.showValue).toBeTrue();
+			expect(component.showValue).toBe(true);
 			component.toggleValueVisibility();
-			expect(component.showValue).toBeFalse();
+			expect(component.showValue).toBe(false);
 		});
 
 		it('should toggle master password visibility', () => {
-			expect(component.showMasterPassword).toBeFalse();
+			expect(component.showMasterPassword).toBe(false);
 			component.toggleMasterPasswordVisibility();
-			expect(component.showMasterPassword).toBeTrue();
+			expect(component.showMasterPassword).toBe(true);
 			component.toggleMasterPasswordVisibility();
-			expect(component.showMasterPassword).toBeFalse();
+			expect(component.showMasterPassword).toBe(false);
 		});
 	});
 
@@ -269,7 +269,7 @@ describe('CreateSecretDialogComponent', () => {
 			component.onSubmit();
 
 			expect(mockSecretsService.createSecret).toHaveBeenCalledWith(
-				jasmine.objectContaining({
+				expect.objectContaining({
 					slug: 'test-secret',
 					value: 'secret-value',
 				}),
@@ -288,10 +288,10 @@ describe('CreateSecretDialogComponent', () => {
 			component.onSubmit();
 
 			expect(mockSecretsService.createSecret).toHaveBeenCalledWith(
-				jasmine.objectContaining({
+				expect.objectContaining({
 					slug: 'test-secret',
 					value: 'secret-value',
-					expiresAt: jasmine.any(String),
+					expiresAt: expect.any(String),
 				}),
 			);
 		});
@@ -307,7 +307,7 @@ describe('CreateSecretDialogComponent', () => {
 			component.onSubmit();
 
 			expect(mockSecretsService.createSecret).toHaveBeenCalledWith(
-				jasmine.objectContaining({
+				expect.objectContaining({
 					slug: 'test-secret',
 					value: 'secret-value',
 					masterEncryption: true,
@@ -322,7 +322,7 @@ describe('CreateSecretDialogComponent', () => {
 				value: 'secret-value',
 			});
 
-			expect(component.submitting).toBeFalse();
+			expect(component.submitting).toBe(false);
 			component.onSubmit();
 		});
 
@@ -345,11 +345,11 @@ describe('CreateSecretDialogComponent', () => {
 
 			component.onSubmit();
 
-			expect(component.submitting).toBeFalse();
+			expect(component.submitting).toBe(false);
 		});
 
 		it('should reset submitting on error', () => {
-			mockSecretsService.createSecret.and.returnValue(throwError(() => new Error('Error')));
+			mockSecretsService.createSecret.mockReturnValue(throwError(() => new Error('Error')));
 
 			component.form.patchValue({
 				slug: 'test-secret',
@@ -358,7 +358,7 @@ describe('CreateSecretDialogComponent', () => {
 
 			component.onSubmit();
 
-			expect(component.submitting).toBeFalse();
+			expect(component.submitting).toBe(false);
 		});
 
 		it('should not include master password when encryption is disabled', () => {

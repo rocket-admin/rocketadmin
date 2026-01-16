@@ -17,7 +17,7 @@ describe('DbConnectionConfirmDialogComponent', () => {
   let fakeConnectionsService = jasmine.createSpyObj('connectionsService', ['updateConnection', 'createConnection']);
 
   beforeEach(async (): Promise<void> => {
-    routerSpy = {navigate: jasmine.createSpy('navigate')};
+    routerSpy = {navigate: vi.fn()};
 
     await TestBed.configureTestingModule({
       imports: [
@@ -55,21 +55,21 @@ describe('DbConnectionConfirmDialogComponent', () => {
   });
 
   it('should redirect on dashboard after connection edited', () => {
-    fakeConnectionsService.updateConnection.and.returnValue(of(true));
+    fakeConnectionsService.updateConnection.mockReturnValue(of(true));
     component.editConnection();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard/12345678']);
   });
 
   it('should stop submitting if editing connection completed', () => {
-    fakeConnectionsService.updateConnection.and.returnValue(of(false));
+    fakeConnectionsService.updateConnection.mockReturnValue(of(false));
     component.editConnection();
 
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   });
 
   it('should redirect on dashboard after connection added', () => {
-    fakeConnectionsService.createConnection.and.returnValue(of({
+    fakeConnectionsService.createConnection.mockReturnValue(of({
       id: '12345678'
     }));
     component.createConnection();
@@ -78,9 +78,9 @@ describe('DbConnectionConfirmDialogComponent', () => {
   });
 
   it('should stop submitting if adding connection completed', () => {
-    fakeConnectionsService.createConnection.and.returnValue(of(false));
+    fakeConnectionsService.createConnection.mockReturnValue(of(false));
     component.createConnection();
 
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   });
 });

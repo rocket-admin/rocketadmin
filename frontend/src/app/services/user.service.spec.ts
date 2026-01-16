@@ -29,7 +29,7 @@ describe('UserService', () => {
 
   beforeEach(() => {
     fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
-    routerSpy = {navigate: jasmine.createSpy('navigate')};
+    routerSpy = {navigate: vi.fn()};
 
     TestBed.configureTestingModule({
       imports: [
@@ -87,7 +87,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchUser;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
   });
 
   it('should call requestEmailChange', () => {
@@ -99,7 +99,7 @@ describe('UserService', () => {
 
     service.requestEmailChange().subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Info, 'Link has been sent to your email. Please check it.', [jasmine.objectContaining({
+      expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Info, 'Link has been sent to your email. Please check it.', [expect.objectContaining({
         type: AlertActionType.Button,
         caption: 'Dismiss',
       })]);
@@ -110,7 +110,7 @@ describe('UserService', () => {
     expect(req.request.method).toBe("GET");
     req.flush(requestResponse);
 
-    expect(isEmailChangeRequestedCalled).toBeTrue();
+    expect(isEmailChangeRequestedCalled).toBe(true);
   });
 
   it('should fall for requestEmailChange and show Error alert', async () => {
@@ -121,7 +121,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -136,7 +136,7 @@ describe('UserService', () => {
 
     service.changeEmail('123456789', 'new-new@email.com').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('You email has been changed successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('You email has been changed successfully.');
       isEmailChangedCalled = true;
     });
 
@@ -145,7 +145,7 @@ describe('UserService', () => {
     expect(req.request.body).toEqual({email: 'new-new@email.com'});
     req.flush(requestResponse);
 
-    expect(isEmailChangedCalled).toBeTrue();
+    expect(isEmailChangedCalled).toBe(true);
   });
 
   it('should fall for changeEmail and show Error alert', async () => {
@@ -156,7 +156,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -171,7 +171,7 @@ describe('UserService', () => {
 
     service.requestPasswordReset('john@smith.com', 'company_1').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Success, 'Check your email.', [jasmine.objectContaining({
+      expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Success, 'Check your email.', [expect.objectContaining({
         type: AlertActionType.Button,
         caption: 'Dismiss',
       })]);
@@ -182,7 +182,7 @@ describe('UserService', () => {
     expect(req.request.method).toBe("POST");
     req.flush(requestResponse);
 
-    expect(isPasswordChangeRequestedCalled).toBeTrue();
+    expect(isPasswordChangeRequestedCalled).toBe(true);
   });
 
   it('should fall for requestPasswordReset and show Error alert', async () => {
@@ -193,7 +193,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -208,7 +208,7 @@ describe('UserService', () => {
 
     service.resetPassword('123456789', 'newpassword123').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Your password has been reset successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Your password has been reset successfully.');
       isPasswordChangedCalled = true;
     });
 
@@ -217,7 +217,7 @@ describe('UserService', () => {
     expect(req.request.body).toEqual({password: 'newpassword123'});
     req.flush(requestResponse);
 
-    expect(isPasswordChangedCalled).toBeTrue();
+    expect(isPasswordChangedCalled).toBe(true);
   });
 
   it('should fall for resetPassword and show Error alert', async () => {
@@ -228,7 +228,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -243,7 +243,7 @@ describe('UserService', () => {
 
     service.changePassword('old-password', 'new-password', 'john@smith.com').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Your password has been changed successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Your password has been changed successfully.');
       isPasswordChangedCalled = true;
     });
 
@@ -256,7 +256,7 @@ describe('UserService', () => {
     });
     req.flush(requestResponse);
 
-    expect(isPasswordChangedCalled).toBeTrue();
+    expect(isPasswordChangedCalled).toBe(true);
   });
 
   it('should fall for changePassword and show Error alert', async () => {
@@ -267,7 +267,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -280,7 +280,7 @@ describe('UserService', () => {
 
     service.changeUserName('Eric').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Your name has been changed successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Your name has been changed successfully.');
       isChangeUserNameCalled = true;
     });
 
@@ -291,7 +291,7 @@ describe('UserService', () => {
     });
     req.flush(requestResponse);
 
-    expect(isChangeUserNameCalled).toBeTrue();
+    expect(isChangeUserNameCalled).toBe(true);
   });
 
   it('should fall for changeUserName and show Error alert', async () => {
@@ -320,7 +320,7 @@ describe('UserService', () => {
     expect(req.request.body).toEqual({});
     req.flush(requestResponse);
 
-    expect(isSwitchOn2FACalled).toBeTrue();
+    expect(isSwitchOn2FACalled).toBe(true);
   });
 
   it('should fall for switchOn2FA and show Error alert', async () => {
@@ -341,7 +341,7 @@ describe('UserService', () => {
 
     service.confirm2FA('123456').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('2FA is turned on successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('2FA is turned on successfully.');
       isConfirm2FACalled = true;
     });
 
@@ -350,10 +350,10 @@ describe('UserService', () => {
     expect(req.request.body).toEqual({otpToken: '123456'});
     req.flush(requestResponse);
 
-    expect(isConfirm2FACalled).toBeTrue();
+    expect(isConfirm2FACalled).toBe(true);
   });
 
-  xit('should fall for confirm2FA and show Error alert', async () => {
+  it.skip('should fall for confirm2FA and show Error alert', async () => {
     const resMessage = service.confirm2FA('123456').toPromise();
 
     const req = httpMock.expectOne(`/user/otp/verify`);
@@ -372,7 +372,7 @@ describe('UserService', () => {
 
     service.switchOff2FA('123456').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('2FA is turned off successfully.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('2FA is turned off successfully.');
       isSwitchOff2FACalled = true;
     });
 
@@ -381,7 +381,7 @@ describe('UserService', () => {
     expect(req.request.body).toEqual({otpToken: '123456'});
     req.flush(requestResponse);
 
-    expect(isSwitchOff2FACalled).toBeTrue();
+    expect(isSwitchOff2FACalled).toBe(true);
   });
 
   it('should fall for switchOff2FA and show Error alert', async () => {
@@ -405,7 +405,7 @@ describe('UserService', () => {
     const requestResponse = true;
 
     service.deleteAccount(metadata).subscribe((_res) => {
-      // expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('You account has been deleted.');
+      // expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('You account has been deleted.');
       isDeleteuserCalled = true;
     });
 
@@ -413,8 +413,8 @@ describe('UserService', () => {
     expect(req.request.method).toBe("PUT");
     req.flush(requestResponse);
 
-    expect(isDeleteuserCalled).toBeTrue();
-    expect(routerSpy.navigate).toHaveBeenCalledOnceWith(['/deleted']);
+    expect(isDeleteuserCalled).toBe(true);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/deleted']);
   });
 
   it('should fall for deleteAccount and show Error alert', async () => {
@@ -430,7 +430,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);

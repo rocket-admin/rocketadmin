@@ -38,7 +38,7 @@ describe('DeleteSecretDialogComponent', () => {
 
   const createComponent = async (secret: Secret = mockSecret) => {
     mockSecretsService = jasmine.createSpyObj('SecretsService', ['deleteSecret']);
-    mockSecretsService.deleteSecret.and.returnValue(of(mockDeleteResponse));
+    mockSecretsService.deleteSecret.mockReturnValue(of(mockDeleteResponse));
 
     mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
 
@@ -73,7 +73,7 @@ describe('DeleteSecretDialogComponent', () => {
 
   describe('component initialization', () => {
     it('should initialize with submitting false', () => {
-      expect(component.submitting).toBeFalse();
+      expect(component.submitting).toBe(false);
     });
 
     it('should have access to secret data', () => {
@@ -92,7 +92,7 @@ describe('DeleteSecretDialogComponent', () => {
     });
 
     it('should set submitting to true during deletion', () => {
-      expect(component.submitting).toBeFalse();
+      expect(component.submitting).toBe(false);
       component.onDelete();
     });
 
@@ -103,19 +103,19 @@ describe('DeleteSecretDialogComponent', () => {
 
     it('should reset submitting after successful deletion', () => {
       component.onDelete();
-      expect(component.submitting).toBeFalse();
+      expect(component.submitting).toBe(false);
     });
 
     it('should reset submitting on error', () => {
-      mockSecretsService.deleteSecret.and.returnValue(throwError(() => new Error('Error')));
+      mockSecretsService.deleteSecret.mockReturnValue(throwError(() => new Error('Error')));
 
       component.onDelete();
 
-      expect(component.submitting).toBeFalse();
+      expect(component.submitting).toBe(false);
     });
 
     it('should not close dialog on error', () => {
-      mockSecretsService.deleteSecret.and.returnValue(throwError(() => new Error('Error')));
+      mockSecretsService.deleteSecret.mockReturnValue(throwError(() => new Error('Error')));
 
       component.onDelete();
 
@@ -130,7 +130,7 @@ describe('DeleteSecretDialogComponent', () => {
     });
 
     it('should have access to encrypted secret data', () => {
-      expect(component.data.secret.masterEncryption).toBeTrue();
+      expect(component.data.secret.masterEncryption).toBe(true);
     });
 
     it('should delete encrypted secret with correct slug', () => {

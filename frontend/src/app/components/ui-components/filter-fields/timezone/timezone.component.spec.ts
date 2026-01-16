@@ -34,7 +34,7 @@ describe('TimezoneFilterComponent', () => {
   });
 
   it('should emit value on change', () => {
-    spyOn(component.onFieldChange, 'emit');
+    vi.spyOn(component.onFieldChange, 'emit');
     const testValue = 'Asia/Tokyo';
     component.value = testValue;
     component.onFieldChange.emit(testValue);

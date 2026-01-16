@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Subject, of } from 'rxjs';
+import { vi, type Mock } from 'vitest';
 
 import { Angulartics2Module } from 'angulartics2';
 import { AppComponent } from './app.component';
@@ -47,22 +48,22 @@ describe('AppComponent', () => {
 
   const mockAuthService = {
     cast: authCast,
-    logOutUser: jasmine.createSpy('logOutUser').and.returnValue(of(true))
+    logOutUser: vi.fn().mockReturnValue(of(true))
   };
 
   const mockUserService = {
     cast: userCast,
-    fetchUser: jasmine.createSpy('fetchUser').and.returnValue(of(fakeUser)),
-    setIsDemo: jasmine.createSpy('setIsDemo'),
+    fetchUser: vi.fn().mockReturnValue(of(fakeUser)),
+    setIsDemo: vi.fn(),
   };
 
   const mockCompanyService = {
-    getWhiteLabelProperties: jasmine.createSpy('getWhiteLabelProperties')
+    getWhiteLabelProperties: vi.fn()
   };
 
   const mockUiSettingsService = {
-    getUiSettings: jasmine.createSpy('getUiSettings').and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'default-id'}})),
-    updateGlobalSetting: jasmine.createSpy('updateGlobalSetting').and.returnValue(of({}))
+    getUiSettings: vi.fn().mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'default-id'}})),
+    updateGlobalSetting: vi.fn().mockReturnValue(of({}))
   };
 
   const connectionsCast = new Subject<any>();
@@ -76,7 +77,7 @@ describe('AppComponent', () => {
       isTestConnection: false
     },
     cast: connectionsCast,
-    fetchConnections: jasmine.createSpy('fetchConnections').and.returnValue(of([]))
+    fetchConnections: vi.fn().mockReturnValue(of([]))
   };
 
   const mockTablesService = {
@@ -127,17 +128,17 @@ describe('AppComponent', () => {
 
     fixture.detectChanges();
 
-    spyOn(app, 'logOut');
-    spyOn(app.router, 'navigate');
+    vi.spyOn(app, 'logOut');
+    vi.spyOn(app.router, 'navigate');
   });
 
   afterEach(() => {
     localStorage.removeItem('token_expiration');
-    (app.logOut as jasmine.Spy)?.calls.reset?.();
-    (app.router.navigate as jasmine.Spy)?.calls.reset?.();
-    mockUiSettingsService.getUiSettings.calls.reset?.();
-    mockCompanyService.getWhiteLabelProperties.calls.reset?.();
-    mockUserService.fetchUser.calls.reset?.();
+    vi.mocked(app.logOut).mockClear();
+    vi.mocked(app.router.navigate).mockClear();
+    mockUiSettingsService.getUiSettings.mockClear();
+    mockCompanyService.getWhiteLabelProperties.mockClear();
+    mockUserService.fetchUser.mockClear();
   });
 
   it('should create the app', () => {
@@ -145,20 +146,20 @@ describe('AppComponent', () => {
   });
 
   it('should set userLoggedIn and logo on user session initialization', fakeAsync(() => {
-    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: 'data:png;base64,some-base64-data'}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: 'data:png;base64,some-base64-data'}));
+    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
     expect(app.currentUser.email).toBe('test@email.com');
     expect(app.whiteLabelSettings.logo).toBe('data:png;base64,some-base64-data');
-    expect(app.userLoggedIn).toBeTrue();
+    expect(app.userLoggedIn).toBe(true);
     expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
   }));
 
   it('should render custom logo in navbar if it is set', fakeAsync(() => {
-    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: 'data:png;base64,some-base64-data'}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: 'data:png;base64,some-base64-data'}));
+    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
@@ -171,8 +172,8 @@ describe('AppComponent', () => {
   }));
 
   it('should render the link to Connetions list that contains the custom logo in the navbar', fakeAsync(() => {
-    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: null}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: null}));
+    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
@@ -199,8 +200,8 @@ describe('AppComponent', () => {
 
   it('should render feature popup if isFeatureNotificationShown different on server and client', fakeAsync(() => {
     app.currentFeatureNotificationId = 'new-id';
-    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: null}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: null}));
+    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
@@ -212,8 +213,8 @@ describe('AppComponent', () => {
 
   it('should not render feature popup if isFeatureNotificationShown the same on server and client', fakeAsync(() => {
     app.currentFeatureNotificationId = 'old-id';
-    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: null}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: null}));
+    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
     app.initializeUserSession();
     tick();
 
@@ -234,26 +235,29 @@ describe('AppComponent', () => {
       'some-id'
     );
 
-    expect(app.isFeatureNotificationShown).toBeFalse();
+    expect(app.isFeatureNotificationShown).toBe(false);
   });
 
   it('should set userLoggedIn state and trigger change detection', () => {
-    const mockChangeDetectorRef = jasmine.createSpyObj<ChangeDetectorRef>(
-      'ChangeDetectorRef',
-      ['detectChanges', 'markForCheck', 'detach', 'checkNoChanges', 'reattach']
-    );
+    const mockChangeDetectorRef = {
+      detectChanges: vi.fn(),
+      markForCheck: vi.fn(),
+      detach: vi.fn(),
+      checkNoChanges: vi.fn(),
+      reattach: vi.fn()
+    } as unknown as ChangeDetectorRef;
 
     app.changeDetector = mockChangeDetectorRef; // inject mock manually if needed
 
     app.setUserLoggedIn(true);
 
-    expect(app.userLoggedIn).toBeTrue();
+    expect(app.userLoggedIn).toBe(true);
     expect(mockChangeDetectorRef.detectChanges).toHaveBeenCalled();
   });
 
   it('should handle user login flow when cast emits user with expires', fakeAsync(() => {
-    mockCompanyService.getWhiteLabelProperties.and.returnValue(of({logo: '', favicon: ''}));
-    mockUiSettingsService.getUiSettings.and.returnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: '', favicon: ''}));
+    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
 
     const expirationDate = new Date(Date.now() + 10_000); // 10s from now
     app.currentFeatureNotificationId = 'some-id';
@@ -268,19 +272,19 @@ describe('AppComponent', () => {
     tick();
     fixture.detectChanges();
 
-    expect(app.userLoggedIn).toBeTrue();
+    expect(app.userLoggedIn).toBe(true);
     expect(app.currentUser.email).toBe('test@email.com');
     expect(mockUserService.fetchUser).toHaveBeenCalled();
     expect(mockCompanyService.getWhiteLabelProperties).toHaveBeenCalledWith('company-12345678');
     expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
-    expect(app.isFeatureNotificationShown).toBeTrue();
+    expect(app.isFeatureNotificationShown).toBe(true);
   }));
 
   it('should restore session and log out after token expiration', fakeAsync(() => {
     const expiration = new Date(Date.now() + 5000); // 5s ahead
     localStorage.setItem('token_expiration', expiration.toString());
 
-    spyOn(app, 'initializeUserSession').and.callFake(() => {
+    vi.spyOn(app, 'initializeUserSession').mockImplementation(() => {
       app.userLoggedIn = true;
     });
 
@@ -301,7 +305,7 @@ describe('AppComponent', () => {
     const expiration = new Date(Date.now() - 5000); // Expired 5s ago
     localStorage.setItem('token_expiration', expiration.toString());
 
-    spyOn(app, 'initializeUserSession');
+    vi.spyOn(app, 'initializeUserSession');
 
     app.userLoggedIn = true;
 

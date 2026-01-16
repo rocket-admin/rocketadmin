@@ -48,11 +48,15 @@ describe('SavedFiltersPanelComponent', () => {
   };
 
   beforeEach(async () => {
-    const tablesServiceMock = jasmine.createSpyObj('TablesService', ['getSavedFilters', 'createSavedFilter']);
-    tablesServiceMock.getSavedFilters.and.returnValue(of([mockFilter]));
-    tablesServiceMock.cast = of({});
+    const tablesServiceMock = {
+      getSavedFilters: vi.fn().mockReturnValue(of([mockFilter])),
+      createSavedFilter: vi.fn(),
+      cast: of({}),
+    };
 
-    const routerMock = jasmine.createSpyObj('Router', ['navigate']);
+    const routerMock = {
+      navigate: vi.fn(),
+    };
 
     const activatedRouteMock = {
       queryParams: of({}),
@@ -69,11 +73,13 @@ describe('SavedFiltersPanelComponent', () => {
       }
     };
 
-    const matDialogMock = jasmine.createSpyObj('MatDialog', ['open']);
+    const matDialogMock = {
+      open: vi.fn(),
+    };
 
-    const connectionsServiceMock = jasmine.createSpyObj('ConnectionsService', [], {
-      currentConnection: { type: 'postgres' }
-    });
+    const connectionsServiceMock = {
+      get currentConnection() { return { type: 'postgres' }; }
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -103,7 +109,7 @@ describe('SavedFiltersPanelComponent', () => {
     component.tableForeignKeys = [];
 
     // Mock filterSelected event emitter
-    spyOn(component.filterSelected, 'emit');
+    vi.spyOn(component.filterSelected, 'emit');
 
     fixture.detectChanges();
   });
@@ -148,7 +154,7 @@ describe('SavedFiltersPanelComponent', () => {
     };
 
     // Spy on applyDynamicColumnChanges to prevent it from executing
-    spyOn(component, 'applyDynamicColumnChanges');
+    vi.spyOn(component, 'applyDynamicColumnChanges');
 
     // Call the method under test
     component.updateDynamicColumnComparator('empty');
@@ -168,14 +174,14 @@ describe('SavedFiltersPanelComponent', () => {
     };
 
     // Spy on applyDynamicColumnChanges to prevent it from executing
-    spyOn(component, 'applyDynamicColumnChanges');
+    vi.spyOn(component, 'applyDynamicColumnChanges');
 
     // Replace setTimeout with a function that executes immediately
-    spyOn<any>(window, 'setTimeout').and.callFake((fn) => {
+    vi.spyOn(window, 'setTimeout').mockImplementation((fn: TimerHandler) => {
       // Execute function immediately instead of waiting
-      fn();
+      if (typeof fn === 'function') fn();
       // Return a fake timer ID
-      return 999;
+      return 999 as unknown as ReturnType<typeof setTimeout>;
     });
 
     // Call the method under test

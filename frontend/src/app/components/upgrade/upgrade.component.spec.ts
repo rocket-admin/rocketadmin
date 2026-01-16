@@ -40,7 +40,7 @@ describe('UpgradeComponent', () => {
 
 	//   component.setUser(fakeUser);
 
-	//   expect(component.isAnnually).toBeTrue();
+	//   expect(component.isAnnually).toBe(true);
 	//   expect(component.currentPlan).toEqual('enterprise');
 	// });
 
@@ -56,25 +56,25 @@ describe('UpgradeComponent', () => {
 
 	//   component.setUser(fakeUser);
 
-	//   expect(component.isAnnually).toBeFalse();
+	//   expect(component.isAnnually).toBe(false);
 	//   expect(component.currentPlan).toEqual('team');
 	// });
 
 	// it('should call upgrage plan service for monthly team plan', () => {
-	//   const fakeUpgradeUser = spyOn(userService, 'upgradeUser').and.returnValue(of(''));
-	//   const fakeFetchUser = spyOn(userService, 'fetchUser').and.returnValue(of(''));
+	//   const fakeUpgradeUser = vi.spyOn(userService, 'upgradeUser').mockReturnValue(of(''));
+	//   const fakeFetchUser = vi.spyOn(userService, 'fetchUser').mockReturnValue(of(''));
 
 	//   component.upgradePlan('team', false);
-	//   expect(fakeUpgradeUser).toHaveBeenCalledOnceWith('TEAM_PLAN');
+	//   expect(fakeUpgradeUser).toHaveBeenCalledWith('TEAM_PLAN');
 	//   expect(fakeFetchUser).toHaveBeenCalled();
 	// });
 
 	// it('should call upgrage plan service and add ANNUAL_ if subscription is annual', () => {
-	//   const fakeUpgradeUser = spyOn(userService, 'upgradeUser').and.returnValue(of(''));
-	//   const fakeFetchUser = spyOn(userService, 'fetchUser').and.returnValue(of(''));
+	//   const fakeUpgradeUser = vi.spyOn(userService, 'upgradeUser').mockReturnValue(of(''));
+	//   const fakeFetchUser = vi.spyOn(userService, 'fetchUser').mockReturnValue(of(''));
 
 	//   component.upgradePlan('team', true);
-	//   expect(fakeUpgradeUser).toHaveBeenCalledOnceWith('ANNUAL_TEAM_PLAN');
+	//   expect(fakeUpgradeUser).toHaveBeenCalledWith('ANNUAL_TEAM_PLAN');
 	//   expect(fakeFetchUser).toHaveBeenCalled();
 	// });
 });

@@ -20,7 +20,7 @@ describe('PasswordChangeComponent', () => {
   let routerSpy;
 
   beforeEach(async () => {
-    // routerSpy = {navigate: jasmine.createSpy('navigate')};
+    // routerSpy = {navigate: vi.fn()};
     const angulartics2Mock = {
       eventTrack: {
         next: () => {} // Mocking the next method
@@ -56,7 +56,7 @@ describe('PasswordChangeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('should change password', async (_done) => {
+  it.skip('should change password', async (_done) => {
     component.oldPassword = 'hH12345678';
     component.newPassword = '12345678hH';
     component.currentUser = {
@@ -73,10 +73,10 @@ describe('PasswordChangeComponent', () => {
       }
 
     };
-    const fakeChangePassword = spyOn(userService, 'changePassword').and.returnValue(of());
+    const fakeChangePassword = vi.spyOn(userService, 'changePassword').mockReturnValue(of());
 
     await component.updatePassword();
-    expect(fakeChangePassword).toHaveBeenCalledOnceWith('hH12345678', '12345678hH', 'my@email.com');
+    expect(fakeChangePassword).toHaveBeenCalledWith('hH12345678', '12345678hH', 'my@email.com');
 
   });
 });

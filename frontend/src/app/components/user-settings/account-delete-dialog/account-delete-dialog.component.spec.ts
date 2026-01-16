@@ -48,14 +48,14 @@ describe('AccountDeleteDialogComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	xit('should open dialog for delete account confirmation', () => {
+	it.skip('should open dialog for delete account confirmation', () => {
 		component.reason = 'technical-issues';
 		component.message = 'I cannot add connection';
 
-		const fakeDeleteUserDialogOpen = spyOn(dialog, 'open');
+		const fakeDeleteUserDialogOpen = vi.spyOn(dialog, 'open');
 		component.openDeleteConfirmation();
 
-		expect(fakeDeleteUserDialogOpen).toHaveBeenCalledOnceWith(AccountDeleteConfirmationComponent, {
+		expect(fakeDeleteUserDialogOpen).toHaveBeenCalledWith(AccountDeleteConfirmationComponent, {
 			width: '20em',
 			data: {
 				reason: 'technical-issues',

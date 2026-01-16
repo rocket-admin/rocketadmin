@@ -33,8 +33,8 @@ describe('SavedFiltersDialogComponent', () => {
       providers: [
         { provide: TablesService, useValue: tableSpy },
         { provide: ConnectionsService, useValue: connectionSpy },
-        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } },
-        { provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } },
+        { provide: MatDialogRef, useValue: { close: vi.fn() } },
+        { provide: MatSnackBar, useValue: { open: vi.fn() } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -93,7 +93,7 @@ describe('SavedFiltersDialogComponent', () => {
     component.tableRowFieldsShown = { [fieldName]: 'test_value' };
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
     component.dynamicColumn = fieldName;
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -126,7 +126,7 @@ describe('SavedFiltersDialogComponent', () => {
       [dynamicFieldName]: 'contains'
     };
     component.dynamicColumn = dynamicFieldName; // Different field from the one with comparator
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -151,7 +151,7 @@ describe('SavedFiltersDialogComponent', () => {
     const fieldName = 'test_field';
     component.tableRowFieldsShown = { [fieldName]: '' }; // Empty value
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -180,7 +180,7 @@ describe('SavedFiltersDialogComponent', () => {
       // No comparator for dynamicFieldName
     };
     component.dynamicColumn = dynamicFieldName;
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -207,7 +207,7 @@ describe('SavedFiltersDialogComponent', () => {
     component.tableRowFieldsShown = { [fieldName]: 'test_value' };
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
     component.data.filtersSet.id = filterId;
-    tablesServiceMock.updateSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.updateSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -231,7 +231,7 @@ describe('SavedFiltersDialogComponent', () => {
     component.tableRowFieldsShown = { [fieldName]: 'test_value' };
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
     component.data.filtersSet.id = undefined; // No ID means creating a new filter
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();

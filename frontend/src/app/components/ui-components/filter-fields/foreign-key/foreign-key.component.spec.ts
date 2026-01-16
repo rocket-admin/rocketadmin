@@ -10,7 +10,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
-xdescribe('ForeignKeyFilterComponent', () => {
+describe.skip('ForeignKeyFilterComponent', () => {
   let component: ForeignKeyFilterComponent;
   let fixture: ComponentFixture<ForeignKeyFilterComponent>;
   let tablesService: TablesService;
@@ -147,7 +147,7 @@ xdescribe('ForeignKeyFilterComponent', () => {
   it('should fill initial dropdown values when identity_column is set', () => {
     const usersTableNetworkWithIdentityColumn = {...usersTableNetwork, identity_column: 'lastname'}
 
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetworkWithIdentityColumn));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetworkWithIdentityColumn));
 
     component.connectionID = '12345678';
     component.value = '';
@@ -179,7 +179,7 @@ xdescribe('ForeignKeyFilterComponent', () => {
   });
 
   it('should fill initial dropdown values when identity_column is not set', () => {
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
     component.connectionID = '12345678';
 
@@ -212,7 +212,7 @@ xdescribe('ForeignKeyFilterComponent', () => {
   });
 
   it('should fill initial dropdown values when autocomplete_columns is not set', () => {
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
     component.connectionID = '12345678';
     component.relations = {
@@ -298,7 +298,7 @@ xdescribe('ForeignKeyFilterComponent', () => {
       identity_column: 'lastname'
     }
 
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 
     component.relations = fakeRelations;
 
@@ -339,7 +339,7 @@ xdescribe('ForeignKeyFilterComponent', () => {
       rows: []
     }
 
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
+    vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 
     component.suggestions = [
       {
@@ -390,7 +390,7 @@ xdescribe('ForeignKeyFilterComponent', () => {
       primaryColumns: [{ column_name: "id", data_type: "integer" }]
     }
 
-    const fakeFetchTable = spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
+    const fakeFetchTable = vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
     component.connectionID = '12345678';
     component.relations = fakeRelations;
 

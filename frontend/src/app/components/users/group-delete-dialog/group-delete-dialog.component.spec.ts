@@ -44,12 +44,12 @@ describe('GroupDeleteDialogComponent', () => {
   });
 
   it('should call delete user group service', () => {
-    const fakeDeleteUsersGroup = spyOn(usersService, 'deleteUsersGroup').and.returnValue(of());
-    spyOn(mockDialogRef, 'close');
+    const fakeDeleteUsersGroup = vi.spyOn(usersService, 'deleteUsersGroup').mockReturnValue(of());
+    vi.spyOn(mockDialogRef, 'close');
 
     component.deleteUsersGroup('12345678-123');
-    expect(fakeDeleteUsersGroup).toHaveBeenCalledOnceWith('12345678-123');
+    expect(fakeDeleteUsersGroup).toHaveBeenCalledWith('12345678-123');
     // expect(component.dialogRef.close).toHaveBeenCalled();
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   });
 });

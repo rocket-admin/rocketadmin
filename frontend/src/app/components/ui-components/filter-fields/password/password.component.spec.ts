@@ -25,7 +25,7 @@ describe('PasswordFilterComponent', () => {
 
   it('should send onChange event with new null value if user clear password', () => {
     component.clearPassword = true;
-    const event = spyOn(component.onFieldChange, 'emit');
+    const event = vi.spyOn(component.onFieldChange, 'emit');
     component.onClearPasswordChange();
     expect(event).toHaveBeenCalledWith(null);
   });
