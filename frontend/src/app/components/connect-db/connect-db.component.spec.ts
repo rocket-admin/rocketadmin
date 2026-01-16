@@ -210,7 +210,7 @@ describe('ConnectDBComponent', () => {
 	});
 
 	it('should update direct connection', () => {
-		fakeConnectionsService.updateConnection.mockReturnValue(of(connectionCredsApp));
+		fakeConnectionsService.updateConnection.mockReturnValue(of({ connection: connectionCredsApp }));
 		vi.spyOn(component, 'db', 'get').mockReturnValue(connectionCredsApp);
 		component.updateConnectionRequest();
 

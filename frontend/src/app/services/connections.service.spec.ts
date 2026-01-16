@@ -96,9 +96,11 @@ describe('ConnectionsService', () => {
 			showErrorSnackbar: vi.fn(),
 			showSuccessSnackbar: vi.fn(),
 			showAlert: vi.fn(),
+			dismissAlert: vi.fn(),
 		};
 		fakeMasterPassword = {
 			showMasterPasswordDialog: vi.fn(),
+			checkMasterPassword: vi.fn(),
 		};
 
 		TestBed.configureTestingModule({
@@ -471,20 +473,25 @@ describe('ConnectionsService', () => {
 		req.flush(connectionCredsNetwork);
 	});
 
-	it('should fall for updateConnection and show Error alert', async () => {
-		const updatedConnection = service.updateConnection(connectionCredsApp, 'master_key_12345678').toPromise();
+	it('should fall for updateConnection and show Error alert', () => {
+		let errorCaught = false;
+
+		service.updateConnection(connectionCredsApp, 'master_key_12345678').subscribe({
+			next: () => {
+				// Should not be called
+			},
+			error: (error) => {
+				errorCaught = true;
+				expect(error.message).toEqual(fakeError.message);
+			},
+		});
 
 		const req = httpMock.expectOne(`/connection/9d5f6d0f-9516-4598-91c4-e4fe6330b4d4`);
 		expect(req.request.method).toBe('PUT');
 		expect(req.request.body).toEqual(connectionCredsRequested);
 		req.flush(fakeError, { status: 400, statusText: '' });
 
-		try {
-			await updatedConnection;
-		} catch (error) {
-			expect((error as Error).message).toEqual(fakeError.message);
-		}
-
+		expect(errorCaught).toBe(true);
 		expect(fakeNotifications.showAlert).toHaveBeenCalledWith(
 			AlertType.Error,
 			{ abstract: fakeError.message, details: fakeError.originalMessage },
