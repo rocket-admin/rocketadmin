@@ -3,7 +3,7 @@ import { TurnstileService } from './services/turnstile.service.js';
 
 @Global()
 @Module({
-  providers: [TurnstileService],
-  exports: [TurnstileService],
+	providers: [TurnstileService],
+	exports: [TurnstileService],
 })
 export class SharedModule {}
