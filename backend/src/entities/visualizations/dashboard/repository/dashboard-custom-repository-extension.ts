@@ -1,0 +1,35 @@
+import { DashboardEntity } from '../dashboard.entity.js';
+
+export const dashboardCustomRepositoryExtension = {
+	async findDashboardById(dashboardId: string): Promise<DashboardEntity | null> {
+		return await this.findOne({ where: { id: dashboardId } });
+	},
+
+	async findDashboardByIdAndConnectionId(dashboardId: string, connectionId: string): Promise<DashboardEntity | null> {
+		return await this.findOne({
+			where: { id: dashboardId, connection_id: connectionId },
+		});
+	},
+
+	async findDashboardWithWidgets(dashboardId: string): Promise<DashboardEntity | null> {
+		const qb = this.createQueryBuilder('dashboard')
+			.leftJoinAndSelect('dashboard.widgets', 'widgets')
+			.where('dashboard.id = :dashboardId', { dashboardId });
+		return await qb.getOne();
+	},
+
+	async findAllDashboardsByConnectionId(connectionId: string): Promise<DashboardEntity[]> {
+		return await this.find({
+			where: { connection_id: connectionId },
+			order: { created_at: 'DESC' },
+		});
+	},
+
+	async saveDashboard(dashboard: DashboardEntity): Promise<DashboardEntity> {
+		return await this.save(dashboard);
+	},
+
+	async removeDashboard(dashboard: DashboardEntity): Promise<DashboardEntity> {
+		return await this.remove(dashboard);
+	},
+};

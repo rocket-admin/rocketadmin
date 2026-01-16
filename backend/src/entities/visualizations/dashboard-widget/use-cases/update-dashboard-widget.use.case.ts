@@ -1,0 +1,109 @@
+import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
+import { UpdateDashboardWidgetDs } from '../data-structures/update-dashboard-widget.ds.js';
+import { FoundDashboardWidgetDto } from '../dto/found-dashboard-widget.dto.js';
+import { buildFoundDashboardWidgetDto } from '../utils/build-found-dashboard-widget-dto.util.js';
+import { IUpdateDashboardWidget } from './dashboard-widget-use-cases.interface.js';
+
+@Injectable({ scope: Scope.REQUEST })
+export class UpdateDashboardWidgetUseCase
+	extends AbstractUseCase<UpdateDashboardWidgetDs, FoundDashboardWidgetDto>
+	implements IUpdateDashboardWidget
+{
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
+
+	public async implementation(inputData: UpdateDashboardWidgetDs): Promise<FoundDashboardWidgetDto> {
+		const {
+			widgetId,
+			dashboardId,
+			connectionId,
+			masterPassword,
+			widget_type,
+			name,
+			description,
+			position_x,
+			position_y,
+			width,
+			height,
+			widget_options,
+			query_id,
+		} = inputData;
+
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connectionId,
+			masterPassword,
+		);
+
+		if (!foundConnection) {
+			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+		}
+
+		const foundDashboard = await this._dbContext.dashboardRepository.findDashboardByIdAndConnectionId(
+			dashboardId,
+			connectionId,
+		);
+
+		if (!foundDashboard) {
+			throw new NotFoundException(Messages.DASHBOARD_NOT_FOUND);
+		}
+
+		const foundWidget = await this._dbContext.dashboardWidgetRepository.findWidgetByIdAndDashboardId(
+			widgetId,
+			dashboardId,
+		);
+
+		if (!foundWidget) {
+			throw new NotFoundException(Messages.DASHBOARD_WIDGET_NOT_FOUND);
+		}
+
+		// Validate query_id if provided
+		if (query_id !== undefined && query_id !== null) {
+			const foundQuery = await this._dbContext.savedDbQueryRepository.findQueryByIdAndConnectionId(
+				query_id,
+				connectionId,
+			);
+			if (!foundQuery) {
+				throw new BadRequestException(Messages.SAVED_QUERY_NOT_FOUND);
+			}
+		}
+
+		if (widget_type !== undefined) {
+			foundWidget.widget_type = widget_type;
+		}
+		if (name !== undefined) {
+			foundWidget.name = name;
+		}
+		if (description !== undefined) {
+			foundWidget.description = description;
+		}
+		if (position_x !== undefined) {
+			foundWidget.position_x = position_x;
+		}
+		if (position_y !== undefined) {
+			foundWidget.position_y = position_y;
+		}
+		if (width !== undefined) {
+			foundWidget.width = width;
+		}
+		if (height !== undefined) {
+			foundWidget.height = height;
+		}
+		if (widget_options !== undefined) {
+			foundWidget.widget_options = widget_options ? JSON.stringify(widget_options) : null;
+		}
+		if (query_id !== undefined) {
+			foundWidget.query_id = query_id;
+		}
+
+		const savedWidget = await this._dbContext.dashboardWidgetRepository.saveWidget(foundWidget);
+		return buildFoundDashboardWidgetDto(savedWidget);
+	}
+}

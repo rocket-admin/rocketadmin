@@ -107,6 +107,8 @@ export const Messages = {
 	DONT_HAVE_PERMISSIONS: 'You do not have permission to perform this operation',
 	DONT_HAVE_NON_TEST_CONNECTIONS:
 		'You only have test connections. To remove test connections please add your connection first',
+	DASHBOARD_NOT_FOUND: 'Dashboard with specified parameters not found',
+	DASHBOARD_WIDGET_NOT_FOUND: 'Dashboard widget with specified parameters not found',
 	SAVED_QUERY_NOT_FOUND: 'Saved query with specified parameters not found',
 	ENCRYPTION_ALGORITHM_INCORRECT: (alg: string) =>
 		`Unsupported algorithm type${alg ? ` ${alg}.` : '.'} We supports only ${enumToString(
