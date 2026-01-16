@@ -1,9 +1,10 @@
 export const environment = {
-    saas: true,
-    production: false,
-    apiRoot: "/api",
-    saasURL: "",
-    saasHostnames: ['app.rocketadmin.com', 'localhost', 'rocketadmin-dev.tail9f8b2.ts.net'],
-    stagingHost: "rocketadmin-dev.tail9f8b2.ts.net", // Tailscale host
-    version: '0.0.0'
+	saas: true,
+	production: false,
+	apiRoot: '/api',
+	saasURL: '',
+	saasHostnames: ['app.rocketadmin.com', 'localhost', 'rocketadmin-dev.tail9f8b2.ts.net'],
+	stagingHost: 'rocketadmin-dev.tail9f8b2.ts.net', // Tailscale host
+	version: '0.0.0',
+	turnstileSiteKey: '1x00000000000000000000AA', // Test key - always passes
 };
