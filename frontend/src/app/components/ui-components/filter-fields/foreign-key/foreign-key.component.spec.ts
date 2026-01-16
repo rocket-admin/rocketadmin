@@ -419,7 +419,6 @@ describe('ForeignKeyFilterComponent', () => {
 		];
 
 		component.currentDisplayedString = 'Alex';
-		console.log('my test');
 		component.fetchSuggestions();
 
 		fixture.detectChanges();
