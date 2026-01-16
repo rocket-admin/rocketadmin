@@ -38,7 +38,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -65,7 +65,7 @@ export class AuthService {
 				Sentry.captureException(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -98,7 +98,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message || err.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -122,7 +122,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -149,7 +149,7 @@ export class AuthService {
 				Sentry.captureException(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -179,7 +179,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -204,7 +204,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -225,7 +225,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -248,7 +248,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -277,7 +277,7 @@ export class AuthService {
 					console.log(err);
 					this._notifications.showAlert(
 						AlertType.Error,
-						{ abstract: err.error.message, details: err.error.originalMessage },
+						{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 						[
 							{
 								type: AlertActionType.Button,
@@ -298,7 +298,7 @@ export class AuthService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -315,7 +315,7 @@ export class AuthService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message || err.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,

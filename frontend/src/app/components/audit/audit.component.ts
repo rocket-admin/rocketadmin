@@ -110,7 +110,7 @@ export class AuditComponent implements OnInit {
 			},
 			(err) => {
 				this.isServerError = true;
-				this.serverError = { abstract: err.error.message, details: err.error.originalMessage };
+				this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
 			},
 		);
 

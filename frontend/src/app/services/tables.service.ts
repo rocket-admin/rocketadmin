@@ -116,10 +116,10 @@ export class TablesService {
 					map((res) => res),
 					catchError((err) => {
 						console.log(err);
-						// this._notifications.showErrorSnackbar(err.error.message);
+						// this._notifications.showErrorSnackbar(err.error?.message || err.message);
 						this._notifications.showAlert(
 							AlertType.Error,
-							{ abstract: err.error.message, details: err.error.originalMessage },
+							{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 							[
 								{
 									type: AlertActionType.Button,
@@ -165,7 +165,7 @@ export class TablesService {
 					console.log(err);
 					this._notifications.showAlert(
 						AlertType.Error,
-						{ abstract: err.error.message, details: err.error.originalMessage },
+						{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 						[
 							{
 								type: AlertActionType.Button,
@@ -230,7 +230,7 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					this._notifications.showErrorSnackbar(err.error.message);
+					this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					this.angulartics2.eventTrack.next({
 						action: 'Dashboard: db import failed',
 					});
@@ -259,7 +259,7 @@ export class TablesService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -290,7 +290,7 @@ export class TablesService {
 					console.log(err);
 					this._notifications.showAlert(
 						AlertType.Error,
-						{ abstract: err.error.message, details: err.error.originalMessage },
+						{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 						[
 							{
 								type: AlertActionType.Button,
@@ -317,7 +317,7 @@ export class TablesService {
 					console.log(err);
 					this._notifications.showAlert(
 						AlertType.Error,
-						{ abstract: err.error.message, details: err.error.originalMessage },
+						{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 						[
 							{
 								type: AlertActionType.Button,
@@ -349,10 +349,10 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					// this._notifications.showErrorSnackbar(err.error.message);
+					// this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					this._notifications.showAlert(
 						AlertType.Error,
-						{ abstract: err.error.message, details: err.error.originalMessage },
+						{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 						[
 							{
 								type: AlertActionType.Button,
@@ -381,10 +381,10 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					// this._notifications.showErrorSnackbar(err.error.message);
+					// this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					this._notifications.showAlert(
 						AlertType.Error,
-						{ abstract: err.error.message, details: err.error.originalMessage },
+						{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 						[
 							{
 								type: AlertActionType.Button,
@@ -411,7 +411,7 @@ export class TablesService {
 					console.log(err);
 					this._notifications.showAlert(
 						AlertType.Error,
-						{ abstract: err.error.message, details: err.error.originalMessage },
+						{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 						[
 							{
 								type: AlertActionType.Button,
@@ -435,7 +435,7 @@ export class TablesService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -459,7 +459,7 @@ export class TablesService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -484,7 +484,7 @@ export class TablesService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -516,7 +516,7 @@ export class TablesService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -554,7 +554,7 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					return throwError(() => new Error(err.error.message));
+					return throwError(() => new Error(err.error?.message || err.message));
 				}),
 			);
 	}
@@ -580,7 +580,7 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					return throwError(() => new Error(err.error.message));
+					return throwError(() => new Error(err.error?.message || err.message));
 				}),
 			);
 	}
@@ -598,7 +598,7 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					return throwError(() => new Error(err.error.message));
+					return throwError(() => new Error(err.error?.message || err.message));
 				}),
 			);
 	}
@@ -618,7 +618,7 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					this._notifications.showErrorSnackbar(err.error.message);
+					this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					return EMPTY;
 				}),
 			);
@@ -639,7 +639,7 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					this._notifications.showErrorSnackbar(err.error.message);
+					this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					return EMPTY;
 				}),
 			);
@@ -660,7 +660,7 @@ export class TablesService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					this._notifications.showErrorSnackbar(err.error.message);
+					this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					return EMPTY;
 				}),
 			);

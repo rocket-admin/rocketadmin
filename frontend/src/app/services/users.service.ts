@@ -22,7 +22,7 @@ export class UsersService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -33,7 +33,7 @@ export class UsersService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -44,7 +44,7 @@ export class UsersService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -58,7 +58,7 @@ export class UsersService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -97,7 +97,7 @@ export class UsersService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					this._notifications.showErrorSnackbar(err.error.message);
+					this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					return EMPTY;
 				}),
 			);
@@ -112,7 +112,7 @@ export class UsersService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -126,7 +126,7 @@ export class UsersService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -140,7 +140,7 @@ export class UsersService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -154,7 +154,7 @@ export class UsersService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);

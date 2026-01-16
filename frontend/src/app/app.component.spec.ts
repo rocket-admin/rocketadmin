@@ -288,7 +288,12 @@ describe('AppComponent', () => {
 	});
 
 	it('should restore session and log out after token expiration', async () => {
-		vi.useFakeTimers();
+		let capturedTimeoutCallback: Function | null = null;
+		const setTimeoutSpy = vi.spyOn(window, 'setTimeout').mockImplementation((callback: Function) => {
+			capturedTimeoutCallback = callback;
+			return 1 as unknown as ReturnType<typeof setTimeout>;
+		});
+
 		const expiration = new Date(Date.now() + 5000); // 5s ahead
 		localStorage.setItem('token_expiration', expiration.toString());
 
@@ -299,19 +304,22 @@ describe('AppComponent', () => {
 		app.ngOnInit();
 		mockAuthService.cast.next({ some: 'session' }); // not 'delete'
 
-		await vi.advanceTimersByTimeAsync(0);
+		await fixture.whenStable();
 
 		expect(app.initializeUserSession).toHaveBeenCalled();
 
-		await vi.advanceTimersByTimeAsync(5000);
+		// Execute the timeout callback that was captured
+		if (capturedTimeoutCallback) {
+			capturedTimeoutCallback();
+		}
 
 		expect(app.logOut).toHaveBeenCalledWith(true);
 		expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
-		vi.useRealTimers();
+
+		setTimeoutSpy.mockRestore();
 	});
 
 	it('should immediately log out and navigate to login if token is expired', async () => {
-		vi.useFakeTimers();
 		const expiration = new Date(Date.now() - 5000); // Expired 5s ago
 		localStorage.setItem('token_expiration', expiration.toString());
 
@@ -323,11 +331,10 @@ describe('AppComponent', () => {
 
 		mockAuthService.cast.next({ some: 'session' });
 
-		await vi.advanceTimersByTimeAsync(0);
+		await fixture.whenStable();
 
 		expect(app.initializeUserSession).not.toHaveBeenCalled();
 		expect(app.logOut).toHaveBeenCalledWith(true);
 		expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
-		vi.useRealTimers();
 	});
 });
