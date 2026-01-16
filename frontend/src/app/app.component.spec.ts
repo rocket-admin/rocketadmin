@@ -1,328 +1,333 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Subject, of } from 'rxjs';
-import { vi, type Mock } from 'vitest';
-
-import { Angulartics2Module } from 'angulartics2';
-import { AppComponent } from './app.component';
-import { AuthService } from './services/auth.service';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
-import { CompanyService } from './services/company.service';
-import { ConnectionsService } from './services/connections.service';
-// import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+// import { MatIconRegistry } from '@angular/material/icon';
+import { By, DomSanitizer } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Angulartics2Module } from 'angulartics2';
+import { of, Subject } from 'rxjs';
+import { type Mock, vi } from 'vitest';
+import { AppComponent } from './app.component';
+import { AuthService } from './services/auth.service';
+import { CompanyService } from './services/company.service';
+import { ConnectionsService } from './services/connections.service';
 import { TablesService } from './services/tables.service';
 import { UiSettingsService } from './services/ui-settings.service';
 import { UserService } from './services/user.service';
-import { provideHttpClient } from '@angular/common/http';
 
 describe('AppComponent', () => {
-  let app: AppComponent;
-  let fixture: ComponentFixture<AppComponent>;
-  // let connectionsService: ConnectionsService;
-  // let companyService: CompanyService;
+	let app: AppComponent;
+	let fixture: ComponentFixture<AppComponent>;
+	// let connectionsService: ConnectionsService;
+	// let companyService: CompanyService;
 
-  const fakeUser = {
-    "id": "user-12345678",
-    "createdAt": "2024-01-06T21:11:36.746Z",
-    "suspended": false,
-    "isActive": false,
-    "email": "test@email.com",
-    "intercom_hash": "intercom_hash-12345678",
-    "name": null,
-    "role": "ADMIN",
-    "is_2fa_enabled": false,
-    "company": {
-      "id": "company-12345678"
-    },
-    "externalRegistrationProvider": null
-  }
+	const fakeUser = {
+		id: 'user-12345678',
+		createdAt: '2024-01-06T21:11:36.746Z',
+		suspended: false,
+		isActive: false,
+		email: 'test@email.com',
+		intercom_hash: 'intercom_hash-12345678',
+		name: null,
+		role: 'ADMIN',
+		is_2fa_enabled: false,
+		company: {
+			id: 'company-12345678',
+		},
+		externalRegistrationProvider: null,
+	};
 
-  const authCast = new Subject<any>();
-  const userCast = new Subject<any>();
+	const authCast = new Subject<any>();
+	const userCast = new Subject<any>();
 
-  const mockAuthService = {
-    cast: authCast,
-    logOutUser: vi.fn().mockReturnValue(of(true))
-  };
+	const mockAuthService = {
+		cast: authCast,
+		logOutUser: vi.fn().mockReturnValue(of(true)),
+	};
 
-  const mockUserService = {
-    cast: userCast,
-    fetchUser: vi.fn().mockReturnValue(of(fakeUser)),
-    setIsDemo: vi.fn(),
-  };
+	const mockUserService = {
+		cast: userCast,
+		fetchUser: vi.fn().mockReturnValue(of(fakeUser)),
+		setIsDemo: vi.fn(),
+	};
 
-  const mockCompanyService = {
-    getWhiteLabelProperties: vi.fn()
-  };
+	const mockCompanyService = {
+		getWhiteLabelProperties: vi.fn(),
+	};
 
-  const mockUiSettingsService = {
-    getUiSettings: vi.fn().mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'default-id'}})),
-    updateGlobalSetting: vi.fn().mockReturnValue(of({}))
-  };
+	const mockUiSettingsService = {
+		getUiSettings: vi.fn().mockReturnValue(of({ globalSettings: { lastFeatureNotificationId: 'default-id' } })),
+		updateGlobalSetting: vi.fn().mockReturnValue(of({})),
+	};
 
-  const connectionsCast = new Subject<any>();
+	const connectionsCast = new Subject<any>();
 
-  const mockConnectionsService = {
-    isCustomAccentedColor: true,
-    connectionID: '123',
-    visibleTabs: ['dashboard'],
-    currentTab: 'dashboard',
-    currentConnection: {
-      isTestConnection: false
-    },
-    cast: connectionsCast,
-    fetchConnections: vi.fn().mockReturnValue(of([]))
-  };
+	const mockConnectionsService = {
+		isCustomAccentedColor: true,
+		connectionID: '123',
+		visibleTabs: ['dashboard'],
+		currentTab: 'dashboard',
+		currentConnection: {
+			isTestConnection: false,
+		},
+		cast: connectionsCast,
+		fetchConnections: vi.fn().mockReturnValue(of([])),
+	};
 
-  const mockTablesService = {
-    currentTableName: 'users'
-  };
+	const mockTablesService = {
+		currentTableName: 'users',
+	};
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule,
-        MatSnackBarModule,
-        MatDialogModule,
-        MatMenuModule,
-        Angulartics2Module.forRoot(),
-        AppComponent,
-        BrowserAnimationsModule
-      ],
-      providers: [
-        provideHttpClient(),
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: UserService, useValue: mockUserService },
-        { provide: CompanyService, useValue: mockCompanyService },
-        { provide: UiSettingsService, useValue: mockUiSettingsService },
-        { provide: TablesService, useValue: mockTablesService },
-        { provide: ConnectionsService, useValue: mockConnectionsService },
-        // { provide: MatIconRegistry, useValue: {
-        //   addSvgIcon: () => {},
-        //   getDefaultFontSetClass: () => 'material-icons',
-        //   getFontSetName: () => 'material-icons',
-        //   getNamedSvgIcon: () => of(null), // only needed if you're testing SVG icons
-        // }},
-        { provide: DomSanitizer, useValue: { bypassSecurityTrustResourceUrl: (url: string) => url } },
-      ]
-    }).compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [
+				RouterTestingModule,
+				MatSnackBarModule,
+				MatDialogModule,
+				MatMenuModule,
+				Angulartics2Module.forRoot(),
+				AppComponent,
+				BrowserAnimationsModule,
+			],
+			providers: [
+				provideHttpClient(),
+				{ provide: AuthService, useValue: mockAuthService },
+				{ provide: UserService, useValue: mockUserService },
+				{ provide: CompanyService, useValue: mockCompanyService },
+				{ provide: UiSettingsService, useValue: mockUiSettingsService },
+				{ provide: TablesService, useValue: mockTablesService },
+				{ provide: ConnectionsService, useValue: mockConnectionsService },
+				// { provide: MatIconRegistry, useValue: {
+				//   addSvgIcon: () => {},
+				//   getDefaultFontSetClass: () => 'material-icons',
+				//   getFontSetName: () => 'material-icons',
+				//   getNamedSvgIcon: () => of(null), // only needed if you're testing SVG icons
+				// }},
+				{ provide: DomSanitizer, useValue: { bypassSecurityTrustResourceUrl: (url: string) => url } },
+			],
+		}).compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AppComponent);
-    app = fixture.debugElement.componentInstance;
+	beforeEach(() => {
+		fixture = TestBed.createComponent(AppComponent);
+		app = fixture.debugElement.componentInstance;
 
-    app.navigationTabs = {
-      'dashboard': { caption: 'Tables' },
-      'audit': { caption: 'Audit' },
-      'permissions': { caption: 'Permissions' },
-      'connection-settings': { caption: 'Connection settings' },
-      'edit-db': { caption: 'Edit connection' },
-    };
+		app.navigationTabs = {
+			dashboard: { caption: 'Tables' },
+			audit: { caption: 'Audit' },
+			permissions: { caption: 'Permissions' },
+			'connection-settings': { caption: 'Connection settings' },
+			'edit-db': { caption: 'Edit connection' },
+		};
 
-    fixture.detectChanges();
+		fixture.detectChanges();
 
-    vi.spyOn(app, 'logOut');
-    vi.spyOn(app.router, 'navigate');
-  });
+		vi.spyOn(app, 'logOut');
+		vi.spyOn(app.router, 'navigate');
+	});
 
-  afterEach(() => {
-    localStorage.removeItem('token_expiration');
-    vi.mocked(app.logOut).mockClear();
-    vi.mocked(app.router.navigate).mockClear();
-    mockUiSettingsService.getUiSettings.mockClear();
-    mockCompanyService.getWhiteLabelProperties.mockClear();
-    mockUserService.fetchUser.mockClear();
-  });
+	afterEach(() => {
+		localStorage.removeItem('token_expiration');
+		vi.mocked(app.logOut).mockClear();
+		vi.mocked(app.router.navigate).mockClear();
+		mockUiSettingsService.getUiSettings.mockClear();
+		mockCompanyService.getWhiteLabelProperties.mockClear();
+		mockUserService.fetchUser.mockClear();
+	});
 
-  it('should create the app', () => {
-    expect(app).toBeTruthy();
-  });
+	it('should create the app', () => {
+		expect(app).toBeTruthy();
+	});
 
-  it('should set userLoggedIn and logo on user session initialization', async () => {
-    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: 'data:png;base64,some-base64-data'}));
-    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
-    app.initializeUserSession();
-    await fixture.whenStable();
+	it('should set userLoggedIn and logo on user session initialization', async () => {
+		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: 'data:png;base64,some-base64-data' }));
+		mockUiSettingsService.getUiSettings.mockReturnValue(
+			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
+		);
+		app.initializeUserSession();
+		await fixture.whenStable();
 
-    expect(app.currentUser.email).toBe('test@email.com');
-    expect(app.whiteLabelSettings.logo).toBe('data:png;base64,some-base64-data');
-    expect(app.userLoggedIn).toBe(true);
-    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
-  });
+		expect(app.currentUser.email).toBe('test@email.com');
+		expect(app.whiteLabelSettings.logo).toBe('data:png;base64,some-base64-data');
+		expect(app.userLoggedIn).toBe(true);
+		expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
+	});
 
-  it('should render custom logo in navbar if it is set', async () => {
-    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: 'data:png;base64,some-base64-data'}));
-    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
-    app.initializeUserSession();
-    await fixture.whenStable();
+	it('should render custom logo in navbar if it is set', async () => {
+		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: 'data:png;base64,some-base64-data' }));
+		mockUiSettingsService.getUiSettings.mockReturnValue(
+			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
+		);
+		app.initializeUserSession();
+		await fixture.whenStable();
 
-    fixture.detectChanges();
-    const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
-    const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
+		fixture.detectChanges();
+		const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
+		const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
 
-    expect(logoElement.href).toContain('/connections-list');
-    expect(logoImageElement.src).toEqual('data:png;base64,some-base64-data');
-  });
+		expect(logoElement.href).toContain('/connections-list');
+		expect(logoImageElement.src).toEqual('data:png;base64,some-base64-data');
+	});
 
-  it('should render the link to Connetions list that contains the custom logo in the navbar', async () => {
-    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: null}));
-    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
-    app.initializeUserSession();
-    await fixture.whenStable();
+	it('should render the link to Connetions list that contains the custom logo in the navbar', async () => {
+		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: null }));
+		mockUiSettingsService.getUiSettings.mockReturnValue(
+			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
+		);
+		app.initializeUserSession();
+		await fixture.whenStable();
 
-    fixture.detectChanges();
-    const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
-    const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
+		fixture.detectChanges();
+		const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
+		const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
 
-    expect(logoElement.href).toContain('/connections-list');
-    expect(logoImageElement.src).toContain('/assets/rocketadmin_logo_white.svg');
-  });
+		expect(logoElement.href).toContain('/connections-list');
+		expect(logoImageElement.src).toContain('/assets/rocketadmin_logo_white.svg');
+	});
 
-  it('should render the link to Home website page that contains Rocketadmin logo in the template', () => {
-    app.userLoggedIn = false;
+	it('should render the link to Home website page that contains Rocketadmin logo in the template', () => {
+		app.userLoggedIn = false;
 
-    fixture.detectChanges();
-    const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
-    const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
-    const nameElement = fixture.debugElement.query(By.css('span[data-id="connection-custom-name"]'));
+		fixture.detectChanges();
+		const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
+		const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
+		const nameElement = fixture.debugElement.query(By.css('span[data-id="connection-custom-name"]'));
 
-    expect(logoElement.href).toEqual('https://rocketadmin.com/');
-    expect(logoImageElement.src).toContain('/assets/rocketadmin_logo_white.svg');
-    expect(nameElement).toBeFalsy();
-  });
+		expect(logoElement.href).toEqual('https://rocketadmin.com/');
+		expect(logoImageElement.src).toContain('/assets/rocketadmin_logo_white.svg');
+		expect(nameElement).toBeFalsy();
+	});
 
-  it('should render feature popup if isFeatureNotificationShown different on server and client', async () => {
-    app.currentFeatureNotificationId = 'new-id';
-    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: null}));
-    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
-    app.initializeUserSession();
-    await fixture.whenStable();
+	it('should render feature popup if isFeatureNotificationShown different on server and client', async () => {
+		app.currentFeatureNotificationId = 'new-id';
+		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: null }));
+		mockUiSettingsService.getUiSettings.mockReturnValue(
+			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
+		);
+		app.initializeUserSession();
+		await fixture.whenStable();
 
-    fixture.detectChanges();
-    const featureNotificationElement = fixture.debugElement.query(By.css('app-feature-notification'));
+		fixture.detectChanges();
+		const featureNotificationElement = fixture.debugElement.query(By.css('app-feature-notification'));
 
-    expect(featureNotificationElement).toBeTruthy();
-  });
+		expect(featureNotificationElement).toBeTruthy();
+	});
 
-  it('should not render feature popup if isFeatureNotificationShown the same on server and client', async () => {
-    app.currentFeatureNotificationId = 'old-id';
-    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: null}));
-    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
-    app.initializeUserSession();
-    await fixture.whenStable();
+	it('should not render feature popup if isFeatureNotificationShown the same on server and client', async () => {
+		app.currentFeatureNotificationId = 'old-id';
+		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: null }));
+		mockUiSettingsService.getUiSettings.mockReturnValue(
+			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
+		);
+		app.initializeUserSession();
+		await fixture.whenStable();
 
-    fixture.detectChanges();
-    const featureNotificationElement = fixture.debugElement.query(By.css('app-feature-notification'));
+		fixture.detectChanges();
+		const featureNotificationElement = fixture.debugElement.query(By.css('app-feature-notification'));
 
-    expect(featureNotificationElement).toBeFalsy();
-  });
+		expect(featureNotificationElement).toBeFalsy();
+	});
 
-  it('should dismiss feature notification thus call updateGlobalSetting and hide feature notification', () => {
-    app.currentFeatureNotificationId = 'some-id';
-    app.isFeatureNotificationShown = true;
+	it('should dismiss feature notification thus call updateGlobalSetting and hide feature notification', () => {
+		app.currentFeatureNotificationId = 'some-id';
+		app.isFeatureNotificationShown = true;
 
-    app.dismissFeatureNotification();
+		app.dismissFeatureNotification();
 
-    expect(mockUiSettingsService.updateGlobalSetting).toHaveBeenCalledWith(
-      'lastFeatureNotificationId',
-      'some-id'
-    );
+		expect(mockUiSettingsService.updateGlobalSetting).toHaveBeenCalledWith('lastFeatureNotificationId', 'some-id');
 
-    expect(app.isFeatureNotificationShown).toBe(false);
-  });
+		expect(app.isFeatureNotificationShown).toBe(false);
+	});
 
-  it('should set userLoggedIn state and trigger change detection', () => {
-    const mockChangeDetectorRef = {
-      detectChanges: vi.fn(),
-      markForCheck: vi.fn(),
-      detach: vi.fn(),
-      checkNoChanges: vi.fn(),
-      reattach: vi.fn()
-    } as unknown as ChangeDetectorRef;
+	it('should set userLoggedIn state and trigger change detection', () => {
+		const mockChangeDetectorRef = {
+			detectChanges: vi.fn(),
+			markForCheck: vi.fn(),
+			detach: vi.fn(),
+			checkNoChanges: vi.fn(),
+			reattach: vi.fn(),
+		} as unknown as ChangeDetectorRef;
 
-    app.changeDetector = mockChangeDetectorRef; // inject mock manually if needed
+		app.changeDetector = mockChangeDetectorRef; // inject mock manually if needed
 
-    app.setUserLoggedIn(true);
+		app.setUserLoggedIn(true);
 
-    expect(app.userLoggedIn).toBe(true);
-    expect(mockChangeDetectorRef.detectChanges).toHaveBeenCalled();
-  });
+		expect(app.userLoggedIn).toBe(true);
+		expect(mockChangeDetectorRef.detectChanges).toHaveBeenCalled();
+	});
 
-  it('should handle user login flow when cast emits user with expires', async () => {
-    mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({logo: '', favicon: ''}));
-    mockUiSettingsService.getUiSettings.mockReturnValue(of({globalSettings: {lastFeatureNotificationId: 'old-id'}}));
+	it('should handle user login flow when cast emits user with expires', async () => {
+		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: '', favicon: '' }));
+		mockUiSettingsService.getUiSettings.mockReturnValue(
+			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
+		);
 
-    const expirationDate = new Date(Date.now() + 10_000); // 10s from now
-    app.currentFeatureNotificationId = 'some-id';
+		const expirationDate = new Date(Date.now() + 10_000); // 10s from now
+		app.currentFeatureNotificationId = 'some-id';
 
-    app.ngOnInit();
+		app.ngOnInit();
 
-    mockAuthService.cast.next({
-      isTemporary: false,
-      expires: expirationDate.toISOString()
-    });
+		mockAuthService.cast.next({
+			isTemporary: false,
+			expires: expirationDate.toISOString(),
+		});
 
-    await fixture.whenStable();
-    fixture.detectChanges();
+		await fixture.whenStable();
+		fixture.detectChanges();
 
-    expect(app.userLoggedIn).toBe(true);
-    expect(app.currentUser.email).toBe('test@email.com');
-    expect(mockUserService.fetchUser).toHaveBeenCalled();
-    expect(mockCompanyService.getWhiteLabelProperties).toHaveBeenCalledWith('company-12345678');
-    expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
-    expect(app.isFeatureNotificationShown).toBe(true);
-  });
+		expect(app.userLoggedIn).toBe(true);
+		expect(app.currentUser.email).toBe('test@email.com');
+		expect(mockUserService.fetchUser).toHaveBeenCalled();
+		expect(mockCompanyService.getWhiteLabelProperties).toHaveBeenCalledWith('company-12345678');
+		expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
+		expect(app.isFeatureNotificationShown).toBe(true);
+	});
 
-  it.skip('should restore session and log out after token expiration', async () => {
-    // TODO: Timer tests need special handling with Vitest + zone.js
-    vi.useFakeTimers();
-    const expiration = new Date(Date.now() + 5000); // 5s ahead
-    localStorage.setItem('token_expiration', expiration.toString());
+	it('should restore session and log out after token expiration', async () => {
+		vi.useFakeTimers();
+		const expiration = new Date(Date.now() + 5000); // 5s ahead
+		localStorage.setItem('token_expiration', expiration.toString());
 
-    vi.spyOn(app, 'initializeUserSession').mockImplementation(() => {
-      app.userLoggedIn = true;
-    });
+		vi.spyOn(app, 'initializeUserSession').mockImplementation(() => {
+			app.userLoggedIn = true;
+		});
 
-    app.ngOnInit();
-    mockAuthService.cast.next({ some: 'session' }); // not 'delete'
+		app.ngOnInit();
+		mockAuthService.cast.next({ some: 'session' }); // not 'delete'
 
-    await vi.advanceTimersByTimeAsync(0);
+		await vi.advanceTimersByTimeAsync(0);
 
-    expect(app.initializeUserSession).toHaveBeenCalled();
+		expect(app.initializeUserSession).toHaveBeenCalled();
 
-    await vi.advanceTimersByTimeAsync(5000);
+		await vi.advanceTimersByTimeAsync(5000);
 
-    expect(app.logOut).toHaveBeenCalledWith(true);
-    expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
-    vi.useRealTimers();
-  });
+		expect(app.logOut).toHaveBeenCalledWith(true);
+		expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
+		vi.useRealTimers();
+	});
 
-  it.skip('should immediately log out and navigate to login if token is expired', async () => {
-    // TODO: Timer tests need special handling with Vitest + zone.js
-    vi.useFakeTimers();
-    const expiration = new Date(Date.now() - 5000); // Expired 5s ago
-    localStorage.setItem('token_expiration', expiration.toString());
+	it('should immediately log out and navigate to login if token is expired', async () => {
+		vi.useFakeTimers();
+		const expiration = new Date(Date.now() - 5000); // Expired 5s ago
+		localStorage.setItem('token_expiration', expiration.toString());
 
-    vi.spyOn(app, 'initializeUserSession');
+		vi.spyOn(app, 'initializeUserSession');
 
-    app.userLoggedIn = true;
+		app.userLoggedIn = true;
 
-    app.ngOnInit();
+		app.ngOnInit();
 
-    mockAuthService.cast.next({ some: 'session' });
+		mockAuthService.cast.next({ some: 'session' });
 
-    await vi.advanceTimersByTimeAsync(0);
+		await vi.advanceTimersByTimeAsync(0);
 
-    expect(app.initializeUserSession).not.toHaveBeenCalled();
-    expect(app.logOut).toHaveBeenCalledWith(true);
-    expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
-    vi.useRealTimers();
-  });
+		expect(app.initializeUserSession).not.toHaveBeenCalled();
+		expect(app.logOut).toHaveBeenCalledWith(true);
+		expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
+		vi.useRealTimers();
+	});
 });

@@ -48,7 +48,7 @@ describe('AccountDeleteDialogComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it.skip('should open dialog for delete account confirmation', () => {
+	it('should open dialog for delete account confirmation', () => {
 		component.reason = 'technical-issues';
 		component.message = 'I cannot add connection';
 

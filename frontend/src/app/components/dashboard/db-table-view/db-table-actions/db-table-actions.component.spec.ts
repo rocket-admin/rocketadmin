@@ -1,19 +1,19 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
 import { CustomActionMethod } from 'src/app/models/table';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TablesService } from 'src/app/services/tables.service';
+import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { DbTableActionsComponent } from './db-table-actions.component';
-import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
-import { CodeEditorModule } from '@ngstack/code-editor';
 
 describe('DbTableActionsComponent', () => {
 	let component: DbTableActionsComponent;
@@ -44,11 +44,11 @@ describe('DbTableActionsComponent', () => {
 				},
 			],
 		})
-		.overrideComponent(DbTableActionsComponent, {
-			remove: { imports: [CodeEditorModule] },
-			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
-		})
-		.compileComponents();
+			.overrideComponent(DbTableActionsComponent, {
+				remove: { imports: [CodeEditorModule] },
+				add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] },
+			})
+			.compileComponents();
 
 		fixture = TestBed.createComponent(DbTableActionsComponent);
 		tablesService = TestBed.inject(TablesService);
@@ -373,7 +373,7 @@ describe('DbTableActionsComponent', () => {
 		expect(fakeSaveAction).toHaveBeenCalledWith('12345678', 'users', mockRule);
 	});
 
-	it.skip('should open dialog for delete action confirmation', () => {
+	it('should open dialog for delete action confirmation', () => {
 		const fakeConfirmationDialog = vi.spyOn(dialog, 'open');
 
 		const mockRule = {

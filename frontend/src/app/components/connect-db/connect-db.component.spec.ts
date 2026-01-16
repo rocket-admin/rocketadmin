@@ -77,7 +77,7 @@ describe('ConnectDBComponent', () => {
 			],
 			providers: [
 				provideHttpClient(),
-				provideRouter([]),
+				provideRouter([{ path: 'dashboard/:id', component: ConnectDBComponent }]),
 				{
 					provide: NG_VALUE_ACCESSOR,
 					useExisting: forwardRef(() => ConnectDBComponent),
@@ -160,7 +160,7 @@ describe('ConnectDBComponent', () => {
 		expect(component.masterKey).toBeDefined();
 	});
 
-	it.skip('should open delete connection dialog', () => {
+	it('should open delete connection dialog', () => {
 		const fakeDialogOpen = vi.spyOn(dialog, 'open');
 		const event = { preventDefault: vi.fn(), stopImmediatePropagation: vi.fn() } as unknown as Event;
 
@@ -204,7 +204,7 @@ describe('ConnectDBComponent', () => {
 		expect(component.connectionToken).toEqual('1234-abcd-0987');
 	});
 
-	it.skip('should update direct connection', () => {
+	it('should update direct connection', () => {
 		fakeConnectionsService.updateConnection.mockReturnValue(of(connectionCredsApp));
 		vi.spyOn(component, 'db', 'get').mockReturnValue(connectionCredsApp);
 		component.updateConnectionRequest();
@@ -238,7 +238,7 @@ describe('ConnectDBComponent', () => {
 		expect(component.connectionToken).toEqual('1234-abcd-0987');
 	});
 
-	it.skip('should open dialog on test error', () => {
+	it('should open dialog on test error', () => {
 		const fakeDialogOpen = vi.spyOn(dialog, 'open');
 		vi.spyOn(component, 'db', 'get').mockReturnValue(connectionCredsApp);
 		component.masterKey = 'master_password_12345678';

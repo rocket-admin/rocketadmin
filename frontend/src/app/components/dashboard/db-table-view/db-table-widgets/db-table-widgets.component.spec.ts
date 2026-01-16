@@ -1,22 +1,22 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
-import { DashboardComponent } from '../../dashboard.component';
-import { DbTableWidgetsComponent } from './db-table-widgets.component';
-import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
-import { CodeEditorModule } from '@ngstack/code-editor';
-import { WidgetComponent } from './widget/widget.component';
 import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
 import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
+import { DashboardComponent } from '../../dashboard.component';
+import { DbTableWidgetsComponent } from './db-table-widgets.component';
+import { WidgetComponent } from './widget/widget.component';
+import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 
 describe('DbTableWidgetsComponent', () => {
 	let component: DbTableWidgetsComponent;
@@ -106,19 +106,19 @@ describe('DbTableWidgetsComponent', () => {
 			],
 			providers: [provideHttpClient(), { provide: MatDialogRef, useValue: {} }],
 		})
-		.overrideComponent(WidgetComponent, {
-			remove: { imports: [CodeEditorModule] },
-			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
-		})
-		.overrideComponent(CodeEditComponent, {
-			remove: { imports: [CodeEditorModule] },
-			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
-		})
-		.overrideComponent(MarkdownEditComponent, {
-			remove: { imports: [CodeEditorModule] },
-			add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] }
-		})
-		.compileComponents();
+			.overrideComponent(WidgetComponent, {
+				remove: { imports: [CodeEditorModule] },
+				add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] },
+			})
+			.overrideComponent(CodeEditComponent, {
+				remove: { imports: [CodeEditorModule] },
+				add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] },
+			})
+			.overrideComponent(MarkdownEditComponent, {
+				remove: { imports: [CodeEditorModule] },
+				add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] },
+			})
+			.compileComponents();
 	});
 
 	beforeEach(() => {
@@ -187,7 +187,7 @@ describe('DbTableWidgetsComponent', () => {
 		expect(component.fields).toEqual(['user_id', 'last_name', 'email']);
 	});
 
-	it.skip('should open dialog to confirm deletion of widget', () => {
+	it('should open dialog to confirm deletion of widget', () => {
 		component.fields = ['user_age'];
 		component.widgets = [
 			{

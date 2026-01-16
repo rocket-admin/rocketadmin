@@ -59,15 +59,15 @@ describe('UserSettingsComponent', () => {
 	});
 
 	it('should request email change', () => {
-		const fakeRequestEmailChange = vi.spyOn(userService, 'requestEmailChange').mockReturnValue(
-			of({ message: 'requested' }),
-		);
+		const fakeRequestEmailChange = vi
+			.spyOn(userService, 'requestEmailChange')
+			.mockReturnValue(of({ message: 'requested' }));
 
 		component.changeEmail();
 		expect(fakeRequestEmailChange).toHaveBeenCalled();
 	});
 
-	it.skip('should open delete account dialog', () => {
+	it('should open delete account dialog', () => {
 		const fakeDeleteAccountOpen = vi.spyOn(dialog, 'open');
 		component.currentUser = {
 			id: 'user-12345678',
