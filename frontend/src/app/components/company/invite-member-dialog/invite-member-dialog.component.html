@@ -70,10 +70,16 @@
             </mat-select>
         </mat-form-field>
     </mat-dialog-content>
+    <app-turnstile *ngIf="isSaas"
+        class="turnstile-widget"
+        (tokenReceived)="onTurnstileToken($event)"
+        (tokenError)="onTurnstileError()"
+        (tokenExpired)="onTurnstileExpired()">
+    </app-turnstile>
     <mat-dialog-actions align="end">
         <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
         <button mat-flat-button color="primary"
-            [disabled]="submitting || addUserForm.form.invalid">
+            [disabled]="submitting || addUserForm.form.invalid || (isSaas && !turnstileToken)">
             Add
         </button>
     </mat-dialog-actions>
