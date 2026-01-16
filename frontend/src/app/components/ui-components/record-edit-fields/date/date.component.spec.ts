@@ -39,7 +39,7 @@ describe('DateEditComponent', () => {
 
   it('should send onChange event with new date value', () => {
     component.date = '2021-07-26';
-    const event = spyOn(component.onFieldChange, 'emit');
+    const event = vi.spyOn(component.onFieldChange, 'emit');
     component.onDateChange();
     expect(event).toHaveBeenCalledWith('2021-07-26');
   });

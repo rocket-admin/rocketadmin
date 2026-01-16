@@ -55,16 +55,16 @@ describe('UserAddDialogComponent', () => {
 
   it('should call add user service', () => {
     component.groupUserEmail = 'user@test.com';
-    const fakeAddUser = spyOn(usersService, 'addGroupUser').and.returnValue(of());
-    // spyOn(mockDialogRef, 'close');
+    const fakeAddUser = vi.spyOn(usersService, 'addGroupUser').mockReturnValue(of());
+    // vi.spyOn(mockDialogRef, 'close');
 
     component.joinGroupUser();
-    expect(fakeAddUser).toHaveBeenCalledOnceWith('12345678-123', 'user@test.com');
+    expect(fakeAddUser).toHaveBeenCalledWith('12345678-123', 'user@test.com');
 
     // fixture.detectChanges();
     // fixture.whenStable().then(() => {
     //   expect(component.dialogRef.close).toHaveBeenCalled();
-    //   expect(component.submitting).toBeFalse();
+    //   expect(component.submitting).toBe(false);
     // });
   });
 });

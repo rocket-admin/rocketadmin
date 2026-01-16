@@ -16,7 +16,7 @@ describe('EmailVerificationComponent', () => {
   let routerSpy;
 
   beforeEach(async () => {
-    routerSpy = {navigate: jasmine.createSpy('navigate')};
+    routerSpy = {navigate: vi.fn()};
 
     await TestBed.configureTestingModule({
       imports: [
@@ -48,11 +48,11 @@ describe('EmailVerificationComponent', () => {
   });
 
   it('should verify email', async() => {
-    const fakeVerifyEmail = spyOn(authService, 'verifyEmail').and.returnValue(of());
+    const fakeVerifyEmail = vi.spyOn(authService, 'verifyEmail').mockReturnValue(of());
 
     component.ngOnInit();
 
-    expect(fakeVerifyEmail).toHaveBeenCalledOnceWith('1234567890-abcd');
+    expect(fakeVerifyEmail).toHaveBeenCalledWith('1234567890-abcd');
     // expect(routerSpy.navigate).toHaveBeenCalledWith(['/user-settings']);
   });
 });

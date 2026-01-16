@@ -1,11 +1,11 @@
 .radio-line {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 20px;
 }
 
 .radio-line ::ng-deep .mat-button-toggle-appearance-standard.mat-button-toggle-checked {
-    --mat-standard-button-toggle-selected-state-text-color: var(--color-accentedPalette-500-contrast);
-    --mat-standard-button-toggle-selected-state-background-color: var(--color-accentedPalette-500);
+	--mat-button-toggle-selected-state-text-color: var(--color-accentedPalette-500-contrast);
+	--mat-button-toggle-selected-state-background-color: var(--color-accentedPalette-500);
 }

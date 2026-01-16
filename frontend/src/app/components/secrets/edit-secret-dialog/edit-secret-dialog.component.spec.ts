@@ -13,8 +13,8 @@ import { EditSecretDialogComponent } from './edit-secret-dialog.component';
 describe('EditSecretDialogComponent', () => {
 	let component: EditSecretDialogComponent;
 	let fixture: ComponentFixture<EditSecretDialogComponent>;
-	let mockSecretsService: jasmine.SpyObj<SecretsService>;
-	let mockDialogRef: jasmine.SpyObj<MatDialogRef<EditSecretDialogComponent>>;
+	let mockSecretsService: { updateSecret: ReturnType<typeof vi.fn> };
+	let mockDialogRef: { close: ReturnType<typeof vi.fn> };
 
 	const mockSecret: Secret = {
 		id: '1',
@@ -36,10 +36,11 @@ describe('EditSecretDialogComponent', () => {
 	};
 
 	const createComponent = async (secret: Secret = mockSecret) => {
-		mockSecretsService = jasmine.createSpyObj('SecretsService', ['updateSecret']);
-		mockSecretsService.updateSecret.and.returnValue(of(secret));
+		mockSecretsService = {
+			updateSecret: vi.fn().mockReturnValue(of(secret))
+		};
 
-		mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+		mockDialogRef = { close: vi.fn() };
 
 		await TestBed.configureTestingModule({
 			imports: [EditSecretDialogComponent, BrowserAnimationsModule, MatSnackBarModule, Angulartics2Module.forRoot()],
@@ -76,12 +77,12 @@ describe('EditSecretDialogComponent', () => {
 		});
 
 		it('should initialize component properties', () => {
-			expect(component.submitting).toBeFalse();
-			expect(component.showValue).toBeFalse();
+			expect(component.submitting).toBe(false);
+			expect(component.showValue).toBe(false);
 			expect(component.masterPassword).toBe('');
 			expect(component.masterPasswordError).toBe('');
-			expect(component.showMasterPassword).toBeFalse();
-			expect(component.clearExpiration).toBeFalse();
+			expect(component.showMasterPassword).toBe(false);
+			expect(component.clearExpiration).toBe(false);
 			expect(component.minDate).toBeTruthy();
 		});
 
@@ -99,24 +100,24 @@ describe('EditSecretDialogComponent', () => {
 		it('should initialize with existing expiration date', () => {
 			const expiresAt = component.form.get('expiresAt')?.value;
 			expect(expiresAt).toBeTruthy();
-			expect(expiresAt instanceof Date).toBeTrue();
+			expect(expiresAt instanceof Date).toBe(true);
 		});
 	});
 
 	describe('value validation', () => {
 		it('should require value field', () => {
-			expect(component.form.get('value')?.valid).toBeFalse();
+			expect(component.form.get('value')?.valid).toBe(false);
 			component.form.patchValue({ value: 'some-value' });
-			expect(component.form.get('value')?.valid).toBeTrue();
+			expect(component.form.get('value')?.valid).toBe(true);
 		});
 
 		it('should validate max length', () => {
 			const valueControl = component.form.get('value');
 			valueControl?.setValue('a'.repeat(10001));
-			expect(valueControl?.hasError('maxlength')).toBeTrue();
+			expect(valueControl?.hasError('maxlength')).toBe(true);
 
 			valueControl?.setValue('a'.repeat(10000));
-			expect(valueControl?.hasError('maxlength')).toBeFalse();
+			expect(valueControl?.hasError('maxlength')).toBe(false);
 		});
 	});
 
@@ -140,19 +141,19 @@ describe('EditSecretDialogComponent', () => {
 
 	describe('visibility toggles', () => {
 		it('should toggle value visibility', () => {
-			expect(component.showValue).toBeFalse();
+			expect(component.showValue).toBe(false);
 			component.toggleValueVisibility();
-			expect(component.showValue).toBeTrue();
+			expect(component.showValue).toBe(true);
 			component.toggleValueVisibility();
-			expect(component.showValue).toBeFalse();
+			expect(component.showValue).toBe(false);
 		});
 
 		it('should toggle master password visibility', () => {
-			expect(component.showMasterPassword).toBeFalse();
+			expect(component.showMasterPassword).toBe(false);
 			component.toggleMasterPasswordVisibility();
-			expect(component.showMasterPassword).toBeTrue();
+			expect(component.showMasterPassword).toBe(true);
 			component.toggleMasterPasswordVisibility();
-			expect(component.showMasterPassword).toBeFalse();
+			expect(component.showMasterPassword).toBe(false);
 		});
 	});
 
@@ -160,16 +161,16 @@ describe('EditSecretDialogComponent', () => {
 		it('should disable expiresAt control when clearExpiration is true', () => {
 			component.onClearExpirationChange(true);
 
-			expect(component.clearExpiration).toBeTrue();
-			expect(component.form.get('expiresAt')?.disabled).toBeTrue();
+			expect(component.clearExpiration).toBe(true);
+			expect(component.form.get('expiresAt')?.disabled).toBe(true);
 		});
 
 		it('should enable expiresAt control when clearExpiration is false', () => {
 			component.onClearExpirationChange(true);
 			component.onClearExpirationChange(false);
 
-			expect(component.clearExpiration).toBeFalse();
-			expect(component.form.get('expiresAt')?.enabled).toBeTrue();
+			expect(component.clearExpiration).toBe(false);
+			expect(component.form.get('expiresAt')?.enabled).toBe(true);
 		});
 	});
 
@@ -191,7 +192,7 @@ describe('EditSecretDialogComponent', () => {
 
 			expect(mockSecretsService.updateSecret).toHaveBeenCalledWith(
 				'test-secret',
-				jasmine.objectContaining({ value: 'new-value' }),
+				expect.objectContaining({ value: 'new-value' }),
 				undefined,
 			);
 		});
@@ -208,9 +209,9 @@ describe('EditSecretDialogComponent', () => {
 
 			expect(mockSecretsService.updateSecret).toHaveBeenCalledWith(
 				'test-secret',
-				jasmine.objectContaining({
+				expect.objectContaining({
 					value: 'new-value',
-					expiresAt: jasmine.any(String),
+					expiresAt: expect.any(String),
 				}),
 				undefined,
 			);
@@ -224,7 +225,7 @@ describe('EditSecretDialogComponent', () => {
 
 			expect(mockSecretsService.updateSecret).toHaveBeenCalledWith(
 				'test-secret',
-				jasmine.objectContaining({
+				expect.objectContaining({
 					value: 'new-value',
 					expiresAt: null,
 				}),
@@ -235,7 +236,7 @@ describe('EditSecretDialogComponent', () => {
 		it('should set submitting to true during submission', () => {
 			component.form.patchValue({ value: 'new-value' });
 
-			expect(component.submitting).toBeFalse();
+			expect(component.submitting).toBe(false);
 			component.onSubmit();
 		});
 
@@ -252,7 +253,7 @@ describe('EditSecretDialogComponent', () => {
 
 			component.onSubmit();
 
-			expect(component.submitting).toBeFalse();
+			expect(component.submitting).toBe(false);
 		});
 	});
 
@@ -280,13 +281,13 @@ describe('EditSecretDialogComponent', () => {
 
 			expect(mockSecretsService.updateSecret).toHaveBeenCalledWith(
 				'test-secret',
-				jasmine.objectContaining({ value: 'new-value' }),
+				expect.objectContaining({ value: 'new-value' }),
 				'my-master-password',
 			);
 		});
 
 		it('should show error on 403 response (invalid master password)', () => {
-			mockSecretsService.updateSecret.and.returnValue(throwError(() => ({ status: 403 })));
+			mockSecretsService.updateSecret.mockReturnValue(throwError(() => ({ status: 403 })));
 
 			component.form.patchValue({ value: 'new-value' });
 			component.masterPassword = 'wrong-password';
@@ -294,7 +295,7 @@ describe('EditSecretDialogComponent', () => {
 			component.onSubmit();
 
 			expect(component.masterPasswordError).toBe('Invalid master password');
-			expect(component.submitting).toBeFalse();
+			expect(component.submitting).toBe(false);
 		});
 
 		it('should clear master password error on new submission attempt', () => {
@@ -317,7 +318,7 @@ describe('EditSecretDialogComponent', () => {
 
 			expect(mockSecretsService.updateSecret).toHaveBeenCalledWith(
 				'test-secret',
-				jasmine.objectContaining({ value: 'new-value' }),
+				expect.objectContaining({ value: 'new-value' }),
 				undefined,
 			);
 		});
@@ -325,12 +326,12 @@ describe('EditSecretDialogComponent', () => {
 
 	describe('error handling', () => {
 		it('should reset submitting on non-403 error', () => {
-			mockSecretsService.updateSecret.and.returnValue(throwError(() => ({ status: 500 })));
+			mockSecretsService.updateSecret.mockReturnValue(throwError(() => ({ status: 500 })));
 
 			component.form.patchValue({ value: 'new-value' });
 			component.onSubmit();
 
-			expect(component.submitting).toBeFalse();
+			expect(component.submitting).toBe(false);
 		});
 	});
 });

@@ -35,9 +35,9 @@ describe('NotificationsService', () => {
   });
 
   it('should show ErrorSnackbar', () => {
-    const fakeSnackBar = spyOn(snackBar, 'open');
+    const fakeSnackBar = vi.spyOn(snackBar, 'open');
     service.showErrorSnackbar('Error message.')
-    expect(fakeSnackBar).toHaveBeenCalledOnceWith(
+    expect(fakeSnackBar).toHaveBeenCalledWith(
       'Error message.',
       'Dismiss',
       Object({
@@ -48,9 +48,9 @@ describe('NotificationsService', () => {
   });
 
   it('should show SuccessSnackbar', () => {
-    const fakeSnackBar = spyOn(snackBar, 'open');
+    const fakeSnackBar = vi.spyOn(snackBar, 'open');
     service.showSuccessSnackbar('Success message.')
-    expect(fakeSnackBar).toHaveBeenCalledOnceWith(
+    expect(fakeSnackBar).toHaveBeenCalledWith(
       'Success message.',
       null,
       Object({

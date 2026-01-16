@@ -276,7 +276,7 @@ describe('PhoneEditComponent', () => {
     });
 
     it('should emit field change events', () => {
-      spyOn(component.onFieldChange, 'emit');
+      vi.spyOn(component.onFieldChange, 'emit');
 
       const usCountry = component.countries.find(c => c.code === 'US');
       component.selectedCountry = usCountry!;

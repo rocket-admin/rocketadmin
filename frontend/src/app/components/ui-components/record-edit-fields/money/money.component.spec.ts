@@ -86,7 +86,7 @@ describe('MoneyEditComponent', () => {
     component.showCurrencySelector = true;
     component.selectedCurrency = 'EUR';
     component.amount = 100;
-    spyOn(component.onFieldChange, 'emit');
+    vi.spyOn(component.onFieldChange, 'emit');
 
     component.onCurrencyChange();
 
@@ -99,7 +99,7 @@ describe('MoneyEditComponent', () => {
   it('should handle amount change with currency selector disabled (default)', () => {
     component.displayAmount = '123.45';
     component.selectedCurrency = 'USD';
-    spyOn(component.onFieldChange, 'emit');
+    vi.spyOn(component.onFieldChange, 'emit');
 
     component.onAmountChange();
 
@@ -111,7 +111,7 @@ describe('MoneyEditComponent', () => {
     component.showCurrencySelector = true;
     component.displayAmount = '123.45';
     component.selectedCurrency = 'USD';
-    spyOn(component.onFieldChange, 'emit');
+    vi.spyOn(component.onFieldChange, 'emit');
 
     component.onAmountChange();
 
@@ -212,7 +212,7 @@ describe('MoneyEditComponent', () => {
 
   it('should emit empty value when amount is cleared', () => {
     component.amount = '';
-    spyOn(component.onFieldChange, 'emit');
+    vi.spyOn(component.onFieldChange, 'emit');
 
     component.updateValue();
 

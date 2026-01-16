@@ -29,7 +29,7 @@ describe('AlertComponent', () => {
   });
 
   it('should call finction from action on alert button click', () => {
-    const buttonAction = jasmine.createSpy();
+    const buttonAction = vi.fn();
     const alert = {
       id: 0,
       type: AlertType.Error,

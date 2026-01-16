@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
 import { CompanyService } from 'src/app/services/company.service';
@@ -14,6 +15,7 @@ import { SamlConfig } from 'src/app/models/company';
 @Component({
   selector: 'app-sso',
   imports: [
+    CommonModule,
     MatInputModule,
     MatCheckboxModule,
     MatIconModule,

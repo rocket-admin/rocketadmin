@@ -1,68 +1,71 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-
-import { AccountDeleteConfirmationComponent } from '../account-delete-confirmation/account-delete-confirmation.component';
-import { AccountDeleteDialogComponent } from './account-delete-dialog.component';
-import { FormsModule }   from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
 import { Angulartics2Module } from 'angulartics2';
+import { AccountDeleteConfirmationComponent } from '../account-delete-confirmation/account-delete-confirmation.component';
+import { AccountDeleteDialogComponent } from './account-delete-dialog.component';
 
 describe('AccountDeleteDialogComponent', () => {
-  let component: AccountDeleteDialogComponent;
-  let fixture: ComponentFixture<AccountDeleteDialogComponent>;
-  let dialog: MatDialog;
+	let component: AccountDeleteDialogComponent;
+	let fixture: ComponentFixture<AccountDeleteDialogComponent>;
+	let mockMatDialog: { open: ReturnType<typeof vi.fn> };
 
-  const mockDialogRef = {
-    close: () => { }
-  };
+	const mockDialogRef = {
+		close: () => {},
+	};
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [
-      MatDialogModule,
-      MatSnackBarModule,
-      FormsModule,
-      MatRadioModule,
-      BrowserAnimationsModule,
-      Angulartics2Module.forRoot(),
-      AccountDeleteDialogComponent
-    ],
-    providers: [
-      provideHttpClient(),
-      { provide: MAT_DIALOG_DATA, useValue: {} },
-      { provide: MatDialogRef, useValue: mockDialogRef }
-    ]
-})
-    .compileComponents();
-  });
+	beforeEach(async () => {
+		mockMatDialog = { open: vi.fn() };
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AccountDeleteDialogComponent);
-    dialog = TestBed.get(MatDialog);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		await TestBed.configureTestingModule({
+			imports: [
+				MatSnackBarModule,
+				FormsModule,
+				MatRadioModule,
+				BrowserAnimationsModule,
+				Angulartics2Module.forRoot(),
+				AccountDeleteDialogComponent,
+			],
+			providers: [
+				provideHttpClient(),
+				{ provide: MAT_DIALOG_DATA, useValue: {} },
+				{ provide: MatDialogRef, useValue: mockDialogRef },
+			],
+		})
+			.overrideComponent(AccountDeleteDialogComponent, {
+				set: {
+					providers: [{ provide: MatDialog, useFactory: () => mockMatDialog }],
+				},
+			})
+			.compileComponents();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(AccountDeleteDialogComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  xit('should open dialog for delete account confirmation', () => {
-    component.reason = 'technical-issues';
-    component.message = 'I cannot add connection';
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 
-    const fakeDeleteUserDialogOpen = spyOn(dialog, 'open');
-    component.openDeleteConfirmation();
+	it('should open dialog for delete account confirmation', () => {
+		component.reason = 'technical-issues';
+		component.message = 'I cannot add connection';
 
-    expect(fakeDeleteUserDialogOpen).toHaveBeenCalledOnceWith(AccountDeleteConfirmationComponent, {
-      width: '20em',
-      data: {
-        reason: 'technical-issues',
-        message: 'I cannot add connection'
-      }
-    });
-  });
+		component.openDeleteConfirmation();
+
+		expect(mockMatDialog.open).toHaveBeenCalledWith(AccountDeleteConfirmationComponent, {
+			width: '20em',
+			data: {
+				reason: 'technical-issues',
+				message: 'I cannot add connection',
+			},
+		});
+	});
 });

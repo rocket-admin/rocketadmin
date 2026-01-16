@@ -30,12 +30,17 @@ describe('RegistrationComponent', () => {
 		}).compileComponents();
 
 		// @ts-expect-error
-		global.window.gtag = jasmine.createSpy();
+		global.window.gtag = vi.fn();
 
-		global.window.google = jasmine.createSpyObj(['accounts']);
-		// @ts-expect-error
-		global.window.google.accounts = jasmine.createSpyObj(['id']);
-		global.window.google.accounts.id = jasmine.createSpyObj(['initialize', 'renderButton', 'prompt']);
+		(global.window as any).google = {
+			accounts: {
+				id: {
+					initialize: vi.fn(),
+					renderButton: vi.fn(),
+					prompt: vi.fn(),
+				},
+			},
+		};
 	});
 
 	beforeEach(() => {
@@ -55,13 +60,13 @@ describe('RegistrationComponent', () => {
 			password: 'kK123456789',
 		};
 
-		const fakeSignUpUser = spyOn(authService, 'signUpUser').and.returnValue(of());
+		const fakeSignUpUser = vi.spyOn(authService, 'signUpUser').mockReturnValue(of());
 
 		component.registerUser();
-		expect(fakeSignUpUser).toHaveBeenCalledOnceWith({
+		expect(fakeSignUpUser).toHaveBeenCalledWith({
 			email: 'john@smith.com',
 			password: 'kK123456789',
 		});
-		expect(component.submitting).toBeFalse();
+		expect(component.submitting).toBe(false);
 	});
 });

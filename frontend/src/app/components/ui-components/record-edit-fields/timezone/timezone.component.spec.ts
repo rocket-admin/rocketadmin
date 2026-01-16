@@ -34,7 +34,7 @@ describe('TimezoneEditComponent', () => {
   });
 
   it('should emit value on change', () => {
-    spyOn(component.onFieldChange, 'emit');
+    vi.spyOn(component.onFieldChange, 'emit');
     const testValue = 'America/New_York';
     component.value = testValue;
     component.onFieldChange.emit(testValue);

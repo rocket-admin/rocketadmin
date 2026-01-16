@@ -72,7 +72,7 @@ describe('ConnectionSettingsComponent', () => {
   };
 
   beforeEach(async () => {
-    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    const matSnackBarSpy = { open: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -102,7 +102,7 @@ describe('ConnectionSettingsComponent', () => {
     component = fixture.componentInstance;
     tablesService = TestBed.inject(TablesService);
     connectionsService = TestBed.inject(ConnectionsService);
-    spyOnProperty(connectionsService, 'currentConnectionID').and.returnValue('12345678');
+    vi.spyOn(connectionsService, 'currentConnectionID', 'get').mockReturnValue('12345678');
     fixture.detectChanges();
   });
 
@@ -111,12 +111,12 @@ describe('ConnectionSettingsComponent', () => {
   });
 
   it('should set table list', () => {
-    const fakeFetchTables = spyOn(tablesService, 'fetchTables').and.returnValue(of(mockTablesList));
+    const fakeFetchTables = vi.spyOn(tablesService, 'fetchTables').mockReturnValue(of(mockTablesList));
 
     component.ngOnInit();
     fixture.detectChanges();
 
-    expect(fakeFetchTables).toHaveBeenCalledOnceWith('12345678', true);
+    expect(fakeFetchTables).toHaveBeenCalledWith('12345678', true);
     expect(component.tablesList).toEqual([{
       "table": "customer",
       "permissions": {
@@ -153,31 +153,31 @@ describe('ConnectionSettingsComponent', () => {
   });
 
   it('should show error if db is empty', () => {
-    const fakeFetchTables = spyOn(tablesService, 'fetchTables').and.returnValue(of([]));
+    const fakeFetchTables = vi.spyOn(tablesService, 'fetchTables').mockReturnValue(of([]));
 
     component.ngOnInit();
     fixture.detectChanges();
 
-    expect(fakeFetchTables).toHaveBeenCalledOnceWith('12345678', true);
-    expect(component.noTablesError).toBeTrue();
+    expect(fakeFetchTables).toHaveBeenCalledWith('12345678', true);
+    expect(component.noTablesError).toBe(true);
   });
 
   it('should set table settings if they are existed', () => {
-    const fakeGetSettings = spyOn(connectionsService, 'getConnectionSettings').and.returnValue(of(mockConnectionSettingsResponse));
+    const fakeGetSettings = vi.spyOn(connectionsService, 'getConnectionSettings').mockReturnValue(of(mockConnectionSettingsResponse));
 
     component.getSettings();
 
-    expect(fakeGetSettings).toHaveBeenCalledOnceWith('12345678');
+    expect(fakeGetSettings).toHaveBeenCalledWith('12345678');
     expect(component.connectionSettings).toEqual(mockConnectionSettingsResponse);
-    expect(component.isSettingsExist).toBeTrue();
+    expect(component.isSettingsExist).toBe(true);
   });
 
   it('should set empty settings if they are not existed', () => {
-    const fakeGetSettings = spyOn(connectionsService, 'getConnectionSettings').and.returnValue(of(null));
+    const fakeGetSettings = vi.spyOn(connectionsService, 'getConnectionSettings').mockReturnValue(of(null));
 
     component.getSettings();
 
-    expect(fakeGetSettings).toHaveBeenCalledOnceWith('12345678');
+    expect(fakeGetSettings).toHaveBeenCalledWith('12345678');
     expect(component.connectionSettings).toEqual({
       hidden_tables:[],
       default_showing_table: null,
@@ -187,16 +187,16 @@ describe('ConnectionSettingsComponent', () => {
       company_name: '',
       tables_audit: true,
     });
-    expect(component.isSettingsExist).toBeFalse();
+    expect(component.isSettingsExist).toBe(false);
   });
 
   it('should create settings', () => {
     component.connectionSettings = mockConnectionSettings;
-    const fakeCreateSettings = spyOn(connectionsService, 'createConnectionSettings').and.returnValue(of());
+    const fakeCreateSettings = vi.spyOn(connectionsService, 'createConnectionSettings').mockReturnValue(of());
 
     component.createSettings();
 
-    expect(fakeCreateSettings).toHaveBeenCalledOnceWith('12345678', {
+    expect(fakeCreateSettings).toHaveBeenCalledWith('12345678', {
       primary_color: '#1F5CB8',
       secondary_color: '#F9D648',
       logo_url: 'https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg',
@@ -205,16 +205,16 @@ describe('ConnectionSettingsComponent', () => {
       default_showing_table: "customer",
       tables_audit: false
     });
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   });
 
   it('should update settings', () => {
     component.connectionSettings = mockConnectionSettings;
-    const fakeUpdateSettings = spyOn(connectionsService, 'updateConnectionSettings').and.returnValue(of());
+    const fakeUpdateSettings = vi.spyOn(connectionsService, 'updateConnectionSettings').mockReturnValue(of());
 
     component.updateSettings();
 
-    expect(fakeUpdateSettings).toHaveBeenCalledOnceWith('12345678', {
+    expect(fakeUpdateSettings).toHaveBeenCalledWith('12345678', {
       primary_color: '#1F5CB8',
       secondary_color: '#F9D648',
       logo_url: 'https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg',
@@ -223,15 +223,15 @@ describe('ConnectionSettingsComponent', () => {
       default_showing_table: "customer",
       tables_audit: false
      });
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   });
 
   it('should reset settings', () => {
-    const fakeDeleteSettings = spyOn(connectionsService, 'deleteConnectionSettings').and.returnValue(of());
+    const fakeDeleteSettings = vi.spyOn(connectionsService, 'deleteConnectionSettings').mockReturnValue(of());
 
     component.resetSettings();
 
-    expect(fakeDeleteSettings).toHaveBeenCalledOnceWith('12345678');
-    expect(component.submitting).toBeFalse();
+    expect(fakeDeleteSettings).toHaveBeenCalledWith('12345678');
+    expect(component.submitting).toBe(false);
   });
 });

@@ -33,7 +33,7 @@ describe('TimezoneDisplayComponent', () => {
   });
 
   it('should emit copy event on button click', () => {
-    spyOn(component.onCopyToClipboard, 'emit');
+    vi.spyOn(component.onCopyToClipboard, 'emit');
     component.value = 'Europe/London';
     const compiled = fixture.nativeElement;
     const button = compiled.querySelector('button');

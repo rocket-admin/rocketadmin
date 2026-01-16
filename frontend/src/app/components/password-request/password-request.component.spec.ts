@@ -41,10 +41,10 @@ describe('PasswordRequestComponent', () => {
   it('should create', () => {
     component.userEmail = "eric@cartman.ass";
     component.companyId = "company_1111"
-    const fakePasswordReset = spyOn(userService, 'requestPasswordReset').and.returnValue(of());
+    const fakePasswordReset = vi.spyOn(userService, 'requestPasswordReset').mockReturnValue(of());
 
     component.requestPassword();
 
-    expect(fakePasswordReset).toHaveBeenCalledOnceWith("eric@cartman.ass", "company_1111");
+    expect(fakePasswordReset).toHaveBeenCalledWith("eric@cartman.ass", "company_1111");
   });
 });

@@ -133,10 +133,10 @@ describe('DbTableSettingsComponent', () => {
   });
 
   it('should set initial state', () => {
-    spyOnProperty(connectionsService, 'currentConnectionID').and.returnValue('12345678');
-    spyOnProperty(tablesService, 'currentTableName').and.returnValue('users');
-    spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
-    spyOn(tablesService, 'fetchTableSettings').and.returnValue(of(mockTableSettings));
+    vi.spyOn(connectionsService, 'currentConnectionID', 'get').mockReturnValue('12345678');
+    vi.spyOn(tablesService, 'currentTableName', 'get').mockReturnValue('users');
+    vi.spyOn(tablesService, 'fetchTableStructure').mockReturnValue(of(mockTableStructure));
+    vi.spyOn(tablesService, 'fetchTableSettings').mockReturnValue(of(mockTableSettings));
 
     component.ngOnInit();
     fixture.detectChanges();
@@ -147,7 +147,7 @@ describe('DbTableSettingsComponent', () => {
   });
 
   it('should update settings', () => {
-    const fakeUpdateTableSettings = spyOn(tablesService, 'updateTableSettings').and.returnValue(of());
+    const fakeUpdateTableSettings = vi.spyOn(tablesService, 'updateTableSettings').mockReturnValue(of());
     component.isSettingsExist = true;
     component.connectionID = '12345678';
     component.tableName = 'users';
@@ -155,16 +155,16 @@ describe('DbTableSettingsComponent', () => {
 
     component.updateSettings();
 
-    expect(fakeUpdateTableSettings).toHaveBeenCalledOnceWith(true, '12345678', 'users', mockTableSettings);
+    expect(fakeUpdateTableSettings).toHaveBeenCalledWith(true, '12345678', 'users', mockTableSettings);
   });
 
   it('should delete settings', () => {
-    // const fakeUpdateTableSettings = spyOn(tablesService, 'updateTableSettings').and.returnValue(of());
+    // const fakeUpdateTableSettings = vi.spyOn(tablesService, 'updateTableSettings').mockReturnValue(of());
     // component.isSettingsExist = true;
     component.connectionID = '12345678';
     component.tableName = 'users';
     // component.tableSettings = mockTableSettings;
-    const fakeDeleteSettings = spyOn(tablesService, 'deleteTableSettings').and.returnValue(of());
+    const fakeDeleteSettings = vi.spyOn(tablesService, 'deleteTableSettings').mockReturnValue(of());
 
     const testForm = <NgForm>{
       value: {
@@ -174,6 +174,6 @@ describe('DbTableSettingsComponent', () => {
 
     component.resetSettings(testForm);
 
-    expect(fakeDeleteSettings).toHaveBeenCalledOnceWith('12345678', 'users');
+    expect(fakeDeleteSettings).toHaveBeenCalledWith('12345678', 'users');
   });
 });

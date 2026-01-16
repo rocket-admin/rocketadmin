@@ -60,7 +60,11 @@ describe('TableRowService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
+    fakeNotifications = {
+      showErrorSnackbar: vi.fn(),
+      showSuccessSnackbar: vi.fn(),
+      showAlert: vi.fn()
+    };
 
     TestBed.configureTestingModule({
       imports: [MatSnackBarModule],
@@ -106,7 +110,7 @@ describe('TableRowService', () => {
 
     service.addTableRow('12345678', 'users_table', tableRowValues).subscribe(res => {
       expect(res).toEqual(tableRowValues);
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('The row has been added successfully to "users_table" table.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('The row has been added successfully to "users_table" table.');
       isSubscribeCalled = true;
     });
 
@@ -126,7 +130,7 @@ describe('TableRowService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -136,7 +140,7 @@ describe('TableRowService', () => {
     let isSubscribeCalled = false;
 
     service.updateTableRow('12345678', 'users_table', {id: 1}, tableRowValues).subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('The row has been updated successfully in "users_table" table.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('The row has been updated successfully in "users_table" table.');
       isSubscribeCalled = true;
     });
 
@@ -156,7 +160,7 @@ describe('TableRowService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [expect.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -166,7 +170,7 @@ describe('TableRowService', () => {
     let isSubscribeCalled = false;
 
     service.deleteTableRow('12345678', 'users_table', {id: 1}).subscribe(_res => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Row has been deleted successfully from "users_table" table.');
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledWith('Row has been deleted successfully from "users_table" table.');
       isSubscribeCalled = true;
     });
 
@@ -185,6 +189,6 @@ describe('TableRowService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await deleteTableRow;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
   });
 });

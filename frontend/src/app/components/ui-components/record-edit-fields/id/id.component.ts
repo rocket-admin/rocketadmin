@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'app-edit-id',
   templateUrl: './id.component.html',
   styleUrls: ['./id.component.css'],
-  imports: [FormsModule, MatFormFieldModule, MatInputModule]
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule]
 })
 export class IdEditComponent extends BaseEditFieldComponent {
   @Input() value: string;

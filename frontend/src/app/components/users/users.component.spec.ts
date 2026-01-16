@@ -19,8 +19,11 @@ describe('UsersComponent', () => {
   let fixture: ComponentFixture<UsersComponent>;
   let usersService: UsersService;
   let dialog: MatDialog;
-  let dialogRefSpyObj = jasmine.createSpyObj({ afterClosed : of('delete'), close: null });
-  dialogRefSpyObj.componentInstance = { deleteWidget: of('user_name') };
+  const dialogRefSpyObj = {
+    afterClosed: vi.fn().mockReturnValue(of('delete')),
+    close: vi.fn(),
+    componentInstance: { deleteWidget: of('user_name') },
+  };
 
   const fakeGroup = {
     "id": "a9a97cf1-cb2f-454b-a74e-0075dd07ad92",
@@ -58,17 +61,17 @@ describe('UsersComponent', () => {
 
   it('should permit action if access level is fullaccess', () => {
     const isPermitted = component.isPermitted('fullaccess');
-    expect(isPermitted).toBeTrue();
+    expect(isPermitted).toBe(true);
   });
 
   it('should permit action if access level is edit', () => {
     const isPermitted = component.isPermitted('edit');
-    expect(isPermitted).toBeTrue();
+    expect(isPermitted).toBe(true);
   });
 
   it('should not permit action if access level is none', () => {
     const isPermitted = component.isPermitted('none');
-    expect(isPermitted).toBeFalse();
+    expect(isPermitted).toBe(false);
   });
 
   it('should set list of groups', () => {
@@ -92,49 +95,47 @@ describe('UsersComponent', () => {
     ]
     component.connectionID = '12345678';
 
-    spyOn(usersService, 'fetchConnectionGroups').and.returnValue(of(mockGroups));
+    vi.spyOn(usersService, 'fetchConnectionGroups').mockReturnValue(of(mockGroups));
 
     component.getUsersGroups();
     expect(component.groups).toEqual(mockGroups);
   });
 
   it('should open create group dialog', () => {
-    const fakeCreateUsersGroupOpen = spyOn(dialog, 'open');
-    // biome-ignore lint/suspicious/noGlobalAssign: mock global event in test
-    event = jasmine.createSpyObj('event', [ 'preventDefault', 'stopImmediatePropagation' ]);
+    const fakeCreateUsersGroupOpen = vi.spyOn(dialog, 'open');
+    const event = { preventDefault: vi.fn(), stopImmediatePropagation: vi.fn() } as unknown as Event;
 
     component.openCreateUsersGroupDialog(event);
-    expect(fakeCreateUsersGroupOpen).toHaveBeenCalledOnceWith(GroupAddDialogComponent, {
+    expect(fakeCreateUsersGroupOpen).toHaveBeenCalledWith(GroupAddDialogComponent, {
       width: '25em'
     });
   });
 
   it('should open permissions dialog', () => {
-    // const fakePermissionsDialogOpen = spyOn(dialog, 'open');
-    const fakePermissionsDialogOpen = spyOn(dialog, 'open').and.returnValue(dialogRefSpyObj);
+    const fakePermissionsDialogOpen = vi.spyOn(dialog, 'open').mockReturnValue(dialogRefSpyObj as any);
 
     component.openPermissionsDialog(fakeGroup);
-    expect(fakePermissionsDialogOpen).toHaveBeenCalledOnceWith(PermissionsAddDialogComponent, {
+    expect(fakePermissionsDialogOpen).toHaveBeenCalledWith(PermissionsAddDialogComponent, {
       width: '50em',
       data: fakeGroup
     });
   });
 
   it('should open add user dialog', () => {
-    const fakeAddUserDialogOpen = spyOn(dialog, 'open');
+    const fakeAddUserDialogOpen = vi.spyOn(dialog, 'open');
 
     component.openAddUserDialog(fakeGroup);
-    expect(fakeAddUserDialogOpen).toHaveBeenCalledOnceWith(UserAddDialogComponent, {
+    expect(fakeAddUserDialogOpen).toHaveBeenCalledWith(UserAddDialogComponent, {
       width: '25em',
       data: { group: fakeGroup, availableMembers: []}
     });
   });
 
   it('should open delete group dialog', () => {
-    const fakeDeleteGroupDialogOpen = spyOn(dialog, 'open');
+    const fakeDeleteGroupDialogOpen = vi.spyOn(dialog, 'open');
 
     component.openDeleteGroupDialog(fakeGroup);
-    expect(fakeDeleteGroupDialogOpen).toHaveBeenCalledOnceWith(GroupDeleteDialogComponent, {
+    expect(fakeDeleteGroupDialogOpen).toHaveBeenCalledWith(GroupDeleteDialogComponent, {
       width: '25em',
       data: fakeGroup
     });
@@ -150,16 +151,16 @@ describe('UsersComponent', () => {
       "email": "user@test.com"
     }
 
-    const fakeDeleteUserDialogOpen = spyOn(dialog, 'open');
+    const fakeDeleteUserDialogOpen = vi.spyOn(dialog, 'open');
 
     component.openDeleteUserDialog(fakeUser, fakeGroup);
-    expect(fakeDeleteUserDialogOpen).toHaveBeenCalledOnceWith(UserDeleteDialogComponent, {
+    expect(fakeDeleteUserDialogOpen).toHaveBeenCalledWith(UserDeleteDialogComponent, {
       width: '25em',
       data: {user: fakeUser, group: fakeGroup}
     });
   });
 
-  it('should set users list of group in users object', (done) => {
+  it('should set users list of group in users object', async () => {
     const mockGroupUsersList = [
       {
         "id": "user-12345678",
@@ -179,22 +180,18 @@ describe('UsersComponent', () => {
       }
     ]
 
-    spyOn(usersService, 'fetcGroupUsers').and.returnValue(of(mockGroupUsersList));
+    vi.spyOn(usersService, 'fetcGroupUsers').mockReturnValue(of(mockGroupUsersList));
 
-    component.fetchAndPopulateGroupUsers('12345678').subscribe(() => {
-      expect(component.users['12345678']).toEqual(mockGroupUsersList);
-      done();
-    });
+    await component.fetchAndPopulateGroupUsers('12345678').toPromise();
+    expect(component.users['12345678']).toEqual(mockGroupUsersList);
   });
 
-  it('should set \'empty\' value in users object', (done) => {
+  it('should set \'empty\' value in users object', async () => {
     const mockGroupUsersList = []
 
-    spyOn(usersService, 'fetcGroupUsers').and.returnValue(of(mockGroupUsersList));
+    vi.spyOn(usersService, 'fetcGroupUsers').mockReturnValue(of(mockGroupUsersList));
 
-    component.fetchAndPopulateGroupUsers('12345678').subscribe(() => {
-      expect(component.users['12345678']).toEqual('empty');
-      done();
-    });
+    await component.fetchAndPopulateGroupUsers('12345678').toPromise();
+    expect(component.users['12345678']).toEqual('empty');
   });
 });

@@ -104,7 +104,7 @@ describe('DbTableViewComponent', () => {
 	it('should check if column is foreign key', () => {
 		component.tableData.foreignKeysList = ['ProductId', 'CustomerId'];
 		const isForeignKeyResult = component.isForeignKey('ProductId');
-		expect(isForeignKeyResult).toBeTrue();
+		expect(isForeignKeyResult).toBe(true);
 	});
 
 	it('should return query params for link for foreign key', () => {
@@ -130,7 +130,7 @@ describe('DbTableViewComponent', () => {
 
 		const isWigetAge = component.isWidget('Age');
 
-		expect(isWigetAge).toBeTrue();
+		expect(isWigetAge).toBe(true);
 	});
 
 	it('should return 2 for active filters with object of two fileds', () => {
@@ -159,7 +159,7 @@ describe('DbTableViewComponent', () => {
 		component.tableData.foreignKeysList = mockForeignKeysList;
 		component.tableData.foreignKeys = mockForeignKeys;
 		component.tableData.widgets = mockWidgets;
-		spyOn(component.openFilters, 'emit');
+		vi.spyOn(component.openFilters, 'emit');
 
 		component.handleOpenFilters();
 
@@ -173,7 +173,7 @@ describe('DbTableViewComponent', () => {
 	});
 
 	it('should clear search string and emit search by string to parent', () => {
-		spyOn(component.search, 'emit');
+		vi.spyOn(component.search, 'emit');
 
 		component.clearSearch();
 

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, NG_VALUE_ACCESSOR }   from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -132,11 +132,12 @@ describe('PermissionsAddDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set initial state of permissions', waitForAsync(async () => {
-    spyOn(usersService, 'fetchPermission').and.returnValue(of(fakePermissionsResponse));
+  it('should set initial state of permissions', async () => {
+    vi.spyOn(usersService, 'fetchPermission').mockReturnValue(of(fakePermissionsResponse));
 
     component.ngOnInit();
     fixture.detectChanges();
+    await fixture.whenStable();
 
     // crutch, i don't like it
     component.tablesAccess = [...fakeTablePermissionsApp];
@@ -144,17 +145,17 @@ describe('PermissionsAddDialogComponent', () => {
     expect(component.connectionAccess).toEqual('readonly');
     expect(component.groupAccess).toEqual('edit');
     expect(component.tablesAccess).toEqual(fakeTablePermissionsApp);
-  }));
+  });
 
   it('should uncheck actions if table is readonly', () => {
     component.tablesAccess = [...fakeTablePermissionsApp];
 
     component.uncheckActions(component.tablesAccess[0]);
 
-    expect(component.tablesAccess[0].accessLevel.readonly).toBeFalse();
-    expect(component.tablesAccess[0].accessLevel.add).toBeFalse();
-    expect(component.tablesAccess[0].accessLevel.delete).toBeFalse();
-    expect(component.tablesAccess[0].accessLevel.edit).toBeFalse();
+    expect(component.tablesAccess[0].accessLevel.readonly).toBe(false);
+    expect(component.tablesAccess[0].accessLevel.add).toBe(false);
+    expect(component.tablesAccess[0].accessLevel.delete).toBe(false);
+    expect(component.tablesAccess[0].accessLevel.edit).toBe(false);
   });
 
   it('should uncheck actions if table is invisible', () => {
@@ -162,10 +163,10 @@ describe('PermissionsAddDialogComponent', () => {
 
     component.uncheckActions(component.tablesAccess[1]);
 
-    expect(component.tablesAccess[1].accessLevel.readonly).toBeFalse();
-    expect(component.tablesAccess[1].accessLevel.add).toBeFalse();
-    expect(component.tablesAccess[1].accessLevel.delete).toBeFalse();
-    expect(component.tablesAccess[1].accessLevel.edit).toBeFalse();
+    expect(component.tablesAccess[1].accessLevel.readonly).toBe(false);
+    expect(component.tablesAccess[1].accessLevel.add).toBe(false);
+    expect(component.tablesAccess[1].accessLevel.delete).toBe(false);
+    expect(component.tablesAccess[1].accessLevel.edit).toBe(false);
   });
 
   it('should select all tables', () => {
@@ -260,12 +261,12 @@ describe('PermissionsAddDialogComponent', () => {
       }
     ];
 
-    const fakseUpdatePermission = spyOn(usersService, 'updatePermission').and.returnValue(of());
-    spyOn(mockDialogRef, 'close');
+    const fakseUpdatePermission = vi.spyOn(usersService, 'updatePermission').mockReturnValue(of());
+    vi.spyOn(mockDialogRef, 'close');
 
     component.addPermissions();
 
-    expect(fakseUpdatePermission).toHaveBeenCalledOnceWith('12345678', {
+    expect(fakseUpdatePermission).toHaveBeenCalledWith('12345678', {
       connection: {
         connectionId: '12345678',
         accessLevel: AccessLevel.Readonly
@@ -300,6 +301,6 @@ describe('PermissionsAddDialogComponent', () => {
       ]
     });
     // expect(component.dialogRef.close).toHaveBeenCalled();
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   })
 });

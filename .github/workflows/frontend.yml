@@ -11,9 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '24'
       - run: cd frontend && yarn install
+      - name: Install Playwright browsers
+        run: cd frontend && yarn playwright install
       - name: run tests
-        run: cd frontend && yarn test --browsers=ChromeHeadlessCustom --no-watch --no-progress
+        run: cd frontend && yarn test
   license:
     runs-on: ubuntu-latest
     steps:
