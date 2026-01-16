@@ -1,8 +1,8 @@
 export const environment = {
 	saas: true,
 	production: false,
-	apiRoot: '/api',
-	saasURL: '',
+	apiRoot: 'https://rocketadmin-dev.tail9f8b2.ts.net/api',
+	saasURL: 'https://rocketadmin-dev.tail9f8b2.ts.net',
 	saasHostnames: ['app.rocketadmin.com', 'localhost', 'rocketadmin-dev.tail9f8b2.ts.net'],
 	stagingHost: 'rocketadmin-dev.tail9f8b2.ts.net', // Tailscale host
 	version: '0.0.0',
