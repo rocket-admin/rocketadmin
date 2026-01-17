@@ -52,9 +52,9 @@ export class UiSettingsService {
     if (!this.settings.connections[connectionId]) {
       this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
     }
-    if (!this.settings.connections[connectionId].tables[tableName]) {
-      this.settings.connections[connectionId].tables[tableName] = { shownColumns: [] };
-    }
+    // if (!this.settings.connections[connectionId].tables[tableName]) {
+    //   this.settings.connections[connectionId].tables[tableName] = { shownColumns: [] };
+    // }
     this.settings.connections[connectionId].tables[tableName][key] = value;
     this.syncUiSettings().subscribe();
   }

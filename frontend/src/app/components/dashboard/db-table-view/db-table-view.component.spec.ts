@@ -91,7 +91,7 @@ describe('DbTableViewComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(DbTableViewComponent);
 		component = fixture.componentInstance;
-		component.table = new TablesDataSource({} as any, {} as any, {} as any, {} as any);
+		component.table = new TablesDataSource({} as any, {} as any, {} as any);
 		component.selection = new SelectionModel<any>(true, []);
 		component.filterComparators = mockFilterComparators;
 		fixture.autoDetectChanges();
