@@ -271,8 +271,8 @@
                         <mat-divider></mat-divider>
                         <button mat-menu-item (click)="toggleDefaultSort(column); $event.stopPropagation()"
                             class="sort-menu__item"
-                            [disabled]="sort.active !== column && !isDefaultSort(column)"
-                            [matTooltip]="sort.active !== column && !isDefaultSort(column) ? 'Select sort order first' : ''"
+                            [disabled]="(sort.active !== column || !sort.direction) && !isDefaultSort(column)"
+                            [matTooltip]="(sort.active !== column || !sort.direction) && !isDefaultSort(column) ? 'Select sort order first' : ''"
                             matTooltipPosition="left">
                             <mat-icon class="sort-menu__lock-icon">{{ isDefaultSort(column) ? 'lock' : 'lock_open' }}</mat-icon>
                             <span>{{ isDefaultSort(column) ? 'Remove default' : 'Set as default' }}</span>

@@ -36,6 +36,7 @@ import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import {
 	CustomAction,
 	TableForeignKey,
+	TableOrdering,
 	TablePermissions,
 	TableProperties,
 	TableRow,
@@ -44,7 +45,6 @@ import {
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { tableDisplayTypes, UIwidgets } from '../../../consts/table-display-types';
 import { normalizeTableName } from '../../../lib/normalize';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
@@ -164,7 +164,6 @@ export class DbTableViewComponent implements OnInit {
 		private _notifications: NotificationsService,
 		private _tableRow: TableRowService,
 		private _connections: ConnectionsService,
-		private _uiSettings: UiSettingsService,
 		private _tables: TablesService,
 		private route: ActivatedRoute,
 		public router: Router,
@@ -175,16 +174,42 @@ export class DbTableViewComponent implements OnInit {
 	ngAfterViewInit() {
 		this.tableData.paginator = this.paginator;
 
-		this.tableData.sort = this.sort;
+		// Check if sort params exist in URL
+		const urlSortActive = this.route.snapshot.queryParams.sort_active;
+		const urlSortDirection = this.route.snapshot.queryParams.sort_direction;
 
-		// Load default sort from settings
-		this.loadDefaultSort();
+		let sortInitialized = false;
 
-		// Initialize sort - default sort takes priority
-		if (this.defaultSort) {
-			this.sort.active = this.defaultSort.column;
-			this.sort.direction = this.defaultSort.direction;
-		}
+		// Subscribe to loading state to initialize default sort after data is loaded
+		this.tableData.loading$.subscribe((loading: boolean) => {
+			console.log('loading$ changed:', loading, 'sort.active:', this.sort?.active, 'sort.direction:', this.sort?.direction);
+
+			if (!loading && this.tableData.defaultSort !== undefined) {
+				// Update defaultSort reference whenever data loads
+				this.defaultSort = this.tableData.defaultSort;
+
+				console.log('DbTableViewComponent tableData loaded:', this.tableData);
+				console.log('DbTableViewComponent tableData.defaultSort loaded:', this.tableData.defaultSort);
+
+				// Only initialize sort on first load
+				if (!sortInitialized) {
+					sortInitialized = true;
+
+					// Initialize sort based on priority: URL params > default sort
+					if (urlSortActive && urlSortDirection) {
+						// Use sort from URL
+						this.sort.active = urlSortActive;
+						this.sort.direction = urlSortDirection.toLowerCase() as 'asc' | 'desc';
+					} else if (this.defaultSort) {
+						// Use default sort if no URL params
+						this.sort.active = this.defaultSort.column;
+						this.sort.direction = this.defaultSort.direction;
+					}
+				}
+
+				console.log('After loading complete - sort.active:', this.sort?.active, 'sort.direction:', this.sort?.direction);
+			}
+		});
 
 		merge(this.sort.sortChange, this.paginator.page)
 			.pipe(
@@ -272,7 +297,6 @@ export class DbTableViewComponent implements OnInit {
 			// If this column was the default, remove the default too
 			if (this.defaultSort?.column === column) {
 				this.defaultSort = null;
-				this._uiSettings.updateTableSetting(this.connectionID, this.name, 'defaultSort', null);
 			}
 			// Clear sort
 			this.sort.active = '';
@@ -285,23 +309,36 @@ export class DbTableViewComponent implements OnInit {
 		}
 	}
 
-	loadDefaultSort() {
-		const tableSettings = this._uiSettings.settings?.connections?.[this.connectionID]?.tables?.[this.name];
-		if (tableSettings?.defaultSort) {
-			this.defaultSort = tableSettings.defaultSort;
-		}
-	}
-
 	toggleDefaultSort(column: string) {
 		if (this.isDefaultSort(column)) {
 			// Remove default sort
 			this.defaultSort = null;
-			this._uiSettings.updateTableSetting(this.connectionID, this.name, 'defaultSort', null);
+			this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
+				ordering: null,
+				ordering_field: null,
+			}).subscribe({
+				next: () => {
+					console.log('Personal table view settings updated - default sort removed');
+				},
+				error: (error) => {
+					console.error('Error updating personal table view settings:', error);
+				}
+			});
 		} else {
 			// Set current sort as default
 			const direction = this.sort.active === column ? this.sort.direction : 'asc';
 			this.defaultSort = { column, direction: direction as 'asc' | 'desc' };
-			this._uiSettings.updateTableSetting(this.connectionID, this.name, 'defaultSort', this.defaultSort);
+			this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
+				ordering: this.sort.direction === 'asc' ? TableOrdering.Ascending : TableOrdering.Descending,
+				ordering_field: column,
+			}).subscribe({
+				next: () => {
+					console.log('Personal table view settings updated - default sort removed');
+				},
+				error: (error) => {
+					console.error('Error updating personal table view settings:', error);
+				}
+			});
 		}
 	}
 

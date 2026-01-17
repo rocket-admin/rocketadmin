@@ -16,6 +16,7 @@ import { filter } from "lodash";
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeFieldName } from 'src/app/lib/normalize';
+// import { MatSort } from '@angular/material/sort';
 
 interface Column {
   title: string,
@@ -53,6 +54,10 @@ export class TablesDataSource implements DataSource<Object> {
   public displayedColumns: string[];
   public displayedDataColumns: string[];
   public sortByColumns: string[];
+  public defaultSort: {
+    column: string;
+    direction: 'asc' | 'desc';
+  } | null;
   public foreignKeysList: string[] = [];
   public foreignKeys: TableForeignKey[] = [];
   public widgetsList: string[];
@@ -271,6 +276,16 @@ export class TablesDataSource implements DataSource<Object> {
           this.canDelete = res.can_delete;
 
           this.sortByColumns = res.sortable_by;
+
+          // Only set defaultSort if both ordering_field and ordering are present
+          if (res.table_settings.ordering_field && res.table_settings.ordering) {
+            this.defaultSort = {
+              column: res.table_settings.ordering_field,
+              direction: res.table_settings.ordering.toLowerCase() as 'asc' | 'desc'
+            };
+          } else {
+            this.defaultSort = null;
+          }
 
           const widgetsConfigured = res.widgets?.length;
           if (!res.configured && !widgetsConfigured
