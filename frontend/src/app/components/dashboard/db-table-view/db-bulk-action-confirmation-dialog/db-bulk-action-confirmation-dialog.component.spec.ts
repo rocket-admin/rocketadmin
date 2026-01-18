@@ -63,11 +63,11 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
     component.selectedTableName = 'users';
     component.data.title = 'delete rows';
     component.data.primaryKeys = [{id: 1}, {id: 2}, {id: 3}];
-    const fakeDeleteRows = spyOn(tablesService, 'bulkDelete').and.returnValue(of());
+    const fakeDeleteRows = vi.spyOn(tablesService, 'bulkDelete').mockReturnValue(of());
 
     component.handleConfirmedActions();
 
-    expect(fakeDeleteRows).toHaveBeenCalledOnceWith('12345678', 'users', [{id: 1}, {id: 2}, {id: 3}]);
-    expect(component.submitting).toBeFalse();
+    expect(fakeDeleteRows).toHaveBeenCalledWith('12345678', 'users', [{id: 1}, {id: 2}, {id: 3}]);
+    expect(component.submitting).toBe(false);
   });
 });

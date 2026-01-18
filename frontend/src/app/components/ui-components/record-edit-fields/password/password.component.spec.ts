@@ -25,7 +25,7 @@ describe('PasswordEditComponent', () => {
 
   it('should send onChange event with new null value if user clear password', () => {
     component.clearPassword = true;
-    const event = spyOn(component.onFieldChange, 'emit');
+    const event = vi.spyOn(component.onFieldChange, 'emit');
     component.onClearPasswordChange();
     expect(event).toHaveBeenCalledWith(null);
   });
@@ -38,21 +38,21 @@ describe('PasswordEditComponent', () => {
     });
 
     it('should not emit onFieldChange when password is masked (empty after reset)', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.value = '***';
       component.ngOnInit();
       expect(event).not.toHaveBeenCalled();
     });
 
     it('should emit onFieldChange when password has actual value', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.value = 'actualPassword';
       component.ngOnInit();
       expect(event).toHaveBeenCalledWith('actualPassword');
     });
 
     it('should not emit onFieldChange when password is empty string', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.value = '';
       component.ngOnInit();
       expect(event).not.toHaveBeenCalled();
@@ -61,19 +61,19 @@ describe('PasswordEditComponent', () => {
 
   describe('onPasswordChange', () => {
     it('should emit onFieldChange when password has value', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.onPasswordChange('newPassword');
       expect(event).toHaveBeenCalledWith('newPassword');
     });
 
     it('should not emit onFieldChange when password is empty string', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.onPasswordChange('');
       expect(event).not.toHaveBeenCalled();
     });
 
     it('should emit onFieldChange when password is whitespace (actual value)', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.onPasswordChange('   ');
       expect(event).toHaveBeenCalledWith('   ');
     });
@@ -81,14 +81,14 @@ describe('PasswordEditComponent', () => {
 
   describe('onClearPasswordChange', () => {
     it('should emit null when clearPassword is true', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.clearPassword = true;
       component.onClearPasswordChange();
       expect(event).toHaveBeenCalledWith(null);
     });
 
     it('should not emit when clearPassword is false', () => {
-      const event = spyOn(component.onFieldChange, 'emit');
+      const event = vi.spyOn(component.onFieldChange, 'emit');
       component.clearPassword = false;
       component.onClearPasswordChange();
       expect(event).not.toHaveBeenCalled();

@@ -37,31 +37,31 @@
 }
 
 /* .saved-filters-tabs {
-    --mdc-chip-container-shape-radius: 4px;
+    --mat-chip-container-shape-radius: 4px;
 } */
 
 .saved-filters-tabs ::ng-deep .mat-mdc-standard-chip {
-	--mdc-chip-container-shape-radius: 4px;
-	--mdc-chip-outline-width: 1px;
-	--mdc-chip-elevated-container-color: transparent !important;
-	--mdc-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
-	--mdc-chip-container-height: 32px;
-	--mdc-chip-label-text-color: rgba(0, 0, 0, 0.64);
+	--mat-chip-container-shape-radius: 4px;
+	--mat-chip-outline-width: 1px;
+	--mat-chip-elevated-container-color: transparent !important;
+	--mat-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
+	--mat-chip-container-height: 32px;
+	--mat-chip-label-text-color: rgba(0, 0, 0, 0.64);
 }
 
 @media (prefers-color-scheme: light) {
 	.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip {
-		--mdc-chip-outline-color: rgba(0, 0, 0, 0.24);
-		--mdc-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
-		--mdc-chip-label-text-color: rgba(0, 0, 0, 0.64);
+		--mat-chip-outline-color: rgba(0, 0, 0, 0.24);
+		--mat-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
+		--mat-chip-label-text-color: rgba(0, 0, 0, 0.64);
 	}
 }
 
 @media (prefers-color-scheme: dark) {
 	.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip {
-		--mdc-chip-outline-color: rgba(255, 255, 255, 0.24);
-		--mdc-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
-		--mdc-chip-label-text-color: rgba(255, 255, 255, 0.64);
+		--mat-chip-outline-color: rgba(255, 255, 255, 0.24);
+		--mat-chip-elevated-selected-container-color: var(--color-accentedPalette-500) !important;
+		--mat-chip-label-text-color: rgba(255, 255, 255, 0.64);
 	}
 }
 

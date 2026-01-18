@@ -1,8 +1,6 @@
 import {
 	ComponentFixture,
-	fakeAsync,
 	TestBed,
-	tick,
 } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -16,9 +14,9 @@ import { S3EditComponent } from "./s3.component";
 describe("S3EditComponent", () => {
 	let component: S3EditComponent;
 	let fixture: ComponentFixture<S3EditComponent>;
-	let fakeS3Service: jasmine.SpyObj<S3Service>;
-	let fakeConnectionsService: jasmine.SpyObj<ConnectionsService>;
-	let fakeTablesService: jasmine.SpyObj<TablesService>;
+	let fakeS3Service: any;
+	let fakeConnectionsService: any;
+	let fakeTablesService: any;
 
 	const mockWidgetStructure: WidgetStructure = {
 		field_name: "document",
@@ -62,17 +60,17 @@ describe("S3EditComponent", () => {
 	};
 
 	beforeEach(async () => {
-		fakeS3Service = jasmine.createSpyObj("S3Service", [
-			"getFileUrl",
-			"getUploadUrl",
-			"uploadToS3",
-		]);
-		fakeConnectionsService = jasmine.createSpyObj("ConnectionsService", [], {
-			currentConnectionID: "conn-123",
-		});
-		fakeTablesService = jasmine.createSpyObj("TablesService", [], {
-			currentTableName: "users",
-		});
+		fakeS3Service = {
+			getFileUrl: vi.fn(),
+			getUploadUrl: vi.fn(),
+			uploadToS3: vi.fn(),
+		} as any;
+		fakeConnectionsService = {
+			get currentConnectionID() { return "conn-123"; }
+		} as any;
+		fakeTablesService = {
+			get currentTableName() { return "users"; }
+		} as any;
 
 		await TestBed.configureTestingModule({
 			imports: [FormsModule, BrowserAnimationsModule, S3EditComponent],
@@ -129,7 +127,7 @@ describe("S3EditComponent", () => {
 
 		it("should load preview if value is present", () => {
 			component.value = "uploads/existing-file.pdf";
-			fakeS3Service.getFileUrl.and.returnValue(of(mockFileUrlResponse));
+			fakeS3Service.getFileUrl.mockReturnValue(of(mockFileUrlResponse));
 
 			fixture.detectChanges();
 
@@ -152,7 +150,7 @@ describe("S3EditComponent", () => {
 	describe("ngOnChanges", () => {
 		it("should load preview when value changes and no preview exists", () => {
 			fixture.detectChanges();
-			fakeS3Service.getFileUrl.and.returnValue(of(mockFileUrlResponse));
+			fakeS3Service.getFileUrl.mockReturnValue(of(mockFileUrlResponse));
 
 			component.value = "uploads/new-file.pdf";
 			component.ngOnChanges();
@@ -182,11 +180,11 @@ describe("S3EditComponent", () => {
 	});
 
 	describe("onFileSelected", () => {
-		it("should upload file and update value on success", fakeAsync(() => {
+		it("should upload file and update value on success", async () => {
 			fixture.detectChanges();
-			fakeS3Service.getUploadUrl.and.returnValue(of(mockUploadUrlResponse));
-			fakeS3Service.uploadToS3.and.returnValue(of(undefined));
-			fakeS3Service.getFileUrl.and.returnValue(of(mockFileUrlResponse));
+			fakeS3Service.getUploadUrl.mockReturnValue(of(mockUploadUrlResponse));
+			fakeS3Service.uploadToS3.mockReturnValue(of(undefined));
+			fakeS3Service.getFileUrl.mockReturnValue(of(mockFileUrlResponse));
 
 			const file = new File(["test content"], "test.pdf", {
 				type: "application/pdf",
@@ -197,9 +195,9 @@ describe("S3EditComponent", () => {
 				},
 			} as unknown as Event;
 
-			spyOn(component.onFieldChange, "emit");
+			vi.spyOn(component.onFieldChange, "emit");
 			component.onFileSelected(event);
-			tick();
+			await fixture.whenStable();
 
 			expect(fakeS3Service.getUploadUrl).toHaveBeenCalledWith(
 				"conn-123",
@@ -216,7 +214,7 @@ describe("S3EditComponent", () => {
 			expect(component.onFieldChange.emit).toHaveBeenCalledWith(
 				"uploads/newfile.pdf",
 			);
-		}));
+		});
 
 		it("should do nothing if no files selected", () => {
 			fixture.detectChanges();
@@ -246,22 +244,22 @@ describe("S3EditComponent", () => {
 
 		it("should set isLoading to true during upload", () => {
 			fixture.detectChanges();
-			fakeS3Service.getUploadUrl.and.returnValue(of(mockUploadUrlResponse));
+			fakeS3Service.getUploadUrl.mockReturnValue(of(mockUploadUrlResponse));
 			// Use a Subject that never emits to keep the upload "in progress"
 			const pendingUpload$ = new Subject<void>();
-			fakeS3Service.uploadToS3.and.returnValue(pendingUpload$.asObservable());
+			fakeS3Service.uploadToS3.mockReturnValue(pendingUpload$.asObservable());
 
 			const file = new File(["test"], "test.pdf", { type: "application/pdf" });
 			const event = { target: { files: [file] } } as unknown as Event;
 
 			component.onFileSelected(event);
 
-			expect(component.isLoading).toBeTrue();
+			expect(component.isLoading).toBe(true);
 		});
 
-		it("should set isLoading to false on getUploadUrl error", fakeAsync(() => {
+		it("should set isLoading to false on getUploadUrl error", async () => {
 			fixture.detectChanges();
-			fakeS3Service.getUploadUrl.and.returnValue(
+			fakeS3Service.getUploadUrl.mockReturnValue(
 				throwError(() => new Error("Upload URL error")),
 			);
 
@@ -269,15 +267,15 @@ describe("S3EditComponent", () => {
 			const event = { target: { files: [file] } } as unknown as Event;
 
 			component.onFileSelected(event);
-			tick();
+			await fixture.whenStable();
 
-			expect(component.isLoading).toBeFalse();
-		}));
+			expect(component.isLoading).toBe(false);
+		});
 
-		it("should set isLoading to false on uploadToS3 error", fakeAsync(() => {
+		it("should set isLoading to false on uploadToS3 error", async () => {
 			fixture.detectChanges();
-			fakeS3Service.getUploadUrl.and.returnValue(of(mockUploadUrlResponse));
-			fakeS3Service.uploadToS3.and.returnValue(
+			fakeS3Service.getUploadUrl.mockReturnValue(of(mockUploadUrlResponse));
+			fakeS3Service.uploadToS3.mockReturnValue(
 				throwError(() => new Error("S3 upload error")),
 			);
 
@@ -285,17 +283,17 @@ describe("S3EditComponent", () => {
 			const event = { target: { files: [file] } } as unknown as Event;
 
 			component.onFileSelected(event);
-			tick();
+			await fixture.whenStable();
 
-			expect(component.isLoading).toBeFalse();
-		}));
+			expect(component.isLoading).toBe(false);
+		});
 	});
 
 	describe("openFile", () => {
 		it("should open preview URL in new tab", () => {
 			fixture.detectChanges();
 			component.previewUrl = "https://s3.amazonaws.com/bucket/file.pdf";
-			spyOn(window, "open");
+			vi.spyOn(window, "open");
 
 			component.openFile();
 
@@ -308,7 +306,7 @@ describe("S3EditComponent", () => {
 		it("should not open if previewUrl is null", () => {
 			fixture.detectChanges();
 			component.previewUrl = null;
-			spyOn(window, "open");
+			vi.spyOn(window, "open");
 
 			component.openFile();
 
@@ -344,27 +342,27 @@ describe("S3EditComponent", () => {
 	});
 
 	describe("_loadPreview", () => {
-		it("should set previewUrl and isImage on successful load", fakeAsync(() => {
+		it("should set previewUrl and isImage on successful load", async () => {
 			component.value = "uploads/photo.jpg";
-			fakeS3Service.getFileUrl.and.returnValue(of(mockFileUrlResponse));
+			fakeS3Service.getFileUrl.mockReturnValue(of(mockFileUrlResponse));
 
 			fixture.detectChanges();
-			tick();
+			await fixture.whenStable();
 
 			expect(component.previewUrl).toBe(mockFileUrlResponse.url);
-			expect(component.isImage).toBeTrue();
-			expect(component.isLoading).toBeFalse();
-		}));
+			expect(component.isImage).toBe(true);
+			expect(component.isLoading).toBe(false);
+		});
 
-		it("should set isImage to false for non-image files", fakeAsync(() => {
+		it("should set isImage to false for non-image files", async () => {
 			component.value = "uploads/document.pdf";
-			fakeS3Service.getFileUrl.and.returnValue(of(mockFileUrlResponse));
+			fakeS3Service.getFileUrl.mockReturnValue(of(mockFileUrlResponse));
 
 			fixture.detectChanges();
-			tick();
+			await fixture.whenStable();
 
-			expect(component.isImage).toBeFalse();
-		}));
+			expect(component.isImage).toBe(false);
+		});
 
 		it("should not load preview if value is empty", () => {
 			component.value = "";
@@ -385,7 +383,7 @@ describe("S3EditComponent", () => {
 			fixture.detectChanges();
 			(component as any).tableName = "";
 			component.value = "uploads/file.pdf";
-			fakeS3Service.getFileUrl.calls.reset();
+			fakeS3Service.getFileUrl.mockClear();
 
 			(component as any)._loadPreview();
 
@@ -400,17 +398,17 @@ describe("S3EditComponent", () => {
 			expect(fakeS3Service.getFileUrl).not.toHaveBeenCalled();
 		});
 
-		it("should set isLoading to false on error", fakeAsync(() => {
+		it("should set isLoading to false on error", async () => {
 			component.value = "uploads/file.pdf";
-			fakeS3Service.getFileUrl.and.returnValue(
+			fakeS3Service.getFileUrl.mockReturnValue(
 				throwError(() => new Error("File URL error")),
 			);
 
 			fixture.detectChanges();
-			tick();
+			await fixture.whenStable();
 
-			expect(component.isLoading).toBeFalse();
-		}));
+			expect(component.isLoading).toBe(false);
+		});
 	});
 
 	describe("_parseWidgetParams", () => {
@@ -432,7 +430,7 @@ describe("S3EditComponent", () => {
 		});
 
 		it("should handle invalid JSON string gracefully", () => {
-			spyOn(console, "error");
+			vi.spyOn(console, "error");
 			component.widgetStructure = {
 				...mockWidgetStructure,
 				widget_params: "invalid json" as any,
@@ -463,7 +461,7 @@ describe("S3EditComponent", () => {
 			fixture.detectChanges();
 
 			const uploadButton = fixture.nativeElement.querySelector("button");
-			expect(uploadButton.disabled).toBeTrue();
+			expect(uploadButton.disabled).toBe(true);
 		});
 
 		it("should disable upload button when readonly", () => {
@@ -471,7 +469,7 @@ describe("S3EditComponent", () => {
 			fixture.detectChanges();
 
 			const uploadButton = fixture.nativeElement.querySelector("button");
-			expect(uploadButton.disabled).toBeTrue();
+			expect(uploadButton.disabled).toBe(true);
 		});
 
 		it("should disable upload button when loading", () => {
@@ -479,7 +477,7 @@ describe("S3EditComponent", () => {
 			fixture.detectChanges();
 
 			const uploadButton = fixture.nativeElement.querySelector("button");
-			expect(uploadButton.disabled).toBeTrue();
+			expect(uploadButton.disabled).toBe(true);
 		});
 
 		it("should show open button when previewUrl exists", () => {

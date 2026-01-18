@@ -13,16 +13,20 @@ import { Angulartics2Module } from 'angulartics2';
 describe('SavedFiltersDialogComponent', () => {
   let component: SavedFiltersDialogComponent;
   let fixture: ComponentFixture<SavedFiltersDialogComponent>;
-  let tablesServiceMock: jasmine.SpyObj<TablesService>;
-  let _connectionsServiceMock: jasmine.SpyObj<ConnectionsService>;
+  let tablesServiceMock: any;
+  let _connectionsServiceMock: any;
 
   beforeEach(async () => {
-    const tableSpy = jasmine.createSpyObj('TablesService', ['cast', 'createSavedFilter', 'deleteSavedFilter', 'updateSavedFilter']);
-    tableSpy.cast = jasmine.createSpyObj('BehaviorSubject', ['subscribe']);
+    const tableSpy = {
+      cast: { subscribe: vi.fn() },
+      createSavedFilter: vi.fn(),
+      deleteSavedFilter: vi.fn(),
+      updateSavedFilter: vi.fn()
+    };
 
-    const connectionSpy = jasmine.createSpyObj('ConnectionsService', [], {
+    const connectionSpy = {
       currentConnection: { type: 'postgres' }
-    });
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -33,8 +37,8 @@ describe('SavedFiltersDialogComponent', () => {
       providers: [
         { provide: TablesService, useValue: tableSpy },
         { provide: ConnectionsService, useValue: connectionSpy },
-        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } },
-        { provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } },
+        { provide: MatDialogRef, useValue: { close: vi.fn() } },
+        { provide: MatSnackBar, useValue: { open: vi.fn() } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -60,8 +64,8 @@ describe('SavedFiltersDialogComponent', () => {
     })
     .compileComponents();
 
-    tablesServiceMock = TestBed.inject(TablesService) as jasmine.SpyObj<TablesService>;
-    _connectionsServiceMock = TestBed.inject(ConnectionsService) as jasmine.SpyObj<ConnectionsService>;
+    tablesServiceMock = TestBed.inject(TablesService);
+    _connectionsServiceMock = TestBed.inject(ConnectionsService);
 
     fixture = TestBed.createComponent(SavedFiltersDialogComponent);
     component = fixture.componentInstance;
@@ -93,7 +97,7 @@ describe('SavedFiltersDialogComponent', () => {
     component.tableRowFieldsShown = { [fieldName]: 'test_value' };
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
     component.dynamicColumn = fieldName;
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -126,7 +130,7 @@ describe('SavedFiltersDialogComponent', () => {
       [dynamicFieldName]: 'contains'
     };
     component.dynamicColumn = dynamicFieldName; // Different field from the one with comparator
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -151,7 +155,7 @@ describe('SavedFiltersDialogComponent', () => {
     const fieldName = 'test_field';
     component.tableRowFieldsShown = { [fieldName]: '' }; // Empty value
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -180,7 +184,7 @@ describe('SavedFiltersDialogComponent', () => {
       // No comparator for dynamicFieldName
     };
     component.dynamicColumn = dynamicFieldName;
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -207,7 +211,7 @@ describe('SavedFiltersDialogComponent', () => {
     component.tableRowFieldsShown = { [fieldName]: 'test_value' };
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
     component.data.filtersSet.id = filterId;
-    tablesServiceMock.updateSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.updateSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();
@@ -231,7 +235,7 @@ describe('SavedFiltersDialogComponent', () => {
     component.tableRowFieldsShown = { [fieldName]: 'test_value' };
     component.tableRowFieldsComparator = { [fieldName]: 'eq' };
     component.data.filtersSet.id = undefined; // No ID means creating a new filter
-    tablesServiceMock.createSavedFilter.and.returnValue(of({}));
+    tablesServiceMock.createSavedFilter.mockReturnValue(of({}));
 
     // Call handleSaveFilters
     component.handleSaveFilters();

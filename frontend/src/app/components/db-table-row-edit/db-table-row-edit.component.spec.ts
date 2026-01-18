@@ -17,7 +17,7 @@ describe('DbTableRowEditComponent', () => {
   let connectionsService: ConnectionsService;
 
   beforeEach(async () => {
-    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    const matSnackBarSpy = { open: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -47,7 +47,7 @@ describe('DbTableRowEditComponent', () => {
   });
 
   it('should set connection id', () => {
-    spyOnProperty(connectionsService, 'currentConnectionID').and.returnValue('12345678');
+    vi.spyOn(connectionsService, 'currentConnectionID', 'get').mockReturnValue('12345678');
 
     component.ngOnInit();
     fixture.detectChanges();
@@ -247,14 +247,14 @@ describe('DbTableRowEditComponent', () => {
     component.readonlyFields = ['Id', 'Price'];
 
     const isPriceReafonly = component.isReadonlyField('Price');
-    expect(isPriceReafonly).toBeTrue();
+    expect(isPriceReafonly).toBe(true);
   });
 
   it('should check if field is widget', () => {
     component.tableWidgetsList = ['CustomerId', 'Price'];
 
     const isPriceWidget = component.isWidget('Price');
-    expect(isPriceWidget).toBeTrue();
+    expect(isPriceWidget).toBe(true);
   });
 
   describe('updateField for password widget behavior', () => {
@@ -292,7 +292,7 @@ describe('DbTableRowEditComponent', () => {
 
   describe('getFormattedUpdatedRow', () => {
     beforeEach(() => {
-      spyOnProperty(connectionsService, 'currentConnection').and.returnValue({ 
+      vi.spyOn(connectionsService, 'currentConnection', 'get').mockReturnValue({ 
         id: 'test-id',
         database: 'test-db',
         title: 'Test Connection',

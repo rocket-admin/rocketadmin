@@ -53,13 +53,13 @@ describe('GroupAddDialogComponent', () => {
   it('should call create user group service', () => {
     component.groupTitle = 'Sellers';
     component.connectionID = '12345678';
-    const fakeCreateUsersGroup = spyOn(usersService, 'createUsersGroup').and.returnValue(of());
-    spyOn(mockDialogRef, 'close');
+    const fakeCreateUsersGroup = vi.spyOn(usersService, 'createUsersGroup').mockReturnValue(of());
+    vi.spyOn(mockDialogRef, 'close');
 
     component.addGroup();
 
-    expect(fakeCreateUsersGroup).toHaveBeenCalledOnceWith('12345678', 'Sellers');
+    expect(fakeCreateUsersGroup).toHaveBeenCalledWith('12345678', 'Sellers');
     // expect(component.dialogRef.close).toHaveBeenCalled();
-    expect(component.submitting).toBeFalse();
+    expect(component.submitting).toBe(false);
   });
 });

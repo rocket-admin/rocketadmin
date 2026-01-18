@@ -1,80 +1,79 @@
-import { SubscriptionPlans, UserGroup } from "./user"
-
-import { User } from "@sentry/angular-ivy"
+import { User } from '@sentry/angular';
+import { SubscriptionPlans, UserGroup } from './user';
 
 export interface Address {
-    street: string,
-    number: string,
-    complement: string,
-    neighborhood: string,
-    city: string,
-    state: string,
-    country: string,
-    zipCode: string,
+	street: string;
+	number: string;
+	complement: string;
+	neighborhood: string;
+	city: string;
+	state: string;
+	country: string;
+	zipCode: string;
 }
 
 export interface CompanyConnection {
-    id: string,
-    createdAt: string,
-    updatedAt: string,
-    title: string,
-    author: User,
-    groups: UserGroup[],
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	title: string;
+	author: User;
+	groups: UserGroup[];
 }
 
 export interface Company {
-    id: string,
-    additional_info?: string,
-    name: string,
-    address: Address | {},
-    portal_link: string,
-    subscriptionLevel: SubscriptionPlans,
-    connections: CompanyConnection[],
-    invitations: CompanyMemberInvitation[],
-    is_payment_method_added: boolean,
-    show_test_connections: boolean
+	id: string;
+	additional_info?: string;
+	name: string;
+	address: Address | {};
+	portal_link: string;
+	subscriptionLevel: SubscriptionPlans;
+	connections: CompanyConnection[];
+	invitations: CompanyMemberInvitation[];
+	is_payment_method_added: boolean;
+	show_test_connections: boolean;
 }
 
 export interface CompanyMember {
-    id: string,
-    isActive: boolean,
-    name: string,
-    email: string,
-    is_2fa_enabled: boolean,
-    role: CompanyMemberRole,
-    has_groups: boolean
+	id: string;
+	isActive: boolean;
+	name: string;
+	email: string;
+	is_2fa_enabled: boolean;
+	role: CompanyMemberRole;
+	has_groups: boolean;
 }
 
 export enum CompanyMemberRole {
-    CAO = 'ADMIN',
-    SystemAdmin = 'DB_ADMIN',
-    Member = 'USER',
+	CAO = 'ADMIN',
+	SystemAdmin = 'DB_ADMIN',
+	Member = 'USER',
 }
 
 export interface CompanyMemberInvitation {
-    id: string,
-    verification_string: string,
-    groupId: string,
-    inviterId: string,
-    invitedUserEmail: string,
-    role: CompanyMemberRole
+	id: string;
+	verification_string: string;
+	groupId: string;
+	inviterId: string;
+	invitedUserEmail: string;
+	role: CompanyMemberRole;
 }
 
 export interface SamlConfig {
-  id?: string;
-  name: string;
-  entryPoint: string;
-  issuer: string;
-  callbackUrl: string;
-  cert: string;
-  signatureAlgorithm: string;
-  digestAlgorithm: "sha256",
-  active: true,
-  authnResponseSignedValidation: boolean,
-  assertionsSignedValidation: boolean,
-  allowedDomains: string[],
-  displayName: string,
-  logoUrl: string,
-  expectedIssuer: string,
-  slug: string
+	id?: string;
+	name: string;
+	entryPoint: string;
+	issuer: string;
+	callbackUrl: string;
+	cert: string;
+	signatureAlgorithm: string;
+	digestAlgorithm: 'sha256';
+	active: true;
+	authnResponseSignedValidation: boolean;
+	assertionsSignedValidation: boolean;
+	allowedDomains: string[];
+	displayName: string;
+	logoUrl: string;
+	expectedIssuer: string;
+	slug: string;
 }
