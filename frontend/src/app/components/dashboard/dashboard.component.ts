@@ -10,7 +10,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, ParamMap, Router, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { omitBy } from 'lodash';
+import { omitBy } from 'lodash-es';
 import { first, map } from 'rxjs/operators';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { ServerError } from 'src/app/models/alert';
