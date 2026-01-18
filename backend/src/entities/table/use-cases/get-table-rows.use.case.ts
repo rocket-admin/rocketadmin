@@ -259,6 +259,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 					can_update: can_update,
 					can_add: can_add,
 					columns_view: personalTableSettings?.columns_view ? personalTableSettings.columns_view : [],
+					ordering_field: personalTableSettings.ordering_field ? personalTableSettings.ordering_field : undefined,
 				},
 			};
 
