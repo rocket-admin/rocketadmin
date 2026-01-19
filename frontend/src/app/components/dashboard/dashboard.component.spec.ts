@@ -24,7 +24,9 @@ describe('DashboardComponent', () => {
 		},
 		getTablesFolders: () => of([]),
 	};
-	const fakeRouter = jasmine.createSpyObj('Router', { navigate: Promise.resolve('') });
+	const fakeRouter = {
+		navigate: vi.fn().mockReturnValue(Promise.resolve('')),
+	};
 
 	const fakeTables = [
 		{
@@ -71,7 +73,9 @@ describe('DashboardComponent', () => {
 			trackLocation: () => {}, // Mocking the trackLocation method
 		};
 
-		fakeTablesService = jasmine.createSpyObj('tablesService', { fetchTables: of(fakeTables) });
+		fakeTablesService = {
+			fetchTables: vi.fn().mockReturnValue(of(fakeTables)),
+		};
 
 		await TestBed.configureTestingModule({
 			imports: [MatSnackBarModule, MatDialogModule, Angulartics2Module.forRoot(), DashboardComponent],
@@ -113,12 +117,12 @@ describe('DashboardComponent', () => {
 	});
 
 	it('should get access level of current connection', () => {
-		spyOnProperty(fakeConnectionsSevice, 'currentConnectionAccessLevel', 'get').and.returnValue(AccessLevel.Readonly);
+		vi.spyOn(fakeConnectionsSevice, 'currentConnectionAccessLevel', 'get').mockReturnValue(AccessLevel.Readonly);
 		expect(component.currentConnectionAccessLevel).toEqual('readonly');
 	});
 
 	it('should call getTables', async () => {
-		fakeTablesService.fetchTables.and.returnValue(of(fakeTables));
+		fakeTablesService.fetchTables.mockReturnValue(of(fakeTables));
 		const tables = await component.getTables();
 		expect(tables).toEqual(fakeTables);
 	});
