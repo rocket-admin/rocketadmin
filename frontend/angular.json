@@ -87,7 +87,7 @@
 							"fileReplacements": [
 								{
 									"replace": "src/environments/environment.ts",
-									"with": "src/environments/environment.saas-prod.ts"
+									"with": "src/environments/environment.saas.ts"
 								}
 							]
 						},
