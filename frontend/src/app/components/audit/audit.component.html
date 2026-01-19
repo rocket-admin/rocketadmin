@@ -82,7 +82,11 @@
                             <mat-icon class="action-icon" [ngClass]="'action-icon--' + element.ActionIcon">{{element.ActionIcon}}</mat-icon>
                             {{element[column] || '—'}}
                         </span>
-                        <span *ngIf="column !== 'Status' && column !== 'Action'">{{element[column] || '—'}}</span>
+                        <span *ngIf="column === 'User'" class="user-cell">
+                            <span class="user-name" *ngIf="getUserName(element.UserEmail)">{{getUserName(element.UserEmail)}}</span>
+                            <span class="user-email" [class.user-email--secondary]="getUserName(element.UserEmail)">{{element.UserEmail}}</span>
+                        </span>
+                        <span *ngIf="column !== 'Status' && column !== 'Action' && column !== 'User'">{{element[column] || '—'}}</span>
                     </div>
                 </td>
             </ng-container>

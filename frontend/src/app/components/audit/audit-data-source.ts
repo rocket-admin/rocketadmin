@@ -86,6 +86,7 @@ export class AuditDataSource implements DataSource<Object> {
             return {
               "Table": log.table_name,
               "User": log.email,
+              "UserEmail": log.email,
               "Action": actions[log.operationType],
               "ActionIcon": actionIcons[log.operationType],
               "Date": formattedDate,

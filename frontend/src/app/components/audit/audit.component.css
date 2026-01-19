@@ -150,3 +150,24 @@ th.mat-header-cell, td.mat-cell {
 .action-icon--visibility {
     color: #6A6A6A;
 }
+
+.user-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+.user-email--secondary {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+    .user-email--secondary {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}

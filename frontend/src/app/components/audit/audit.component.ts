@@ -144,4 +144,10 @@ export class AuditComponent implements OnInit {
     // @ts-expect-error
     Intercom('show');
   }
+
+  getUserName(email: string): string | null {
+    if (!this.usersList) return null;
+    const user = this.usersList.find(u => u.email === email);
+    return user?.name || null;
+  }
 }
