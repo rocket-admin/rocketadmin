@@ -12,7 +12,7 @@ import { DynamicModule } from 'ng-dynamic-component';
 import JsonURL from "@jsonurl/jsonurl";
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -98,7 +98,7 @@ export interface Folder {
     SavedFiltersPanelComponent
   ]
 })
-export class DbTableViewComponent implements OnInit {
+export class DbTableViewComponent implements OnInit, OnChanges {
 	@Input() name: string;
 	@Input() displayName: string;
 	@Input() permissions: TablePermissions;
@@ -158,6 +158,7 @@ export class DbTableViewComponent implements OnInit {
 	@ViewChild(MatSort) sort: MatSort;
 
 	public defaultSort: { column: string; direction: 'asc' | 'desc' } | null = null;
+	private sortInitialized: boolean = false;
 
 	constructor(
 		private _tableState: TableStateService,
@@ -178,8 +179,6 @@ export class DbTableViewComponent implements OnInit {
 		const urlSortActive = this.route.snapshot.queryParams.sort_active;
 		const urlSortDirection = this.route.snapshot.queryParams.sort_direction;
 
-		let sortInitialized = false;
-
 		// Subscribe to loading state to initialize default sort after data is loaded
 		this.tableData.loading$.subscribe((loading: boolean) => {
 			console.log('loading$ changed:', loading, 'sort.active:', this.sort?.active, 'sort.direction:', this.sort?.direction);
@@ -191,9 +190,9 @@ export class DbTableViewComponent implements OnInit {
 				console.log('DbTableViewComponent tableData loaded:', this.tableData);
 				console.log('DbTableViewComponent tableData.defaultSort loaded:', this.tableData.defaultSort);
 
-				// Only initialize sort on first load
-				if (!sortInitialized) {
-					sortInitialized = true;
+				// Only initialize sort on first load (or after table switch when sortInitialized was reset)
+				if (!this.sortInitialized) {
+					this.sortInitialized = true;
 
 					// Initialize sort based on priority: URL params > default sort
 					if (urlSortActive && urlSortDirection) {
@@ -233,6 +232,20 @@ export class DbTableViewComponent implements OnInit {
 				}),
 			)
 			.subscribe();
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		// When table name changes, reset sort to default
+		if (changes.name && !changes.name.firstChange && this.sort) {
+			console.log('Table name changed from', changes.name.previousValue, 'to', changes.name.currentValue);
+
+			// Reset sort to empty state - it will be initialized with default sort when data loads
+			this.sort.active = '';
+			this.sort.direction = '' as any;
+
+			// Reset the sortInitialized flag so the sort gets re-initialized with new table's default sort
+			this.sortInitialized = false;
+		}
 	}
 
 	ngOnInit() {
