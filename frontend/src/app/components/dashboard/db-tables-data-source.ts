@@ -6,7 +6,6 @@ import { filter } from 'lodash-es';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
-import { normalizeFieldName } from 'src/app/lib/normalize';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, Widget } from 'src/app/models/table';
@@ -14,11 +13,7 @@ import { AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
-import { filter } from "lodash-es";
-import { formatFieldValue } from 'src/app/lib/format-field-value';
-import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeFieldName } from 'src/app/lib/normalize';
-// import { MatSort } from '@angular/material/sort';
 
 interface Column {
 	title: string;
@@ -46,7 +41,6 @@ export class TablesDataSource implements DataSource<Object> {
 
   public loading$ = this.loadingSubject.asObservable();
   public paginator: MatPaginator;
-  // public sort: MatSort;
 
   public structure;
   public keyAttributes;

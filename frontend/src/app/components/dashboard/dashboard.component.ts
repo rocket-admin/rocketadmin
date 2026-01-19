@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
-import { map } from 'rxjs/operators';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { SelectionModel } from '@angular/cdk/collections';
