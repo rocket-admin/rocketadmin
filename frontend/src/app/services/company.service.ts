@@ -110,12 +110,19 @@ export class CompanyService {
 		);
 	}
 
-	inviteCompanyMember(companyId: string, groupId: string, email: string, role: CompanyMemberRole) {
+	inviteCompanyMember(
+		companyId: string,
+		groupId: string,
+		email: string,
+		role: CompanyMemberRole,
+		turnstileToken?: string,
+	) {
 		return this._http
 			.put<any>(`/company/user/${companyId}`, {
 				groupId,
 				email,
 				role,
+				...(turnstileToken ? { turnstileToken } : {}),
 			})
 			.pipe(
 				map(() => {

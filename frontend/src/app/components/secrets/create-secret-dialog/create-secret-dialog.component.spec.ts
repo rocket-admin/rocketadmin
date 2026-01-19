@@ -27,11 +27,11 @@ describe('CreateSecretDialogComponent', () => {
 
 	beforeEach(async () => {
 		mockSecretsService = {
-			createSecret: vi.fn().mockReturnValue(of(mockSecret))
+			createSecret: vi.fn().mockReturnValue(of(mockSecret)),
 		};
 
 		mockDialogRef = {
-			close: vi.fn()
+			close: vi.fn(),
 		};
 
 		await TestBed.configureTestingModule({

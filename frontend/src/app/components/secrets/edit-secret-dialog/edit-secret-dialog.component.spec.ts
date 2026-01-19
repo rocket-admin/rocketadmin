@@ -37,7 +37,7 @@ describe('EditSecretDialogComponent', () => {
 
 	const createComponent = async (secret: Secret = mockSecret) => {
 		mockSecretsService = {
-			updateSecret: vi.fn().mockReturnValue(of(secret))
+			updateSecret: vi.fn().mockReturnValue(of(secret)),
 		};
 
 		mockDialogRef = { close: vi.fn() };

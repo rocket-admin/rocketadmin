@@ -1,8 +1,8 @@
+import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MasterPasswordDialogComponent } from '../components/master-password-dialog/master-password-dialog.component';
-import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { MasterPasswordDialogComponent } from '../components/master-password-dialog/master-password-dialog.component';
 
 import { MasterPasswordService } from './master-password.service';
 
@@ -13,11 +13,7 @@ describe('MasterPasswordService', () => {
 	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [MatDialogModule],
-			providers: [
-				provideHttpClient(),
-				provideRouter([]),
-				{ provide: MatDialogRef, useValue: { close: vi.fn() } }
-			]
+			providers: [provideHttpClient(), provideRouter([]), { provide: MatDialogRef, useValue: { close: vi.fn() } }],
 		});
 
 		service = TestBed.inject(MasterPasswordService);
@@ -33,7 +29,9 @@ describe('MasterPasswordService', () => {
 	});
 
 	it('should show Master password dialog', () => {
-		const fakeDialog = vi.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => ({ subscribe: () => {} }) } as any);
+		const fakeDialog = vi
+			.spyOn(dialog, 'open')
+			.mockReturnValue({ afterClosed: () => ({ subscribe: () => {} }) } as any);
 		service.showMasterPasswordDialog();
 		expect(fakeDialog).toHaveBeenCalledWith(MasterPasswordDialogComponent, {
 			width: '24em',

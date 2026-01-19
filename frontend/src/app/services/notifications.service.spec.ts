@@ -1,103 +1,102 @@
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { NotificationsService } from './notifications.service';
 import { TestBed } from '@angular/core/testing';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Alert, AlertActionType, AlertType } from '../models/alert';
+import { NotificationsService } from './notifications.service';
 
 describe('NotificationsService', () => {
-  let service: NotificationsService;
-  let snackBar: MatSnackBar;
+	let service: NotificationsService;
+	let snackBar: MatSnackBar;
 
-  const alert: Alert = {
-    id: 0,
-    type: AlertType.Error,
-    message: 'Error message',
-    actions: [
-      {
-        type: AlertActionType.Button,
-        caption: 'Dismiss'
-      }
-    ]
-  }
+	const alert: Alert = {
+		id: 0,
+		type: AlertType.Error,
+		message: 'Error message',
+		actions: [
+			{
+				type: AlertActionType.Button,
+				caption: 'Dismiss',
+			},
+		],
+	};
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [ MatSnackBarModule ],
-    })
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [MatSnackBarModule],
+		});
 
-    service = TestBed.inject(NotificationsService);
-    snackBar = TestBed.inject(MatSnackBar);
-    service.idCounter = 0;
-  });
+		service = TestBed.inject(NotificationsService);
+		snackBar = TestBed.inject(MatSnackBar);
+		service.idCounter = 0;
+	});
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+	it('should be created', () => {
+		expect(service).toBeTruthy();
+	});
 
-  it('should show ErrorSnackbar', () => {
-    const fakeSnackBar = vi.spyOn(snackBar, 'open');
-    service.showErrorSnackbar('Error message.')
-    expect(fakeSnackBar).toHaveBeenCalledWith(
-      'Error message.',
-      'Dismiss',
-      Object({
-        duration: 10000,
-        horizontalPosition: 'left'
-      })
-    );
-  });
+	it('should show ErrorSnackbar', () => {
+		const fakeSnackBar = vi.spyOn(snackBar, 'open');
+		service.showErrorSnackbar('Error message.');
+		expect(fakeSnackBar).toHaveBeenCalledWith(
+			'Error message.',
+			'Dismiss',
+			Object({
+				duration: 10000,
+				horizontalPosition: 'left',
+			}),
+		);
+	});
 
-  it('should show SuccessSnackbar', () => {
-    const fakeSnackBar = vi.spyOn(snackBar, 'open');
-    service.showSuccessSnackbar('Success message.')
-    expect(fakeSnackBar).toHaveBeenCalledWith(
-      'Success message.',
-      null,
-      Object({
-        duration: 2500,
-      horizontalPosition: 'left'
-      })
-    );
-  });
+	it('should show SuccessSnackbar', () => {
+		const fakeSnackBar = vi.spyOn(snackBar, 'open');
+		service.showSuccessSnackbar('Success message.');
+		expect(fakeSnackBar).toHaveBeenCalledWith(
+			'Success message.',
+			null,
+			Object({
+				duration: 2500,
+				horizontalPosition: 'left',
+			}),
+		);
+	});
 
-  it('should get alert', () => {
-    service.alert = alert;
-    expect(service.currentAlert).toEqual(alert);
-  })
+	it('should get alert', () => {
+		service.alert = alert;
+		expect(service.currentAlert).toEqual(alert);
+	});
 
-  it('should show new alert', () => {
-    service.alert = alert;
-    service.showAlert(AlertType.Error, 'Error message 2', [
-      {
-        type: AlertActionType.Button,
-        caption: 'Dissmis'
-      }
-    ]);
+	it('should show new alert', () => {
+		service.alert = alert;
+		service.showAlert(AlertType.Error, 'Error message 2', [
+			{
+				type: AlertActionType.Button,
+				caption: 'Dissmis',
+			},
+		]);
 
-    expect(service.alert).toEqual({
-      id: 1,
-      type: AlertType.Error,
-      message: 'Error message 2',
-      actions: [
-        {
-          type: AlertActionType.Button,
-          caption: 'Dissmis'
-        }
-      ]
-    })
-  });
+		expect(service.alert).toEqual({
+			id: 1,
+			type: AlertType.Error,
+			message: 'Error message 2',
+			actions: [
+				{
+					type: AlertActionType.Button,
+					caption: 'Dissmis',
+				},
+			],
+		});
+	});
 
-  it('should dissmis alert', () => {
-    service.alert = alert;
-    service.dismissAlert();
+	it('should dissmis alert', () => {
+		service.alert = alert;
+		service.dismissAlert();
 
-    expect(service.alert).toBeNull();
-  });
+		expect(service.alert).toBeNull();
+	});
 
-  it('should reset alert', () => {
-    service.alert = alert;
-    service.resetAlert();
+	it('should reset alert', () => {
+		service.alert = alert;
+		service.resetAlert();
 
-    expect(service.alert).toBeNull();
-  })
+		expect(service.alert).toBeNull();
+	});
 });

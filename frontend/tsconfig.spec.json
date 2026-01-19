@@ -1,15 +1,8 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./out-tsc/spec",
-    "types": [
-      "node"
-    ]
-  },
-  "include": [
-    "src/test-setup.ts",
-    "src/polyfills.ts",
-    "src/**/*.spec.ts",
-    "src/**/*.d.ts"
-  ]
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./out-tsc/spec",
+		"types": ["node"]
+	},
+	"include": ["src/test-setup.ts", "src/polyfills.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
 }

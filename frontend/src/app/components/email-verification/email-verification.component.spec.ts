@@ -1,58 +1,58 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { EmailVerificationComponent } from './email-verification.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { Router } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { EmailVerificationComponent } from './email-verification.component';
 
 describe('EmailVerificationComponent', () => {
-  let component: EmailVerificationComponent;
-  let fixture: ComponentFixture<EmailVerificationComponent>;
-  let authService: AuthService;
-  // let mockLocalStorage;
-  let routerSpy;
+	let component: EmailVerificationComponent;
+	let fixture: ComponentFixture<EmailVerificationComponent>;
+	let authService: AuthService;
+	// let mockLocalStorage;
+	let routerSpy;
 
-  beforeEach(async () => {
-    routerSpy = {navigate: vi.fn()};
+	beforeEach(async () => {
+		routerSpy = { navigate: vi.fn() };
 
-    await TestBed.configureTestingModule({
-      imports: [
-        MatSnackBarModule,
-        EmailVerificationComponent
-      ],
-      providers: [
-        provideHttpClient(),
-        provideRouter([]),
-        {provide: ActivatedRoute, useValue: {
-          paramMap: of(convertToParamMap({
-            'verification-token': '1234567890-abcd'
-          })),
-        }},
-        { provide: Router, useValue: routerSpy },
-      ]
-    }).compileComponents();
-  });
+		await TestBed.configureTestingModule({
+			imports: [MatSnackBarModule, EmailVerificationComponent],
+			providers: [
+				provideHttpClient(),
+				provideRouter([]),
+				{
+					provide: ActivatedRoute,
+					useValue: {
+						paramMap: of(
+							convertToParamMap({
+								'verification-token': '1234567890-abcd',
+							}),
+						),
+					},
+				},
+				{ provide: Router, useValue: routerSpy },
+			],
+		}).compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(EmailVerificationComponent);
-    component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService);
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(EmailVerificationComponent);
+		component = fixture.componentInstance;
+		authService = TestBed.inject(AuthService);
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 
-  it('should verify email', async() => {
-    const fakeVerifyEmail = vi.spyOn(authService, 'verifyEmail').mockReturnValue(of());
+	it('should verify email', async () => {
+		const fakeVerifyEmail = vi.spyOn(authService, 'verifyEmail').mockReturnValue(of());
 
-    component.ngOnInit();
+		component.ngOnInit();
 
-    expect(fakeVerifyEmail).toHaveBeenCalledWith('1234567890-abcd');
-    // expect(routerSpy.navigate).toHaveBeenCalledWith(['/user-settings']);
-  });
+		expect(fakeVerifyEmail).toHaveBeenCalledWith('1234567890-abcd');
+		// expect(routerSpy.navigate).toHaveBeenCalledWith(['/user-settings']);
+	});
 });

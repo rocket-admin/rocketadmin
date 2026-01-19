@@ -1,5 +1,5 @@
 {
-	"name": "dissendium-v0",
+	"name": "rocketadmin",
 	"version": "1.0.0",
 	"scripts": {
 		"ng": "ng",
@@ -9,7 +9,7 @@
 		"test:ci": "ng test --no-watch",
 		"lint": "ng lint",
 		"e2e": "ng e2e",
-		"analyze": "webpack-bundle-analyzer dist/dissendium-v0/stats.json",
+		"analyze": "webpack-bundle-analyzer dist/rocketadmin/stats.json",
 		"build:stats": "node scripts/update-version.js && ng build --stats-json",
 		"update-version": "node scripts/update-version.js"
 	},
