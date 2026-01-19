@@ -3,8 +3,8 @@ import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { TableInformation } from './ai-data-entities/types/ai-module-types.js';
-import { AmazonBedrockAiProvider } from './amazon-bedrock/amazon-bedrock.ai.provider.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
+import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
 
 interface AIGeneratedTableSettings {
 	table_name: string;
@@ -26,13 +26,15 @@ interface AIResponse {
 
 @Injectable()
 export class AiService {
-	constructor(protected readonly aiProvider: AmazonBedrockAiProvider) {}
+	constructor(protected readonly aiCoreService: AICoreService) {}
 
 	public async generateNewTableSettingsWithAI(
 		tablesInformation: Array<TableInformation>,
 	): Promise<Array<TableSettingsEntity>> {
 		const prompt = this.buildPrompt(tablesInformation);
-		const aiResponse = await this.aiProvider.generateResponse(prompt);
+		const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, prompt, {
+			temperature: 0.3,
+		});
 		const parsedResponse = this.parseAIResponse(aiResponse);
 		return this.buildTableSettingsEntities(parsedResponse, tablesInformation);
 	}
@@ -123,16 +125,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 	}
 
 	private parseAIResponse(aiResponse: string): AIResponse {
-		let cleanedResponse = aiResponse.trim();
-		if (cleanedResponse.startsWith('```json')) {
-			cleanedResponse = cleanedResponse.slice(7);
-		} else if (cleanedResponse.startsWith('```')) {
-			cleanedResponse = cleanedResponse.slice(3);
-		}
-		if (cleanedResponse.endsWith('```')) {
-			cleanedResponse = cleanedResponse.slice(0, -3);
-		}
-		cleanedResponse = cleanedResponse.trim();
+		const cleanedResponse = cleanAIJsonResponse(aiResponse);
 
 		try {
 			return JSON.parse(cleanedResponse) as AIResponse;
