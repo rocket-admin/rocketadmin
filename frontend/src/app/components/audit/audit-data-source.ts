@@ -66,15 +66,19 @@ export class AuditDataSource implements DataSource<Object> {
             deleteRow: 'Deleted',
             updateRow: 'Edited',
             rowReceived: 'Viewed',
-            rowsReceived: 'Viewed'
+            rowsReceived: 'Viewed',
+            importRow: 'Imported',
+            exportRows: 'Exported'
           }
 
           const actionIcons = {
             addRow: 'add',
             deleteRow: 'delete',
-            updateRow: 'create',
+            updateRow: 'edit',
             rowReceived: 'visibility',
-            rowsReceived: 'visibility'
+            rowsReceived: 'visibility',
+            importRow: 'upload',
+            exportRows: 'download'
           }
 
           const formattedLogs = res.logs.map(log => {

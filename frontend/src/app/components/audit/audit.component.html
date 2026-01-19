@@ -79,26 +79,32 @@
                             {{element[column] || '—'}}
                         </span>
                         <span *ngIf="column === 'Action'" class="action-cell">
-                            <mat-icon class="action-icon" [ngClass]="'action-icon--' + element.ActionIcon">{{element.ActionIcon}}</mat-icon>
+                            <mat-icon *ngIf="element.ActionIcon !== 'visibility' && element.ActionIcon !== 'delete'" class="action-icon" [ngClass]="'action-icon--' + element.ActionIcon">{{element.ActionIcon}}</mat-icon>
+                            <mat-icon *ngIf="element.ActionIcon === 'visibility'" class="material-icons-outlined action-icon action-icon--visibility">visibility</mat-icon>
+                            <mat-icon *ngIf="element.ActionIcon === 'delete'" class="material-icons-outlined action-icon action-icon--delete">delete</mat-icon>
                             {{element[column] || '—'}}
                         </span>
                         <span *ngIf="column === 'User'" class="user-cell">
                             <span class="user-name" *ngIf="getUserName(element.UserEmail)">{{getUserName(element.UserEmail)}}</span>
                             <span class="user-email" [class.user-email--secondary]="getUserName(element.UserEmail)">{{element.UserEmail}}</span>
                         </span>
-                        <span *ngIf="column !== 'Status' && column !== 'Action' && column !== 'User'">{{element[column] || '—'}}</span>
+                        <span *ngIf="column === 'Date'" class="date-cell">
+                            <span class="date-date">{{element.DateOnly}}</span>
+                            <span class="date-time">{{element.TimeOnly}}</span>
+                        </span>
+                        <span *ngIf="column !== 'Status' && column !== 'Action' && column !== 'User' && column !== 'Date'">{{element[column] || '—'}}</span>
                     </div>
                 </td>
             </ng-container>
 
-            <ng-container matColumnDef="Details">
-                <th mat-header-cell *matHeaderCellDef> Details </th>
+            <ng-container matColumnDef="Changes">
+                <th mat-header-cell *matHeaderCellDef> Changes </th>
                 <td mat-cell *matCellDef="let element">
-                    <button mat-button color="primary"
+                    <button mat-button color="accent"
                         angulartics2On="click"
                         angularticsAction="Audit: view changes is clicked"
                         (click)="openInfoLogDialog(element)">
-                        View changes
+                        Details
                     </button>
                 </td>
             </ng-container>
