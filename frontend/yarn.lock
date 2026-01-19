@@ -7675,72 +7675,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dissendium-v0@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "dissendium-v0@workspace:."
-  dependencies:
-    "@angular-devkit/build-angular": 20
-    "@angular/animations": ~20.3.16
-    "@angular/build": 20.3.14
-    "@angular/cdk": ~20.2.14
-    "@angular/cli": ~20.3.14
-    "@angular/common": ~20.3.16
-    "@angular/compiler": ~20.3.16
-    "@angular/compiler-cli": ~20.3.16
-    "@angular/core": ~20.3.16
-    "@angular/forms": ~20.3.16
-    "@angular/language-service": ~20.3.16
-    "@angular/material": ~20.2.14
-    "@angular/platform-browser": ~20.3.16
-    "@angular/platform-browser-dynamic": ~20.3.16
-    "@angular/router": ~20.3.16
-    "@brumeilde/ngx-theme": ^1.2.1
-    "@jsonurl/jsonurl": ^1.1.8
-    "@ngstack/code-editor": ^9.0.0
-    "@sentry-internal/rrweb": ^2.16.0
-    "@sentry/angular": ^10.33.0
-    "@stripe/stripe-js": ^5.3.0
-    "@types/google-one-tap": ^1.2.6
-    "@types/lodash": ^4.17.13
-    "@types/node": ^22.10.2
-    "@vitest/browser": ^3.1.1
-    "@zxcvbn-ts/core": ^3.0.4
-    "@zxcvbn-ts/language-en": ^3.0.2
-    amplitude-js: ^8.21.9
-    angular-password-strength-meter: "npm:@eresearchqut/angular-password-strength-meter@^13.0.7"
-    angulartics2: ^14.1.0
-    color-string: ^2.0.1
-    convert: ^5.12.0
-    date-fns: ^4.1.0
-    ipaddr.js: ^2.2.0
-    jsdom: ^27.4.0
-    json5: ^2.2.3
-    knip: ^5.79.0
-    libphonenumber-js: ^1.12.9
-    lodash: ^4.17.21
-    lodash-es: ^4.17.21
-    mermaid: ^11.12.1
-    monaco-editor: 0.55.1
-    ng-dynamic-component: ^10.7.0
-    ngx-cookie-service: ^19.0.0
-    ngx-markdown: ^19.1.1
-    ngx-stripe: ^19.0.0
-    playwright: ^1.57.0
-    pluralize: ^8.0.0
-    postgres-interval: ^4.0.2
-    private-ip: ^3.0.2
-    puppeteer: ^24.29.1
-    rxjs: ^7.4.0
-    ts-node: ~10.9.2
-    tslib: ^2.8.1
-    typescript: ~5.9.3
-    uuid: ^11.1.0
-    validator: ^13.15.20
-    vitest: ^3.1.1
-    zone.js: ~0.15.0
-  languageName: unknown
-  linkType: soft
-
 "dlv@npm:^1.1.3":
   version: 1.1.3
   resolution: "dlv@npm:1.1.3"
@@ -12365,6 +12299,72 @@ __metadata:
   checksum: 36854c1321548ceca96d36ad9d6e0a5a512986029ec6929ad6ed3ec1612c22cc8b46cc72d2c5674af42e8074a119d793f6f0ea3a5b51373e3ab926c64b172d7a
   languageName: node
   linkType: hard
+
+"rocketadmin@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "rocketadmin@workspace:."
+  dependencies:
+    "@angular-devkit/build-angular": 20
+    "@angular/animations": ~20.3.16
+    "@angular/build": 20.3.14
+    "@angular/cdk": ~20.2.14
+    "@angular/cli": ~20.3.14
+    "@angular/common": ~20.3.16
+    "@angular/compiler": ~20.3.16
+    "@angular/compiler-cli": ~20.3.16
+    "@angular/core": ~20.3.16
+    "@angular/forms": ~20.3.16
+    "@angular/language-service": ~20.3.16
+    "@angular/material": ~20.2.14
+    "@angular/platform-browser": ~20.3.16
+    "@angular/platform-browser-dynamic": ~20.3.16
+    "@angular/router": ~20.3.16
+    "@brumeilde/ngx-theme": ^1.2.1
+    "@jsonurl/jsonurl": ^1.1.8
+    "@ngstack/code-editor": ^9.0.0
+    "@sentry-internal/rrweb": ^2.16.0
+    "@sentry/angular": ^10.33.0
+    "@stripe/stripe-js": ^5.3.0
+    "@types/google-one-tap": ^1.2.6
+    "@types/lodash": ^4.17.13
+    "@types/node": ^22.10.2
+    "@vitest/browser": ^3.1.1
+    "@zxcvbn-ts/core": ^3.0.4
+    "@zxcvbn-ts/language-en": ^3.0.2
+    amplitude-js: ^8.21.9
+    angular-password-strength-meter: "npm:@eresearchqut/angular-password-strength-meter@^13.0.7"
+    angulartics2: ^14.1.0
+    color-string: ^2.0.1
+    convert: ^5.12.0
+    date-fns: ^4.1.0
+    ipaddr.js: ^2.2.0
+    jsdom: ^27.4.0
+    json5: ^2.2.3
+    knip: ^5.79.0
+    libphonenumber-js: ^1.12.9
+    lodash: ^4.17.21
+    lodash-es: ^4.17.21
+    mermaid: ^11.12.1
+    monaco-editor: 0.55.1
+    ng-dynamic-component: ^10.7.0
+    ngx-cookie-service: ^19.0.0
+    ngx-markdown: ^19.1.1
+    ngx-stripe: ^19.0.0
+    playwright: ^1.57.0
+    pluralize: ^8.0.0
+    postgres-interval: ^4.0.2
+    private-ip: ^3.0.2
+    puppeteer: ^24.29.1
+    rxjs: ^7.4.0
+    ts-node: ~10.9.2
+    tslib: ^2.8.1
+    typescript: ~5.9.3
+    uuid: ^11.1.0
+    validator: ^13.15.20
+    vitest: ^3.1.1
+    zone.js: ~0.15.0
+  languageName: unknown
+  linkType: soft
 
 "rollup@npm:4.52.3":
   version: 4.52.3

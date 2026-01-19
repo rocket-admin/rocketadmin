@@ -3,7 +3,7 @@
 	"version": 1,
 	"newProjectRoot": "projects",
 	"projects": {
-		"dissendium-v0": {
+		"rocketadmin": {
 			"projectType": "application",
 			"schematics": {},
 			"root": "",
@@ -14,7 +14,7 @@
 					"builder": "@angular/build:application",
 					"options": {
 						"outputPath": {
-							"base": "dist/dissendium-v0"
+							"base": "dist/rocketadmin"
 						},
 						"index": "src/index.html",
 						"polyfills": ["src/polyfills.ts"],
@@ -126,32 +126,32 @@
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
 					"options": {
-						"buildTarget": "dissendium-v0:build",
+						"buildTarget": "rocketadmin:build",
 						"host": "127.0.0.1",
 						"proxyConfig": "src/proxy.conf.json"
 					},
 					"configurations": {
 						"production": {
-							"buildTarget": "dissendium-v0:build:production"
+							"buildTarget": "rocketadmin:build:production"
 						},
 						"saas": {
-							"buildTarget": "dissendium-v0:build:saas"
+							"buildTarget": "rocketadmin:build:saas"
 						},
 						"development": {
-							"buildTarget": "dissendium-v0:build:development"
+							"buildTarget": "rocketadmin:build:development"
 						}
 					}
 				},
 				"extract-i18n": {
 					"builder": "@angular-devkit/build-angular:extract-i18n",
 					"options": {
-						"buildTarget": "dissendium-v0:build"
+						"buildTarget": "rocketadmin:build"
 					}
 				},
 				"test": {
 					"builder": "@angular/build:unit-test",
 					"options": {
-						"buildTarget": "dissendium-v0:build",
+						"buildTarget": "rocketadmin:build",
 						"runner": "vitest",
 						"tsConfig": "tsconfig.spec.json",
 						"setupFiles": ["src/test-setup.ts"],
