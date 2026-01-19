@@ -1,51 +1,50 @@
-import { EMPTY, Observable } from 'rxjs';
-import { ConnectionSettingsUI, GlobalSettingsUI, UiSettings } from '../models/ui-settings';
-import { catchError, map } from 'rxjs/operators';
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { EMPTY, Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { ConnectionSettingsUI, GlobalSettingsUI, UiSettings } from '../models/ui-settings';
 import { NotificationsService } from './notifications.service';
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root',
 })
 export class UiSettingsService {
-  public settings: UiSettings = {
-    globalSettings: {} as GlobalSettingsUI,
-    connections: {} as { [connectionId: string]: ConnectionSettingsUI }
-  }
+	public settings: UiSettings = {
+		globalSettings: {} as GlobalSettingsUI,
+		connections: {} as { [connectionId: string]: ConnectionSettingsUI },
+	};
 
-  private uiSettings = null;
-  private codeEditorTheme: 'vs' | 'vs-dark';
+	private uiSettings = null;
+	private codeEditorTheme: 'vs' | 'vs-dark';
 
-  constructor(
-    private _http: HttpClient,
-    private _notifications: NotificationsService,
-  ) {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    this.codeEditorTheme = prefersDark ? 'vs-dark' : 'vs';
-  }
+	constructor(
+		private _http: HttpClient,
+		private _notifications: NotificationsService,
+	) {
+		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		this.codeEditorTheme = prefersDark ? 'vs-dark' : 'vs';
+	}
 
-  // get uiSettings$(){
-  //   return this.uiSettings.asObservable();
-  // }
+	// get uiSettings$(){
+	//   return this.uiSettings.asObservable();
+	// }
 
-  get editorTheme(): 'vs' | 'vs-dark' {
-    return this.codeEditorTheme;
-  }
+	get editorTheme(): 'vs' | 'vs-dark' {
+		return this.codeEditorTheme;
+	}
 
-  updateGlobalSetting(key: string, value: any) {
-    this.settings.globalSettings[key] = value;
-    this.syncUiSettings().subscribe();
-  }
+	updateGlobalSetting(key: string, value: any) {
+		this.settings.globalSettings[key] = value;
+		this.syncUiSettings().subscribe();
+	}
 
-  updateConnectionSetting(connectionId: string, key: string, value: any) {
-    if (!this.settings.connections[connectionId]) {
-      this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
-    }
-    this.settings.connections[connectionId][key] = value;
-    this.syncUiSettings().subscribe();
-  }
+	updateConnectionSetting(connectionId: string, key: string, value: any) {
+		if (!this.settings.connections[connectionId]) {
+			this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
+		}
+		this.settings.connections[connectionId][key] = value;
+		this.syncUiSettings().subscribe();
+	}
 
   updateTableSetting(connectionId: string, tableName: string, key: string, value: any) {
     console.log('updateTableSetting')
@@ -59,44 +58,42 @@ export class UiSettingsService {
     this.syncUiSettings().subscribe();
   }
 
-  getUiSettings(): Observable<UiSettings> {
-    if (!this.uiSettings) {
-      return this._http.get<any>('/user/settings')
-        .pipe(
-          map(res => {
-            const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
-            console.log('getUiSettings settings')
-            console.log(settings)
-            if (settings) this.settings = settings;
-            this.uiSettings = settings;
-            return settings
-          }),
-          catchError((err) => {
-            console.log(err);
-            this._notifications.showErrorSnackbar(err.error.message);
-            return EMPTY;
-          })
-        );
-      } else {
-        return new Observable(s => s.next(this.uiSettings));
-      }
-  };
+	getUiSettings(): Observable<UiSettings> {
+		if (!this.uiSettings) {
+			return this._http.get<any>('/user/settings').pipe(
+				map((res) => {
+					const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
+					console.log('getUiSettings settings');
+					console.log(settings);
+					if (settings) this.settings = settings;
+					this.uiSettings = settings;
+					return settings;
+				}),
+				catchError((err) => {
+					console.log(err);
+					this._notifications.showErrorSnackbar(err.error?.message || err.message);
+					return EMPTY;
+				}),
+			);
+		} else {
+			return new Observable((s) => s.next(this.uiSettings));
+		}
+	}
 
-  syncUiSettings() {
-    return this._http.post<any>('/user/settings', {userSettings: JSON.stringify(this.settings)})
-      .pipe(
-        map(res => {
-          const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
-          this.uiSettings = settings;
-          return res
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message);
-          return EMPTY;
-        })
-      );
-  };
+	syncUiSettings() {
+		return this._http.post<any>('/user/settings', { userSettings: JSON.stringify(this.settings) }).pipe(
+			map((res) => {
+				const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
+				this.uiSettings = settings;
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
+				return EMPTY;
+			}),
+		);
+	}
 }
 
 // {
@@ -114,4 +111,3 @@ export class UiSettingsService {
 //     }
 //   }
 // }
-

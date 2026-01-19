@@ -255,7 +255,7 @@ Custom launcher `ChromeHeadlessCustom` is configured for CI with flags `--no-san
 
 ### Analytics & Monitoring
 - **Angulartics2** with Amplitude integration
-- **@sentry/angular-ivy** for error monitoring
+- **@sentry/angular** for error monitoring
 - **Hotjar** for user behavior tracking (demo accounts)
 - **Intercom** for customer support
 

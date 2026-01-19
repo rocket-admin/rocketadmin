@@ -1,4 +1,3 @@
-import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
@@ -15,7 +14,9 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, ParamMap, Router, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
-import { omitBy } from 'lodash';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
+import { omitBy } from 'lodash-es';
+import { first, map } from 'rxjs/operators';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { ServerError } from 'src/app/models/alert';
 import { TableCategory } from 'src/app/models/connection';
@@ -166,7 +167,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			this.title.setTitle(`Dashboard | ${this._company.companyTabTitle || 'Rocketadmin'}`);
 
 			if (err instanceof HttpErrorResponse) {
-				this.serverError = { abstract: err.error.message || err.message, details: err.error.originalMessage };
+				this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
 			} else {
 				throw err;
 			}

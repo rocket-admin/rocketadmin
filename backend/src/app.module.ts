@@ -40,8 +40,12 @@ import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
 import { DatabaseModule } from './shared/database/database.module.js';
+import { SharedModule } from './shared/shared.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 import { PersonalTableSettingsModule } from './entities/table-settings/personal-table-settings/personal-table-settings.module.js';
+import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/saved-db-query.module.js';
+import { DashboardModule } from './entities/visualizations/dashboard/dashboards.module.js';
+import { DashboardWidgetModule } from './entities/visualizations/dashboard-widget/dashboard-widget.module.js';
 
 @Module({
 	imports: [
@@ -68,6 +72,7 @@ import { PersonalTableSettingsModule } from './entities/table-settings/personal-
 		UserActionModule,
 		CronJobsModule,
 		DatabaseModule,
+		SharedModule,
 		TableActionModule,
 		SaasModule,
 		CompanyInfoModule,
@@ -88,6 +93,9 @@ import { PersonalTableSettingsModule } from './entities/table-settings/personal-
 		SignInAuditModule,
 		PersonalTableSettingsModule,
 		S3WidgetModule,
+		SavedDbQueryModule,
+		DashboardModule,
+		DashboardWidgetModule,
 	],
 	controllers: [AppController],
 	providers: [
