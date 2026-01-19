@@ -62,11 +62,11 @@ export class AuditDataSource implements DataSource<Object> {
         .subscribe((res: any) => {
 
           const actions = {
-            addRow: 'added row',
-            deleteRow: 'deleted row',
-            updateRow: 'edit row',
-            rowReceived: 'received row',
-            rowsReceived: 'received rows'
+            addRow: 'Created',
+            deleteRow: 'Deleted',
+            updateRow: 'Edited',
+            rowReceived: 'Viewed',
+            rowsReceived: 'Viewed'
           }
 
           const actionIcons = {
