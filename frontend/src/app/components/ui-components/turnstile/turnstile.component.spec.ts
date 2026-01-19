@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TurnstileComponent } from './turnstile.component';
 
 describe('TurnstileComponent', () => {
@@ -6,14 +6,16 @@ describe('TurnstileComponent', () => {
 	let fixture: ComponentFixture<TurnstileComponent>;
 	let mockWidgetId: string;
 
+	const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 	beforeEach(async () => {
 		mockWidgetId = 'mock-widget-id';
 
-		window.turnstile = {
-			render: jasmine.createSpy('render').and.returnValue(mockWidgetId),
-			reset: jasmine.createSpy('reset'),
-			getResponse: jasmine.createSpy('getResponse'),
-			remove: jasmine.createSpy('remove'),
+		(window as any).turnstile = {
+			render: vi.fn().mockReturnValue(mockWidgetId),
+			reset: vi.fn(),
+			getResponse: vi.fn(),
+			remove: vi.fn(),
 		};
 
 		await TestBed.configureTestingModule({
@@ -25,99 +27,107 @@ describe('TurnstileComponent', () => {
 	});
 
 	afterEach(() => {
-		delete window.turnstile;
+		component.ngOnDestroy();
+		delete (window as any).turnstile;
 	});
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should render turnstile widget on init', fakeAsync(() => {
+	it('should render turnstile widget on init', async () => {
 		fixture.detectChanges();
-		tick(100);
+		await delay(150);
 
-		expect(window.turnstile?.render).toHaveBeenCalled();
-	}));
+		expect((window as any).turnstile?.render).toHaveBeenCalled();
+	});
 
-	it('should emit tokenReceived when callback is triggered', fakeAsync(() => {
+	it('should emit tokenReceived when callback is triggered', async () => {
 		let receivedToken: string | null = null;
 		component.tokenReceived.subscribe((token: string) => {
 			receivedToken = token;
 		});
 
-		(window.turnstile?.render as jasmine.Spy).and.callFake((_container: any, options: any) => {
-			options.callback('test-token');
-			return mockWidgetId;
-		});
+		((window as any).turnstile?.render as ReturnType<typeof vi.fn>).mockImplementation(
+			(_container: any, options: any) => {
+				options.callback('test-token');
+				return mockWidgetId;
+			},
+		);
 
 		fixture.detectChanges();
-		tick(100);
+		await delay(150);
 
 		expect(receivedToken).toBe('test-token');
-	}));
+	});
 
-	it('should emit tokenError when error-callback is triggered', fakeAsync(() => {
+	it('should emit tokenError when error-callback is triggered', async () => {
 		let errorEmitted = false;
 		component.tokenError.subscribe(() => {
 			errorEmitted = true;
 		});
 
-		(window.turnstile?.render as jasmine.Spy).and.callFake((_container: any, options: any) => {
-			options['error-callback']();
-			return mockWidgetId;
-		});
+		((window as any).turnstile?.render as ReturnType<typeof vi.fn>).mockImplementation(
+			(_container: any, options: any) => {
+				options['error-callback']();
+				return mockWidgetId;
+			},
+		);
 
 		fixture.detectChanges();
-		tick(100);
+		await delay(150);
 
-		expect(errorEmitted).toBeTrue();
-	}));
+		expect(errorEmitted).toBe(true);
+	});
 
-	it('should emit tokenExpired when expired-callback is triggered', fakeAsync(() => {
+	it('should emit tokenExpired when expired-callback is triggered', async () => {
 		let expiredEmitted = false;
 		component.tokenExpired.subscribe(() => {
 			expiredEmitted = true;
 		});
 
-		(window.turnstile?.render as jasmine.Spy).and.callFake((_container: any, options: any) => {
-			options['expired-callback']();
-			return mockWidgetId;
-		});
+		((window as any).turnstile?.render as ReturnType<typeof vi.fn>).mockImplementation(
+			(_container: any, options: any) => {
+				options['expired-callback']();
+				return mockWidgetId;
+			},
+		);
 
 		fixture.detectChanges();
-		tick(100);
+		await delay(150);
 
-		expect(expiredEmitted).toBeTrue();
-	}));
+		expect(expiredEmitted).toBe(true);
+	});
 
-	it('should reset the widget when reset() is called', fakeAsync(() => {
+	it('should reset the widget when reset() is called', async () => {
 		fixture.detectChanges();
-		tick(100);
+		await delay(150);
 
 		component.reset();
 
-		expect(window.turnstile?.reset).toHaveBeenCalledWith(mockWidgetId);
-	}));
+		expect((window as any).turnstile?.reset).toHaveBeenCalledWith(mockWidgetId);
+	});
 
-	it('should remove widget on destroy', fakeAsync(() => {
+	it('should remove widget on destroy', async () => {
 		fixture.detectChanges();
-		tick(100);
+		await delay(150);
 
 		component.ngOnDestroy();
 
-		expect(window.turnstile?.remove).toHaveBeenCalledWith(mockWidgetId);
-	}));
+		expect((window as any).turnstile?.remove).toHaveBeenCalledWith(mockWidgetId);
+	});
 
-	it('should emit error if turnstile fails to load', fakeAsync(() => {
-		delete window.turnstile;
+	it('should emit error if turnstile fails to load', async () => {
+		delete (window as any).turnstile;
 		let errorEmitted = false;
 		component.tokenError.subscribe(() => {
 			errorEmitted = true;
 		});
 
 		fixture.detectChanges();
-		tick(5100);
+		// MAX_POLL_ATTEMPTS (50) * POLL_INTERVAL_MS (100) = 5000ms
+		await delay(5200);
 
-		expect(errorEmitted).toBeTrue();
-	}));
+		expect(errorEmitted).toBe(true);
+	}, 10000);
 });
