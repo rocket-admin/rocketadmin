@@ -6,4 +6,5 @@ export enum LogOperationTypeEnum {
   rowReceived = 'rowReceived',
   rowsReceived = 'rowsReceived',
   actionActivated = 'actionActivated',
+  exportRows = 'exportRows',
 }

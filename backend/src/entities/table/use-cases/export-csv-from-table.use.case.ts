@@ -5,6 +5,8 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { IExportCSVFromTable } from './table-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
@@ -26,6 +28,7 @@ export class ExportCSVFromTableUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private tableLogsService: TableLogsService,
   ) {
     super();
   }
@@ -46,6 +49,8 @@ export class ExportCSVFromTableUseCase
     if (connection.is_frozen) {
       throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
     }
+
+    let operationResult = OperationResultStatusEnum.unknown;
 
     try {
       const dao = getDataAccessObject(connection);
@@ -103,6 +108,8 @@ export class ExportCSVFromTableUseCase
         filteringFields,
       );
 
+      operationResult = OperationResultStatusEnum.successfully;
+
       //todo: rework as streams when node oracle driver will support it correctly
       //todo: agent return data as array of table rows, not as stream, because we cant
       //todo: transfer data as a stream from clint to server
@@ -119,6 +126,7 @@ export class ExportCSVFromTableUseCase
       }
       return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
     } catch (error) {
+      operationResult = OperationResultStatusEnum.unsuccessfully;
       if (error instanceof HttpException) {
         throw error;
       }
@@ -136,6 +144,15 @@ export class ExportCSVFromTableUseCase
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    } finally {
+      const logRecord = {
+        table_name: tableName,
+        userId: userId,
+        connection: connection,
+        operationType: LogOperationTypeEnum.exportRows,
+        operationStatusResult: operationResult,
+      };
+      await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
     }
   }
 }
