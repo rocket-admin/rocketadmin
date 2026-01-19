@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
-import { difference } from 'lodash';
+import { difference } from 'lodash-es';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, Widget } from 'src/app/models/table';

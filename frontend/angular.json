@@ -11,12 +11,13 @@
 			"prefix": "app",
 			"architect": {
 				"build": {
-					"builder": "@angular-devkit/build-angular:browser",
+					"builder": "@angular/build:application",
 					"options": {
-						"outputPath": "dist/dissendium-v0",
+						"outputPath": {
+							"base": "dist/dissendium-v0"
+						},
 						"index": "src/index.html",
-						"main": "src/main.ts",
-						"polyfills": "src/polyfills.ts",
+						"polyfills": ["src/polyfills.ts"],
 						"tsConfig": "tsconfig.app.json",
 						"assets": [
 							"src/favicon.ico",
@@ -33,12 +34,11 @@
 							"includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
 						},
 						"scripts": [],
-						"vendorChunk": true,
 						"extractLicenses": false,
-						"buildOptimizer": false,
 						"sourceMap": true,
 						"optimization": false,
-						"namedChunks": true
+						"namedChunks": true,
+						"browser": "src/main.ts"
 					},
 					"configurations": {
 						"production": {
@@ -53,8 +53,6 @@
 							"sourceMap": true,
 							"namedChunks": false,
 							"extractLicenses": true,
-							"vendorChunk": false,
-							"buildOptimizer": true,
 							"budgets": [
 								{
 									"type": "initial",
@@ -79,9 +77,7 @@
 							"outputHashing": "all",
 							"sourceMap": true,
 							"namedChunks": false,
-							"extractLicenses": true,
-							"vendorChunk": false,
-							"buildOptimizer": false
+							"extractLicenses": true
 						},
 						"saas": {
 							"index": {
@@ -91,7 +87,7 @@
 							"fileReplacements": [
 								{
 									"replace": "src/environments/environment.ts",
-									"with": "src/environments/environment.saas.ts"
+									"with": "src/environments/environment.saas-prod.ts"
 								}
 							]
 						},
@@ -111,8 +107,6 @@
 							"sourceMap": true,
 							"namedChunks": false,
 							"extractLicenses": true,
-							"vendorChunk": false,
-							"buildOptimizer": true,
 							"budgets": [
 								{
 									"type": "initial",
@@ -155,18 +149,13 @@
 					}
 				},
 				"test": {
-					"builder": "@angular-devkit/build-angular:karma",
+					"builder": "@angular/build:unit-test",
 					"options": {
-						"main": "src/test.ts",
-						"polyfills": "src/polyfills.ts",
+						"buildTarget": "dissendium-v0:build",
+						"runner": "vitest",
 						"tsConfig": "tsconfig.spec.json",
-						"karmaConfig": "karma.conf.js",
-						"assets": ["src/favicon.ico", "src/assets", "src/config.json"],
-						"styles": ["src/custom-theme.scss", "src/styles.scss"],
-						"stylePreprocessorOptions": {
-							"includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
-						},
-						"scripts": []
+						"setupFiles": ["src/test-setup.ts"],
+						"browsers": ["chromiumHeadless"]
 					}
 				},
 				"lint": {
@@ -181,5 +170,31 @@
 	},
 	"cli": {
 		"analytics": false
+	},
+	"schematics": {
+		"@schematics/angular:component": {
+			"type": "component"
+		},
+		"@schematics/angular:directive": {
+			"type": "directive"
+		},
+		"@schematics/angular:service": {
+			"type": "service"
+		},
+		"@schematics/angular:guard": {
+			"typeSeparator": "."
+		},
+		"@schematics/angular:interceptor": {
+			"typeSeparator": "."
+		},
+		"@schematics/angular:module": {
+			"typeSeparator": "."
+		},
+		"@schematics/angular:pipe": {
+			"typeSeparator": "."
+		},
+		"@schematics/angular:resolver": {
+			"typeSeparator": "."
+		}
 	}
 }

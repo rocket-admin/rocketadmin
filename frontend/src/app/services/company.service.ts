@@ -53,7 +53,7 @@ export class CompanyService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -74,7 +74,7 @@ export class CompanyService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -93,7 +93,7 @@ export class CompanyService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -104,7 +104,7 @@ export class CompanyService {
 			map((_res) => this._notifications.showSuccessSnackbar('Company name has been updated.')),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -131,7 +131,7 @@ export class CompanyService {
 				}),
 				catchError((err) => {
 					console.log(err);
-					this._notifications.showErrorSnackbar(err.error.message || err.message);
+					this._notifications.showErrorSnackbar(err.error?.message || err.message);
 					return EMPTY;
 				}),
 			);
@@ -145,7 +145,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -162,7 +162,7 @@ export class CompanyService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -187,7 +187,7 @@ export class CompanyService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -212,7 +212,7 @@ export class CompanyService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -237,7 +237,7 @@ export class CompanyService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -266,7 +266,7 @@ export class CompanyService {
 				console.log(err);
 				this._notifications.showAlert(
 					AlertType.Error,
-					{ abstract: err.error.message, details: err.error.originalMessage },
+					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
 					[
 						{
 							type: AlertActionType.Button,
@@ -287,7 +287,7 @@ export class CompanyService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -324,7 +324,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -341,7 +341,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -358,7 +358,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -376,7 +376,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -391,7 +391,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -411,7 +411,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -428,7 +428,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -445,7 +445,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -462,7 +462,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -501,7 +501,7 @@ export class CompanyService {
 			}),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -512,7 +512,7 @@ export class CompanyService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -523,7 +523,7 @@ export class CompanyService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);
@@ -534,7 +534,7 @@ export class CompanyService {
 			map((res) => res),
 			catchError((err) => {
 				console.log(err);
-				this._notifications.showErrorSnackbar(err.error.message || err.message);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
 				return EMPTY;
 			}),
 		);

@@ -30,19 +30,24 @@ describe('RegistrationComponent', () => {
 		}).compileComponents();
 
 		// @ts-expect-error
-		global.window.gtag = jasmine.createSpy();
+		global.window.gtag = vi.fn();
 
-		global.window.google = jasmine.createSpyObj(['accounts']);
-		// @ts-expect-error
-		global.window.google.accounts = jasmine.createSpyObj(['id']);
-		global.window.google.accounts.id = jasmine.createSpyObj(['initialize', 'renderButton', 'prompt']);
+		(global.window as any).google = {
+			accounts: {
+				id: {
+					initialize: vi.fn(),
+					renderButton: vi.fn(),
+					prompt: vi.fn(),
+				},
+			},
+		};
 
 		// Mock Turnstile
 		window.turnstile = {
-			render: jasmine.createSpy('render').and.returnValue('mock-widget-id'),
-			reset: jasmine.createSpy('reset'),
-			getResponse: jasmine.createSpy('getResponse'),
-			remove: jasmine.createSpy('remove'),
+			render: vi.fn().mockReturnValue('mock-widget-id'),
+			reset: vi.fn(),
+			getResponse: vi.fn(),
+			remove: vi.fn(),
 		};
 	});
 
@@ -68,14 +73,14 @@ describe('RegistrationComponent', () => {
 			password: 'kK123456789',
 		};
 
-		const fakeSignUpUser = spyOn(authService, 'signUpUser').and.returnValue(of());
+		const fakeSignUpUser = vi.spyOn(authService, 'signUpUser').mockReturnValue(of());
 
 		component.registerUser();
-		expect(fakeSignUpUser).toHaveBeenCalledOnceWith({
+		expect(fakeSignUpUser).toHaveBeenCalledWith({
 			email: 'john@smith.com',
 			password: 'kK123456789',
 		});
-		expect(component.submitting).toBeFalse();
+		expect(component.submitting).toBe(false);
 	});
 
 	it('should include turnstile token in registration request when SaaS', () => {
@@ -86,10 +91,10 @@ describe('RegistrationComponent', () => {
 		};
 		component.turnstileToken = 'test-turnstile-token';
 
-		const fakeSignUpUser = spyOn(authService, 'signUpUser').and.returnValue(of());
+		const fakeSignUpUser = vi.spyOn(authService, 'signUpUser').mockReturnValue(of());
 
 		component.registerUser();
-		expect(fakeSignUpUser).toHaveBeenCalledOnceWith({
+		expect(fakeSignUpUser).toHaveBeenCalledWith({
 			email: 'john@smith.com',
 			password: 'kK123456789',
 			turnstileToken: 'test-turnstile-token',

@@ -30,10 +30,15 @@ describe('LoginComponent', () => {
 			providers: [provideHttpClient(), provideRouter([])],
 		}).compileComponents();
 
-		global.window.google = jasmine.createSpyObj(['accounts']);
-		// @ts-expect-error
-		global.window.google.accounts = jasmine.createSpyObj(['id']);
-		global.window.google.accounts.id = jasmine.createSpyObj(['initialize', 'renderButton', 'prompt']);
+		(global.window as any).google = {
+			accounts: {
+				id: {
+					initialize: vi.fn(),
+					renderButton: vi.fn(),
+					prompt: vi.fn(),
+				},
+			},
+		};
 	});
 
 	beforeEach(() => {
@@ -41,7 +46,7 @@ describe('LoginComponent', () => {
 		component = fixture.componentInstance;
 		authService = TestBed.inject(AuthService);
 		companyService = TestBed.inject(CompanyService);
-		spyOn(companyService, 'isCustomDomain').and.returnValue(false);
+		vi.spyOn(companyService, 'isCustomDomain').mockReturnValue(false);
 		fixture.detectChanges();
 	});
 
@@ -56,14 +61,14 @@ describe('LoginComponent', () => {
 			companyId: 'company_1',
 		};
 
-		const fakeLoginUser = spyOn(authService, 'loginUser').and.returnValue(of());
+		const fakeLoginUser = vi.spyOn(authService, 'loginUser').mockReturnValue(of());
 
 		component.loginUser();
-		expect(fakeLoginUser).toHaveBeenCalledOnceWith({
+		expect(fakeLoginUser).toHaveBeenCalledWith({
 			email: 'john@smith.com',
 			password: 'kK123456789',
 			companyId: 'company_1',
 		});
-		expect(component.submitting).toBeFalse();
+		expect(component.submitting).toBe(false);
 	});
 });

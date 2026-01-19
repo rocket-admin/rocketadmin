@@ -192,8 +192,8 @@
 }
 
 .register-form__github-icon {
-	--mat-outlined-button-icon-spacing: 0;
-	--mat-outlined-button-icon-offset: 0;
+	--mat-button-outlined-icon-spacing: 0;
+	--mat-button-outlined-icon-offset: 0;
 
 	height: 24px !important;
 	width: 24px !important;
