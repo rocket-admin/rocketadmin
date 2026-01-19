@@ -98,8 +98,8 @@ export class AuditComponent implements OnInit {
       });
     this.connectionID = this._connections.currentConnectionID;
     this.accesLevel = this._connections.currentConnectionAccessLevel;
-    this.columns = ['User', 'Table', 'Action', 'Date', 'Status', 'Changes'];
-    this.dataColumns = ['User', 'Table', 'Action', 'Date', 'Status'];
+    this.columns = ['User', 'Table', 'Action', 'Status', 'Date', 'Changes'];
+    this.dataColumns = ['User', 'Table', 'Action', 'Status', 'Date'];
     this.dataSource = new AuditDataSource(this._connections);
     this.loadLogsPage();
 
