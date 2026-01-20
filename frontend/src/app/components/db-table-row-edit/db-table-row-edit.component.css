@@ -1,79 +1,79 @@
 .page {
-    display: flex;
-    height: 100%;
+	display: flex;
+	height: 100%;
 }
 
 .wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 36px 0 16px;
-    width: 100vw;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 36px 0 16px;
+	width: 100vw;
 }
 
 @media (width <= 600px) {
-    .wrapper {
-        padding: 36px 9vw 16px;
-        width: 100vw;
-    }
+	.wrapper {
+		padding: 36px 9vw 16px;
+		width: 100vw;
+	}
 }
 
 .wrapper_shifted {
-    margin-left: calc(clamp(-400px, -22vw, -200px) - 24px);
+	margin-left: calc(clamp(-400px, -22vw, -200px) - 24px);
 }
 
 .row-edit-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+	display: flex;
+	align-items: center;
+	gap: 16px;
 }
 
 @media (width <= 600px) {
-    .row-edit-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        width: 100%;
-    }
+	.row-edit-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		width: 100%;
+	}
 }
 
 .row-actions {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .custom-actions_desktop {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
 }
 
 @media (width <= 600px) {
-    .custom-actions_desktop {
-        display: none;
-    }
+	.custom-actions_desktop {
+		display: none;
+	}
 }
 
 .custom-actions_mobile {
-    display: none;
+	display: none;
 }
 
 @media (width <= 600px) {
-    .custom-actions_mobile {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
+	.custom-actions_mobile {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
 }
 
 .form {
-    display: flex;
-    flex-direction: column;
-    margin: 24px auto 40px;
-    max-width: 520px;
-    min-width: 300px;
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	margin: 24px auto 40px;
+	max-width: 520px;
+	min-width: 300px;
+	width: 100%;
 }
 
 /* @media (width <= 600px) {
@@ -83,128 +83,128 @@
 } */
 
 .related-views {
-    position: absolute;
-    top: calc(52px + 40px);
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto 0;
-    height: calc(100vh - 52px - 64px - 96px);
-    max-width: 520px;
-    min-width: 300px;
-    overflow: auto;
-    padding-right: 20px;
-    width: max(calc(45vw - 260px), 2%);
+	position: absolute;
+	top: calc(52px + 40px);
+	right: 0;
+	display: flex;
+	flex-direction: column;
+	margin: 0 auto 0;
+	height: calc(100vh - 52px - 64px - 96px);
+	max-width: 520px;
+	min-width: 300px;
+	overflow: auto;
+	padding-right: 20px;
+	width: max(calc(45vw - 260px), 2%);
 }
 
 @media (width <= 1280px) {
-    .related-views {
-        position: initial;
-        height: auto;
-        margin: 12px 0 4px;
-        padding: 4px 2px;
-        width: 100%;
-    }
+	.related-views {
+		position: initial;
+		height: auto;
+		margin: 12px 0 4px;
+		padding: 4px 2px;
+		width: 100%;
+	}
 
-    .related-views__title {
-        padding: 0 10px;
-    }
+	.related-views__title {
+		padding: 0 10px;
+	}
 }
 
 .related-records__table-name {
-    flex: 1 0 auto;
+	flex: 1 0 auto;
 }
 
 .related-records__actions {
-    flex-grow: 0;
-    justify-content: flex-end;
+	flex-grow: 0;
+	justify-content: flex-end;
 }
 
 .related-record {
-    --mdc-list-list-item-two-line-container-height: 60px;
+	--mat-list-list-item-two-line-container-height: 60px;
 }
 
 .related-record ::ng-deep .mdc-list-item__primary-text::before {
-    height: 24px;
+	height: 24px;
 }
 
 .related-records__panel ::ng-deep .mat-expansion-panel-body {
-    padding: 0 8px 16px;
+	padding: 0 8px 16px;
 }
 
 .related-record__fields {
-    margin-left: -4px;
+	margin-left: -4px;
 }
 
 .related-record__field {
-    margin-left: 8px;
+	margin-left: 8px;
 }
 
 .related-record__fieldName {
-    margin-right: 4px;
+	margin-right: 4px;
 }
 
 .widget {
-    display: grid;
-    grid-template-columns: 0 1fr 36px;
+	display: grid;
+	grid-template-columns: 0 1fr 36px;
 }
 
 .widget-info {
-    margin-left: auto;
-    margin-top: 12px;
+	margin-left: auto;
+	margin-top: 12px;
 }
 
 .widget-info_centered {
-    align-self: center;
-    margin-top: -18px;
+	align-self: center;
+	margin-top: -18px;
 }
 
 .actions {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    /* justify-content: space-between; */
-    background-color: var(--mat-sidenav-content-background-color);
-    box-shadow: var(--shadow);
-    height: 64px;
-    padding: 0 max(calc(50vw - 260px), 2%);
-    width: 100vw;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	/* justify-content: space-between; */
+	background-color: var(--mat-sidenav-content-background-color);
+	box-shadow: var(--shadow);
+	height: 64px;
+	padding: 0 max(calc(50vw - 260px), 2%);
+	width: 100vw;
 }
 
 .actions-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
 }
 
 .wrapper_shifted .actions {
-    left: calc(clamp(-400px, -22vw, -200px));
+	left: calc(clamp(-400px, -22vw, -200px));
 }
 
 .wrapper_shifted .actions-box {
-    margin-left: -24px;
+	margin-left: -24px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .actions {
-        --shadow: 0 3px 1px -2px rgba(0,0,0,.5),0 2px 2px 0 rgba(0,0,0,.64),0 1px 5px 0 rgba(0,0,0,0.85);
-    }
+	.actions {
+		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.5), 0 2px 2px 0 rgba(0, 0, 0, 0.64), 0 1px 5px 0 rgba(0, 0, 0, 0.85);
+	}
 }
 
 @media (prefers-color-scheme: light) {
-    .actions {
-        --shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
-    }
+	.actions {
+		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+	}
 }
 
 .actions__continue {
-    margin-left: auto;
-    margin-right: 20px;
+	margin-left: auto;
+	margin-right: 20px;
 }
 
 .error-details {
-    margin-top: 8px;
+	margin-top: 8px;
 }

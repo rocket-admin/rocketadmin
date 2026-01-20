@@ -1,7 +1,11 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
+import { CustomEvent, TableProperties } from 'src/app/models/table';
+
+import { AlertComponent } from '../ui-components/alert/alert.component';
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,13 +14,11 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, ParamMap, Router, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { omitBy } from 'lodash';
+import { omitBy } from 'lodash-es';
 import { first, map } from 'rxjs/operators';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { ServerError } from 'src/app/models/alert';
 import { TableCategory } from 'src/app/models/connection';
-import { CustomEvent, TableProperties } from 'src/app/models/table';
-import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { User } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -27,7 +29,6 @@ import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { environment } from 'src/environments/environment';
 import { normalizeTableName } from '../../lib/normalize';
 import { PlaceholderTableViewComponent } from '../skeletons/placeholder-table-view/placeholder-table-view.component';
-import { AlertComponent } from '../ui-components/alert/alert.component';
 import { BannerComponent } from '../ui-components/banner/banner.component';
 import { ContentLoaderComponent } from '../ui-components/content-loader/content-loader.component';
 import { DbActionLinkDialogComponent } from './db-table-view/db-action-link-dialog/db-action-link-dialog.component';
@@ -76,14 +77,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public currentPage: number = 1;
 	public shownTableTitles: boolean = true;
 	public connectionID: string;
-	// public isTestConnection: boolean = false;
 	public filters: object = {};
 	public comparators: object;
 	public pageIndex: number;
 	public pageSize: number;
 	public sortColumn: string;
 	public sortOrder: 'ASC' | 'DESC';
-
 	public loading: boolean = true;
 	public isServerError: boolean = false;
 	public serverError: ServerError;
@@ -131,10 +130,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-		this.connectionID = this._connections.currentConnectionID;
-		// this.isTestConnection = this._connections.currentConnection.isTestConnection;
-		this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings, this._tableRow);
-
+    this.connectionID = this._connections.currentConnectionID;
+    this.dataSource = new TablesDataSource(this._tables, this._connections, this._tableRow);
 		this._tableState.cast.subscribe((row) => {
 			this.selectedRow = row;
 		});
@@ -169,7 +166,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			this.title.setTitle(`Dashboard | ${this._company.companyTabTitle || 'Rocketadmin'}`);
 
 			if (err instanceof HttpErrorResponse) {
-				this.serverError = { abstract: err.error.message || err.message, details: err.error.originalMessage };
+				this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
 			} else {
 				throw err;
 			}
@@ -384,7 +381,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			this.uiSettings = settings?.connections[this.connectionID];
 			this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
 
-			const shownColumns = this.uiSettings?.tables[this.selectedTableName]?.shownColumns;
 			this.dataSource.fetchRows({
 				connectionID: this.connectionID,
 				tableName: this.selectedTableName,
@@ -393,8 +389,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				sortColumn: this.sortColumn,
 				sortOrder: this.sortOrder,
 				filters: this.filters,
-				search,
-				shownColumns,
+				search
 			});
 		});
 	}

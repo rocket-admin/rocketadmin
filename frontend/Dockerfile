@@ -17,5 +17,5 @@ RUN if [ -n "$VERSION" ]; then \
 RUN ng build --configuration=production
 
 FROM public.ecr.aws/docker/library/nginx:alpine
-COPY --from=builder /app/dist/dissendium-v0/ /usr/share/nginx/html/
+COPY --from=builder /app/dist/rocketadmin/ /usr/share/nginx/html/
 COPY nginx/default.conf.template /etc/nginx/templates/
