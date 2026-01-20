@@ -116,8 +116,8 @@ export class PersonalTableSettingsController {
 				columns_view: personalSettingsData.columns_view || null,
 				list_fields: personalSettingsData.list_fields || null,
 				list_per_page: personalSettingsData.list_per_page || null,
-				ordering: personalSettingsData.ordering || null,
-				ordering_field: personalSettingsData.ordering_field || null,
+				ordering: personalSettingsData.ordering,
+				ordering_field: personalSettingsData.ordering_field,
 				original_names: personalSettingsData.original_names || null,
 			},
 		};
