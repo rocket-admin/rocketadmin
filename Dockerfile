@@ -22,7 +22,7 @@ RUN if [[ -n $VERSION ]]; then \
 
 RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-production; \
     else API_ROOT=/api yarn build --configuration=production; fi
-RUN ls /app/frontend/dist/dissendium-v0
+RUN ls /app/frontend/dist/rocketadmin/browser
 
 FROM node:22-slim
 
@@ -43,7 +43,7 @@ COPY .yarn /app/.yarn
 RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --immutable --silent
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd backend && ../node_modules/.bin/tsc && yarn run nest build
-COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
+COPY --from=front_builder /app/frontend/dist/rocketadmin/browser /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 RUN mkdir -p /app/backend/node_modules/.cache && chown -R appuser:appuser /app/backend/node_modules/.cache
 RUN chown -R appuser:appuser  /var/lib/nginx
