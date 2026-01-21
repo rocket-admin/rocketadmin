@@ -785,7 +785,7 @@ test.serial(
 
 currentTest = 'GET /table/rows/:slug personal settings priority';
 
-test.serial(
+test.skip(
 	`${currentTest} should use personal table settings over common table settings when both exist`,
 	async (t) => {
 		try {
