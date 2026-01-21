@@ -602,7 +602,7 @@ export class MockFactory {
       identity_column: identity_column,
       allow_csv_import: allow_csv_import,
       allow_csv_export: allow_csv_export,
-    };
+    } as any;
     /*eslint-enable*/
   }
 
