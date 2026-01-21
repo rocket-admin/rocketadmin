@@ -39,6 +39,9 @@ export class TableSettingsInRowsDS {
 
 	@ApiProperty()
 	can_add: boolean;
+
+	@ApiProperty()
+	columns_view: string[];
 }
 export class FoundTableRowsDs {
 	@ApiProperty({ isArray: true })

@@ -65,4 +65,16 @@ export class CreateTableSettingsDs {
 
   @ApiProperty()
   allow_csv_import: boolean;
+
+  @ApiProperty({ required: false})
+  list_per_page?: number;
+
+  @ApiProperty({ isArray: true, type: 'string', required: false })
+  list_fields?: Array<string>;
+
+  @ApiProperty({ required: false })
+  ordering?: string;
+
+  @ApiProperty({ required: false })
+  ordering_field?: string;
 }

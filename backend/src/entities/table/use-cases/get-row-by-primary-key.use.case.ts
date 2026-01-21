@@ -213,6 +213,11 @@ export class GetRowByPrimaryKeyUseCase
 					return responseObject;
 				}),
 			);
+		const allowCsvExport = tableSettings?.allow_csv_export ?? true;
+		const allowCsvImport = tableSettings?.allow_csv_import ?? true;
+		const can_delete = tableSettings?.can_delete ?? true;
+		const can_update = tableSettings?.can_update ?? true;
+		const can_add = tableSettings?.can_add ?? true;
 		//todo remove unnecessary fields
 		return {
 			row: rowData,
@@ -233,16 +238,17 @@ export class GetRowByPrimaryKeyUseCase
 			can_update: tableSettings ? tableSettings.can_update : true,
 			can_add: tableSettings ? tableSettings.can_add : true,
 			table_settings: {
-				sortable_by: tableSettings?.sortable_by?.length > 0 ? tableSettings.sortable_by : [],
-				ordering: personalTableSettings?.ordering ? personalTableSettings.ordering : undefined,
-				identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
-				list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
-				allow_csv_export: tableSettings ? tableSettings.allow_csv_export : true,
-				allow_csv_import: tableSettings ? tableSettings.allow_csv_import : true,
-				can_delete: tableSettings ? tableSettings.can_delete : true,
-				can_update: tableSettings ? tableSettings.can_update : true,
-				can_add: tableSettings ? tableSettings.can_add : true,
-				ordering_field: personalTableSettings?.ordering_field ? personalTableSettings.ordering_field : undefined,
+				sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
+				ordering: builtDAOsTableSettings.ordering ? builtDAOsTableSettings.ordering : undefined,
+				identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
+				list_fields: builtDAOsTableSettings?.list_fields?.length > 0 ? builtDAOsTableSettings.list_fields : [],
+				allow_csv_export: allowCsvExport,
+				allow_csv_import: allowCsvImport,
+				can_delete: can_delete,
+				can_update: can_update,
+				can_add: can_add,
+				columns_view: builtDAOsTableSettings?.columns_view ? builtDAOsTableSettings.columns_view : [],
+				ordering_field: builtDAOsTableSettings.ordering_field ? builtDAOsTableSettings.ordering_field : undefined,
 			},
 		};
 	}
