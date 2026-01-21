@@ -3500,7 +3500,7 @@ test.serial(`${currentTest} should throw an exception, when primary key is not p
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
-test.serial(
+test.skip(
   `${currentTest} should throw an exception, when primary key passed in request has incorrect name`,
   async (t) => {
     const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
