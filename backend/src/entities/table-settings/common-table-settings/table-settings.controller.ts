@@ -191,6 +191,10 @@ export class TableSettingsController {
 		@Body('icon') icon: string,
 		@Body('allow_csv_export') allow_csv_export: boolean,
 		@Body('allow_csv_import') allow_csv_import: boolean,
+		@Body('list_per_page') list_per_page: number,
+		@Body('list_fields') list_fields: string[],
+		@Body('ordering') ordering: string,
+		@Body('ordering_field') ordering_field: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 	): Promise<FoundTableSettingsDs> {
@@ -215,6 +219,10 @@ export class TableSettingsController {
 			icon: icon,
 			allow_csv_export: allow_csv_export,
 			allow_csv_import: allow_csv_import,
+			list_fields,
+			list_per_page,
+			ordering,
+			ordering_field,
 		};
 
 		const errors = this.validateParameters(inputData);
