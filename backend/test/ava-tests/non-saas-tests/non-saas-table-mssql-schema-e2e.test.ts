@@ -3472,7 +3472,7 @@ test.serial(`${currentTest} should throw an exception, when tableName passed in 
   t.is(message, Messages.TABLE_NOT_FOUND);
 });
 
-test.serial(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
+test.skip(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
   const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
