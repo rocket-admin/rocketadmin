@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TableField, TableSettings } from 'src/app/models/table';
+import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
 
 import { AlertComponent } from '../../../ui-components/alert/alert.component';
 import { Angulartics2 } from 'angulartics2';
@@ -7,7 +7,7 @@ import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcr
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { IconPickerComponent } from '../../../ui-components/icon-picker/icon-picker.component';
 import { Location } from '@angular/common';
@@ -60,7 +60,9 @@ export class DbTableSettingsComponent implements OnInit {
   public loading: boolean = true;
   public fields: string[];
   public fields_to_exclude: string[];
+  public orderChanged: boolean = false;
   public iconChanged: boolean = false;
+  public listFieldsOrder: string[];
   public tableSettingsInitial: TableSettings = {
     connection_id: '',
     table_name: '',
@@ -68,6 +70,10 @@ export class DbTableSettingsComponent implements OnInit {
     display_name: '',
     autocomplete_columns: [],
     identity_column: '',
+    ordering: TableOrdering.Ascending,
+    ordering_field: '',
+    list_fields: [],
+    columns_view: [],
     search_fields: [],
     excluded_fields: [],
     readonly_fields: [],
@@ -137,8 +143,12 @@ export class DbTableSettingsComponent implements OnInit {
         if (Object.keys(res).length !== 0) {
           this.isSettingsExist = true
           this.tableSettings = res;
+          this.listFieldsOrder = [...res.list_fields];
         } else {
           this.tableSettings = this.tableSettingsInitial;
+        };
+        if (Object.keys(res).length === 0 || (res && res.list_fields && !res.list_fields.length)) {
+          this.listFieldsOrder = [...this.fields];
         };
         this.title.setTitle(`${res.display_name || this.displayTableName} - Table settings | ${this._company.companyTabTitle || 'Rocketadmin'}`);
       }
@@ -148,6 +158,18 @@ export class DbTableSettingsComponent implements OnInit {
   updateIcon(icon: string) {
     this.tableSettings.icon = icon;
     this.iconChanged = true;
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.listFieldsOrder, event.previousIndex, event.currentIndex);
+    this.tableSettings.list_fields = [...this.listFieldsOrder];
+    this.orderChanged = true;
+  }
+
+  resetColumnsOrder() {
+    this.tableSettings.list_fields = [];
+    this.listFieldsOrder = [...this.fields];
+    this.orderChanged = true;
   }
 
   updateSettings() {
@@ -160,7 +182,11 @@ export class DbTableSettingsComponent implements OnInit {
     for (const [key, value] of Object.entries(this.tableSettings)) {
       if (key !== 'connection_id' && key !== 'table_name' && key !== 'ordering') {
         if (Array.isArray(value)) {
-          updatedSettings[key] = value.length > 0
+          if (key === 'list_fields') {
+            updatedSettings[key] = this.orderChanged;
+          } else {
+            updatedSettings[key] = value.length > 0;
+          }
         } else {
           updatedSettings[key] = Boolean(value);
         }
