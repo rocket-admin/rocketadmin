@@ -38,7 +38,9 @@ export function buildDAOsTableSettingsDs(
 		display_name: commonTableSettings?.display_name,
 		search_fields: commonTableSettings?.search_fields,
 		excluded_fields: commonTableSettings?.excluded_fields,
-		list_fields: personalTableSettings?.list_fields || commonTableSettings?.list_fields || [],
+		list_fields: (Array.isArray(personalTableSettings?.list_fields) && personalTableSettings.list_fields.length > 0)
+			? personalTableSettings.list_fields
+			: commonTableSettings?.list_fields || [],
 		identification_fields: commonTableSettings?.identification_fields,
 		list_per_page: personalTableSettings?.list_per_page || commonTableSettings?.list_per_page,
 		ordering: personalTableSettings?.ordering || commonTableSettings?.ordering,
