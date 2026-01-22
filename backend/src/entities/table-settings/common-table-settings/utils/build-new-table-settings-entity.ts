@@ -32,6 +32,7 @@ export function buildNewTableSettingsEntity(
 		list_fields,
 		ordering,
 		ordering_field,
+		columns_view,
 	} = settings;
 	newSettings.connection_id = connection;
 	newSettings.display_name = display_name;
@@ -57,5 +58,6 @@ export function buildNewTableSettingsEntity(
 	newSettings.list_fields = list_fields;
 	newSettings.ordering = ordering as QueryOrderingEnum;
 	newSettings.ordering_field = ordering_field;
+	newSettings.columns_view = columns_view;
 	return newSettings;
 }

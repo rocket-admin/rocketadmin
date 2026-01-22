@@ -77,4 +77,7 @@ export class CreateTableSettingsDs {
 
   @ApiProperty({ required: false })
   ordering_field?: string;
+
+  @ApiProperty({ isArray: true, type: 'string', required: false })
+  columns_view?: Array<string>;
 }
