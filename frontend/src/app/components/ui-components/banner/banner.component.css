@@ -11,15 +11,19 @@
 
 .banner_error {
     --alert-theme-color: #B71C1C;
-
     z-index: 2;
 }
+
 .banner_info {
-    --alert-theme-color: #01579B;
+    --alert-theme-color: #296EE9;
 }
 
 .banner_success {
     --alert-theme-color: #1B5E20;
+}
+
+.banner_warning {
+    --alert-theme-color: #F79008;
 }
 
 .banner-box {
@@ -51,4 +55,33 @@
     justify-content: flex-end;
     gap: 20px;
     margin-top: 32px;
+}
+
+.banner-box.banner_error {
+    --bg-color: color-mix(in hsl, #B71C1C, transparent 95%);
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
+}
+
+@media (prefers-color-scheme: light) {
+    .banner-box.banner_error ::ng-deep [mat-stroked-button] {
+        background-color: #fff;
+    }
+}
+
+.banner-box.banner_info {
+    --bg-color: color-mix(in hsl, #296EE9, transparent 95%);
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
+}
+
+.banner-box.banner_warning {
+    --bg-color: color-mix(in hsl, #F79008, transparent 95%);
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
+}
+
+.banner-box.banner_success {
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
 }
