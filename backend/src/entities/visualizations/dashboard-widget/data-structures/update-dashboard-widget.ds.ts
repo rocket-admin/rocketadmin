@@ -7,6 +7,7 @@ export class UpdateDashboardWidgetDs {
 	masterPassword: string;
 	userId: string;
 	widget_type?: DashboardWidgetTypeEnum;
+	chart_type?: string;
 	name?: string;
 	description?: string;
 	position_x?: number;
