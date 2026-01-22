@@ -11,6 +11,7 @@ import { provideCodeEditor } from '@ngstack/code-editor';
 import * as Sentry from '@sentry/angular';
 import { Angulartics2Module } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CookieService } from 'ngx-cookie-service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
@@ -138,5 +139,6 @@ bootstrapApplication(AppComponent, {
 		...saasExtraProviders,
 		provideHttpClient(withInterceptorsFromDi()),
 		provideAnimations(),
+		provideCharts(withDefaultRegisterables()),
 	],
 }).catch((err) => console.error(err));
