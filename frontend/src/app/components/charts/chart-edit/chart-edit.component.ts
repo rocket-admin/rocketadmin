@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,9 +14,8 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2 } from 'angulartics2';
-import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { ChartType, SavedQuery, TestQueryResult } from 'src/app/models/saved-query';
+import { ChartType, TestQueryResult } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
@@ -43,26 +43,27 @@ import { ChartPreviewComponent } from '../chart-preview/chart-preview.component'
 		AlertComponent,
 	],
 })
-export class ChartEditComponent implements OnInit, OnDestroy {
-	public connectionId: string;
-	public queryId: string;
-	public isEditMode = false;
-	public loading = true;
-	public saving = false;
-	public testing = false;
+export class ChartEditComponent implements OnInit {
+	protected connectionId = signal('');
+	protected queryId = signal('');
+	protected isEditMode = signal(false);
+	protected loading = signal(true);
+	protected saving = signal(false);
+	protected testing = signal(false);
 
-	public queryName = '';
-	public queryDescription = '';
-	public queryText = '';
+	protected queryName = signal('');
+	protected queryDescription = signal('');
+	protected queryText = signal('');
 
-	public testResults: Record<string, unknown>[] = [];
-	public resultColumns: string[] = [];
-	public executionTime: number | null = null;
-	public showResults = false;
+	protected testResults = signal<Record<string, unknown>[]>([]);
+	protected resultColumns = signal<string[]>([]);
+	protected executionTime = signal<number | null>(null);
+	protected showResults = signal(false);
 
-	public chartType: ChartType = 'bar';
-	public labelColumn = '';
-	public valueColumn = '';
+	protected chartType = signal<ChartType>('bar');
+	protected labelColumn = signal('');
+	protected valueColumn = signal('');
+
 	public chartTypes: { value: ChartType; label: string }[] = [
 		{ value: 'bar', label: 'Bar Chart' },
 		{ value: 'line', label: 'Line Chart' },
@@ -71,7 +72,14 @@ export class ChartEditComponent implements OnInit, OnDestroy {
 		{ value: 'polarArea', label: 'Polar Area Chart' },
 	];
 
-	public codeModel: { language: string; uri: string; value: string };
+	// Use a signal for codeModel to ensure change detection works on load
+	// Only update this signal when loading a query, not during typing (to preserve cursor position)
+	protected codeModel = signal({
+		language: 'sql',
+		uri: 'query.sql',
+		value: '',
+	});
+
 	public codeEditorOptions = {
 		minimap: { enabled: false },
 		automaticLayout: true,
@@ -81,96 +89,91 @@ export class ChartEditComponent implements OnInit, OnDestroy {
 	};
 	public codeEditorTheme = 'vs-dark';
 
-	private subscriptions: Subscription[] = [];
+	protected canSave = computed(() => !!this.queryName().trim() && !!this.queryText().trim() && !this.saving());
 
-	constructor(
-		private _savedQueries: SavedQueriesService,
-		private _connections: ConnectionsService,
-		private _uiSettings: UiSettingsService,
-		private route: ActivatedRoute,
-		private router: Router,
-		private angulartics2: Angulartics2,
-		private title: Title,
-	) {}
+	protected canTest = computed(() => !!this.queryText().trim() && !this.testing());
+
+	protected hasChartData = computed(
+		() => this.testResults().length > 0 && !!this.labelColumn() && !!this.valueColumn(),
+	);
+
+	private _savedQueries = inject(SavedQueriesService);
+	private _connections = inject(ConnectionsService);
+	private _uiSettings = inject(UiSettingsService);
+	private route = inject(ActivatedRoute);
+	private router = inject(Router);
+	private angulartics2 = inject(Angulartics2);
+	private title = inject(Title);
+
+	private connectionTitle = toSignal(this._connections.getCurrentConnectionTitle(), { initialValue: '' });
+
+	constructor() {
+		// Page title effect
+		effect(() => {
+			const title = this.connectionTitle();
+			const pageTitle = this.isEditMode() ? 'Edit Query' : 'Create Query';
+			this.title.setTitle(`${pageTitle} | ${title || 'Rocketadmin'}`);
+		});
+	}
 
 	ngOnInit(): void {
-		this.connectionId = this.route.snapshot.paramMap.get('connection-id');
-		this.queryId = this.route.snapshot.paramMap.get('query-id');
-		this.isEditMode = !!this.queryId;
+		this.connectionId.set(this.route.snapshot.paramMap.get('connection-id') || '');
+		this.queryId.set(this.route.snapshot.paramMap.get('query-id') || '');
+		this.isEditMode.set(!!this.queryId());
 
 		this.codeEditorTheme = this._uiSettings.editorTheme;
 
-		this._connections.getCurrentConnectionTitle().subscribe((connectionTitle) => {
-			const pageTitle = this.isEditMode ? 'Edit Query' : 'Create Query';
-			this.title.setTitle(`${pageTitle} | ${connectionTitle || 'Rocketadmin'}`);
-		});
-
-		this.initCodeModel();
-
-		if (this.isEditMode) {
+		if (this.isEditMode()) {
 			this.loadSavedQuery();
 		} else {
-			this.loading = false;
+			this.loading.set(false);
 		}
 	}
 
-	ngOnDestroy(): void {
-		this.subscriptions.forEach((sub) => sub.unsubscribe());
-	}
-
-	initCodeModel(): void {
-		this.codeModel = {
-			language: 'sql',
-			uri: 'query.sql',
-			value: this.queryText,
-		};
-	}
-
 	loadSavedQuery(): void {
-		this.loading = true;
+		this.loading.set(true);
 		this._savedQueries
-			.fetchSavedQuery(this.connectionId, this.queryId)
-			.pipe(finalize(() => (this.loading = false)))
+			.fetchSavedQuery(this.connectionId(), this.queryId())
+			.pipe(finalize(() => this.loading.set(false)))
 			.subscribe((query) => {
 				if (query) {
-					this.queryName = query.name;
-					this.queryDescription = query.description || '';
-					this.queryText = query.query_text;
-					this.codeModel = {
-						language: 'sql',
-						uri: 'query.sql',
-						value: this.queryText,
-					};
+					this.queryName.set(query.name);
+					this.queryDescription.set(query.description || '');
+					this.queryText.set(query.query_text);
+					// Set codeModel value for Monaco editor (only on load, not during typing)
+					this.codeModel.set({ language: 'sql', uri: 'query.sql', value: query.query_text });
+					// Automatically test the query to show chart preview
+					this.testQuery();
 				}
 			});
 	}
 
 	onCodeChange(value: string): void {
-		this.queryText = value;
+		this.queryText.set(value);
 	}
 
 	testQuery(): void {
-		if (!this.queryText.trim()) {
+		if (!this.queryText().trim()) {
 			return;
 		}
 
-		this.testing = true;
-		this.showResults = false;
+		this.testing.set(true);
+		this.showResults.set(false);
 		this._savedQueries
-			.testQuery(this.connectionId, { query_text: this.queryText })
-			.pipe(finalize(() => (this.testing = false)))
+			.testQuery(this.connectionId(), { query_text: this.queryText() })
+			.pipe(finalize(() => this.testing.set(false)))
 			.subscribe((result: TestQueryResult) => {
 				if (result) {
-					this.testResults = result.data;
-					this.executionTime = result.execution_time_ms;
-					this.resultColumns = result.data.length > 0 ? Object.keys(result.data[0]) : [];
-					this.showResults = true;
+					this.testResults.set(result.data);
+					this.executionTime.set(result.execution_time_ms);
+					this.resultColumns.set(result.data.length > 0 ? Object.keys(result.data[0]) : []);
+					this.showResults.set(true);
 
-					if (this.resultColumns.length > 0 && !this.labelColumn) {
-						this.labelColumn = this.resultColumns[0];
+					if (this.resultColumns().length > 0 && !this.labelColumn()) {
+						this.labelColumn.set(this.resultColumns()[0]);
 					}
-					if (this.resultColumns.length > 1 && !this.valueColumn) {
-						this.valueColumn = this.resultColumns[1];
+					if (this.resultColumns().length > 1 && !this.valueColumn()) {
+						this.valueColumn.set(this.resultColumns()[1]);
 					}
 				}
 			});
@@ -181,34 +184,34 @@ export class ChartEditComponent implements OnInit, OnDestroy {
 	}
 
 	saveQuery(): void {
-		if (!this.queryName.trim() || !this.queryText.trim()) {
+		if (!this.queryName().trim() || !this.queryText().trim()) {
 			return;
 		}
 
-		this.saving = true;
+		this.saving.set(true);
 
 		const payload = {
-			name: this.queryName,
-			description: this.queryDescription || undefined,
-			query_text: this.queryText,
+			name: this.queryName(),
+			description: this.queryDescription() || undefined,
+			query_text: this.queryText(),
 		};
 
-		if (this.isEditMode) {
+		if (this.isEditMode()) {
 			this._savedQueries
-				.updateSavedQuery(this.connectionId, this.queryId, payload)
-				.pipe(finalize(() => (this.saving = false)))
+				.updateSavedQuery(this.connectionId(), this.queryId(), payload)
+				.pipe(finalize(() => this.saving.set(false)))
 				.subscribe(() => {
-					this.router.navigate(['/charts', this.connectionId]);
+					this.router.navigate(['/charts', this.connectionId()]);
 				});
 			this.angulartics2.eventTrack.next({
 				action: 'Charts: saved query updated',
 			});
 		} else {
 			this._savedQueries
-				.createSavedQuery(this.connectionId, payload)
-				.pipe(finalize(() => (this.saving = false)))
+				.createSavedQuery(this.connectionId(), payload)
+				.pipe(finalize(() => this.saving.set(false)))
 				.subscribe(() => {
-					this.router.navigate(['/charts', this.connectionId]);
+					this.router.navigate(['/charts', this.connectionId()]);
 				});
 			this.angulartics2.eventTrack.next({
 				action: 'Charts: saved query created',
@@ -217,18 +220,6 @@ export class ChartEditComponent implements OnInit, OnDestroy {
 	}
 
 	cancel(): void {
-		this.router.navigate(['/charts', this.connectionId]);
-	}
-
-	get canSave(): boolean {
-		return !!this.queryName.trim() && !!this.queryText.trim() && !this.saving;
-	}
-
-	get canTest(): boolean {
-		return !!this.queryText.trim() && !this.testing;
-	}
-
-	get hasChartData(): boolean {
-		return this.testResults.length > 0 && !!this.labelColumn && !!this.valueColumn;
+		this.router.navigate(['/charts', this.connectionId()]);
 	}
 }

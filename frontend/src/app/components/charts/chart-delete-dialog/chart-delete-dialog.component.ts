@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +14,7 @@ import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
 })
 export class ChartDeleteDialogComponent {
-	public submitting = false;
+	protected submitting = signal(false);
 
 	constructor(
 		@Inject(MAT_DIALOG_DATA) public data: { query: SavedQuery; connectionId: string },
@@ -24,17 +24,17 @@ export class ChartDeleteDialogComponent {
 	) {}
 
 	onDelete(): void {
-		this.submitting = true;
+		this.submitting.set(true);
 		this._savedQueries.deleteSavedQuery(this.data.connectionId, this.data.query.id).subscribe({
 			next: () => {
 				this.angulartics2.eventTrack.next({
 					action: 'Charts: saved query deleted successfully',
 				});
-				this.submitting = false;
+				this.submitting.set(false);
 				this.dialogRef.close(true);
 			},
 			error: () => {
-				this.submitting = false;
+				this.submitting.set(false);
 			},
 		});
 	}

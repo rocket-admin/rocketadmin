@@ -13,11 +13,11 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close [disabled]="submitting">Cancel</button>
+    <button mat-button mat-dialog-close [disabled]="submitting()">Cancel</button>
     <button mat-flat-button color="warn"
         (click)="onDelete()"
-        [disabled]="submitting"
+        [disabled]="submitting()"
         data-testid="delete-chart-confirm-button">
-        {{submitting ? 'Deleting...' : 'Delete Query'}}
+        {{submitting() ? 'Deleting...' : 'Delete Query'}}
     </button>
 </mat-dialog-actions>

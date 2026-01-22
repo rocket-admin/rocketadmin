@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { Signal, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -7,20 +8,29 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Angulartics2Module } from 'angulartics2';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { SavedQueriesService } from 'src/app/services/saved-queries.service';
+import { QueryUpdateEvent, SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { ChartDeleteDialogComponent } from '../chart-delete-dialog/chart-delete-dialog.component';
 import { ChartsListComponent } from './charts-list.component';
+
+type ChartsListComponentTestable = ChartsListComponent & {
+	savedQueries: Signal<SavedQuery[]>;
+	loading: Signal<boolean>;
+	searchQuery: WritableSignal<string>;
+	filteredQueries: Signal<SavedQuery[]>;
+};
 
 describe('ChartsListComponent', () => {
 	let component: ChartsListComponent;
 	let fixture: ComponentFixture<ChartsListComponent>;
-	let mockSavedQueriesService: any;
-	let mockConnectionsService: any;
-	let mockDialog: any;
-	let savedQueriesUpdatedSubject: BehaviorSubject<string>;
+	let mockSavedQueriesService: Partial<SavedQueriesService>;
+	let mockConnectionsService: Partial<ConnectionsService>;
+	let mockDialog: Partial<MatDialog>;
+	let queriesUpdatedSignal: WritableSignal<QueryUpdateEvent>;
+	let savedQueriesSignal: WritableSignal<SavedQuery[]>;
+	let savedQueriesLoadingSignal: WritableSignal<boolean>;
 
 	const mockSavedQuery: SavedQuery = {
 		id: '1',
@@ -33,20 +43,25 @@ describe('ChartsListComponent', () => {
 	};
 
 	beforeEach(async () => {
-		savedQueriesUpdatedSubject = new BehaviorSubject<string>('');
+		queriesUpdatedSignal = signal<QueryUpdateEvent>('');
+		savedQueriesSignal = signal<SavedQuery[]>([mockSavedQuery]);
+		savedQueriesLoadingSignal = signal<boolean>(false);
 
 		mockSavedQueriesService = {
-			fetchSavedQueries: vi.fn().mockImplementation(() => of([mockSavedQuery])),
-			cast: savedQueriesUpdatedSubject.asObservable(),
-		} as any;
+			savedQueries: savedQueriesSignal.asReadonly(),
+			savedQueriesLoading: savedQueriesLoadingSignal.asReadonly(),
+			queriesUpdated: queriesUpdatedSignal.asReadonly(),
+			setActiveConnection: vi.fn(),
+			refreshSavedQueries: vi.fn(),
+		};
 
 		mockConnectionsService = {
 			getCurrentConnectionTitle: vi.fn().mockReturnValue(of('Test Connection')),
-		} as any;
+		};
 
 		mockDialog = {
 			open: vi.fn(),
-		} as any;
+		};
 
 		await TestBed.configureTestingModule({
 			imports: [
@@ -84,49 +99,50 @@ describe('ChartsListComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should load saved queries on init', () => {
-		expect(mockSavedQueriesService.fetchSavedQueries).toHaveBeenCalledWith('conn-1');
+	it('should set active connection on init', () => {
+		expect(mockSavedQueriesService.setActiveConnection).toHaveBeenCalledWith('conn-1');
 	});
 
 	it('should set page title on init', () => {
 		expect(mockConnectionsService.getCurrentConnectionTitle).toHaveBeenCalled();
 	});
 
-	it('should initialize with loading true then false after load', () => {
-		expect(component.loading).toBe(false);
+	it('should initialize with loading from service', () => {
+		const testable = component as ChartsListComponentTestable;
+		expect(testable.loading()).toBe(false);
 	});
 
 	it('should have correct displayed columns', () => {
 		expect(component.displayedColumns).toEqual(['name', 'description', 'updatedAt', 'actions']);
 	});
 
-	describe('filterQueries', () => {
+	describe('filteredQueries computed', () => {
 		it('should show all queries when search is empty', () => {
-			component.savedQueries = [mockSavedQuery];
-			component.searchQuery = '';
-			component.filterQueries();
-			expect(component.filteredQueries).toEqual([mockSavedQuery]);
+			const testable = component as ChartsListComponentTestable;
+			savedQueriesSignal.set([mockSavedQuery]);
+			testable.searchQuery.set('');
+			expect(testable.filteredQueries()).toEqual([mockSavedQuery]);
 		});
 
 		it('should filter by name', () => {
-			component.savedQueries = [mockSavedQuery];
-			component.searchQuery = 'Test';
-			component.filterQueries();
-			expect(component.filteredQueries).toEqual([mockSavedQuery]);
+			const testable = component as ChartsListComponentTestable;
+			savedQueriesSignal.set([mockSavedQuery]);
+			testable.searchQuery.set('Test');
+			expect(testable.filteredQueries()).toEqual([mockSavedQuery]);
 		});
 
 		it('should filter by description', () => {
-			component.savedQueries = [mockSavedQuery];
-			component.searchQuery = 'description';
-			component.filterQueries();
-			expect(component.filteredQueries).toEqual([mockSavedQuery]);
+			const testable = component as ChartsListComponentTestable;
+			savedQueriesSignal.set([mockSavedQuery]);
+			testable.searchQuery.set('description');
+			expect(testable.filteredQueries()).toEqual([mockSavedQuery]);
 		});
 
 		it('should return empty when no match', () => {
-			component.savedQueries = [mockSavedQuery];
-			component.searchQuery = 'nonexistent';
-			component.filterQueries();
-			expect(component.filteredQueries).toEqual([]);
+			const testable = component as ChartsListComponentTestable;
+			savedQueriesSignal.set([mockSavedQuery]);
+			testable.searchQuery.set('nonexistent');
+			expect(testable.filteredQueries()).toEqual([]);
 		});
 	});
 
@@ -140,31 +156,25 @@ describe('ChartsListComponent', () => {
 		});
 	});
 
-	describe('savedQueriesUpdated subscription', () => {
-		it('should reload queries when savedQueriesUpdated emits', () => {
-			mockSavedQueriesService.fetchSavedQueries.mockClear();
+	describe('queriesUpdated effect', () => {
+		it('should refresh queries when queriesUpdated signal changes', () => {
+			vi.mocked(mockSavedQueriesService.refreshSavedQueries!).mockClear();
 
-			savedQueriesUpdatedSubject.next('created');
+			// Trigger the signal change
+			queriesUpdatedSignal.set('created');
+			TestBed.flushEffects();
 
-			expect(mockSavedQueriesService.fetchSavedQueries).toHaveBeenCalled();
+			expect(mockSavedQueriesService.refreshSavedQueries).toHaveBeenCalled();
 		});
 
-		it('should not reload queries when savedQueriesUpdated emits empty string', () => {
-			mockSavedQueriesService.fetchSavedQueries.mockClear();
+		it('should not refresh queries when queriesUpdated signal is empty', () => {
+			vi.mocked(mockSavedQueriesService.refreshSavedQueries!).mockClear();
 
-			savedQueriesUpdatedSubject.next('');
+			// Set empty value
+			queriesUpdatedSignal.set('');
+			TestBed.flushEffects();
 
-			expect(mockSavedQueriesService.fetchSavedQueries).not.toHaveBeenCalled();
-		});
-	});
-
-	describe('ngOnDestroy', () => {
-		it('should unsubscribe from all subscriptions', () => {
-			const unsubscribeSpy = vi.spyOn(component.subscriptions[0], 'unsubscribe');
-
-			component.ngOnDestroy();
-
-			expect(unsubscribeSpy).toHaveBeenCalled();
+			expect(mockSavedQueriesService.refreshSavedQueries).not.toHaveBeenCalled();
 		});
 	});
 });

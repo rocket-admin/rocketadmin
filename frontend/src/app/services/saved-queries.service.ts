@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { computed, Injectable, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { EMPTY, Observable } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import {
 	CreateSavedQueryPayload,
 	QueryExecutionResult,
@@ -12,32 +13,52 @@ import {
 } from '../models/saved-query';
 import { NotificationsService } from './notifications.service';
 
+export type QueryUpdateEvent = 'created' | 'updated' | 'deleted' | '';
+
 @Injectable({
 	providedIn: 'root',
 })
 export class SavedQueriesService {
-	private savedQueriesUpdated = new BehaviorSubject<string>('');
-	public cast = this.savedQueriesUpdated.asObservable();
+	private _http = inject(HttpClient);
+	private _notifications = inject(NotificationsService);
 
-	constructor(
-		private _http: HttpClient,
-		private _notifications: NotificationsService,
-	) {}
+	private _queriesUpdated = signal<QueryUpdateEvent>('');
+	public readonly queriesUpdated = this._queriesUpdated.asReadonly();
 
-	fetchSavedQueries(connectionId: string): Observable<SavedQuery[]> {
-		return this._http.get<SavedQuery[]>(`/connection/${connectionId}/saved-queries`).pipe(
-			map((res) => res),
-			catchError((err) => {
-				console.log(err);
-				this._notifications.showErrorSnackbar(err.error?.message || 'Failed to fetch saved queries');
-				return EMPTY;
-			}),
-		);
+	// Active connection for reactive fetching
+	private _activeConnectionId = signal<string | null>(null);
+
+	// Resource for saved queries
+	private _savedQueriesResource = rxResource({
+		params: () => this._activeConnectionId(),
+		stream: ({ params: connectionId }) => {
+			if (!connectionId) return EMPTY;
+			return this._http.get<SavedQuery[]>(`/connection/${connectionId}/saved-queries`).pipe(
+				catchError((err) => {
+					console.log(err);
+					this._notifications.showErrorSnackbar(err.error?.message || 'Failed to fetch saved queries');
+					return EMPTY;
+				}),
+			);
+		},
+	});
+
+	// Computed signals for convenient access
+	public readonly savedQueries = computed(() => this._savedQueriesResource.value() ?? []);
+	public readonly savedQueriesLoading = computed(() => this._savedQueriesResource.isLoading());
+	public readonly savedQueriesError = computed(() => this._savedQueriesResource.error() as Error | null);
+
+	// Methods to control resource
+	setActiveConnection(connectionId: string): void {
+		this._activeConnectionId.set(connectionId);
+	}
+
+	refreshSavedQueries(): void {
+		this._savedQueriesResource.reload();
 	}
 
 	fetchSavedQuery(connectionId: string, queryId: string): Observable<SavedQuery> {
 		return this._http.get<SavedQuery>(`/connection/${connectionId}/saved-query/${queryId}`).pipe(
-			map((res) => res),
 			catchError((err) => {
 				console.log(err);
 				this._notifications.showErrorSnackbar(err.error?.message || 'Failed to fetch saved query');
@@ -48,10 +69,9 @@ export class SavedQueriesService {
 
 	createSavedQuery(connectionId: string, payload: CreateSavedQueryPayload): Observable<SavedQuery> {
 		return this._http.post<SavedQuery>(`/connection/${connectionId}/saved-query`, payload).pipe(
-			map((res) => {
+			tap(() => {
 				this._notifications.showSuccessSnackbar('Saved query created successfully');
-				this.savedQueriesUpdated.next('created');
-				return res;
+				this._queriesUpdated.set('created');
 			}),
 			catchError((err) => {
 				console.log(err);
@@ -63,10 +83,9 @@ export class SavedQueriesService {
 
 	updateSavedQuery(connectionId: string, queryId: string, payload: UpdateSavedQueryPayload): Observable<SavedQuery> {
 		return this._http.put<SavedQuery>(`/connection/${connectionId}/saved-query/${queryId}`, payload).pipe(
-			map((res) => {
+			tap(() => {
 				this._notifications.showSuccessSnackbar('Saved query updated successfully');
-				this.savedQueriesUpdated.next('updated');
-				return res;
+				this._queriesUpdated.set('updated');
 			}),
 			catchError((err) => {
 				console.log(err);
@@ -78,10 +97,9 @@ export class SavedQueriesService {
 
 	deleteSavedQuery(connectionId: string, queryId: string): Observable<SavedQuery> {
 		return this._http.delete<SavedQuery>(`/connection/${connectionId}/saved-query/${queryId}`).pipe(
-			map((res) => {
+			tap(() => {
 				this._notifications.showSuccessSnackbar('Saved query deleted successfully');
-				this.savedQueriesUpdated.next('deleted');
-				return res;
+				this._queriesUpdated.set('deleted');
 			}),
 			catchError((err) => {
 				console.log(err);
@@ -99,7 +117,6 @@ export class SavedQueriesService {
 		return this._http
 			.post<QueryExecutionResult>(`/connection/${connectionId}/saved-query/${queryId}/execute`, {}, { params })
 			.pipe(
-				map((res) => res),
 				catchError((err) => {
 					console.log(err);
 					this._notifications.showErrorSnackbar(err.error?.message || 'Failed to execute query');
@@ -110,7 +127,6 @@ export class SavedQueriesService {
 
 	testQuery(connectionId: string, payload: TestQueryPayload): Observable<TestQueryResult> {
 		return this._http.post<TestQueryResult>(`/connection/${connectionId}/query/test`, payload).pipe(
-			map((res) => res),
 			catchError((err) => {
 				console.log(err);
 				this._notifications.showErrorSnackbar(err.error?.message || 'Failed to test query');

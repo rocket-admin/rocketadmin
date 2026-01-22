@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,8 +14,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
@@ -42,76 +41,52 @@ import { ChartDeleteDialogComponent } from '../chart-delete-dialog/chart-delete-
 		AlertComponent,
 	],
 })
-export class ChartsListComponent implements OnInit, OnDestroy {
-	public savedQueries: SavedQuery[] = [];
-	public filteredQueries: SavedQuery[] = [];
-	public loading = true;
-	public searchQuery = '';
+export class ChartsListComponent implements OnInit {
+	protected searchQuery = signal('');
+	protected connectionId = signal('');
 	public displayedColumns = ['name', 'description', 'updatedAt', 'actions'];
-	public connectionId: string;
-	public subscriptions: Subscription[] = [];
 
-	private searchSubject = new Subject<string>();
+	private _savedQueries = inject(SavedQueriesService);
+	private _connections = inject(ConnectionsService);
+	private route = inject(ActivatedRoute);
+	private dialog = inject(MatDialog);
+	private angulartics2 = inject(Angulartics2);
+	private title = inject(Title);
 
-	constructor(
-		private _savedQueries: SavedQueriesService,
-		private _connections: ConnectionsService,
-		private route: ActivatedRoute,
-		private dialog: MatDialog,
-		private angulartics2: Angulartics2,
-		private title: Title,
-	) {}
+	// Use service signals for saved queries and loading
+	protected savedQueries = computed(() => this._savedQueries.savedQueries());
+	protected loading = computed(() => this._savedQueries.savedQueriesLoading());
+
+	protected filteredQueries = computed(() => {
+		const queries = this.savedQueries();
+		const search = this.searchQuery();
+		if (!search) return queries;
+		const query = search.toLowerCase();
+		return queries.filter(
+			(q) => q.name.toLowerCase().includes(query) || (q.description && q.description.toLowerCase().includes(query)),
+		);
+	});
+
+	private connectionTitle = toSignal(this._connections.getCurrentConnectionTitle(), { initialValue: '' });
+
+	constructor() {
+		// Connection title effect
+		effect(() => {
+			const title = this.connectionTitle();
+			this.title.setTitle(`Charts | ${title || 'Rocketadmin'}`);
+		});
+
+		// Queries update effect
+		effect(() => {
+			const action = this._savedQueries.queriesUpdated();
+			if (action) this._savedQueries.refreshSavedQueries();
+		});
+	}
 
 	ngOnInit(): void {
-		this.connectionId = this.route.snapshot.paramMap.get('connection-id');
-
-		this._connections.getCurrentConnectionTitle().subscribe((connectionTitle) => {
-			this.title.setTitle(`Charts | ${connectionTitle || 'Rocketadmin'}`);
-		});
-
-		this.loadSavedQueries();
-
-		const searchSub = this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {
-			this.filterQueries();
-		});
-		this.subscriptions.push(searchSub);
-
-		const updateSub = this._savedQueries.cast.subscribe((action) => {
-			if (action) {
-				this.loadSavedQueries();
-			}
-		});
-		this.subscriptions.push(updateSub);
-	}
-
-	ngOnDestroy(): void {
-		this.subscriptions.forEach((sub) => sub.unsubscribe());
-	}
-
-	loadSavedQueries(): void {
-		this.loading = true;
-		this._savedQueries.fetchSavedQueries(this.connectionId).subscribe((response) => {
-			if (response) {
-				this.savedQueries = response;
-				this.filterQueries();
-			}
-			this.loading = false;
-		});
-	}
-
-	filterQueries(): void {
-		if (!this.searchQuery) {
-			this.filteredQueries = this.savedQueries;
-		} else {
-			const query = this.searchQuery.toLowerCase();
-			this.filteredQueries = this.savedQueries.filter(
-				(q) => q.name.toLowerCase().includes(query) || (q.description && q.description.toLowerCase().includes(query)),
-			);
-		}
-	}
-
-	onSearchChange(query: string): void {
-		this.searchSubject.next(query);
+		const connId = this.route.snapshot.paramMap.get('connection-id') || '';
+		this.connectionId.set(connId);
+		this._savedQueries.setActiveConnection(connId);
 	}
 
 	trackCreatePageOpened(): void {
@@ -129,7 +104,7 @@ export class ChartsListComponent implements OnInit, OnDestroy {
 	openDeleteDialog(query: SavedQuery): void {
 		this.dialog.open(ChartDeleteDialogComponent, {
 			width: '400px',
-			data: { query, connectionId: this.connectionId },
+			data: { query, connectionId: this.connectionId() },
 		});
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: delete chart dialog opened',

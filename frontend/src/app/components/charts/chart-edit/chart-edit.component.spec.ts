@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, Signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -9,19 +9,37 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
-import { SavedQuery } from 'src/app/models/saved-query';
+import { ChartType, SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
 import { ChartEditComponent } from './chart-edit.component';
 
+type ChartEditComponentTestable = ChartEditComponent & {
+	isEditMode: WritableSignal<boolean>;
+	queryName: WritableSignal<string>;
+	queryText: WritableSignal<string>;
+	queryDescription: WritableSignal<string>;
+	saving: WritableSignal<boolean>;
+	testing: WritableSignal<boolean>;
+	testResults: WritableSignal<Record<string, unknown>[]>;
+	resultColumns: WritableSignal<string[]>;
+	executionTime: WritableSignal<number | null>;
+	labelColumn: WritableSignal<string>;
+	valueColumn: WritableSignal<string>;
+	chartType: WritableSignal<ChartType>;
+	canSave: Signal<boolean>;
+	canTest: Signal<boolean>;
+	hasChartData: Signal<boolean>;
+};
+
 describe('ChartEditComponent', () => {
 	let component: ChartEditComponent;
 	let fixture: ComponentFixture<ChartEditComponent>;
-	let mockSavedQueriesService: any;
-	let mockConnectionsService: any;
-	let mockUiSettingsService: any;
+	let mockSavedQueriesService: Partial<SavedQueriesService>;
+	let mockConnectionsService: Partial<ConnectionsService>;
+	let mockUiSettingsService: Partial<UiSettingsService>;
 	let router: Router;
 
 	const mockSavedQuery: SavedQuery = {
@@ -45,15 +63,15 @@ describe('ChartEditComponent', () => {
 					execution_time_ms: 50,
 				}),
 			),
-		} as any;
+		};
 
 		mockConnectionsService = {
 			getCurrentConnectionTitle: vi.fn().mockReturnValue(of('Test Connection')),
-		} as any;
+		};
 
 		mockUiSettingsService = {
 			editorTheme: 'vs-dark',
-		} as any;
+		};
 
 		await TestBed.configureTestingModule({
 			imports: [
@@ -104,7 +122,8 @@ describe('ChartEditComponent', () => {
 	});
 
 	it('should initialize in create mode when no query-id', () => {
-		expect(component.isEditMode).toBe(false);
+		const testable = component as ChartEditComponentTestable;
+		expect(testable.isEditMode()).toBe(false);
 	});
 
 	it('should set page title on init', () => {
@@ -112,59 +131,68 @@ describe('ChartEditComponent', () => {
 	});
 
 	it('should have correct default chart type', () => {
-		expect(component.chartType).toBe('bar');
+		const testable = component as ChartEditComponentTestable;
+		expect(testable.chartType()).toBe('bar');
 	});
 
-	describe('canSave', () => {
+	describe('canSave computed', () => {
 		it('should return false when name is empty', () => {
-			component.queryName = '';
-			component.queryText = 'SELECT 1';
-			expect(component.canSave).toBe(false);
+			const testable = component as ChartEditComponentTestable;
+			testable.queryName.set('');
+			testable.queryText.set('SELECT 1');
+			expect(testable.canSave()).toBe(false);
 		});
 
 		it('should return false when query is empty', () => {
-			component.queryName = 'Test';
-			component.queryText = '';
-			expect(component.canSave).toBe(false);
+			const testable = component as ChartEditComponentTestable;
+			testable.queryName.set('Test');
+			testable.queryText.set('');
+			expect(testable.canSave()).toBe(false);
 		});
 
 		it('should return true when name and query are provided', () => {
-			component.queryName = 'Test';
-			component.queryText = 'SELECT 1';
-			component.saving = false;
-			expect(component.canSave).toBe(true);
+			const testable = component as ChartEditComponentTestable;
+			testable.queryName.set('Test');
+			testable.queryText.set('SELECT 1');
+			testable.saving.set(false);
+			expect(testable.canSave()).toBe(true);
 		});
 
 		it('should return false when saving', () => {
-			component.queryName = 'Test';
-			component.queryText = 'SELECT 1';
-			component.saving = true;
-			expect(component.canSave).toBe(false);
+			const testable = component as ChartEditComponentTestable;
+			testable.queryName.set('Test');
+			testable.queryText.set('SELECT 1');
+			testable.saving.set(true);
+			expect(testable.canSave()).toBe(false);
 		});
 	});
 
-	describe('canTest', () => {
+	describe('canTest computed', () => {
 		it('should return false when query is empty', () => {
-			component.queryText = '';
-			expect(component.canTest).toBe(false);
+			const testable = component as ChartEditComponentTestable;
+			testable.queryText.set('');
+			expect(testable.canTest()).toBe(false);
 		});
 
 		it('should return true when query is provided', () => {
-			component.queryText = 'SELECT 1';
-			component.testing = false;
-			expect(component.canTest).toBe(true);
+			const testable = component as ChartEditComponentTestable;
+			testable.queryText.set('SELECT 1');
+			testable.testing.set(false);
+			expect(testable.canTest()).toBe(true);
 		});
 
 		it('should return false when testing', () => {
-			component.queryText = 'SELECT 1';
-			component.testing = true;
-			expect(component.canTest).toBe(false);
+			const testable = component as ChartEditComponentTestable;
+			testable.queryText.set('SELECT 1');
+			testable.testing.set(true);
+			expect(testable.canTest()).toBe(false);
 		});
 	});
 
 	describe('testQuery', () => {
 		it('should call testQuery service method', () => {
-			component.queryText = 'SELECT * FROM users';
+			const testable = component as ChartEditComponentTestable;
+			testable.queryText.set('SELECT * FROM users');
 			component.testQuery();
 			expect(mockSavedQueriesService.testQuery).toHaveBeenCalledWith('conn-1', {
 				query_text: 'SELECT * FROM users',
@@ -172,26 +200,29 @@ describe('ChartEditComponent', () => {
 		});
 
 		it('should set results and columns after successful test', () => {
-			component.queryText = 'SELECT * FROM users';
+			const testable = component as ChartEditComponentTestable;
+			testable.queryText.set('SELECT * FROM users');
 			component.testQuery();
-			expect(component.testResults).toEqual([{ name: 'John', count: 10 }]);
-			expect(component.resultColumns).toEqual(['name', 'count']);
-			expect(component.executionTime).toBe(50);
+			expect(testable.testResults()).toEqual([{ name: 'John', count: 10 }]);
+			expect(testable.resultColumns()).toEqual(['name', 'count']);
+			expect(testable.executionTime()).toBe(50);
 		});
 
 		it('should auto-select label and value columns', () => {
-			component.queryText = 'SELECT * FROM users';
+			const testable = component as ChartEditComponentTestable;
+			testable.queryText.set('SELECT * FROM users');
 			component.testQuery();
-			expect(component.labelColumn).toBe('name');
-			expect(component.valueColumn).toBe('count');
+			expect(testable.labelColumn()).toBe('name');
+			expect(testable.valueColumn()).toBe('count');
 		});
 	});
 
 	describe('saveQuery', () => {
 		it('should call createSavedQuery in create mode', () => {
-			component.isEditMode = false;
-			component.queryName = 'New Query';
-			component.queryText = 'SELECT 1';
+			const testable = component as ChartEditComponentTestable;
+			testable.isEditMode.set(false);
+			testable.queryName.set('New Query');
+			testable.queryText.set('SELECT 1');
 			component.saveQuery();
 			expect(mockSavedQueriesService.createSavedQuery).toHaveBeenCalledWith('conn-1', {
 				name: 'New Query',
@@ -201,8 +232,9 @@ describe('ChartEditComponent', () => {
 		});
 
 		it('should navigate to charts list after save', () => {
-			component.queryName = 'New Query';
-			component.queryText = 'SELECT 1';
+			const testable = component as ChartEditComponentTestable;
+			testable.queryName.set('New Query');
+			testable.queryText.set('SELECT 1');
 			component.saveQuery();
 			expect(router.navigate).toHaveBeenCalledWith(['/charts', 'conn-1']);
 		});
@@ -217,29 +249,33 @@ describe('ChartEditComponent', () => {
 
 	describe('onCodeChange', () => {
 		it('should update queryText', () => {
+			const testable = component as ChartEditComponentTestable;
 			component.onCodeChange('SELECT * FROM table');
-			expect(component.queryText).toBe('SELECT * FROM table');
+			expect(testable.queryText()).toBe('SELECT * FROM table');
 		});
 	});
 
-	describe('hasChartData', () => {
+	describe('hasChartData computed', () => {
 		it('should return false when no results', () => {
-			component.testResults = [];
-			expect(component.hasChartData).toBe(false);
+			const testable = component as ChartEditComponentTestable;
+			testable.testResults.set([]);
+			expect(testable.hasChartData()).toBe(false);
 		});
 
 		it('should return false when no columns selected', () => {
-			component.testResults = [{ name: 'John' }];
-			component.labelColumn = '';
-			component.valueColumn = '';
-			expect(component.hasChartData).toBe(false);
+			const testable = component as ChartEditComponentTestable;
+			testable.testResults.set([{ name: 'John' }]);
+			testable.labelColumn.set('');
+			testable.valueColumn.set('');
+			expect(testable.hasChartData()).toBe(false);
 		});
 
 		it('should return true when results and columns are set', () => {
-			component.testResults = [{ name: 'John', count: 10 }];
-			component.labelColumn = 'name';
-			component.valueColumn = 'count';
-			expect(component.hasChartData).toBe(true);
+			const testable = component as ChartEditComponentTestable;
+			testable.testResults.set([{ name: 'John', count: 10 }]);
+			testable.labelColumn.set('name');
+			testable.valueColumn.set('count');
+			expect(testable.hasChartData()).toBe(true);
 		});
 	});
 });

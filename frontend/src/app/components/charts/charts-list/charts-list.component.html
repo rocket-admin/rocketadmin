@@ -12,15 +12,15 @@
         <mat-form-field appearance="outline" class="search-field">
             <mat-label>Search queries</mat-label>
             <input matInput
-                [(ngModel)]="searchQuery"
-                (ngModelChange)="onSearchChange($event)"
+                [ngModel]="searchQuery()"
+                (ngModelChange)="searchQuery.set($event)"
                 placeholder="Search by name or description..."
                 data-testid="charts-search-input">
             <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
         <a mat-flat-button color="primary"
-            [routerLink]="['/charts', connectionId, 'new']"
+            [routerLink]="['/charts', connectionId(), 'new']"
             (click)="trackCreatePageOpened()"
             data-testid="create-chart-button">
             <mat-icon>add</mat-icon>
@@ -28,22 +28,22 @@
         </a>
     </div>
 
-    <app-placeholder-table-data *ngIf="loading"></app-placeholder-table-data>
+    <app-placeholder-table-data *ngIf="loading()"></app-placeholder-table-data>
 
-    <div *ngIf="!loading && filteredQueries.length === 0" class="no-charts">
+    <div *ngIf="!loading() && filteredQueries().length === 0" class="no-charts">
         <mat-icon class="no-charts-icon">bar_chart</mat-icon>
         <h3>No saved queries found</h3>
-        <p *ngIf="searchQuery">No queries match your search criteria.</p>
-        <p *ngIf="!searchQuery">Create your first saved query to visualize your data.</p>
-        <a *ngIf="!searchQuery" mat-stroked-button color="primary"
-            [routerLink]="['/charts', connectionId, 'new']"
+        <p *ngIf="searchQuery()">No queries match your search criteria.</p>
+        <p *ngIf="!searchQuery()">Create your first saved query to visualize your data.</p>
+        <a *ngIf="!searchQuery()" mat-stroked-button color="primary"
+            [routerLink]="['/charts', connectionId(), 'new']"
             (click)="trackCreatePageOpened()">
             <mat-icon>add</mat-icon>
             Create Query
         </a>
     </div>
 
-    <table *ngIf="!loading && filteredQueries.length > 0" mat-table [dataSource]="filteredQueries" class="mat-elevation-z2 charts-table">
+    <table *ngIf="!loading() && filteredQueries().length > 0" mat-table [dataSource]="filteredQueries()" class="mat-elevation-z2 charts-table">
         <!-- Name Column -->
         <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -89,7 +89,7 @@
                 </button>
                 <mat-menu #actionsMenu="matMenu">
                     <a mat-menu-item
-                        [routerLink]="['/charts', connectionId, query.id]"
+                        [routerLink]="['/charts', connectionId(), query.id]"
                         (click)="trackEditPageOpened()"
                         attr.data-testid="chart-edit-{{i}}-menu-item">
                         <mat-icon>edit</mat-icon>
