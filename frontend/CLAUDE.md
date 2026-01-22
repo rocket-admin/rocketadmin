@@ -42,10 +42,11 @@ yarn install                  # Install dependencies
 ## 🏗 Architecture Overview
 
 ### Core Technologies
-- **Angular 19** with standalone components architecture
+- **Angular 20** with standalone components architecture
 - **TypeScript 5.6** targeting ES2022
-- **Angular Material 19** for UI components  
-- **RxJS 7.4** for reactive programming
+- **Angular Signals** for reactive state management
+- **Angular Material 19** for UI components
+- **RxJS 7.4** for reactive programming (HTTP calls, complex streams)
 - **SCSS** with Material Design theming
 - **Jasmine/Karma** for testing
 
@@ -66,19 +67,45 @@ export class ExampleComponent implements OnInit {
 }
 ```
 
-#### Service-Based State Management
-No NgRx - uses BehaviorSubject pattern for state management:
+#### Signal-Based State Management (Required for New Code)
+All new code must use Angular signals for state management. Use `rxResource` for data fetching:
 
 ```typescript
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  private dataSubject = new BehaviorSubject<any>('');
-  public cast = this.dataSubject.asObservable();
-  
-  updateData(newData: any) {
-    this.dataSubject.next(newData);
+  private _http = inject(HttpClient);
+
+  // Reactive parameter for data fetching
+  private _activeId = signal<string | null>(null);
+
+  // Use rxResource for reactive data fetching
+  private _dataResource = rxResource({
+    params: () => this._activeId(),
+    stream: ({ params: id }) => {
+      if (!id) return EMPTY;
+      return this._http.get<Data[]>(`/api/data/${id}`);
+    },
+  });
+
+  // Expose as readonly signals
+  public readonly data = computed(() => this._dataResource.value() ?? []);
+  public readonly loading = computed(() => this._dataResource.isLoading());
+
+  setActiveId(id: string): void {
+    this._activeId.set(id);
+  }
+
+  refresh(): void {
+    this._dataResource.reload();
   }
 }
+```
+
+**Legacy pattern** (BehaviorSubject - avoid in new code):
+```typescript
+// Old pattern - do not use for new code
+private dataSubject = new BehaviorSubject<any>('');
+public cast = this.dataSubject.asObservable();
 ```
 
 #### Multi-Environment Support
@@ -161,7 +188,7 @@ import { BaseRowFieldComponent } from '../base-row-field/base-row-field.componen
 import { DataService } from 'src/app/services/data.service';
 ```
 
-### Component Structure
+### Component Structure (Signal-Based)
 ```typescript
 @Component({
   selector: 'app-widget-name',
@@ -170,27 +197,41 @@ import { DataService } from 'src/app/services/data.service';
   imports: [CommonModule, MatModule, ...], // All required imports
 })
 export class WidgetNameComponent implements OnInit {
-  // Input/Output properties first
-  @Input() inputProperty: string;
-  @Output() outputEvent = new EventEmitter<any>();
-  
-  // Public properties
-  public publicProperty: string;
-  
-  // Private properties  
-  private _privateProperty: string;
-  
+  // Dependency injection
+  private _dataService = inject(DataService);
+
+  // Signals for component state (required for new code)
+  protected loading = signal(false);
+  protected items = signal<Item[]>([]);
+  protected searchQuery = signal('');
+
+  // Computed signals for derived state
+  protected filteredItems = computed(() => {
+    const items = this.items();
+    const query = this.searchQuery().toLowerCase();
+    return query ? items.filter(i => i.name.toLowerCase().includes(query)) : items;
+  });
+
+  // Effects for side effects
+  constructor() {
+    effect(() => {
+      const query = this.searchQuery();
+      // React to signal changes
+    });
+  }
+
   // Lifecycle hooks
   ngOnInit(): void {
     // Initialization logic
   }
-  
+
   // Public methods
-  public handleClick(): void {
+  handleClick(): void {
+    this.loading.set(true);
     // Event handling
   }
-  
-  // Private methods
+
+  // Private methods at the end
   private _helperMethod(): void {
     // Internal logic
   }
@@ -206,22 +247,46 @@ export class WidgetNameComponent implements OnInit {
 
 ### Test Structure
 ```typescript
+// Define testable type for accessing protected signals (avoid `as any`)
+type ComponentNameTestable = ComponentName & {
+  loading: Signal<boolean>;
+  items: WritableSignal<Item[]>;
+  searchQuery: WritableSignal<string>;
+};
+
 describe('ComponentName', () => {
   let component: ComponentName;
   let fixture: ComponentFixture<ComponentName>;
-  
+  let mockDataService: Partial<DataService>;
+
   beforeEach(async () => {
+    // Use Partial<ServiceType> instead of `any` for mocks
+    mockDataService = {
+      data: signal([]).asReadonly(),
+      loading: signal(false).asReadonly(),
+      setActiveId: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ComponentName, MaterialModules, ...],
-      providers: [provideHttpClient(), MockServices, ...]
+      providers: [
+        provideHttpClient(),
+        { provide: DataService, useValue: mockDataService },
+      ]
     }).compileComponents();
-    
+
     fixture = TestBed.createComponent(ComponentName);
     component = fixture.componentInstance;
   });
-  
+
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should access protected signals with proper typing', () => {
+    const testable = component as ComponentNameTestable;
+    testable.searchQuery.set('test');
+    expect(testable.loading()).toBe(false);
   });
 });
 ```
@@ -282,6 +347,15 @@ Custom launcher `ChromeHeadlessCustom` is configured for CI with flags `--no-san
 - Component styles: Warning at 6KB, error at 10KB
 
 ## 🚨 Important Notes
+
+### Signals Requirement
+**All new code must use Angular signals** for state management:
+- Use `signal()` for component state instead of plain properties
+- Use `computed()` for derived state
+- Use `effect()` for side effects
+- Use `rxResource()` in services for data fetching
+- Avoid BehaviorSubject in new code
+- Never use `as any` in tests - use `Partial<ServiceType>` and testable type aliases
 
 ### Migration Recommendations
 - **TSLint → ESLint**: Current linting uses deprecated TSLint
