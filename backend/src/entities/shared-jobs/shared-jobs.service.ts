@@ -32,11 +32,27 @@ export class SharedJobsService {
 		}
 		console.info(`Starting AI scan for connection with id "${connection.id}"`);
 		try {
+			const existingTableSettings = await this._dbContext.tableSettingsRepository.find({
+				where: {
+					connection_id: {
+						id: connection.id,
+					},
+				},
+			});
+
+			const existingTableNames = new Set(existingTableSettings.map((setting) => setting.table_name));
 			const dao = getDataAccessObject(connection);
 			const tables: Array<TableDS> = await dao.getTablesFromDB();
+			const tablesToScan = tables.filter((table) => !existingTableNames.has(table.tableName));
+
+			if (tablesToScan.length === 0) {
+				console.info(`No new tables to scan for connection with id "${connection.id}"`);
+				return;
+			}
+
 			const queue = new PQueue({ concurrency: 4 });
 			const tablesInformation = await Promise.all(
-				tables.map((table) =>
+				tablesToScan.map((table) =>
 					queue.add(async () => {
 						const structure = await dao.getTableStructure(table.tableName, null);
 						const primaryColumns = await dao.getTablePrimaryColumns(table.tableName, null);
