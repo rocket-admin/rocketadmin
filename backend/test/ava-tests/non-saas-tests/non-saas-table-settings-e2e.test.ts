@@ -785,90 +785,82 @@ test.serial(
 
 currentTest = 'GET /table/rows/:slug personal settings priority';
 
-test.skip(
-	`${currentTest} should use personal table settings over common table settings when both exist`,
-	async (t) => {
-		try {
-			const newConnection = getTestData(mockFactory).newConnectionToTestDB;
-			const { token } = await registerUserAndReturnUserInfo(app);
+test.skip(`${currentTest} should use personal table settings over common table settings when both exist`, async (t) => {
+	try {
+		const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+		const { token } = await registerUserAndReturnUserInfo(app);
 
-			const createdConnection = await request(app.getHttpServer())
-				.post('/connection')
-				.send(newConnection)
-				.set('Cookie', token)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
+		const createdConnection = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnection)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-			const connectionId = JSON.parse(createdConnection.text).id;
-			const tableName = 'connection';
+		const connectionId = JSON.parse(createdConnection.text).id;
+		const tableName = 'connection';
 
-			// Create common table settings with specific list_fields
-			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				connectionId,
-				tableName,
-				['title'],
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-			);
-			createTableSettingsDTO.list_fields = ['id', 'title', 'type'];
-			createTableSettingsDTO.list_per_page = 10;
-			createTableSettingsDTO.ordering = QueryOrderingEnum.ASC;
-			createTableSettingsDTO.ordering_field = 'id';
+		const createTableSettingsDTO = mockFactory.generateTableSettings(
+			connectionId,
+			tableName,
+			['title'],
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+		);
+		createTableSettingsDTO.list_fields = ['id', 'title', 'type'];
+		createTableSettingsDTO.list_per_page = 10;
+		createTableSettingsDTO.ordering = QueryOrderingEnum.ASC;
+		createTableSettingsDTO.ordering_field = 'id';
 
-			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
-				.send(createTableSettingsDTO)
-				.set('Cookie', token)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(createTableSettingsResponse.status, 201);
+		const createTableSettingsResponse = await request(app.getHttpServer())
+			.post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
+			.send(createTableSettingsDTO)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createTableSettingsResponse.status, 201);
 
-			// Create personal table settings with different values
-			const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
-				['id', 'title'], // different list_fields
-				5, // different list_per_page
-				QueryOrderingEnum.DESC, // different ordering
-				'title', // different ordering_field
-			);
+		const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+			['id', 'title'],
+			5,
+			QueryOrderingEnum.DESC,
+			'title',
+		);
 
-			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${connectionId}`)
-				.query({ tableName: tableName })
-				.send(createPersonalTableSettingsDTO)
-				.set('Cookie', token)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
+		const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+			.put(`/settings/personal/${connectionId}`)
+			.query({ tableName: tableName })
+			.send(createPersonalTableSettingsDTO)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-			t.is(createPersonalTableSettingsResponse.status, 200);
+		t.is(createPersonalTableSettingsResponse.status, 200);
 
-			// Get table rows and verify personal settings are applied
-			const getTableRowsResponse = await request(app.getHttpServer())
-				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
-				.set('Cookie', token)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
+		const getTableRowsResponse = await request(app.getHttpServer())
+			.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-			t.is(getTableRowsResponse.status, 200);
-			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+		t.is(getTableRowsResponse.status, 200);
+		const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-			// Verify that personal settings list_per_page is used (5 instead of 10)
-			t.is(getTableRowsRO.pagination.perPage, 5);
+		t.is(getTableRowsRO.pagination.perPage, 5);
 
-			// Verify that personal list_fields are used - rows should only have id and title
-			const rowKeys = Object.keys(getTableRowsRO.rows[0]);
-			t.true(rowKeys.includes('id'));
-			t.true(rowKeys.includes('title'));
-			t.false(rowKeys.includes('type')); // type was in common settings but not in personal
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const rowKeys = Object.keys(getTableRowsRO.rows[0]);
+		t.true(rowKeys.includes('id'));
+		t.true(rowKeys.includes('title'));
+		t.false(rowKeys.includes('type'));
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 test.serial(`${currentTest} should use common table settings when personal table settings do not exist`, async (t) => {
 	try {
@@ -885,7 +877,6 @@ test.serial(`${currentTest} should use common table settings when personal table
 		const connectionId = JSON.parse(createdConnection.text).id;
 		const tableName = 'connection';
 
-		// Create only common table settings with specific list_fields
 		const createTableSettingsDTO = mockFactory.generateTableSettings(
 			connectionId,
 			tableName,
@@ -910,9 +901,6 @@ test.serial(`${currentTest} should use common table settings when personal table
 			.set('Accept', 'application/json');
 		t.is(createTableSettingsResponse.status, 201);
 
-		// No personal table settings created
-
-		// Get table rows and verify common settings are applied
 		const getTableRowsResponse = await request(app.getHttpServer())
 			.get(`/table/rows/${connectionId}?tableName=${tableName}`)
 			.set('Cookie', token)
@@ -922,10 +910,8 @@ test.serial(`${currentTest} should use common table settings when personal table
 		t.is(getTableRowsResponse.status, 200);
 		const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-		// Verify that common settings list_per_page is used (7)
 		t.is(getTableRowsRO.pagination.perPage, 7);
 
-		// Verify that common list_fields are used - rows should have id, title, and type
 		const rowKeys = Object.keys(getTableRowsRO.rows[0]);
 		t.true(rowKeys.includes('id'));
 		t.true(rowKeys.includes('title'));
@@ -953,7 +939,6 @@ test.serial(
 			const connectionId = JSON.parse(createdConnection.text).id;
 			const tableName = 'connection';
 
-			// Create common table settings with specific list_fields
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
 				connectionId,
 				tableName,
@@ -976,10 +961,9 @@ test.serial(
 				.set('Accept', 'application/json');
 			t.is(createTableSettingsResponse.status, 201);
 
-			// Create personal table settings with empty list_fields but different list_per_page
 			const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
-				[], // empty list_fields - should fall back to common
-				4, // different list_per_page
+				[],
+				4,
 				QueryOrderingEnum.DESC,
 				'title',
 			);
@@ -994,7 +978,6 @@ test.serial(
 
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
-			// Get table rows and verify settings are applied correctly
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
 				.set('Cookie', token)
@@ -1004,13 +987,215 @@ test.serial(
 			t.is(getTableRowsResponse.status, 200);
 			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-			// Verify that personal settings list_per_page is used (4)
 			t.is(getTableRowsRO.pagination.perPage, 4);
 
-			// Verify that common list_fields are used since personal was empty
 			const rowKeys = Object.keys(getTableRowsRO.rows[0]);
 			t.true(rowKeys.includes('id'));
 			t.true(rowKeys.includes('title'));
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	},
+);
+
+currentTest = 'GET /table/rows/:slug columns_view priority';
+
+test.serial(
+	`${currentTest} should use personal table settings columns_view over common table settings when both exist`,
+	async (t) => {
+		try {
+			const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+			const { token } = await registerUserAndReturnUserInfo(app);
+
+			const createdConnection = await request(app.getHttpServer())
+				.post('/connection')
+				.send(newConnection)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			const connectionId = JSON.parse(createdConnection.text).id;
+			const tableName = 'connection';
+
+			// Create common table settings with specific columns_view
+			const createTableSettingsDTO = mockFactory.generateTableSettings(
+				connectionId,
+				tableName,
+				['title'],
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+			);
+			createTableSettingsDTO.columns_view = ['id', 'title', 'type', 'host'];
+
+			const createTableSettingsResponse = await request(app.getHttpServer())
+				.post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
+				.send(createTableSettingsDTO)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			t.is(createTableSettingsResponse.status, 201);
+
+			const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+				undefined,
+				5,
+				QueryOrderingEnum.DESC,
+				'title',
+				['id', 'title'],
+			);
+
+			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+				.put(`/settings/personal/${connectionId}`)
+				.query({ tableName: tableName })
+				.send(createPersonalTableSettingsDTO)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(createPersonalTableSettingsResponse.status, 200);
+
+			const getTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(getTableRowsResponse.status, 200);
+			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+			t.deepEqual(getTableRowsRO.table_settings.columns_view, ['id', 'title']);
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should use common table settings columns_view when personal columns_view does not exist`,
+	async (t) => {
+		try {
+			const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+			const { token } = await registerUserAndReturnUserInfo(app);
+
+			const createdConnection = await request(app.getHttpServer())
+				.post('/connection')
+				.send(newConnection)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			const connectionId = JSON.parse(createdConnection.text).id;
+			const tableName = 'connection';
+
+			const createTableSettingsDTO = mockFactory.generateTableSettings(
+				connectionId,
+				tableName,
+				['title'],
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+			);
+			createTableSettingsDTO.columns_view = ['id', 'title', 'type'];
+
+			const createTableSettingsResponse = await request(app.getHttpServer())
+				.post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
+				.send(createTableSettingsDTO)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			t.is(createTableSettingsResponse.status, 201);
+
+			const getTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(getTableRowsResponse.status, 200);
+			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+			t.deepEqual(getTableRowsRO.table_settings.columns_view, ['id', 'title', 'type']);
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should use common table settings columns_view when personal columns_view is empty array`,
+	async (t) => {
+		try {
+			const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+			const { token } = await registerUserAndReturnUserInfo(app);
+
+			const createdConnection = await request(app.getHttpServer())
+				.post('/connection')
+				.send(newConnection)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			const connectionId = JSON.parse(createdConnection.text).id;
+			const tableName = 'connection';
+
+			const createTableSettingsDTO = mockFactory.generateTableSettings(
+				connectionId,
+				tableName,
+				['title'],
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+			);
+			createTableSettingsDTO.columns_view = ['id', 'title', 'host'];
+
+			const createTableSettingsResponse = await request(app.getHttpServer())
+				.post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
+				.send(createTableSettingsDTO)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			t.is(createTableSettingsResponse.status, 201);
+
+			const createPersonalTableSettingsDTO = mockFactory.generatePersonalTableSettingsDto(
+				undefined,
+				5,
+				QueryOrderingEnum.DESC,
+				'title',
+				[],
+			);
+
+			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
+				.put(`/settings/personal/${connectionId}`)
+				.query({ tableName: tableName })
+				.send(createPersonalTableSettingsDTO)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(createPersonalTableSettingsResponse.status, 200);
+
+			const getTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+				.set('Cookie', token)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(getTableRowsResponse.status, 200);
+			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+			t.deepEqual(getTableRowsRO.table_settings.columns_view, ['id', 'title', 'host']);
 		} catch (e) {
 			console.error(e);
 			throw e;
