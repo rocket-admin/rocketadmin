@@ -19,12 +19,13 @@
             <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
-        <button mat-flat-button color="primary"
-            (click)="openCreatePage()"
+        <a mat-flat-button color="primary"
+            [routerLink]="['/charts', connectionId, 'new']"
+            (click)="trackCreatePageOpened()"
             data-testid="create-chart-button">
             <mat-icon>add</mat-icon>
             Create Query
-        </button>
+        </a>
     </div>
 
     <app-placeholder-table-data *ngIf="loading"></app-placeholder-table-data>
@@ -34,10 +35,12 @@
         <h3>No saved queries found</h3>
         <p *ngIf="searchQuery">No queries match your search criteria.</p>
         <p *ngIf="!searchQuery">Create your first saved query to visualize your data.</p>
-        <button *ngIf="!searchQuery" mat-stroked-button color="primary" (click)="openCreatePage()">
+        <a *ngIf="!searchQuery" mat-stroked-button color="primary"
+            [routerLink]="['/charts', connectionId, 'new']"
+            (click)="trackCreatePageOpened()">
             <mat-icon>add</mat-icon>
             Create Query
-        </button>
+        </a>
     </div>
 
     <table *ngIf="!loading && filteredQueries.length > 0" mat-table [dataSource]="filteredQueries" class="mat-elevation-z2 charts-table">
@@ -85,11 +88,13 @@
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #actionsMenu="matMenu">
-                    <button mat-menu-item (click)="openEditPage(query)"
+                    <a mat-menu-item
+                        [routerLink]="['/charts', connectionId, query.id]"
+                        (click)="trackEditPageOpened()"
                         attr.data-testid="chart-edit-{{i}}-menu-item">
                         <mat-icon>edit</mat-icon>
                         <span>Edit</span>
-                    </button>
+                    </a>
                     <mat-divider></mat-divider>
                     <button mat-menu-item (click)="openDeleteDialog(query)" class="delete-action"
                         attr.data-testid="chart-delete-{{i}}-menu-item">

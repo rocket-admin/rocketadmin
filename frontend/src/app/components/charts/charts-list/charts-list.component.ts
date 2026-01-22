@@ -11,7 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -57,7 +57,6 @@ export class ChartsListComponent implements OnInit, OnDestroy {
 		private _savedQueries: SavedQueriesService,
 		private _connections: ConnectionsService,
 		private route: ActivatedRoute,
-		private router: Router,
 		private dialog: MatDialog,
 		private angulartics2: Angulartics2,
 		private title: Title,
@@ -115,15 +114,13 @@ export class ChartsListComponent implements OnInit, OnDestroy {
 		this.searchSubject.next(query);
 	}
 
-	openCreatePage(): void {
-		this.router.navigate(['/charts', this.connectionId, 'new']);
+	trackCreatePageOpened(): void {
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: create chart page opened',
 		});
 	}
 
-	openEditPage(query: SavedQuery): void {
-		this.router.navigate(['/charts', this.connectionId, query.id]);
+	trackEditPageOpened(): void {
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: edit chart page opened',
 		});
