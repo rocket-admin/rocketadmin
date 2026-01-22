@@ -8,6 +8,11 @@ export class CreateDashboardWidgetDto {
 	@IsEnum(DashboardWidgetTypeEnum)
 	widget_type: DashboardWidgetTypeEnum;
 
+	@ApiPropertyOptional({ description: 'Chart type for chart widgets' })
+	@IsOptional()
+	@IsString()
+	chart_type?: string;
+
 	@ApiPropertyOptional({ description: 'Widget name' })
 	@IsOptional()
 	@IsString()

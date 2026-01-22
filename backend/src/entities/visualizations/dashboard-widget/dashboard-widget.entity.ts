@@ -22,6 +22,9 @@ export class DashboardWidgetEntity {
 	@Column({ type: 'varchar' })
 	widget_type: DashboardWidgetTypeEnum;
 
+	@Column({ type: 'varchar', default: null, nullable: true })
+	chart_type: string | null;
+
 	@Column({ default: null, nullable: true })
 	name: string | null;
 
