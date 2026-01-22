@@ -226,6 +226,12 @@ export class TablesDataSource implements DataSource<Object> {
                   normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
                   selected: res.table_settings.columns_view.includes(item.column_name)
                 }
+              } else if (res.columns_view && res.columns_view.length !== 0) {
+                return {
+                  title: item.column_name,
+                  normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
+                  selected: res.columns_view.includes(item.column_name)
+                }
               } else {
                 if (index < 6) {
                   return {
