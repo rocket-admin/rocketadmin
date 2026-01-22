@@ -27,6 +27,7 @@ export class CreateDashboardWidgetUseCase
 			connectionId,
 			masterPassword,
 			widget_type,
+			chart_type,
 			name,
 			description,
 			position_x,
@@ -68,6 +69,7 @@ export class CreateDashboardWidgetUseCase
 
 		const newWidget = new DashboardWidgetEntity();
 		newWidget.widget_type = widget_type;
+		newWidget.chart_type = chart_type || null;
 		newWidget.name = name || null;
 		newWidget.description = description || null;
 		newWidget.position_x = position_x ?? 0;

@@ -8,6 +8,9 @@ export class FoundDashboardWidgetDto {
 	@ApiProperty({ description: 'Widget type', enum: DashboardWidgetTypeEnum })
 	widget_type: DashboardWidgetTypeEnum;
 
+	@ApiPropertyOptional({ description: 'Chart type for chart widgets' })
+	chart_type: string | null;
+
 	@ApiPropertyOptional({ description: 'Widget name' })
 	name: string | null;
 
