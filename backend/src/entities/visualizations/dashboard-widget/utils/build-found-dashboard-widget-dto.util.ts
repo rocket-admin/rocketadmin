@@ -5,6 +5,7 @@ export function buildFoundDashboardWidgetDto(widget: DashboardWidgetEntity): Fou
 	return {
 		id: widget.id,
 		widget_type: widget.widget_type,
+		chart_type: widget.chart_type,
 		name: widget.name,
 		description: widget.description,
 		position_x: widget.position_x,

@@ -118,6 +118,7 @@ export class TableSettingsController {
 		@Body('list_fields') list_fields: string[],
 		@Body('ordering') ordering: string,
 		@Body('ordering_field') ordering_field: string,
+		@Body('columns_view') columns_view: string[],
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 	): Promise<FoundTableSettingsDs> {
@@ -147,6 +148,7 @@ export class TableSettingsController {
 			list_fields: list_fields,
 			ordering: ordering,
 			ordering_field: ordering_field,
+			columns_view: columns_view,
 		};
 
 		const errors = this.validateParameters(inputData);
@@ -195,6 +197,7 @@ export class TableSettingsController {
 		@Body('list_fields') list_fields: string[],
 		@Body('ordering') ordering: string,
 		@Body('ordering_field') ordering_field: string,
+		@Body('columns_view') columns_view: string[],
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 	): Promise<FoundTableSettingsDs> {
@@ -223,6 +226,7 @@ export class TableSettingsController {
 			list_per_page,
 			ordering,
 			ordering_field,
+			columns_view,
 		};
 
 		const errors = this.validateParameters(inputData);
