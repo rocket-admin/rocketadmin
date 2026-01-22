@@ -27,6 +27,7 @@ export class UpdateDashboardWidgetUseCase
 			connectionId,
 			masterPassword,
 			widget_type,
+			chart_type,
 			name,
 			description,
 			position_x,
@@ -77,6 +78,9 @@ export class UpdateDashboardWidgetUseCase
 
 		if (widget_type !== undefined) {
 			foundWidget.widget_type = widget_type;
+		}
+		if (chart_type !== undefined) {
+			foundWidget.chart_type = chart_type;
 		}
 		if (name !== undefined) {
 			foundWidget.name = name;
