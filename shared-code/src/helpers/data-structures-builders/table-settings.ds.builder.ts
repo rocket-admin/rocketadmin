@@ -27,6 +27,7 @@ type PersonalTableSettingsInput = {
 	ordering_field: string;
 	list_per_page: number;
 	list_fields: string[];
+	columns_view: string[];
 };
 
 export function buildDAOsTableSettingsDs(
@@ -38,9 +39,10 @@ export function buildDAOsTableSettingsDs(
 		display_name: commonTableSettings?.display_name,
 		search_fields: commonTableSettings?.search_fields,
 		excluded_fields: commonTableSettings?.excluded_fields,
-		list_fields: (Array.isArray(personalTableSettings?.list_fields) && personalTableSettings.list_fields.length > 0)
-			? personalTableSettings.list_fields
-			: commonTableSettings?.list_fields || [],
+		list_fields:
+			Array.isArray(personalTableSettings?.list_fields) && personalTableSettings.list_fields.length > 0
+				? personalTableSettings.list_fields
+				: commonTableSettings?.list_fields || [],
 		identification_fields: commonTableSettings?.identification_fields,
 		list_per_page: personalTableSettings?.list_per_page || commonTableSettings?.list_per_page,
 		ordering: personalTableSettings?.ordering || commonTableSettings?.ordering,
@@ -49,7 +51,10 @@ export function buildDAOsTableSettingsDs(
 		readonly_fields: commonTableSettings?.readonly_fields,
 		sortable_by: commonTableSettings?.sortable_by,
 		autocomplete_columns: commonTableSettings?.autocomplete_columns,
-		columns_view: commonTableSettings?.columns_view,
+		columns_view:
+			Array.isArray(personalTableSettings?.columns_view) && personalTableSettings.columns_view.length > 0
+				? personalTableSettings.columns_view
+				: commonTableSettings?.columns_view || [],
 		can_delete: commonTableSettings?.can_delete,
 		can_update: commonTableSettings?.can_update,
 		can_add: commonTableSettings?.can_add,
