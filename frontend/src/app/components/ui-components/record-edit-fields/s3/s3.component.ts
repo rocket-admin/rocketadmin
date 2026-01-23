@@ -90,7 +90,10 @@ export class S3EditComponent extends BaseEditFieldComponent implements OnInit {
 						next: () => {
 							this.value = response.key;
 							this.onFieldChange.emit(response.key);
-							this._loadPreview();
+							// Use preview URL from response instead of fetching from DB
+							this.previewUrl = response.previewUrl;
+							this.isImage = this.params?.type === 'image' || this._isImageFile(this.value);
+							this.isLoading = false;
 						},
 						error: () => {
 							this.isLoading = false;

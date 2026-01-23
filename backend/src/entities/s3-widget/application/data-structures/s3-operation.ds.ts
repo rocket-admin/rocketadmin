@@ -27,4 +27,5 @@ export class S3UploadUrlResponseDs {
 	uploadUrl: string;
 	key: string;
 	expiresIn: number;
+	previewUrl: string;
 }

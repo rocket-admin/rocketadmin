@@ -1,8 +1,8 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { catchError, EMPTY, Observable } from "rxjs";
-import { AlertActionType, AlertType } from "../models/alert";
-import { NotificationsService } from "./notifications.service";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { catchError, EMPTY, Observable } from 'rxjs';
+import { AlertActionType, AlertType } from '../models/alert';
+import { NotificationsService } from './notifications.service';
 
 interface S3FileUrlResponse {
 	url: string;
@@ -14,10 +14,11 @@ interface S3UploadUrlResponse {
 	uploadUrl: string;
 	key: string;
 	expiresIn: number;
+	previewUrl: string;
 }
 
 @Injectable({
-	providedIn: "root",
+	providedIn: 'root',
 })
 export class S3Service {
 	constructor(
@@ -44,13 +45,13 @@ export class S3Service {
 					this.notifications.showAlert(
 						AlertType.Error,
 						{
-							abstract: "Failed to get S3 file URL",
+							abstract: 'Failed to get S3 file URL',
 							details: err.error?.message,
 						},
 						[
 							{
 								type: AlertActionType.Button,
-								caption: "Dismiss",
+								caption: 'Dismiss',
 								action: () => this.notifications.dismissAlert(),
 							},
 						],
@@ -78,13 +79,13 @@ export class S3Service {
 					this.notifications.showAlert(
 						AlertType.Error,
 						{
-							abstract: "Failed to get upload URL",
+							abstract: 'Failed to get upload URL',
 							details: err.error?.message,
 						},
 						[
 							{
 								type: AlertActionType.Button,
-								caption: "Dismiss",
+								caption: 'Dismiss',
 								action: () => this.notifications.dismissAlert(),
 							},
 						],
@@ -97,21 +98,17 @@ export class S3Service {
 	uploadToS3(uploadUrl: string, file: File): Observable<void> {
 		return this.http
 			.put<void>(uploadUrl, file, {
-				headers: { "Content-Type": file.type },
+				headers: { 'Content-Type': file.type },
 			})
 			.pipe(
 				catchError((err) => {
-					this.notifications.showAlert(
-						AlertType.Error,
-						{ abstract: "File upload failed", details: err.message },
-						[
-							{
-								type: AlertActionType.Button,
-								caption: "Dismiss",
-								action: () => this.notifications.dismissAlert(),
-							},
-						],
-					);
+					this.notifications.showAlert(AlertType.Error, { abstract: 'File upload failed', details: err.message }, [
+						{
+							type: AlertActionType.Button,
+							caption: 'Dismiss',
+							action: () => this.notifications.dismissAlert(),
+						},
+					]);
 					return EMPTY;
 				}),
 			);
