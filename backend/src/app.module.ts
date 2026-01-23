@@ -3,6 +3,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller.js';
+import { AICoreModule } from './ai-core/ai-core.module.js';
 import { GlobalDatabaseContext } from './common/application/global-database-context.js';
 import { BaseType, UseCaseType } from './common/data-injection.tokens.js';
 import { AIModule } from './entities/ai/ai.module.js';
@@ -58,6 +59,7 @@ import { DashboardWidgetModule } from './entities/visualizations/dashboard-widge
 				},
 			],
 		}),
+		AICoreModule,
 		ConnectionModule,
 		ConnectionPropertiesModule,
 		ConversionModule,
