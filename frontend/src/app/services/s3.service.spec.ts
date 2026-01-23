@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, flush, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from './notifications.service';
 import { S3Service } from './s3.service';
@@ -20,6 +20,7 @@ describe('S3Service', () => {
 		uploadUrl: 'https://s3.amazonaws.com/bucket/prefix/newfile.pdf?signature=xyz789',
 		key: 'prefix/newfile.pdf',
 		expiresIn: 3600,
+		previewUrl: 'https://s3.amazonaws.com/bucket/prefix/newfile.pdf?preview=true',
 	};
 
 	const fakeError = {
@@ -61,10 +62,10 @@ describe('S3Service', () => {
 		const fieldName = 'avatar';
 		const rowPrimaryKey = { id: 1 };
 
-		it('should fetch file URL successfully', () => {
+		it('should fetch file URL successfully', fakeAsync(() => {
 			let result: any;
 
-			service.getFileUrl(connectionId, tableName, fieldName, rowPrimaryKey).subscribe((res) => {
+			service.getFileUrl(connectionId, tableName, fieldName, rowPrimaryKey).then((res) => {
 				result = res;
 			});
 
@@ -77,15 +78,16 @@ describe('S3Service', () => {
 			);
 			expect(req.request.method).toBe('GET');
 			req.flush(mockFileUrlResponse);
+			flush();
 
 			expect(result).toEqual(mockFileUrlResponse);
-		});
+		}));
 
-		it('should handle complex primary key', () => {
+		it('should handle complex primary key', fakeAsync(() => {
 			const complexPrimaryKey = { user_id: 1, org_id: 'abc' };
 			let result: any;
 
-			service.getFileUrl(connectionId, tableName, fieldName, complexPrimaryKey).subscribe((res) => {
+			service.getFileUrl(connectionId, tableName, fieldName, complexPrimaryKey).then((res) => {
 				result = res;
 			});
 
@@ -95,18 +97,23 @@ describe('S3Service', () => {
 					request.params.get('rowPrimaryKey') === JSON.stringify(complexPrimaryKey),
 			);
 			req.flush(mockFileUrlResponse);
+			flush();
 
 			expect(result).toEqual(mockFileUrlResponse);
-		});
+		}));
 
-		it('should show error alert on failure', async () => {
-			const promise = service.getFileUrl(connectionId, tableName, fieldName, rowPrimaryKey).toPromise();
+		it('should show error alert on failure', fakeAsync(() => {
+			let result: any;
+
+			service.getFileUrl(connectionId, tableName, fieldName, rowPrimaryKey).then((res) => {
+				result = res;
+			});
 
 			const req = httpMock.expectOne((request) => request.url === `/s3/file/${connectionId}`);
 			req.flush(fakeError, { status: 400, statusText: 'Bad Request' });
+			flush();
 
-			await promise;
-
+			expect(result).toBeNull();
 			expect(fakeNotifications.showAlert).toHaveBeenCalledWith(
 				expect.anything(),
 				expect.objectContaining({
@@ -115,28 +122,21 @@ describe('S3Service', () => {
 				}),
 				expect.any(Array),
 			);
-		});
+		}));
 
-		it('should return EMPTY observable on error', async () => {
-			let emitted = false;
+		it('should return null on error', fakeAsync(() => {
+			let result: any = 'not-null';
 
-			const promise = new Promise<void>((resolve) => {
-				service.getFileUrl(connectionId, tableName, fieldName, rowPrimaryKey).subscribe({
-					next: () => {
-						emitted = true;
-					},
-					complete: () => {
-						resolve();
-					},
-				});
+			service.getFileUrl(connectionId, tableName, fieldName, rowPrimaryKey).then((res) => {
+				result = res;
 			});
 
 			const req = httpMock.expectOne((request) => request.url === `/s3/file/${connectionId}`);
 			req.flush(fakeError, { status: 400, statusText: 'Bad Request' });
+			flush();
 
-			await promise;
-			expect(emitted).toBe(false);
-		});
+			expect(result).toBeNull();
+		}));
 	});
 
 	describe('getUploadUrl', () => {
@@ -146,10 +146,10 @@ describe('S3Service', () => {
 		const filename = 'document.pdf';
 		const contentType = 'application/pdf';
 
-		it('should fetch upload URL successfully', () => {
+		it('should fetch upload URL successfully', fakeAsync(() => {
 			let result: any;
 
-			service.getUploadUrl(connectionId, tableName, fieldName, filename, contentType).subscribe((res) => {
+			service.getUploadUrl(connectionId, tableName, fieldName, filename, contentType).then((res) => {
 				result = res;
 			});
 
@@ -162,15 +162,16 @@ describe('S3Service', () => {
 			expect(req.request.method).toBe('POST');
 			expect(req.request.body).toEqual({ filename, contentType });
 			req.flush(mockUploadUrlResponse);
+			flush();
 
 			expect(result).toEqual(mockUploadUrlResponse);
-		});
+		}));
 
-		it('should handle image upload', () => {
+		it('should handle image upload', fakeAsync(() => {
 			const imageFilename = 'photo.jpg';
 			const imageContentType = 'image/jpeg';
 
-			service.getUploadUrl(connectionId, tableName, fieldName, imageFilename, imageContentType).subscribe();
+			service.getUploadUrl(connectionId, tableName, fieldName, imageFilename, imageContentType);
 
 			const req = httpMock.expectOne((request) => request.url === `/s3/upload-url/${connectionId}`);
 			expect(req.request.body).toEqual({
@@ -178,16 +179,21 @@ describe('S3Service', () => {
 				contentType: imageContentType,
 			});
 			req.flush(mockUploadUrlResponse);
-		});
+			flush();
+		}));
 
-		it('should show error alert on failure', async () => {
-			const promise = service.getUploadUrl(connectionId, tableName, fieldName, filename, contentType).toPromise();
+		it('should show error alert on failure', fakeAsync(() => {
+			let result: any;
+
+			service.getUploadUrl(connectionId, tableName, fieldName, filename, contentType).then((res) => {
+				result = res;
+			});
 
 			const req = httpMock.expectOne((request) => request.url === `/s3/upload-url/${connectionId}`);
 			req.flush(fakeError, { status: 400, statusText: 'Bad Request' });
+			flush();
 
-			await promise;
-
+			expect(result).toBeNull();
 			expect(fakeNotifications.showAlert).toHaveBeenCalledWith(
 				expect.anything(),
 				expect.objectContaining({
@@ -196,43 +202,34 @@ describe('S3Service', () => {
 				}),
 				expect.any(Array),
 			);
-		});
+		}));
 
-		it('should return EMPTY observable on error', async () => {
-			let emitted = false;
+		it('should return null on error', fakeAsync(() => {
+			let result: any = 'not-null';
 
-			const promise = new Promise<void>((resolve) => {
-				service.getUploadUrl(connectionId, tableName, fieldName, filename, contentType).subscribe({
-					next: () => {
-						emitted = true;
-					},
-					complete: () => {
-						resolve();
-					},
-				});
+			service.getUploadUrl(connectionId, tableName, fieldName, filename, contentType).then((res) => {
+				result = res;
 			});
 
 			const req = httpMock.expectOne((request) => request.url === `/s3/upload-url/${connectionId}`);
 			req.flush(fakeError, { status: 400, statusText: 'Bad Request' });
+			flush();
 
-			await promise;
-			expect(emitted).toBe(false);
-		});
+			expect(result).toBeNull();
+		}));
 	});
 
 	describe('uploadToS3', () => {
 		const uploadUrl = 'https://s3.amazonaws.com/bucket/file.pdf?signature=abc123';
 
-		it('should upload file to S3 successfully', () => {
+		it('should upload file to S3 successfully', fakeAsync(() => {
 			const file = new File(['test content'], 'test.pdf', {
 				type: 'application/pdf',
 			});
-			let completed = false;
+			let result: boolean | undefined;
 
-			service.uploadToS3(uploadUrl, file).subscribe({
-				complete: () => {
-					completed = true;
-				},
+			service.uploadToS3(uploadUrl, file).then((res) => {
+				result = res;
 			});
 
 			const req = httpMock.expectOne(uploadUrl);
@@ -240,33 +237,39 @@ describe('S3Service', () => {
 			expect(req.request.headers.get('Content-Type')).toBe('application/pdf');
 			expect(req.request.body).toBe(file);
 			req.flush(null);
+			flush();
 
-			expect(completed).toBe(true);
-		});
+			expect(result).toBe(true);
+		}));
 
-		it('should upload image file with correct content type', () => {
+		it('should upload image file with correct content type', fakeAsync(() => {
 			const file = new File(['image data'], 'photo.jpg', {
 				type: 'image/jpeg',
 			});
 
-			service.uploadToS3(uploadUrl, file).subscribe();
+			service.uploadToS3(uploadUrl, file);
 
 			const req = httpMock.expectOne(uploadUrl);
 			expect(req.request.headers.get('Content-Type')).toBe('image/jpeg');
 			req.flush(null);
-		});
+			flush();
+		}));
 
-		it('should show error alert on upload failure', async () => {
+		it('should show error alert on upload failure', fakeAsync(() => {
 			const file = new File(['test content'], 'test.pdf', {
 				type: 'application/pdf',
 			});
-			const promise = service.uploadToS3(uploadUrl, file).toPromise();
+			let result: boolean | undefined;
+
+			service.uploadToS3(uploadUrl, file).then((res) => {
+				result = res;
+			});
 
 			const req = httpMock.expectOne(uploadUrl);
 			req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+			flush();
 
-			await promise;
-
+			expect(result).toBe(false);
 			expect(fakeNotifications.showAlert).toHaveBeenCalledWith(
 				expect.anything(),
 				expect.objectContaining({
@@ -274,30 +277,104 @@ describe('S3Service', () => {
 				}),
 				expect.any(Array),
 			);
-		});
+		}));
 
-		it('should return EMPTY observable on error', async () => {
+		it('should return false on error', fakeAsync(() => {
 			const file = new File(['test content'], 'test.pdf', {
 				type: 'application/pdf',
 			});
-			let emitted = false;
+			let result: boolean | undefined;
 
-			const promise = new Promise<void>((resolve) => {
-				service.uploadToS3(uploadUrl, file).subscribe({
-					next: () => {
-						emitted = true;
-					},
-					complete: () => {
-						resolve();
-					},
-				});
+			service.uploadToS3(uploadUrl, file).then((res) => {
+				result = res;
 			});
 
 			const req = httpMock.expectOne(uploadUrl);
 			req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+			flush();
 
-			await promise;
-			expect(emitted).toBe(false);
-		});
+			expect(result).toBe(false);
+		}));
+	});
+
+	describe('uploadFile', () => {
+		const connectionId = 'conn-123';
+		const tableName = 'users';
+		const fieldName = 'avatar';
+
+		it('should get upload URL and upload file successfully', fakeAsync(() => {
+			const file = new File(['test content'], 'test.pdf', {
+				type: 'application/pdf',
+			});
+			let result: { key: string; previewUrl: string } | null | undefined;
+
+			service.uploadFile(connectionId, tableName, fieldName, file).then((res) => {
+				result = res;
+			});
+
+			// First request: get upload URL
+			const uploadUrlReq = httpMock.expectOne((request) => request.url === `/s3/upload-url/${connectionId}`);
+			expect(uploadUrlReq.request.method).toBe('POST');
+			expect(uploadUrlReq.request.body).toEqual({
+				filename: 'test.pdf',
+				contentType: 'application/pdf',
+			});
+			uploadUrlReq.flush(mockUploadUrlResponse);
+			flush();
+
+			// Second request: upload to S3
+			const uploadReq = httpMock.expectOne(mockUploadUrlResponse.uploadUrl);
+			expect(uploadReq.request.method).toBe('PUT');
+			expect(uploadReq.request.body).toBe(file);
+			uploadReq.flush(null);
+			flush();
+
+			expect(result).toEqual({
+				key: mockUploadUrlResponse.key,
+				previewUrl: mockUploadUrlResponse.previewUrl,
+			});
+		}));
+
+		it('should return null if getting upload URL fails', fakeAsync(() => {
+			const file = new File(['test content'], 'test.pdf', {
+				type: 'application/pdf',
+			});
+			let result: { key: string; previewUrl: string } | null | undefined;
+
+			service.uploadFile(connectionId, tableName, fieldName, file).then((res) => {
+				result = res;
+			});
+
+			const uploadUrlReq = httpMock.expectOne((request) => request.url === `/s3/upload-url/${connectionId}`);
+			uploadUrlReq.flush(fakeError, { status: 400, statusText: 'Bad Request' });
+			flush();
+
+			expect(result).toBeNull();
+			expect(fakeNotifications.showAlert).toHaveBeenCalled();
+		}));
+
+		it('should return null if S3 upload fails', fakeAsync(() => {
+			const file = new File(['test content'], 'test.pdf', {
+				type: 'application/pdf',
+			});
+			let result: { key: string; previewUrl: string } | null | undefined;
+
+			service.uploadFile(connectionId, tableName, fieldName, file).then((res) => {
+				result = res;
+			});
+
+			// First request succeeds
+			const uploadUrlReq = httpMock.expectOne((request) => request.url === `/s3/upload-url/${connectionId}`);
+			uploadUrlReq.flush(mockUploadUrlResponse);
+			flush();
+
+			// Second request fails
+			const uploadReq = httpMock.expectOne(mockUploadUrlResponse.uploadUrl);
+			uploadReq.flush(null, { status: 500, statusText: 'Internal Server Error' });
+			flush();
+
+			expect(result).toBeNull();
+			expect(fakeNotifications.showAlert).toHaveBeenCalled();
+		}));
 	});
 });
