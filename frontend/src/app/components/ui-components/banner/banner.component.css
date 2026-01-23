@@ -2,9 +2,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('../../../../assets/bg/banner.svg');
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+        url('../../../../assets/bg/banner.svg');
     background-repeat: no-repeat;
-    /* background-position: left 125%, right -26%; */
     background-size: cover;
     height: 100%;
 }
