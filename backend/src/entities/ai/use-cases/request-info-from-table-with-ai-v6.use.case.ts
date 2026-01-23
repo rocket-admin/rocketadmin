@@ -34,7 +34,7 @@ export class RequestInfoFromTableWithAIUseCaseV6
 	extends AbstractUseCase<RequestInfoFromTableDSV2, void>
 	implements IRequestInfoFromTableV2
 {
-	private readonly maxDepth: number = 5;
+	private readonly maxDepth: number = 10;
 	private readonly aiProvider: AIProviderType = AIProviderType.BEDROCK;
 
 	constructor(
