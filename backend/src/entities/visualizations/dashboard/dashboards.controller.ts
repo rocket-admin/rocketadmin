@@ -37,8 +37,10 @@ import {
 	IFindDashboard,
 	IUpdateDashboard,
 } from './use-cases/dashboard-use-cases.interface.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Dashboards')

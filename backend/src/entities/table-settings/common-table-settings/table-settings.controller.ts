@@ -33,8 +33,10 @@ import {
 	IFindTableSettings,
 	IUpdateTableSettings,
 } from './use-cases/use-cases.interface.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Table settings')

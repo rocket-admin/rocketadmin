@@ -45,8 +45,10 @@ import {
 	IUpdateSavedDbQuery,
 } from './use-cases/saved-db-query-use-cases.interface.js';
 import { TestDbQueryDs } from './data-structures/test-db-query.ds.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Saved database queries')
