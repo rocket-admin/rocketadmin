@@ -77,8 +77,8 @@
 
 @media (prefers-color-scheme: dark) {
     .addConnectionLink {
-        background: #404040;
-        border: 1px solid #404040;
+        background: #2a2a2a;
+        border: 1px solid #2a2a2a;
     }
 
     .addConnectionLink:hover {
@@ -96,8 +96,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #fff;
-    border-radius: 4px;
     height: 40px;
     width: 40px;
 }
@@ -106,6 +104,15 @@
     flex-shrink: 0;
     height: 30px;
     width: 30px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .addConnectionLink__icon[data-mat-icon-name="mongodb"],
+    .addConnectionLink__icon[data-mat-icon-name="mysql"],
+    .addConnectionLink__icon[data-mat-icon-name="dynamodb"],
+    .addConnectionLink__icon[data-mat-icon-name="mssql"] {
+        filter: brightness(2);
+    }
 }
 
 .showAllButton {
