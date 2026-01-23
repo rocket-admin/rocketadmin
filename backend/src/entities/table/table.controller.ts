@@ -61,7 +61,7 @@ import {
 	IImportCSVFinTable,
 	IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
+import { Timeout, TimeoutDefaults } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()
@@ -185,6 +185,7 @@ export class TableController {
 	@ApiQuery({ name: 'page', required: false })
 	@ApiQuery({ name: 'perPage', required: false })
 	@ApiQuery({ name: 'search', required: false })
+	@Timeout(TimeoutDefaults.EXTENDED)
 	@Get('/table/rows/:connectionId')
 	async findAllRows(
 		@QueryTableName() tableName: string,
@@ -244,6 +245,7 @@ export class TableController {
 	@ApiQuery({ name: 'perPage', required: false })
 	@ApiQuery({ name: 'search', required: false })
 	@UseGuards(TableReadGuard)
+	@Timeout(TimeoutDefaults.EXTENDED)
 	@Post('/table/rows/find/:connectionId')
 	async findAllRowsWithBodyFilter(
 		@QueryTableName() tableName: string,
@@ -509,6 +511,7 @@ export class TableController {
 	@ApiBody({ type: UpdateRowsDto })
 	@ApiQuery({ name: 'tableName', required: true })
 	@UseGuards(TableEditGuard)
+	@Timeout(TimeoutDefaults.EXTENDED)
 	@Put('/table/rows/update/:connectionId')
 	async updateRowsInTable(
 		@MasterPassword() masterPwd: string,
@@ -603,6 +606,7 @@ export class TableController {
 	@ApiProperty({ name: 'perPage', required: false })
 	@ApiProperty({ name: 'search', required: false })
 	@UseGuards(TableReadGuard)
+	@Timeout(TimeoutDefaults.EXTENDED)
 	@Post('/table/csv/export/:connectionId')
 	async exportCSVFromTable(
 		@QueryTableName() tableName: string,
@@ -660,6 +664,7 @@ export class TableController {
 	})
 	@ApiQuery({ name: 'tableName', required: true })
 	@UseGuards(TableEditGuard)
+	@Timeout(TimeoutDefaults.EXTENDED)
 	@Post('/table/csv/import/:connectionId')
 	@UseInterceptors(FileInterceptor('file'))
 	async importCSVFromTable(
