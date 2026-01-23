@@ -26,14 +26,16 @@ import {
 	isValidSQLQuery,
 	isValidMongoDbCommand,
 	wrapQueryWithLimit,
+	AIProviderType,
 } from '../../../ai-core/index.js';
 
 @Injectable({ scope: Scope.REQUEST })
-export class RequestInfoFromTableWithAIUseCaseV5
+export class RequestInfoFromTableWithAIUseCaseV6
 	extends AbstractUseCase<RequestInfoFromTableDSV2, void>
 	implements IRequestInfoFromTableV2
 {
 	private readonly maxDepth: number = 10;
+	private readonly aiProvider: AIProviderType = AIProviderType.BEDROCK;
 
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -64,7 +66,6 @@ export class RequestInfoFromTableWithAIUseCaseV5
 
 		let threadIdForHeader: string | null = null;
 		let foundUserAiResponse: AiResponsesToUserEntity | null = null;
-		let previousResponseId: string | null = null;
 
 		if (ai_thread_id) {
 			foundUserAiResponse = await this._dbContext.aiResponsesToUserRepository.findResponseByIdAndUserId(
@@ -73,7 +74,6 @@ export class RequestInfoFromTableWithAIUseCaseV5
 			);
 			if (foundUserAiResponse) {
 				threadIdForHeader = foundUserAiResponse.id;
-				previousResponseId = foundUserAiResponse.ai_response_id;
 			}
 		}
 
@@ -100,7 +100,6 @@ export class RequestInfoFromTableWithAIUseCaseV5
 				tableName,
 				userEmail,
 				foundConnection,
-				previousResponseId,
 			);
 
 			if (foundUserAiResponse && lastResponseId) {
@@ -125,20 +124,17 @@ export class RequestInfoFromTableWithAIUseCaseV5
 		inputTableName: string,
 		userEmail: string,
 		foundConnection: ConnectionEntity,
-		previousResponseId: string | null = null,
 	): Promise<string | null> {
 		let currentMessages = [...messages];
-		let lastResponseId: string | null = previousResponseId;
+		let lastResponseId: string | null = null;
 		let depth = 0;
 
 		while (depth < this.maxDepth) {
 			try {
-				const config = lastResponseId ? { previousResponseId: lastResponseId } : undefined;
+				const stream = await this.aiCoreService.streamChatWithToolsAndProvider(this.aiProvider, currentMessages, tools);
 
-				const stream = await this.aiCoreService.streamChatWithTools(currentMessages, tools, config);
-
-				let accumulatedContent = '';
 				let pendingToolCalls: AIToolCall[] = [];
+				let accumulatedContent = '';
 
 				for await (const chunk of stream) {
 					if (chunk.type === 'text' && chunk.content) {
@@ -152,10 +148,6 @@ export class RequestInfoFromTableWithAIUseCaseV5
 
 					if (chunk.responseId) {
 						lastResponseId = chunk.responseId;
-					}
-
-					if (chunk.type === 'done') {
-						// Stream complete
 					}
 				}
 
@@ -171,11 +163,12 @@ export class RequestInfoFromTableWithAIUseCaseV5
 					foundConnection,
 				);
 
-				const toolMessageBuilder = new MessageBuilder();
+				const continuationBuilder = MessageBuilder.fromMessages(currentMessages);
+				continuationBuilder.ai(accumulatedContent, pendingToolCalls);
 				for (const result of toolResults) {
-					toolMessageBuilder.toolResult(result.toolCallId, result.result);
+					continuationBuilder.toolResult(result.toolCallId, result.result);
 				}
-				currentMessages = toolMessageBuilder.build();
+				currentMessages = continuationBuilder.build();
 
 				depth++;
 			} catch (loopError) {

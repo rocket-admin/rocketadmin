@@ -18,8 +18,8 @@ import { getOptionalEnvVariable, getRequiredEnvVariable } from '../../helpers/ap
 
 @Injectable()
 export class LangchainOpenAIProvider implements IAIProvider {
-	private readonly defaultModelId = 'gpt-4o';
-	private readonly responsesApiModel = 'gpt-4o';
+	private readonly defaultModelId = 'gpt-5';
+	private readonly responsesApiModel = 'gpt-5';
 	private openaiClient: OpenAI;
 
 	constructor() {

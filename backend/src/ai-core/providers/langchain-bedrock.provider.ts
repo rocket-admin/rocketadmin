@@ -185,7 +185,7 @@ export class LangchainBedrockProvider implements IAIProvider {
 		stream: AsyncIterable<AIMessageChunk>,
 	): Promise<IterableReadableStream<AIStreamChunk>> {
 		async function* generateChunks(): AsyncGenerator<AIStreamChunk> {
-			let currentToolCalls: Map<number, AIToolCall> = new Map();
+			let currentToolCalls: Map<number, { id: string; name: string; argsString: string }> = new Map();
 
 			for await (const chunk of stream) {
 				if (chunk.tool_call_chunks && chunk.tool_call_chunks.length > 0) {
@@ -196,7 +196,7 @@ export class LangchainBedrockProvider implements IAIProvider {
 							currentToolCalls.set(index, {
 								id: toolCallChunk.id || '',
 								name: toolCallChunk.name || '',
-								arguments: {},
+								argsString: '',
 							});
 						}
 
@@ -209,12 +209,7 @@ export class LangchainBedrockProvider implements IAIProvider {
 							currentCall.name = toolCallChunk.name;
 						}
 						if (toolCallChunk.args) {
-							try {
-								const parsedArgs = JSON.parse(toolCallChunk.args);
-								currentCall.arguments = { ...currentCall.arguments, ...parsedArgs };
-							} catch {
-								// Accumulate partial JSON - will be parsed when complete
-							}
+							currentCall.argsString += toolCallChunk.args;
 						}
 					}
 				}
@@ -231,11 +226,24 @@ export class LangchainBedrockProvider implements IAIProvider {
 				}
 			}
 
-			for (const toolCall of currentToolCalls.values()) {
-				if (toolCall.name) {
+			for (const toolCallData of currentToolCalls.values()) {
+				if (toolCallData.name) {
+					let parsedArgs: Record<string, unknown> = {};
+					if (toolCallData.argsString) {
+						try {
+							parsedArgs = JSON.parse(toolCallData.argsString);
+						} catch {
+							// Failed to parse args, use empty object
+						}
+					}
+
 					yield {
 						type: 'tool_call',
-						toolCall,
+						toolCall: {
+							id: toolCallData.id,
+							name: toolCallData.name,
+							arguments: parsedArgs,
+						},
 					};
 				}
 			}
