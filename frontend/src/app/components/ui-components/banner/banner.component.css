@@ -57,16 +57,26 @@
     margin-top: 32px;
 }
 
-.banner-box.banner_error {
-    --bg-color: color-mix(in hsl, #B71C1C, transparent 95%);
-    border: 1px solid var(--alert-theme-color);
-    border-left: 12px solid var(--alert-theme-color);
-}
-
 @media (prefers-color-scheme: light) {
+    .banner-box.banner_error {
+        --bg-color: #F8E8E8;
+    }
+
     .banner-box.banner_error ::ng-deep [mat-stroked-button] {
         background-color: #fff;
     }
+}
+
+@media (prefers-color-scheme: dark) {
+    .banner-box.banner_error {
+        --bg-color: color-mix(in hsl, #B71C1C, transparent 95%);
+        backdrop-filter: blur(10px);
+    }
+}
+
+.banner-box.banner_error {
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
 }
 
 .banner-box.banner_info {

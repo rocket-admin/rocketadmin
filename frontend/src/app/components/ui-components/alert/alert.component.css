@@ -39,12 +39,23 @@
 .alert_error {
     --alert-theme-color: #B71C1C;
     --alert-dark-theme-color: #E53935;
-    --bg-color: color-mix(in hsl, #B71C1C, transparent 95%);
-    --alert-dark-theme-bg: color-mix(in hsl, #B71C1C, transparent 95%);
     border: 1px solid var(--alert-theme-color);
     border-left: 12px solid var(--alert-theme-color);
     border-radius: 4px;
     z-index: 2;
+}
+
+@media (prefers-color-scheme: light) {
+    .alert_error {
+        --bg-color: #F8E8E8;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .alert_error {
+        --bg-color: color-mix(in hsl, #B71C1C, transparent 95%);
+        backdrop-filter: blur(10px);
+    }
 }
 
 .alert_error .alert__icon {
