@@ -29,8 +29,10 @@ import {
 	IDeleteDashboardWidget,
 	IUpdateDashboardWidget,
 } from './use-cases/dashboard-widget-use-cases.interface.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Dashboard Widgets')

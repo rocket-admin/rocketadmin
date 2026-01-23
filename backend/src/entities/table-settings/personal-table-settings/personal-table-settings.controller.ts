@@ -30,8 +30,10 @@ import { FoundPersonalTableSettingsDto } from './dto/found-personal-table-settin
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
 import { CreatePersonalTableSettingsDs } from './data-structures/create-personal-table-settings.ds.js';
 import { CreatePersonalTableSettingsDto } from './dto/create-personal-table-settings.dto.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Personal table settings')
