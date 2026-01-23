@@ -33,7 +33,7 @@ export class RequestInfoFromTableWithAIUseCaseV5
 	extends AbstractUseCase<RequestInfoFromTableDSV2, void>
 	implements IRequestInfoFromTableV2
 {
-	private readonly maxDepth: number = 5;
+	private readonly maxDepth: number = 10;
 
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
