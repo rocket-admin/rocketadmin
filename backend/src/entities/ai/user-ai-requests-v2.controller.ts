@@ -35,6 +35,8 @@ export class UserAIRequestsControllerV2 {
 	constructor(
 		@Inject(UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V2)
 		private readonly requestInfoFromTableWithAIUseCase: IRequestInfoFromTableV2,
+		@Inject(UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V3)
+		private readonly requestInfoFromTableWithAIUseCaseV3: IRequestInfoFromTableV2,
 		@Inject(UseCaseType.REQUEST_AI_SETTINGS_AND_WIDGETS_CREATION)
 		private readonly requestAISettingsAndWidgetsCreationUseCase: IAISettingsAndWidgetsCreation,
 	) {}
@@ -78,6 +80,47 @@ export class UserAIRequestsControllerV2 {
 			ai_thread_id: threadId || null,
 		};
 		return await this.requestInfoFromTableWithAIUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({
+		summary: 'Request info from table in connection with AI using Bedrock (Version 3)',
+	})
+	@ApiResponse({
+		status: 201,
+		description: 'Returned info.',
+	})
+	@UseGuards(TableReadGuard)
+	@ApiBody({ type: RequestInfoFromTableBodyDTO })
+	@ApiQuery({ name: 'tableName', required: true, type: String })
+	@ApiQuery({ name: 'threadId', required: false, type: String })
+	@Post('/ai/v3/request/:connectionId')
+	public async requestInfoFromTableWithAIBedrock(
+		@SlugUuid('connectionId') connectionId: string,
+		@Query('threadId') threadId: string,
+		@QueryTableName() tableName: string,
+		@MasterPassword() masterPassword: string,
+		@UserId() userId: string,
+		@Body() requestData: RequestInfoFromTableBodyDTO,
+		@Res({ passthrough: true }) response: Response,
+	): Promise<void> {
+		if (threadId) {
+			if (!ValidationHelper.isValidUUID(threadId)) {
+				response.status(400).send({
+					error: 'Invalid threadId format. It should be a valid UUID.',
+				});
+				return;
+			}
+		}
+		const inputData: RequestInfoFromTableDSV2 = {
+			connectionId,
+			tableName,
+			user_message: requestData.user_message,
+			master_password: masterPassword,
+			user_id: userId,
+			response,
+			ai_thread_id: threadId || null,
+		};
+		return await this.requestInfoFromTableWithAIUseCaseV3.execute(inputData, InTransactionEnum.OFF);
 	}
 
 	@ApiOperation({

@@ -8,6 +8,7 @@ import { UserEntity } from '../user/user.entity.js';
 import { AiService } from './ai.service.js';
 import { RequestAISettingsAndWidgetsCreationUseCase } from './use-cases/request-ai-settings-and-widgets-creation.use.case.js';
 import { RequestInfoFromTableWithAIUseCaseV5 } from './use-cases/request-info-from-table-with-ai-v5.use.case.js';
+import { RequestInfoFromTableWithAIUseCaseV6 } from './use-cases/request-info-from-table-with-ai-v6.use.case.js';
 import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
 
 @Global()
@@ -21,6 +22,10 @@ import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js'
 		{
 			provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V2,
 			useClass: RequestInfoFromTableWithAIUseCaseV5,
+		},
+		{
+			provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V3,
+			useClass: RequestInfoFromTableWithAIUseCaseV6,
 		},
 		{
 			provide: UseCaseType.REQUEST_AI_SETTINGS_AND_WIDGETS_CREATION,
@@ -37,6 +42,7 @@ export class AIModule implements NestModule {
 			.apply(AuthMiddleware)
 			.forRoutes(
 				{ path: '/ai/v2/request/:connectionId', method: RequestMethod.POST },
+				{ path: '/ai/v3/request/:connectionId', method: RequestMethod.POST },
 				{ path: '/ai/v2/setup/:connectionId', method: RequestMethod.GET },
 			);
 	}
