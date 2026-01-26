@@ -6,7 +6,7 @@ export const config = {
 	privateKey: process.env.PRIVATE_KEY || '',
 	checkConnectionTokenUrl:
 		process.env.CHECK_CONNECTION_TOKEN_URL || 'http://autoadmin-internal-auth.local:3000/connection/token',
-	logLevel: process.env.LOG_LEVEL || 'info',
+	logLevel: process.env.LOG_LEVEL || 'silent',
 } as const;
 
 export function validateConfig(): void {
