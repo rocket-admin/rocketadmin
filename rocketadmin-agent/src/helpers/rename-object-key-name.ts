@@ -3,7 +3,7 @@ export function renameObjectKeyName(
   oldKey: string,
   newKey: string,
 ): void {
-  if (oldKey !== newKey && obj.hasOwnProperty(oldKey)) {
+  if (oldKey !== newKey && Object.hasOwn(obj, oldKey)) {
     Object.defineProperty(
       obj,
       newKey,

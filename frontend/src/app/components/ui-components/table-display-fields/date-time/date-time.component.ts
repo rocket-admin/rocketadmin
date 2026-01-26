@@ -26,7 +26,7 @@ export class DateTimeDisplayComponent extends BaseTableDisplayFieldComponent imp
     if (this.value) {
       try {
         const date = new Date(this.value);
-        if (!isNaN(date.getTime())) {
+        if (!Number.isNaN(date.getTime())) {
           // Always store the full date/time format for tooltip
           this.fullDateTime = format(date, "PPpp"); // e.g., "Apr 29, 2023 at 10:30 AM"
           
@@ -40,7 +40,7 @@ export class DateTimeDisplayComponent extends BaseTableDisplayFieldComponent imp
           this.formattedDateTime = this.value;
           this.fullDateTime = this.value;
         }
-      } catch (error) {
+      } catch (_error) {
         this.formattedDateTime = this.value;
         this.fullDateTime = this.value;
       }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { FoundUserDto } from '../../../user/dto/found-user.dto.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 export class CreatedGroupInConnectionDTO {
   @ApiProperty()

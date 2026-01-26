@@ -8,7 +8,7 @@ export default {
       'src/': 'dist/src/',
       'test/': 'dist/test/',
     },
-    compile: 'tsc',
+    compile: false,
   },
   workerThreads: false,
   verbose: true,

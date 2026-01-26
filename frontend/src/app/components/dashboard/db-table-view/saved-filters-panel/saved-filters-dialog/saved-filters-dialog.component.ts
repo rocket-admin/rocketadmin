@@ -1,7 +1,7 @@
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { DynamicModule } from 'ng-dynamic-component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,9 +20,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { filterTypes } from 'src/app/consts/filter-types';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
-import { TableField, TableForeignKey } from 'src/app/models/table';
+import { TableField, } from 'src/app/models/table';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import { omitBy } from 'lodash';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 
 @Component({
@@ -92,7 +91,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 
     if (this.data.filtersSet) {
       this.tableRowFieldsShown = Object.entries(this.data.filtersSet.filters).reduce((acc, [field, conditions]) => {
-        const [comparator, value] = Object.entries(conditions)[0];
+        const [_comparator, value] = Object.entries(conditions)[0];
         acc[field] = value;
         return acc;
       }, {});
@@ -104,7 +103,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
       }, {});
 
       // Initialize dynamic column if it exists in the filters set
-      if (this.data.filtersSet.dynamic_column && this.data.filtersSet.dynamic_column.column_name) {
+      if (this.data.filtersSet.dynamic_column?.column_name) {
         this.tableRowFieldsShown[this.data.filtersSet.dynamic_column.column_name] = null;
         this.tableRowFieldsComparator[this.data.filtersSet.dynamic_column.column_name] = this.data.filtersSet.dynamic_column.comparator || '';
         this.dynamicColumn = this.data.filtersSet.dynamic_column.column_name;
@@ -124,7 +123,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
     }));
 
     // Setup widgets if available
-    if (this.data.tableWidgets && this.data.tableWidgets.length) {
+    if (this.data.tableWidgets?.length) {
       this.setWidgets(this.data.tableWidgets);
     }
 
@@ -179,7 +178,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
         if (widget.widget_params !== '// No settings required') {
           try {
             params = JSON.parse(widget.widget_params);
-          } catch (e) {
+          } catch (_e) {
             params = '';
           }
         } else {
@@ -192,7 +191,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
     );
   }
 
-  trackByFn(index: number, item: any) {
+  trackByFn(_index: number, item: any) {
     return item.key;
   }
 
@@ -395,7 +394,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
       // Only add dynamic_column if one is selected
       if (this.dynamicColumn) {
         // Create object with column_name and comparator properties
-        payload['dynamic_column'] = {
+        payload.dynamic_column = {
           column_name: this.dynamicColumn,
           comparator: this.tableRowFieldsComparator[this.dynamicColumn] || ''
         };

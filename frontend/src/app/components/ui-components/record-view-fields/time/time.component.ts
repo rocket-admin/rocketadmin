@@ -23,13 +23,13 @@ export class TimeRecordViewComponent extends BaseRecordViewFieldComponent implem
           this.formattedTime = this.value;
         } else {
           const date = new Date(this.value);
-          if (!isNaN(date.getTime())) {
+          if (!Number.isNaN(date.getTime())) {
             this.formattedTime = format(date, 'HH:mm:ss');
           } else {
             this.formattedTime = this.value;
           }
         }
-      } catch (error) {
+      } catch (_error) {
         this.formattedTime = this.value;
       }
     }

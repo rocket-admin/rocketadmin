@@ -8,6 +8,9 @@ export enum DBtype {
     Mongo = 'mongodb',
     Dynamo = 'dynamodb',
     Cassandra = 'cassandra',
+    Redis = 'redis',
+    Elasticsearch = 'elasticsearch',
+    ClickHouse = 'clickhouse',
     DB2 = 'ibmdb2'
 }
 
@@ -20,7 +23,7 @@ export interface Connection {
     id: string | null,
     database: string,
     authSource?: string,
-​​    title: string,
+    title: string,
     host: string,
     port: string,
     sid: string | null,

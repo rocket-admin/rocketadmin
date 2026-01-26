@@ -10,11 +10,11 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { ActionRulesEntity } from '../table-action-rules-module/action-rules.entity.js';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-
+ 
 @Entity('table_actions')
 export class TableActionEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -36,10 +36,10 @@ export class TableActionEntity {
   @Column('varchar', { array: true, default: {} })
   emails: string[];
 
-  @ManyToOne((type) => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
+  @ManyToOne((_type) => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
   settings: Relation<TableSettingsEntity>;
 
-  @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
+  @ManyToOne((_type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'action_rule_id' })
   action_rule: Relation<ActionRulesEntity>;
 

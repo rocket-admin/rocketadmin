@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, } from 'rxjs/operators';
 
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CommonModule } from '@angular/common';
@@ -61,7 +61,7 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
     super();
     this.autocmpleteUpdate.pipe(
       debounceTime(500))
-      .subscribe(value => {
+      .subscribe(_value => {
         if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
         this.fetchSuggestions();
       });
@@ -71,7 +71,7 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
     super.ngOnInit();
     this.connectionID = this._connections.currentConnectionID;
 
-    if (this.widgetStructure && this.widgetStructure.widget_params) {
+    if (this.widgetStructure?.widget_params) {
       this.fkRelations = this.widgetStructure.widget_params as TableForeignKey;
     } else if (this.relations) {
       this.fkRelations = this.relations;

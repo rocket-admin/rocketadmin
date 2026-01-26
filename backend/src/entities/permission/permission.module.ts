@@ -11,7 +11,7 @@ import { GroupEntity } from '../group/group.entity.js';
 import { GroupModule } from '../group/group.module.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { PermissionController } from './permission.controller.js';

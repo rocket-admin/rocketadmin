@@ -7,7 +7,7 @@ export const databaseProviders = [
   {
     provide: BaseType.DATA_SOURCE,
     useFactory: async () => {
-      if (appDataSourceCache && appDataSourceCache.isInitialized) {
+      if (appDataSourceCache?.isInitialized) {
         return appDataSourceCache;
       }
       const AppDataSource = new DataSource(configService.getTypeOrmConfig());

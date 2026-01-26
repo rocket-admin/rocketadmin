@@ -28,7 +28,7 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 let app: INestApplication;
 let currentTest: string;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 
 const mockFactory = new MockFactory();
 
@@ -38,7 +38,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -65,7 +65,6 @@ test.after(async () => {
 currentTest = 'GET /user';
 
 test.serial(`${currentTest} should user info for this user`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -78,17 +77,13 @@ test.serial(`${currentTest} should user info for this user`, async (t) => {
 
     t.is(getUserRO.isActive, false);
     t.is(getUserRO.email, adminUserRegisterInfo.email.toLowerCase());
-    t.is(getUserRO.hasOwnProperty('createdAt'), true);
-  } catch (err) {
-    throw err;
-  }
+    t.is(Object.hasOwn(getUserRO, 'createdAt'), true);
   t.pass();
 });
 
 currentTest = 'DELETE /user';
 
 test.serial(`${currentTest} should return user deletion result`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -111,15 +106,11 @@ test.serial(`${currentTest} should return user deletion result`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getUserResult.status, 404);
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 currentTest = 'POST /user/login';
 test.serial(`${currentTest} should return expiration token when user login`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
 
@@ -129,15 +120,11 @@ test.serial(`${currentTest} should return expiration token when user login`, asy
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserRO.hasOwnProperty('expires'), true);
-  } catch (err) {
-    throw err;
-  }
+    t.is(Object.hasOwn(loginUserRO, 'expires'), true);
   t.pass();
 });
 
 test.serial(`${currentTest} should return expiration token when user login with company id`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
 
@@ -159,20 +146,16 @@ test.serial(`${currentTest} should return expiration token when user login with 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserRO.hasOwnProperty('expires'), true);
-  } catch (err) {
-    throw err;
-  }
+    t.is(Object.hasOwn(loginUserRO, 'expires'), true);
   t.pass();
 });
 
 test.serial(
   `${currentTest} should return expiration token when user login with company id and have more than one company`,
   async (t) => {
-    try {
       const testEmail = 'test@mail.com';
       const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-      const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+      const _testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
 
       const foundCompanyInfos = await request(app.getHttpServer())
         .get(`/company/my/email/${testEmail}`)
@@ -194,10 +177,7 @@ test.serial(
         .set('Accept', 'application/json');
       const loginUserRO = JSON.parse(loginUserResult.text);
       t.is(loginUserResult.status, 201);
-      t.is(loginUserRO.hasOwnProperty('expires'), true);
-    } catch (err) {
-      throw err;
-    }
+      t.is(Object.hasOwn(loginUserRO, 'expires'), true);
     t.pass();
   },
 );
@@ -205,12 +185,11 @@ test.serial(
 test.serial(
   `${currentTest} should throw an error when user login without company id with more than one company`,
   async (t) => {
-    try {
       const testEmail = 'test@mail.com';
       const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-      const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+      const _testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
 
-      const foundCompanyInfos = await request(app.getHttpServer())
+      const _foundCompanyInfos = await request(app.getHttpServer())
         .get(`/company/my/email/${testEmail}`)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
@@ -228,15 +207,11 @@ test.serial(
       const loginUserRO = JSON.parse(loginUserResult.text);
       t.is(loginUserResult.status, 400);
       t.is(loginUserRO.message, Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
-    } catch (err) {
-      throw err;
-    }
     t.pass();
   },
 );
 
 test.serial(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
 
@@ -256,16 +231,12 @@ test.serial(`${currentTest} reject authorization when try to login with wrong pa
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserRO.hasOwnProperty('expires'), true);
-  } catch (err) {
-    throw err;
-  }
+    t.is(Object.hasOwn(loginUserRO, 'expires'), true);
   t.pass();
 });
 
 currentTest = 'POST /user/settings';
 test.serial(`${currentTest} should return created user settings`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -280,17 +251,13 @@ test.serial(`${currentTest} should return created user settings`, async (t) => {
 
     t.is(saveUserSettingsResult.status, 201);
     const saveUserSettingsRO = JSON.parse(saveUserSettingsResult.text);
-    t.is(saveUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(Object.hasOwn(saveUserSettingsRO, 'userSettings'), true);
     t.is(JSON.parse(saveUserSettingsRO.userSettings).test, 'test');
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 currentTest = 'GET /user/settings';
 test.serial(`${currentTest} should return empty user settings when it was not created`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -301,16 +268,12 @@ test.serial(`${currentTest} should return empty user settings when it was not cr
       .set('Accept', 'application/json');
     const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
     t.is(getUserSettingsResult.status, 200);
-    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(Object.hasOwn(getUserSettingsRO, 'userSettings'), true);
     t.is(getUserSettingsRO.userSettings, null);
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 test.serial(`${currentTest} should return user settings when it was created`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -332,17 +295,13 @@ test.serial(`${currentTest} should return user settings when it was created`, as
       .set('Accept', 'application/json');
     const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
     t.is(getUserSettingsResult.status, 200);
-    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(Object.hasOwn(getUserSettingsRO, 'userSettings'), true);
     t.is(JSON.parse(getUserSettingsRO.userSettings).test, 'test');
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 currentTest = 'PUT user/test/connections/display/';
 test.serial(`${currentTest} should toggle test connections display mode`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -356,7 +315,7 @@ test.serial(`${currentTest} should toggle test connections display mode`, async 
 
     const getUserConnectionsRO = JSON.parse(getUserConnectionsResult.text);
     t.is(getUserConnectionsResult.status, 200);
-    t.is(getUserConnectionsRO.hasOwnProperty('connections'), true);
+    t.is(Object.hasOwn(getUserConnectionsRO, 'connections'), true);
     t.is(getUserConnectionsRO.connections.length, 4);
 
     const toggleTestConnectionsDisplayModeResult = await request(app.getHttpServer())
@@ -378,18 +337,14 @@ test.serial(`${currentTest} should toggle test connections display mode`, async 
 
     const getUserConnectionsROAfterToggleMode = JSON.parse(getUserConnectionsResultAfterToggleMode.text);
     t.is(getUserConnectionsResultAfterToggleMode.status, 200);
-    t.is(getUserConnectionsROAfterToggleMode.hasOwnProperty('connections'), true);
+    t.is(Object.hasOwn(getUserConnectionsROAfterToggleMode, 'connections'), true);
     t.is(getUserConnectionsROAfterToggleMode.connections.length, 0);
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
 test.serial(
   `${currentTest} should throw exception when user login with company id from custom domain (domain not added)`,
   async (t) => {
-    try {
       const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
       const { email, password } = adminUserRegisterInfo;
 
@@ -416,15 +371,11 @@ test.serial(
       t.is(loginUserResult.status, 400);
       const loginUserRO = JSON.parse(loginUserResult.text);
       t.is(loginUserRO.message, Messages.INVALID_REQUEST_DOMAIN);
-    } catch (err) {
-      throw err;
-    }
     t.pass();
   },
 );
 
 test.skip(`${currentTest} should login user successfully with company id from custom domain (is added)`, async (t) => {
-  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password, token } = adminUserRegisterInfo;
 
@@ -458,8 +409,8 @@ test.skip(`${currentTest} should login user successfully with company id from cu
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
 
     delete loginBodyRequest.companyId;
@@ -471,9 +422,6 @@ test.skip(`${currentTest} should login user successfully with company id from cu
       .set('Host', customDomain);
 
     t.is(loginUserResult.status, 201);
-  } catch (err) {
-    throw err;
-  }
   t.pass();
 });
 
@@ -499,7 +447,7 @@ test.serial(`${currentTest} should register demo user`, async (t) => {
     .set('Accept', 'application/json');
   const getUserConnectionsRO = JSON.parse(getUserConnectionsResult.text);
   t.is(getUserConnectionsResult.status, 200);
-  t.is(getUserConnectionsRO.hasOwnProperty('connections'), true);
+  t.is(Object.hasOwn(getUserConnectionsRO, 'connections'), true);
   t.is(getUserConnectionsRO.connections.length, 4);
 
   //check user can add connection and use it
@@ -528,13 +476,13 @@ test.serial(`${currentTest} should register demo user`, async (t) => {
   t.is(getTableRowsResponse.status, 200);
 
   t.is(typeof getTableRowsRO, 'object');
-  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+  t.is(Object.hasOwn(getTableRowsRO, 'rows'), true);
+  t.is(Object.hasOwn(getTableRowsRO, 'primaryColumns'), true);
+  t.is(Object.hasOwn(getTableRowsRO, 'pagination'), true);
   t.is(getTableRowsRO.rows.length, 42);
   t.is(typeof getTableRowsRO.primaryColumns, 'object');
-  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+  t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'column_name'), true);
+  t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'data_type'), true);
   t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
   t.is(getTableRowsRO.primaryColumns[0].data_type, 'integer');
 
@@ -550,19 +498,19 @@ test.serial(`${currentTest} should register demo user`, async (t) => {
 
   t.truthy(getUserCompanyRO);
   t.is(typeof getUserCompanyRO, 'object');
-  t.is(getUserCompanyRO.hasOwnProperty('id'), true);
+  t.is(Object.hasOwn(getUserCompanyRO, 'id'), true);
   t.is(typeof getUserCompanyRO.id, 'string');
-  t.is(getUserCompanyRO.hasOwnProperty('name'), true);
+  t.is(Object.hasOwn(getUserCompanyRO, 'name'), true);
   t.is(typeof getUserCompanyRO.name, 'string');
-  t.is(getUserCompanyRO.hasOwnProperty('subscriptionLevel'), true);
+  t.is(Object.hasOwn(getUserCompanyRO, 'subscriptionLevel'), true);
   t.is(getUserCompanyRO.subscriptionLevel, 'TEAM_PLAN');
-  t.is(getUserCompanyRO.hasOwnProperty('is_payment_method_added'), true);
+  t.is(Object.hasOwn(getUserCompanyRO, 'is_payment_method_added'), true);
   t.is(getUserCompanyRO.is_payment_method_added, false);
-  t.is(getUserCompanyRO.hasOwnProperty('is2faEnabled'), true);
+  t.is(Object.hasOwn(getUserCompanyRO, 'is2faEnabled'), true);
   t.is(getUserCompanyRO.is2faEnabled, false);
-  t.is(getUserCompanyRO.hasOwnProperty('show_test_connections'), true);
+  t.is(Object.hasOwn(getUserCompanyRO, 'show_test_connections'), true);
   t.is(getUserCompanyRO.show_test_connections, true);
-  t.is(getUserCompanyRO.hasOwnProperty('connections'), true);
+  t.is(Object.hasOwn(getUserCompanyRO, 'connections'), true);
   t.true(Array.isArray(getUserCompanyRO.connections));
   t.is(getUserCompanyRO.connections.length, 5);
 

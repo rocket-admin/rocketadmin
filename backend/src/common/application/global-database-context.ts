@@ -32,9 +32,9 @@ import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js'
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
 import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity.js';
-import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/repository/table-settings-custom-repository-extension.js';
-import { ITableSettingsRepository } from '../../entities/table-settings/repository/table-settings.repository.interface.js';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/common-table-settings/repository/table-settings-custom-repository-extension.js';
+import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
+import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
 import { userAccessCustomReposiotoryExtension } from '../../entities/user-access/repository/user-access-custom-repository-extension.js';
 import { IUserAccessRepository } from '../../entities/user-access/repository/user-access.repository.interface.js';
 import { userActionCustomRepositoryExtension } from '../../entities/user-actions/repository/user-action-custom-repository-extension.js';
@@ -90,293 +90,368 @@ import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-
 import { TableCategoriesEntity } from '../../entities/table-categories/table-categories.entity.js';
 import { ITableCategoriesCustomRepository } from '../../entities/table-categories/repository/table-categories-repository.interface.js';
 import { tableCategoriesCustomRepositoryExtension } from '../../entities/table-categories/repository/table-categories-repository.extension.js';
+import { UserSecretEntity } from '../../entities/user-secret/user-secret.entity.js';
+import { IUserSecretRepository } from '../../entities/user-secret/repository/user-secret-repository.interface.js';
+import { userSecretRepositoryExtension } from '../../entities/user-secret/repository/user-secret-repository.extension.js';
+import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
+import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
+import { secretAccessLogRepositoryExtension } from '../../entities/secret-access-log/repository/secret-access-log-repository.extension.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/repository/sign-in-audit-repository.interface.js';
+import { signInAuditCustomRepositoryExtension } from '../../entities/user-sign-in-audit/repository/sign-in-audit-custom-repository-extension.js';
+import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
+import { IPersonalTableSettingsRepository } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings.repository.interface.js';
+import { personalTableSettingsCustomRepositoryExtension } from '../../entities/table-settings/personal-table-settings/repository/personal-table-settings-custom-repository-extension.js';
+import { SavedDbQueryEntity } from '../../entities/visualizations/saved-db-query/saved-db-query.entity.js';
+import { ISavedDbQueryRepository } from '../../entities/visualizations/saved-db-query/repository/saved-db-query.repository.interface.js';
+import { savedDbQueryCustomRepositoryExtension } from '../../entities/visualizations/saved-db-query/repository/saved-db-query-custom-repository-extension.js';
+import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
+import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
+import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
+import { dashboardCustomRepositoryExtension } from '../../entities/visualizations/dashboard/repository/dashboard-custom-repository-extension.js';
+import { dashboardWidgetCustomRepositoryExtension } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget-custom-repository-extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
-  private _queryRunner: QueryRunner;
+	private _queryRunner: QueryRunner;
 
-  private _userRepository: Repository<UserEntity> & IUserRepository;
-  private _connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
-  private _groupRepository: IGroupRepository;
-  private _permissionRepository: IPermissionRepository;
-  private _tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
-  private _userAccessRepository: IUserAccessRepository;
-  private _agentRepository: IAgentRepository;
-  private _emailVerificationRepository: IEmailVerificationRepository;
-  private _passwordResetRepository: IPasswordResetRepository;
-  private _emailChangeRepository: IEmailChangeRepository;
-  private _userInvitationRepository: IUserInvitationRepository;
-  private _connectionPropertiesRepository: Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository;
-  private _customFieldsRepository: ICustomFieldsRepository;
-  private _tableLogsRepository: ITableLogsRepository;
-  private _userActionRepository: IUserActionRepository;
-  private _logOutRepository: ILogOutRepository;
-  private _tableWidgetsRepository: Repository<TableWidgetEntity> & ITableWidgetsRepository;
-  private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
-  private _tableInfoReposioty: Repository<TableInfoEntity>;
-  private _tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;
-  private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
-  private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
-  private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
-  private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
-  private _actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
-  private _actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
-  private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
-  private _companyLogoRepository: Repository<CompanyLogoEntity>;
-  private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
-  private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
-  private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
-  private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
-  private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+	private _userRepository: Repository<UserEntity> & IUserRepository;
+	private _connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
+	private _groupRepository: IGroupRepository;
+	private _permissionRepository: IPermissionRepository;
+	private _tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
+	private _userAccessRepository: IUserAccessRepository;
+	private _agentRepository: IAgentRepository;
+	private _emailVerificationRepository: IEmailVerificationRepository;
+	private _passwordResetRepository: IPasswordResetRepository;
+	private _emailChangeRepository: IEmailChangeRepository;
+	private _userInvitationRepository: IUserInvitationRepository;
+	private _connectionPropertiesRepository: Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository;
+	private _customFieldsRepository: ICustomFieldsRepository;
+	private _tableLogsRepository: ITableLogsRepository;
+	private _userActionRepository: IUserActionRepository;
+	private _logOutRepository: ILogOutRepository;
+	private _tableWidgetsRepository: Repository<TableWidgetEntity> & ITableWidgetsRepository;
+	private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
+	private _tableInfoReposioty: Repository<TableInfoEntity>;
+	private _tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;
+	private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
+	private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
+	private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
+	private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
+	private _actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
+	private _actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
+	private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
+	private _companyLogoRepository: Repository<CompanyLogoEntity>;
+	private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
+	private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
+	private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
+	private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
+	private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
+	private _userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
+	private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
+	private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
+	private _personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
+	private _savedDbQueryRepository: Repository<SavedDbQueryEntity> & ISavedDbQueryRepository;
+	private _dashboardRepository: Repository<DashboardEntity> & IDashboardRepository;
+	private _dashboardWidgetRepository: Repository<DashboardWidgetEntity> & IDashboardWidgetRepository;
 
-  public constructor(
-    @Inject(BaseType.DATA_SOURCE)
-    public appDataSource: DataSource,
-  ) {
-    this.initRepositories();
-  }
+	public constructor(
+		@Inject(BaseType.DATA_SOURCE)
+		public appDataSource: DataSource,
+	) {
+		this.initRepositories();
+	}
 
-  private initRepositories(): void {
-    this._userRepository = this.appDataSource.getRepository(UserEntity).extend(userCustomRepositoryExtension);
-    this._connectionRepository = this.appDataSource
-      .getRepository(ConnectionEntity)
-      .extend(customConnectionRepositoryExtension);
-    this._groupRepository = this.appDataSource.getRepository(GroupEntity).extend(groupCustomRepositoryExtension);
-    this._permissionRepository = this.appDataSource
-      .getRepository(PermissionEntity)
-      .extend(permissionCustomRepositoryExtension);
-    this._tableSettingsRepository = this.appDataSource
-      .getRepository(TableSettingsEntity)
-      .extend(tableSettingsCustomRepositoryExtension);
-    this._userAccessRepository = this.appDataSource
-      .getRepository(PermissionEntity)
-      .extend(userAccessCustomReposiotoryExtension);
-    this._agentRepository = this.appDataSource.getRepository(AgentEntity).extend(customAgentRepositoryExtension);
-    this._emailVerificationRepository = this.appDataSource
-      .getRepository(EmailVerificationEntity)
-      .extend(emailVerificationRepositoryExtension);
-    this._passwordResetRepository = this.appDataSource
-      .getRepository(PasswordResetEntity)
-      .extend(userPasswordResetCustomRepositoryExtension);
-    this._emailChangeRepository = this.appDataSource
-      .getRepository(EmailChangeEntity)
-      .extend(emailChangeCustomRepositoryExtension);
-    this._userInvitationRepository = this.appDataSource
-      .getRepository(UserInvitationEntity)
-      .extend(userInvitationCustomRepositoryExtension);
-    this._connectionPropertiesRepository = this.appDataSource
-      .getRepository(ConnectionPropertiesEntity)
-      .extend(customConnectionPropertiesRepositoryExtension);
-    this._customFieldsRepository = this.appDataSource
-      .getRepository(CustomFieldsEntity)
-      .extend(cusomFieldsCustomRepositoryExtension);
-    this._tableLogsRepository = this.appDataSource
-      .getRepository(TableLogsEntity)
-      .extend(tableLogsCustomRepositoryExtension);
-    this._userActionRepository = this.appDataSource
-      .getRepository(UserActionEntity)
-      .extend(userActionCustomRepositoryExtension);
-    this._logOutRepository = this.appDataSource.getRepository(LogOutEntity).extend(logOutCustomRepositoryExtension);
-    this._tableWidgetsRepository = this.appDataSource
-      .getRepository(TableWidgetEntity)
-      .extend(tableWidgetsCustomRepositoryExtension);
-    this._tableInfoReposioty = this.appDataSource.getRepository(TableInfoEntity);
-    this._tableFieldInfoRepository = this.appDataSource.getRepository(TableFieldInfoEntity);
-    this._tableActionRepository = this.appDataSource
-      .getRepository(TableActionEntity)
-      .extend(tableActionsCustomRepositoryExtension);
-    this._userGitHubIdentifierRepository = this.appDataSource
-      .getRepository(GitHubUserIdentifierEntity)
-      .extend(userGitHubIdentifierCustomRepositoryExtension);
-    this._companyInfoRepository = this.appDataSource
-      .getRepository(CompanyInfoEntity)
-      .extend(companyInfoRepositoryExtension);
-    this._invitationInCompanyRepository = this.appDataSource
-      .getRepository(InvitationInCompanyEntity)
-      .extend(invitationInCompanyCustomRepositoryExtension);
-    this._userSessionSettingsRepository = this.appDataSource
-      .getRepository(UserSessionSettingsEntity)
-      .extend(userSessionSettingsRepositoryExtension);
-    this._actionRulesRepository = this.appDataSource
-      .getRepository(ActionRulesEntity)
-      .extend(actionRulesCustomRepositoryExtension);
-    this._actionEventsRepository = this.appDataSource
-      .getRepository(ActionEventsEntity)
-      .extend(actionEventsCustomRepositoryExtension);
-    this._userApiKeysRepository = this.appDataSource.getRepository(UserApiKeyEntity).extend(userApiRepositoryExtension);
-    this._companyLogoRepository = this.appDataSource.getRepository(CompanyLogoEntity);
-    this._companyFaviconRepository = this.appDataSource.getRepository(CompanyFaviconEntity);
-    this._companyTabTitleRepository = this.appDataSource.getRepository(CompanyTabTitleEntity);
-    this._tableFiltersRepository = this.appDataSource
-      .getRepository(TableFiltersEntity)
-      .extend(tableFiltersCustomRepositoryExtension);
-    this._aiResponsesToUserRepository = this.appDataSource
-      .getRepository(AiResponsesToUserEntity)
-      .extend(aiResponsesToUserRepositoryExtension);
-    this._tableCategoriesRepository = this.appDataSource
-      .getRepository(TableCategoriesEntity)
-      .extend(tableCategoriesCustomRepositoryExtension);
-  }
+	private initRepositories(): void {
+		this._userRepository = this.appDataSource.getRepository(UserEntity).extend(userCustomRepositoryExtension);
+		this._connectionRepository = this.appDataSource
+			.getRepository(ConnectionEntity)
+			.extend(customConnectionRepositoryExtension);
+		this._groupRepository = this.appDataSource.getRepository(GroupEntity).extend(groupCustomRepositoryExtension);
+		this._permissionRepository = this.appDataSource
+			.getRepository(PermissionEntity)
+			.extend(permissionCustomRepositoryExtension);
+		this._tableSettingsRepository = this.appDataSource
+			.getRepository(TableSettingsEntity)
+			.extend(tableSettingsCustomRepositoryExtension);
+		this._userAccessRepository = this.appDataSource
+			.getRepository(PermissionEntity)
+			.extend(userAccessCustomReposiotoryExtension);
+		this._agentRepository = this.appDataSource.getRepository(AgentEntity).extend(customAgentRepositoryExtension);
+		this._emailVerificationRepository = this.appDataSource
+			.getRepository(EmailVerificationEntity)
+			.extend(emailVerificationRepositoryExtension);
+		this._passwordResetRepository = this.appDataSource
+			.getRepository(PasswordResetEntity)
+			.extend(userPasswordResetCustomRepositoryExtension);
+		this._emailChangeRepository = this.appDataSource
+			.getRepository(EmailChangeEntity)
+			.extend(emailChangeCustomRepositoryExtension);
+		this._userInvitationRepository = this.appDataSource
+			.getRepository(UserInvitationEntity)
+			.extend(userInvitationCustomRepositoryExtension);
+		this._connectionPropertiesRepository = this.appDataSource
+			.getRepository(ConnectionPropertiesEntity)
+			.extend(customConnectionPropertiesRepositoryExtension);
+		this._customFieldsRepository = this.appDataSource
+			.getRepository(CustomFieldsEntity)
+			.extend(cusomFieldsCustomRepositoryExtension);
+		this._tableLogsRepository = this.appDataSource
+			.getRepository(TableLogsEntity)
+			.extend(tableLogsCustomRepositoryExtension);
+		this._userActionRepository = this.appDataSource
+			.getRepository(UserActionEntity)
+			.extend(userActionCustomRepositoryExtension);
+		this._logOutRepository = this.appDataSource.getRepository(LogOutEntity).extend(logOutCustomRepositoryExtension);
+		this._tableWidgetsRepository = this.appDataSource
+			.getRepository(TableWidgetEntity)
+			.extend(tableWidgetsCustomRepositoryExtension);
+		this._tableInfoReposioty = this.appDataSource.getRepository(TableInfoEntity);
+		this._tableFieldInfoRepository = this.appDataSource.getRepository(TableFieldInfoEntity);
+		this._tableActionRepository = this.appDataSource
+			.getRepository(TableActionEntity)
+			.extend(tableActionsCustomRepositoryExtension);
+		this._userGitHubIdentifierRepository = this.appDataSource
+			.getRepository(GitHubUserIdentifierEntity)
+			.extend(userGitHubIdentifierCustomRepositoryExtension);
+		this._companyInfoRepository = this.appDataSource
+			.getRepository(CompanyInfoEntity)
+			.extend(companyInfoRepositoryExtension);
+		this._invitationInCompanyRepository = this.appDataSource
+			.getRepository(InvitationInCompanyEntity)
+			.extend(invitationInCompanyCustomRepositoryExtension);
+		this._userSessionSettingsRepository = this.appDataSource
+			.getRepository(UserSessionSettingsEntity)
+			.extend(userSessionSettingsRepositoryExtension);
+		this._actionRulesRepository = this.appDataSource
+			.getRepository(ActionRulesEntity)
+			.extend(actionRulesCustomRepositoryExtension);
+		this._actionEventsRepository = this.appDataSource
+			.getRepository(ActionEventsEntity)
+			.extend(actionEventsCustomRepositoryExtension);
+		this._userApiKeysRepository = this.appDataSource.getRepository(UserApiKeyEntity).extend(userApiRepositoryExtension);
+		this._companyLogoRepository = this.appDataSource.getRepository(CompanyLogoEntity);
+		this._companyFaviconRepository = this.appDataSource.getRepository(CompanyFaviconEntity);
+		this._companyTabTitleRepository = this.appDataSource.getRepository(CompanyTabTitleEntity);
+		this._tableFiltersRepository = this.appDataSource
+			.getRepository(TableFiltersEntity)
+			.extend(tableFiltersCustomRepositoryExtension);
+		this._aiResponsesToUserRepository = this.appDataSource
+			.getRepository(AiResponsesToUserEntity)
+			.extend(aiResponsesToUserRepositoryExtension);
+		this._tableCategoriesRepository = this.appDataSource
+			.getRepository(TableCategoriesEntity)
+			.extend(tableCategoriesCustomRepositoryExtension);
+		this._userSecretRepository = this.appDataSource
+			.getRepository(UserSecretEntity)
+			.extend(userSecretRepositoryExtension);
+		this._secretAccessLogRepository = this.appDataSource
+			.getRepository(SecretAccessLogEntity)
+			.extend(secretAccessLogRepositoryExtension);
+		this._signInAuditRepository = this.appDataSource
+			.getRepository(SignInAuditEntity)
+			.extend(signInAuditCustomRepositoryExtension);
+		this._personalTableSettingsRepository = this.appDataSource
+			.getRepository(PersonalTableSettingsEntity)
+			.extend(personalTableSettingsCustomRepositoryExtension);
+		this._savedDbQueryRepository = this.appDataSource
+			.getRepository(SavedDbQueryEntity)
+			.extend(savedDbQueryCustomRepositoryExtension);
+		this._dashboardRepository = this.appDataSource
+			.getRepository(DashboardEntity)
+			.extend(dashboardCustomRepositoryExtension);
+		this._dashboardWidgetRepository = this.appDataSource
+			.getRepository(DashboardWidgetEntity)
+			.extend(dashboardWidgetCustomRepositoryExtension);
+	}
 
-  public get userRepository(): Repository<UserEntity> & IUserRepository {
-    return this._userRepository;
-  }
+	public get userRepository(): Repository<UserEntity> & IUserRepository {
+		return this._userRepository;
+	}
 
-  public get connectionRepository(): Repository<ConnectionEntity> & IConnectionRepository {
-    return this._connectionRepository;
-  }
+	public get connectionRepository(): Repository<ConnectionEntity> & IConnectionRepository {
+		return this._connectionRepository;
+	}
 
-  public get groupRepository(): IGroupRepository {
-    return this._groupRepository;
-  }
+	public get groupRepository(): IGroupRepository {
+		return this._groupRepository;
+	}
 
-  public get permissionRepository(): IPermissionRepository {
-    return this._permissionRepository;
-  }
+	public get permissionRepository(): IPermissionRepository {
+		return this._permissionRepository;
+	}
 
-  public get tableSettingsRepository(): Repository<TableSettingsEntity> & ITableSettingsRepository {
-    return this._tableSettingsRepository;
-  }
+	public get tableSettingsRepository(): Repository<TableSettingsEntity> & ITableSettingsRepository {
+		return this._tableSettingsRepository;
+	}
 
-  public get userAccessRepository(): IUserAccessRepository {
-    return this._userAccessRepository;
-  }
+	public get userAccessRepository(): IUserAccessRepository {
+		return this._userAccessRepository;
+	}
 
-  public get agentRepository(): IAgentRepository {
-    return this._agentRepository;
-  }
+	public get agentRepository(): IAgentRepository {
+		return this._agentRepository;
+	}
 
-  public get emailVerificationRepository(): IEmailVerificationRepository {
-    return this._emailVerificationRepository;
-  }
+	public get emailVerificationRepository(): IEmailVerificationRepository {
+		return this._emailVerificationRepository;
+	}
 
-  public get passwordResetRepository(): IPasswordResetRepository {
-    return this._passwordResetRepository;
-  }
+	public get passwordResetRepository(): IPasswordResetRepository {
+		return this._passwordResetRepository;
+	}
 
-  public get emailChangeRepository(): IEmailChangeRepository {
-    return this._emailChangeRepository;
-  }
+	public get emailChangeRepository(): IEmailChangeRepository {
+		return this._emailChangeRepository;
+	}
 
-  public get userInvitationRepository(): IUserInvitationRepository {
-    return this._userInvitationRepository;
-  }
+	public get userInvitationRepository(): IUserInvitationRepository {
+		return this._userInvitationRepository;
+	}
 
-  public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> & IConnectionPropertiesRepository {
-    return this._connectionPropertiesRepository;
-  }
+	public get connectionPropertiesRepository(): Repository<ConnectionPropertiesEntity> &
+		IConnectionPropertiesRepository {
+		return this._connectionPropertiesRepository;
+	}
 
-  public get customFieldsRepository(): ICustomFieldsRepository {
-    return this._customFieldsRepository;
-  }
+	public get customFieldsRepository(): ICustomFieldsRepository {
+		return this._customFieldsRepository;
+	}
 
-  public get tableLogsRepository(): ITableLogsRepository {
-    return this._tableLogsRepository;
-  }
+	public get tableLogsRepository(): ITableLogsRepository {
+		return this._tableLogsRepository;
+	}
 
-  public get userActionRepository(): IUserActionRepository {
-    return this._userActionRepository;
-  }
+	public get userActionRepository(): IUserActionRepository {
+		return this._userActionRepository;
+	}
 
-  public get logOutRepository(): ILogOutRepository {
-    return this._logOutRepository;
-  }
+	public get logOutRepository(): ILogOutRepository {
+		return this._logOutRepository;
+	}
 
-  public get tableWidgetsRepository(): Repository<TableWidgetEntity> & ITableWidgetsRepository {
-    return this._tableWidgetsRepository;
-  }
+	public get tableWidgetsRepository(): Repository<TableWidgetEntity> & ITableWidgetsRepository {
+		return this._tableWidgetsRepository;
+	}
 
-  public get tableInfoRepository(): Repository<TableInfoEntity> {
-    return this._tableInfoReposioty;
-  }
+	public get tableInfoRepository(): Repository<TableInfoEntity> {
+		return this._tableInfoReposioty;
+	}
 
-  public get tableFieldInfoRepository(): Repository<TableFieldInfoEntity> {
-    return this._tableFieldInfoRepository;
-  }
+	public get tableFieldInfoRepository(): Repository<TableFieldInfoEntity> {
+		return this._tableFieldInfoRepository;
+	}
 
-  public get tableActionRepository(): Repository<TableActionEntity> & ITableActionRepository {
-    return this._tableActionRepository;
-  }
+	public get tableActionRepository(): Repository<TableActionEntity> & ITableActionRepository {
+		return this._tableActionRepository;
+	}
 
-  public get userGitHubIdentifierRepository(): IUserGitHubIdentifierRepository {
-    return this._userGitHubIdentifierRepository;
-  }
+	public get userGitHubIdentifierRepository(): IUserGitHubIdentifierRepository {
+		return this._userGitHubIdentifierRepository;
+	}
 
-  public get companyInfoRepository(): Repository<CompanyInfoEntity> & ICompanyInfoRepository {
-    return this._companyInfoRepository;
-  }
+	public get companyInfoRepository(): Repository<CompanyInfoEntity> & ICompanyInfoRepository {
+		return this._companyInfoRepository;
+	}
 
-  public get invitationInCompanyRepository(): Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository {
-    return this._invitationInCompanyRepository;
-  }
+	public get invitationInCompanyRepository(): Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository {
+		return this._invitationInCompanyRepository;
+	}
 
-  public get userSessionSettingsRepository(): Repository<UserSessionSettingsEntity> & IUserSessionSettings {
-    return this._userSessionSettingsRepository;
-  }
+	public get userSessionSettingsRepository(): Repository<UserSessionSettingsEntity> & IUserSessionSettings {
+		return this._userSessionSettingsRepository;
+	}
 
-  public get actionRulesRepository(): Repository<ActionRulesEntity> & IActionRulesRepository {
-    return this._actionRulesRepository;
-  }
+	public get actionRulesRepository(): Repository<ActionRulesEntity> & IActionRulesRepository {
+		return this._actionRulesRepository;
+	}
 
-  public get actionEventsRepository(): Repository<ActionEventsEntity> & IActionEventsRepository {
-    return this._actionEventsRepository;
-  }
+	public get actionEventsRepository(): Repository<ActionEventsEntity> & IActionEventsRepository {
+		return this._actionEventsRepository;
+	}
 
-  public get userApiKeysRepository(): Repository<UserApiKeyEntity> & IUserApiKeyRepository {
-    return this._userApiKeysRepository;
-  }
+	public get userApiKeysRepository(): Repository<UserApiKeyEntity> & IUserApiKeyRepository {
+		return this._userApiKeysRepository;
+	}
 
-  public get companyLogoRepository(): Repository<CompanyLogoEntity> {
-    return this._companyLogoRepository;
-  }
+	public get companyLogoRepository(): Repository<CompanyLogoEntity> {
+		return this._companyLogoRepository;
+	}
 
-  public get companyFaviconRepository(): Repository<CompanyFaviconEntity> {
-    return this._companyFaviconRepository;
-  }
+	public get companyFaviconRepository(): Repository<CompanyFaviconEntity> {
+		return this._companyFaviconRepository;
+	}
 
-  public get companyTabTitleRepository(): Repository<CompanyTabTitleEntity> {
-    return this._companyTabTitleRepository;
-  }
+	public get companyTabTitleRepository(): Repository<CompanyTabTitleEntity> {
+		return this._companyTabTitleRepository;
+	}
 
-  public get tableFiltersRepository(): Repository<TableFiltersEntity> & ITableFiltersCustomRepository {
-    return this._tableFiltersRepository;
-  }
+	public get tableFiltersRepository(): Repository<TableFiltersEntity> & ITableFiltersCustomRepository {
+		return this._tableFiltersRepository;
+	}
 
-  public get aiResponsesToUserRepository(): Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository {
-    return this._aiResponsesToUserRepository;
-  }
+	public get aiResponsesToUserRepository(): Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository {
+		return this._aiResponsesToUserRepository;
+	}
 
-  public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
-    return this._tableCategoriesRepository;
-  }
+	public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
+		return this._tableCategoriesRepository;
+	}
 
-  public startTransaction(): Promise<void> {
-    this._queryRunner = this.appDataSource.createQueryRunner();
-    this._queryRunner.startTransaction();
-    return;
-  }
+	public get userSecretRepository(): Repository<UserSecretEntity> & IUserSecretRepository {
+		return this._userSecretRepository;
+	}
 
-  public async commitTransaction(): Promise<void> {
-    if (!this._queryRunner) return;
-    try {
-      await this._queryRunner.commitTransaction();
-    } catch (e) {
-      throw e;
-    }
-  }
+	public get secretAccessLogRepository(): Repository<SecretAccessLogEntity> & ISecretAccessLogRepository {
+		return this._secretAccessLogRepository;
+	}
 
-  public async rollbackTransaction(): Promise<void> {
-    if (!this._queryRunner) return;
-    try {
-      await this._queryRunner.rollbackTransaction();
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  }
+	public get signInAuditRepository(): Repository<SignInAuditEntity> & ISignInAuditRepository {
+		return this._signInAuditRepository;
+	}
 
-  public async releaseQueryRunner(): Promise<void> {
-    if (!this._queryRunner) return;
-    await this._queryRunner.release();
-  }
+	public get personalTableSettingsRepository(): Repository<PersonalTableSettingsEntity> &
+		IPersonalTableSettingsRepository {
+		return this._personalTableSettingsRepository;
+	}
+
+	public get savedDbQueryRepository(): Repository<SavedDbQueryEntity> & ISavedDbQueryRepository {
+		return this._savedDbQueryRepository;
+	}
+
+	public get dashboardRepository(): Repository<DashboardEntity> & IDashboardRepository {
+		return this._dashboardRepository;
+	}
+
+	public get dashboardWidgetRepository(): Repository<DashboardWidgetEntity> & IDashboardWidgetRepository {
+		return this._dashboardWidgetRepository;
+	}
+
+	public startTransaction(): Promise<void> {
+		this._queryRunner = this.appDataSource.createQueryRunner();
+		this._queryRunner.startTransaction();
+		return;
+	}
+
+	public async commitTransaction(): Promise<void> {
+		if (!this._queryRunner) return;
+		await this._queryRunner.commitTransaction();
+	}
+
+	public async rollbackTransaction(): Promise<void> {
+		if (!this._queryRunner) return;
+		try {
+			await this._queryRunner.rollbackTransaction();
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	}
+
+	public async releaseQueryRunner(): Promise<void> {
+		if (!this._queryRunner) return;
+		await this._queryRunner.release();
+	}
 }

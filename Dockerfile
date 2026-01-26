@@ -8,7 +8,7 @@ COPY frontend/.yarn /app/frontend/.yarn
 RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
-RUN yarn install --immutable --network-timeout 1000000 --silent
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --immutable --network-timeout 1000000 --silent
 COPY frontend/scripts /app/frontend/scripts
 COPY frontend/src /app/frontend/src
 
@@ -22,7 +22,7 @@ RUN if [[ -n $VERSION ]]; then \
 
 RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-production; \
     else API_ROOT=/api yarn build --configuration=production; fi
-RUN ls /app/frontend/dist/dissendium-v0
+RUN ls /app/frontend/dist/rocketadmin/browser
 
 FROM node:22-slim
 
@@ -40,13 +40,12 @@ COPY backend /app/backend
 COPY shared-code /app/shared-code
 COPY rocketadmin-agent /app/rocketadmin-agent
 COPY .yarn /app/.yarn
-RUN yarn install --network-timeout 1000000 --immutable --silent
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --immutable --silent
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd backend && yarn run nest build
-COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
+RUN cd backend && ../node_modules/.bin/tsc && yarn run nest build
+COPY --from=front_builder /app/frontend/dist/rocketadmin/browser /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
-
-RUN chown -R appuser:appuser /app
+RUN mkdir -p /app/backend/node_modules/.cache && chown -R appuser:appuser /app/backend/node_modules/.cache
 RUN chown -R appuser:appuser  /var/lib/nginx
 RUN chown -R appuser:appuser  /var/log/nginx
 RUN chown -R appuser:appuser  /run

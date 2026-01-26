@@ -4,7 +4,8 @@ import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
-import { Subscription, take } from 'rxjs';
+import { take } from 'rxjs';
+import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 
 import { AccessLevel } from 'src/app/models/user';
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -18,6 +19,7 @@ import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dial
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DynamodbCredentialsFormComponent } from './db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component';
+import { ElasticCredentialsFormComponent } from './db-credentials-forms/elastic-credentials-form/elastic-credentials-form.component';
 import { FormsModule } from '@angular/forms';
 import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -37,6 +39,7 @@ import { NgForm } from '@angular/forms';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { OracledbCredentialsFormComponent } from './db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component';
 import { PostgresCredentialsFormComponent } from './db-credentials-forms/postgres-credentials-form/postgres-credentials-form.component';
+import { RedisCredentialsFormComponent } from './db-credentials-forms/redis-credentials-form/redis-credentials-form.component';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -44,7 +47,7 @@ import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import googlIPsList from 'src/app/consts/google-IP-addresses';
 import isIP from 'validator/lib/isIP';
-import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
+import { ClickhouseCredentialsFormComponent } from './db-credentials-forms/clickhouse-credentials-form/clickhouse-credentials-form.component';
 
 @Component({
   selector: 'app-connect-db',
@@ -72,6 +75,9 @@ import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/con
     MysqlCredentialsFormComponent,
     OracledbCredentialsFormComponent,
     PostgresCredentialsFormComponent,
+    RedisCredentialsFormComponent,
+    ElasticCredentialsFormComponent,
+    ClickhouseCredentialsFormComponent,
     IpAddressButtonComponent,
     AlertComponent,
     Angulartics2Module
@@ -101,10 +107,11 @@ export class ConnectDBComponent implements OnInit {
     [DBtype.Mongo]: '27017',
     [DBtype.Dynamo]: '',
     [DBtype.Cassandra]: '9042',
+    [DBtype.Redis]: '6379',
+    [DBtype.Elasticsearch]: '9200',
+    [DBtype.ClickHouse]: '8443',
     [DBtype.DB2]: '50000'
   }
-
-  private getTitleSubscription: Subscription;
 
   // public isDemo: boolean = false;
 
@@ -153,7 +160,7 @@ export class ConnectDBComponent implements OnInit {
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
       if (this.isSaas) {
-        // @ts-ignore
+        // @ts-expect-error
         fbq('trackCustom', 'Add_connection');
       }
     };
@@ -188,7 +195,7 @@ export class ConnectDBComponent implements OnInit {
               {
                 type: AlertActionType.Button,
                 caption: 'Dismiss',
-                action: (id: number) => this._notifications.dismissAlert()
+                action: (_id: number) => this._notifications.dismissAlert()
               }
             ]);
           };
@@ -286,8 +293,8 @@ export class ConnectDBComponent implements OnInit {
     (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
 
     this.angulartics2.eventTrack.next({
-      action: `Connect DB: automatic test connection on edit is ${credsCorrect.result ? 'passed' : 'failed'}`,
-      properties: { errorMessage: credsCorrect.message }
+      action: `Connect DB: automatic test connection on edit is ${credsCorrect?.result ? 'passed' : 'failed'}`,
+      properties: { errorMessage: credsCorrect?.message }
     });
 
     if ((this.db.connectionType === 'agent' || credsCorrect.result)) {
@@ -297,7 +304,7 @@ export class ConnectDBComponent implements OnInit {
     };
   }
 
-  createConnection(connectForm: NgForm) {
+  createConnection(_connectForm: NgForm) {
     if (this.db.connectionType === 'direct') {
       if (this.db.type !== DBtype.Dynamo) {
         const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
@@ -321,12 +328,12 @@ export class ConnectDBComponent implements OnInit {
                 properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage: credsCorrect.message }
               });
 
-              if (credsCorrect && credsCorrect.result) {
+              if (credsCorrect?.result) {
                 this.createConnectionRequest();
               } else {
                 this.handleConnectionError(credsCorrect.message);
               };
-            } catch (e) {
+            } catch (_e) {
               credsCorrect = null;
               this.submitting = false;
             }
@@ -347,13 +354,13 @@ export class ConnectDBComponent implements OnInit {
                 errorMessage: credsCorrect.message
               }
             });
-            if (credsCorrect && credsCorrect.result) {
+            if (credsCorrect?.result) {
               this.createConnectionRequest();
             } else {
               this.handleConnectionError(credsCorrect.message);
             }
           })
-          .catch((e) => {
+          .catch((_e) => {
             credsCorrect = null;
             this.submitting = false;
           });
@@ -401,6 +408,7 @@ export class ConnectDBComponent implements OnInit {
     if (this.db.host.endsWith('.azure.com')) provider = 'azure';
     if (this.db.host.endsWith('.mongodb.net')) provider = 'mongoatlas';
     if (this.db.host.endsWith('.ondigitalocean.com')) provider = 'digitalocean';
+    if (this.db.host.endsWith('.scylla.cloud')) provider = 'scylladbcloud';
     if(isIP(this.db.host)) {
       const hostIP = ipaddr.parse(this.db.host);
       for (const addr of googlIPsList) {

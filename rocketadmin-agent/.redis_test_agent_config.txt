@@ -5,7 +5,7 @@
     "app_port": 3000,
     "azure_encryption": false,
     "cert": null,
-    "host": "redis-e2e-testing",
+    "host": "test-redis-e2e-testing",
     "password": "SuperSecretRedisPassword",
     "port": 6379,
     "schema": null,

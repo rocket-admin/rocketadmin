@@ -4,25 +4,25 @@
 
         <mat-form-field appearance="outline" class="table-switcher">
             <mat-label>Table</mat-label>
-            <input type="text"
-                placeholder="Select a table"
-                matInput
-                [value]="name"
-                [matAutocomplete]="auto"
-                (focus)="onInputFocus()"
-                (input)="onInput($event.target.value)">
-            <mat-autocomplete autoActiveFirstOption
-                #auto="matAutocomplete">
-                <mat-option *ngFor="let table of filteredTables"
-                    class="table-switcher-option"
-                    [value]="table.table">
-                    <a class="table-switcher-link"
-                        routerLink="/dashboard/{{connectionID}}/{{table.table}}"
-                        [queryParams]="{page_index: 0, page_size: 30}">
+            <mat-select [value]="name" (selectionChange)="switchTable($event.value)">
+                <ng-container *ngIf="folders && folders.length > 0; else flatList">
+                    <mat-optgroup *ngFor="let folder of folders" [label]="folder.name">
+                        <mat-option *ngFor="let table of getFolderTables(folder)" [value]="table.table">
+                            {{table.normalizedTableName}}
+                        </mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup *ngIf="getUncategorizedTables().length > 0" label="Other">
+                        <mat-option *ngFor="let table of getUncategorizedTables()" [value]="table.table">
+                            {{table.normalizedTableName}}
+                        </mat-option>
+                    </mat-optgroup>
+                </ng-container>
+                <ng-template #flatList>
+                    <mat-option *ngFor="let table of tables" [value]="table.table">
                         {{table.normalizedTableName}}
-                </a>
-                </mat-option>
-            </mat-autocomplete>
+                    </mat-option>
+                </ng-template>
+            </mat-select>
         </mat-form-field>
 
         <button mat-icon-button (click)="loadRowsPage()">
@@ -65,6 +65,7 @@
             </form>
             <div class="actions">
                 <button mat-button type="button"
+                    class="ai-insights-button"
                     matTooltip="AI assistant"
                     angulartics2On="click"
                     angularticsAction="Dashboard: AI is clicked"
@@ -96,22 +97,31 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked">
                         <mat-icon fontSet="material-icons-outlined">view_week</mat-icon>
-                        Columns ({{ tableData.displayedDataColumns.length   }}
-                            /
-                            {{ tableData.columns.length }})
+                        Columns
+                            <span class="db-table-manage-columns-button__count">
+                                ({{ tableData.displayedDataColumns.length   }}
+                                /
+                                {{ tableData.columns.length }})
+                            </span>
                     </button>
-                    <mat-menu #menu="matMenu">
-                        <button mat-menu-item
-                            role="menuitemcheckbox"
-                            *ngFor="let column of tableData.columns"
-                            (click)="$event.stopPropagation();">
-                            <mat-checkbox
-                                [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
-                                (change)="tableData.changleColumnList(connectionID, name)"
-                                [(ngModel)]="column.selected">
-                                {{column.normalizedTitle}}
-                            </mat-checkbox>
-                        </button>
+                    <mat-menu #menu="matMenu" class="columns-menu">
+                        <div cdkDropList (cdkDropListDropped)="onColumnsMenuDrop($event)" class="columns-list">
+                            <button mat-menu-item
+                                role="menuitemcheckbox"
+                                *ngFor="let column of sortedColumns"
+                                cdkDrag
+                                [cdkDragData]="column"
+                                class="draggable-column-item"
+                                (click)="$event.stopPropagation();">
+                                <mat-icon class="drag-handle">drag_indicator</mat-icon>
+                                <mat-checkbox
+                                    [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
+                                    (change)="onColumnVisibilityChange()"
+                                    [(ngModel)]="column.selected">
+                                    {{column.normalizedTitle}}
+                                </mat-checkbox>
+                            </button>
+                        </div>
                     </mat-menu>
                 </div>
                 <button mat-icon-button type="button"
@@ -176,6 +186,7 @@
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
     <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue" data-hj-suppress
+        class="db-table-active-filter-chip"    
         (removed)="removeFilter.emit(activeFilter.key)"
         (click)="handleActiveFilterClick(activeFilter.key)">
         {{ getFilter(activeFilter) }}
@@ -233,7 +244,44 @@
             </ng-container>
 
             <ng-container [matColumnDef]="column" *ngFor="let column of tableData.displayedDataColumns">
-                <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef class="sortable-header" [class.sortable-header_active]="sort.active === column">
+                    <div class="sortable-header__content">
+                        <span class="sortable-header__text">{{ tableData.dataNormalizedColumns[column] }}</span>
+                        <button *ngIf="isSortable(column)"
+                            mat-icon-button
+                            class="sortable-header__button"
+                            [matMenuTriggerFor]="sortMenu">
+                            <mat-icon class="sortable-header__icon">
+                                {{ sort.active === column ? (sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}
+                            </mat-icon>
+                        </button>
+                    </div>
+                    <mat-menu #sortMenu="matMenu" class="sort-menu">
+                        <button mat-menu-item (click)="applySort(column, 'asc'); $event.stopPropagation()"
+                            class="sort-menu__item">
+                            <span class="sort-menu__item-content" [class.sort-menu__item-content_active]="sort.active === column && sort.direction === 'asc'">
+                                <mat-icon>arrow_upward</mat-icon>
+                                <span>Ascending (A-Z)</span>
+                            </span>
+                        </button>
+                        <button mat-menu-item (click)="applySort(column, 'desc'); $event.stopPropagation()"
+                            class="sort-menu__item">
+                            <span class="sort-menu__item-content" [class.sort-menu__item-content_active]="sort.active === column && sort.direction === 'desc'">
+                                <mat-icon>arrow_downward</mat-icon>
+                                <span>Descending (Z-A)</span>
+                            </span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item (click)="toggleDefaultSort(column); $event.stopPropagation()"
+                            class="sort-menu__item"
+                            [disabled]="(sort.active !== column || !sort.direction) && !isDefaultSort(column)"
+                            [matTooltip]="(sort.active !== column || !sort.direction) && !isDefaultSort(column) ? 'Select sort order first' : ''"
+                            matTooltipPosition="left">
+                            <mat-icon class="sort-menu__lock-icon">{{ isDefaultSort(column) ? 'lock' : 'lock_open' }}</mat-icon>
+                            <span>{{ isDefaultSort(column) ? 'Remove default' : 'Set as default' }}</span>
+                        </button>
+                    </mat-menu>
+                </mat-header-cell>
                 <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
                     <div class="table-cell-content">
                         <ng-container *ngIf="isForeignKey(column); else contentCell">
@@ -252,7 +300,9 @@
                                 [ndcDynamicInputs]="{
                                     key: i,
                                     value: element[column],
-                                    widgetStructure: tableData.widgets[column]
+                                    widgetStructure: tableData.widgets[column],
+                                    rowData: element,
+                                    primaryKeys: tableData.keyAttributes
                                 }"
                                 [ndcDynamicOutputs]="{
                                     onCopyToClipboard: { handler: showCopyNotification, args: ['$event'] }
@@ -281,6 +331,7 @@
                 <mat-cell *matCellDef="let element; let i = index" class="db-table-cell-actions">
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
                         <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
+                            class="db-table-cell-action-button"
                             [matTooltip]="action.title"
                             (click)="handleAction($event, action, element)">
                             <mat-icon fontSet="material-icons-outlined">
@@ -291,6 +342,7 @@
                     <a mat-icon-button *ngIf="tableData.permissions.edit"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element)"
+                        class="db-table-cell-action-button"
                         attr.data-testid="table-edit-record-{{i}}-link"
                         attr.data-test-primary-key-name="{{tableData.keyAttributes[0]?.column_name}}"
                         attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
@@ -303,6 +355,7 @@
                     <a mat-icon-button *ngIf="tableData.permissions.add"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element, 'dub')"
+                        class="db-table-cell-action-button"
                         attr.data-testid="table-duplicate-record-{{i}}-link"
                         attr.data-test-primary-key-name="{{tableData.keyAttributes[0]?.column_name}}"
                         attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
@@ -313,6 +366,7 @@
                         <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
                     </a>
                     <button type="button" mat-icon-button *ngIf="tableData.permissions.delete && tableData.canDelete"
+                        class="db-table-cell-action-button"
                         attr.data-testid="table-delete-record-{{i}}-button"
                         angulartics2On="click"
                         angularticsAction="Dashboard: delete row is clicked"

@@ -11,13 +11,9 @@ export const PROCESSING_MESSAGES_REPLACE = {
   VIOLATES_FOREIGN_CONSTRAINT_PG: (originalMessage: string): string => {
     try {
       const words = originalMessage.split(' ');
-      const updateWordIndex = words.findIndex((word) => {
-        return word === 'update';
-      });
+      const updateWordIndex = words.indexOf('update');
       const firstTableName = words.at(updateWordIndex + 5);
-      const violatesWordIndex = words.findIndex((word) => {
-        return word === 'violates';
-      });
+      const violatesWordIndex = words.indexOf('violates');
       const secondTableName = words.at(violatesWordIndex + 7);
       const message = `
       You tried to change a record in a table ${firstTableName}, but this table is referenced by the ${secondTableName} table.
@@ -31,9 +27,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
   VIOLATES_FOREIGN_CONSTRAINT_MYSQL: (originalMessage: string) => {
     const words = originalMessage.split(' ');
     const regex = /(?<=\()[^)]+(?=\))/g;
-    const referencesWordIndex = words.findIndex((word) => {
-      return word === 'references';
-    });
+    const referencesWordIndex = words.indexOf('references');
     const tableName = words.at(referencesWordIndex + 1);
     const relatedColumnName = words.at(referencesWordIndex + 2).match(regex);
     const message = `
@@ -44,13 +38,9 @@ export const PROCESSING_MESSAGES_REPLACE = {
   },
   VIOLATES_FOREIGN_CONSTRAINT_MSSQL: (originalMessage: string) => {
     const words = originalMessage.split(' ');
-    const fromWordIndex = words.findIndex((word) => {
-      return word === 'from';
-    });
+    const fromWordIndex = words.indexOf('from');
     const firstTableName = words.at(fromWordIndex + 1);
-    const tableWordIndex = words.findIndex((word) => {
-      return word === 'table';
-    });
+    const tableWordIndex = words.indexOf('table');
     const secondTableName = words.at(tableWordIndex + 1);
     const message = `
     You tried to change a record in a table ${firstTableName}, but this table is referenced by the ${secondTableName} table.
@@ -60,9 +50,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
   },
   SELECT_COMMAND_DENIED_MYSQL: (originalMessage: string): string => {
     const words = originalMessage.split(' ');
-    const userWordIndex = words.findIndex((word) => {
-      return word === 'user';
-    });
+    const userWordIndex = words.indexOf('user');
     const dbUser = words.at(userWordIndex + 1);
     const message = `
     User ${dbUser} don't have permission to perform select command for this table.

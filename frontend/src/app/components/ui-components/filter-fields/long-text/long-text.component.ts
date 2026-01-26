@@ -21,7 +21,7 @@ export class LongTextFilterComponent extends BaseFilterFieldComponent implements
 
   ngOnInit(): void {
     super.ngOnInit();
-    if (this.widgetStructure && this.widgetStructure.widget_params) {
+    if (this.widgetStructure?.widget_params) {
       this.rowsCount = this.widgetStructure.widget_params.rows
     } else {
       this.rowsCount = '4'

@@ -1,7 +1,9 @@
-import { ConnectionEntity } from '../entities/connection/connection.entity.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { ConnectionTypeTestEnum } from '../enums/connection-type.enum.js';
+import {
+  ConnectionTypesEnum,
+  ConnectionTypeTestEnum,
+} from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { CreateConnectionDto } from '../entities/connection/application/dto/create-connection.dto.js';
+import { ConnectionEntity } from '../entities/connection/connection.entity.js';
 
 export function isConnectionEntityAgent(connection: ConnectionEntity | CreateConnectionDto): boolean {
   const agentTypes = [
@@ -13,6 +15,7 @@ export function isConnectionEntityAgent(connection: ConnectionEntity | CreateCon
     ConnectionTypesEnum.agent_mongodb,
     ConnectionTypesEnum.agent_cassandra,
     ConnectionTypesEnum.agent_redis,
+    ConnectionTypesEnum.agent_clickhouse,
   ];
 
   return agentTypes.includes(connection.type as ConnectionTypesEnum);
@@ -28,6 +31,7 @@ export function isConnectionTypeAgent(type: ConnectionTypesEnum | string): boole
     ConnectionTypeTestEnum.agent_mongodb,
     ConnectionTypeTestEnum.agent_cassandra,
     ConnectionTypesEnum.agent_redis,
+    ConnectionTypesEnum.agent_clickhouse,
   ];
 
   return connectionTypes.includes(type as ConnectionTypeTestEnum);

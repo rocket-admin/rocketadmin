@@ -1,4 +1,4 @@
-import { QueryOrderingEnum } from '../../data-access-layer/shared/enums/query-ordering.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 
 export const TABLE_SETTINGS_VALIDATION_ERRORS = {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { fa, faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
@@ -28,9 +28,9 @@ import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-action
 import { ActivatedTableActionsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/activated-table-actions.dto.js';
 import nock from 'nock';
 import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { FoundTableActionRulesRoDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-table-action-rules.ro.dto.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -79,7 +79,7 @@ async function resetPostgresTestDB() {
   });
   await Knex.schema.dropTableIfExists('transactions');
   await Knex.schema.dropTableIfExists(testTableName);
-  await Knex.schema.createTableIfNotExists(testTableName, function (table) {
+  await Knex.schema.createTableIfNotExists(testTableName, (table) => {
     table.increments();
     table.string(testTableColumnName);
     table.string(testTAbleSecondColumnName);
@@ -106,7 +106,7 @@ async function resetPostgresTestDB() {
   await Knex.destroy();
 }
 
-async function deleteTable(tableName: string): Promise<void> {
+async function _deleteTable(tableName: string): Promise<void> {
   const { host, username, password, database, port, type, ssl, cert } = newConnection;
   const Knex = knex({
     client: type,
@@ -138,7 +138,7 @@ async function resetPostgresTestDbTableCompositePrimaryKeys(
     },
   });
   await Knex.schema.dropTableIfExists(secondTestTableName);
-  await Knex.schema.createTableIfNotExists(secondTestTableName, function (table) {
+  await Knex.schema.createTableIfNotExists(secondTestTableName, (table) => {
     table.increments('id');
     table.string(testTableColumnName);
     table.string(testTAbleSecondColumnName);
@@ -842,7 +842,7 @@ test.serial(`${currentTest} should return created table rule with action and eve
 
   const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
   const customEventId = createTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM).id;
-  const addRowEventId = createTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW).id;
+  const _addRowEventId = createTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW).id;
   const urlActionId = createTableRuleRO.table_actions.find((action) => action.method === TableActionMethodEnum.URL).id;
 
   const createTableRuleROId = createTableRuleRO.id;
@@ -1056,7 +1056,7 @@ test.serial(`${currentTest} should return created table rule with action and eve
   const scope = nock(fakeUrl)
     .post('/')
     .times(2)
-    .reply(201, (uri, requestBody) => {
+    .reply(201, (_uri, requestBody) => {
       nockBodiesArray.push(requestBody);
       return {
         status: 201,
@@ -1072,25 +1072,25 @@ test.serial(`${currentTest} should return created table rule with action and eve
     .set('Accept', 'application/json');
   const activateTableRuleRO: ActivatedTableActionsDTO = JSON.parse(activateTableRuleResult.text);
   t.is(activateTableRuleResult.status, 201);
-  t.is(activateTableRuleRO.hasOwnProperty('activationResults'), true);
+  t.is(Object.hasOwn(activateTableRuleRO, 'activationResults'), true);
   t.is(activateTableRuleRO.activationResults.length, 2);
 
   t.is(nockBodiesArray.length, 2);
-  const urlActionRequestBody = nockBodiesArray.find((body) => body.hasOwnProperty(`$$_raUserId`));
+  const urlActionRequestBody = nockBodiesArray.find((body) => Object.hasOwn(body, `$$_raUserId`));
   t.truthy(urlActionRequestBody);
-  t.truthy(urlActionRequestBody['$$_raUserId']);
-  t.truthy(urlActionRequestBody['$$_date']);
-  t.truthy(urlActionRequestBody['$$_tableName']);
-  t.truthy(urlActionRequestBody['$$_actionId']);
-  t.is(urlActionRequestBody['$$_tableName'], testTableName);
-  t.is(urlActionRequestBody['primaryKeys'][0].id, 2);
+  t.truthy(urlActionRequestBody.$$_raUserId);
+  t.truthy(urlActionRequestBody.$$_date);
+  t.truthy(urlActionRequestBody.$$_tableName);
+  t.truthy(urlActionRequestBody.$$_actionId);
+  t.is(urlActionRequestBody.$$_tableName, testTableName);
+  t.is(urlActionRequestBody.primaryKeys[0].id, 2);
 
-  const slackActionRequestBody = nockBodiesArray.find((body) => body.hasOwnProperty(`text`));
+  const slackActionRequestBody = nockBodiesArray.find((body) => Object.hasOwn(body, `text`));
 
   t.truthy(slackActionRequestBody);
-  t.truthy(slackActionRequestBody['text']);
-  t.truthy(slackActionRequestBody['text'].includes(testTableName));
-  t.truthy(slackActionRequestBody['text'].includes(`[{"id":2,"second_id":"test_key"}]`));
+  t.truthy(slackActionRequestBody.text);
+  t.truthy(slackActionRequestBody.text.includes(testTableName));
+  t.truthy(slackActionRequestBody.text.includes(`[{"id":2,"second_id":"test_key"}]`));
   scope.done();
   await resetPostgresTestDB();
 });
@@ -1172,7 +1172,7 @@ test.serial(`${currentTest} should create impersonate action`, async (t) => {
 
   const actionActivationRO = JSON.parse(activateTableActionResult.text);
   t.is(activateTableActionResult.status, 201);
-  t.is(actionActivationRO.hasOwnProperty('location'), true);
+  t.is(Object.hasOwn(actionActivationRO, 'location'), true);
 
   const redirectionLink = actionActivationRO.location;
   const getLinkResult = await fetch(redirectionLink, {
@@ -1260,7 +1260,7 @@ test.serial(`${currentTest} should create trigger and activate http table action
   const scope = nock(fakeUrl)
     .post('/')
     .times(6)
-    .reply(201, (uri, requestBody) => {
+    .reply(201, (_uri, requestBody) => {
       nockBodiesArray.push(requestBody);
       return {
         status: 201,
@@ -1308,28 +1308,28 @@ test.serial(`${currentTest} should create trigger and activate http table action
 
   t.is(nockBodiesArray.length, 6);
   const userDeletedRowSlackMessageRequestBody = nockBodiesArray.find(
-    (body) => body.hasOwnProperty(`text`) && body['text'].includes('deleted'),
+    (body) => Object.hasOwn(body, `text`) && body.text.includes('deleted'),
   );
   t.truthy(userDeletedRowSlackMessageRequestBody);
-  t.truthy(userDeletedRowSlackMessageRequestBody['text']);
-  t.truthy(userDeletedRowSlackMessageRequestBody['text'].includes(testTableName));
-  t.truthy(userDeletedRowSlackMessageRequestBody['text'].includes(`[{"id":"${idForDeletion}"}]`));
+  t.truthy(userDeletedRowSlackMessageRequestBody.text);
+  t.truthy(userDeletedRowSlackMessageRequestBody.text.includes(testTableName));
+  t.truthy(userDeletedRowSlackMessageRequestBody.text.includes(`[{"id":"${idForDeletion}"}]`));
 
   const userAddedRowSlackMessageRequestBody = nockBodiesArray.find(
-    (body) => body.hasOwnProperty(`text`) && body['text'].includes('added'),
+    (body) => Object.hasOwn(body, `text`) && body.text.includes('added'),
   );
 
   t.truthy(userAddedRowSlackMessageRequestBody);
-  t.truthy(userAddedRowSlackMessageRequestBody['text']);
-  t.truthy(userAddedRowSlackMessageRequestBody['text'].includes(testTableName));
-  t.truthy(userAddedRowSlackMessageRequestBody['text'].includes(`[{"id":${testEntitiesSeedsCount + 1}}]`));
+  t.truthy(userAddedRowSlackMessageRequestBody.text);
+  t.truthy(userAddedRowSlackMessageRequestBody.text.includes(testTableName));
+  t.truthy(userAddedRowSlackMessageRequestBody.text.includes(`[{"id":${testEntitiesSeedsCount + 1}}]`));
 
   const userUpdatedRowSlackMessageRequestBody = nockBodiesArray.find(
-    (body) => body.hasOwnProperty(`text`) && body['text'].includes('updated'),
+    (body) => Object.hasOwn(body, `text`) && body.text.includes('updated'),
   );
   t.truthy(userUpdatedRowSlackMessageRequestBody);
-  t.truthy(userUpdatedRowSlackMessageRequestBody['text']);
-  t.truthy(userUpdatedRowSlackMessageRequestBody['text'].includes(testTableName));
-  t.truthy(userUpdatedRowSlackMessageRequestBody['text'].includes(`[{"id":"1"}]`));
+  t.truthy(userUpdatedRowSlackMessageRequestBody.text);
+  t.truthy(userUpdatedRowSlackMessageRequestBody.text.includes(testTableName));
+  t.truthy(userUpdatedRowSlackMessageRequestBody.text.includes(`[{"id":"1"}]`));
   scope.done();
 });

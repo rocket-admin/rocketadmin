@@ -98,7 +98,9 @@
                         [ndcDynamicInputs]="{
                             key: column.title,
                             value: selectedRow.record[column.title],
-                            widgetStructure: selectedRow.widgets[column.title]
+                            widgetStructure: selectedRow.widgets[column.title],
+                            rowData: selectedRow.record,
+                            primaryKeys: selectedRow.primaryKeys
                         }">
                     </ndc-dynamic>
                     <ng-template #simpleValue>

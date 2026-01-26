@@ -102,8 +102,8 @@ test.serial(`${currentTest} should return created api key for this user`, async 
 
     const testTableIndex = getTablesRO.findIndex((t) => t.table === testTableName);
 
-    t.is(getTablesRO[testTableIndex].hasOwnProperty('table'), true);
-    t.is(getTablesRO[testTableIndex].hasOwnProperty('permissions'), true);
+    t.is(Object.hasOwn(getTablesRO[testTableIndex], 'table'), true);
+    t.is(Object.hasOwn(getTablesRO[testTableIndex], 'permissions'), true);
     t.is(typeof getTablesRO[testTableIndex].permissions, 'object');
     t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 5);
     t.is(getTablesRO[testTableIndex].table, testTableName);

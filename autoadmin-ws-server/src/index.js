@@ -1,15 +1,14 @@
-'use strict';
 import express, { Router, json } from 'express';
 import axios from 'axios';
 const app = express();
 import { createServer } from 'http';
 const httpServer = createServer(app);
-const wsServer = createServer((req, res) => {
+const wsServer = createServer((_req, res) => {
   res.writeHead(200);
   res.end();
 });
 import WebSocket, { WebSocketServer } from 'ws';
-const router = Router();
+const _router = Router();
 import commandRoute from './routes/command.js';
 import {
   getCacheWsConnection,
@@ -30,7 +29,7 @@ const tokenCacheResult = new LRUCache(CONSTANTS.TOKEN_RESULT_CACHE_OPTIONS);
 
 app.use(json());
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({ status: CONSTANTS.API_IS_RUNNING });
 });
 
@@ -43,7 +42,7 @@ wsServer.listen(wsPort, () => {
 const ws = new WebSocketServer({ server: wsServer });
 
 ws.on('connection', (connection, req) => {
-  const ip = req.socket.remoteAddress;
+  const _ip = req.socket.remoteAddress;
   // console.log(`Connected ${ip}`);
 
   connection.on('message', async (message) => {

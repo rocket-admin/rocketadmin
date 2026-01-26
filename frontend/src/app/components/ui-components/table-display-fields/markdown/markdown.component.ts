@@ -57,7 +57,7 @@ export class MarkdownDisplayComponent extends BaseTableDisplayFieldComponent imp
       // If no heading or paragraph found, return first non-empty line
       const firstLine = markdown.trim().split('\n')[0];
       return this._truncateText(firstLine, 100);
-    } catch (error) {
+    } catch (_error) {
       // Fallback if parsing fails
       const firstLine = markdown.trim().split('\n')[0];
       return this._truncateText(firstLine, 100);

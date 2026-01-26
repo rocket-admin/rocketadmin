@@ -2,7 +2,8 @@
 @use 'generate-material-palette' as palette;
 
 // @import '@angular/material/theming';
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 $md-app-primary-color: palette.createpalette('primaryPalette');
 $md-app-accented-color: palette.createpalette('accentedPalette');
@@ -18,11 +19,11 @@ $custom-palette-white: mat.m2-define-palette($md-app-white-color);
 $custom-palette-warn-dark: mat.m2-define-palette($md-app-warn-dark-color);
 
 html {
-  --mdc-shape-small: 0px !important;
-  --mdc-filled-button-container-shape: 4px;
-  --mdc-outlined-button-container-shape: 4px;
-  --mdc-text-button-container-shape: 4px;
-  --mdc-outlined-text-field-container-shape: 0px !important;
+  --mat-shape-small: 0px !important;
+  --mat-button-filled-container-shape: 4px;
+  --mat-button-outlined-container-shape: 4px;
+  --mat-button-text-container-shape: 4px;
+  --mat-form-field-outlined-container-shape: 4px !important;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,55 +32,65 @@ html {
     --mat-table-background-color: #202020 !important;
     --mat-paginator-container-background-color: #202020 !important;
   }
+
+  .mat-datepicker-content {
+    --mat-datepicker-calendar-date-hover-state-background-color: rgba(255, 255, 255, 0.1) !important;
+    --mat-datepicker-calendar-date-focus-state-background-color: rgba(255, 255, 255, 0.1) !important;
+  }
 }
 
 // .main-menu-container_native .mat-mdc-unelevated-button.mat-accent {
-//   --mdc-filled-button-label-text-color: #fff !important;
+//   --mat-button-filled-label-text-color: #fff !important;
 // }
 
 @media (prefers-color-scheme: light) {
+  .mat-datepicker-content {
+    --mat-datepicker-calendar-date-hover-state-background-color: rgba(0, 0, 0, 0.04) !important;
+    --mat-datepicker-calendar-date-focus-state-background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+
   .main-menu-container_native .mat-mdc-unelevated-button.mat-accent {
-    --mdc-filled-button-label-text-color: #fff !important;
+    --mat-button-filled-label-text-color: #fff !important;
   }
 
   body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
     --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
-    --mdc-protected-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
-    --mdc-filled-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
+    --mat-button-protected-label-text-color: var(--color-primaryPalette-500-contrast) !important;
+    --mat-button-filled-label-text-color: var(--color-primaryPalette-500-contrast) !important;
     --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   body .mat-mdc-flat-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
     --mat-mdc-button-persistent-ripple-color: var(--color-accentedPalette-500-contrast) !important;
-    --mdc-protected-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
-    --mdc-filled-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
+    --mat-button-protected-label-text-color: var(--color-accentedPalette-500-contrast) !important;
+    --mat-button-filled-label-text-color: var(--color-accentedPalette-500-contrast) !important;
     --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
     --mat-mdc-button-persistent-ripple-color: var(--color-warnPalette-500-contrast) !important;
-    --mdc-protected-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
-    --mdc-filled-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
+    --mat-button-protected-label-text-color: var(--color-warnPalette-500-contrast) !important;
+    --mat-button-filled-label-text-color: var(--color-warnPalette-500-contrast) !important;
     --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
   }
 }
 
 // @media (prefers-color-scheme: dark) {
 //   body .mat-mdc-outlined-button:not(:disabled) {
-//     --mdc-outlined-button-label-text-color: #fff !important;
+//     --mat-button-outlined-label-text-color: #fff !important;
 //   }
 
 //   // body .mat-mdc-button:not(:disabled) {
-//   //   --mdc-text-button-label-text-color: #fff !important;
+//   //   --mat-button-text-label-text-color: #fff !important;
 //   // }
 // }
 
 // .mat-mdc-checkbox .mdc-form-field {
-//   --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
+//   --mat-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
 // }
 
 .mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled ~ .mdc-checkbox__background .mdc-checkbox__checkmark {
-  --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
+  --mat-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
 }
 
 .mat-elevation-z4 {

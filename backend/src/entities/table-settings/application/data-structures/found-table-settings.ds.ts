@@ -1,85 +1,84 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { QueryOrderingEnum } from '../../../../enums/index.js';
 import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity.js';
 import { TableActionEntity } from '../../../table-actions/table-actions-module/table-action.entity.js';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 
 export class FoundTableSettingsDs {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty()
-  table_name: string;
+	@ApiProperty()
+	table_name: string;
 
-  @ApiProperty()
-  display_name: string;
+	@ApiProperty()
+	display_name: string;
 
-  @ApiProperty({ isArray: true, type: String })
-  search_fields: Array<string>;
+	@ApiProperty({ isArray: true, type: String })
+	search_fields: Array<string>;
 
-  @ApiProperty({ isArray: true, type: String })
-  excluded_fields: Array<string>;
+	@ApiProperty({ isArray: true, type: String })
+	excluded_fields: Array<string>;
 
-  @ApiProperty({ isArray: true, type: String })
-  list_fields: Array<string>;
+	@ApiProperty({ isArray: true, type: String })
+	identification_fields: Array<string>;
 
-  @ApiProperty({ isArray: true, type: String })
-  identification_fields: Array<string>;
+	@ApiProperty()
+	identity_column: string;
 
-  @ApiProperty()
-  list_per_page: number;
+	@ApiProperty({ isArray: true, type: String })
+	readonly_fields: Array<string>;
 
-  @ApiProperty({ enum: QueryOrderingEnum })
-  ordering: QueryOrderingEnum;
+	@ApiProperty({ isArray: true, type: String })
+	sensitive_fields: Array<string>;
 
-  @ApiProperty()
-  ordering_field: string;
+	@ApiProperty({ isArray: true, type: String })
+	sortable_by: Array<string>;
 
-  @ApiProperty()
-  identity_column: string;
+	@ApiProperty({ isArray: true, type: String })
+	autocomplete_columns: Array<string>;
 
-  @ApiProperty({ isArray: true, type: String })
-  readonly_fields: Array<string>;
+	@ApiProperty({ isArray: true, type: String })
+	columns_view: Array<string>;
 
-  @ApiProperty({ isArray: true, type: String })
-  sensitive_fields: Array<string>;
+	@ApiProperty()
+	connection_id: string;
 
-  @ApiProperty({ isArray: true, type: String })
-  sortable_by: Array<string>;
+	@ApiProperty({ isArray: true, type: CustomFieldsEntity })
+	custom_fields: Array<CustomFieldsEntity>;
 
-  @ApiProperty({ isArray: true, type: String })
-  autocomplete_columns: Array<string>;
+	@ApiProperty({ isArray: true, type: TableWidgetEntity })
+	table_widgets: Array<TableWidgetEntity>;
 
-  @ApiProperty({ isArray: true, type: String })
-  columns_view: Array<string>;
+	@ApiProperty({ isArray: true, type: TableActionEntity })
+	table_actions: Array<TableActionEntity>;
 
-  @ApiProperty()
-  connection_id: string;
+	@ApiProperty()
+	can_add: boolean;
 
-  @ApiProperty({ isArray: true, type: CustomFieldsEntity })
-  custom_fields: Array<CustomFieldsEntity>;
+	@ApiProperty()
+	can_delete: boolean;
 
-  @ApiProperty({ isArray: true, type: TableWidgetEntity })
-  table_widgets: Array<TableWidgetEntity>;
+	@ApiProperty()
+	can_update: boolean;
 
-  @ApiProperty({ isArray: true, type: TableActionEntity })
-  table_actions: Array<TableActionEntity>;
+	@ApiProperty()
+	icon: string;
 
-  @ApiProperty()
-  can_add: boolean;
+	@ApiProperty()
+	allow_csv_export: boolean;
 
-  @ApiProperty()
-  can_delete: boolean;
+	@ApiProperty()
+	allow_csv_import: boolean;
 
-  @ApiProperty()
-  can_update: boolean;
+	@ApiProperty({ isArray: true, type: 'string' })
+	list_fields: string[];
 
-  @ApiProperty()
-  icon: string;
+	@ApiProperty()
+	list_per_page: number;
 
-  @ApiProperty()
-  allow_csv_export: boolean;
+	@ApiProperty()
+	ordering: string;
 
-  @ApiProperty()
-  allow_csv_import: boolean;
+	@ApiProperty()
+	ordering_field: string;
 }

@@ -43,9 +43,7 @@ export class RemoveUserFromGroupUseCase
     }
     const usersArray = groupToUpdate.users;
     const delIndex = usersArray
-      .map(function (e) {
-        return e.id;
-      })
+      .map((e) => e.id)
       .indexOf(foundUser.id);
     if (delIndex === -1) {
       throw new HttpException(

@@ -10,6 +10,7 @@
     "target": "ESNext",
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./",
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",

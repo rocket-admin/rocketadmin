@@ -1,17 +1,23 @@
 import { faker } from '@faker-js/faker';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import json5 from 'json5';
 import jwt from 'jsonwebtoken';
 import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
 import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
-import { CreateGroupDto } from '../src/entities/group/dto/index.js';
+import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
+import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionEntity } from '../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
 import { AccessLevelEnum, PermissionTypeEnum, QueryOrderingEnum, WidgetTypeEnum } from '../src/enums/index.js';
 import { TestConstants } from './mocks/test-constants.js';
-import json5 from 'json5';
-import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
-import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
+
+class CreateGroupDto {
+  title: string;
+  permissions?: Array<any>;
+  isMain?: boolean;
+  users?: Array<any>;
+}
+import { CreatePersonalTableSettingsDto } from '../src/entities/table-settings/personal-table-settings/dto/create-personal-table-settings.dto.js';
 export class MockFactory {
   generateCognitoUserName() {
     return 'a876284a-e902-11ea-adc1-0242ac120002';
@@ -94,6 +100,26 @@ export class MockFactory {
     dto.password = 'admin123';
     dto.database = 'testDB';
     dto.ssh = false;
+    return dto;
+  }
+
+  generateConnectionToTestClickHouseDBInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to ClickHouse in Docker';
+    dto.type = 'clickhouse';
+    dto.host = 'clickhouse-e2e-testing';
+    dto.port = 8123;
+    dto.username = 'default';
+    dto.password = 'clickhouse_password';
+    dto.database = 'testdb';
+    dto.ssh = false;
+    return dto;
+  }
+
+  generateConnectionToTestClickHouseAgent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypesEnum.agent_clickhouse;
     return dto;
   }
 
@@ -288,7 +314,7 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Redis in Docker';
     dto.type = ConnectionTypesEnum.redis;
-    dto.host = 'redis-e2e-testing';
+    dto.host = 'test-redis-e2e-testing';
     dto.port = 6379;
     dto.password = 'SuperSecretRedisPassword';
     dto.ssh = false;
@@ -310,10 +336,11 @@ export class MockFactory {
         return this.generateConnectionToSchemaOracleDBInDocker();
       case 'mssql':
         return this.generateConnectionToTestMsSQlDBInDocker();
-      case 'mysql':
+      case 'mysql': {
         const config = this.generateConnectionToTestMySQLDBInDocker();
         config.type = 'mysql2';
         return config;
+      }
     }
   }
 
@@ -426,7 +453,7 @@ export class MockFactory {
 
   generatePermissions(
     connectionId: string,
-    groupId: string,
+    _groupId: string,
     firstTableName: string,
     secondTableName: string,
     connectionAccessLevel: string,
@@ -470,7 +497,7 @@ export class MockFactory {
 
   generateInternalPermissions(
     connectionId: string,
-    groupId: string,
+    _groupId: string,
     connectionAccessLevel: string,
     groupAccessLevel: string,
   ) {
@@ -522,15 +549,37 @@ export class MockFactory {
     };
   }
 
+  //   {
+  //   id: 'e82ed355-94fd-46e5-b732-c0e8f01ccc96',
+  //   table_name: 'capitulus_xiphias_rU6K_delectatio',
+  //   display_name: 'test display name',
+  //   search_fields: [ 'voluptas_adulatio' ],
+  //   excluded_fields: [],
+  //   identification_fields: [],
+  //   identity_column: null,
+  //   readonly_fields: [],
+  //   sensitive_fields: null,
+  //   sortable_by: [],
+  //   autocomplete_columns: [],
+  //   columns_view: null,
+  //   connection_id: 'k7N6nja2',
+  //   can_add: true,
+  //   can_delete: true,
+  //   can_update: true,
+  //   icon: null,
+  //   allow_csv_export: true,
+  //   allow_csv_import: true
+  // }
+
   generateTableSettings(
     connectionId: string,
     tableName: string,
     searchedFields: Array<string>,
     excludedFields: Array<string>,
-    listFields: Array<string>,
-    listPerPage = 3,
-    ordering: QueryOrderingEnum,
-    orderingField: string,
+    // listFields: Array<string>,
+    // listPerPage = 3,
+    // ordering: QueryOrderingEnum,
+    // orderingField: string,
     readonlyFields: Array<string>,
     sortableBy: Array<string>,
     autocompleteColumns: Array<string>,
@@ -546,10 +595,6 @@ export class MockFactory {
       display_name: 'test display name',
       search_fields: searchedFields,
       excluded_fields: excludedFields,
-      list_fields: listFields,
-      list_per_page: listPerPage,
-      ordering: ordering,
-      ordering_field: orderingField,
       readonly_fields: readonlyFields,
       sortable_by: sortableBy,
       autocomplete_columns: autocompleteColumns,
@@ -557,8 +602,26 @@ export class MockFactory {
       identity_column: identity_column,
       allow_csv_import: allow_csv_import,
       allow_csv_export: allow_csv_export,
-    };
+    } as any;
     /*eslint-enable*/
+  }
+
+  generatePersonalTableSettingsDto(
+    list_fields: Array<string>,
+    list_per_page = 3,
+    ordering: QueryOrderingEnum,
+    ordering_field: string,
+    columns_view? : Array<string>,
+    original_names: boolean = true,
+  ): CreatePersonalTableSettingsDto {
+    return {
+      columns_view,
+      list_fields,
+      list_per_page,
+      ordering,
+      ordering_field,
+      original_names,
+    };
   }
 
   generateTableSettingsWithoutTypes(
@@ -566,10 +629,10 @@ export class MockFactory {
     tableName: any,
     searchedFields: any,
     excludedFields: any,
-    listFields: any,
-    listPerPage: any,
-    ordering: any,
-    orderingField: any,
+    // listFields: any,
+    // listPerPage: any,
+    // ordering: any,
+    // orderingField: any,
     readonlyFields: any,
     sortebleBy: any,
     autocompleteColumns: any,
@@ -581,10 +644,6 @@ export class MockFactory {
       display_name: 'test display name',
       search_fields: searchedFields,
       excluded_fields: excludedFields,
-      list_fields: listFields,
-      list_per_page: listPerPage ? listPerPage : 3,
-      ordering: ordering,
-      ordering_field: orderingField,
       readonly_fields: readonlyFields,
       sortable_by: sortebleBy,
       autocomplete_columns: autocompleteColumns,

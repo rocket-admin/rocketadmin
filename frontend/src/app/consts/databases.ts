@@ -6,16 +6,22 @@ export const supportedOrderedDatabases = [
     "cassandra",
     "oracledb",
     "mssql",
+    "redis",
+    "elasticsearch",
+    "clickhouse",
     "ibmdb2"
 ]
 
 export const supportedDatabasesTitles = {
-    mysql: "MySQL",
+    mysql: "MySQL  (MariaDB)",
     postgres: "PostgreSQL",
     mongodb: "MongoDB",
     dynamodb: "DynamoDB",
-    cassandra: "Cassandra",
+    cassandra: "Cassandra (ScyllaDB)",
     oracledb: "OracleDB",
     mssql: "SQL Server",
+    redis: "Redis",
+    elasticsearch: "Elasticsearch (OpenSearch)",
+    clickhouse: "ClickHouse",
     ibmdb2: "IBM DB2"
   }

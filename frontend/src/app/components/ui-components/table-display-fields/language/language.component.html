@@ -1,0 +1,14 @@
+<div class="field-display">
+  <span class="field-value">
+    <span *ngIf="showFlag && languageFlag" class="language-flag">{{ languageFlag }}</span>
+    <span>{{ languageName }}</span>
+  </span>
+  <button type="button" mat-icon-button
+      class="field-copy-button"
+      matTooltip="Copy"
+      [cdkCopyToClipboard]="languageName"
+      (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Field value was copied to clipboard.')"
+      (click)="$event.stopPropagation()">
+      <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

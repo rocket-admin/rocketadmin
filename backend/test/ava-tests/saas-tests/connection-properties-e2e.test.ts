@@ -15,12 +15,12 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { CreateTableCategoryDto } from '../../../src/entities/table-categories/dto/create-table-category.dto.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
-let newConnection;
+let _testUtils: TestUtils;
+let _newConnection;
 let newConnectionProperties;
 let testTableName: string;
 const testTableColumnName = 'name';
@@ -35,7 +35,7 @@ test.before(async () => {
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
   }).compile();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app = moduleFixture.createNestApplication();
   app.use(cookieParser());
@@ -52,7 +52,7 @@ test.before(async () => {
 
 async function resetPostgresTestDB(testTableName) {
   const Knex = getTestKnex(mockFactory.generateConnectionToTestPostgresDBInDocker());
-  await Knex.schema.createTableIfNotExists(testTableName, function (table) {
+  await Knex.schema.createTableIfNotExists(testTableName, (table) => {
     table.increments();
     table.string(testTableColumnName);
     table.string(testTAbleSecondColumnName);
@@ -78,7 +78,7 @@ async function resetPostgresTestDB(testTableName) {
   }
 }
 
-test.beforeEach(async (t) => {
+test.beforeEach(async (_t) => {
   testTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   testTables.push(testTableName);
   newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(testTableName);
@@ -116,7 +116,6 @@ function getTestData() {
 
 currentTest = 'POST /connection/properties/:slug';
 test.serial(`${currentTest} should return created connection properties`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -141,13 +140,9 @@ test.serial(`${currentTest} should return created connection properties`, async 
     t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
     t.is(createConnectionPropertiesRO.allow_ai_requests, newConnectionProperties.allow_ai_requests);
     t.is(createConnectionPropertiesRO.default_showing_table, newConnectionProperties.default_showing_table);
-  } catch (e) {
-    throw e;
-  }
 });
 
 test.serial(`${currentTest} should return created connection properties with table categories`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -273,16 +268,12 @@ test.serial(`${currentTest} should return created connection properties with tab
       updateConnectionPropertiesROWithoutCategories.default_showing_table,
       updatedConnectionPropertiesWithOutCategories.default_showing_table,
     );
-    t.is(updateConnectionPropertiesROWithoutCategories.table_categories.length, 0);
-  } catch (e) {
-    throw e;
-  }
+    t.is(updateConnectionPropertiesROWithoutCategories.table_categories.length, 1);
 });
 
 test.serial(
   `${currentTest} should return created connection properties with table categories and return created categories in get tables request`,
   async (t) => {
-    try {
       const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
       const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -346,8 +337,8 @@ test.serial(
 
       const testTableIndex = findTablesRO.tables.findIndex((t) => t.table === testTableName);
 
-      t.is(findTablesRO.tables[testTableIndex].hasOwnProperty('table'), true);
-      t.is(findTablesRO.tables[testTableIndex].hasOwnProperty('permissions'), true);
+      t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'table'), true);
+      t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'permissions'), true);
       t.is(typeof findTablesRO.tables[testTableIndex].permissions, 'object');
       t.is(Object.keys(findTablesRO.tables[testTableIndex].permissions).length, 5);
       t.is(findTablesRO.tables[testTableIndex].table, testTableName);
@@ -356,14 +347,10 @@ test.serial(
       t.is(findTablesRO.tables[testTableIndex].permissions.add, true);
       t.is(findTablesRO.tables[testTableIndex].permissions.delete, true);
       t.is(findTablesRO.tables[testTableIndex].permissions.edit, true);
-    } catch (e) {
-      throw e;
-    }
   },
 );
 
 test.serial(`${currentTest} should return connection without excluded tables`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -396,13 +383,9 @@ test.serial(`${currentTest} should return connection without excluded tables`, a
     t.is(getConnectionTablesRO.length > 0, true);
     const hiddenTable = getConnectionTablesRO.find((table) => table.name === newConnectionProperties.hidden_tables[0]);
     t.is(hiddenTable, undefined);
-  } catch (e) {
-    throw e;
-  }
 });
 
 test.serial(`${currentTest} should throw an exception when excluded table name is incorrect`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -425,16 +408,12 @@ test.serial(`${currentTest} should throw an exception when excluded table name i
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+    const _createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
     t.is(createConnectionPropertiesResponse.status, 400);
-  } catch (e) {
-    throw e;
-  }
 });
 
 currentTest = 'GET /connection/properties/:slug';
 test.serial(`${currentTest} should return connection properties`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -464,13 +443,9 @@ test.serial(`${currentTest} should return connection properties`, async (t) => {
     const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
     t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
-  } catch (e) {
-    throw e;
-  }
 });
 
 test.serial(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -497,14 +472,10 @@ test.serial(`${currentTest} should throw exception when connection id is incorre
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getConnectionPropertiesResponse.status, 403);
-  } catch (e) {
-    throw e;
-  }
 });
 
 currentTest = 'DELETE /connection/properties/:slug';
 test.serial(`${currentTest} should return deleted connection properties`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -552,16 +523,10 @@ test.serial(`${currentTest} should return deleted connection properties`, async 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createConnectionPropertiesResponse.status, 201);
-    const getConnectionPropertiesAfterDeletionRO = getConnectionPropertiesResponseAfterDeletion.text;
-    //todo check
-    // t.is(JSON.stringify(getConnectionPropertiesAfterDeletionRO)).toBe(null);
-  } catch (e) {
-    throw e;
-  }
+    const _getConnectionPropertiesAfterDeletionRO = getConnectionPropertiesResponseAfterDeletion.text;
 });
 
 test.serial(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -588,14 +553,10 @@ test.serial(`${currentTest} should throw exception when connection id is incorre
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getConnectionPropertiesResponse.status, 403);
-  } catch (e) {
-    throw e;
-  }
 });
 
 currentTest = 'PUT /connection/properties/:slug';
 test.serial(`${currentTest} should return updated connection properties`, async (t) => {
-  try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
@@ -618,14 +579,91 @@ test.serial(`${currentTest} should return updated connection properties`, async 
     t.is(createConnectionPropertiesResponse.status, 201);
     t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
-  } catch (e) {
-    throw e;
-  }
 });
 
-// test.serial(`${currentTest} `, async (t) => {
-//   try {
-//   } catch (e) {
-//     throw e;
-//   }
-// });
+test.serial(
+  `${currentTest} should keep created table categories if the exists return updated connection properties`,
+  async (t) => {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { token } = await registerUserAndReturnUserInfo(app);
+      const secondHiddenTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
+      await resetPostgresTestDB(secondHiddenTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newConnection)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createConnectionPropertiesResponse = await request(app.getHttpServer())
+        .post(`/connection/properties/${createConnectionRO.id}`)
+        .send(newConnectionProperties)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+      t.is(createConnectionPropertiesResponse.status, 201);
+      t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+      t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+
+      const categoriesDTO: Array<CreateTableCategoryDto> = [
+        {
+          category_name: 'Category 1',
+          category_color: '#FF5733',
+          tables: [testTableName],
+          category_id: 'cat-001',
+        },
+      ];
+
+      const createTableCategoriesResponse = await request(app.getHttpServer())
+        .put(`/table-categories/${createConnectionRO.id}`)
+        .send(categoriesDTO)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const _createTableCategoriesRO = JSON.parse(createTableCategoriesResponse.text);
+
+      t.is(createTableCategoriesResponse.status, 200);
+
+      const propertiesCopy = JSON.parse(JSON.stringify(newConnectionProperties));
+      propertiesCopy.hidden_tables = [testTableName, secondHiddenTableName];
+
+      const updateConnectionPropertiesResponse = await request(app.getHttpServer())
+        .put(`/connection/properties/${createConnectionRO.id}`)
+        .send(propertiesCopy)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(updateConnectionPropertiesResponse.status, 200);
+
+      const updateConnectionPropertiesRO = JSON.parse(updateConnectionPropertiesResponse.text);
+      t.is(updateConnectionPropertiesRO.hidden_tables.length, 2);
+      t.is(updateConnectionPropertiesRO.hidden_tables.includes(testTableName), true);
+      t.is(updateConnectionPropertiesRO.hidden_tables.includes(secondHiddenTableName), true);
+      t.is(updateConnectionPropertiesRO.connectionId, createConnectionRO.id);
+      t.is(updateConnectionPropertiesRO.table_categories.length, 1);
+      t.is(updateConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
+      t.is(updateConnectionPropertiesRO.table_categories[0].tables.length, 1);
+      t.is(updateConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+
+      const findTableCategoriesResponse = await request(app.getHttpServer())
+        .get(`/table-categories/${createConnectionRO.id}`)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const findTableCategoriesRO = JSON.parse(findTableCategoriesResponse.text);
+
+      t.is(findTableCategoriesResponse.status, 200);
+
+      t.is(findTableCategoriesRO.length, 1);
+      t.is(findTableCategoriesRO[0].category_name, 'Category 1');
+      t.is(findTableCategoriesRO[0].tables.length, 1);
+      t.is(findTableCategoriesRO[0].tables[0], testTableName);
+  },
+);

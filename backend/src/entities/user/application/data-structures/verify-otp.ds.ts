@@ -5,4 +5,8 @@ export class VerifyOtpDS {
 
   @ApiProperty()
   otpToken: string;
+
+  ipAddress?: string;
+
+  userAgent?: string;
 }

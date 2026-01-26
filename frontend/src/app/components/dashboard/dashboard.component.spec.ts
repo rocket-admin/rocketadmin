@@ -1,127 +1,129 @@
-import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
-import { Angulartics2, Angulartics2Module } from 'angulartics2';
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { AccessLevel } from 'src/app/models/user';
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { DashboardComponent } from './dashboard.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { TablesService } from 'src/app/services/tables.service';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
-import { provideHttpClient } from '@angular/common/http';
+import { AccessLevel } from 'src/app/models/user';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { TablesService } from 'src/app/services/tables.service';
+import { DashboardComponent } from './dashboard.component';
 
 describe('DashboardComponent', () => {
-  let component: DashboardComponent;
-  let fixture: ComponentFixture<DashboardComponent>;
-  let fakeTablesService;
+	let component: DashboardComponent;
+	let fixture: ComponentFixture<DashboardComponent>;
+	let fakeTablesService;
 
-  const fakeConnectionsSevice = {
-    get currentConnectionID(): string {
-      return ''
-    },
-    get currentConnectionAccessLevel(): AccessLevel {
-      return AccessLevel.None;
-    }
-  };
-  const fakeRouter = jasmine.createSpyObj('Router', {navigate: Promise.resolve('')});
+	const fakeConnectionsSevice = {
+		get currentConnectionID(): string {
+			return '';
+		},
+		get currentConnectionAccessLevel(): AccessLevel {
+			return AccessLevel.None;
+		},
+		getTablesFolders: () => of([]),
+	};
+	const fakeRouter = {
+		navigate: vi.fn().mockReturnValue(Promise.resolve('')),
+	};
 
-  const fakeTables = [
-    {
-      "table": "actor",
-      "permissions": {
-        "visibility": true,
-        "readonly": false,
-        "add": true,
-        "delete": true,
-        "edit": true
-      }
-    },
-    {
-      "table": "city",
-      "permissions": {
-        "visibility": true,
-        "readonly": false,
-        "add": true,
-        "delete": true,
-        "edit": true
-      }
-    },
-    {
-      "table": "film",
-      "permissions": {
-        "visibility": true,
-        "readonly": false,
-        "add": true,
-        "delete": true,
-        "edit": true
-      }
-    }
-  ]
+	const fakeTables = [
+		{
+			table: 'actor',
+			permissions: {
+				visibility: true,
+				readonly: false,
+				add: true,
+				delete: true,
+				edit: true,
+			},
+		},
+		{
+			table: 'city',
+			permissions: {
+				visibility: true,
+				readonly: false,
+				add: true,
+				delete: true,
+				edit: true,
+			},
+		},
+		{
+			table: 'film',
+			permissions: {
+				visibility: true,
+				readonly: false,
+				add: true,
+				delete: true,
+				edit: true,
+			},
+		},
+	];
 
-  beforeEach(async () => {
+	beforeEach(async () => {
+		// const paramMapSubject = new BehaviorSubject(convertToParamMap({
+		//   'table-name': undefined
+		// }));
 
-    // const paramMapSubject = new BehaviorSubject(convertToParamMap({
-    //   'table-name': undefined
-    // }));
+		const angulartics2Mock = {
+			eventTrack: {
+				next: () => {}, // Mocking the next method
+			},
+			trackLocation: () => {}, // Mocking the trackLocation method
+		};
 
-    const angulartics2Mock = {
-      eventTrack: {
-        next: () => {} // Mocking the next method
-      },
-      trackLocation: () => {} // Mocking the trackLocation method
-    };
+		fakeTablesService = {
+			fetchTables: vi.fn().mockReturnValue(of(fakeTables)),
+		};
 
-    fakeTablesService = jasmine.createSpyObj('tablesService', {fetchTables: of(fakeTables)});
+		await TestBed.configureTestingModule({
+			imports: [MatSnackBarModule, MatDialogModule, Angulartics2Module.forRoot(), DashboardComponent],
+			providers: [
+				provideHttpClient(),
+				provideRouter([]),
+				{
+					provide: ConnectionsService,
+					useValue: fakeConnectionsSevice,
+				},
+				{
+					provide: TablesService,
+					useValue: fakeTablesService,
+				},
+				{
+					provide: ActivatedRoute,
+					useValue: {
+						paramMap: of(
+							convertToParamMap({
+								'table-name': undefined,
+							}),
+						),
+					},
+				},
+				{ provide: Router, useValue: fakeRouter },
+				{ provide: Angulartics2, useValue: angulartics2Mock },
+			],
+		});
+	});
 
-    await TestBed.configureTestingModule({
-      imports: [
-        MatSnackBarModule,
-        MatDialogModule,
-        Angulartics2Module.forRoot(),
-        DashboardComponent
-      ],
-      providers: [
-        provideHttpClient(),
-        provideRouter([]),
-        {
-          provide: ConnectionsService,
-          useValue: fakeConnectionsSevice
-        },
-        {
-          provide: TablesService,
-          useValue: fakeTablesService
-        },
-        { provide: ActivatedRoute,
-          useValue: { paramMap: of(convertToParamMap({
-              'table-name': undefined
-            })),
-          }
-        },
-        { provide: Router, useValue: fakeRouter },
-        { provide: Angulartics2, useValue: angulartics2Mock }
-      ]
-    })
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(DashboardComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DashboardComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should get access level of current connection', () => {
+		vi.spyOn(fakeConnectionsSevice, 'currentConnectionAccessLevel', 'get').mockReturnValue(AccessLevel.Readonly);
+		expect(component.currentConnectionAccessLevel).toEqual('readonly');
+	});
 
-  it('should get access level of current connection', () => {
-    spyOnProperty(fakeConnectionsSevice, 'currentConnectionAccessLevel', 'get').and.returnValue(AccessLevel.Readonly);
-    expect(component.currentConnectionAccessLevel).toEqual('readonly');
-  });
-
-  it('should call getTables', async () => {
-    fakeTablesService.fetchTables.and.returnValue(of(fakeTables));
-    const tables = await component.getTables();
-    expect(tables).toEqual(fakeTables);
-  });
+	it('should call getTables', async () => {
+		fakeTablesService.fetchTables.mockReturnValue(of(fakeTables));
+		const tables = await component.getTables();
+		expect(tables).toEqual(fakeTables);
+	});
 });

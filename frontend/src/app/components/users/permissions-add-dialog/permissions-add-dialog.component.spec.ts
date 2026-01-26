@@ -1,305 +1,299 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormsModule, NG_VALUE_ACCESSOR }   from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatRadioModule } from '@angular/material/radio';
-
-import { PermissionsAddDialogComponent } from './permissions-add-dialog.component';
-import { forwardRef } from '@angular/core';
-import { UsersService } from 'src/app/services/users.service';
-import { of } from 'rxjs';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { AccessLevel } from 'src/app/models/user';
-import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { forwardRef } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { Angulartics2Module } from 'angulartics2';
+import { of } from 'rxjs';
+import { AccessLevel } from 'src/app/models/user';
+import { UsersService } from 'src/app/services/users.service';
+import { PermissionsAddDialogComponent } from './permissions-add-dialog.component';
 
 describe('PermissionsAddDialogComponent', () => {
-  let component: PermissionsAddDialogComponent;
-  let fixture: ComponentFixture<PermissionsAddDialogComponent>;
-  let usersService: UsersService;
+	let component: PermissionsAddDialogComponent;
+	let fixture: ComponentFixture<PermissionsAddDialogComponent>;
+	let usersService: UsersService;
 
-  const mockDialogRef = {
-    close: () => { }
-  };
+	const mockDialogRef = {
+		close: () => {},
+	};
 
-  const fakeCustomersPermissionsResponse = {
-    "tableName": "customers",
-    "accessLevel": {
-      "visibility": true,
-      "readonly": false,
-      "add": true,
-      "delete": false,
-      "edit": true
-    }
-  }
+	const fakeCustomersPermissionsResponse = {
+		tableName: 'customers',
+		accessLevel: {
+			visibility: true,
+			readonly: false,
+			add: true,
+			delete: false,
+			edit: true,
+		},
+	};
 
-  const fakeCustomersPermissionsApp = {
-    tableName: "customers",
-    display_name: "Customers",
-    accessLevel: {
-      visibility: true,
-      readonly: false,
-      add: true,
-      delete: false,
-      edit: true
-    }
-  }
+	const fakeCustomersPermissionsApp = {
+		tableName: 'customers',
+		display_name: 'Customers',
+		accessLevel: {
+			visibility: true,
+			readonly: false,
+			add: true,
+			delete: false,
+			edit: true,
+		},
+	};
 
-  const fakeOrdersPermissionsResponse = {
-    "tableName": "orders",
-    "display_name": "Created orders",
-    "accessLevel": {
-      "visibility": false,
-      "readonly": false,
-      "add": false,
-      "delete": false,
-      "edit": false
-    }
-  }
+	const fakeOrdersPermissionsResponse = {
+		tableName: 'orders',
+		display_name: 'Created orders',
+		accessLevel: {
+			visibility: false,
+			readonly: false,
+			add: false,
+			delete: false,
+			edit: false,
+		},
+	};
 
-  const fakeOrdersPermissionsApp = {
-    tableName: "orders",
-    display_name: "Created orders",
-    accessLevel: {
-      visibility: false,
-      readonly: false,
-      add: false,
-      delete: false,
-      edit: false
-    }
-  }
+	const fakeOrdersPermissionsApp = {
+		tableName: 'orders',
+		display_name: 'Created orders',
+		accessLevel: {
+			visibility: false,
+			readonly: false,
+			add: false,
+			delete: false,
+			edit: false,
+		},
+	};
 
-  const fakeTablePermissionsResponse = [
-    fakeCustomersPermissionsResponse,
-    fakeOrdersPermissionsResponse
-  ];
+	const fakeTablePermissionsResponse = [fakeCustomersPermissionsResponse, fakeOrdersPermissionsResponse];
 
-  const fakeTablePermissionsApp = [
-    fakeCustomersPermissionsApp,
-    fakeOrdersPermissionsApp
-  ];
+	const fakeTablePermissionsApp = [fakeCustomersPermissionsApp, fakeOrdersPermissionsApp];
 
-  const fakePermissionsResponse = {
-    "connection": {
-      "connectionId": "5e1092f8-4e50-4e6c-bad9-bd0b04d1af2a",
-      "accessLevel": "readonly"
-    },
-    "group": {
-      "groupId": "77154868-eaf0-4a53-9693-0470182d0971",
-      "accessLevel": "edit"
-    },
-    "tables": fakeTablePermissionsResponse
-  }
+	const fakePermissionsResponse = {
+		connection: {
+			connectionId: '5e1092f8-4e50-4e6c-bad9-bd0b04d1af2a',
+			accessLevel: 'readonly',
+		},
+		group: {
+			groupId: '77154868-eaf0-4a53-9693-0470182d0971',
+			accessLevel: 'edit',
+		},
+		tables: fakeTablePermissionsResponse,
+	};
 
-  beforeEach(async() => {
-    await TestBed.configureTestingModule({
-      imports: [
-        MatSnackBarModule,
-        FormsModule,
-        MatRadioModule,
-        MatSlideToggleModule,
-        MatCheckboxModule,
-        MatDialogModule,
-        BrowserAnimationsModule,
-        Angulartics2Module.forRoot(),
-        PermissionsAddDialogComponent
-      ],
-      providers: [
-        provideHttpClient(),
-        provideRouter([]),
-        { provide: MAT_DIALOG_DATA, useValue: {} },
-        { provide: MatDialogRef, useValue: mockDialogRef },
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => PermissionsAddDialogComponent),
-            multi: true
-        }
-      ],
-    }).compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [
+				MatSnackBarModule,
+				FormsModule,
+				MatRadioModule,
+				MatSlideToggleModule,
+				MatCheckboxModule,
+				MatDialogModule,
+				BrowserAnimationsModule,
+				Angulartics2Module.forRoot(),
+				PermissionsAddDialogComponent,
+			],
+			providers: [
+				provideHttpClient(),
+				provideRouter([]),
+				{ provide: MAT_DIALOG_DATA, useValue: {} },
+				{ provide: MatDialogRef, useValue: mockDialogRef },
+				{
+					provide: NG_VALUE_ACCESSOR,
+					useExisting: forwardRef(() => PermissionsAddDialogComponent),
+					multi: true,
+				},
+			],
+		}).compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(PermissionsAddDialogComponent);
-    component = fixture.componentInstance;
-    usersService = TestBed.inject(UsersService);
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(PermissionsAddDialogComponent);
+		component = fixture.componentInstance;
+		usersService = TestBed.inject(UsersService);
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 
-  it('should set initial state of permissions', waitForAsync(async () => {
-    spyOn(usersService, 'fetchPermission').and.returnValue(of(fakePermissionsResponse));
+	it('should set initial state of permissions', async () => {
+		vi.spyOn(usersService, 'fetchPermission').mockReturnValue(of(fakePermissionsResponse));
 
-    component.ngOnInit();
-    fixture.detectChanges();
+		component.ngOnInit();
+		fixture.detectChanges();
+		await fixture.whenStable();
 
-    // crutch, i don't like it
-    component.tablesAccess = [...fakeTablePermissionsApp];
+		// crutch, i don't like it
+		component.tablesAccess = [...fakeTablePermissionsApp];
 
-    expect(component.connectionAccess).toEqual('readonly');
-    expect(component.groupAccess).toEqual('edit');
-    expect(component.tablesAccess).toEqual(fakeTablePermissionsApp);
-  }));
+		expect(component.connectionAccess).toEqual('readonly');
+		expect(component.groupAccess).toEqual('edit');
+		expect(component.tablesAccess).toEqual(fakeTablePermissionsApp);
+	});
 
-  it('should uncheck actions if table is readonly', () => {
-    component.tablesAccess = [...fakeTablePermissionsApp];
+	it('should uncheck actions if table is readonly', () => {
+		component.tablesAccess = [...fakeTablePermissionsApp];
 
-    component.uncheckActions(component.tablesAccess[0]);
+		component.uncheckActions(component.tablesAccess[0]);
 
-    expect(component.tablesAccess[0].accessLevel.readonly).toBeFalse();
-    expect(component.tablesAccess[0].accessLevel.add).toBeFalse();
-    expect(component.tablesAccess[0].accessLevel.delete).toBeFalse();
-    expect(component.tablesAccess[0].accessLevel.edit).toBeFalse();
-  });
+		expect(component.tablesAccess[0].accessLevel.readonly).toBe(false);
+		expect(component.tablesAccess[0].accessLevel.add).toBe(false);
+		expect(component.tablesAccess[0].accessLevel.delete).toBe(false);
+		expect(component.tablesAccess[0].accessLevel.edit).toBe(false);
+	});
 
-  it('should uncheck actions if table is invisible', () => {
-    component.tablesAccess = [...fakeTablePermissionsApp];
+	it('should uncheck actions if table is invisible', () => {
+		component.tablesAccess = [...fakeTablePermissionsApp];
 
-    component.uncheckActions(component.tablesAccess[1]);
+		component.uncheckActions(component.tablesAccess[1]);
 
-    expect(component.tablesAccess[1].accessLevel.readonly).toBeFalse();
-    expect(component.tablesAccess[1].accessLevel.add).toBeFalse();
-    expect(component.tablesAccess[1].accessLevel.delete).toBeFalse();
-    expect(component.tablesAccess[1].accessLevel.edit).toBeFalse();
-  });
+		expect(component.tablesAccess[1].accessLevel.readonly).toBe(false);
+		expect(component.tablesAccess[1].accessLevel.add).toBe(false);
+		expect(component.tablesAccess[1].accessLevel.delete).toBe(false);
+		expect(component.tablesAccess[1].accessLevel.edit).toBe(false);
+	});
 
-  it('should select all tables', () => {
-    component.tablesAccess = [...fakeTablePermissionsApp];
+	it('should select all tables', () => {
+		component.tablesAccess = [...fakeTablePermissionsApp];
 
-    component.grantFullTableAccess();
+		component.grantFullTableAccess();
 
-    expect(component.tablesAccess).toEqual([
-      {
-        tableName: "customers",
-        display_name: "Customers",
-        accessLevel: {
-          visibility: true,
-          readonly: false,
-          add: true,
-          delete: true,
-          edit: true
-        }
-      },
-      {
-        tableName: "orders",
-        display_name: "Created orders",
-        accessLevel: {
-          visibility: true,
-          readonly: false,
-          add: true,
-          delete: true,
-          edit: true
-        }
-      }
-    ])
-  });
+		expect(component.tablesAccess).toEqual([
+			{
+				tableName: 'customers',
+				display_name: 'Customers',
+				accessLevel: {
+					visibility: true,
+					readonly: false,
+					add: true,
+					delete: true,
+					edit: true,
+				},
+			},
+			{
+				tableName: 'orders',
+				display_name: 'Created orders',
+				accessLevel: {
+					visibility: true,
+					readonly: false,
+					add: true,
+					delete: true,
+					edit: true,
+				},
+			},
+		]);
+	});
 
-  it('should deselect all tables', () => {
-    component.tablesAccess = [...fakeTablePermissionsApp];
+	it('should deselect all tables', () => {
+		component.tablesAccess = [...fakeTablePermissionsApp];
 
-    component.deselectAllTables();
+		component.deselectAllTables();
 
-    expect(component.tablesAccess).toEqual([
-      {
-        tableName: "customers",
-        display_name: "Customers",
-        accessLevel: {
-          visibility: false,
-          readonly: false,
-          add: false,
-          delete: false,
-          edit: false
-        }
-      },
-      {
-        tableName: "orders",
-        display_name: "Created orders",
-        accessLevel: {
-          visibility: false,
-          readonly: false,
-          add: false,
-          delete: false,
-          edit: false
-        }
-      }
-    ])
-  });
+		expect(component.tablesAccess).toEqual([
+			{
+				tableName: 'customers',
+				display_name: 'Customers',
+				accessLevel: {
+					visibility: false,
+					readonly: false,
+					add: false,
+					delete: false,
+					edit: false,
+				},
+			},
+			{
+				tableName: 'orders',
+				display_name: 'Created orders',
+				accessLevel: {
+					visibility: false,
+					readonly: false,
+					add: false,
+					delete: false,
+					edit: false,
+				},
+			},
+		]);
+	});
 
-  it('should call add permissions service', () => {
-    component.connectionID = '12345678';
-    component.connectionAccess = AccessLevel.Readonly;
-    component.group.id = "12345678-123";
-    component.groupAccess = AccessLevel.Edit;
-    component.tablesAccess = [
-      {
-        "tableName": "customers",
-        display_name: "Customers",
-        "accessLevel": {
-          "visibility": true,
-          "readonly": false,
-          "add": true,
-          "delete": true,
-          "edit": true
-        }
-      },
-      {
-        "tableName": "orders",
-        display_name: "Created orders",
-        "accessLevel": {
-          "visibility": true,
-          "readonly": false,
-          "add": true,
-          "delete": true,
-          "edit": true
-        }
-      }
-    ];
+	it('should call add permissions service', () => {
+		component.connectionID = '12345678';
+		component.connectionAccess = AccessLevel.Readonly;
+		component.group.id = '12345678-123';
+		component.groupAccess = AccessLevel.Edit;
+		component.tablesAccess = [
+			{
+				tableName: 'customers',
+				display_name: 'Customers',
+				accessLevel: {
+					visibility: true,
+					readonly: false,
+					add: true,
+					delete: true,
+					edit: true,
+				},
+			},
+			{
+				tableName: 'orders',
+				display_name: 'Created orders',
+				accessLevel: {
+					visibility: true,
+					readonly: false,
+					add: true,
+					delete: true,
+					edit: true,
+				},
+			},
+		];
 
-    const fakseUpdatePermission = spyOn(usersService, 'updatePermission').and.returnValue(of());
-    spyOn(mockDialogRef, 'close');
+		const fakseUpdatePermission = vi.spyOn(usersService, 'updatePermission').mockReturnValue(of());
+		vi.spyOn(mockDialogRef, 'close');
 
-    component.addPermissions();
+		component.addPermissions();
 
-    expect(fakseUpdatePermission).toHaveBeenCalledOnceWith('12345678', {
-      connection: {
-        connectionId: '12345678',
-        accessLevel: AccessLevel.Readonly
-      },
-      group: {
-        groupId: '12345678-123',
-        accessLevel: AccessLevel.Edit
-      },
-      tables: [
-        {
-          "tableName": "customers",
-          display_name: "Customers",
-          "accessLevel": {
-            "visibility": true,
-            "readonly": false,
-            "add": true,
-            "delete": true,
-            "edit": true
-          }
-        },
-        {
-          "tableName": "orders",
-          display_name: "Created orders",
-          "accessLevel": {
-            "visibility": true,
-            "readonly": false,
-            "add": true,
-            "delete": true,
-            "edit": true
-          }
-        }
-      ]
-    });
-    // expect(component.dialogRef.close).toHaveBeenCalled();
-    expect(component.submitting).toBeFalse();
-  })
+		expect(fakseUpdatePermission).toHaveBeenCalledWith('12345678', {
+			connection: {
+				connectionId: '12345678',
+				accessLevel: AccessLevel.Readonly,
+			},
+			group: {
+				groupId: '12345678-123',
+				accessLevel: AccessLevel.Edit,
+			},
+			tables: [
+				{
+					tableName: 'customers',
+					display_name: 'Customers',
+					accessLevel: {
+						visibility: true,
+						readonly: false,
+						add: true,
+						delete: true,
+						edit: true,
+					},
+				},
+				{
+					tableName: 'orders',
+					display_name: 'Created orders',
+					accessLevel: {
+						visibility: true,
+						readonly: false,
+						add: true,
+						delete: true,
+						edit: true,
+					},
+				},
+			],
+		});
+		// expect(component.dialogRef.close).toHaveBeenCalled();
+		expect(component.submitting).toBe(false);
+	});
 });

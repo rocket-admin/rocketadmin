@@ -1,5 +1,5 @@
 import { TableWidgetDS } from '../../data-access-layer/shared/data-structures/table-widget.ds.js';
-import { IUnknownDataStructure } from '../../data-access-layer/shared/interfaces/unknown-datastructure.interface.js';
+import { IUnknownDataStructure } from '../../shared/interfaces/unknown-datastructure.interface.js';
 
 export function buildTableWidgetDs(tableWidgetParams: IUnknownDataStructure): TableWidgetDS {
   return {

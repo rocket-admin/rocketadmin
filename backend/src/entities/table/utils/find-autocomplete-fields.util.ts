@@ -1,4 +1,4 @@
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { AutocompleteFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../exceptions/text/messages.js';
@@ -41,6 +41,6 @@ export function findAutocompleteFieldsUtil(
 
   return {
     fields: autocompleteFields,
-    value: query['autocomplete'] === '' ? '*' : (query['autocomplete'] as string),
+    value: query.autocomplete === '' ? '*' : (query.autocomplete as string),
   };
 }

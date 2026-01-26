@@ -1,4 +1,4 @@
-import { BinaryDataCaptionEditComponent } from '../components/ui-components/record-edit-fields/binary-data-caption/binary-data-caption.component';
+
 import { BooleanEditComponent } from 'src/app/components/ui-components/record-edit-fields/boolean/boolean.component'
 import { CodeEditComponent } from '../components/ui-components/record-edit-fields/code/code.component';
 import { ColorEditComponent } from '../components/ui-components/record-edit-fields/color/color.component';
@@ -10,6 +10,7 @@ import { ForeignKeyEditComponent } from '../components/ui-components/record-edit
 import { IdEditComponent } from '../components/ui-components/record-edit-fields/id/id.component';
 import { ImageEditComponent } from '../components/ui-components/record-edit-fields/image/image.component';
 import { JsonEditorEditComponent } from '../components/ui-components/record-edit-fields/json-editor/json-editor.component';
+import { LanguageEditComponent } from '../components/ui-components/record-edit-fields/language/language.component';
 import { LongTextEditComponent } from 'src/app/components/ui-components/record-edit-fields/long-text/long-text.component'
 import { MarkdownEditComponent } from '../components/ui-components/record-edit-fields/markdown/markdown.component';
 import { MoneyEditComponent } from '../components/ui-components/record-edit-fields/money/money.component';
@@ -26,6 +27,7 @@ import { TimeIntervalEditComponent } from '../components/ui-components/record-ed
 import { TimezoneEditComponent } from '../components/ui-components/record-edit-fields/timezone/timezone.component';
 import { UrlEditComponent } from '../components/ui-components/record-edit-fields/url/url.component';
 import { UuidEditComponent } from '../components/ui-components/record-edit-fields/uuid/uuid.component';
+import { S3EditComponent } from '../components/ui-components/record-edit-fields/s3/s3.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time', 'datetime', 'date time', 'datetime2', 'datetimeoffset', 'curdate', 'curtime', 'now', 'localtime', 'localtimestamp'];
 export const defaultTimestampValues = {
@@ -45,6 +47,7 @@ export const UIwidgets = {
     Foreign_key: ForeignKeyEditComponent,
     Image: ImageEditComponent,
     JSON: JsonEditorEditComponent,
+    Language: LanguageEditComponent,
     Markdown: MarkdownEditComponent,
     Money: MoneyEditComponent,
     Number: NumberEditComponent,
@@ -59,6 +62,7 @@ export const UIwidgets = {
     Timezone: TimezoneEditComponent,
     URL: UrlEditComponent,
     UUID: UuidEditComponent,
+    S3: S3EditComponent,
 }
 
 export const recordEditTypes = {
@@ -308,5 +312,37 @@ export const recordEditTypes = {
         list: JsonEditorEditComponent,
         map: JsonEditorEditComponent,
         set: JsonEditorEditComponent,
+    },
+    redis: {
+        string: TextEditComponent,
+        integer: NumberEditComponent,
+        decimal: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        array: JsonEditorEditComponent,
+        json: JsonEditorEditComponent,
+    },
+    elasticsearch: {
+        string: TextEditComponent,
+        number: NumberEditComponent,
+        boolean: BooleanEditComponent,
+        date: DateEditComponent,
+        object: JsonEditorEditComponent,
+        array: JsonEditorEditComponent,
+        binary: FileEditComponent,
+    },
+    clickhouse: {
+        string: TextEditComponent,
+        uuid: UuidEditComponent,
+        boolean: BooleanEditComponent,
+        integer: NumberEditComponent,
+        bigint: NumberEditComponent,
+        float: NumberEditComponent,
+        double: NumberEditComponent,
+        decimal: NumberEditComponent,
+        date: DateEditComponent,
+        datetime: DateTimeEditComponent,
+        json: JsonEditorEditComponent,
+        object: JsonEditorEditComponent,
+        array: JsonEditorEditComponent,
     }
 }

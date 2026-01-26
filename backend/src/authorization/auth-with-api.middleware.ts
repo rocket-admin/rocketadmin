@@ -19,6 +19,7 @@ import jwt from 'jsonwebtoken';
 import Sentry from '@sentry/minimal';
 import { Encryptor } from '../helpers/encryption/encryptor.js';
 import { EncryptionAlgorithmEnum } from '../enums/encryption-algorithm.enum.js';
+import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
 export class AuthWithApiMiddleware implements NestMiddleware {
@@ -27,8 +28,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async use(req: Request, res: Response, next: (err?: any, res?: any) => void): Promise<void> {
-    console.info(`Auth with api middleware triggered ->: ${new Date().toISOString()}`);
+  async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
     try {
       await this.authenticateRequest(req);
       next();
@@ -38,7 +38,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     }
   }
 
-  private async authenticateRequest(req: Request): Promise<void> {
+  private async authenticateRequest(req: IRequestWithCognitoInfo): Promise<void> {
     const tokenFromCookie = this.getTokenFromCookie(req);
     if (tokenFromCookie) {
       await this.authenticateWithToken(tokenFromCookie, req);
@@ -58,15 +58,15 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
   }
 
-  private async authenticateWithToken(tokenFromCookie: string, req: Request): Promise<void> {
+  private async authenticateWithToken(tokenFromCookie: string, req: IRequestWithCognitoInfo): Promise<void> {
     try {
       const jwtSecret = process.env.JWT_SECRET;
-      const data = jwt.verify(tokenFromCookie, jwtSecret);
-      const userId = data['id'];
+      const data = jwt.verify(tokenFromCookie, jwtSecret) as jwt.JwtPayload;
+      const userId = data.id;
       if (!userId) {
         throw new UnauthorizedException('JWT verification failed');
       }
-      const addedScope: Array<JwtScopesEnum> = data['scope'];
+      const addedScope: Array<JwtScopesEnum> = data.scope;
       if (addedScope && addedScope.length > 0) {
         if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
           throw new BadRequestException(Messages.TWO_FA_REQUIRED);
@@ -75,21 +75,21 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 
       const payload = {
         sub: userId,
-        email: data['email'],
-        exp: data['exp'],
-        iat: data['iat'],
+        email: data.email,
+        exp: data.exp,
+        iat: data.iat,
       };
       if (!payload || isObjectEmpty(payload)) {
         throw new UnauthorizedException('JWT verification failed');
       }
-      req['decoded'] = payload;
+      req.decoded = payload;
     } catch (error) {
       Sentry.captureException(error);
       throw error;
     }
   }
 
-  private async authenticateWithApiKey(req: Request): Promise<void> {
+  private async authenticateWithApiKey(req: IRequestWithCognitoInfo): Promise<void> {
     let apiKey = req.headers?.['x-api-key'];
     if (Array.isArray(apiKey)) {
       apiKey = apiKey[0];
@@ -107,7 +107,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
     if (!foundUserByApiKey) {
       throw new NotFoundException(Messages.NO_AUTH_KEYS_FOUND);
     }
-    req['decoded'] = {
+    req.decoded = {
       sub: foundUserByApiKey.id,
       email: foundUserByApiKey.email,
     };

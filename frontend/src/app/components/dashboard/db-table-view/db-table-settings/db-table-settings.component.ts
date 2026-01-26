@@ -1,5 +1,4 @@
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
 
 import { AlertComponent } from '../../../ui-components/alert/alert.component';
@@ -8,7 +7,7 @@ import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcr
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { IconPickerComponent } from '../../../ui-components/icon-picker/icon-picker.component';
 import { Location } from '@angular/common';
@@ -71,14 +70,14 @@ export class DbTableSettingsComponent implements OnInit {
     display_name: '',
     autocomplete_columns: [],
     identity_column: '',
-    search_fields: [],
-    excluded_fields: [],
-    list_fields: [],
     ordering: TableOrdering.Ascending,
     ordering_field: '',
+    list_fields: [],
+    columns_view: [],
+    search_fields: [],
+    excluded_fields: [],
     readonly_fields: [],
     sortable_by: [],
-    columns_view: [],
     sensitive_fields: [],
     allow_csv_export: true,
     allow_csv_import: true,

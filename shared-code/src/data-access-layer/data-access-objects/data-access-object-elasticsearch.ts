@@ -5,7 +5,6 @@ import { Readable, Stream } from 'stream';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
@@ -16,14 +15,11 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectElasticsearch extends BasicDataAccessObject implements IDataAccessObject {
-  constructor(connection: ConnectionParams) {
-    super(connection);
-  }
 
   public async addRowInTable(
     tableName: string,
@@ -136,7 +132,7 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
     const client = this.getElasticClient();
 
     const primaryDocs = primaryKeys.map((primaryKey) => ({
-      _id: primaryKey['_id'] as string,
+      _id: primaryKey._id as string,
     }));
     const response = (await client.mget({
       index: tableName,
@@ -588,7 +584,7 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
     if (actions.length > 0) {
       try {
         const response = await client.bulk({ refresh: true, body: actions });
-        const erroredDocuments = response.items.filter((item) => item.index && item.index.error);
+        const erroredDocuments = response.items.filter((item) => item.index?.error);
         if (erroredDocuments.length > 0) {
           throw new Error(
             `Failed to index some documents: ${erroredDocuments.map((doc) => doc.index.error).join(', ')}`,
@@ -678,7 +674,7 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
       return 'string';
     } else if (typeof value === 'number') {
       return 'number';
-    } else if (value instanceof Date || !isNaN(Date.parse(value))) {
+    } else if (value instanceof Date || !Number.isNaN(Date.parse(value))) {
       return 'date';
     } else if (typeof value === 'boolean') {
       return 'boolean';

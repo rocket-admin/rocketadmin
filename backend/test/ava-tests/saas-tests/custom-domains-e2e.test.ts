@@ -20,9 +20,9 @@ import { Cacher } from '../../../src/helpers/cache/cacher.js';
 // import nock from 'nock';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
-const mockFactory = new MockFactory();
+const _mockFactory = new MockFactory();
 let app: INestApplication;
-let testUtils: TestUtils;
+let _testUtils: TestUtils;
 let currentTest: string;
 
 // custom domains test (available only in saas mode)
@@ -33,7 +33,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication() as any;
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
@@ -124,8 +124,8 @@ test.serial(`${currentTest} - should return registered custom domain`, async (t)
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
   } catch (error) {
     t.fail(error.message);
@@ -209,8 +209,8 @@ test.serial(`${currentTest} - should return found custom domain`, async (t) => {
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
 
     const foundDomainResponse = await sendRequestToSaasPart(
@@ -221,15 +221,15 @@ test.serial(`${currentTest} - should return found custom domain`, async (t) => {
     );
     t.is(foundDomainResponse.status, 200);
     const foundDomainResponseRO = await foundDomainResponse.json();
-    t.is(foundDomainResponseRO.hasOwnProperty('success'), true);
-    t.is(foundDomainResponseRO.hasOwnProperty('domain_info'), true);
+    t.is(Object.hasOwn(foundDomainResponseRO, 'success'), true);
+    t.is(Object.hasOwn(foundDomainResponseRO, 'domain_info'), true);
 
     const domainInfo = foundDomainResponseRO.domain_info;
 
     t.is(domainInfo.hostname, customDomain);
     t.is(domainInfo.companyId, companyId);
-    t.is(domainInfo.hasOwnProperty('id'), true);
-    t.is(domainInfo.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(domainInfo, 'id'), true);
+    t.is(Object.hasOwn(domainInfo, 'createdAt'), true);
     t.is(Object.keys(domainInfo).length, 5);
 
     const foundCompanyFullInfoResponse = await request(app.getHttpServer())
@@ -240,7 +240,7 @@ test.serial(`${currentTest} - should return found custom domain`, async (t) => {
 
     t.is(foundCompanyFullInfoResponse.status, 200);
     const foundCompanyFullInfoResponseRO = JSON.parse(foundCompanyFullInfoResponse.text);
-    t.is(foundCompanyFullInfoResponseRO.hasOwnProperty('custom_domain'), true);
+    t.is(Object.hasOwn(foundCompanyFullInfoResponseRO, 'custom_domain'), true);
     t.is(foundCompanyFullInfoResponseRO.custom_domain, requestDomainData.hostname);
   } catch (error) {
     t.fail(error.message);
@@ -284,8 +284,8 @@ test.serial(`${currentTest} - should throw exception when company id is invalid`
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
 
     const foundDomainResponse = await sendRequestToSaasPart(
@@ -338,8 +338,8 @@ test.serial(`${currentTest} - should return updated custom domain`, async (t) =>
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
 
     const updatedCustomDomain = faker.internet.domainName();
@@ -357,9 +357,9 @@ test.serial(`${currentTest} - should return updated custom domain`, async (t) =>
     t.is(updateDomainResponse.status, 200);
     t.is(updateDomainResponseRO.hostname, updatedCustomDomain);
     t.is(updateDomainResponseRO.companyId, companyId);
-    t.is(updateDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(updateDomainResponseRO.hasOwnProperty('createdAt'), true);
-    t.is(updateDomainResponseRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.hasOwn(updateDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(updateDomainResponseRO, 'createdAt'), true);
+    t.is(Object.hasOwn(updateDomainResponseRO, 'updatedAt'), true);
     t.is(Object.keys(updateDomainResponseRO).length, 5);
   } catch (error) {
     t.fail(error.message);
@@ -403,8 +403,8 @@ test.serial(`${currentTest} - should throw exception when hostname is invalid`, 
     t.is(registerDomainResponse.status, 201);
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
 
     const updateDomainData = {
@@ -459,8 +459,8 @@ test.serial(`${currentTest} - should throw exception when company id is incorrec
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
 
     const updatedCustomDomain = faker.internet.domainName();
@@ -517,8 +517,8 @@ test.serial(`${currentTest} - should delete custom domain`, async (t) => {
 
     t.is(registerDomainResponseRO.hostname, customDomain);
     t.is(registerDomainResponseRO.companyId, companyId);
-    t.is(registerDomainResponseRO.hasOwnProperty('id'), true);
-    t.is(registerDomainResponseRO.hasOwnProperty('createdAt'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
+    t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
     t.is(Object.keys(registerDomainResponseRO).length, 5);
 
     const deleteDomainResponse = await sendRequestToSaasPart(
@@ -541,9 +541,9 @@ test.serial(`${currentTest} - should delete custom domain`, async (t) => {
     );
 
     const foundDomainResponseRO = await foundDomainResponse.json();
-    t.is(foundDomainResponseRO.hasOwnProperty('success'), true);
+    t.is(Object.hasOwn(foundDomainResponseRO, 'success'), true);
     t.is(foundDomainResponseRO.success, false);
-    t.is(foundDomainResponseRO.hasOwnProperty('domain_info'), true);
+    t.is(Object.hasOwn(foundDomainResponseRO, 'domain_info'), true);
     t.is(foundDomainResponseRO.domain_info, null);
   } catch (error) {
     t.fail(error.message);
