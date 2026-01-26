@@ -14,7 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
-import * as JSON5 from 'json5';
+import JSON5 from 'json5';
 import { DynamicModule } from 'ng-dynamic-component';
 import { defaultTimestampValues, recordEditTypes, timestampTypes, UIwidgets } from 'src/app/consts/record-edit-types';
 import { formatFieldValue } from 'src/app/lib/format-field-value';

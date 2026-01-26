@@ -44,6 +44,7 @@ export class RangeRecordViewComponent extends BaseRecordViewFieldComponent imple
   }
 
   private _parseWidgetParams(): void {
+    console.log('Parsing widget params:', this.widgetStructure?.widget_params);
     if (this.widgetStructure?.widget_params) {
       try {
         const params = this.widgetStructure.widget_params;
@@ -60,6 +61,7 @@ export class RangeRecordViewComponent extends BaseRecordViewFieldComponent imple
         console.error('Failed to parse widget params:', error);
       }
     }
+    console.log('Parsed widget params:', { min: this.min, max: this.max, step: this.step });
   }
 
   private _updateDisplayValue(): void {
