@@ -1,37 +1,37 @@
 <div class="s3-widget">
   <mat-form-field class="s3-widget__key" appearance="outline">
-    <mat-label>{{normalizedLabel}}</mat-label>
-    <input matInput type="text" name="{{label}}-{{key}}"
-      [required]="required" [disabled]="disabled" [readonly]="readonly"
-      attr.data-testid="record-{{label}}-s3"
-      [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
+    <mat-label>{{normalizedLabel()}}</mat-label>
+    <input matInput type="text" name="{{label()}}-{{key()}}"
+      [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+      attr.data-testid="record-{{label()}}-s3"
+      [ngModel]="internalValue() || value()" (ngModelChange)="onValueChange($event)">
   </mat-form-field>
 
   <div class="s3-widget__actions">
-    <input type="file" #fileInput hidden [accept]="fileAccept" (change)="onFileSelected($event)">
+    <input type="file" #fileInput hidden [accept]="fileAccept()" (change)="onFileSelected($event)">
     <button mat-stroked-button type="button"
-            [disabled]="disabled || readonly || isLoading"
+            [disabled]="disabled() || readonly() || isLoading()"
             (click)="fileInput.click()">
       <mat-icon>upload</mat-icon>
       Upload
     </button>
     <button mat-stroked-button type="button"
-            *ngIf="previewUrl"
+            *ngIf="previewUrl()"
             (click)="openFile()">
       <mat-icon>open_in_new</mat-icon>
       Open
     </button>
   </div>
 
-  <div class="s3-widget__preview" *ngIf="value">
-    <mat-spinner *ngIf="isLoading" diameter="40"></mat-spinner>
-    <img *ngIf="isImage && previewUrl && !isLoading"
-         [src]="previewUrl"
+  <div class="s3-widget__preview" *ngIf="internalValue() || value()">
+    <mat-spinner *ngIf="isLoading()" diameter="40"></mat-spinner>
+    <img *ngIf="isImage() && previewUrl() && !isLoading()"
+         [src]="previewUrl()"
          class="s3-widget__thumbnail"
          alt="Preview">
-    <div *ngIf="!isImage && previewUrl && !isLoading" class="s3-widget__file-icon">
+    <div *ngIf="!isImage() && previewUrl() && !isLoading()" class="s3-widget__file-icon">
       <mat-icon>insert_drive_file</mat-icon>
-      <span class="s3-widget__filename">{{value | slice:-30}}</span>
+      <span class="s3-widget__filename">{{(internalValue() || value()) | slice:-30}}</span>
     </div>
   </div>
 </div>
