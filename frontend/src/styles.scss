@@ -1,6 +1,40 @@
 // @import 'codemirror/lib/codemirror';
 // @import 'codemirror/theme/ttcn';
 
+@media (prefers-color-scheme: light) {
+    :root {
+        --ra-bg: #FFFFFF;
+        --ra-surface: #F0F4FF;
+        --ra-elevated: #FFFFFF;
+        --ra-border: #E2E8F0;
+        --ra-border-hover: #CBD5E1;
+        --ra-nav-bg: #110F18;
+        --ra-nav-border: #2D2A3D;
+        --ra-text: #1A1823;
+        --ra-text-muted: rgba(0, 0, 0, 0.5);
+        --ra-skeleton-shimmer: #FFFFFF;
+        --ra-chip-bg: #E2E8F0;
+        --ra-divider: #E2E8F0;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ra-bg: #0A090D;
+        --ra-surface: #1A1823;
+        --ra-elevated: #110F18;
+        --ra-border: #2D2A3D;
+        --ra-border-hover: #504A66;
+        --ra-nav-bg: #110F18;
+        --ra-nav-border: #2D2A3D;
+        --ra-text: #E8E4F0;
+        --ra-text-muted: rgba(255, 255, 255, 0.7);
+        --ra-skeleton-shimmer: #1A1823;
+        --ra-chip-bg: #2D2A3D;
+        --ra-divider: #2D2A3D;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -8,13 +42,13 @@
 }
 
 body {
-    color: #0a0a0a;
+    color: var(--ra-text);
     // font-family: Poppins, sans-serif;
 }
 
 html, body { height: 100%; }
 body {
-    background-color: #fff;
+    background-color: var(--ra-bg);
     margin: 0;
 }
 
@@ -66,26 +100,13 @@ body {
     animation: shimmer 1000ms ease-in-out infinite alternate;
 }
 
-@media (prefers-color-scheme: light) {
-    .skeleton::after {
-        background-image: linear-gradient(
-            90deg,
-            transparent 40%,
-            var(--mat-sidenav-content-background-color, #fff),
-            transparent 60%
-        );
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .skeleton::after {
-        background-image: linear-gradient(
-            90deg,
-            transparent 40%,
-            var(--mat-sidenav-content-background-color, #303030),
-            transparent 60%
-        );
-    }
+.skeleton::after {
+    background-image: linear-gradient(
+        90deg,
+        transparent 40%,
+        var(--ra-skeleton-shimmer),
+        transparent 60%
+    );
 }
 
 @keyframes shimmer {

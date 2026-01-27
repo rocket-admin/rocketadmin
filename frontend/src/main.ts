@@ -42,11 +42,11 @@ const saasExtraProviders = (environment as any).saas
 	: [];
 const colorConfig: IColorConfig<Palettes, Colors> = {
 	palettes: {
-		primaryPalette: '#212121',
-		accentedPalette: '#C177FC',
-		warnPalette: '#B71C1C',
+		primaryPalette: '#2563EB',
+		accentedPalette: '#3FC5B8',
+		warnPalette: '#DC2626',
 		whitePalette: '#FFFFFF',
-		warnDarkPalette: '#E53935',
+		warnDarkPalette: '#EF4444',
 	},
 	simpleColors: { myColorName: '#2e959a' },
 };

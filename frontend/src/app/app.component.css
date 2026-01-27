@@ -12,9 +12,9 @@
 
 @media (prefers-color-scheme: dark) {
 	.main-menu-container {
-		--mat-sidenav-content-background-color: #191919;
-		--mat-sidenav-container-background-color: #191919;
-		--mat-sidenav-container-divider-color: #303030;
+		--mat-sidenav-content-background-color: var(--ra-bg);
+		--mat-sidenav-container-background-color: var(--ra-bg);
+		--mat-sidenav-container-divider-color: var(--ra-border);
 	}
 }
 
@@ -26,13 +26,13 @@
 	position: sticky;
 	top: 0;
 	flex-shrink: 0;
-	background-color: #212121;
+	background-color: var(--ra-nav-bg);
 	z-index: 3;
 }
 
 @media (prefers-color-scheme: dark) {
 	.nav-bar {
-		border-bottom: 1px solid #303030;
+		border-bottom: 1px solid var(--ra-nav-border);
 	}
 }
 
@@ -311,20 +311,14 @@
 
 @media (prefers-color-scheme: dark) {
 	.footer {
-		background: #212121;
-		border-top: 1px solid #303030;
+		background: var(--ra-nav-bg);
+		border-top: 1px solid var(--ra-border);
 	}
 }
 
 .footer__text {
-	color: rgba(0, 0, 0, 0.5);
+	color: var(--ra-text-muted);
 	font-size: 0.875em;
-}
-
-@media (prefers-color-scheme: dark) {
-	.footer__text {
-		color: #fff;
-	}
 }
 
 ::ng-deep .visually-hidden {
@@ -351,12 +345,6 @@
 }
 
 .user-email {
-	color: rgba(0, 0, 0, 0.54);
+	color: var(--ra-text-muted);
 	font-size: 12px;
-}
-
-@media (prefers-color-scheme: dark) {
-	.user-email {
-		color: rgba(255, 255, 255, 0.7);
-	}
 }

@@ -1,129 +1,131 @@
 :host {
-    margin-bottom: -60px;
+	margin-bottom: -60px;
 }
 
 .mat-sidenav-container {
-    height: 100%;
-    /* height: calc(100vh - 56px); */
-    overflow-x: hidden !important;
+	height: 100%;
+	/* height: calc(100vh - 56px); */
+	overflow-x: hidden !important;
 }
 
 .table-list-sidenav {
-    max-width: 240px;
+	max-width: 240px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .table-list-sidenav {
-        background-color: #202020;
-    }
+	.table-list-sidenav {
+		background-color: var(--ra-surface);
+	}
 }
 
 @media (width <= 600px) {
-    .table-list-sidenav {
-        display: none;
-    }
+	.table-list-sidenav {
+		display: none;
+	}
 }
 
 .side-bar_collapsed {
-    position: static;
-    float: left;
-    display: block;
-    height: 100%;
-    width: 65px;
-    visibility: visible !important;
-    transform: translate3d(0, 0, 0);
+	position: static;
+	float: left;
+	display: block;
+	height: 100%;
+	width: 65px;
+	visibility: visible !important;
+	transform: translate3d(0, 0, 0);
 }
 
 @media (width <= 600px) {
-    .side-bar_collapsed {
-        display: none;
-    }
+	.side-bar_collapsed {
+		display: none;
+	}
 }
 
 .table-list-sidenav-container ::ng-deep .mat-drawer-inner-container,
 .side-bar_collapsed ::ng-deep .mat-drawer-inner-container {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
 }
 
-.table-list-sidenav-container ::ng-deep .mat-drawer:not(.mat-drawer-opened):not(.mat-drawer-animating) .mat-drawer-inner-container {
-    display: block;
+.table-list-sidenav-container
+	::ng-deep
+	.mat-drawer:not(.mat-drawer-opened):not(.mat-drawer-animating)
+	.mat-drawer-inner-container {
+	display: block;
 }
 
 .mat-list-item {
-    text-decoration: none;
+	text-decoration: none;
 }
 
 .toggle-button {
-    margin-top: 8px;
-    margin-left: 12px;
+	margin-top: 8px;
+	margin-left: 12px;
 }
 
 .toggle-button-position button {
-    border-radius: 4px;
+	border-radius: 4px;
 }
 
 .toggle-button-position button mat-icon {
-    border-radius: 4px;
+	border-radius: 4px;
 }
 
 .toggle-button-position button:hover {
-    border-radius: 4px;
+	border-radius: 4px;
 }
 
 .toggle-button-position button:hover mat-icon {
-    border-radius: 4px;
+	border-radius: 4px;
 }
 
 .dashboard {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 60px - 56px);
-    max-width: 1000px;
-    margin: 20px auto;
-    widows: 96%;
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 60px - 56px);
+	max-width: 1000px;
+	margin: 20px auto;
+	widows: 96%;
 }
 
 .title {
-    align-self: center;
+	align-self: center;
 }
 
 .alerts {
-    display: flex;
-    flex-direction: column;
-    margin-top: 24px;
+	display: flex;
+	flex-direction: column;
+	margin-top: 24px;
 }
 
 .server-alert {
-    display: block;
-    margin-top: 24px;
+	display: block;
+	margin-top: 24px;
 }
 
 .alerts:empty,
 .server-alert:empty {
-    margin-top: 0;
+	margin-top: 0;
 }
 
 .error-details {
-    margin-top: 8px;
+	margin-top: 8px;
 }
 
 .table-preview {
-    display: flex;
-    overflow-x: hidden;
-    height: calc(100vh - 44px);
+	display: flex;
+	overflow-x: hidden;
+	height: calc(100vh - 44px);
 }
 
 .table-preview-content {
-    flex-grow: 1;
-    padding-bottom: 24px;
-    height: calc(100vh - 44px);
-    padding: 0 24px;
-    overflow-y: scroll;
-    width: 100%;
+	flex-grow: 1;
+	padding-bottom: 24px;
+	height: calc(100vh - 44px);
+	padding: 0 24px;
+	overflow-y: scroll;
+	width: 100%;
 }
 
 .sidenav-content__toggle-button {
-    display: none !important;
+	display: none !important;
 }
-

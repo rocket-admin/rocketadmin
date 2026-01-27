@@ -85,7 +85,7 @@
 
 .divider {
 	position: relative;
-	background-color: #e8e8e8;
+	background-color: var(--ra-divider);
 	height: 1px;
 	margin: 24px 0;
 	width: 100%;

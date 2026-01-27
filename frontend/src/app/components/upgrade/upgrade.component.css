@@ -66,7 +66,7 @@
 
 @media (prefers-color-scheme: dark) {
 	.plan-header {
-		background-color: #202020;
+		background-color: var(--ra-surface);
 	}
 
 	.plan-header_current {

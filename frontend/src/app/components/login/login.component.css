@@ -262,7 +262,7 @@
 	grid-row: 2 / span 3;
 	align-self: center;
 	position: relative;
-	background-color: #e8e8e8;
+	background-color: var(--ra-divider);
 	margin: 36px 0;
 	height: 100%;
 	width: 1px;
@@ -338,12 +338,7 @@
 
 @media (prefers-color-scheme: dark) {
 	.login-form__field-loader::after {
-		background-image: linear-gradient(
-			90deg,
-			transparent 40%,
-			var(--mat-sidenav-content-background-color, #303030),
-			transparent 60%
-		);
+		background-image: linear-gradient(90deg, transparent 40%, var(--ra-skeleton-shimmer), transparent 60%);
 	}
 }
 
