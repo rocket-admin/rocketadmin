@@ -1,3 +1,8 @@
+:host > app-alert {
+    display: block;
+    margin: 24px;
+}
+
 .wrapper {
 	height: calc(100vh - 56px);
 	padding: 16px;

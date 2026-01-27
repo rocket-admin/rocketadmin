@@ -1,3 +1,11 @@
+:host > app-alert {
+    display: block;
+    position: sticky;
+    top: calc(var(--mat-toolbar-standard-height) + 24px);
+    margin: 24px 24px 0;
+    z-index: 2;
+}
+
 .page {
 	display: flex;
 	height: 100%;

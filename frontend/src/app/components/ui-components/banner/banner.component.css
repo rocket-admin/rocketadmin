@@ -1,25 +1,37 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
 .banner-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('../../../../assets/bg/banner.svg');
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+        url('../../../../assets/bg/banner.svg');
+    background-color: #1a1a1a;
     background-repeat: no-repeat;
-    /* background-position: left 125%, right -26%; */
     background-size: cover;
-    height: 100%;
+    height: calc(100% + 1px);
+    margin-top: -1px;
 }
 
 .banner_error {
     --alert-theme-color: #B71C1C;
-
     z-index: 2;
 }
+
 .banner_info {
-    --alert-theme-color: #01579B;
+    --alert-theme-color: #296EE9;
 }
 
 .banner_success {
     --alert-theme-color: #1B5E20;
+}
+
+.banner_warning {
+    --alert-theme-color: #F79008;
 }
 
 .banner-box {
@@ -51,4 +63,43 @@
     justify-content: flex-end;
     gap: 20px;
     margin-top: 32px;
+}
+
+@media (prefers-color-scheme: light) {
+    .banner-box.banner_error {
+        --bg-color: #F8E8E8;
+    }
+
+    .banner-box.banner_error ::ng-deep [mat-stroked-button] {
+        background-color: #fff;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .banner-box.banner_error {
+        --bg-color: color-mix(in hsl, #B71C1C, transparent 95%);
+        backdrop-filter: blur(10px);
+    }
+}
+
+.banner-box.banner_error {
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
+}
+
+.banner-box.banner_info {
+    --bg-color: color-mix(in hsl, #296EE9, transparent 95%);
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
+}
+
+.banner-box.banner_warning {
+    --bg-color: color-mix(in hsl, #F79008, transparent 95%);
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
+}
+
+.banner-box.banner_success {
+    border: 1px solid var(--alert-theme-color);
+    border-left: 12px solid var(--alert-theme-color);
 }

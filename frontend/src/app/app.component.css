@@ -293,6 +293,12 @@
 	height: 100%;
 }
 
+@media (prefers-color-scheme: dark) {
+	.main-menu-content_interior .content {
+		background-color: #212121;
+	}
+}
+
 .helpContainer {
 	position: fixed;
 	right: 16px;
