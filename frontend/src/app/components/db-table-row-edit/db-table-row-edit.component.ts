@@ -16,6 +16,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
 import JSON5 from 'json5';
 import { DynamicModule } from 'ng-dynamic-component';
+import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import { defaultTimestampValues, recordEditTypes, timestampTypes, UIwidgets } from 'src/app/consts/record-edit-types';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
@@ -57,6 +58,7 @@ import { BreadcrumbsComponent } from '../ui-components/breadcrumbs/breadcrumbs.c
 		MatExpansionModule,
 		MatChipsModule,
 		DynamicModule,
+		SignalComponentIoModule,
 		AlertComponent,
 		PlaceholderRowEditComponent,
 		BannerComponent,
