@@ -18,7 +18,6 @@
         <ng-container *ngFor="let action of currentAlert.actions">
             <button mat-button type="button" *ngIf="action.type === 'button'"
                 attr.data-testid="alert-action-button"
-                [disabled]="action.disabled"
                 (click)="onButtonClick(currentAlert, action)">
                 {{action.caption}}
             </button>

@@ -298,11 +298,10 @@ export class TablesDataSource implements DataSource<Object> {
               type: AlertType.Info,
               message: 'Configure now to reveal advanced table functionality and features.',
               actions: [
-                {
-                  type: AlertActionType.Button,
-                  caption: 'AI generate',
-                  disabled: true
-                },
+                // {
+                //   type: AlertActionType.Button,
+                //   caption: 'AI generate',
+                // },
                 {
                   type: AlertActionType.Link,
                   caption: 'Settings',
