@@ -1,5 +1,13 @@
 :host {
+    display: block;
+    height: 100%;
     margin-bottom: -60px;
+}
+
+:host > app-banner {
+    display: block;
+    height: calc(100% + 48px);
+    margin-top: -48px;
 }
 
 .mat-sidenav-container {
