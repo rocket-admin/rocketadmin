@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
+import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { TableInformation } from './ai-data-entities/types/ai-module-types.js';
-import { AmazonBedrockAiProvider } from './amazon-bedrock/amazon-bedrock.ai.provider.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
+import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
 
 interface AIGeneratedTableSettings {
 	table_name: string;
@@ -12,6 +13,8 @@ interface AIGeneratedTableSettings {
 	search_fields: string[];
 	readonly_fields: string[];
 	columns_view: string[];
+	ordering: string;
+	ordering_field: string;
 	widgets: Array<{
 		field_name: string;
 		widget_type: string;
@@ -26,13 +29,15 @@ interface AIResponse {
 
 @Injectable()
 export class AiService {
-	constructor(protected readonly aiProvider: AmazonBedrockAiProvider) {}
+	constructor(protected readonly aiCoreService: AICoreService) {}
 
 	public async generateNewTableSettingsWithAI(
 		tablesInformation: Array<TableInformation>,
 	): Promise<Array<TableSettingsEntity>> {
 		const prompt = this.buildPrompt(tablesInformation);
-		const aiResponse = await this.aiProvider.generateResponse(prompt);
+		const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, prompt, {
+			temperature: 0.3,
+		});
 		const parsedResponse = this.parseAIResponse(aiResponse);
 		return this.buildTableSettingsEntities(parsedResponse, tablesInformation);
 	}
@@ -70,7 +75,9 @@ For each table, provide:
 2. search_fields: Columns that should be searchable (text fields like name, email, title)
 3. readonly_fields: Columns that should not be editable (like auto_increment, timestamps)
 4. columns_view: All columns in preferred display order
-5. widgets: For each column, suggest the best widget type from: ${widgetTypes}
+5. ordering: Default sort order - either "ASC" or "DESC" (use "DESC" for tables with timestamps to show newest first)
+6. ordering_field: Column name to sort by default (prefer created_at, updated_at, or primary key)
+7. widgets: For each column, suggest the best widget type from: ${widgetTypes}
 
 Available widget types and when to use them:
 - Password: for password fields
@@ -109,6 +116,8 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
       "search_fields": ["name", "email"],
       "readonly_fields": ["id", "created_at"],
       "columns_view": ["id", "name", "email", "created_at"],
+      "ordering": "DESC",
+      "ordering_field": "created_at",
       "widgets": [
         {
           "field_name": "column_name",
@@ -123,16 +132,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 	}
 
 	private parseAIResponse(aiResponse: string): AIResponse {
-		let cleanedResponse = aiResponse.trim();
-		if (cleanedResponse.startsWith('```json')) {
-			cleanedResponse = cleanedResponse.slice(7);
-		} else if (cleanedResponse.startsWith('```')) {
-			cleanedResponse = cleanedResponse.slice(3);
-		}
-		if (cleanedResponse.endsWith('```')) {
-			cleanedResponse = cleanedResponse.slice(0, -3);
-		}
-		cleanedResponse = cleanedResponse.trim();
+		const cleanedResponse = cleanAIJsonResponse(aiResponse);
 
 		try {
 			return JSON.parse(cleanedResponse) as AIResponse;
@@ -155,6 +155,8 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 			settings.search_fields = this.filterValidColumns(tableSettings.search_fields, validColumnNames);
 			settings.readonly_fields = this.filterValidColumns(tableSettings.readonly_fields, validColumnNames);
 			settings.columns_view = this.filterValidColumns(tableSettings.columns_view, validColumnNames);
+			settings.ordering = this.mapOrdering(tableSettings.ordering);
+			settings.ordering_field = validColumnNames.includes(tableSettings.ordering_field) ? tableSettings.ordering_field : null;
 			settings.table_widgets = tableSettings.widgets
 				.filter((w) => validColumnNames.includes(w.field_name))
 				.map((widgetData) => {
@@ -172,6 +174,12 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 
 	private filterValidColumns(columns: string[], validColumnNames: string[]): string[] {
 		return columns?.filter((col) => validColumnNames.includes(col)) || [];
+	}
+
+	private mapOrdering(ordering: string): QueryOrderingEnum | null {
+		if (ordering === 'ASC') return QueryOrderingEnum.ASC;
+		if (ordering === 'DESC') return QueryOrderingEnum.DESC;
+		return null;
 	}
 
 	private mapWidgetType(widgetType: string): WidgetTypeEnum | undefined {

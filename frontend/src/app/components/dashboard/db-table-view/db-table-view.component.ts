@@ -1,38 +1,41 @@
-import * as JSON5 from 'json5';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { AccessLevel } from 'src/app/models/user';
-import { Angulartics2OnModule } from 'angulartics2';
+import { SelectionModel } from '@angular/cdk/collections';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
-import JsonURL from "@jsonurl/jsonurl";
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { SelectionModel } from '@angular/cdk/collections';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
+
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TablesService } from 'src/app/services/tables.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+
+import { Angulartics2OnModule } from 'angulartics2';
+import JsonURL from '@jsonurl/jsonurl';
+import JSON5 from 'json5';
 import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
+import { tableDisplayTypes, UIwidgets } from '../../../consts/table-display-types';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
+import { normalizeTableName } from '../../../lib/normalize';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
+import { AccessLevel } from 'src/app/models/user';
 import {
 	CustomAction,
 	TableForeignKey,
@@ -42,16 +45,19 @@ import {
 	TableRow,
 	Widget,
 } from 'src/app/models/table';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
-import { tableDisplayTypes, UIwidgets } from '../../../consts/table-display-types';
-import { normalizeTableName } from '../../../lib/normalize';
-import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
-import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
+import { TablesService } from 'src/app/services/tables.service';
+
 import { DbTableExportDialogComponent } from './db-table-export-dialog/db-table-export-dialog.component';
+import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
+import { DbTableImportDialogComponent } from './db-table-import-dialog/db-table-import-dialog.component';
 import { SavedFiltersPanelComponent } from './saved-filters-panel/saved-filters-panel.component';
-import { MatSelectModule } from '@angular/material/select';
+import { ForeignKeyDisplayComponent } from '../../ui-components/table-display-fields/foreign-key/foreign-key.component';
+import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
+
 
 interface Column {
 	title: string;
@@ -65,38 +71,38 @@ export interface Folder {
 }
 
 @Component({
-  selector: 'app-db-table-view',
-  standalone: true,
-  templateUrl: './db-table-view.component.html',
-  styleUrls: ['./db-table-view.component.css'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCheckboxModule,
-    MatChipsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatMenuModule,
-    MatTooltipModule,
-	MatDividerModule,
-    ClipboardModule,
-    DragDropModule,
-    Angulartics2OnModule,
-    PlaceholderTableDataComponent,
-    DynamicModule,
-    ForeignKeyDisplayComponent,
-    SavedFiltersPanelComponent
-  ]
+	selector: 'app-db-table-view',
+	standalone: true,
+	templateUrl: './db-table-view.component.html',
+	styleUrls: ['./db-table-view.component.css'],
+	imports: [
+		CommonModule,
+		FormsModule,
+		RouterModule,
+		MatTableModule,
+		MatPaginatorModule,
+		MatSortModule,
+		MatButtonModule,
+		MatIconModule,
+		MatCheckboxModule,
+		MatChipsModule,
+		MatDialogModule,
+		MatDividerModule,
+		MatFormFieldModule,
+		MatSelectModule,
+		ReactiveFormsModule,
+		MatInputModule,
+		MatAutocompleteModule,
+		MatMenuModule,
+		MatTooltipModule,
+		ClipboardModule,
+		DragDropModule,
+		Angulartics2OnModule,
+		PlaceholderTableDataComponent,
+		DynamicModule,
+		ForeignKeyDisplayComponent,
+		SavedFiltersPanelComponent,
+	],
 })
 export class DbTableViewComponent implements OnInit, OnChanges {
 	@Input() name: string;
@@ -154,7 +160,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		if (value) this.tableData = value;
 	}
 
-	@ViewChild(MatPaginator) paginator: MatPaginator;
+@ViewChild(MatPaginator) paginator: MatPaginator;
 	@ViewChild(MatSort) sort: MatSort;
 
 	public defaultSort: { column: string; direction: 'asc' | 'desc' } | null = null;
@@ -688,7 +694,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
     });
   }
 
-  onColumnVisibilityChange() {
+onColumnVisibilityChange() {
     this.tableData.changleColumnList(this.connectionID, this.name);
     this.cdr.detectChanges();
     this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
@@ -699,6 +705,39 @@ export class DbTableViewComponent implements OnInit, OnChanges {
       },
       error: (error) => {
         console.error('Error updating personal table view settings:', error);
+      }
+    });
+  }
+
+  handleActiveFilterClick(filterKey: string) {
+    const dialogRef = this.dialog.open(DbTableFiltersDialogComponent, {
+      width: '56em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.name,
+        displayTableName: this.displayName,
+        structure: {
+          structure: this.tableData.structure,
+          foreignKeys: this.tableData.foreignKeys,
+          foreignKeysList: this.tableData.foreignKeysList,
+          widgets: this.tableData.widgets || []
+        },
+        autofocusField: filterKey
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(action => {
+      if (action === 'filter' && dialogRef.componentInstance) {
+        const filtersFromDialog = {...dialogRef.componentInstance.tableRowFieldsShown};
+        const comparators = dialogRef.componentInstance.tableRowFieldsComparator;
+        this.openFilters.emit({
+          structure: this.tableData.structure,
+          foreignKeysList: this.tableData.foreignKeysList,
+          foreignKeys: this.tableData.foreignKeys,
+          widgets: this.tableData.widgets,
+          filters: filtersFromDialog,
+          comparators: comparators
+        });
       }
     });
   }
@@ -745,7 +784,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
     // Force Angular to detect changes and re-render the table immediately
     this.cdr.detectChanges();
 
-    this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
+this._tables.updatePersonalTableViewSettings(this.connectionID, this.name, {
       list_fields: this.tableData.columns.map(col => col.title)
     }).subscribe({
       next: () => {
@@ -755,9 +794,10 @@ export class DbTableViewComponent implements OnInit, OnChanges {
         console.error('Error updating personal table view settings:', error);
       }
     });
-    
+
     console.log('Columns reordered in menu - table updated:', newDisplayedOrder);
   }
+
 	exportData() {
 		const convertToCSVValue = (value: any): string => {
 			// Handle null and undefined

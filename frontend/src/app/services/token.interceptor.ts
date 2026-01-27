@@ -34,6 +34,9 @@ export class TokenInterceptor implements HttpInterceptor {
     if (url.startsWith('http://')) {
       return url;
     }
+    if (url.startsWith('https://')) {
+      return url;
+    }
     return `${baseURL}${url}`;
   }
 
