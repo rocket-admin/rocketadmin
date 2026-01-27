@@ -194,6 +194,9 @@ export class AppComponent {
 			permissions: {
 				caption: 'Permissions',
 			},
+			charts: {
+				caption: 'Charts',
+			},
 			'connection-settings': {
 				caption: 'Connection settings',
 			},

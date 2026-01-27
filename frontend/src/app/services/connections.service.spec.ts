@@ -253,18 +253,18 @@ describe('ConnectionsService', () => {
 		expect(service.currentTab).toEqual('dashboard');
 	});
 
-	it('should get visible tabs dashboard and audit in any case', () => {
-		expect(service.visibleTabs).toEqual(['dashboard', 'audit']);
+	it('should get visible tabs dashboard, charts and audit in any case', () => {
+		expect(service.visibleTabs).toEqual(['dashboard', 'charts', 'audit']);
 	});
 
-	it('should get visible tabs dashboard, audit and permissions if groupsAccessLevel is true', () => {
+	it('should get visible tabs dashboard, charts, audit and permissions if groupsAccessLevel is true', () => {
 		service.groupsAccessLevel = true;
-		expect(service.visibleTabs).toEqual(['dashboard', 'audit', 'permissions']);
+		expect(service.visibleTabs).toEqual(['dashboard', 'charts', 'audit', 'permissions']);
 	});
 
-	it('should get visible tabs dashboard, audit, edit-db and connection-settings if connectionAccessLevel is edit', () => {
+	it('should get visible tabs dashboard, charts, audit, connection-settings and edit-db if connectionAccessLevel is edit', () => {
 		service.connectionAccessLevel = AccessLevel.Edit;
-		expect(service.visibleTabs).toEqual(['dashboard', 'audit', 'connection-settings', 'edit-db']);
+		expect(service.visibleTabs).toEqual(['dashboard', 'charts', 'audit', 'connection-settings', 'edit-db']);
 	});
 
 	it('should call fetchConnections', () => {

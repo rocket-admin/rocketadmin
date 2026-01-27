@@ -1,538 +1,535 @@
-import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
-import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
-import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
-import { NavigationEnd, Router, } from '@angular/router';
-import { catchError, filter, map } from 'rxjs/operators';
-
-import { AccessLevel } from '../models/user';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
+import { catchError, filter, map } from 'rxjs/operators';
+import { AlertActionType, AlertType } from '../models/alert';
+import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
+import { AccessLevel } from '../models/user';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
 
 interface LogParams {
-  connectionID: string,
-  tableName?: string,
-  userEmail?: string,
-  requstedPage?: number,
-  chunkSize?: number,
+	connectionID: string;
+	tableName?: string;
+	userEmail?: string;
+	requstedPage?: number;
+	chunkSize?: number;
 }
 
-type Palettes = { primaryPalette: string, accentedPalette: string };
+type Palettes = { primaryPalette: string; accentedPalette: string };
 type Colors = { myColorName: string };
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root',
 })
 export class ConnectionsService {
-  public connectionID: string | null = null;
-  public connectionInitialState: Connection = Object.freeze({
-    id: null,
-    type: DBtype.MySQL,
-    host: '',
-    port: '3306',
-    sid: '',
-    username: '',
-    password: '',
-    database: '',
-    authSource: '',
-    title: '',
-    ssh: false,
-    privateSSHKey: '',
-    sshHost: '',
-    sshPort: '',
-    sshUsername: '',
-    ssl: false,
-    cert: '',
-    masterEncryption: false,
-    azure_encryption: false,
-    connectionType: ConnectionType.Direct,
-    signing_key: null
-  });
-  public connection: Connection;
-  public connectionAccessLevel: AccessLevel;
-  public groupsAccessLevel: boolean;
-  public currentPage: string;
-  public isCustomAccentedColor: boolean;
-  public defaultDisplayTable: string;
-  public ownConnections: Connection[] = null;
-  public testConnections: Connection[] = null;
+	public connectionID: string | null = null;
+	public connectionInitialState: Connection = Object.freeze({
+		id: null,
+		type: DBtype.MySQL,
+		host: '',
+		port: '3306',
+		sid: '',
+		username: '',
+		password: '',
+		database: '',
+		authSource: '',
+		title: '',
+		ssh: false,
+		privateSSHKey: '',
+		sshHost: '',
+		sshPort: '',
+		sshUsername: '',
+		ssl: false,
+		cert: '',
+		masterEncryption: false,
+		azure_encryption: false,
+		connectionType: ConnectionType.Direct,
+		signing_key: null,
+	});
+	public connection: Connection;
+	public connectionAccessLevel: AccessLevel;
+	public groupsAccessLevel: boolean;
+	public currentPage: string;
+	public isCustomAccentedColor: boolean;
+	public defaultDisplayTable: string;
+	public ownConnections: Connection[] = null;
+	public testConnections: Connection[] = null;
 
-  private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
-  private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
-  private connectionsSubject: BehaviorSubject<Connection[]> = new BehaviorSubject<Connection[]>([]);
+	private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
+	private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+	private connectionsSubject: BehaviorSubject<Connection[]> = new BehaviorSubject<Connection[]>([]);
 
-  public cast = this.connectionsSubject.asObservable();
+	public cast = this.connectionsSubject.asObservable();
 
-  constructor(
-    private _http: HttpClient,
-    private router: Router,
-    private _notifications: NotificationsService,
-    private _masterPassword: MasterPasswordService,
-    public _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>
-  ) {
-    this.connection = {...this.connectionInitialState};
-    this.router = router;
-    this.router.events
+	constructor(
+		private _http: HttpClient,
+		private router: Router,
+		private _notifications: NotificationsService,
+		private _masterPassword: MasterPasswordService,
+		public _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>,
+	) {
+		this.connection = { ...this.connectionInitialState };
+		this.router = router;
+		this.router.events
 			.pipe(
-				filter(
-					(event) : boolean => {
-						return( event instanceof NavigationEnd );
-					}
-				)
+				filter((event): boolean => {
+					return event instanceof NavigationEnd;
+				}),
 			)
-			.subscribe(
-				( _event: NavigationEnd ) : void => {
-          const urlConnectionID = this.router.routerState.snapshot.root.firstChild.paramMap.get('connection-id');
-          this.currentPage = this.router.routerState.snapshot.root.firstChild.url[0].path;
-          this.setConnectionID(urlConnectionID);
-          this.setConnectionInfo(urlConnectionID);
-          this._notifications.resetAlert();
+			.subscribe((_event: NavigationEnd): void => {
+				const urlConnectionID = this.router.routerState.snapshot.root.firstChild.paramMap.get('connection-id');
+				this.currentPage = this.router.routerState.snapshot.root.firstChild.url[0].path;
+				this.setConnectionID(urlConnectionID);
+				this.setConnectionInfo(urlConnectionID);
+				this._notifications.resetAlert();
+			});
+	}
+
+	get currentConnectionID() {
+		return this.connectionID;
+	}
+
+	get currentConnectionName() {
+		return this.defineConnectionTitle(this.connection);
+	}
+
+	get defaultTableToOpen() {
+		return this.defaultDisplayTable;
+	}
+
+	get currentConnection() {
+		return this.connection;
+	}
+
+	get currentConnectionAccessLevel() {
+		return this.connectionAccessLevel;
+	}
+
+	get currentConnectionGroupAccessLevel() {
+		return this.groupsAccessLevel;
+	}
+
+	get currentTab() {
+		return this.currentPage;
+	}
+
+	get visibleTabs() {
+		let tabs = ['dashboard', 'charts', 'audit'];
+		if (this.groupsAccessLevel) tabs.push('permissions');
+		if (this.isPermitted(this.connectionAccessLevel)) tabs.push('connection-settings', 'edit-db');
+		return tabs;
+	}
+
+	get ownConnectionsList() {
+		return this.ownConnections;
+	}
+
+	get testConnectionsList() {
+		return this.testConnections;
+	}
+
+	getCurrentConnectionTitle() {
+		return this.connectionNameSubject.asObservable();
+	}
+
+	getCurrentConnectionSigningKey() {
+		return this.connectionSigningKeySubject.asObservable();
+	}
+
+	setConnectionID(id: string) {
+		this.connectionID = id;
+	}
+
+	setConnectionInfo(id: string) {
+		this.defaultDisplayTable = null;
+		if (id) {
+			this.fetchConnection(id).subscribe((res) => {
+				this.connection = res.connection;
+				this.connectionAccessLevel = res.accessLevel;
+				this.groupsAccessLevel = res.groupManagement;
+				this.connectionNameSubject.next(res.connection.title || res.connection.database);
+				this.connectionSigningKeySubject.next(res.connection.signing_key);
+				if (res.connectionProperties) {
+					this.defaultDisplayTable = res.connectionProperties.default_showing_table;
+					this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
+					this._themeService.updateColors({
+						palettes: {
+							primaryPalette: res.connectionProperties.primary_color,
+							accentedPalette: res.connectionProperties.secondary_color,
+						},
+					});
+				} else {
+					this.isCustomAccentedColor = false;
+					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' } });
 				}
-			)
-    ;
-  }
+			});
+		} else {
+			this.connection = { ...this.connectionInitialState };
+			this.isCustomAccentedColor = false;
+			this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' } });
+		}
 
-  get currentConnectionID() {
-    return this.connectionID;
-  }
+		console.log('this.defaultDisplayTable');
+		console.log(this.defaultDisplayTable);
+	}
 
-  get currentConnectionName() {
-    return this.defineConnectionTitle(this.connection);
-  }
+	isPermitted(accessLevel: AccessLevel) {
+		return accessLevel === 'edit' || accessLevel === 'readonly';
+	}
 
-  get defaultTableToOpen() {
-    return this.defaultDisplayTable;
-  }
+	defineConnectionType(connection) {
+		if (connection.type?.startsWith('agent_')) {
+			connection.type = connection.type.slice(6);
+			connection.connectionType = ConnectionType.Agent;
+		} else {
+			connection.connectionType = ConnectionType.Direct;
+		}
+		return connection;
+	}
 
-  get currentConnection() {
-    return this.connection;
-  }
+	defineConnectionTitle(connection: Connection) {
+		if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection';
+		if (!connection.title && !connection.database) return 'Untitled connection';
+		return connection.title || connection.database;
+	}
 
-  get currentConnectionAccessLevel() {
-    return this.connectionAccessLevel;
-  }
+	private checkAndSendConversion() {
+		const now = new Date();
+		const firstVisitTime = localStorage.getItem('first_visit_time');
 
-  get currentConnectionGroupAccessLevel() {
-    return this.groupsAccessLevel;
-  }
+		if (!firstVisitTime) {
+			// First visit - record the current date
+			localStorage.setItem('first_visit_time', now.toISOString());
+			return;
+		}
 
-  get currentTab() {
-    return this.currentPage;
-  }
+		const firstVisit = new Date(firstVisitTime);
+		const daysDifference = Math.floor((now.getTime() - firstVisit.getTime()) / (1000 * 60 * 60 * 24));
 
-  get visibleTabs() {
-    let tabs = ['dashboard', 'audit'];
-    if (this.groupsAccessLevel) tabs.push('permissions');
-    if (this.isPermitted(this.connectionAccessLevel)) tabs.push('connection-settings', 'edit-db');
-    return tabs;
-  }
+		if (daysDifference >= 7) {
+			const repeatConversionSent = localStorage.getItem('repeat_conversion_sent');
 
-  get ownConnectionsList() {
-    return this.ownConnections;
-  }
+			if (!repeatConversionSent) {
+				localStorage.setItem('repeat_conversion_sent', 'true');
 
-  get testConnectionsList() {
-    return this.testConnections;
-  }
+				// Send conversion event
+				if (typeof window !== 'undefined' && (window as any).gtag) {
+					(window as any).gtag('event', 'conversion', {
+						send_to: 'AW-419937947/jqGyCJWo4qobEJv9nsgB',
+						value: 1.0,
+						currency: 'USD',
+						event_callback: () => {
+							console.log('Conversion event sent successfully');
+						},
+					});
+				}
+			}
+		}
+	}
 
-  getCurrentConnectionTitle() {
-    return this.connectionNameSubject.asObservable();
-  }
+	fetchConnections() {
+		// Check for first visit and send conversion if needed
+		this.checkAndSendConversion();
 
-  getCurrentConnectionSigningKey() {
-    return this.connectionSigningKeySubject.asObservable();
-  }
+		return this._http.get<any>('/connections').pipe(
+			map((res) => {
+				const connections = res.connections.map((connectionItem) => {
+					const connection = this.defineConnectionType(connectionItem.connection);
+					const displayTitle = this.defineConnectionTitle(connectionItem.connection);
+					return { ...connectionItem, connection, displayTitle };
+				});
+				this.ownConnections = connections.filter((connectionItem) => !connectionItem.connection.isTestConnection);
+				this.testConnections = connections.filter((connectionItem) => connectionItem.connection.isTestConnection);
+				return connections;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				const errorDetails = err.error?.originalMessage || '';
+				this._notifications.showAlert(AlertType.Error, { abstract: errorMessage, details: errorDetails }, [
+					{
+						type: AlertActionType.Button,
+						caption: 'Dismiss',
+						action: (_id: number) => this._notifications.dismissAlert(),
+					},
+				]);
+				return EMPTY;
+			}),
+		);
+	}
 
-  setConnectionID(id: string) {
-    this.connectionID = id;
-  }
+	fetchConnection(id: string) {
+		return this._http.get<any>(`/connection/one/${id}`).pipe(
+			map((res) => {
+				const connection = this.defineConnectionType(res.connection);
+				if (res.connectionProperties) {
+					this.defaultDisplayTable = res.connectionProperties.default_showing_table;
+					this._themeService.updateColors({
+						palettes: {
+							primaryPalette: res.connectionProperties.primary_color,
+							accentedPalette: res.connectionProperties.secondary_color,
+						},
+					});
+				} else {
+					this.defaultDisplayTable = null;
+					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' } });
+				}
+				return { ...res, connection };
+			}),
+			catchError((err) => {
+				console.log(err);
+				if (err.error?.type === 'no_master_key' && this.router.url !== '/connections-list') {
+					this._masterPassword.showMasterPasswordDialog();
+				}
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(errorMessage);
+				return EMPTY;
+			}),
+		);
+	}
 
-  setConnectionInfo(id: string) {
-    this.defaultDisplayTable = null;
-    if (id) {
-      this.fetchConnection(id).subscribe(res => {
-        this.connection = res.connection;
-        this.connectionAccessLevel = res.accessLevel;
-        this.groupsAccessLevel = res.groupManagement;
-        this.connectionNameSubject.next(res.connection.title || res.connection.database);
-        this.connectionSigningKeySubject.next(res.connection.signing_key);
-        if (res.connectionProperties) {
-          this.defaultDisplayTable = res.connectionProperties.default_showing_table;
-          this.isCustomAccentedColor = !!res.connectionProperties.secondary_color;
-          this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
-        } else {
-          this.isCustomAccentedColor = false;
-          this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
-        }
-      });
-    } else {
-      this.connection = {...this.connectionInitialState};
-      this.isCustomAccentedColor = false;
-      this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
-    }
+	testConnection(connectionID: string, connection: Connection) {
+		let dbCredentials;
+		dbCredentials = {
+			...connection,
+			port: parseInt(connection.port, 10),
+			sshPort: parseInt(connection.sshPort, 10),
+		};
 
-    console.log('this.defaultDisplayTable');
-    console.log(this.defaultDisplayTable);
-  }
+		if (connection.connectionType === 'agent') {
+			dbCredentials.type = `agent_${dbCredentials.type}`;
+		}
 
-  isPermitted(accessLevel: AccessLevel) {
-    return accessLevel === 'edit' || accessLevel === 'readonly'
-  }
+		return this._http
+			.post(`/connection/test`, dbCredentials, {
+				params: {
+					...(connectionID ? { connectionId: connectionID } : {}),
+				},
+			})
+			.pipe(
+				map((res) => res),
+				catchError((err) => {
+					console.log(err);
+					const errorMessage = err.error?.message || 'Unknown error';
+					const errorDetails = err.error?.originalMessage || '';
+					this._notifications.showAlert(AlertType.Error, { abstract: errorMessage, details: errorDetails }, []);
+					return EMPTY;
+				}),
+			);
+	}
 
-  defineConnectionType(connection) {
-    if (connection.type?.startsWith('agent_')) {
-      connection.type = connection.type.slice(6);
-      connection.connectionType = ConnectionType.Agent;
-    } else {
-      connection.connectionType = ConnectionType.Direct;
-    }
-    return connection;
-  }
+	createConnection(connection: Connection, masterKey: string) {
+		let dbCredentials;
+		dbCredentials = {
+			...connection,
+			port: parseInt(connection.port, 10),
+			sshPort: parseInt(connection.sshPort, 10),
+		};
 
-  defineConnectionTitle(connection: Connection) {
-    if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection';
-    if (!connection.title && !connection.database) return 'Untitled connection';
-    return connection.title || connection.database;
-  }
+		if (connection.connectionType === 'agent') {
+			dbCredentials.type = `agent_${dbCredentials.type}`;
+		}
 
-  private checkAndSendConversion() {
-    const now = new Date();
-    const firstVisitTime = localStorage.getItem('first_visit_time');
+		return this._http
+			.post('/connection', dbCredentials, {
+				headers: masterKey
+					? {
+							masterpwd: masterKey,
+						}
+					: {},
+			})
+			.pipe(
+				map((res: any) => {
+					this.connectionsSubject.next(null);
+					this._masterPassword.checkMasterPassword(connection.masterEncryption, res.id, masterKey);
+					this._notifications.showSuccessSnackbar('Connection was added successfully.');
+					return res;
+				}),
+				catchError((err) => {
+					console.log(err);
+					const errorMessage = err.error?.message || 'Unknown error';
+					const errorDetails = err.error?.originalMessage || '';
+					this._notifications.showAlert(AlertType.Error, { abstract: errorMessage, details: errorDetails }, []);
+					return throwError(() => errorMessage);
+				}),
+			);
+	}
 
-    if (!firstVisitTime) {
-      // First visit - record the current date
-      localStorage.setItem('first_visit_time', now.toISOString());
-      return;
-    }
+	updateConnection(connection: Connection, masterKey: string) {
+		let dbCredentials;
+		dbCredentials = {
+			...connection,
+			port: parseInt(connection.port, 10),
+			sshPort: parseInt(connection.sshPort, 10),
+		};
 
-    const firstVisit = new Date(firstVisitTime);
-    const daysDifference = Math.floor((now.getTime() - firstVisit.getTime()) / (1000 * 60 * 60 * 24));
+		if (connection.connectionType === 'agent') {
+			dbCredentials.type = `agent_${dbCredentials.type}`;
+		}
 
-    if (daysDifference >= 7) {
-      const repeatConversionSent = localStorage.getItem('repeat_conversion_sent');
+		return this._http
+			.put(`/connection/${connection.id}`, dbCredentials, {
+				headers: masterKey
+					? {
+							masterpwd: masterKey,
+						}
+					: {},
+			})
+			.pipe(
+				map((res) => {
+					this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
+					this._notifications.showSuccessSnackbar('Connection has been updated successfully.');
+					this.connectionsSubject.next(null);
+					return res;
+				}),
+				catchError((err) => {
+					console.log(err);
+					const errorMessage = err.error?.message || 'Unknown error';
+					const errorDetails = err.error?.originalMessage || '';
+					this._notifications.showAlert(AlertType.Error, { abstract: errorMessage, details: errorDetails }, [
+						{
+							type: AlertActionType.Button,
+							caption: 'Dismiss',
+							action: (_id: number) => this._notifications.dismissAlert(),
+						},
+					]);
+					// this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);
+					console.log('updateConnection catchError');
+					return throwError(() => new Error(errorMessage));
+				}),
+			);
+	}
 
-      if (!repeatConversionSent) {
-        localStorage.setItem('repeat_conversion_sent', 'true');
+	deleteConnection(id: string, metadata) {
+		return this._http.put(`/connection/delete/${id}`, metadata).pipe(
+			map(() => {
+				this.connectionsSubject.next(null);
+				this._notifications.showSuccessSnackbar('Connection has been deleted successfully.');
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(errorMessage);
+				return EMPTY;
+			}),
+		);
+	}
 
-        // Send conversion event
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'conversion', {
-            'send_to': 'AW-419937947/jqGyCJWo4qobEJv9nsgB',
-            'value': 1.0,
-            'currency': 'USD',
-            'event_callback': () => {
-              console.log('Conversion event sent successfully');
-            }
-          });
-        }
-      }
-    }
-  }
+	fetchAuditLog({ connectionID, tableName, userEmail, requstedPage, chunkSize }: LogParams) {
+		if (tableName === 'showAll') tableName = null;
+		if (userEmail === 'showAll') userEmail = null;
+		return this._http
+			.get(`/logs/${connectionID}`, {
+				params: {
+					page: requstedPage.toString(),
+					perPage: chunkSize.toString(),
+					...(tableName ? { tableName } : {}),
+					...(userEmail ? { email: userEmail } : {}),
+				},
+			})
+			.pipe(
+				map((res) => res),
+				catchError((err) => {
+					console.log(err);
+					const errorMessage = err.error?.message || 'Unknown error';
+					this._notifications.showErrorSnackbar(errorMessage);
+					return EMPTY;
+				}),
+			);
+	}
 
-  fetchConnections() {
-    // Check for first visit and send conversion if needed
-    this.checkAndSendConversion();
+	getConnectionSettings(connectionID: string) {
+		return this._http.get(`/connection/properties/${connectionID}`).pipe(
+			map((res: any) => {
+				if (res) {
+					this._themeService.updateColors({
+						palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color },
+					});
+				}
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
 
-    return this._http.get<any>('/connections')
-      .pipe(
-        map(res => {
-          const connections = res.connections.map(connectionItem => {
-            const connection = this.defineConnectionType(connectionItem.connection);
-            const displayTitle = this.defineConnectionTitle(connectionItem.connection);
-            return {...connectionItem, connection, displayTitle};
-          });
-          this.ownConnections = connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
-          this.testConnections = connections.filter(connectionItem => connectionItem.connection.isTestConnection);
-          return connections;
-        }),
-        catchError((err) => {
-          console.log(err);
-          const errorMessage = err.error?.message || 'Unknown error';
-          const errorDetails = err.error?.originalMessage || '';
-          this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (_id: number) => this._notifications.dismissAlert()
-            }
-          ]);
-          return EMPTY;
-        })
-      );
-  }
+	createConnectionSettings(connectionID: string, settings: ConnectionSettings) {
+		return this._http.post(`/connection/properties/${connectionID}`, settings).pipe(
+			map((res) => {
+				this._notifications.showSuccessSnackbar('Connection settings has been created successfully.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
 
-  fetchConnection(id: string) {
-    return this._http.get<any>(`/connection/one/${id}`)
-      .pipe(
-        map(res => {
-          const connection = this.defineConnectionType(res.connection);
-          if (res.connectionProperties) {
-            this.defaultDisplayTable = res.connectionProperties.default_showing_table;
-            this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
-          } else {
-            this.defaultDisplayTable = null;
-            this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' }});
-          }
-          return {...res, connection};
-        }),
-        catchError((err) => {
-          console.log(err);
-          if (err.error?.type === 'no_master_key' && this.router.url !== '/connections-list') {
-            this._masterPassword.showMasterPasswordDialog()
-          };
-          const errorMessage = err.error?.message || 'Unknown error';
-          this._notifications.showErrorSnackbar(errorMessage);
-          return EMPTY;
-        }
-        )
-      );
-  }
+	updateConnectionSettings(connectionID: string, settings: ConnectionSettings) {
+		return this._http.put(`/connection/properties/${connectionID}`, settings).pipe(
+			map((res) => {
+				this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
 
-  testConnection(connectionID: string, connection: Connection) {
-    let dbCredentials;
-    dbCredentials = {
-      ...connection,
-      port: parseInt(connection.port, 10),
-      sshPort: parseInt(connection.sshPort, 10)
-    };
+	deleteConnectionSettings(connectionID: string) {
+		return this._http.delete(`/connection/properties/${connectionID}`).pipe(
+			map(() => {
+				this._notifications.showSuccessSnackbar('Connection settings has been removed successfully.');
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
 
-    if (connection.connectionType === 'agent') {
-      dbCredentials.type = `agent_${dbCredentials.type}`
-    }
+	getTablesFolders(connectionID: string) {
+		return this._http.get(`/table-categories/${connectionID}`).pipe(
+			map((res) => {
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
 
-    return this._http.post(`/connection/test`, dbCredentials,
-      {params: {
-        ...(connectionID ? {connectionId: connectionID} : {})
-      }})
-    .pipe(
-      map(res => res),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        const errorDetails = err.error?.originalMessage || '';
-        this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, []);
-        return EMPTY;
-      }
-      )
-    );
-  }
-
-  createConnection(connection: Connection, masterKey: string) {
-    let dbCredentials;
-    dbCredentials = {
-      ...connection,
-      port: parseInt(connection.port, 10),
-      sshPort: parseInt(connection.sshPort, 10)
-    };
-
-    if (connection.connectionType === 'agent') {
-      dbCredentials.type = `agent_${dbCredentials.type}`
-    }
-
-    return this._http.post('/connection', dbCredentials, {
-      headers: masterKey ? {
-        masterpwd: masterKey
-      } : {}
-    })
-    .pipe(
-      map((res: any) => {
-        this.connectionsSubject.next(null);
-        this._masterPassword.checkMasterPassword(connection.masterEncryption, res.id, masterKey);
-        this._notifications.showSuccessSnackbar('Connection was added successfully.');
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        const errorDetails = err.error?.originalMessage || '';
-        this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, []);
-        return throwError(() => errorMessage);
-      })
-    );
-  }
-
-  updateConnection(connection: Connection, masterKey: string) {
-    let dbCredentials;
-    dbCredentials = {
-      ...connection,
-      port: parseInt(connection.port, 10),
-      sshPort: parseInt(connection.sshPort, 10)
-    };
-
-    if (connection.connectionType === 'agent') {
-      dbCredentials.type = `agent_${dbCredentials.type}`
-    }
-
-    return this._http.put(`/connection/${connection.id}`, dbCredentials, {
-      headers: masterKey ? {
-        masterpwd: masterKey
-      } : {}
-    })
-    .pipe(
-      map(res => {
-        this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
-        this._notifications.showSuccessSnackbar('Connection has been updated successfully.');
-        this.connectionsSubject.next(null);
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        const errorDetails = err.error?.originalMessage || '';
-        this._notifications.showAlert(AlertType.Error, {abstract: errorMessage, details: errorDetails}, [
-          {
-            type: AlertActionType.Button,
-            caption: 'Dismiss',
-            action: (_id: number) => this._notifications.dismissAlert()
-          }
-        ]);
-        // this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);
-        console.log('updateConnection catchError');
-        return throwError(() => new Error(errorMessage));
-      }
-      )
-    );
-  }
-
-  deleteConnection(id: string, metadata) {
-    return this._http.put(`/connection/delete/${id}`, metadata)
-    .pipe(
-      map(() => {
-        this.connectionsSubject.next(null);
-        this._notifications.showSuccessSnackbar('Connection has been deleted successfully.');
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(errorMessage);
-        return EMPTY;
-      }
-      )
-    );
-  }
-
-  fetchAuditLog({connectionID, tableName, userEmail, requstedPage, chunkSize}: LogParams) {
-    if (tableName === "showAll") tableName = null;
-    if (userEmail === "showAll") userEmail = null;
-    return this._http.get(`/logs/${connectionID}`, {
-      params: {
-        page: requstedPage.toString(),
-        perPage: chunkSize.toString(),
-        ...(tableName ? {tableName} : {}),
-        ...(userEmail ? {email: userEmail} : {}),
-      }
-    })
-    .pipe(
-      map(res => res),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(errorMessage);
-        return EMPTY;
-      }
-      )
-    );
-  }
-
-  getConnectionSettings(connectionID: string) {
-    return this._http.get(`/connection/properties/${connectionID}`)
-    .pipe(
-      map((res: any) => {
-        if (res) {
-          this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
-        }
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(`${errorMessage}.`);
-        return EMPTY;
-      }
-      )
-    );
-  }
-
-  createConnectionSettings(connectionID: string, settings: ConnectionSettings) {
-    return this._http.post(`/connection/properties/${connectionID}`, settings)
-    .pipe(
-      map(res => {
-        this._notifications.showSuccessSnackbar('Connection settings has been created successfully.');
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(`${errorMessage}.`);
-        return EMPTY;
-      }
-      )
-    );
-  }
-
-  updateConnectionSettings(connectionID: string, settings: ConnectionSettings) {
-    return this._http.put(`/connection/properties/${connectionID}`, settings)
-    .pipe(
-      map(res => {
-        this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(`${errorMessage}.`);
-        return EMPTY;
-      }
-      )
-    );
-  }
-
-  deleteConnectionSettings(connectionID: string) {
-    return this._http.delete(`/connection/properties/${connectionID}`)
-    .pipe(
-      map(() => {
-        this._notifications.showSuccessSnackbar('Connection settings has been removed successfully.');
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(`${errorMessage}.`);
-        return EMPTY;
-      }
-      )
-    );
-  }
-
-  getTablesFolders(connectionID: string) {
-    return this._http.get(`/table-categories/${connectionID}`)
-    .pipe(
-      map(res => {
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(`${errorMessage}.`);
-        return EMPTY;
-      })
-    );
-  }
-
-  updateTablesFolders(connectionID: string, tablesFolders: any){
-    return this._http.put(`/table-categories/${connectionID}`, tablesFolders)
-    .pipe(
-      map(res => {
-        // this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        const errorMessage = err.error?.message || 'Unknown error';
-        this._notifications.showErrorSnackbar(`${errorMessage}.`);
-        return EMPTY;
-      })
-    );
-  }
+	updateTablesFolders(connectionID: string, tablesFolders: any) {
+		return this._http.put(`/table-categories/${connectionID}`, tablesFolders).pipe(
+			map((res) => {
+				// this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
 }

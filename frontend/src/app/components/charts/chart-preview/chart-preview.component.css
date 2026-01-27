@@ -1,0 +1,24 @@
+.chart-preview {
+	width: 100%;
+	height: 250px;
+	position: relative;
+}
+
+.chart-preview canvas {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.no-data {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 200px;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.no-data {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}

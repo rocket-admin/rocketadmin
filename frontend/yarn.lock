@@ -3438,6 +3438,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kurkle/color@npm:^0.3.0":
+  version: 0.3.4
+  resolution: "@kurkle/color@npm:0.3.4"
+  checksum: b95c6abe0241ba1745b3c84de3b464296b95ce577110b54f46e6c6dcc9a0966491533df43812bd6c66f92cf818e385d1390b280cd5851d4afb52fc37f8a6c0b9
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.5
   resolution: "@leichtgewicht/ip-codec@npm:2.0.5"
@@ -6538,6 +6545,15 @@ __metadata:
   version: 2.1.1
   resolution: "chardet@npm:2.1.1"
   checksum: 4e3dba2699018b79bb90a9562b5e5be27fcaab55250c12fa72f026b859fb24846396c346968546c14efc69b9f23aca3ef2b9816775012d08a4686ce3c362415c
+  languageName: node
+  linkType: hard
+
+"chart.js@npm:^4.5.1":
+  version: 4.5.1
+  resolution: "chart.js@npm:4.5.1"
+  dependencies:
+    "@kurkle/color": ^0.3.0
+  checksum: 34b35b373642994b2adac197e91363625930530e29fc1baa6dbb411b5e1295f9f6572922003a0224a21a3019aec916567c1ed00c33b1373081f189fc188e5a7b
   languageName: node
   linkType: hard
 
@@ -10029,6 +10045,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash-es@npm:^4.17.15":
+  version: 4.17.23
+  resolution: "lodash-es@npm:4.17.23"
+  checksum: b1bd1d141bbde8ffc72978e34b364065675806b0ca42ab99477d247fb2ae795faeed81db9283bf18ae1f096c2b6611ec0589e0503fa9724bf82e3dce947bad69
+  languageName: node
+  linkType: hard
+
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -10706,6 +10729,23 @@ __metadata:
     "@angular/core": ">=14.1.3"
     rxjs: ">=6.0.0"
   checksum: 863fb60ff14c5afc540b5791ff07b9a90897b3a9ab0cf29705a35bf9ef3cd23c208333172bfaba8b994760913b69145e5a7c8f633b998486a3c7cb0c5b35ae2c
+  languageName: node
+  linkType: hard
+
+"ng2-charts@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "ng2-charts@npm:8.0.0"
+  dependencies:
+    lodash-es: ^4.17.15
+    tslib: ^2.3.0
+  peerDependencies:
+    "@angular/cdk": ">=19.0.0"
+    "@angular/common": ">=19.0.0"
+    "@angular/core": ">=19.0.0"
+    "@angular/platform-browser": ">=19.0.0"
+    chart.js: ^3.4.0 || ^4.0.0
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: b7dfe6a9525eb5343d9a284c3f90bd9baffb58d388067133db27dceedbed90f26c5a6aea43509373d79e00a15c90ddae1a5975f4da72c0b607432aab84f5dbc2
   languageName: node
   linkType: hard
 
@@ -12334,6 +12374,7 @@ __metadata:
     amplitude-js: ^8.21.9
     angular-password-strength-meter: "npm:@eresearchqut/angular-password-strength-meter@^13.0.7"
     angulartics2: ^14.1.0
+    chart.js: ^4.5.1
     color-string: ^2.0.1
     convert: ^5.12.0
     date-fns: ^4.1.0
@@ -12347,6 +12388,7 @@ __metadata:
     mermaid: ^11.12.1
     monaco-editor: 0.55.1
     ng-dynamic-component: ^10.7.0
+    ng2-charts: ^8.0.0
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.1.1
     ngx-stripe: ^19.0.0
