@@ -63,9 +63,20 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 			const jwtSecret = process.env.JWT_SECRET;
 			const data = jwt.verify(tokenFromCookie, jwtSecret) as jwt.JwtPayload;
 			const userId = data.id;
+
 			if (!userId) {
 				throw new UnauthorizedException('JWT verification failed');
 			}
+
+			const userExists = await this.userRepository.findOne({ where: { id: userId } });
+			if (!userExists) {
+				throw new UnauthorizedException('JWT verification failed');
+			}
+
+			if (userExists.suspended) {
+				throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
+			}
+
 			const addedScope: Array<JwtScopesEnum> = data.scope;
 			if (addedScope && addedScope.length > 0) {
 				if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
@@ -104,13 +115,14 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 			.where('api_key.hash = :hash', { hash: apiKeyHash })
 			.getOne();
 
+		if (!foundUserByApiKey) {
+			throw new NotFoundException(Messages.NO_AUTH_KEYS_FOUND);
+		}
+
 		if (foundUserByApiKey.suspended) {
 			throw new UnauthorizedException(Messages.API_KEY_SUSPENDED);
 		}
 
-		if (!foundUserByApiKey) {
-			throw new NotFoundException(Messages.NO_AUTH_KEYS_FOUND);
-		}
 		req.decoded = {
 			sub: foundUserByApiKey.id,
 			email: foundUserByApiKey.email,

@@ -658,5 +658,5 @@ test.serial(`${currentTest} should delete company`, async (t) => {
     .set('Cookie', adminUserToken)
     .set('Accept', 'application/json');
 
-  t.is(foundCompanyInfoAfterDelete.status, 403);
+  t.is(foundCompanyInfoAfterDelete.status, 401);
 });
