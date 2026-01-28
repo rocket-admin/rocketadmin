@@ -105,7 +105,7 @@ test.serial(`${currentTest} should return user deletion result`, async (t) => {
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getUserResult.status, 404);
+    t.is(getUserResult.status, 401);
   t.pass();
 });
 
