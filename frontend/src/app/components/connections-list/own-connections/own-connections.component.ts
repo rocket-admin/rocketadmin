@@ -43,4 +43,16 @@ export class OwnConnectionsComponent {
 		this.displayedCardCount = 3;
 		this._uiSettings.updateGlobalSetting('connectionsListCollapsed', true);
 	}
+
+	getMainTitle(database: string): string {
+		const title = this.supportedDatabasesTitles[database] || database;
+		const match = title.match(/^([^(]+)/);
+		return match ? match[1].trim() : title;
+	}
+
+	getSubTitle(database: string): string {
+		const title = this.supportedDatabasesTitles[database] || database;
+		const match = title.match(/(\([^)]+\))/);
+		return match ? match[1] : '';
+	}
 }

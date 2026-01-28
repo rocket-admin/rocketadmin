@@ -121,6 +121,13 @@
     text-align: center;
 }
 
+.addConnectionLink__subLabel {
+    display: block;
+    font-weight: 400;
+    opacity: 0.6;
+    font-size: 12px;
+}
+
 .showAllButton {
     margin-top: 20px;
     margin-bottom: -56px;

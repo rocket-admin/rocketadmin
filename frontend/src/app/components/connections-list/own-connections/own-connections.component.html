@@ -13,7 +13,10 @@
                 <div class="addConnectionLink__iconBox">
                     <mat-icon [svgIcon]="supportedDatabase" class="addConnectionLink__icon"></mat-icon>
                 </div>
-                <span class="addConnectionLink__label">{{ supportedDatabasesTitles[supportedDatabase] }}</span>
+                <span class="addConnectionLink__label">
+                    {{ getMainTitle(supportedDatabase) }}
+                    <span *ngIf="getSubTitle(supportedDatabase)" class="addConnectionLink__subLabel">{{ getSubTitle(supportedDatabase) }}</span>
+                </span>
             </a>
         </li>
     </ul>
