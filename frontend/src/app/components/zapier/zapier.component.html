@@ -6,12 +6,14 @@
         <mat-icon>open_in_new</mat-icon>
         Docs
     </a>
-    <zapier-workflow
-        [signUpEmail]="currentUser.email"
-        [clientId]='"4MFV3OrjI8e8JkZPySqbFVbKtZUz0sV0H3XJnb6w"'
-        [theme]='"auto"'
-        [introCopyDisplay]='"show"'
-        [guessZapDisplay]='"show"'
-        [zapCreateFromScratchDisplay]='"hide"'
-    ></zapier-workflow>
+    @if (currentUser()) {
+        <zapier-workflow
+            [signUpEmail]="currentUser().email"
+            [clientId]='"4MFV3OrjI8e8JkZPySqbFVbKtZUz0sV0H3XJnb6w"'
+            [theme]='"auto"'
+            [introCopyDisplay]='"show"'
+            [guessZapDisplay]='"show"'
+            [zapCreateFromScratchDisplay]='"hide"'
+        ></zapier-workflow>
+    }
 </div>
