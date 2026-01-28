@@ -63,6 +63,12 @@ export const customAgentRepositoryExtension = {
         return 'IBMDB2-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_mongodb:
         return 'MONGODB-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_redis:
+        return 'REDIS-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_cassandra:
+        return 'CASSANDRA-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_clickhouse:
+        return 'CLICKHOUSE-TEST-AGENT-TOKEN';
       default:
         throw new Error(`Unsupported connection type for test agent token: ${connectionType}`);
     }
