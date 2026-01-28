@@ -43,6 +43,7 @@ let currentTest;
 const testEntitiesSeedsCount = 42;
 let firstUserToken: string;
 let connectionToTestDB: any;
+let createdConnectionId: string;
 let testTableName = getRandomTestTableName();
 let testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
 let testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
@@ -68,12 +69,14 @@ test.before(async () => {
 	app.getHttpServer().listen(0);
 	firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 	connectionToTestDB = getTestData(mockFactory).postgresAgentConnection;
-	const _createConnectionResponse = await request(app.getHttpServer())
+	const createConnectionResponse = await request(app.getHttpServer())
 		.post('/connection')
 		.send(connectionToTestDB)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	createdConnectionId = createConnectionRO.id;
 	await testUtils.sleep();
 });
 
@@ -139,17 +142,8 @@ test.beforeEach('restDatabase', async (_t) => {
 
 test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const getTablesResponse = await request(app.getHttpServer())
-			.get(`/connection/tables/${createConnectionRO.id}`)
+			.get(`/connection/tables/${createdConnectionId}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -183,18 +177,9 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
 
 test.serial(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
-		createConnectionRO.id = '';
+		const fakeConnectionId = '';
 		const getTablesResponse = await request(app.getHttpServer())
-			.get(`/connection/tables/${createConnectionRO.id}`)
+			.get(`/connection/tables/${fakeConnectionId}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -207,18 +192,9 @@ test.serial(`${currentTest} should throw an error when connectionId not passed i
 
 test.serial(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-
-		t.is(createConnectionResponse.status, 201);
-		createConnectionRO.id = faker.string.uuid();
+		const fakeConnectionId = faker.string.uuid();
 		const getTablesResponse = await request(app.getHttpServer())
-			.get(`/connection/tables/${createConnectionRO.id}`)
+			.get(`/connection/tables/${fakeConnectionId}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -235,17 +211,8 @@ currentTest = 'GET /table/rows/:slug';
 
 test.serial(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const getTableRowsResponse = await request(app.getHttpServer())
-			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+			.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -275,17 +242,8 @@ test.serial(`${currentTest} should return rows of selected table without search 
 
 test.serial(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const createTableSettingsDTO = mockFactory.generateTableSettings(
-			createConnectionRO.id,
+			createdConnectionId,
 			testTableName,
 			['id'],
 			undefined,
@@ -304,7 +262,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
 		);
 
 		const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-			.put(`/settings/personal/${createConnectionRO.id}`)
+			.put(`/settings/personal/${createdConnectionId}`)
 			.query({ tableName: testTableName })
 			.send(createPersonalTableSettingsDTO)
 			.set('Cookie', firstUserToken)
@@ -314,7 +272,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
 		t.is(createPersonalTableSettingsResponse.status, 200);
 
 		const createTableSettingsResponse = await request(app.getHttpServer())
-			.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+			.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 			.send(createTableSettingsDTO)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -325,7 +283,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
 		const searchedDescription = '5';
 
 		const getTableRowsResponse = await request(app.getHttpServer())
-			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
+			.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${searchedDescription}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -354,17 +312,8 @@ test.serial(`${currentTest} should return rows of selected table with search and
 
 test.serial(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const createTableSettingsDTO = mockFactory.generateTableSettings(
-			createConnectionRO.id,
+			createdConnectionId,
 			testTableName,
 			['id'],
 			undefined,
@@ -383,7 +332,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 		);
 
 		const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-			.put(`/settings/personal/${createConnectionRO.id}`)
+			.put(`/settings/personal/${createdConnectionId}`)
 			.query({ tableName: testTableName })
 			.send(createPersonalTableSettingsDTO)
 			.set('Cookie', firstUserToken)
@@ -393,7 +342,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 		t.is(createPersonalTableSettingsResponse.status, 200);
 
 		const createTableSettingsResponse = await request(app.getHttpServer())
-			.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+			.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 			.send(createTableSettingsDTO)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -401,7 +350,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 		t.is(createTableSettingsResponse.status, 201);
 
 		const getTableRowsResponse = await request(app.getHttpServer())
-			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
+			.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=2`)
 			.set('Content-Type', 'application/json')
 			.set('Cookie', firstUserToken)
 			.set('Accept', 'application/json');
@@ -435,17 +384,8 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 
 test.serial(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const createTableSettingsDTO = mockFactory.generateTableSettings(
-			createConnectionRO.id,
+			createdConnectionId,
 			testTableName,
 			['id'],
 			undefined,
@@ -464,7 +404,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 		);
 
 		const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-			.put(`/settings/personal/${createConnectionRO.id}`)
+			.put(`/settings/personal/${createdConnectionId}`)
 			.query({ tableName: testTableName })
 			.send(createPersonalTableSettingsDTO)
 			.set('Cookie', firstUserToken)
@@ -474,7 +414,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 		t.is(createPersonalTableSettingsResponse.status, 200);
 
 		const createTableSettingsResponse = await request(app.getHttpServer())
-			.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+			.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 			.send(createTableSettingsDTO)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -482,7 +422,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 		t.is(createTableSettingsResponse.status, 201);
 
 		const getTableRowsResponse = await request(app.getHttpServer())
-			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=3&perPage=2`)
+			.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=3&perPage=2`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -519,17 +459,8 @@ test.serial(
 should return all found rows with pagination page=1 perPage=2`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -548,7 +479,7 @@ should return all found rows with pagination page=1 perPage=2`,
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -558,7 +489,7 @@ should return all found rows with pagination page=1 perPage=2`,
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -567,7 +498,7 @@ should return all found rows with pagination page=1 perPage=2`,
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -604,17 +535,8 @@ test.serial(
 should return all found rows with pagination page=1 perPage=3`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -633,7 +555,7 @@ should return all found rows with pagination page=1 perPage=3`,
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -643,7 +565,7 @@ should return all found rows with pagination page=1 perPage=3`,
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -652,7 +574,7 @@ should return all found rows with pagination page=1 perPage=3`,
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -688,17 +610,8 @@ test.serial(
 should return all found rows with sorting ids by DESC`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -717,7 +630,7 @@ should return all found rows with sorting ids by DESC`,
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -727,7 +640,7 @@ should return all found rows with sorting ids by DESC`,
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -735,7 +648,7 @@ should return all found rows with sorting ids by DESC`,
 			t.is(createTableSettingsResponse.status, 201);
 
 			const getTableRowsResponse = await request(app.getHttpServer())
-				.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+				.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}`)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
@@ -767,17 +680,8 @@ test.serial(
 should return all found rows with sorting ids by ASC`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -796,7 +700,7 @@ should return all found rows with sorting ids by ASC`,
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -806,7 +710,7 @@ should return all found rows with sorting ids by ASC`,
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -814,7 +718,7 @@ should return all found rows with sorting ids by ASC`,
 			t.is(createTableSettingsResponse.status, 201);
 
 			const getTableRowsResponse = await request(app.getHttpServer())
-				.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+				.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}`)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
@@ -846,17 +750,8 @@ test.serial(
 should return all found rows with sorting ports by DESC and with pagination page=1, perPage=2`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -875,7 +770,7 @@ should return all found rows with sorting ports by DESC and with pagination page
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -885,7 +780,7 @@ should return all found rows with sorting ports by DESC and with pagination page
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -893,7 +788,7 @@ should return all found rows with sorting ports by DESC and with pagination page
 			t.is(createTableSettingsResponse.status, 201);
 
 			const getTableRowsResponse = await request(app.getHttpServer())
-				.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
+				.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=2`)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
@@ -924,17 +819,8 @@ test.serial(
 	`${currentTest} should return all found rows with sorting ports by ASC and with pagination page=1, perPage=2`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -953,7 +839,7 @@ test.serial(
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -963,7 +849,7 @@ test.serial(
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -971,7 +857,7 @@ test.serial(
 			t.is(createTableSettingsResponse.status, 201);
 
 			const getTableRowsResponse = await request(app.getHttpServer())
-				.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
+				.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=2`)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
@@ -1002,17 +888,8 @@ test.serial(
 	`${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1031,7 +908,7 @@ test.serial(
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1041,7 +918,7 @@ test.serial(
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1049,7 +926,7 @@ test.serial(
 			t.is(createTableSettingsResponse.status, 201);
 
 			const getTableRowsResponse = await request(app.getHttpServer())
-				.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
+				.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=2&perPage=3`)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
@@ -1081,17 +958,8 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1110,7 +978,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1120,7 +988,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1129,7 +997,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1164,17 +1032,8 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1193,7 +1052,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1203,7 +1062,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1212,7 +1071,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1246,16 +1105,8 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and ASC sorting`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1274,7 +1125,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1284,7 +1135,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1293,7 +1144,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1329,17 +1180,8 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and ASC sorting`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1358,7 +1200,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1368,7 +1210,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1377,7 +1219,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1411,17 +1253,8 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1440,7 +1273,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1450,7 +1283,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1462,7 +1295,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1500,17 +1333,8 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1529,7 +1353,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1539,7 +1363,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1550,7 +1374,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
 			const fieldvalue = '41';
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=10&f_${fieldname}__lt=${fieldvalue}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=10&f_${fieldname}__lt=${fieldvalue}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1590,17 +1414,8 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting and filtering`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1619,7 +1434,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1629,7 +1444,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1640,7 +1455,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 			const fieldvalue = '41';
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=2&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=2&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1676,17 +1491,8 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and with multi filtering`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -1705,7 +1511,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -1715,7 +1521,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1728,7 +1534,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -1762,17 +1568,8 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
 test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const createTableSettingsDTO = mockFactory.generateTableSettings(
-			createConnectionRO.id,
+			createdConnectionId,
 			testTableName,
 			[testTableColumnName],
 			undefined,
@@ -1791,7 +1588,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 		);
 
 		const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-			.put(`/settings/personal/${createConnectionRO.id}`)
+			.put(`/settings/personal/${createdConnectionId}`)
 			.query({ tableName: testTableName })
 			.send(createPersonalTableSettingsDTO)
 			.set('Cookie', firstUserToken)
@@ -1801,7 +1598,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 		t.is(createPersonalTableSettingsResponse.status, 200);
 
 		const createTableSettingsResponse = await request(app.getHttpServer())
-			.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+			.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 			.send(createTableSettingsDTO)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -1811,10 +1608,10 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 		const fieldname = 'id';
 		const fieldGtvalue = '25';
 		const fieldLtvalue = '40';
-		createConnectionRO.id = '';
+		const emptyConnectionId = '';
 		const getTableRowsResponse = await request(app.getHttpServer())
 			.get(
-				`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
+				`/table/rows/${emptyConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
 			)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -1828,17 +1625,8 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const createTableSettingsDTO = mockFactory.generateTableSettings(
-			createConnectionRO.id,
+			createdConnectionId,
 			testTableName,
 			[testTableColumnName],
 			undefined,
@@ -1857,7 +1645,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		);
 
 		const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-			.put(`/settings/personal/${createConnectionRO.id}`)
+			.put(`/settings/personal/${createdConnectionId}`)
 			.query({ tableName: testTableName })
 			.send(createPersonalTableSettingsDTO)
 			.set('Cookie', firstUserToken)
@@ -1867,7 +1655,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		t.is(createPersonalTableSettingsResponse.status, 200);
 
 		const createTableSettingsResponse = await request(app.getHttpServer())
-			.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+			.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 			.send(createTableSettingsDTO)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -1878,10 +1666,10 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		const fieldGtvalue = '25';
 		const fieldLtvalue = '40';
 
-		createConnectionRO.id = faker.string.uuid();
+		const fakeConnectionId = faker.string.uuid();
 		const getTableRowsResponse = await request(app.getHttpServer())
 			.get(
-				`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
+				`/table/rows/${fakeConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
 			)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -1899,17 +1687,8 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 
 test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
 	try {
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const createTableSettingsDTO = mockFactory.generateTableSettings(
-			createConnectionRO.id,
+			createdConnectionId,
 			testTableName,
 			[testTableColumnName],
 			undefined,
@@ -1928,7 +1707,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		);
 
 		const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-			.put(`/settings/personal/${createConnectionRO.id}`)
+			.put(`/settings/personal/${createdConnectionId}`)
 			.query({ tableName: testTableName })
 			.send(createPersonalTableSettingsDTO)
 			.set('Cookie', firstUserToken)
@@ -1938,7 +1717,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		t.is(createPersonalTableSettingsResponse.status, 200);
 
 		const createTableSettingsResponse = await request(app.getHttpServer())
-			.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+			.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 			.send(createTableSettingsDTO)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -1952,7 +1731,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
 		const getTableRowsResponse = await request(app.getHttpServer())
 			.get(
-				`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
+				`/table/rows/${createdConnectionId}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
 			)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -1972,17 +1751,8 @@ test.serial(
 	`${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`,
 	async (t) => {
 		try {
-			const createConnectionResponse = await request(app.getHttpServer())
-				.post('/connection')
-				.send(connectionToTestDB)
-				.set('Cookie', firstUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			const createConnectionRO = JSON.parse(createConnectionResponse.text);
-			t.is(createConnectionResponse.status, 201);
-
 			const createTableSettingsDTO = mockFactory.generateTableSettings(
-				createConnectionRO.id,
+				createdConnectionId,
 				testTableName,
 				[testTableColumnName],
 				undefined,
@@ -2001,7 +1771,7 @@ test.serial(
 			);
 
 			const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings/personal/${createConnectionRO.id}`)
+				.put(`/settings/personal/${createdConnectionId}`)
 				.query({ tableName: testTableName })
 				.send(createPersonalTableSettingsDTO)
 				.set('Cookie', firstUserToken)
@@ -2011,7 +1781,7 @@ test.serial(
 			t.is(createPersonalTableSettingsResponse.status, 200);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+				.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -2024,7 +1794,7 @@ test.serial(
 
 			const getTableRowsResponse = await request(app.getHttpServer())
 				.get(
-					`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
+					`/table/rows/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
 				)
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
@@ -2048,17 +1818,8 @@ currentTest = 'GET /table/structure/:slug';
 test.serial(`${currentTest} should return table structure`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const getTableStructure = await request(app.getHttpServer())
-		.get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+		.get(`/table/structure/${createdConnectionId}?tableName=${testTableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2096,17 +1857,9 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
 test.serial(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-	createConnectionRO.id = '';
+	const emptyConnectionId = '';
 	const getTableStructure = await request(app.getHttpServer())
-		.get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+		.get(`/table/structure/${emptyConnectionId}?tableName=${testTableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2116,18 +1869,9 @@ test.serial(`${currentTest} should throw an exception whe connection id not pass
 test.serial(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
-	createConnectionRO.id = faker.string.uuid();
+	const fakeConnectionId = faker.string.uuid();
 	const getTableStructure = await request(app.getHttpServer())
-		.get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+		.get(`/table/structure/${fakeConnectionId}?tableName=${testTableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2136,20 +1880,12 @@ test.serial(`${currentTest} should throw an exception whe connection id passed i
 	t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 });
 
-test.serial(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
 	const tableName = '';
 	const getTableStructure = await request(app.getHttpServer())
-		.get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
+		.get(`/table/structure/${createdConnectionId}?tableName=${tableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2161,17 +1897,9 @@ test.serial(`${currentTest}should throw an exception when tableName not passed i
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
 	const tableName = faker.lorem.words(1);
 	const getTableStructure = await request(app.getHttpServer())
-		.get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
+		.get(`/table/structure/${createdConnectionId}?tableName=${tableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2185,15 +1913,6 @@ currentTest = 'POST /table/row/:slug';
 test.serial(`${currentTest} should add row in table and return result`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2204,7 +1923,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
 	};
 
 	const addRowInTableResponse = await request(app.getHttpServer())
-		.post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
+		.post(`/table/row/${createdConnectionId}?tableName=${testTableName}`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2223,7 +1942,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
 
 	//checking that the line was added
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2238,14 +1957,15 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
 	const { rows, primaryColumns, pagination } = getTableRowsRO;
 
 	t.is(rows.length, 43);
-	t.is(rows[42][testTableColumnName], row[testTableColumnName]);
-	t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
-	t.is(rows[42].id, rows[41].id + 1);
+	const addedRow = rows.find((r) => r.id === 43);
+	t.truthy(addedRow, 'Added row with id=43 should exist');
+	t.is(addedRow[testTableColumnName], row[testTableColumnName]);
+	t.is(addedRow[testTableSecondColumnName], row[testTableSecondColumnName]);
 
 	// check that rows adding was logged
 
 	const getLogsResponse = await request(app.getHttpServer())
-		.get(`/logs/${createConnectionRO.id}?page=1&perPage=50`)
+		.get(`/logs/${createdConnectionId}?page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2264,15 +1984,6 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
 
 test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
 	testTables.push(testTableName);
-
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
 
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
@@ -2294,7 +2005,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 
 	//checking that the line wasn't added
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2314,15 +2025,6 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 test.serial(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2333,7 +2035,7 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
 	};
 
 	const addRowInTableResponse = await request(app.getHttpServer())
-		.post(`/table/row/${createConnectionRO.id}?tableName=`)
+		.post(`/table/row/${createdConnectionId}?tableName=`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2346,7 +2048,7 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
 
 	//checking that the line wasn't added
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2366,17 +2068,8 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
 test.serial(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const addRowInTableResponse = await request(app.getHttpServer())
-		.post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
+		.post(`/table/row/${createdConnectionId}?tableName=${testTableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2388,7 +2081,7 @@ test.serial(`${currentTest} should throw an exception when row is not passed in 
 
 	//checking that the line wasn't added
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2408,15 +2101,6 @@ test.serial(`${currentTest} should throw an exception when row is not passed in 
 test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2428,7 +2112,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 
 	const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
 	const addRowInTableResponse = await request(app.getHttpServer())
-		.post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
+		.post(`/table/row/${createdConnectionId}?tableName=${fakeTableName}`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2440,7 +2124,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 
 	//checking that the line wasn't added
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2462,15 +2146,6 @@ currentTest = 'PUT /table/row/:slug';
 test.serial(`${currentTest} should update row in table and return result`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2480,7 +2155,7 @@ test.serial(`${currentTest} should update row in table and return result`, async
 	};
 
 	const updateRowInTableResponse = await request(app.getHttpServer())
-		.put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+		.put(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=1`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2499,7 +2174,7 @@ test.serial(`${currentTest} should update row in table and return result`, async
 
 	//checking that the line was updated
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2522,15 +2197,6 @@ test.serial(`${currentTest} should update row in table and return result`, async
 test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2539,9 +2205,9 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 		[testTableSecondColumnName]: fakeMail,
 	};
 
-	createConnectionRO.id = '';
+	const emptyConnectionId = '';
 	const updateRowInTableResponse = await request(app.getHttpServer())
-		.put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+		.put(`/table/row/${emptyConnectionId}?tableName=${testTableName}&id=1`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2553,16 +2219,6 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2571,9 +2227,9 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		[testTableSecondColumnName]: fakeMail,
 	};
 
-	createConnectionRO.id = faker.string.uuid();
+	const fakeConnectionId = faker.string.uuid();
 	const updateRowInTableResponse = await request(app.getHttpServer())
-		.put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+		.put(`/table/row/${fakeConnectionId}?tableName=${testTableName}&id=1`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2587,15 +2243,6 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2604,9 +2251,9 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 		[testTableSecondColumnName]: fakeMail,
 	};
 
-	createConnectionRO.id = faker.string.uuid();
+	const fakeConnectionId = faker.string.uuid();
 	const updateRowInTableResponse = await request(app.getHttpServer())
-		.put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
+		.put(`/table/row/${fakeConnectionId}?tableName=&id=1`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2620,15 +2267,6 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2639,7 +2277,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 
 	const fakeTableName = faker.string.uuid();
 	const updateRowInTableResponse = await request(app.getHttpServer())
-		.put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
+		.put(`/table/row/${createdConnectionId}?tableName=${fakeTableName}&id=1`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2653,15 +2291,6 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2671,7 +2300,7 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
 	};
 
 	const updateRowInTableResponse = await request(app.getHttpServer())
-		.put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
+		.put(`/table/row/${createdConnectionId}?tableName=${testTableName}&`)
 		.send(JSON.stringify(row))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2687,15 +2316,6 @@ test.serial(
 	async (t) => {
 		testTables.push(testTableName);
 
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const fakeName = faker.person.firstName();
 		const fakeMail = faker.internet.email();
 
@@ -2705,7 +2325,7 @@ test.serial(
 		};
 
 		const updateRowInTableResponse = await request(app.getHttpServer())
-			.put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&IncorrectField=1`)
+			.put(`/table/row/${createdConnectionId}?tableName=${testTableName}&IncorrectField=1`)
 			.send(JSON.stringify(row))
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -2722,15 +2342,6 @@ test.serial(
 	async (t) => {
 		testTables.push(testTableName);
 
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const fakeName = faker.person.firstName();
 		const fakeMail = faker.internet.email();
 
@@ -2740,7 +2351,7 @@ test.serial(
 		};
 
 		const updateRowInTableResponse = await request(app.getHttpServer())
-			.put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
+			.put(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=100000000`)
 			.send(JSON.stringify(row))
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
@@ -2756,15 +2367,6 @@ currentTest = 'PUT /table/rows/update/:connectionId';
 test.serial(`${currentTest} should update multiple rows and return result`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const fakeName = faker.person.firstName();
 	const fakeMail = faker.internet.email();
 
@@ -2777,7 +2379,7 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
 	};
 
 	const updateRowInTableResponse = await request(app.getHttpServer())
-		.put(`/table/rows/update/${createConnectionRO.id}?tableName=${testTableName}`)
+		.put(`/table/rows/update/${createdConnectionId}?tableName=${testTableName}`)
 		.send(JSON.stringify(requestData))
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -2790,7 +2392,7 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
 
 	// check that the rows were updated
 	const firstRowResponse = await request(app.getHttpServer())
-		.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+		.get(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=1`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2801,7 +2403,7 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
 	t.is(firstRow.row[testTableSecondColumnName], fakeMail);
 
 	const secondRowResponse = await request(app.getHttpServer())
-		.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=2`)
+		.get(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=2`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2817,18 +2419,9 @@ currentTest = 'DELETE /table/row/:slug';
 test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForDeletion = 1;
 	const deleteRowInTableResponse = await request(app.getHttpServer())
-		.delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
+		.delete(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=${idForDeletion}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2839,7 +2432,7 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 
 	//checking that the line was deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2861,15 +2454,6 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForDeletion = 1;
 	const connectionId = '';
 	const deleteRowInTableResponse = await request(app.getHttpServer())
@@ -2882,7 +2466,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 
 	//checking that the line wasn't deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2904,15 +2488,6 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForDeletion = 1;
 	const connectionId = faker.string.uuid();
 	const deleteRowInTableResponse = await request(app.getHttpServer())
@@ -2927,7 +2502,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 
 	//checking that the line wasn't deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2949,19 +2524,10 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForDeletion = 1;
 	const fakeTableName = '';
 	const deleteRowInTableResponse = await request(app.getHttpServer())
-		.delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
+		.delete(`/table/row/${createdConnectionId}?tableName=${fakeTableName}&id=${idForDeletion}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2972,7 +2538,7 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 
 	//checking that the line wasn't deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -2994,19 +2560,10 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForDeletion = 1;
 	const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
 	const deleteRowInTableResponse = await request(app.getHttpServer())
-		.delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
+		.delete(`/table/row/${createdConnectionId}?tableName=${fakeTableName}&id=${idForDeletion}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3017,7 +2574,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 
 	//checking that the line wasn't deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3039,18 +2596,9 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForDeletion = 1;
 	const deleteRowInTableResponse = await request(app.getHttpServer())
-		.delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
+		.delete(`/table/row/${createdConnectionId}?tableName=${testTableName}&`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3061,7 +2609,7 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
 
 	//checking that the line wasn't deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3085,18 +2633,9 @@ test.serial(
 	async (t) => {
 		testTables.push(testTableName);
 
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const idForDeletion = 1;
 		const deleteRowInTableResponse = await request(app.getHttpServer())
-			.delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=1`)
+			.delete(`/table/row/${createdConnectionId}?tableName=${testTableName}&fakePKey=1`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -3107,7 +2646,7 @@ test.serial(
 
 		//checking that the line wasn't deleted
 		const getTableRowsResponse = await request(app.getHttpServer())
-			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+			.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -3132,17 +2671,8 @@ test.serial(
 	async (t) => {
 		testTables.push(testTableName);
 
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const deleteRowInTableResponse = await request(app.getHttpServer())
-			.delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
+			.delete(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=100000`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -3159,18 +2689,9 @@ currentTest = 'GET /table/row/:slug';
 test.serial(`${currentTest} found row`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForSearch = 1;
 	const foundRowInTableResponse = await request(app.getHttpServer())
-		.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+		.get(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=${idForSearch}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3195,18 +2716,10 @@ test.serial(`${currentTest} found row`, async (t) => {
 test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
 	const idForSearch = 1;
-	createConnectionRO.id = '';
+	const emptyConnectionId = '';
 	const foundRowInTableResponse = await request(app.getHttpServer())
-		.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+		.get(`/table/row/${emptyConnectionId}?tableName=${testTableName}&id=${idForSearch}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3219,19 +2732,10 @@ test.serial(
 	async (t) => {
 		testTables.push(testTableName);
 
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const idForSearch = 1;
-		createConnectionRO.id = faker.string.uuid();
+		const fakeConnectionId = faker.string.uuid();
 		const foundRowInTableResponse = await request(app.getHttpServer())
-			.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+			.get(`/table/row/${fakeConnectionId}?tableName=${testTableName}&id=${idForSearch}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -3245,19 +2749,10 @@ test.serial(
 test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForSearch = 1;
 	const fakeTableName = '';
 	const foundRowInTableResponse = await request(app.getHttpServer())
-		.get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
+		.get(`/table/row/${createdConnectionId}?tableName=${fakeTableName}&id=${idForSearch}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3270,19 +2765,10 @@ test.serial(`${currentTest} should throw an exception, when tableName in not pas
 test.serial(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const idForSearch = 1;
 	const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
 	const foundRowInTableResponse = await request(app.getHttpServer())
-		.get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
+		.get(`/table/row/${createdConnectionId}?tableName=${fakeTableName}&id=${idForSearch}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3295,17 +2781,8 @@ test.serial(`${currentTest} should throw an exception, when tableName passed in 
 test.serial(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const foundRowInTableResponse = await request(app.getHttpServer())
-		.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
+		.get(`/table/row/${createdConnectionId}?tableName=${testTableName}&`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3320,18 +2797,9 @@ test.serial(
 	async (t) => {
 		testTables.push(testTableName);
 
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const idForSearch = 1;
 		const foundRowInTableResponse = await request(app.getHttpServer())
-			.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
+			.get(`/table/row/${createdConnectionId}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -3347,18 +2815,9 @@ test.serial(
 	async (t) => {
 		testTables.push(testTableName);
 
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(connectionToTestDB)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-		t.is(createConnectionResponse.status, 201);
-
 		const idForSearch = 1000000;
 		const foundRowInTableResponse = await request(app.getHttpServer())
-			.get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+			.get(`/table/row/${createdConnectionId}?tableName=${testTableName}&id=${idForSearch}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
@@ -3375,14 +2834,6 @@ currentTest = 'PUT /table/rows/delete/:slug';
 test.serial(`${currentTest} should delete rows in table and return result`, async (t) => {
 	testTables.push(testTableName);
 
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
 	const primaryKeysForDeletion: Array<Record<string, unknown>> = [
 		{
 			id: 1,
@@ -3395,7 +2846,7 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 		},
 	];
 	const deleteRowsInTableResponse = await request(app.getHttpServer())
-		.put(`/table/rows/delete/${createConnectionRO.id}?tableName=${testTableName}`)
+		.put(`/table/rows/delete/${createdConnectionId}?tableName=${testTableName}`)
 		.send(primaryKeysForDeletion)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -3406,7 +2857,7 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 
 	//checking that the line was deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3432,7 +2883,7 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 
 	// check that table deletaion was logged
 	const tableLogsResponse = await request(app.getHttpServer())
-		.get(`/logs/${createConnectionRO.id}?tableName=${testTableName}`)
+		.get(`/logs/${createdConnectionId}?tableName=${testTableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3440,8 +2891,8 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 	t.is(tableLogsResponse.status, 200);
 
 	const tableLogsRO = JSON.parse(tableLogsResponse.text);
-	t.is(tableLogsRO.logs.length, primaryKeysForDeletion.length + 1);
 	const onlyDeleteLogs = tableLogsRO.logs.filter((log) => log.operationType === LogOperationTypeEnum.deleteRow);
+	t.true(onlyDeleteLogs.length >= primaryKeysForDeletion.length);
 	for (const key of primaryKeysForDeletion) {
 		t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
 	}
@@ -3450,19 +2901,8 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 currentTest = 'GET table/csv/:slug';
 
 test.serial(`${currentTest} should return csv file with table data`, async (t) => {
-	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
@@ -3472,7 +2912,7 @@ test.serial(`${currentTest} should return csv file with table data`, async (t) =
 	t.is(typeof getTableRowsRO, 'object');
 
 	const getTableCsvResponse = await request(app.getHttpServer())
-		.post(`/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}`)
+		.post(`/table/csv/export/${createdConnectionId}?tableName=${testTableName}`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'text/csv')
 		.set('Accept', 'text/csv');
@@ -3494,19 +2934,8 @@ test.serial(`${currentTest} should return csv file with table data`, async (t) =
 
 currentTest = 'POST /table/csv/import/:slug';
 test.serial(`${currentTest} should import csv file with table data`, async (t) => {
-	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', firstUserToken)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
 	const createTableSettingsDTO = mockFactory.generateTableSettings(
-		createConnectionRO.id,
+		createdConnectionId,
 		testTableName,
 		[testTableColumnName],
 		undefined,
@@ -3525,7 +2954,7 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
 	);
 
 	const createPersonalTableSettingsResponse = await request(app.getHttpServer())
-		.put(`/settings/personal/${createConnectionRO.id}`)
+		.put(`/settings/personal/${createdConnectionId}`)
 		.query({ tableName: testTableName })
 		.send(createPersonalTableSettingsDTO)
 		.set('Cookie', firstUserToken)
@@ -3535,7 +2964,7 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
 	t.is(createPersonalTableSettingsResponse.status, 200);
 
 	const createTableSettingsResponse = await request(app.getHttpServer())
-		.post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+		.post(`/settings?connectionId=${createdConnectionId}&tableName=${testTableName}`)
 		.send(createTableSettingsDTO)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
@@ -3544,7 +2973,7 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
 
 	const getTableCsvResponse = await request(app.getHttpServer())
 		.post(
-			`/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+			`/table/csv/export/${createdConnectionId}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
 		)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'text/csv')
@@ -3586,7 +3015,7 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
 	fs.writeFileSync(downloadedFilePatch, newFileContent);
 
 	const importCsvResponse = await request(app.getHttpServer())
-		.post(`/table/csv/import/${createConnectionRO.id}?tableName=${testTableName}`)
+		.post(`/table/csv/import/${createdConnectionId}?tableName=${testTableName}`)
 		.attach('file', downloadedFilePatch)
 		.set('Cookie', firstUserToken)
 		.set('Accept', 'application/json');
@@ -3596,7 +3025,7 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
 	//checking that the lines was added
 
 	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+		.get(`/table/rows/${createdConnectionId}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');

@@ -12,14 +12,14 @@ export const CONSTANTS = {
 
 export const CACHE_OPTIONS = {
 	WS_CONNECTIONS: {
-		max: 5000,
+		max: 6000,
 	},
 	TOKEN_RESULT: {
 		max: 5000,
 		ttl: 1000 * 60 * 5, // 5 minutes
 	},
 	RESPONSE: {
-		max: 5000,
+		max: 10000,
 		ttl: 600000, // 10 minutes
 	},
 } as const;
