@@ -21,918 +21,955 @@ import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
 import PQueue from 'p-queue';
 import {
-  formatOracleDate,
-  isMSSQLDateOrTimeType,
-  isMSSQLDateStringByRegexp,
-  isMySQLDateStringByRegexp,
-  isMySqlDateOrTimeType,
-  isOracleDateStringByRegexp,
-  isPostgresDateOrTimeType,
-  isPostgresDateStringByRegexp,
+	formatOracleDate,
+	isMSSQLDateOrTimeType,
+	isMSSQLDateStringByRegexp,
+	isMySQLDateStringByRegexp,
+	isMySqlDateOrTimeType,
+	isOracleDateStringByRegexp,
+	isPostgresDateOrTimeType,
+	isPostgresDateStringByRegexp,
 } from '../../helpers/is-database-date.js';
 import { ConnectionTypesEnum } from '../../shared/enums/connection-types-enum.js';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
-  private readonly connection: ConnectionAgentParams;
-  private readonly serverAddress: string = process.env.LOCAL_WS_SERVER_ADDRESS || `http://autoadmin-ws.local:8008/`;
-  constructor(connection: ConnectionAgentParams) {
-    this.connection = connection;
-  }
-
-  public async addRowInTable(
-    tableName: string,
-    row: Record<string, unknown>,
-    userEmail: string,
-  ): Promise<number | Record<string, unknown>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.addRowInTable,
-          tableName,
-          row,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async deleteRowInTable(
-    tableName: string,
-    primaryKey: Record<string, unknown>,
-    userEmail: string,
-  ): Promise<Record<string, unknown>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.deleteRowInTable,
-          tableName,
-          primaryKey,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: (string | number)[],
-    userEmail: string,
-  ): Promise<Array<Record<string, unknown>>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getIdentityColumns,
-          tableName,
-          referencedFieldName,
-          identityColumnName,
-          fieldValues,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getRowByPrimaryKey(
-    tableName: string,
-    primaryKey: Record<string, unknown>,
-    settings: TableSettingsDS,
-    userEmail: string,
-  ): Promise<Record<string, unknown>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getRowByPrimaryKey,
-          tableName,
-          primaryKey,
-          tableSettings: settings,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        if (Array.isArray(commandResult)) {
-          return commandResult[0];
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async bulkGetRowsFromTableByPrimaryKeys(
-    tableName: string,
-    primaryKeys: Array<Record<string, unknown>>,
-    settings: TableSettingsDS,
-    userEmail: string,
-  ): Promise<Array<Record<string, unknown>>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.bulkGetRowsFromTableByPrimaryKeys,
-          tableName,
-          primaryKey: primaryKeys,
-          tableSettings: settings,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getRowsFromTable(
-    tableName: string,
-    settings: TableSettingsDS,
-    page: number,
-    perPage: number,
-    searchedFieldValue: string,
-    filteringFields: FilteringFieldsDS[],
-    autocompleteFields: AutocompleteFieldsDS,
-    tableStructure: TableStructureDS[] | null,
-    userEmail: string,
-  ): Promise<FoundRowsDS> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getRowsFromTable,
-          tableName,
-          tableSettings: settings,
-          page,
-          perPage,
-          searchedFieldValue,
-          filteringFields,
-          autocompleteFields,
-          email: userEmail,
-          tableStructure,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getTableForeignKeys(tableName: string, userEmail: string): Promise<ForeignKeyDS[]> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    const cachedForeignKeys = LRUStorage.getTableForeignKeysCache(this.connection, tableName);
-    if (cachedForeignKeys) {
-      return cachedForeignKeys;
-    }
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getTableForeignKeys,
-          tableName,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        LRUStorage.setTableForeignKeysCache(this.connection, tableName, commandResult);
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<PrimaryKeyDS[]> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    const cachedPrimaryColumns = LRUStorage.getTablePrimaryKeysCache(this.connection, tableName);
-    if (cachedPrimaryColumns) {
-      return cachedPrimaryColumns;
-    }
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getTablePrimaryColumns,
-          tableName,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, commandResult);
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getTablesFromDB(userEmail: string): Promise<TableDS[]> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getTablesFromDB,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getTableStructure(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
-    if (cachedTableStructure) {
-      return cachedTableStructure;
-    }
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getTableStructure,
-          tableName,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        LRUStorage.setTableStructureCache(this.connection, tableName, commandResult);
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async testConnect(userEmail: string = 'unknown'): Promise<TestConnectionResultDS> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.testConnect,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async updateRowInTable(
-    tableName: string,
-    row: Record<string, unknown>,
-    primaryKey: Record<string, unknown>,
-    userEmail: string,
-  ): Promise<Record<string, unknown>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.updateRowInTable,
-          tableName,
-          row,
-          primaryKey,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async bulkUpdateRowsInTable(
-    tableName: string,
-    newValues: Record<string, unknown>,
-    primaryKeys: Array<Record<string, unknown>>,
-    userEmail: string,
-  ): Promise<Array<Record<string, unknown>>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.bulkUpdateRowsInTable,
-          tableName,
-          row: newValues,
-          primaryKey: primaryKeys,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async bulkDeleteRowsInTable(
-    tableName: string,
-    primaryKeys: Array<Record<string, unknown>>,
-    userEmail: string,
-  ): Promise<number> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.bulkDeleteRowsInTable,
-          tableName,
-          primaryKey: primaryKeys,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async validateSettings(
-    settings: ValidateTableSettingsDS,
-    tableName: string,
-    userEmail: string,
-  ): Promise<string[]> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.validateSettings,
-          tableName,
-          tableSettings: settings,
-          email: userEmail,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getReferencedTableNamesAndColumns(
-    tableName: string,
-    userEmail: string,
-  ): Promise<ReferencedTableNamesAndColumnsDS[]> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
-          email: userEmail,
-          tableName,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async isView(tableName: string, userEmail: string): Promise<boolean> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.isView,
-          email: userEmail,
-          tableName,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (commandResult === null || commandResult === undefined) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async getTableRowsStream(
-    tableName: string,
-    settings: TableSettingsDS,
-    page: number,
-    perPage: number,
-    searchedFieldValue: string,
-    filteringFields: Array<FilteringFieldsDS>,
-  ): Promise<Stream & AsyncIterable<never>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.getRowsAsStream,
-          tableName,
-          tableSettings: settings,
-          page,
-          perPage,
-          searchedFieldValue,
-          filteringFields,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult?.data;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const stream = new Readable();
-        stream.push(file.buffer);
-        stream.push(null);
-        const parser = stream.pipe(csv.parse({ columns: true }));
-        const rows: any[] = [];
-        for await (const record of parser) {
-          rows.push(record);
-        }
-        const rowsWithProcessedDates = await this.processTimeColumnsInRows(rows, tableName, userEmail);
-        const queue = new PQueue({ concurrency: 3 });
-        await Promise.all(
-          rowsWithProcessedDates.map(async (row) => {
-            return await queue.add(async () => {
-              return await this.addRowInTable(tableName, row, userEmail);
-            });
-          }),
-        );
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  public async executeRawQuery(
-    query: string,
-    tableName: string,
-    userEmail: string,
-  ): Promise<Array<Record<string, unknown>>> {
-    const jwtAuthToken = this.generateJWT(this.connection.token);
-    axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
-    return this.executeWithRetry(async () => {
-      try {
-        const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
-          operationType: DataAccessObjectCommandsEnum.executeRawQuery,
-          query,
-          email: userEmail,
-          tableName,
-        });
-
-        if (commandResult instanceof Error) {
-          throw new Error(commandResult.message);
-        }
-
-        if (!commandResult) {
-          throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-        }
-
-        return commandResult?.data;
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          this.checkIsErrorLocalAndThrowException(e);
-          throw new Error(e.response?.data);
-        }
-        throw e;
-      }
-    });
-  }
-
-  private generateJWT(connectionToken: string): string {
-    const exp = new Date();
-    exp.setDate(exp.getDate() + 60);
-    const secret = process.env.JWT_SECRET;
-    return jwt.sign(
-      {
-        token: connectionToken,
-        exp: Math.floor(exp.getTime() / 1000),
-      },
-      secret,
-    );
-  }
-
-  private async executeWithRetry<T>(operationFunction: () => Promise<T>, maxRetries: number = 1): Promise<T> {
-    let lastError: Error;
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        return await operationFunction();
-      } catch (e) {
-        lastError = e as Error;
-        if (e instanceof Error && e.message === ERROR_MESSAGES.CLIENT_NOT_CONNECTED && attempt < maxRetries) {
-          console.log(`Retry attempt ${attempt + 1} due to: ${e.message}`);
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          continue;
-        }
-        throw e;
-      }
-    }
-
-    throw lastError;
-  }
-
-  private checkIsErrorLocalAndThrowException(
-    e: Error & { code?: string; hostname?: string; response?: { data?: string } },
-  ): void {
-    if (e?.message === ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT) {
-      throw new Error(e.message);
-    }
-    if (e?.code?.toLowerCase() === 'enotfound' && e?.hostname === 'autoadmin-ws.local') {
-      throw new Error(ERROR_MESSAGES.CANT_CONNECT_AUTOADMIN_WS);
-    }
-    if (e?.response?.data === 'Client is not connected' || e?.response?.data === ERROR_MESSAGES.CLIENT_NOT_CONNECTED) {
-      throw new Error(ERROR_MESSAGES.CLIENT_NOT_CONNECTED);
-    }
-  }
-
-  private async processTimeColumnsInRows(
-    rows: Array<Record<string, unknown>>,
-    tableName: string,
-    userEmail: string,
-  ): Promise<Array<Record<string, unknown>>> {
-    const tableStructure = await this.getTableStructure(tableName, userEmail);
-    switch (this.connection.type) {
-      case ConnectionTypesEnum.agent_postgres: {
-        const timestampColumnNamesPg = tableStructure
-          .filter((column) => {
-            return isPostgresDateOrTimeType(column.data_type);
-          })
-          .map((column) => {
-            return column.column_name;
-          });
-        return this.processPostgresDateColumnsInRows(rows, timestampColumnNamesPg);
-      }
-
-      case ConnectionTypesEnum.agent_mysql: {
-        const timestampColumnNamesMySQL = tableStructure
-          .filter((column) => {
-            return isMySqlDateOrTimeType(column.data_type);
-          })
-          .map((column) => {
-            return column.column_name;
-          });
-        return this.processMySQLDateColumnsInRows(rows, timestampColumnNamesMySQL);
-      }
-
-      case ConnectionTypesEnum.agent_mssql: {
-        const timestampColumnNamesMSSQL = tableStructure
-          .filter((column) => {
-            return isMSSQLDateOrTimeType(column.data_type);
-          })
-          .map((column) => {
-            return column.column_name;
-          });
-        return this.processMSSQLDateColumnsInRows(rows, timestampColumnNamesMSSQL);
-      }
-
-      case ConnectionTypesEnum.agent_oracledb: {
-        const timestampColumnNamesOracle = tableStructure
-          .filter((column) => {
-            return isOracleDateStringByRegexp(column.data_type);
-          })
-          .map((column) => {
-            return column.column_name;
-          });
-        return this.processOracleDateColumnsInRows(rows, timestampColumnNamesOracle);
-      }
-      default:
-        return rows;
-    }
-  }
-
-  private processOracleDateColumnsInRows(
-    rows: Array<Record<string, any>>,
-    timestampColumnNames: Array<string>,
-  ): Array<Record<string, unknown>> {
-    for (const row of rows) {
-      for (const column of timestampColumnNames) {
-        if (row[column] && !isOracleDateStringByRegexp(row[column])) {
-          const date = new Date(Number(row[column]));
-          row[column] = formatOracleDate(date);
-        }
-      }
-    }
-    return rows;
-  }
-
-  private processMySQLDateColumnsInRows(
-    rows: Array<Record<string, any>>,
-    timestampColumnNames: Array<string>,
-  ): Array<Record<string, unknown>> {
-    for (const row of rows) {
-      for (const column of timestampColumnNames) {
-        if (row[column] && !isMySQLDateStringByRegexp(row[column])) {
-          let dateStr = row[column];
-          if (dateStr.endsWith('Z')) {
-            dateStr = dateStr.slice(0, -1);
-          }
-          const date = new Date(dateStr);
-          const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
-          row[column] = formattedDate;
-        }
-      }
-    }
-    return rows;
-  }
-
-  private processMSSQLDateColumnsInRows(rows: Array<Record<string, any>>, timestampColumnNames: Array<string>) {
-    for (const row of rows) {
-      for (const column of timestampColumnNames) {
-        if (row[column] && !isMSSQLDateStringByRegexp(row[column])) {
-          const date = new Date(Number(row[column]));
-          row[column] = date.toISOString();
-        }
-      }
-    }
-    return rows;
-  }
-
-  private processPostgresDateColumnsInRows(
-    rows: Array<Record<string, any>>,
-    timestampColumnNames: Array<string>,
-  ): Array<Record<string, unknown>> {
-    for (const row of rows) {
-      for (const column of timestampColumnNames) {
-        try {
-          if (row[column] && !isPostgresDateStringByRegexp(row[column])) {
-            const date = new Date(Number(row[column]));
-            row[column] = date.toISOString();
-          }
-        } catch (_error) {
-        }
-      }
-    }
-    return rows;
-  }
+	private readonly connection: ConnectionAgentParams;
+	private readonly serverAddress: string = process.env.LOCAL_WS_SERVER_ADDRESS || `http://autoadmin-ws.local:8008/`;
+	constructor(connection: ConnectionAgentParams) {
+		this.connection = connection;
+	}
+
+	public async addRowInTable(
+		tableName: string,
+		row: Record<string, unknown>,
+		userEmail: string,
+	): Promise<number | Record<string, unknown>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.addRowInTable,
+					tableName,
+					row,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async deleteRowInTable(
+		tableName: string,
+		primaryKey: Record<string, unknown>,
+		userEmail: string,
+	): Promise<Record<string, unknown>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.deleteRowInTable,
+					tableName,
+					primaryKey,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getIdentityColumns(
+		tableName: string,
+		referencedFieldName: string,
+		identityColumnName: string,
+		fieldValues: (string | number)[],
+		userEmail: string,
+	): Promise<Array<Record<string, unknown>>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getIdentityColumns,
+					tableName,
+					referencedFieldName,
+					identityColumnName,
+					fieldValues,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getRowByPrimaryKey(
+		tableName: string,
+		primaryKey: Record<string, unknown>,
+		settings: TableSettingsDS,
+		userEmail: string,
+	): Promise<Record<string, unknown>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getRowByPrimaryKey,
+					tableName,
+					primaryKey,
+					tableSettings: settings,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				if (Array.isArray(commandResult)) {
+					return commandResult[0];
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async bulkGetRowsFromTableByPrimaryKeys(
+		tableName: string,
+		primaryKeys: Array<Record<string, unknown>>,
+		settings: TableSettingsDS,
+		userEmail: string,
+	): Promise<Array<Record<string, unknown>>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.bulkGetRowsFromTableByPrimaryKeys,
+					tableName,
+					primaryKey: primaryKeys,
+					tableSettings: settings,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getRowsFromTable(
+		tableName: string,
+		settings: TableSettingsDS,
+		page: number,
+		perPage: number,
+		searchedFieldValue: string,
+		filteringFields: FilteringFieldsDS[],
+		autocompleteFields: AutocompleteFieldsDS,
+		tableStructure: TableStructureDS[] | null,
+		userEmail: string,
+	): Promise<FoundRowsDS> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getRowsFromTable,
+					tableName,
+					tableSettings: settings,
+					page,
+					perPage,
+					searchedFieldValue,
+					filteringFields,
+					autocompleteFields,
+					email: userEmail,
+					tableStructure,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getTableForeignKeys(tableName: string, userEmail: string): Promise<ForeignKeyDS[]> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		const cachedForeignKeys = LRUStorage.getTableForeignKeysCache(this.connection, tableName);
+		if (cachedForeignKeys) {
+			return cachedForeignKeys;
+		}
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getTableForeignKeys,
+					tableName,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				LRUStorage.setTableForeignKeysCache(this.connection, tableName, commandResult);
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<PrimaryKeyDS[]> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		const cachedPrimaryColumns = LRUStorage.getTablePrimaryKeysCache(this.connection, tableName);
+		if (cachedPrimaryColumns) {
+			return cachedPrimaryColumns;
+		}
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getTablePrimaryColumns,
+					tableName,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, commandResult);
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getTablesFromDB(userEmail: string): Promise<TableDS[]> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getTablesFromDB,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getTableStructure(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
+		if (cachedTableStructure) {
+			return cachedTableStructure;
+		}
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getTableStructure,
+					tableName,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				LRUStorage.setTableStructureCache(this.connection, tableName, commandResult);
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async testConnect(userEmail: string = 'unknown'): Promise<TestConnectionResultDS> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.testConnect,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async updateRowInTable(
+		tableName: string,
+		row: Record<string, unknown>,
+		primaryKey: Record<string, unknown>,
+		userEmail: string,
+	): Promise<Record<string, unknown>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.updateRowInTable,
+					tableName,
+					row,
+					primaryKey,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async bulkUpdateRowsInTable(
+		tableName: string,
+		newValues: Record<string, unknown>,
+		primaryKeys: Array<Record<string, unknown>>,
+		userEmail: string,
+	): Promise<Array<Record<string, unknown>>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.bulkUpdateRowsInTable,
+					tableName,
+					row: newValues,
+					primaryKey: primaryKeys,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async bulkDeleteRowsInTable(
+		tableName: string,
+		primaryKeys: Array<Record<string, unknown>>,
+		userEmail: string,
+	): Promise<number> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.bulkDeleteRowsInTable,
+					tableName,
+					primaryKey: primaryKeys,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async validateSettings(
+		settings: ValidateTableSettingsDS,
+		tableName: string,
+		userEmail: string,
+	): Promise<string[]> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.validateSettings,
+					tableName,
+					tableSettings: settings,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getReferencedTableNamesAndColumns(
+		tableName: string,
+		userEmail: string,
+	): Promise<ReferencedTableNamesAndColumnsDS[]> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
+					email: userEmail,
+					tableName,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async isView(tableName: string, userEmail: string): Promise<boolean> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.isView,
+					email: userEmail,
+					tableName,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (commandResult === null || commandResult === undefined) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async getTableRowsStream(
+		tableName: string,
+		settings: TableSettingsDS,
+		page: number,
+		perPage: number,
+		searchedFieldValue: string,
+		filteringFields: Array<FilteringFieldsDS>,
+	): Promise<Stream & AsyncIterable<never>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getRowsAsStream,
+					tableName,
+					tableSettings: settings,
+					page,
+					perPage,
+					searchedFieldValue,
+					filteringFields,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult?.data;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const stream = new Readable();
+				stream.push(file.buffer);
+				stream.push(null);
+				const parser = stream.pipe(csv.parse({ columns: true }));
+				const rows: any[] = [];
+				for await (const record of parser) {
+					rows.push(record);
+				}
+				const rowsWithProcessedDates = await this.processTimeColumnsInRows(rows, tableName, userEmail);
+				const queue = new PQueue({ concurrency: 3 });
+				await Promise.all(
+					rowsWithProcessedDates.map(async (row) => {
+						return await queue.add(async () => {
+							return await this.addRowInTable(tableName, row, userEmail);
+						});
+					}),
+				);
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	public async executeRawQuery(
+		query: string,
+		tableName: string,
+		userEmail: string,
+	): Promise<Array<Record<string, unknown>>> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.executeRawQuery,
+					query,
+					email: userEmail,
+					tableName,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				return commandResult?.data;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
+	private generateJWT(connectionToken: string): string {
+		const exp = new Date();
+		exp.setDate(exp.getDate() + 60);
+		const secret = process.env.JWT_SECRET;
+		return jwt.sign(
+			{
+				token: connectionToken,
+				exp: Math.floor(exp.getTime() / 1000),
+			},
+			secret,
+		);
+	}
+
+	private async executeWithRetry<T>(operationFunction: () => Promise<T>, maxRetries: number = 1): Promise<T> {
+		let lastError: Error;
+		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+			try {
+				return await operationFunction();
+			} catch (e) {
+				lastError = e as Error;
+				if (e instanceof Error && e.message === ERROR_MESSAGES.CLIENT_NOT_CONNECTED && attempt < maxRetries) {
+					console.log(`Retry attempt ${attempt + 1} due to: ${e.message}`);
+					await new Promise((resolve) => setTimeout(resolve, 500));
+					continue;
+				}
+				throw e;
+			}
+		}
+
+		throw lastError;
+	}
+
+	private checkIsErrorLocalAndThrowException(
+		e: Error & { code?: string; hostname?: string; response?: { data?: string | { error?: string }; status?: number } },
+	): void {
+		if (e?.message === ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT) {
+			throw new Error(e.message);
+		}
+		if (e?.code?.toLowerCase() === 'enotfound' && e?.hostname === 'autoadmin-ws.local') {
+			throw new Error(ERROR_MESSAGES.CANT_CONNECT_AUTOADMIN_WS);
+		}
+
+		const errorMessage = this.extractAxiosErrorMessage(e);
+
+		if (errorMessage === 'Client is not connected' || errorMessage === ERROR_MESSAGES.CLIENT_NOT_CONNECTED) {
+			throw new Error(ERROR_MESSAGES.CLIENT_NOT_CONNECTED);
+		}
+
+		if (errorMessage) {
+			throw new Error(errorMessage);
+		}
+
+		const status = e?.response?.status;
+		if (status) {
+			throw new Error(`Request failed with status ${status}: ${e.message}`);
+		}
+	}
+
+	private extractAxiosErrorMessage(
+		e: Error & { response?: { data?: string | { error?: string; message?: string }; status?: number } },
+	): string {
+		const responseData = e?.response?.data;
+
+		if (typeof responseData === 'string') {
+			return responseData;
+		}
+
+		if (typeof responseData === 'object' && responseData !== null) {
+			if ('error' in responseData && typeof responseData.error === 'string') {
+				return responseData.error;
+			}
+			if ('message' in responseData && typeof responseData.message === 'string') {
+				return responseData.message;
+			}
+		}
+
+		// Fallback to axios error message or status
+		if (e?.response?.status) {
+			return `Request failed with status ${e.response.status}`;
+		}
+
+		return e?.message || 'Unknown error occurred';
+	}
+
+	private async processTimeColumnsInRows(
+		rows: Array<Record<string, unknown>>,
+		tableName: string,
+		userEmail: string,
+	): Promise<Array<Record<string, unknown>>> {
+		const tableStructure = await this.getTableStructure(tableName, userEmail);
+		switch (this.connection.type) {
+			case ConnectionTypesEnum.agent_postgres: {
+				const timestampColumnNamesPg = tableStructure
+					.filter((column) => {
+						return isPostgresDateOrTimeType(column.data_type);
+					})
+					.map((column) => {
+						return column.column_name;
+					});
+				return this.processPostgresDateColumnsInRows(rows, timestampColumnNamesPg);
+			}
+
+			case ConnectionTypesEnum.agent_mysql: {
+				const timestampColumnNamesMySQL = tableStructure
+					.filter((column) => {
+						return isMySqlDateOrTimeType(column.data_type);
+					})
+					.map((column) => {
+						return column.column_name;
+					});
+				return this.processMySQLDateColumnsInRows(rows, timestampColumnNamesMySQL);
+			}
+
+			case ConnectionTypesEnum.agent_mssql: {
+				const timestampColumnNamesMSSQL = tableStructure
+					.filter((column) => {
+						return isMSSQLDateOrTimeType(column.data_type);
+					})
+					.map((column) => {
+						return column.column_name;
+					});
+				return this.processMSSQLDateColumnsInRows(rows, timestampColumnNamesMSSQL);
+			}
+
+			case ConnectionTypesEnum.agent_oracledb: {
+				const timestampColumnNamesOracle = tableStructure
+					.filter((column) => {
+						return isOracleDateStringByRegexp(column.data_type);
+					})
+					.map((column) => {
+						return column.column_name;
+					});
+				return this.processOracleDateColumnsInRows(rows, timestampColumnNamesOracle);
+			}
+			default:
+				return rows;
+		}
+	}
+
+	private processOracleDateColumnsInRows(
+		rows: Array<Record<string, any>>,
+		timestampColumnNames: Array<string>,
+	): Array<Record<string, unknown>> {
+		for (const row of rows) {
+			for (const column of timestampColumnNames) {
+				if (row[column] && !isOracleDateStringByRegexp(row[column])) {
+					const date = new Date(Number(row[column]));
+					row[column] = formatOracleDate(date);
+				}
+			}
+		}
+		return rows;
+	}
+
+	private processMySQLDateColumnsInRows(
+		rows: Array<Record<string, any>>,
+		timestampColumnNames: Array<string>,
+	): Array<Record<string, unknown>> {
+		for (const row of rows) {
+			for (const column of timestampColumnNames) {
+				if (row[column] && !isMySQLDateStringByRegexp(row[column])) {
+					let dateStr = row[column];
+					if (dateStr.endsWith('Z')) {
+						dateStr = dateStr.slice(0, -1);
+					}
+					const date = new Date(dateStr);
+					const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+					row[column] = formattedDate;
+				}
+			}
+		}
+		return rows;
+	}
+
+	private processMSSQLDateColumnsInRows(rows: Array<Record<string, any>>, timestampColumnNames: Array<string>) {
+		for (const row of rows) {
+			for (const column of timestampColumnNames) {
+				if (row[column] && !isMSSQLDateStringByRegexp(row[column])) {
+					const date = new Date(Number(row[column]));
+					row[column] = date.toISOString();
+				}
+			}
+		}
+		return rows;
+	}
+
+	private processPostgresDateColumnsInRows(
+		rows: Array<Record<string, any>>,
+		timestampColumnNames: Array<string>,
+	): Array<Record<string, unknown>> {
+		for (const row of rows) {
+			for (const column of timestampColumnNames) {
+				try {
+					if (row[column] && !isPostgresDateStringByRegexp(row[column])) {
+						const date = new Date(Number(row[column]));
+						row[column] = date.toISOString();
+					}
+				} catch (_error) {}
+			}
+		}
+		return rows;
+	}
 }
