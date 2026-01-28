@@ -69,6 +69,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
   public selectedFilterSetId: string | null = null;
   public selectedFilter: any = null;
   public shouldAutofocus: boolean = false;
+  public currentFilterForMenu: any = null;
 
   public tableStructure: any = null;
   public tableRowFieldsShown: { [key: string]: any } = {};
@@ -264,6 +265,29 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
     // when 'filters set updated' is received
   }
 
+  setCurrentFilter(filter: any) {
+    this.currentFilterForMenu = filter;
+  }
+
+  handleEditFilter(filter: any) {
+    if (filter) {
+      this.handleOpenSavedFiltersDialog(filter);
+    }
+  }
+
+  handleDeleteFilter(filter: any) {
+    if (filter) {
+      this._tables.deleteSavedFilter(this.connectionID, this.selectedTableName, filter.id).subscribe({
+        next: () => {
+          // The deletion will trigger 'delete saved filters' event which will refresh the list
+        },
+        error: (error) => {
+          console.error('Error deleting filter:', error);
+        }
+      });
+    }
+  }
+
   getFilterEntries(filters: any): { column: string; operator: string; value: string }[] {
     if (!filters) return [];
 
@@ -369,6 +393,22 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 
   selectFilter(entry: { column: string; operator: string; value: any }) {
     this.selectedFilter = entry;
+  }
+
+  getOperatorIcon(operator: string): string {
+    const iconMap: { [key: string]: string } = {
+      'startswith': 'play_arrow',
+      'endswith': 'play_arrow',
+      'eq': 'drag_handle',
+      'contains': 'search',
+      'icontains': 'block',
+      'empty': 'space_bar',
+      'gt': 'keyboard_arrow_right',
+      'lt': 'keyboard_arrow_left',
+      'gte': 'keyboard_double_arrow_right',
+      'lte': 'keyboard_double_arrow_left'
+    };
+    return iconMap[operator] || 'drag_handle';
   }
 
   getFilter(activeFilter: {column: string, operator: string, value: any}) {

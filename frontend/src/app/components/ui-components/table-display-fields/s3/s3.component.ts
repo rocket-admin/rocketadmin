@@ -78,22 +78,23 @@ export class S3DisplayComponent extends BaseTableDisplayFieldComponent implement
 		}
 	}
 
-	private _loadPreview(): void {
+	private async _loadPreview(): Promise<void> {
 		const primaryKey = this.rowPrimaryKey;
 		if (!this.value || !this.connectionId || !this.tableName || !primaryKey) return;
 
 		this.isLoading = true;
 
-		this.s3Service
-			.getFileUrl(this.connectionId, this.tableName, this.widgetStructure.field_name, primaryKey)
-			.subscribe({
-				next: (response) => {
-					this.previewUrl = response.url;
-					this.isLoading = false;
-				},
-				error: () => {
-					this.isLoading = false;
-				},
-			});
+		const response = await this.s3Service.getFileUrl(
+			this.connectionId,
+			this.tableName,
+			this.widgetStructure.field_name,
+			primaryKey,
+		);
+
+		if (response) {
+			this.previewUrl = response.url;
+		}
+
+		this.isLoading = false;
 	}
 }

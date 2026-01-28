@@ -1,4 +1,6 @@
 <span class="field-value">
-  <span *ngIf="showFlag && languageFlag" class="language-flag">{{ languageFlag }}</span>
-  <span class="field-view-value">{{ languageName }}</span>
+  @if (showFlag() && languageFlag()) {
+    <span class="language-flag">{{ languageFlag() }}</span>
+  }
+  <span class="field-view-value">{{ languageName() }}</span>
 </span>
