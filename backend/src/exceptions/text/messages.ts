@@ -13,6 +13,7 @@ import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 export const Messages = {
+	API_KEY_SUSPENDED: 'API key is suspended',
 	AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',
 	AI_THREAD_NOT_FOUND: 'Thread with specified parameters not found',
 	ACCOUNT_SUSPENDED:
