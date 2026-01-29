@@ -366,47 +366,49 @@
 
 @media (prefers-color-scheme: dark) {
 	::ng-deep .static-filter-chip .mat-mdc-chip {
-		--mdc-chip-container-color: #E8ECEE !important;
-		--mdc-chip-elevated-container-color: #E8ECEE !important;
-		background-color: #E8ECEE !important;
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		--mdc-chip-label-text-color: rgba(255, 255, 255, 0.87) !important;
+		background-color: #3a4a5c !important;
+		color: rgba(255, 255, 255, 0.87) !important;
 	}
 
 	::ng-deep .static-filter-chip .mat-mdc-chip:hover {
-		--mdc-chip-container-color: #E8ECEE !important;
-		--mdc-chip-elevated-container-color: #E8ECEE !important;
-		background-color: #E8ECEE !important;
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		background-color: #3a4a5c !important;
 	}
 
 	::ng-deep .static-filter-chip .mat-mdc-chip:active {
-		--mdc-chip-container-color: #E8ECEE !important;
-		--mdc-chip-elevated-container-color: #E8ECEE !important;
-		background-color: #E8ECEE !important;
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		background-color: #3a4a5c !important;
 	}
 
 	::ng-deep .static-filter-chip .mdc-evolution-chip__cell {
-		background-color: #E8ECEE !important;
+		background-color: #3a4a5c !important;
 	}
 
 	::ng-deep .static-filter-chip .mdc-evolution-chip__cell:hover {
-		background-color: #E8ECEE !important;
+		background-color: #3a4a5c !important;
 	}
 
 	::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon {
-		--mdc-chip-container-color: #E8ECEE !important;
-		--mdc-chip-elevated-container-color: #E8ECEE !important;
-		background-color: #E8ECEE !important;
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		background-color: #3a4a5c !important;
 	}
 
 	::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:hover {
-		--mdc-chip-container-color: #E8ECEE !important;
-		--mdc-chip-elevated-container-color: #E8ECEE !important;
-		background-color: #E8ECEE !important;
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		background-color: #3a4a5c !important;
 	}
 
 	::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:active {
-		--mdc-chip-container-color: #E8ECEE !important;
-		--mdc-chip-elevated-container-color: #E8ECEE !important;
-		background-color: #E8ECEE !important;
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		background-color: #3a4a5c !important;
 	}
 }
 
