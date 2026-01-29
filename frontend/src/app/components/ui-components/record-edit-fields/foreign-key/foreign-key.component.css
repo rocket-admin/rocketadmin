@@ -1,55 +1,54 @@
 .full-width {
-    position: relative;
-    width: 100%;
+	position: relative;
+	width: 100%;
 }
 
 .loader {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+	position: absolute;
+	top: 12px;
+	right: 12px;
 }
 
 .disabled {
-    pointer-events: none;
+	pointer-events: none;
 }
 
 .foreign-key {
-    display: grid;
-    grid-template-columns: 1fr 36px;
+	display: grid;
+	grid-template-columns: 1fr 36px;
 }
 
 .foreign-key ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-    margin-bottom: 16px;
+	margin-bottom: 16px;
 }
 
 .foreign-key ::ng-deep .mat-mdc-form-field-hint-wrapper {
-    padding-right: 0;
-    width: calc(100% + 8px);
+	padding-right: 0;
+	width: calc(100% + 8px);
 }
 
 @media screen and (width <= 600px) {
-    .foreign-key ::ng-deep .mat-mdc-form-field-subscript-wrapper{
-        margin-bottom: 24px;
-    }
+	.foreign-key ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+		margin-bottom: 24px;
+	}
 
-    .foreign-key ::ng-deep .mat-mdc-form-field-bottom-align::before {
-        margin-left: 0;
-    }
-
+	.foreign-key ::ng-deep .mat-mdc-form-field-bottom-align::before {
+		margin-left: 0;
+	}
 }
 
 .hint-link {
-    color: var(--color-accentedPalette-500);
+	color: var(--ra-accent-text);
 }
 
 .foreign-key__link {
-    display: flex;
-    /* align-items: center; */
-    justify-content: flex-end;
-    color: inherit;
+	display: flex;
+	/* align-items: center; */
+	justify-content: flex-end;
+	color: inherit;
 }
 
 .foreign-key__link-icon {
-    margin-left: auto;
-    margin-top: 12px;
+	margin-left: auto;
+	margin-top: 12px;
 }

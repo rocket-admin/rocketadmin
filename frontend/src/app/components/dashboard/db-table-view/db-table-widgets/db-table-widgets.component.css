@@ -96,7 +96,7 @@
 }
 
 .examples-arrow {
-	color: var(--color-accentedPalette-500);
+	color: var(--ra-accent-text);
 	margin: 0 auto 12px;
 }
 

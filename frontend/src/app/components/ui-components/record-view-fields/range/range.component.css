@@ -7,7 +7,7 @@
 
 .range-value-label {
 	font-size: 14px;
-	color: rgba(0, 0, 0, 0.87);
+	color: var(--ra-text);
 	font-weight: 500;
 }
 
@@ -25,7 +25,7 @@
 /* Light theme progress bar styles */
 .range-progress-bar {
 	--mat-progress-bar-active-indicator-color: var(--color-accentedPalette-300);
-	--mat-progress-bar-track-color: #e0e0e0;
+	--mat-progress-bar-track-color: var(--ra-border);
 	--mat-progress-bar-active-indicator-height: 8px;
 	--mat-progress-bar-track-height: 8px;
 }
@@ -53,10 +53,6 @@
 
 /* Dark theme styles */
 @media (prefers-color-scheme: dark) {
-	.range-value-label {
-		color: rgba(255, 255, 255, 0.87);
-	}
-
 	.range-progress-bar {
 		--mat-progress-bar-active-indicator-color: var(--color-accentedPalette-700);
 		--mat-progress-bar-track-color: rgba(255, 255, 255, 0.12);

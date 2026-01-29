@@ -35,7 +35,7 @@
 }
 
 .registrationTitle__emphasis {
-	color: var(--color-accentedPalette-500);
+	color: var(--ra-accent-text);
 }
 
 .register-form-box {
@@ -162,7 +162,7 @@
 }
 
 .link {
-	color: var(--color-accentedPalette-500);
+	color: var(--ra-accent-text);
 }
 
 .register-form__github-button {

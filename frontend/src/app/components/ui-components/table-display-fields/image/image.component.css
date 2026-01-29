@@ -1,10 +1,10 @@
 .field-value {
-  font-style: italic;
-  color: #666;
+	font-style: italic;
+	color: var(--ra-text-muted);
 }
 
 .image-thumbnail {
-    display: block;
-    height: var(--height);
-    margin: 12px 0;
+	display: block;
+	height: var(--height);
+	margin: 12px 0;
 }

@@ -61,10 +61,21 @@ html {
   }
 
   body .mat-mdc-flat-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
-    --mat-mdc-button-persistent-ripple-color: var(--color-accentedPalette-500-contrast) !important;
-    --mat-button-protected-label-text-color: var(--color-accentedPalette-500-contrast) !important;
-    --mat-button-filled-label-text-color: var(--color-accentedPalette-500-contrast) !important;
+    --mdc-filled-button-container-color: var(--color-primaryPalette-500) !important;
+    --mat-button-filled-container-color: var(--color-primaryPalette-500) !important;
+    --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
+    --mat-button-protected-label-text-color: var(--color-primaryPalette-500-contrast) !important;
+    --mat-button-filled-label-text-color: var(--color-primaryPalette-500-contrast) !important;
     --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  body .mat-mdc-outlined-button.mat-accent {
+    --mdc-outlined-button-label-text-color: var(--color-primaryPalette-500) !important;
+    --mdc-outlined-button-outline-color: var(--color-primaryPalette-500) !important;
+  }
+
+  body .mat-mdc-button.mat-accent {
+    --mdc-text-button-label-text-color: var(--color-primaryPalette-500) !important;
   }
 
   body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {

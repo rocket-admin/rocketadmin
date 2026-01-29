@@ -1,36 +1,36 @@
 .foreign-key-button {
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  color: var(--color-accentedPalette-500);
-  cursor: pointer;
-  font-size: inherit;
-  padding: 2px 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  max-width: 100%;
-  transition: background 100ms, border-color 100ms;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 12px;
+	color: var(--ra-accent-text);
+	cursor: pointer;
+	font-size: inherit;
+	padding: 2px 8px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
+	max-width: 100%;
+	transition:
+		background 100ms,
+		border-color 100ms;
 }
 
 @media (prefers-color-scheme: dark) {
-  .foreign-key-button:hover{
-    background-color: var(--color-accentedPalette-900);
-    border: 1px solid var(--color-accentedPalette-700);
-  }
+	.foreign-key-button:hover {
+		background-color: var(--color-accentedPalette-900);
+		border: 1px solid var(--color-accentedPalette-700);
+	}
 }
 
 @media (prefers-color-scheme: light) {
-  .foreign-key-button:hover{
-    background-color: var(--color-accentedPalette-100);
-    border: 1px solid var(--color-accentedPalette-300);
-  }
+	.foreign-key-button:hover {
+		background-color: var(--color-accentedPalette-100);
+		border: 1px solid var(--color-accentedPalette-300);
+	}
 }
 
 .foreign-key-button_selected {
-  background-color: var(--color-accentedPalette-100);
-  border-radius: 12px;
-  border: 1px solid var(--color-accentedPalette-300);
+	background-color: var(--color-accentedPalette-100);
+	border-radius: 12px;
+	border: 1px solid var(--color-accentedPalette-300);
 }
-
-

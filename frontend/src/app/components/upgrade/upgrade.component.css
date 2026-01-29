@@ -141,7 +141,7 @@
 
 @media (prefers-color-scheme: light) {
 	.users__value {
-		--color-value: #333;
+		--color-value: var(--ra-text);
 	}
 }
 

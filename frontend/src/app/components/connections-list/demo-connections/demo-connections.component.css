@@ -75,7 +75,7 @@
 	}
 
 	.testConnectionLink:hover .connection__goIcon {
-		color: var(--color-accentedPalette-500);
+		color: var(--ra-accent-text);
 	}
 }
 

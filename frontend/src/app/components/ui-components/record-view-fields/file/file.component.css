@@ -1,4 +1,4 @@
 .field-value {
-  font-style: italic;
-  color: #666;
+	font-style: italic;
+	color: var(--ra-text-muted);
 }

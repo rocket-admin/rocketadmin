@@ -1,6 +1,6 @@
 .field-value {
 	font-style: italic;
-	color: #666;
+	color: var(--ra-text-muted);
 }
 
 .s3-thumbnail {

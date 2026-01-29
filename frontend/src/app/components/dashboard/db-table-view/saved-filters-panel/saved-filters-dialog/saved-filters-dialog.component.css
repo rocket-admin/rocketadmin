@@ -66,7 +66,7 @@
 }
 
 .add-condition-button.accent-button {
-	color: var(--color-accentedPalette-500);
+	color: var(--ra-accent-text);
 }
 
 .add-condition-button.accent-button:hover {
@@ -397,7 +397,7 @@
 
 .conditions-error-message {
 	grid-column: 1 / span 6;
-	color: #f44336;
+	color: var(--color-warnPalette-500);
 	font-size: 12px;
 	margin: 8px 0 0 0;
 	padding-left: 16px;

@@ -87,7 +87,7 @@
 }
 
 .loginTitle__emphasis {
-	color: var(--color-accentedPalette-500);
+	color: var(--ra-accent-text);
 }
 
 @media (width <= 600px) {
@@ -246,7 +246,7 @@
 .login-form__link {
 	grid-column: 1 / span 3;
 	grid-row: 6;
-	color: var(--color-accentedPalette-500);
+	color: var(--ra-accent-text);
 	margin-top: 48px;
 	text-decoration: none;
 }

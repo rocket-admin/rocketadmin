@@ -77,7 +77,7 @@
 	position: absolute;
 	top: 44px;
 	left: 0;
-	color: #e53935;
+	color: var(--color-warnPalette-500);
 	font-size: 0.75em;
 	width: 100%;
 }

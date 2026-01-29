@@ -37,16 +37,16 @@
 }
 
 .alert_error {
-	--alert-theme-color: #b71c1c;
-	--alert-dark-theme-color: #e53935;
-	--alert-dark-theme-bg: rgba(229, 57, 53, 0.15);
+	--alert-theme-color: #dc2626;
+	--alert-dark-theme-color: #f87171;
+	--alert-dark-theme-bg: rgba(220, 38, 38, 0.15);
 	z-index: 2;
 }
 
 .alert_warning {
-	--alert-theme-color: #ff6f00;
-	--alert-dark-theme-color: #ff6f00;
-	--alert-dark-theme-bg: rgba(255, 236, 179, 0.15);
+	--alert-theme-color: #d97706;
+	--alert-dark-theme-color: #fbbf24;
+	--alert-dark-theme-bg: rgba(245, 158, 11, 0.15);
 }
 
 .alert_info {

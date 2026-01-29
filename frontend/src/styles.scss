@@ -4,17 +4,18 @@
 @media (prefers-color-scheme: light) {
     :root {
         --ra-bg: #FFFFFF;
-        --ra-surface: #F0F4FF;
+        --ra-surface: #F5F3F9;
         --ra-elevated: #FFFFFF;
-        --ra-border: #E2E8F0;
-        --ra-border-hover: #CBD5E1;
+        --ra-border: #E2DFE9;
+        --ra-border-hover: #C9C4D4;
         --ra-nav-bg: #110F18;
         --ra-nav-border: #2D2A3D;
         --ra-text: #1A1823;
-        --ra-text-muted: rgba(0, 0, 0, 0.5);
+        --ra-text-muted: #6B6580;
         --ra-skeleton-shimmer: #FFFFFF;
-        --ra-chip-bg: #E2E8F0;
-        --ra-divider: #E2E8F0;
+        --ra-chip-bg: #EDEBF2;
+        --ra-divider: #E2DFE9;
+        --ra-accent-text: var(--color-primaryPalette-500);
     }
 }
 
@@ -28,10 +29,11 @@
         --ra-nav-bg: #110F18;
         --ra-nav-border: #2D2A3D;
         --ra-text: #E8E4F0;
-        --ra-text-muted: rgba(255, 255, 255, 0.7);
+        --ra-text-muted: #A89FC4;
         --ra-skeleton-shimmer: #1A1823;
         --ra-chip-bg: #2D2A3D;
         --ra-divider: #2D2A3D;
+        --ra-accent-text: var(--color-accentedPalette-500);
     }
 }
 
