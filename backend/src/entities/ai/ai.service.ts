@@ -276,7 +276,10 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
   ]
 }
 
-IMPORTANT: For each widget, include appropriate widget_params based on the column name, type, and semantics. Use empty {} for widgets that don't need special configuration.`;
+IMPORTANT: 
+- For each widget, include appropriate widget_params based on the column name, type, and semantics. Use empty {} for widgets that don't need special configuration.
+- Output ONLY valid JSON. Do NOT include any comments (no // or /* */ comments) in the JSON output.
+- All widget_params must be valid JSON objects without any comments or explanatory text.`;
 	}
 
 	private parseAIResponse(aiResponse: string, tablesInformation: Array<TableInformation>): AIResponse {

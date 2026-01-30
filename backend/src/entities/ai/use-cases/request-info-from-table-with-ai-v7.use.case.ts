@@ -67,6 +67,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 		let chatIdForHeader: string | null = null;
 		let foundUserAiChat: UserAiChatEntity | null = null;
+		let isNewChat = false;
 
 		if (ai_thread_id) {
 			foundUserAiChat = await this._dbContext.userAiChatRepository.findChatByIdAndUserId(ai_thread_id, user_id);
@@ -78,6 +79,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 		if (!foundUserAiChat) {
 			foundUserAiChat = await this._dbContext.userAiChatRepository.createChatForUser(user_id);
 			chatIdForHeader = foundUserAiChat.id;
+			isNewChat = true;
 		}
 
 		if (chatIdForHeader) {
@@ -85,6 +87,12 @@ export class RequestInfoFromTableWithAIUseCaseV7
 		}
 
 		await this._dbContext.aiChatMessageRepository.saveMessage(foundUserAiChat.id, user_message, MessageRole.user);
+
+		if (isNewChat) {
+			this.generateAndUpdateChatName(foundUserAiChat.id, user_message).catch((error) => {
+				Sentry.captureException(error);
+			});
+		}
 
 		const messages = new MessageBuilder().system(systemPrompt).human(user_message).build();
 
@@ -337,5 +345,33 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			databaseType === ConnectionTypesEnum.mongodb || databaseType === ConnectionTypesEnum.agent_mongodb;
 
 		return { foundConnection, dataAccessObject, databaseType, isMongoDb, userEmail };
+	}
+
+	private async generateAndUpdateChatName(chatId: string, userMessage: string): Promise<void> {
+		try {
+			const CHAT_NAME_GENERATION_PROMPT = `Generate a very short, concise title (max 5-6 words) for a chat conversation based on the user's first question. 
+The title should capture the main topic or intent. 
+Respond ONLY with the title, no quotes, no explanation.
+User question: `;
+			const prompt = CHAT_NAME_GENERATION_PROMPT + userMessage;
+			const messages = new MessageBuilder().human(prompt).build();
+
+			let generatedName = '';
+			const stream = await this.aiCoreService.streamChatWithToolsAndProvider(this.aiProvider, messages, []);
+
+			for await (const chunk of stream) {
+				if (chunk.type === 'text' && chunk.content) {
+					generatedName += chunk.content;
+				}
+			}
+
+			generatedName = generatedName.trim().slice(0, 100);
+
+			if (generatedName) {
+				await this._dbContext.userAiChatRepository.updateChatName(chatId, generatedName);
+			}
+		} catch (error) {
+			Sentry.captureException(error);
+		}
 	}
 }
