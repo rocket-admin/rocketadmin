@@ -256,18 +256,18 @@
     width: 12px;
 } */
 
-.connection-name {
+/* .connection-name {
 	position: absolute;
 	top: 6px;
 	left: 8px;
 	max-width: calc((100vw - 980px) / 2);
 	overflow: hidden;
 	text-overflow: ellipsis;
-}
+} */
 
-.tab-icon {
+/* .tab-icon {
 	margin-right: 8px;
-}
+} */
 
 .main-menu-content {
 	flex-grow: 1;
@@ -288,6 +288,8 @@
 }
 
 .content {
+	--top-margin: 4em;
+
 	display: grid;
 	grid-template-rows: 0 100%;
 	height: 100%;

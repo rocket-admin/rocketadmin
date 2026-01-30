@@ -1,6 +1,10 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+}
+
 .connectPage {
-    padding-top: 16px;
-    padding-bottom: 20px;
+    margin-top: var(--top-margin);
+    margin-bottom: 4em;
 }
 
 .form {
@@ -80,6 +84,10 @@
 
 .warningMessage .mat-body-1 {
     margin-bottom: 0;
+}
+
+.connectForm__ipAlert {
+    --alert-margin: 0; 
 }
 
 .connectForm__title {

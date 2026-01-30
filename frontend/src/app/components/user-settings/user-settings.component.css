@@ -1,15 +1,11 @@
-:host > app-alert {
-    display: block;
-    position: sticky;
-    top: calc(var(--mat-toolbar-standard-height) + 24px);
-    margin: 24px 24px 0;
-    z-index: 2;
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
 }
 
 .page {
     display: flex;
     flex-direction: column;
-    margin: 3em auto;
+    margin: var(--top-margin) auto;
     max-width: 520px;
     min-width: 300px;
     width: 96%;

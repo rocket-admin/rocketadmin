@@ -1,6 +1,8 @@
 :host {
     position: sticky;
-    top: var(--mat-toolbar-standard-height);
+    top: calc(var(--mat-toolbar-standard-height) + 24px);
+    display: block;
+    margin: var(--alert-margin);
     z-index: 2;
 }
 
@@ -9,7 +11,6 @@
     gap: 8px;
     background-color: var(--bg-color);
     border-left: 12px solid var(--alert-theme-color);
-    margin-bottom: 8px;
     padding: 12px 16px 12px 8px;
 }
 
