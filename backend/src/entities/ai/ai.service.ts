@@ -312,7 +312,7 @@ IMPORTANT: For each widget, include appropriate widget_params based on the colum
 				.filter((w) => validColumnNames.includes(w.field_name))
 				.map((widgetData) => {
 					const widgetType = this.mapWidgetType(widgetData.widget_type);
-					if (widgetType === WidgetTypeEnum.Foreign_key) {
+					if (!widgetType || widgetType === WidgetTypeEnum.Foreign_key) {
 						return null;
 					}
 					const widget = new TableWidgetEntity();
