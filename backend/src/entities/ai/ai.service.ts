@@ -189,13 +189,18 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 			settings.table_widgets = tableSettings.widgets
 				.filter((w) => validColumnNames.includes(w.field_name))
 				.map((widgetData) => {
+					const widgetType = this.mapWidgetType(widgetData.widget_type);
+					if (widgetType === WidgetTypeEnum.Foreign_key) {
+						return null;
+					}
 					const widget = new TableWidgetEntity();
 					widget.field_name = widgetData.field_name;
-					widget.widget_type = this.mapWidgetType(widgetData.widget_type);
+					widget.widget_type = widgetType;
 					widget.name = widgetData.name;
 					widget.description = widgetData.description;
 					return widget;
-				});
+				})
+				.filter((w): w is TableWidgetEntity => w !== null);
 
 			return settings;
 		});
@@ -225,7 +230,6 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 			['Number', WidgetTypeEnum.Number],
 			['Select', WidgetTypeEnum.Select],
 			['UUID', WidgetTypeEnum.UUID],
-			['Enum', WidgetTypeEnum.Enum],
 			['Foreign_key', WidgetTypeEnum.Foreign_key],
 			['File', WidgetTypeEnum.File],
 			['Image', WidgetTypeEnum.Image],
