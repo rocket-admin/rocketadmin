@@ -30,6 +30,6 @@ export class UserAiChatRO {
 }
 
 export class UserAiChatWithMessagesRO extends UserAiChatRO {
-	@ApiProperty({ type: [AiChatMessageRO], description: 'List of messages in the chat' })
+	@ApiProperty({ type: AiChatMessageRO, isArray: true, description: 'List of messages in the chat' })
 	messages: AiChatMessageRO[];
 }
