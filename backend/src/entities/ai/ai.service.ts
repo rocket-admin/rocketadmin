@@ -7,6 +7,36 @@ import { TableInformation } from './ai-data-entities/types/ai-module-types.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
 
+interface AIGeneratedWidgetParams {
+	options?: Array<{ value: string; label: string; background_color?: string }>;
+	allow_null?: boolean;
+	unit?: string;
+	threshold_min?: number;
+	threshold_max?: number;
+	height?: number;
+	prefix?: string;
+	encrypt?: boolean;
+	algorithm?: string;
+	min?: number;
+	max?: number;
+	step?: number;
+	formatDistanceWithinHours?: number;
+	language?: string;
+	rows?: number;
+	invert_colors?: boolean;
+	validate?: string;
+	regex?: string;
+	type?: string;
+	format?: string;
+	show_flag?: boolean;
+	preferred_countries?: string[];
+	enable_placeholder?: boolean;
+	phone_validation?: boolean;
+	version?: string;
+	namespace?: string;
+	name?: string;
+}
+
 interface AIGeneratedTableSettings {
 	table_name: string;
 	display_name: string;
@@ -18,6 +48,7 @@ interface AIGeneratedTableSettings {
 	widgets: Array<{
 		field_name: string;
 		widget_type: string;
+		widget_params?: AIGeneratedWidgetParams;
 		name: string;
 		description: string;
 	}>;
@@ -106,29 +137,96 @@ For each table, provide:
 7. widgets: For each column, suggest the best widget type from: ${widgetTypes}
 
 Available widget types and when to use them:
-- Password: for password fields
-- Boolean: for boolean/bit columns
-- Date: for date columns
-- Time: for time-only columns
-- DateTime: for datetime/timestamp columns
-- JSON: for JSON/JSONB columns
-- Textarea: for long text fields (description, content, etc.)
-- String: for short text fields (name, title, etc.)
-- Readonly: for auto-generated fields
-- Number: for numeric columns
-- Select: for columns with limited options
-- UUID: for UUID columns
-- Enum: for enum columns
-- Foreign_key: for foreign key columns
-- File: for file path columns
-- Image: for image URL columns
-- URL: for URL columns
-- Code: for code snippets
-- Phone: for phone number columns
-- Country: for country columns
-- Color: for color columns (hex values)
-- Range: for range values
-- Timezone: for timezone columns
+
+PASSWORD WIDGET:
+- Use for: password, secret, hash columns
+- REQUIRED params: {"encrypt": true, "algorithm": "bcrypt"}
+- Algorithms: sha1, sha3, sha224, sha256, sha512, sha384, bcrypt (recommended), scrypt, argon2, pbkdf2
+- Detect existing hash by pattern:
+  * bcrypt: starts with "$2a$", "$2b$", or "$2y$" (60 chars)
+  * argon2: starts with "$argon2"
+  * scrypt: starts with "$scrypt$"
+  * pbkdf2: starts with "$pbkdf2"
+  * sha1: 40 hex characters
+  * sha256: 64 hex characters (most common)
+  * sha512: 128 hex characters
+
+BOOLEAN WIDGET:
+- Use for: boolean, bit, tinyint(1) columns, is_*, has_*, can_* columns
+- Params: {"allow_null": false, "invert_colors": false}
+
+DATE/TIME WIDGETS:
+- Date: for date columns (params: {"formatDistanceWithinHours": 24} - shows "2 hours ago" for recent)
+- Time: for time-only columns (no params needed)
+- DateTime: for datetime/timestamp columns (params: {"formatDistanceWithinHours": 24})
+
+TEXT WIDGETS:
+- String: for short text (name, title, email) - params: {"validate": "isEmail"} for email validation
+  Validators: isEmail, isURL, isUUID, isAlpha, isNumeric, isMobilePhone, isPostalCode, isCreditCard
+- Textarea: for long text (description, content, bio) - params: {"rows": 5}
+- JSON: for JSON/JSONB columns (no params needed)
+- Code: for code/script columns - params: {"language": "html|css|typescript|yaml|markdown|sql"}
+- Readonly: for auto-generated, computed fields (no params needed)
+
+NUMBER WIDGET:
+- Use for: int, decimal, float columns
+- Params: {"unit": "bytes|meters|seconds|kg", "threshold_min": 0, "threshold_max": 1000}
+- Unit examples: bytes, KB, MB, meters, km, seconds, minutes, kg, USD
+
+SELECT WIDGET:
+- Use for: status, type, category columns with known/limited values
+- REQUIRED params: {"allow_null": true, "options": [{"value": "db_value", "label": "Display Label", "background_color": "#hex"}]}
+- Infer options from column name (status: active/inactive, type: user/admin, priority: low/medium/high)
+
+RANGE WIDGET:
+- Use for: rating, progress, percentage columns
+- Params: {"min": 0, "max": 100, "step": 1}
+
+UUID WIDGET:
+- Use for: uuid columns
+- Params: {"version": "v4"} - versions: v1, v3, v4 (default), v5, v7
+
+IMAGE WIDGET:
+- Use for: avatar, photo, image_url, thumbnail columns
+- Params: {"height": 100, "prefix": "https://cdn.example.com/"}
+
+FILE WIDGET:
+- Use for: file_path, document, attachment columns
+- Params: {"type": "file|hex|base64"}
+
+URL WIDGET:
+- Use for: website, link, url columns
+- Params: {"prefix": "https://"} if values don't include protocol
+
+PHONE WIDGET:
+- Use for: phone, mobile, telephone columns
+- Params: {"preferred_countries": ["US", "GB"], "phone_validation": true}
+
+COUNTRY WIDGET:
+- Use for: country, country_code columns
+- Params: {"show_flag": true, "allow_null": false}
+
+COLOR WIDGET:
+- Use for: color, hex_color columns
+- Params: {"format": "hex_hash"} - formats: hex, hex_hash, rgb, hsl
+
+TIMEZONE WIDGET:
+- Use for: timezone, tz columns
+- Params: {"allow_null": false}
+
+FOREIGN_KEY WIDGET:
+- Use ONLY for columns that reference another table but are NOT detected as foreign keys
+- Skip if foreign key is already detected in table structure
+- Params: {"column_name": "user_id", "referenced_table_name": "users", "referenced_column_name": "id"}
+
+WIDGET SELECTION RULES:
+1. Match widget type to column data type AND column name semantics
+2. For password/hash columns: Always use Password with encrypt:true and detect algorithm from hash pattern
+3. For status/type/category columns: Use Select with sensible options inferred from column name
+4. For columns ending in _id that aren't foreign keys: Consider Foreign_key widget
+5. For columns named email, phone, url, etc.: Use specialized widgets (String with isEmail validator, Phone, URL)
+6. For auto_increment or primary key columns: Use Readonly
+7. Provide widget_params only when the widget type benefits from configuration
 
 Database tables to analyze:
 ${tablesDescription}
@@ -146,15 +244,39 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
       "ordering_field": "created_at",
       "widgets": [
         {
-          "field_name": "column_name",
+          "field_name": "id",
+          "widget_type": "Readonly",
+          "widget_params": {},
+          "name": "ID",
+          "description": "Unique identifier"
+        },
+        {
+          "field_name": "email",
           "widget_type": "String",
-          "name": "Column Display Name",
-          "description": "Description of what this column contains"
+          "widget_params": {"validate": "isEmail"},
+          "name": "Email Address",
+          "description": "User email for login and communication"
+        },
+        {
+          "field_name": "password_hash",
+          "widget_type": "Password",
+          "widget_params": {"encrypt": true, "algorithm": "bcrypt"},
+          "name": "Password",
+          "description": "Encrypted user password"
+        },
+        {
+          "field_name": "status",
+          "widget_type": "Select",
+          "widget_params": {"options": [{"value": "active", "label": "Active"}, {"value": "inactive", "label": "Inactive"}], "allow_null": true},
+          "name": "Status",
+          "description": "Current status of the record"
         }
       ]
     }
   ]
-}`;
+}
+
+IMPORTANT: For each widget, include appropriate widget_params based on the column name, type, and semantics. Use empty {} for widgets that don't need special configuration.`;
 	}
 
 	private parseAIResponse(aiResponse: string, tablesInformation: Array<TableInformation>): AIResponse {
@@ -189,13 +311,21 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 			settings.table_widgets = tableSettings.widgets
 				.filter((w) => validColumnNames.includes(w.field_name))
 				.map((widgetData) => {
+					const widgetType = this.mapWidgetType(widgetData.widget_type);
+					if (!widgetType || widgetType === WidgetTypeEnum.Foreign_key) {
+						return null;
+					}
 					const widget = new TableWidgetEntity();
 					widget.field_name = widgetData.field_name;
-					widget.widget_type = this.mapWidgetType(widgetData.widget_type);
+					widget.widget_type = widgetType;
 					widget.name = widgetData.name;
 					widget.description = widgetData.description;
+					if (widgetData.widget_params && Object.keys(widgetData.widget_params).length > 0) {
+						widget.widget_params = JSON.stringify(widgetData.widget_params);
+					}
 					return widget;
-				});
+				})
+				.filter((w): w is TableWidgetEntity => w !== null);
 
 			return settings;
 		});
@@ -225,7 +355,6 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 			['Number', WidgetTypeEnum.Number],
 			['Select', WidgetTypeEnum.Select],
 			['UUID', WidgetTypeEnum.UUID],
-			['Enum', WidgetTypeEnum.Enum],
 			['Foreign_key', WidgetTypeEnum.Foreign_key],
 			['File', WidgetTypeEnum.File],
 			['Image', WidgetTypeEnum.Image],
