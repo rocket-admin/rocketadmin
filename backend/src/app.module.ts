@@ -1,8 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller.js';
+import { AICoreModule } from './ai-core/ai-core.module.js';
 import { GlobalDatabaseContext } from './common/application/global-database-context.js';
 import { BaseType, UseCaseType } from './common/data-injection.tokens.js';
 import { AIModule } from './entities/ai/ai.module.js';
@@ -35,7 +36,7 @@ import { UserActionModule } from './entities/user-actions/user-action.module.js'
 import { UserSecretModule } from './entities/user-secret/user-secret.module.js';
 import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.module.js';
 import { TableWidgetModule } from './entities/widget/table-widget.module.js';
-import { TimeoutInterceptor } from './interceptors/index.js';
+
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
@@ -58,6 +59,7 @@ import { DashboardWidgetModule } from './entities/visualizations/dashboard-widge
 				},
 			],
 		}),
+		AICoreModule,
 		ConnectionModule,
 		ConnectionPropertiesModule,
 		ConversionModule,
@@ -99,10 +101,6 @@ import { DashboardWidgetModule } from './entities/visualizations/dashboard-widge
 	],
 	controllers: [AppController],
 	providers: [
-		{
-			provide: APP_INTERCEPTOR,
-			useClass: TimeoutInterceptor,
-		},
 		{
 			provide: APP_GUARD,
 			useClass: ThrottlerGuard,

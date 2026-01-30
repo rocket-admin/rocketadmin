@@ -16,52 +16,52 @@ import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateTableSettingsUseCase
-  extends AbstractUseCase<CreateTableSettingsDs, FoundTableSettingsDs>
-  implements IUpdateTableSettings
+	extends AbstractUseCase<CreateTableSettingsDs, FoundTableSettingsDs>
+	implements IUpdateTableSettings
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: CreateTableSettingsDs): Promise<FoundTableSettingsDs> {
-    const { connection_id, masterPwd, table_name } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connection_id,
-      masterPwd,
-    );
-    const dao = getDataAccessObject(foundConnection);
-    const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
-    const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
-    if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const settingsToUpdate = await this._dbContext.tableSettingsRepository.findTableSettings(connection_id, table_name);
-    if (!settingsToUpdate) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_SETTINGS_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const updateTableSettings = buildNewTableSettingsEntity(inputData, foundConnection);
-    for (const key in updateTableSettings) {
-      // eslint-disable-next-line security/detect-object-injection
-      if (updateTableSettings[key] === undefined) {
-        // eslint-disable-next-line security/detect-object-injection
-        delete updateTableSettings[key];
-      }
-    }
-    const updated = Object.assign(settingsToUpdate, updateTableSettings);
-    const savedTableSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(updated);
-    return buildFoundTableSettingsDs(savedTableSettings);
-  }
+	protected async implementation(inputData: CreateTableSettingsDs): Promise<FoundTableSettingsDs> {
+		const { connection_id, masterPwd, table_name } = inputData;
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connection_id,
+			masterPwd,
+		);
+		const dao = getDataAccessObject(foundConnection);
+		const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
+		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
+		if (errors.length > 0) {
+			throw new HttpException(
+				{
+					message: toPrettyErrorsMsg(errors),
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const settingsToUpdate = await this._dbContext.tableSettingsRepository.findTableSettings(connection_id, table_name);
+		if (!settingsToUpdate) {
+			throw new HttpException(
+				{
+					message: Messages.TABLE_SETTINGS_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const updateTableSettings = buildNewTableSettingsEntity(inputData, foundConnection);
+		for (const key in updateTableSettings) {
+			// eslint-disable-next-line security/detect-object-injection
+			if (updateTableSettings[key] === undefined) {
+				// eslint-disable-next-line security/detect-object-injection
+				delete updateTableSettings[key];
+			}
+		}
+		const updated = Object.assign(settingsToUpdate, updateTableSettings);
+		const savedTableSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(updated);
+		return buildFoundTableSettingsDs(savedTableSettings);
+	}
 }
