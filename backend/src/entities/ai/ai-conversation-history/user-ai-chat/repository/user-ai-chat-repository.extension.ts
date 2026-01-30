@@ -24,4 +24,12 @@ export const userAiChatRepositoryExtension: IUserAiChatRepository = {
 			.orderBy('messages.created_at', 'ASC')
 			.getOne();
 	},
+
+	async createChatForUser(userId: string, name?: string): Promise<UserAiChatEntity> {
+		const newChat = this.create({
+			user_id: userId,
+			name: name || null,
+		});
+		return await this.save(newChat);
+	},
 };

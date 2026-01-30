@@ -9,6 +9,7 @@ import { AiService } from './ai.service.js';
 import { RequestAISettingsAndWidgetsCreationUseCase } from './use-cases/request-ai-settings-and-widgets-creation.use.case.js';
 import { RequestInfoFromTableWithAIUseCaseV5 } from './use-cases/request-info-from-table-with-ai-v5.use.case.js';
 import { RequestInfoFromTableWithAIUseCaseV6 } from './use-cases/request-info-from-table-with-ai-v6.use.case.js';
+import { RequestInfoFromTableWithAIUseCaseV7 } from './use-cases/request-info-from-table-with-ai-v7.use.case.js';
 import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
 import { UserAiChatController } from './ai-conversation-history/user-ai-chat.controller.js';
 import { FindUserAiChatsUseCase } from './ai-conversation-history/use-cases/find-user-ai-chats.use.case.js';
@@ -32,6 +33,10 @@ import { AiChatMessageEntity } from './ai-conversation-history/ai-chat-messages/
 		{
 			provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V3,
 			useClass: RequestInfoFromTableWithAIUseCaseV6,
+		},
+		{
+			provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V4,
+			useClass: RequestInfoFromTableWithAIUseCaseV7,
 		},
 		{
 			provide: UseCaseType.REQUEST_AI_SETTINGS_AND_WIDGETS_CREATION,
@@ -61,6 +66,7 @@ export class AIModule implements NestModule {
 			.forRoutes(
 				{ path: '/ai/v2/request/:connectionId', method: RequestMethod.POST },
 				{ path: '/ai/v3/request/:connectionId', method: RequestMethod.POST },
+				{ path: '/ai/v4/request/:connectionId', method: RequestMethod.POST },
 				{ path: '/ai/v2/setup/:connectionId', method: RequestMethod.GET },
 				{ path: '/ai/chats', method: RequestMethod.GET },
 				{ path: '/ai/chats/:chatId', method: RequestMethod.GET },

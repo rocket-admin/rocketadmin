@@ -38,6 +38,8 @@ export class UserAIRequestsControllerV2 {
 		private readonly requestInfoFromTableWithAIUseCase: IRequestInfoFromTableV2,
 		@Inject(UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V3)
 		private readonly requestInfoFromTableWithAIUseCaseV3: IRequestInfoFromTableV2,
+		@Inject(UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V4)
+		private readonly requestInfoFromTableWithAIUseCaseV4: IRequestInfoFromTableV2,
 		@Inject(UseCaseType.REQUEST_AI_SETTINGS_AND_WIDGETS_CREATION)
 		private readonly requestAISettingsAndWidgetsCreationUseCase: IAISettingsAndWidgetsCreation,
 	) {}
@@ -124,6 +126,48 @@ export class UserAIRequestsControllerV2 {
 			ai_thread_id: threadId || null,
 		};
 		return await this.requestInfoFromTableWithAIUseCaseV3.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({
+		summary: 'Request info from table in connection with AI with conversation history (Version 4)',
+	})
+	@ApiResponse({
+		status: 201,
+		description: 'Returned info with conversation history saved.',
+	})
+	@UseGuards(TableReadGuard)
+	@ApiBody({ type: RequestInfoFromTableBodyDTO })
+	@ApiQuery({ name: 'tableName', required: true, type: String })
+	@ApiQuery({ name: 'threadId', required: false, type: String })
+	@Timeout(process.env.NODE_ENV !== 'test' ? TimeoutDefaults.AI : TimeoutDefaults.AI_TEST)
+	@Post('/ai/v4/request/:connectionId')
+	public async requestInfoFromTableWithAIWithHistory(
+		@SlugUuid('connectionId') connectionId: string,
+		@Query('threadId') threadId: string,
+		@QueryTableName() tableName: string,
+		@MasterPassword() masterPassword: string,
+		@UserId() userId: string,
+		@Body() requestData: RequestInfoFromTableBodyDTO,
+		@Res({ passthrough: true }) response: Response,
+	): Promise<void> {
+		if (threadId) {
+			if (!ValidationHelper.isValidUUID(threadId)) {
+				response.status(400).send({
+					error: 'Invalid threadId format. It should be a valid UUID.',
+				});
+				return;
+			}
+		}
+		const inputData: RequestInfoFromTableDSV2 = {
+			connectionId,
+			tableName,
+			user_message: requestData.user_message,
+			master_password: masterPassword,
+			user_id: userId,
+			response,
+			ai_thread_id: threadId || null,
+		};
+		return await this.requestInfoFromTableWithAIUseCaseV4.execute(inputData, InTransactionEnum.OFF);
 	}
 
 	@ApiOperation({

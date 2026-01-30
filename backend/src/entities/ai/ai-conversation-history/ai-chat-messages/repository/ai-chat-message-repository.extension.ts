@@ -1,5 +1,6 @@
 import { IAiChatMessageRepository } from './ai-chat-message-repository.interface.js';
 import { AiChatMessageEntity } from '../ai-chat-message.entity.js';
+import { MessageRole } from '../message-role.enum.js';
 
 export const aiChatMessageRepositoryExtension: IAiChatMessageRepository = {
 	async findMessagesForChat(chatId: string): Promise<AiChatMessageEntity[]> {
@@ -15,5 +16,14 @@ export const aiChatMessageRepositoryExtension: IAiChatMessageRepository = {
 			.from('ai_chat_message')
 			.where('ai_chat_id = :chatId', { chatId })
 			.execute();
+	},
+
+	async saveMessage(chatId: string, message: string, role: MessageRole): Promise<AiChatMessageEntity> {
+		const newMessage = this.create({
+			ai_chat_id: chatId,
+			message,
+			role,
+		});
+		return await this.save(newMessage);
 	},
 };
