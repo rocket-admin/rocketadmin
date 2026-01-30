@@ -10719,16 +10719,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ng-dynamic-component@npm:^10.7.0":
-  version: 10.7.0
-  resolution: "ng-dynamic-component@npm:10.7.0"
+"ng-dynamic-component@npm:^10.8.0":
+  version: 10.8.2
+  resolution: "ng-dynamic-component@npm:10.8.2"
   dependencies:
     tslib: ^2.0.0
   peerDependencies:
     "@angular/common": ">=14.1.3"
     "@angular/core": ">=14.1.3"
     rxjs: ">=6.0.0"
-  checksum: 863fb60ff14c5afc540b5791ff07b9a90897b3a9ab0cf29705a35bf9ef3cd23c208333172bfaba8b994760913b69145e5a7c8f633b998486a3c7cb0c5b35ae2c
+  checksum: 60e28a58f4f78d9c18ad17b8c05741ad377b64a5b93c22cd89def47075a1b83405e587b47f855a1c7b6398c73209cd4770a24092448da4e163e159a482a9930a
   languageName: node
   linkType: hard
 
@@ -12387,8 +12387,12 @@ __metadata:
     lodash-es: ^4.17.21
     mermaid: ^11.12.1
     monaco-editor: 0.55.1
+<<<<<<< HEAD
     ng-dynamic-component: ^10.7.0
     ng2-charts: ^8.0.0
+=======
+    ng-dynamic-component: ^10.8.0
+>>>>>>> main
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.1.1
     ngx-stripe: ^19.0.0

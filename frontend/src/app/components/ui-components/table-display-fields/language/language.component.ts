@@ -1,54 +1,52 @@
-import { LANGUAGES, getLanguageFlag } from '../../../../consts/languages';
-import { Component, OnInit } from '@angular/core';
-
-import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
+import { Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TableField, WidgetStructure } from 'src/app/models/table';
+import { getLanguageFlag, LANGUAGES } from '../../../../consts/languages';
 
 @Component({
-  selector: 'app-language-display',
-  templateUrl: './language.component.html',
-  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './language.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
+	selector: 'app-language-display',
+	templateUrl: './language.component.html',
+	styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './language.component.css'],
+	imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule],
 })
-export class LanguageDisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
-  static type = 'language';
+export class LanguageDisplayComponent {
+	static type = 'language';
 
-  public languageName: string = '';
-  public languageFlag: string = '';
-  public showFlag: boolean = true;
+	readonly key = input<string>();
+	readonly value = input<any>();
+	readonly structure = input<TableField>();
+	readonly widgetStructure = input<WidgetStructure>();
+	readonly rowData = input<Record<string, unknown>>();
+	readonly primaryKeys = input<{ column_name: string }[]>();
 
-  ngOnInit(): void {
-    this.parseWidgetParams();
+	readonly onCopyToClipboard = output<string>();
 
-    if (this.value) {
-      const language = LANGUAGES.find(l => l.code.toLowerCase() === this.value.toLowerCase());
-      this.languageName = language ? language.name : this.value;
-      if (language) {
-        this.languageFlag = getLanguageFlag(language);
-      }
-    } else {
-      this.languageName = '—';
-      this.languageFlag = '';
-    }
-  }
+	readonly showFlag = computed(() => {
+		const ws = this.widgetStructure();
+		if (!ws?.widget_params) return true;
+		try {
+			const params = typeof ws.widget_params === 'string' ? JSON.parse(ws.widget_params) : ws.widget_params;
+			return params.show_flag !== undefined ? params.show_flag : true;
+		} catch {
+			return true;
+		}
+	});
 
-  private parseWidgetParams(): void {
-    if (this.widgetStructure?.widget_params) {
-      try {
-        const params = typeof this.widgetStructure.widget_params === 'string'
-          ? JSON.parse(this.widgetStructure.widget_params)
-          : this.widgetStructure.widget_params;
+	readonly languageName = computed(() => {
+		const val = this.value();
+		if (!val) return '—';
+		const language = LANGUAGES.find((l) => l.code.toLowerCase() === val.toLowerCase());
+		return language ? language.name : val;
+	});
 
-        if (params.show_flag !== undefined) {
-          this.showFlag = params.show_flag;
-        }
-      } catch (e) {
-        console.error('Error parsing language widget params:', e);
-      }
-    }
-  }
+	readonly languageFlag = computed(() => {
+		const val = this.value();
+		if (!val) return '';
+		const language = LANGUAGES.find((l) => l.code.toLowerCase() === val.toLowerCase());
+		return language ? getLanguageFlag(language) : '';
+	});
 }

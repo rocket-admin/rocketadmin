@@ -1,78 +1,90 @@
 import sjson from 'secure-json-parse';
 import {
-  AfterLoad,
-  BeforeInsert,
-  BeforeUpdate,
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  Relation,
+	AfterLoad,
+	BeforeInsert,
+	BeforeUpdate,
+	Column,
+	CreateDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+	Relation,
+	UpdateDateColumn,
 } from 'typeorm';
 import { WidgetTypeEnum } from '../../enums/index.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 
 @Entity('table_widget')
 export class TableWidgetEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column()
-  field_name: string;
+	@Column()
+	field_name: string;
 
-  @Column({ default: null, type: 'varchar' })
-  widget_type?: WidgetTypeEnum;
+	@Column({ default: null, type: 'varchar' })
+	widget_type?: WidgetTypeEnum;
 
-  @Column('json', { default: null })
-  widget_params: string;
+	@Column('json', { default: null })
+	widget_params: string;
 
-  @Column('json', { default: null })
-  widget_options: string;
+	@Column('json', { default: null })
+	widget_options: string;
 
-  @Column({ default: null })
-  name?: string;
+	@Column({ default: null })
+	name?: string;
 
-  @Column({ default: null })
-  description?: string;
+	@Column({ default: null })
+	description?: string;
 
-  @BeforeUpdate()
-  stringifyOptionsOnUpdate() {
-    try {
-      if (this.widget_options) {
-        this.widget_options = JSON.stringify(this.widget_options);
-      }
-    } catch (e) {
-      console.error('-> Error widget options stringify ' + e.message);
-    }
-  }
+	@CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	created_at: Date;
 
-  @BeforeInsert()
-  stringifyOptions() {
-    try {
-      if (this.widget_options) {
-        this.widget_options = JSON.stringify(this.widget_options);
-      }
-    } catch (e) {
-      console.error('-> Error widget options stringify ' + e.message);
-    }
-  }
+	@UpdateDateColumn({ type: 'timestamp', nullable: true, default: null })
+	updated_at: Date;
 
-  @AfterLoad()
-  parseOptions() {
-    try {
-      if (this.widget_options) {
-        this.widget_options = sjson.parse(this.widget_options, null, {
-          protoAction: 'remove',
-          constructorAction: 'remove',
-        });
-      }
-    } catch (e) {
-      console.error('-> Error widget options parse ' + e.message);
-    }
-  }
+	@BeforeUpdate()
+	stringifyOptionsOnUpdate() {
+		try {
+			if (this.widget_options) {
+				this.widget_options = JSON.stringify(this.widget_options);
+			}
+		} catch (e) {
+			console.error('-> Error widget options stringify ' + e.message);
+		}
+	}
 
-  @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_widgets, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  settings: Relation<TableSettingsEntity>;
+	@BeforeInsert()
+	stringifyOptions() {
+		try {
+			if (this.widget_options) {
+				this.widget_options = JSON.stringify(this.widget_options);
+			}
+		} catch (e) {
+			console.error('-> Error widget options stringify ' + e.message);
+		}
+	}
+
+	@AfterLoad()
+	parseOptions() {
+		try {
+			if (this.widget_options) {
+				this.widget_options = sjson.parse(this.widget_options, null, {
+					protoAction: 'remove',
+					constructorAction: 'remove',
+				});
+			}
+		} catch (e) {
+			console.error('-> Error widget options parse ' + e.message);
+		}
+	}
+
+	@ManyToOne(
+		() => TableSettingsEntity,
+		(settings) => settings.table_widgets,
+		{ onDelete: 'CASCADE' },
+	)
+	@JoinColumn()
+	settings: Relation<TableSettingsEntity>;
 }

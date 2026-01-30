@@ -1,18 +1,31 @@
 {
-  "name": "autoadmin-ws-server",
-  "version": "1.0.0",
-  "main": "src/index.js",
-  "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "start": "node src/index.js"
-  },
-  "dependencies": {
-    "axios": "^1.13.2",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "lru-cache": "^11.2.4",
-    "nanoid": "^5.1.6",
-    "ws": "^8.18.3"
-  }
+	"name": "rocketadmin-ws-server",
+	"version": "1.0.0",
+	"type": "module",
+	"license": "UNLICENSED",
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"lint": "biome check src/",
+		"lint:fix": "biome check --write src/"
+	},
+	"dependencies": {
+		"@hono/node-server": "^1.19.9",
+		"hono": "^4.11.7",
+		"jsonwebtoken": "^9.0.3",
+		"lru-cache": "^11.2.5",
+		"nanoid": "^5.1.6",
+		"pino": "^10.3.0",
+		"ws": "^8.19.0",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.13",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/node": "^22.10.2",
+		"@types/ws": "^8.18.1",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3"
+	}
 }

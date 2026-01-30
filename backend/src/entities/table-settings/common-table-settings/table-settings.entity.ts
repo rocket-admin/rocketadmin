@@ -1,10 +1,21 @@
 import { Transform } from 'class-transformer';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	OneToMany,
+	PrimaryGeneratedColumn,
+	Relation,
+	Unique,
+	UpdateDateColumn,
+} from 'typeorm';
+import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { TableActionEntity } from '../../table-actions/table-actions-module/table-action.entity.js';
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
-import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 
 @Entity('tableSettings')
 @Unique(['connection_id', 'table_name'])
@@ -78,6 +89,12 @@ export class TableSettingsEntity {
 
 	@Column('varchar', { default: null })
 	icon: string;
+
+	@CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	created_at: Date;
+
+	@UpdateDateColumn({ type: 'timestamp', nullable: true, default: null })
+	updated_at: Date;
 
 	@Transform(({ value: connection }) => connection.id)
 	@ManyToOne(

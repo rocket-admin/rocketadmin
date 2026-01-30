@@ -1,4 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+	Relation,
+	UpdateDateColumn,
+} from 'typeorm';
 import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
@@ -32,6 +41,12 @@ export class PersonalTableSettingsEntity {
 
 	@Column('boolean', { default: false })
 	original_names: boolean;
+
+	@CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	created_at: Date;
+
+	@UpdateDateColumn({ type: 'timestamp', nullable: true, default: null })
+	updated_at: Date;
 
 	@ManyToOne(
 		(_) => ConnectionEntity,

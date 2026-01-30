@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
+import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { TableInformation } from './ai-data-entities/types/ai-module-types.js';
-import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
-import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
 
 interface AIGeneratedTableSettings {
 	table_name: string;
@@ -27,6 +27,8 @@ interface AIResponse {
 	tables: AIGeneratedTableSettings[];
 }
 
+const AI_BATCH_SIZE = 10;
+
 @Injectable()
 export class AiService {
 	constructor(protected readonly aiCoreService: AICoreService) {}
@@ -34,11 +36,35 @@ export class AiService {
 	public async generateNewTableSettingsWithAI(
 		tablesInformation: Array<TableInformation>,
 	): Promise<Array<TableSettingsEntity>> {
+		const allSettings: Array<TableSettingsEntity> = [];
+
+		for (let i = 0; i < tablesInformation.length; i += AI_BATCH_SIZE) {
+			const batch = tablesInformation.slice(i, i + AI_BATCH_SIZE);
+			try {
+				const batchSettings = await this.processTablesBatch(batch);
+				allSettings.push(...batchSettings);
+			} catch (error) {
+				console.warn(`Batch processing failed, falling back to individual table processing: ${error.message}`);
+				for (const tableInfo of batch) {
+					try {
+						const singleTableSettings = await this.processTablesBatch([tableInfo]);
+						allSettings.push(...singleTableSettings);
+					} catch (singleError) {
+						console.error(`Error processing AI for table "${tableInfo.table_name}": ${singleError.message}`);
+					}
+				}
+			}
+		}
+
+		return allSettings;
+	}
+
+	private async processTablesBatch(tablesInformation: Array<TableInformation>): Promise<Array<TableSettingsEntity>> {
 		const prompt = this.buildPrompt(tablesInformation);
 		const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, prompt, {
 			temperature: 0.3,
 		});
-		const parsedResponse = this.parseAIResponse(aiResponse);
+		const parsedResponse = this.parseAIResponse(aiResponse, tablesInformation);
 		return this.buildTableSettingsEntities(parsedResponse, tablesInformation);
 	}
 
@@ -131,13 +157,14 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 }`;
 	}
 
-	private parseAIResponse(aiResponse: string): AIResponse {
+	private parseAIResponse(aiResponse: string, tablesInformation: Array<TableInformation>): AIResponse {
 		const cleanedResponse = cleanAIJsonResponse(aiResponse);
+		const tableNames = tablesInformation.map((t) => t.table_name);
 
 		try {
 			return JSON.parse(cleanedResponse) as AIResponse;
 		} catch (error) {
-			throw new Error(`Failed to parse AI response: ${error.message}`);
+			throw new Error(`Failed to parse AI response for tables [${tableNames.join(', ')}]: ${error.message}`);
 		}
 	}
 
@@ -156,7 +183,9 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
 			settings.readonly_fields = this.filterValidColumns(tableSettings.readonly_fields, validColumnNames);
 			settings.columns_view = this.filterValidColumns(tableSettings.columns_view, validColumnNames);
 			settings.ordering = this.mapOrdering(tableSettings.ordering);
-			settings.ordering_field = validColumnNames.includes(tableSettings.ordering_field) ? tableSettings.ordering_field : null;
+			settings.ordering_field = validColumnNames.includes(tableSettings.ordering_field)
+				? tableSettings.ordering_field
+				: null;
 			settings.table_widgets = tableSettings.widgets
 				.filter((w) => validColumnNames.includes(w.field_name))
 				.map((widgetData) => {
