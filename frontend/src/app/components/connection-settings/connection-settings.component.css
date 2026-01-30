@@ -3,6 +3,7 @@
 }
 
 .settings-page {
+    height: 100%;
     margin: var(--top-margin) 0;
     padding: 0 max(calc(50vw - 325px), 10%);
 }
@@ -163,8 +164,9 @@
     margin-left: 20px;
 }
 
-.settings-banner ::ng-deep .banner-wrapper {
-    margin-top: 60px;
+.settings-banner {
+    margin: -124px calc(max(calc(50vw - 325px), 10%) * -1) 0;
+    width: 100vw;
 }
 
 .error-details {
