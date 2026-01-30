@@ -1,17 +1,17 @@
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import {
-  Entity,
-  Column,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  BeforeInsert,
-  Relation,
-  BeforeUpdate,
-  AfterLoad,
-  ManyToOne,
+	Entity,
+	Column,
+	JoinTable,
+	ManyToMany,
+	OneToMany,
+	OneToOne,
+	PrimaryGeneratedColumn,
+	BeforeInsert,
+	Relation,
+	BeforeUpdate,
+	AfterLoad,
+	ManyToOne,
 } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 import { UserActionEntity } from '../user-actions/user-action.entity.js';
@@ -29,134 +29,184 @@ import { AiResponsesToUserEntity } from '../ai/ai-data-entities/ai-reponses-to-u
 import { SignInAuditEntity } from '../user-sign-in-audit/sign-in-audit.entity.js';
 import { SecretAccessLogEntity } from '../secret-access-log/secret-access-log.entity.js';
 import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
+import { UserAiChatEntity } from '../ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
 
 @Entity('user')
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column({ default: null })
-  email: string;
+	@Column({ default: null })
+	email: string;
 
-  @Column({ default: null })
-  password: string;
+	@Column({ default: null })
+	password: string;
 
-  @Column({ default: null })
-  name: string;
+	@Column({ default: null })
+	name: string;
 
-  @Column({ default: false, type: 'boolean' })
-  suspended: boolean;
+	@Column({ default: false, type: 'boolean' })
+	suspended: boolean;
 
-  @Column({ default: false, type: 'boolean' })
-  isDemoAccount: boolean;
+	@Column({ default: false, type: 'boolean' })
+	isDemoAccount: boolean;
 
-  @BeforeInsert()
-  async hashPassword() {
-    if (this.password) {
-      this.password = await Encryptor.hashUserPassword(this.password);
-    }
-    this.emailToLowerCase();
-  }
+	@BeforeInsert()
+	async hashPassword() {
+		if (this.password) {
+			this.password = await Encryptor.hashUserPassword(this.password);
+		}
+		this.emailToLowerCase();
+	}
 
-  @BeforeUpdate()
-  encryptOtpSecretKey() {
-    if (this.isOTPEnabled && this.otpSecretKey) {
-      this.otpSecretKey = Encryptor.encryptData(this.otpSecretKey);
-    }
-    this.emailToLowerCase();
-  }
+	@BeforeUpdate()
+	encryptOtpSecretKey() {
+		if (this.isOTPEnabled && this.otpSecretKey) {
+			this.otpSecretKey = Encryptor.encryptData(this.otpSecretKey);
+		}
+		this.emailToLowerCase();
+	}
 
-  @AfterLoad()
-  decryptOtpSecretKey() {
-    if (this.isOTPEnabled && this.otpSecretKey) {
-      this.otpSecretKey = Encryptor.decryptData(this.otpSecretKey);
-    }
-    this.emailToLowerCase();
-  }
+	@AfterLoad()
+	decryptOtpSecretKey() {
+		if (this.isOTPEnabled && this.otpSecretKey) {
+			this.otpSecretKey = Encryptor.decryptData(this.otpSecretKey);
+		}
+		this.emailToLowerCase();
+	}
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	createdAt: Date;
 
-  @Column({ default: null })
-  gclid: string;
+	@Column({ default: null })
+	gclid: string;
 
-  @Column({ default: false, type: 'boolean' })
-  isOTPEnabled: boolean;
+	@Column({ default: false, type: 'boolean' })
+	isOTPEnabled: boolean;
 
-  @Column({ default: null })
-  otpSecretKey: string;
+	@Column({ default: null })
+	otpSecretKey: string;
 
-  @OneToMany((_) => ConnectionEntity, (connection) => connection.author)
-  @JoinTable()
-  connections: Relation<ConnectionEntity>[];
+	@OneToMany(
+		(_) => ConnectionEntity,
+		(connection) => connection.author,
+	)
+	@JoinTable()
+	connections: Relation<ConnectionEntity>[];
 
-  @ManyToOne((_) => CompanyInfoEntity, (company) => company.users, { onDelete: 'SET NULL' })
-  @JoinTable()
-  company: Relation<CompanyInfoEntity>;
+	@ManyToOne(
+		(_) => CompanyInfoEntity,
+		(company) => company.users,
+		{ onDelete: 'SET NULL' },
+	)
+	@JoinTable()
+	company: Relation<CompanyInfoEntity>;
 
-  @ManyToMany((_) => GroupEntity, (group) => group.users)
-  @JoinTable()
-  groups: Relation<GroupEntity>[];
+	@ManyToMany(
+		(_) => GroupEntity,
+		(group) => group.users,
+	)
+	@JoinTable()
+	groups: Relation<GroupEntity>[];
 
-  @OneToOne((_) => UserActionEntity, (user_action) => user_action.user)
-  user_action: Relation<UserActionEntity>;
+	@OneToOne(
+		(_) => UserActionEntity,
+		(user_action) => user_action.user,
+	)
+	user_action: Relation<UserActionEntity>;
 
-  @OneToOne((_) => EmailVerificationEntity, (email_verification) => email_verification.user)
-  email_verification: Relation<EmailVerificationEntity>;
+	@OneToOne(
+		(_) => EmailVerificationEntity,
+		(email_verification) => email_verification.user,
+	)
+	email_verification: Relation<EmailVerificationEntity>;
 
-  @OneToOne((_) => PasswordResetEntity, (password_reset) => password_reset.user)
-  password_reset: Relation<PasswordResetEntity>;
+	@OneToOne(
+		(_) => PasswordResetEntity,
+		(password_reset) => password_reset.user,
+	)
+	password_reset: Relation<PasswordResetEntity>;
 
-  @OneToOne((_) => EmailChangeEntity, (email_change) => email_change.user)
-  email_change: Relation<EmailChangeEntity>;
+	@OneToOne(
+		(_) => EmailChangeEntity,
+		(email_change) => email_change.user,
+	)
+	email_change: Relation<EmailChangeEntity>;
 
-  @OneToOne((_) => UserInvitationEntity, (user_invitation) => user_invitation.user)
-  user_invitation: Relation<UserInvitationEntity>;
+	@OneToOne(
+		(_) => UserInvitationEntity,
+		(user_invitation) => user_invitation.user,
+	)
+	user_invitation: Relation<UserInvitationEntity>;
 
-  @OneToOne((_) => GitHubUserIdentifierEntity, (github_user_identifier) => github_user_identifier.user)
-  github_user_identifier: Relation<GitHubUserIdentifierEntity>;
+	@OneToOne(
+		(_) => GitHubUserIdentifierEntity,
+		(github_user_identifier) => github_user_identifier.user,
+	)
+	github_user_identifier: Relation<GitHubUserIdentifierEntity>;
 
-  @OneToMany((_) => UserApiKeyEntity, (api_key) => api_key.user)
-  api_keys: Relation<UserApiKeyEntity>[];
+	@OneToMany(
+		(_) => UserApiKeyEntity,
+		(api_key) => api_key.user,
+	)
+	api_keys: Relation<UserApiKeyEntity>[];
 
-  @OneToMany((_) => AiResponsesToUserEntity, (response) => response.user)
-  ai_responses: Relation<AiResponsesToUserEntity>[];
+	@OneToMany(
+		(_) => AiResponsesToUserEntity,
+		(response) => response.user,
+	)
+	ai_responses: Relation<AiResponsesToUserEntity>[];
 
-  @OneToMany((_) => SignInAuditEntity, (signInAudit) => signInAudit.user)
-  signInAudits: Relation<SignInAuditEntity>[];
+	@OneToMany(
+		(_) => SignInAuditEntity,
+		(signInAudit) => signInAudit.user,
+	)
+	signInAudits: Relation<SignInAuditEntity>[];
 
-  @OneToMany((_) => SecretAccessLogEntity, (secretAccessLog) => secretAccessLog.user)
-  secretAccessLogs: Relation<SecretAccessLogEntity>[];
+	@OneToMany(
+		(_) => SecretAccessLogEntity,
+		(secretAccessLog) => secretAccessLog.user,
+	)
+	secretAccessLogs: Relation<SecretAccessLogEntity>[];
 
-  @OneToMany((_) => PersonalTableSettingsEntity, (personal_table_settings) => personal_table_settings.connection)
-  personal_table_settings: Relation<PersonalTableSettingsEntity>[];
+	@OneToMany(
+		(_) => PersonalTableSettingsEntity,
+		(personal_table_settings) => personal_table_settings.connection,
+	)
+	personal_table_settings: Relation<PersonalTableSettingsEntity>[];
 
-  @Column({ default: false, type: 'boolean' })
-  isActive: boolean;
+	@OneToMany(
+		(_) => UserAiChatEntity,
+		(ai_chat) => ai_chat.user,
+	)
+	ai_chats: Relation<UserAiChatEntity>[];
 
-  @Column('enum', {
-    nullable: false,
-    enum: UserRoleEnum,
-    default: UserRoleEnum.USER,
-  })
-  role: UserRoleEnum;
+	@Column({ default: false, type: 'boolean' })
+	isActive: boolean;
 
-  @Column('enum', {
-    nullable: true,
-    enum: ExternalRegistrationProviderEnum,
-    default: null,
-  })
-  externalRegistrationProvider: ExternalRegistrationProviderEnum;
+	@Column('enum', {
+		nullable: false,
+		enum: UserRoleEnum,
+		default: UserRoleEnum.USER,
+	})
+	role: UserRoleEnum;
 
-  @Column({ default: null })
-  samlNameId: string;
+	@Column('enum', {
+		nullable: true,
+		enum: ExternalRegistrationProviderEnum,
+		default: null,
+	})
+	externalRegistrationProvider: ExternalRegistrationProviderEnum;
 
-  @Column({ default: true, type: 'boolean' })
-  showTestConnections: boolean;
+	@Column({ default: null })
+	samlNameId: string;
 
-  private emailToLowerCase() {
-    if (this.email) {
-      this.email = this.email.toLowerCase();
-    }
-  }
+	@Column({ default: true, type: 'boolean' })
+	showTestConnections: boolean;
+
+	private emailToLowerCase() {
+		if (this.email) {
+			this.email = this.email.toLowerCase();
+		}
+	}
 }
