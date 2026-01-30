@@ -5,4 +5,5 @@ export interface IUserAiChatRepository {
 	findChatByIdAndUserId(chatId: string, userId: string): Promise<UserAiChatEntity | null>;
 	findChatWithMessagesByIdAndUserId(chatId: string, userId: string): Promise<UserAiChatEntity | null>;
 	createChatForUser(userId: string, name?: string): Promise<UserAiChatEntity>;
+	updateChatName(chatId: string, name: string): Promise<void>;
 }
