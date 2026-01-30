@@ -12387,12 +12387,8 @@ __metadata:
     lodash-es: ^4.17.21
     mermaid: ^11.12.1
     monaco-editor: 0.55.1
-<<<<<<< HEAD
-    ng-dynamic-component: ^10.7.0
-    ng2-charts: ^8.0.0
-=======
     ng-dynamic-component: ^10.8.0
->>>>>>> main
+    ng2-charts: ^8.0.0
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.1.1
     ngx-stripe: ^19.0.0
