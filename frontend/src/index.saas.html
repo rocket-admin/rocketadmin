@@ -89,9 +89,6 @@
     fbq('init', '3069782323239519');
     fbq('track', 'PageView');
   </script>
-  <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=3069782323239519&ev=PageView&noscript=1"
-  /></noscript>
   <!-- End Facebook Pixel Code -->
 
   <script src="https://accounts.google.com/gsi/client"></script>
@@ -152,6 +149,10 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body style="background-color: #191919; color: #ffffff;">
+  <!-- Facebook Pixel noscript fallback -->
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=3069782323239519&ev=PageView&noscript=1"
+  /></noscript>
   <div id="g_id_onload"
       data-client_id="681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com"
       data-auto_prompt="false">
