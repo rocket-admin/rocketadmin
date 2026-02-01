@@ -726,7 +726,7 @@ test.serial(`${currentTest} should delete company`, async (t) => {
     .set('Cookie', adminUserToken)
     .set('Accept', 'application/json');
 
-  t.is(foundCompanyInfoAfterDelete.status, 403);
+  t.is(foundCompanyInfoAfterDelete.status, 401);
 });
 
 currentTest = `PUT company/2fa/:companyId`;
@@ -905,7 +905,7 @@ test.serial(
       .set('Accept', 'application/json');
 
     const findAllConnectionsResponseRO = JSON.parse(findAllConnectionsResponse.text);
-    t.is(findAllConnectionsResponse.status, 403);
+    t.is(findAllConnectionsResponse.status, 401);
     t.is(findAllConnectionsResponseRO.message, Messages.ACCOUNT_SUSPENDED);
   },
 );
