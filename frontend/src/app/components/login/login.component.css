@@ -1,6 +1,9 @@
-:host > app-alert {
-    display: block;
-    margin: 24px;
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+
+	position: absolute;
+    top: var(--mat-toolbar-standard-height);
+    width: calc(100% - 48px);
 }
 
 .wrapper {
