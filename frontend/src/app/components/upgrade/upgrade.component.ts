@@ -28,6 +28,10 @@ import plans from '../../consts/plans';
   styleUrls: ['./upgrade.component.css']
 })
 export class UpgradeComponent implements OnInit {
+  public testAlert = {
+    type: 'info' as const,
+    message: 'This is a demo alert for the upgrade page.'
+  };
   public currentPlan = {
     key: PlanKey.Free,
     price: 0,
