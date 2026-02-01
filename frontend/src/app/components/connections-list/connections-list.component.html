@@ -22,7 +22,8 @@
         <app-own-connections
             [currentUser]="currentUser"
             [connections]="ownConnections"
-            [isDemo]="isDemo">
+            [isDemo]="isDemo"
+            [companyId]="currentUser?.company?.id">
         </app-own-connections>
 
         <mat-divider *ngIf="testConnections && testConnections.length"
