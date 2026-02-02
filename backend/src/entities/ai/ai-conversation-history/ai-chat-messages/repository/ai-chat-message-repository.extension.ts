@@ -10,6 +10,14 @@ export const aiChatMessageRepositoryExtension: IAiChatMessageRepository = {
 			.getMany();
 	},
 
+	async findLastAiMessageForChat(chatId: string): Promise<AiChatMessageEntity | null> {
+		return await this.createQueryBuilder('ai_chat_message')
+			.where('ai_chat_message.ai_chat_id = :chatId', { chatId })
+			.andWhere('ai_chat_message.role = :role', { role: MessageRole.ai })
+			.orderBy('ai_chat_message.created_at', 'DESC')
+			.getOne();
+	},
+
 	async deleteMessagesForChat(chatId: string): Promise<void> {
 		await this.createQueryBuilder()
 			.delete()
@@ -18,11 +26,17 @@ export const aiChatMessageRepositoryExtension: IAiChatMessageRepository = {
 			.execute();
 	},
 
-	async saveMessage(chatId: string, message: string, role: MessageRole): Promise<AiChatMessageEntity> {
+	async saveMessage(
+		chatId: string,
+		message: string,
+		role: MessageRole,
+		responseId?: string,
+	): Promise<AiChatMessageEntity> {
 		const newMessage = this.create({
 			ai_chat_id: chatId,
 			message,
 			role,
+			response_id: responseId,
 		});
 		return await this.save(newMessage);
 	},
