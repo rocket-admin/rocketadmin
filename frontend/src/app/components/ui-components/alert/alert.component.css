@@ -1,31 +1,31 @@
 :host {
     position: sticky;
-    top: var(--mat-toolbar-standard-height);
+    top: calc(var(--mat-toolbar-standard-height) + 24px);
+    display: block;
+    margin: var(--alert-margin);
     z-index: 2;
 }
 
 .alert {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     background-color: var(--bg-color);
+    backdrop-filter: blur(4px);
+    border-top: 1px solid var(--alert-theme-color);
+    border-right: 1px solid var(--alert-theme-color);
+    border-bottom: 1px solid var(--alert-theme-color);
     border-left: 12px solid var(--alert-theme-color);
-    margin-bottom: 8px;
-    padding: 12px 16px;
+    border-radius: 4px;
+    padding: 12px 16px 12px 8px;
 }
 
 @media (prefers-color-scheme: dark) {
     .alert {
-        --bg-color: var(--alert-dark-theme-bg);
         border-top: 1px solid var(--alert-dark-theme-color);
         border-right: 1px solid var(--alert-dark-theme-color);
         border-bottom: 1px solid var(--alert-dark-theme-color);
         border-left: 12px solid var(--alert-dark-theme-color);
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .alert {
-        --bg-color: #F4F4F4;
+        backdrop-filter: blur(2px);
     }
 }
 
@@ -39,26 +39,25 @@
 .alert_error {
     --alert-theme-color: #B71C1C;
     --alert-dark-theme-color: #E53935;
-    --alert-dark-theme-bg: rgba(229, 57, 53, 0.15);
-    z-index: 2;
+    --bg-color: color-mix(in hsl, #B71C1C, transparent 95%);
 }
 
 .alert_warning {
-    --alert-theme-color: #FF6F00;
-    --alert-dark-theme-color: #FF6F00;
-    --alert-dark-theme-bg: rgba(255, 236, 179, 0.15);
+    --alert-theme-color: #F79008;
+    --alert-dark-theme-color: #F79008;
+    --bg-color: color-mix(in hsl, #F79008, transparent 95%);
 }
 
 .alert_info {
-    --alert-theme-color: #01579B;
-    --alert-dark-theme-color: #00BCD4;
-    --alert-dark-theme-bg: rgba(0, 188, 212, 0.15);
+    --alert-theme-color: #296EE9;
+    --alert-dark-theme-color: #296EE9;
+    --bg-color: color-mix(in hsl, #296EE9, transparent 95%);
 }
 
 .alert_success {
     --alert-theme-color: #1B5E20;
     --alert-dark-theme-color: #4CAF50;
-    --alert-dark-theme-bg: rgba(76, 175, 80, 0.15);
+    --bg-color: color-mix(in hsl, #1B5E20, transparent 95%);
 }
 
 .alert__icon {
@@ -66,10 +65,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--alert-theme-color);
     border-radius: 50%;
-    color: #fff;
-    font-size: 18px;
+    color: var(--alert-theme-color);
+    font-size: 24px;
     height: 36px;
     opacity: 0.9;
     width: 36px;
@@ -77,7 +75,7 @@
 
 @media (prefers-color-scheme: dark) {
     .alert__icon {
-        background: var(--alert-dark-theme-color);
+        color: var(--alert-dark-theme-color);
     }
 }
 

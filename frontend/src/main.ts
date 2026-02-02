@@ -12,6 +12,7 @@ import * as Sentry from '@sentry/angular';
 import { Angulartics2Module } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import { CookieService } from 'ngx-cookie-service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
@@ -91,6 +92,7 @@ bootstrapApplication(AppComponent, {
 			ReactiveFormsModule,
 			RouterModule,
 			DynamicModule,
+			SignalComponentIoModule,
 			Angulartics2Module.forRoot(),
 			ClipboardModule,
 			DragDropModule,

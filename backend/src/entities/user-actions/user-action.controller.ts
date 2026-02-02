@@ -8,30 +8,32 @@ import { ICreateUserAction } from './use-cases/use-cases-interfaces.js';
 import { UserActionEntity } from './user-action.entity.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserActionDto } from './dto/create-user-action.dto.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Injectable()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('User actions')
 export class UserActionController {
-  constructor(
-    @Inject(UseCaseType.CREATE_USER_ACTION)
-    private readonly createUserActionUseCase: ICreateUserAction,
-  ) {}
+	constructor(
+		@Inject(UseCaseType.CREATE_USER_ACTION)
+		private readonly createUserActionUseCase: ICreateUserAction,
+	) {}
 
-  @ApiOperation({ summary: 'Create new user action' })
-  @ApiResponse({ status: 201, description: 'User action created.' })
-  @ApiBody({ type: CreateUserActionDto })
-  @Post('action')
-  async createUserAction(
-    @Body() userActionData: CreateUserActionDto,
-    @UserId() userId: string,
-  ): Promise<Omit<UserActionEntity, 'user'>> {
-    const actionData: CreateUserActionDs = {
-      message: userActionData.message,
-      userId: userId,
-    };
-    return await this.createUserActionUseCase.execute(actionData, InTransactionEnum.ON);
-  }
+	@ApiOperation({ summary: 'Create new user action' })
+	@ApiResponse({ status: 201, description: 'User action created.' })
+	@ApiBody({ type: CreateUserActionDto })
+	@Post('action')
+	async createUserAction(
+		@Body() userActionData: CreateUserActionDto,
+		@UserId() userId: string,
+	): Promise<Omit<UserActionEntity, 'user'>> {
+		const actionData: CreateUserActionDs = {
+			message: userActionData.message,
+			userId: userId,
+		};
+		return await this.createUserActionUseCase.execute(actionData, InTransactionEnum.ON);
+	}
 }

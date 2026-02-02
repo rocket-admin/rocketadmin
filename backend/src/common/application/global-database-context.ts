@@ -111,6 +111,12 @@ import { IDashboardRepository } from '../../entities/visualizations/dashboard/re
 import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
 import { dashboardCustomRepositoryExtension } from '../../entities/visualizations/dashboard/repository/dashboard-custom-repository-extension.js';
 import { dashboardWidgetCustomRepositoryExtension } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget-custom-repository-extension.js';
+import { UserAiChatEntity } from '../../entities/ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
+import { IUserAiChatRepository } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.interface.js';
+import { userAiChatRepositoryExtension } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.extension.js';
+import { AiChatMessageEntity } from '../../entities/ai/ai-conversation-history/ai-chat-messages/ai-chat-message.entity.js';
+import { IAiChatMessageRepository } from '../../entities/ai/ai-conversation-history/ai-chat-messages/repository/ai-chat-message-repository.interface.js';
+import { aiChatMessageRepositoryExtension } from '../../entities/ai/ai-conversation-history/ai-chat-messages/repository/ai-chat-message-repository.extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -156,6 +162,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _savedDbQueryRepository: Repository<SavedDbQueryEntity> & ISavedDbQueryRepository;
 	private _dashboardRepository: Repository<DashboardEntity> & IDashboardRepository;
 	private _dashboardWidgetRepository: Repository<DashboardWidgetEntity> & IDashboardWidgetRepository;
+	private _userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
+	private _aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
 
 	public constructor(
 		@Inject(BaseType.DATA_SOURCE)
@@ -265,6 +273,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._dashboardWidgetRepository = this.appDataSource
 			.getRepository(DashboardWidgetEntity)
 			.extend(dashboardWidgetCustomRepositoryExtension);
+		this._userAiChatRepository = this.appDataSource
+			.getRepository(UserAiChatEntity)
+			.extend(userAiChatRepositoryExtension);
+		this._aiChatMessageRepository = this.appDataSource
+			.getRepository(AiChatMessageEntity)
+			.extend(aiChatMessageRepositoryExtension);
 	}
 
 	public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -427,6 +441,14 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
 	public get dashboardWidgetRepository(): Repository<DashboardWidgetEntity> & IDashboardWidgetRepository {
 		return this._dashboardWidgetRepository;
+	}
+
+	public get userAiChatRepository(): Repository<UserAiChatEntity> & IUserAiChatRepository {
+		return this._userAiChatRepository;
+	}
+
+	public get aiChatMessageRepository(): Repository<AiChatMessageEntity> & IAiChatMessageRepository {
+		return this._aiChatMessageRepository;
 	}
 
 	public startTransaction(): Promise<void> {

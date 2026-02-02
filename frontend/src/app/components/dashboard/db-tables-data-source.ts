@@ -1,7 +1,7 @@
 import { CollectionViewer } from '@angular/cdk/collections';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
-import * as JSON5 from 'json5';
+import JSON5 from 'json5';
 import { filter } from 'lodash-es';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -194,7 +194,7 @@ export class TablesDataSource implements DataSource<Object> {
 
                 try {
                   parsedParams = JSON5.parse(widget.widget_params);
-                } catch {
+                } catch (error) {
                   parsedParams = {};
                 }
 
@@ -298,6 +298,10 @@ export class TablesDataSource implements DataSource<Object> {
               type: AlertType.Info,
               message: 'Configure now to reveal advanced table functionality and features.',
               actions: [
+                // {
+                //   type: AlertActionType.Button,
+                //   caption: 'AI generate',
+                // },
                 {
                   type: AlertActionType.Link,
                   caption: 'Settings',

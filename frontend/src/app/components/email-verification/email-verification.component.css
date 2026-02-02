@@ -1,3 +1,11 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+
+    position: absolute;
+    top: var(--mat-toolbar-standard-height);
+    width: calc(100% - 48px);
+}
+
 .loader {
     display: flex;
     align-items: center;

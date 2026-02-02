@@ -167,6 +167,11 @@ Database configurations are defined in `src/app/consts/databases.ts`.
 
 ## 📝 Code Conventions
 
+### Template Syntax
+- **Use built-in control flow** (`@if`, `@for`, `@switch`) instead of structural directives (`*ngIf`, `*ngFor`, `*ngSwitch`) in all new code
+- Example: `@if (condition) { ... }` instead of `<div *ngIf="condition">...</div>`
+- Example: `@for (item of items; track item.id) { ... }` instead of `<div *ngFor="let item of items">...</div>`
+
 ### Naming Conventions
 - **Files**: `kebab-case.component.ts`
 - **Classes**: `PascalCase` (e.g., `DbTableSettingsComponent`)

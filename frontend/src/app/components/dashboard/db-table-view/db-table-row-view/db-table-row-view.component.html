@@ -23,8 +23,6 @@
         </button>
     </div>
 
-    <br />
-
     <mat-expansion-panel *ngIf="selectedRow?.relatedRecords?.referenced_by?.length" class="related-records-panel">
         <mat-expansion-panel-header class="related-records-panel__header">
             Related records
@@ -85,7 +83,6 @@
             <div data-hj-suppress class="row-preview-sidebar__value">
                 <ng-container *ngIf="isForeignKey(column.title); else recordContent">
                     <app-foreign-key-record-view
-                        [key]="i"
                         link="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
                         [primaryKeysParams]="getForeignKeyQueryParams(column.title)"
                         [displayValue]="getForeignKeyValue(column.title)"

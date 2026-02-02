@@ -4,6 +4,10 @@ import { AgentEntity } from '../agent.entity.js';
 import { ConnectionTypeTestEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 export const customAgentRepositoryExtension = {
+  async saveNewAgent(agent: AgentEntity): Promise<AgentEntity> {
+    return await this.save(agent);
+  },
+
   async createNewAgentForConnectionAndReturnToken(connection: ConnectionEntity): Promise<string> {
     const newAgent = await this.createNewAgentForConnection(connection);
     return newAgent.token;
@@ -59,14 +63,14 @@ export const customAgentRepositoryExtension = {
         return 'IBMDB2-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_mongodb:
         return 'MONGODB-TEST-AGENT-TOKEN';
-      case ConnectionTypeTestEnum.elasticsearch:
-        return 'ELASTICSEARCH-TEST-AGENT-TOKEN';
-      case ConnectionTypeTestEnum.agent_cassandra:
-        return 'CASSANDRA-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_redis:
         return 'REDIS-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.agent_cassandra:
+        return 'CASSANDRA-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.agent_clickhouse:
         return 'CLICKHOUSE-TEST-AGENT-TOKEN';
+      default:
+        throw new Error(`Unsupported connection type for test agent token: ${connectionType}`);
     }
   },
 };

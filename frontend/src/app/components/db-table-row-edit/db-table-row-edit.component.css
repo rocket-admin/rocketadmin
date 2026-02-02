@@ -1,6 +1,11 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+}
+
 .page {
 	display: flex;
 	height: 100%;
+	margin: 2.5em 0 16px;
 }
 
 .wrapper {
@@ -8,7 +13,6 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: 36px 0 16px;
 	width: 100vw;
 }
 

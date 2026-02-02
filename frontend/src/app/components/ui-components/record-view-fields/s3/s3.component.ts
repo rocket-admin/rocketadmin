@@ -65,21 +65,22 @@ export class S3RecordViewComponent extends BaseRecordViewFieldComponent implemen
 		}
 	}
 
-	private _loadPreview(): void {
+	private async _loadPreview(): Promise<void> {
 		if (!this.value || !this.connectionId || !this.tableName || !this.primaryKeys) return;
 
 		this.isLoading = true;
 
-		this.s3Service
-			.getFileUrl(this.connectionId, this.tableName, this.widgetStructure.field_name, this.primaryKeys)
-			.subscribe({
-				next: (response) => {
-					this.previewUrl = response.url;
-					this.isLoading = false;
-				},
-				error: () => {
-					this.isLoading = false;
-				},
-			});
+		const response = await this.s3Service.getFileUrl(
+			this.connectionId,
+			this.tableName,
+			this.widgetStructure.field_name,
+			this.primaryKeys,
+		);
+
+		if (response) {
+			this.previewUrl = response.url;
+		}
+
+		this.isLoading = false;
 	}
 }
