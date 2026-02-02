@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Delete Widget</h2>
+
+<mat-dialog-content>
+    <div class="warning-container">
+        <mat-icon class="warning-icon">warning</mat-icon>
+        <div class="warning-content">
+            <p>Are you sure you want to delete the widget <strong>{{data.widget.name}}</strong>?</p>
+            <p class="warning-details">
+                This action cannot be undone. The widget will be permanently removed from the dashboard.
+            </p>
+        </div>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close [disabled]="submitting()">Cancel</button>
+    <button mat-flat-button color="warn"
+        (click)="onDelete()"
+        [disabled]="submitting()"
+        data-testid="delete-widget-confirm-button">
+        {{submitting() ? 'Deleting...' : 'Delete Widget'}}
+    </button>
+</mat-dialog-actions>

@@ -1,0 +1,126 @@
+<app-alert></app-alert>
+
+<div class="dashboards-page">
+    <div class="dashboards-header">
+        <h1 class="mat-h1">Dashboards</h1>
+        <p class="dashboards-description">
+            Create and manage custom dashboards with charts, tables, and metrics.
+        </p>
+    </div>
+
+    <div class="dashboards-toolbar">
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search dashboards</mat-label>
+            <input matInput
+                [ngModel]="searchQuery()"
+                (ngModelChange)="searchQuery.set($event)"
+                placeholder="Search by name or description..."
+                data-testid="dashboards-search-input">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <div class="toolbar-actions">
+            <a mat-stroked-button
+                [routerLink]="['/charts', connectionId()]"
+                data-testid="manage-queries-button">
+                <mat-icon>code</mat-icon>
+                Manage Saved Queries
+            </a>
+            <button mat-flat-button color="primary"
+                (click)="openCreateDialog()"
+                data-testid="create-dashboard-button">
+                <mat-icon>add</mat-icon>
+                Create Dashboard
+            </button>
+        </div>
+    </div>
+
+    <app-placeholder-table-data *ngIf="loading()"></app-placeholder-table-data>
+
+    <div *ngIf="!loading() && filteredDashboards().length === 0" class="no-dashboards">
+        <mat-icon class="no-dashboards-icon">dashboard</mat-icon>
+        <h3>No dashboards found</h3>
+        <p *ngIf="searchQuery()">No dashboards match your search criteria.</p>
+        <p *ngIf="!searchQuery()">Create your first dashboard to visualize your data.</p>
+        <button *ngIf="!searchQuery()" mat-stroked-button color="primary"
+            (click)="openCreateDialog()">
+            <mat-icon>add</mat-icon>
+            Create Dashboard
+        </button>
+    </div>
+
+    <table *ngIf="!loading() && filteredDashboards().length > 0" mat-table [dataSource]="filteredDashboards()" class="mat-elevation-z2 dashboards-table">
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let dashboard; let i = index"
+                class="dashboards-cell dashboards-cell_name"
+                data-label="Name"
+                attr.data-testid="dashboard-name-{{i}}-cell">
+                <a [routerLink]="['/dashboards', connectionId(), dashboard.id]"
+                   (click)="trackViewDashboardOpened()"
+                   class="name-link">
+                    <span class="name-text">{{dashboard.name}}</span>
+                </a>
+            </td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let dashboard; let i = index"
+                class="dashboards-cell"
+                data-label="Description"
+                attr.data-testid="dashboard-description-{{i}}-cell">
+                <span *ngIf="dashboard.description" class="description-text">{{dashboard.description}}</span>
+                <span *ngIf="!dashboard.description" class="no-description">No description</span>
+            </td>
+        </ng-container>
+
+        <!-- Updated At Column -->
+        <ng-container matColumnDef="updatedAt">
+            <th mat-header-cell *matHeaderCellDef>Last Updated</th>
+            <td mat-cell *matCellDef="let dashboard; let i = index"
+                class="dashboards-cell"
+                data-label="Last Updated"
+                attr.data-testid="dashboard-updated-{{i}}-cell">
+                {{dashboard.updated_at | date:'medium'}}
+            </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let dashboard; let i = index"
+                class="dashboards-cell dashboards-cell_actions">
+                <button mat-icon-button [matMenuTriggerFor]="actionsMenu"
+                    attr.data-testid="dashboard-actions-{{i}}-button">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #actionsMenu="matMenu">
+                    <a mat-menu-item
+                        [routerLink]="['/dashboards', connectionId(), dashboard.id]"
+                        (click)="trackViewDashboardOpened()"
+                        attr.data-testid="dashboard-view-{{i}}-menu-item">
+                        <mat-icon>visibility</mat-icon>
+                        <span>View</span>
+                    </a>
+                    <button mat-menu-item (click)="openEditDialog(dashboard)"
+                        attr.data-testid="dashboard-edit-{{i}}-menu-item">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="openDeleteDialog(dashboard)" class="delete-action"
+                        attr.data-testid="dashboard-delete-{{i}}-menu-item">
+                        <mat-icon color="warn">delete</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="dashboards-table-heading"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="dashboards-row"></tr>
+    </table>
+</div>

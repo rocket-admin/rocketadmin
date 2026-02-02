@@ -1,0 +1,31 @@
+@if (loading()) {
+    <div class="loading-container">
+        <mat-spinner diameter="32"></mat-spinner>
+    </div>
+} @else if (error()) {
+    <div class="error-container">
+        <p class="error-message">{{ error() }}</p>
+    </div>
+} @else if (!widget.query_id) {
+    <div class="no-query-container">
+        <p>No query linked to this table widget.</p>
+        <p class="hint">Edit this widget to link a saved query.</p>
+    </div>
+} @else if (data().length > 0) {
+    <div class="table-container">
+        <table mat-table [dataSource]="data()">
+            @for (column of columns(); track column) {
+                <ng-container [matColumnDef]="column">
+                    <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+                    <td mat-cell *matCellDef="let row">{{ row[column] }}</td>
+                </ng-container>
+            }
+            <tr mat-header-row *matHeaderRowDef="columns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns();"></tr>
+        </table>
+    </div>
+} @else {
+    <div class="no-data-container">
+        <p>No data available</p>
+    </div>
+}

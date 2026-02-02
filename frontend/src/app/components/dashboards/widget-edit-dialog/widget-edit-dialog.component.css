@@ -1,0 +1,21 @@
+.widget-form {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 500px;
+}
+
+@media (width <= 600px) {
+	.widget-form {
+		min-width: auto;
+	}
+}
+
+.full-width {
+	width: 100%;
+}
+
+.type-icon {
+	margin-right: 8px;
+	vertical-align: middle;
+}
