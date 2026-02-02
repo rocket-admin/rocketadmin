@@ -26,6 +26,7 @@ import {
 	isValidMongoDbCommand,
 	wrapQueryWithLimit,
 	AIProviderType,
+	AIProviderConfig,
 } from '../../../ai-core/index.js';
 import { UserAiChatEntity } from '../ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
 import { MessageRole } from '../ai-conversation-history/ai-chat-messages/message-role.enum.js';
@@ -94,10 +95,20 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			});
 		}
 
-		const messages = new MessageBuilder().system(systemPrompt).human(user_message).build();
+		const { messages, previousResponseId } = await this.buildMessagesWithHistory(
+			systemPrompt,
+			user_message,
+			foundUserAiChat.id,
+			isNewChat,
+		);
 
 		try {
-			const { accumulatedResponse } = await this.processWithToolLoop(
+			const config: AIProviderConfig = {};
+			if (this.aiProvider === AIProviderType.OPENAI && previousResponseId) {
+				config.previousResponseId = previousResponseId;
+			}
+
+			const { accumulatedResponse, lastResponseId } = await this.processWithToolLoop(
 				messages,
 				tools,
 				response,
@@ -105,6 +116,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 				tableName,
 				userEmail,
 				foundConnection,
+				config,
 			);
 
 			if (accumulatedResponse) {
@@ -112,6 +124,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 					foundUserAiChat.id,
 					accumulatedResponse,
 					MessageRole.ai,
+					lastResponseId,
 				);
 			}
 
@@ -133,15 +146,22 @@ export class RequestInfoFromTableWithAIUseCaseV7
 		inputTableName: string,
 		userEmail: string,
 		foundConnection: ConnectionEntity,
+		config: AIProviderConfig = {},
 	): Promise<{ lastResponseId: string | null; accumulatedResponse: string }> {
 		let currentMessages = [...messages];
 		let lastResponseId: string | null = null;
 		let depth = 0;
 		let totalAccumulatedResponse = '';
+		let currentConfig = { ...config };
 
 		while (depth < this.maxDepth) {
 			try {
-				const stream = await this.aiCoreService.streamChatWithToolsAndProvider(this.aiProvider, currentMessages, tools);
+				const stream = await this.aiCoreService.streamChatWithToolsAndProvider(
+					this.aiProvider,
+					currentMessages,
+					tools,
+					currentConfig,
+				);
 
 				let pendingToolCalls: AIToolCall[] = [];
 				let accumulatedContent = '';
@@ -173,6 +193,10 @@ export class RequestInfoFromTableWithAIUseCaseV7
 					userEmail,
 					foundConnection,
 				);
+
+				if (this.aiProvider === AIProviderType.OPENAI && lastResponseId) {
+					currentConfig = { ...currentConfig, previousResponseId: lastResponseId };
+				}
 
 				const continuationBuilder = MessageBuilder.fromMessages(currentMessages);
 				continuationBuilder.ai(accumulatedContent, pendingToolCalls);
@@ -345,6 +369,40 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			databaseType === ConnectionTypesEnum.mongodb || databaseType === ConnectionTypesEnum.agent_mongodb;
 
 		return { foundConnection, dataAccessObject, databaseType, isMongoDb, userEmail };
+	}
+
+	private async buildMessagesWithHistory(
+		systemPrompt: string,
+		userMessage: string,
+		chatId: string,
+		isNewChat: boolean,
+	): Promise<{ messages: BaseMessage[]; previousResponseId: string | null }> {
+		if (isNewChat) {
+			const messages = new MessageBuilder().system(systemPrompt).human(userMessage).build();
+			return { messages, previousResponseId: null };
+		}
+
+		if (this.aiProvider === AIProviderType.OPENAI) {
+			const lastAiMessage = await this._dbContext.aiChatMessageRepository.findLastAiMessageForChat(chatId);
+			const previousResponseId = lastAiMessage?.response_id || null;
+			const messages = new MessageBuilder().system(systemPrompt).human(userMessage).build();
+			return { messages, previousResponseId };
+		}
+
+		const previousMessages = await this._dbContext.aiChatMessageRepository.findMessagesForChat(chatId);
+		const builder = new MessageBuilder().system(systemPrompt);
+
+		for (const msg of previousMessages) {
+			if (msg.role === MessageRole.user) {
+				builder.human(msg.message);
+			} else if (msg.role === MessageRole.ai) {
+				builder.ai(msg.message);
+			}
+		}
+
+		builder.human(userMessage);
+
+		return { messages: builder.build(), previousResponseId: null };
 	}
 
 	private async generateAndUpdateChatName(chatId: string, userMessage: string): Promise<void> {

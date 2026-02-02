@@ -22,6 +22,9 @@ export class AiChatMessageEntity {
 	@Column({ nullable: true, default: null, type: 'enum', enum: MessageRole })
 	role: MessageRole;
 
+	@Column({ nullable: true, default: null, type: 'varchar', length: 255 })
+	response_id: string;
+
 	@CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	created_at: Date;
 
