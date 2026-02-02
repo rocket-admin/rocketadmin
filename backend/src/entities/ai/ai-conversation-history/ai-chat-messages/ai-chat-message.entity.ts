@@ -34,6 +34,7 @@ export class AiChatMessageEntity {
 	@ManyToOne(
 		() => UserAiChatEntity,
 		(ai_chat) => ai_chat.messages,
+		{ onDelete: 'CASCADE' },
 	)
 	@JoinColumn({ name: 'ai_chat_id' })
 	ai_chat: Relation<UserAiChatEntity>;

@@ -47,6 +47,7 @@ import { PersonalTableSettingsModule } from './entities/table-settings/personal-
 import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/saved-db-query.module.js';
 import { DashboardModule } from './entities/visualizations/dashboard/dashboards.module.js';
 import { DashboardWidgetModule } from './entities/visualizations/dashboard-widget/dashboard-widget.module.js';
+import { SelfHostedOperationsModule } from './selfhosted-operations/selhosted-operations.module.js';
 
 @Module({
 	imports: [
@@ -98,6 +99,7 @@ import { DashboardWidgetModule } from './entities/visualizations/dashboard-widge
 		SavedDbQueryModule,
 		DashboardModule,
 		DashboardWidgetModule,
+		SelfHostedOperationsModule,
 	],
 	controllers: [AppController],
 	providers: [

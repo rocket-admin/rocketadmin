@@ -29,6 +29,7 @@ export class UserAiChatEntity {
 	@ManyToOne(
 		() => UserEntity,
 		(user) => user.ai_chats,
+		{ onDelete: 'CASCADE' },
 	)
 	@JoinColumn({ name: 'user_id' })
 	user: Relation<UserEntity>;
