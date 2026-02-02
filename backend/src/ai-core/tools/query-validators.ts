@@ -107,5 +107,11 @@ export function cleanAIJsonResponse(response: string): string {
 	if (cleanedResponse.endsWith('```')) {
 		cleanedResponse = cleanedResponse.slice(0, -3);
 	}
+	cleanedResponse = cleanedResponse.trim();
+
+	cleanedResponse = cleanedResponse.replace(/^\s*\/\/.*$/gm, '');
+	cleanedResponse = cleanedResponse.replace(/\/\*[\s\S]*?\*\//g, '');
+	cleanedResponse = cleanedResponse.replace(/,(\s*[}\]])/g, '$1');
+
 	return cleanedResponse.trim();
 }

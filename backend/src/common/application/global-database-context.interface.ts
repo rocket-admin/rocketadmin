@@ -62,6 +62,10 @@ import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboa
 import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
 import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
 import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
+import { UserAiChatEntity } from '../../entities/ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
+import { IUserAiChatRepository } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.interface.js';
+import { AiChatMessageEntity } from '../../entities/ai/ai-conversation-history/ai-chat-messages/ai-chat-message.entity.js';
+import { IAiChatMessageRepository } from '../../entities/ai/ai-conversation-history/ai-chat-messages/repository/ai-chat-message-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
 	userRepository: Repository<UserEntity> & IUserRepository;
@@ -104,4 +108,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	savedDbQueryRepository: Repository<SavedDbQueryEntity> & ISavedDbQueryRepository;
 	dashboardRepository: Repository<DashboardEntity> & IDashboardRepository;
 	dashboardWidgetRepository: Repository<DashboardWidgetEntity> & IDashboardWidgetRepository;
+	userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
+	aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
 }

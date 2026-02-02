@@ -10,8 +10,9 @@
 }
 
 .permissions-alert {
-    position: relative;
-    top: -8px;
+    --alert-margin: 0 0 20px;
+    
+    top: 0;
 }
 
 .permissions-form ::ng-deep .mat-mdc-dialog-content {

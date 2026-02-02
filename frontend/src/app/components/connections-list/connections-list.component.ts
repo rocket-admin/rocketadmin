@@ -38,6 +38,11 @@ import { take } from 'rxjs/operators';
 })
 export class ConnectionsListComponent implements OnInit {
 
+  public testAlert = {
+    type: 'info' as const,
+    message: 'These connections are for demonstration purposes only. To create your own connections, please use the "Add Connection" button above.',
+  };
+
   public connections: Connection[] = null;
   // public testConnections: Connection[] = null;
   public titles: Object;

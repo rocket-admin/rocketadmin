@@ -51,7 +51,6 @@ import { normalizeTableName } from 'src/app/lib/normalize';
   ]
 })
 export class DbTableSettingsComponent implements OnInit {
-
   public connectionID: string | null = null;
   public tableName: string | null = null;
   public displayTableName: string | null = null;
