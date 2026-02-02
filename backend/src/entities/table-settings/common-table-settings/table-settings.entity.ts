@@ -11,11 +11,11 @@ import {
 	Unique,
 	UpdateDateColumn,
 } from 'typeorm';
+import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { TableActionEntity } from '../../table-actions/table-actions-module/table-action.entity.js';
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
-import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 
 @Entity('tableSettings')
 @Unique(['connection_id', 'table_name'])
