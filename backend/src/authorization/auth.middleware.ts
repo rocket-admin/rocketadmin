@@ -7,16 +7,16 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Sentry from '@sentry/minimal';
 import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
+import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
 import { UserEntity } from '../entities/user/user.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { isObjectEmpty } from '../helpers/index.js';
 import { Constants } from '../helpers/constants/constants.js';
-import Sentry from '@sentry/minimal';
-import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
+import { isObjectEmpty } from '../helpers/index.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()

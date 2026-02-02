@@ -13,10 +13,10 @@ import { isTest } from '../../helpers/app/is-test.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { AiService } from '../ai/ai.service.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { buildEmptyTableSettings } from '../table-settings/common-table-settings/utils/build-empty-table-settings.js';
 import { buildNewTableSettingsEntity } from '../table-settings/common-table-settings/utils/build-new-table-settings-entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
-import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 
 @Injectable()
 export class SharedJobsService {

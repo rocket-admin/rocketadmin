@@ -95,7 +95,11 @@
 	padding-right: 8px !important;
 }
 
-.saved-filters-tabs ::ng-deep .mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action .mdc-evolution-chip__action__content {
+.saved-filters-tabs
+	::ng-deep
+	.mat-mdc-standard-chip.mdc-evolution-chip--selected
+	.mdc-evolution-chip__action
+	.mdc-evolution-chip__action__content {
 	margin-left: 0 !important;
 	padding-left: 0 !important;
 	transform: translateX(0) !important;
@@ -306,56 +310,56 @@
 }
 
 ::ng-deep .static-filter-chip .mat-mdc-chip {
-	--mdc-chip-container-color: #E8ECEE !important;
-	--mdc-chip-elevated-container-color: #E8ECEE !important;
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
 	--mdc-chip-container-shape-radius: 16px !important;
-	background-color: #E8ECEE !important;
+	background-color: #e8ecee !important;
 	border-radius: 16px !important;
 	pointer-events: none !important;
 	cursor: default !important;
 }
 
 ::ng-deep .static-filter-chip .mat-mdc-chip:hover {
-	--mdc-chip-container-color: #E8ECEE !important;
-	--mdc-chip-elevated-container-color: #E8ECEE !important;
-	background-color: #E8ECEE !important;
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
+	background-color: #e8ecee !important;
 	cursor: default !important;
 }
 
 ::ng-deep .static-filter-chip .mat-mdc-chip:active {
-	--mdc-chip-container-color: #E8ECEE !important;
-	--mdc-chip-elevated-container-color: #E8ECEE !important;
-	background-color: #E8ECEE !important;
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
+	background-color: #e8ecee !important;
 	cursor: default !important;
 }
 
 ::ng-deep .static-filter-chip .mdc-evolution-chip__cell {
-	background-color: #E8ECEE !important;
+	background-color: #e8ecee !important;
 	border-radius: 16px !important;
 }
 
 ::ng-deep .static-filter-chip .mdc-evolution-chip__cell:hover {
-	background-color: #E8ECEE !important;
+	background-color: #e8ecee !important;
 }
 
 ::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon {
-	--mdc-chip-container-color: #E8ECEE !important;
-	--mdc-chip-elevated-container-color: #E8ECEE !important;
-	background-color: #E8ECEE !important;
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
+	background-color: #e8ecee !important;
 	pointer-events: none !important;
 }
 
 ::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:hover {
-	--mdc-chip-container-color: #E8ECEE !important;
-	--mdc-chip-elevated-container-color: #E8ECEE !important;
-	background-color: #E8ECEE !important;
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
+	background-color: #e8ecee !important;
 	cursor: default !important;
 }
 
 ::ng-deep .static-filter-chip .mat-mdc-chip.mdc-evolution-chip--with-primary-icon:active {
-	--mdc-chip-container-color: #E8ECEE !important;
-	--mdc-chip-elevated-container-color: #E8ECEE !important;
-	background-color: #E8ECEE !important;
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
+	background-color: #e8ecee !important;
 	cursor: default !important;
 }
 

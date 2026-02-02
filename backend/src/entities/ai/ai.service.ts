@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
+import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { TableInformation } from './ai-data-entities/types/ai-module-types.js';
-import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
-import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
 
 interface AIGeneratedWidgetParams {
 	options?: Array<{ value: string; label: string; background_color?: string }>;

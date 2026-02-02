@@ -8,17 +8,17 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../entities/user/user.entity.js';
-import { Repository } from 'typeorm';
-import { Request, Response } from 'express';
-import { Constants } from '../helpers/constants/constants.js';
-import { isObjectEmpty } from '../helpers/is-object-empty.js';
-import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
-import { Messages } from '../exceptions/text/messages.js';
-import jwt from 'jsonwebtoken';
 import Sentry from '@sentry/minimal';
-import { Encryptor } from '../helpers/encryption/encryptor.js';
+import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import { Repository } from 'typeorm';
+import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
+import { UserEntity } from '../entities/user/user.entity.js';
 import { EncryptionAlgorithmEnum } from '../enums/encryption-algorithm.enum.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { Constants } from '../helpers/constants/constants.js';
+import { Encryptor } from '../helpers/encryption/encryptor.js';
+import { isObjectEmpty } from '../helpers/is-object-empty.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
