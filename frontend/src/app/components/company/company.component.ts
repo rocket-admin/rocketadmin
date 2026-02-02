@@ -55,7 +55,6 @@ import { orderBy } from "lodash-es";
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CompanyComponent {
-
   CompanyMemberRole = CompanyMemberRole;
   public isSaas = (environment as any).saas;
   public company: Company = null;

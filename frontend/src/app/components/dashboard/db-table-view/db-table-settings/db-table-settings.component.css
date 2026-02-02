@@ -1,8 +1,12 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+}
+
 .settings-page {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 36px 0 0;
+    margin: 2.5em 0 0;
 }
 
 .settings-page .mat-mdc-form-field-bottom-align::before {

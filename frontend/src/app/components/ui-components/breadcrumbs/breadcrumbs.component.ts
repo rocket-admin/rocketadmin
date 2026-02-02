@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-breadcrumbs',
   templateUrl: './breadcrumbs.component.html',
   styleUrls: ['./breadcrumbs.component.css'],
+  standalone: true,
   imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule]
 })
 export class BreadcrumbsComponent implements OnInit {
