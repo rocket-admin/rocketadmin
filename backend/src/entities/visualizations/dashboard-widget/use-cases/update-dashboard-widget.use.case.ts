@@ -21,22 +21,8 @@ export class UpdateDashboardWidgetUseCase
 	}
 
 	public async implementation(inputData: UpdateDashboardWidgetDs): Promise<FoundDashboardWidgetDto> {
-		const {
-			widgetId,
-			dashboardId,
-			connectionId,
-			masterPassword,
-			widget_type,
-			chart_type,
-			name,
-			description,
-			position_x,
-			position_y,
-			width,
-			height,
-			widget_options,
-			query_id,
-		} = inputData;
+		const { widgetId, dashboardId, connectionId, masterPassword, query_id, position_x, position_y, width, height } =
+			inputData;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -74,20 +60,9 @@ export class UpdateDashboardWidgetUseCase
 			if (!foundQuery) {
 				throw new BadRequestException(Messages.SAVED_QUERY_NOT_FOUND);
 			}
+			foundWidget.query_id = query_id;
 		}
 
-		if (widget_type !== undefined) {
-			foundWidget.widget_type = widget_type;
-		}
-		if (chart_type !== undefined) {
-			foundWidget.chart_type = chart_type;
-		}
-		if (name !== undefined) {
-			foundWidget.name = name;
-		}
-		if (description !== undefined) {
-			foundWidget.description = description;
-		}
 		if (position_x !== undefined) {
 			foundWidget.position_x = position_x;
 		}
@@ -99,12 +74,6 @@ export class UpdateDashboardWidgetUseCase
 		}
 		if (height !== undefined) {
 			foundWidget.height = height;
-		}
-		if (widget_options !== undefined) {
-			foundWidget.widget_options = widget_options ? JSON.stringify(widget_options) : null;
-		}
-		if (query_id !== undefined) {
-			foundWidget.query_id = query_id;
 		}
 
 		const savedWidget = await this._dbContext.dashboardWidgetRepository.saveWidget(foundWidget);

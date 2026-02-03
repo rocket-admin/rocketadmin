@@ -1,16 +1,4 @@
-import sjson from 'secure-json-parse';
-import {
-	AfterLoad,
-	BeforeInsert,
-	BeforeUpdate,
-	Column,
-	Entity,
-	JoinColumn,
-	ManyToOne,
-	PrimaryGeneratedColumn,
-	Relation,
-} from 'typeorm';
-import { DashboardWidgetTypeEnum } from '../../../enums/dashboard-widget-type.enum.js';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { DashboardEntity } from '../dashboard/dashboard.entity.js';
 import { SavedDbQueryEntity } from '../saved-db-query/saved-db-query.entity.js';
 
@@ -18,18 +6,6 @@ import { SavedDbQueryEntity } from '../saved-db-query/saved-db-query.entity.js';
 export class DashboardWidgetEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id: string;
-
-	@Column({ type: 'varchar' })
-	widget_type: DashboardWidgetTypeEnum;
-
-	@Column({ type: 'varchar', default: null, nullable: true })
-	chart_type: string | null;
-
-	@Column({ default: null, nullable: true })
-	name: string | null;
-
-	@Column({ type: 'text', default: null, nullable: true })
-	description: string | null;
 
 	@Column({ type: 'int', default: 0 })
 	position_x: number;
@@ -42,9 +18,6 @@ export class DashboardWidgetEntity {
 
 	@Column({ type: 'int', default: 3 })
 	height: number;
-
-	@Column('json', { default: null, nullable: true })
-	widget_options: string | null;
 
 	@Column({ type: 'uuid' })
 	dashboard_id: string;
@@ -63,40 +36,4 @@ export class DashboardWidgetEntity {
 	@ManyToOne(() => SavedDbQueryEntity, { onDelete: 'SET NULL', nullable: true })
 	@JoinColumn({ name: 'query_id' })
 	query: Relation<SavedDbQueryEntity> | null;
-
-	@BeforeUpdate()
-	stringifyOptionsOnUpdate(): void {
-		try {
-			if (this.widget_options && typeof this.widget_options === 'object') {
-				this.widget_options = JSON.stringify(this.widget_options);
-			}
-		} catch (e) {
-			console.error('-> Error widget options stringify ' + e.message);
-		}
-	}
-
-	@BeforeInsert()
-	stringifyOptions(): void {
-		try {
-			if (this.widget_options && typeof this.widget_options === 'object') {
-				this.widget_options = JSON.stringify(this.widget_options);
-			}
-		} catch (e) {
-			console.error('-> Error widget options stringify ' + e.message);
-		}
-	}
-
-	@AfterLoad()
-	parseOptions(): void {
-		try {
-			if (this.widget_options && typeof this.widget_options === 'string') {
-				this.widget_options = sjson.parse(this.widget_options, null, {
-					protoAction: 'remove',
-					constructorAction: 'remove',
-				});
-			}
-		} catch (e) {
-			console.error('-> Error widget options parse ' + e.message);
-		}
-	}
 }
