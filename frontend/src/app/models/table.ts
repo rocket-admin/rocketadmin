@@ -21,22 +21,34 @@ export enum TableOrdering {
 export interface TableSettings {
     connection_id: string,
     table_name: string,
+    
     icon: string,
     display_name: string,
     autocomplete_columns: string[],
     identity_column: string,
-    search_fields: string[],
-    excluded_fields: string[],
-    list_fields: string[],
     ordering: TableOrdering,
     ordering_field: string,
+    list_fields: string[],
+    columns_view: string[],
+    search_fields: string[],
+    excluded_fields: string[],
     readonly_fields: string[],
     sortable_by: string[],
-    columns_view: string[],
     sensitive_fields: string[],
     allow_csv_export: boolean,
     allow_csv_import: boolean,
     can_delete: boolean,
+}
+
+export interface PersonalTableViewSettings {
+    ordering?: TableOrdering,
+    ordering_field?: string,
+    list_per_page?: number,
+    list_fields?: string[],
+    columns_view?: string[],
+    original_names?: boolean,
+
+    // sortable_by: string[],
 }
 
 export interface TableRow {

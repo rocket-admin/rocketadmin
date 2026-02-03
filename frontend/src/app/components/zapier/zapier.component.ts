@@ -1,28 +1,39 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { User } from '@sentry/angular-ivy';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
-  selector: 'app-zapier',
-  imports: [
-    MatIconModule,
-    MatButtonModule
-  ],
-  templateUrl: './zapier.component.html',
-  styleUrl: './zapier.component.css',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+	selector: 'app-zapier',
+	imports: [MatIconModule, MatButtonModule],
+	templateUrl: './zapier.component.html',
+	styleUrl: './zapier.component.css',
+	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ZapierComponent {
-  public currentUser: User;
+export class ZapierComponent implements OnInit {
+	currentUser = toSignal(inject(UserService).cast);
 
-  constructor(
-    private _userService: UserService
-  ) {}
+	ngOnInit(): void {
+		this._loadZapierElements();
+	}
 
-  ngOnInit(): void {
-    this._userService.cast.subscribe(user => this.currentUser = user);
-  }
+	private _loadZapierElements(): void {
+		const cdnBase = 'https://cdn.zapier.com/packages/partner-sdk/v0/zapier-elements';
+
+		if (!document.querySelector(`script[src="${cdnBase}/zapier-elements.esm.js"]`)) {
+			const script = document.createElement('script');
+			script.type = 'module';
+			script.src = `${cdnBase}/zapier-elements.esm.js`;
+			document.head.appendChild(script);
+		}
+
+		if (!document.querySelector(`link[href="${cdnBase}/zapier-elements.css"]`)) {
+			const link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = `${cdnBase}/zapier-elements.css`;
+			document.head.appendChild(link);
+		}
+	}
 }

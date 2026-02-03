@@ -1,177 +1,182 @@
-.upgrade-box {
-    margin-top: 53px;
+:host app-alert:not(:empty) {
+	--alert-margin: 24px;
+}
+
+/* .upgrade-box {
+	margin-top: 53px;
 }
 
 .upgrade-box__title {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.page {
-    padding: 16px;
-}
+	margin-bottom: 20px;
+	text-align: center;
+} */
 
 .plans {
-    margin: 2em auto;
-    width: clamp(300px, 90%, 840px);
+	margin: var(--top-margin) auto;
+	width: clamp(300px, 90%, 840px);
 }
 
 .header {
-    display: grid;
-    grid-template-columns: 0 7fr repeat(3, 6fr);
-    grid-column-gap: 12px;
-    margin-bottom: 1em;
+	display: grid;
+	grid-template-columns: 0 7fr repeat(3, 6fr);
+	grid-column-gap: 12px;
+	margin-bottom: 1em;
 }
 
 .mat-h1 {
-    margin: 0;
+	margin: 0;
 }
 
 .mat-table {
-    width: 100%;
+	width: 100%;
 }
 
 .mat-header-cell {
-    width: 25%;
+	width: 25%;
 }
 
 .cell_centered {
-    padding: 0 4px 0 16px !important;
-    text-align: center;
+	padding: 0 4px 0 16px !important;
+	text-align: center;
 }
 
 .cell_current {
-    background: linear-gradient(to right, transparent 12px, rgba(0, 0, 0, 0.04) 12px, rgba(0, 0, 0, 0.04));
+	background: linear-gradient(to right, transparent 12px, rgba(0, 0, 0, 0.04) 12px, rgba(0, 0, 0, 0.04));
 }
 
 @media (prefers-color-scheme: dark) {
-    .cell_current {
-        background: linear-gradient(to right, transparent 12px, var(--color-primaryPalette-800) 12px, var(--color-primaryPalette-800));;
-    }
+	.cell_current {
+		background: linear-gradient(
+			to right,
+			transparent 12px,
+			var(--color-primaryPalette-800) 12px,
+			var(--color-primaryPalette-800)
+		);
+	}
 }
 
 .plan-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    border-radius: 12px;
-    color: var(--mat-sidenav-content-text-color);
-    padding: 1.5em;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	border-radius: 12px;
+	color: var(--mat-sidenav-content-text-color);
+	padding: 1.5em;
 }
 
 @media (prefers-color-scheme: dark) {
-    .plan-header {
-        background-color: #202020;
-    }
+	.plan-header {
+		background-color: #202020;
+	}
 
-    .plan-header_current {
-        background-color: var(--color-primaryPalette-800);
-    }
+	.plan-header_current {
+		background-color: var(--color-primaryPalette-800);
+	}
 }
 
 .plan-header-name {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    width: 100%;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	width: 100%;
 }
 
 .plan-header h3 {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 .plan-badge {
-    --mdc-chip-label-text-size: 0.75em;
+	--mat-chip-label-text-size: 0.75em;
 
-    background-color: var(--color-primaryPalette-100) !important;
-    border-radius: 4px;
-    opacity: 1 !important;
-    height: 20px;
+	background-color: var(--color-primaryPalette-100) !important;
+	border-radius: 4px;
+	opacity: 1 !important;
+	height: 20px;
 }
 
 .plan-badge ::ng-deep .mdc-evolution-chip__action--primary {
-    padding-left: 4px !important;
-    padding-right: 4px !important;
+	padding-left: 4px !important;
+	padding-right: 4px !important;
 }
 
 .plan-badge ::ng-deep .mat-mdc-chip-action-label {
-    color: var(--color-primaryPalette-200-contrast) !important;
+	color: var(--color-primaryPalette-200-contrast) !important;
 }
 
 .price {
-    font-size: 2em;
+	font-size: 2em;
 }
 
 .per {
-    color: var(--color-value);
+	color: var(--color-value);
 }
 
 @media (prefers-color-scheme: dark) {
-    .per {
-        --color-value: rgba(255, 255, 255, 0.46);
-    }
+	.per {
+		--color-value: rgba(255, 255, 255, 0.46);
+	}
 }
 
 @media (prefers-color-scheme: light) {
-    .per {
-        --color-value: rgba(0, 0, 0, 0.54);
-    }
+	.per {
+		--color-value: rgba(0, 0, 0, 0.54);
+	}
 }
 
 .users {
-    font-weight: 400;
-    margin-top: 0.25em;
-    margin-bottom: 2em;
+	font-weight: 400;
+	margin-top: 0.25em;
+	margin-bottom: 2em;
 }
 
 .users__value {
-    color: var(--color-value);
+	color: var(--color-value);
 }
 
 @media (prefers-color-scheme: dark) {
-    .users__value {
-        --color-value: #fff;
-    }
+	.users__value {
+		--color-value: #fff;
+	}
 }
 
 @media (prefers-color-scheme: light) {
-    .users__value {
-        --color-value: #333;
-    }
+	.users__value {
+		--color-value: #333;
+	}
 }
 
 .current {
-    background: transparent !important;
-    margin-left: -16px;
+	background: transparent !important;
+	margin-left: -16px;
 }
 
 .plansTable {
-    --mat-table-header-container-height: 28px;
-    --mat-table-header-headline-size: 12px;
-    --mat-table-header-headline-color: rgba(0,0,0,0.64);
+	--mat-table-header-container-height: 28px;
+	--mat-table-header-headline-size: 12px;
+	--mat-table-header-headline-color: rgba(0, 0, 0, 0.64);
 
-    border-radius: 12px;
-    overflow: hidden;
-    margin-top: -8px;
-    margin-bottom: 20px;
+	border-radius: 12px;
+	overflow: hidden;
+	margin-top: -8px;
+	margin-bottom: 20px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .plansTable {
-        --mat-table-header-headline-color: rgba(255,255,255,0.64);
-    }
+	.plansTable {
+		--mat-table-header-headline-color: rgba(255, 255, 255, 0.64);
+	}
 }
 
 .databases-header-cell__users {
-    text-align: center;
+	text-align: center;
 }
 
 .person-icon {
-    font-size: 20px;
-    height: 20px;
-    margin-bottom: -6px;
-    margin-left: 2px;
-    width: 20px;
+	font-size: 20px;
+	height: 20px;
+	margin-bottom: -6px;
+	margin-left: 2px;
+	width: 20px;
 }
 
 /* .plansTable :ng-deep.mdc-data-table__cell {

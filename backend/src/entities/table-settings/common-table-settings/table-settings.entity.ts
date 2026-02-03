@@ -1,5 +1,17 @@
 import { Transform } from 'class-transformer';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	OneToMany,
+	PrimaryGeneratedColumn,
+	Relation,
+	Unique,
+	UpdateDateColumn,
+} from 'typeorm';
+import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { TableActionEntity } from '../../table-actions/table-actions-module/table-action.entity.js';
@@ -8,73 +20,108 @@ import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
 @Entity('tableSettings')
 @Unique(['connection_id', 'table_name'])
 export class TableSettingsEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column({ default: null })
-  table_name: string;
+	@Column({ default: null })
+	table_name: string;
 
-  @Column({ default: null })
-  display_name: string;
+	@Column({ default: null })
+	display_name: string;
 
-  @Column('varchar', { array: true, default: {} })
-  search_fields: string[];
+	@Column('varchar', { array: true, default: {} })
+	search_fields: string[];
 
-  @Column('varchar', { array: true, default: {} })
-  excluded_fields: string[];
+	@Column('varchar', { array: true, default: {} })
+	excluded_fields: string[];
 
-  @Column('varchar', { array: true, default: {} })
-  identification_fields: string[];
+	@Column('varchar', { array: true, default: {} })
+	list_fields: string[];
 
-  @Column({ default: null })
-  identity_column: string;
+	@Column('varchar', { array: true, default: {} })
+	identification_fields: string[];
 
-  @Column('varchar', { array: true, default: {} })
-  readonly_fields: string[];
+	@Column('int', { default: null })
+	list_per_page: number;
 
-  @Column('varchar', { array: true, default: {} })
-  sortable_by: string[];
+	@Column('enum', {
+		nullable: true,
+		enum: QueryOrderingEnum,
+		default: null,
+	})
+	ordering!: QueryOrderingEnum;
 
-  @Column('varchar', { array: true, default: {} })
-  autocomplete_columns: string[];
+	@Column('varchar', { default: null })
+	ordering_field: string;
 
-  @Column('varchar', { array: true, default: null })
-  columns_view: string[];
+	@Column({ default: null })
+	identity_column: string;
 
-  @Column({ default: true, type: 'boolean' })
-  can_delete: boolean;
+	@Column('varchar', { array: true, default: {} })
+	readonly_fields: string[];
 
-  @Column({ default: true, type: 'boolean' })
-  can_update: boolean;
+	@Column('varchar', { array: true, default: {} })
+	sortable_by: string[];
 
-  @Column({ default: true, type: 'boolean' })
-  can_add: boolean;
+	@Column('varchar', { array: true, default: {} })
+	autocomplete_columns: string[];
 
-  @Column({ default: true, type: 'boolean' })
-  allow_csv_export: boolean;
+	@Column('varchar', { array: true, default: null })
+	columns_view: string[];
 
-  @Column({ default: true, type: 'boolean' })
-  allow_csv_import: boolean;
+	@Column({ default: true, type: 'boolean' })
+	can_delete: boolean;
 
-  @Column('varchar', { array: true, default: null })
-  sensitive_fields: string[];
+	@Column({ default: true, type: 'boolean' })
+	can_update: boolean;
 
-  @Column('varchar', { default: null })
-  icon: string;
+	@Column({ default: true, type: 'boolean' })
+	can_add: boolean;
 
-  @Transform(({ value: connection }) => connection.id)
-  @ManyToOne((_) => ConnectionEntity, (connection) => connection.settings, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn()
-  connection_id: Relation<ConnectionEntity>;
+	@Column({ default: true, type: 'boolean' })
+	allow_csv_export: boolean;
 
-  @OneToMany((_) => CustomFieldsEntity, (fields) => fields.settings)
-  custom_fields: Relation<CustomFieldsEntity>[];
+	@Column({ default: true, type: 'boolean' })
+	allow_csv_import: boolean;
 
-  @OneToMany((_) => TableWidgetEntity, (table_widgets) => table_widgets.settings)
-  table_widgets: Relation<TableWidgetEntity>[];
+	@Column('varchar', { array: true, default: null })
+	sensitive_fields: string[];
 
-  @OneToMany((_) => TableActionEntity, (table_actions) => table_actions.settings)
-  table_actions: Relation<TableActionEntity>[];
+	@Column('varchar', { default: null })
+	icon: string;
+
+	@CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	created_at: Date;
+
+	@UpdateDateColumn({ type: 'timestamp', nullable: true, default: null })
+	updated_at: Date;
+
+	@Transform(({ value: connection }) => connection.id)
+	@ManyToOne(
+		(_) => ConnectionEntity,
+		(connection) => connection.settings,
+		{
+			onDelete: 'CASCADE',
+		},
+	)
+	@JoinColumn()
+	connection_id: Relation<ConnectionEntity>;
+
+	@OneToMany(
+		(_) => CustomFieldsEntity,
+		(fields) => fields.settings,
+	)
+	custom_fields: Relation<CustomFieldsEntity>[];
+
+	@OneToMany(
+		(_) => TableWidgetEntity,
+		(table_widgets) => table_widgets.settings,
+	)
+	table_widgets: Relation<TableWidgetEntity>[];
+
+	@OneToMany(
+		(_) => TableActionEntity,
+		(table_actions) => table_actions.settings,
+	)
+	table_actions: Relation<TableActionEntity>[];
 }

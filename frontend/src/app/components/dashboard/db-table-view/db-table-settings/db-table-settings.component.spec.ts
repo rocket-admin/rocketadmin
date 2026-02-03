@@ -1,179 +1,172 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { DbTableSettingsComponent } from './db-table-settings.component';
-import { MatDialogModule } from '@angular/material/dialog';
-import { FormsModule, NgForm } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatInputModule } from '@angular/material/input';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TablesService } from 'src/app/services/tables.service';
-import { of } from 'rxjs';
-import { TableSettings, TableOrdering } from 'src/app/models/table';
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { Angulartics2Module } from 'angulartics2';
 import { provideHttpClient } from '@angular/common/http';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, NgForm } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { Angulartics2Module } from 'angulartics2';
+import { of } from 'rxjs';
+import { TableOrdering, TableSettings } from 'src/app/models/table';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { TablesService } from 'src/app/services/tables.service';
+import { DbTableSettingsComponent } from './db-table-settings.component';
 
 describe('DbTableSettingsComponent', () => {
-  let component: DbTableSettingsComponent;
-  let fixture: ComponentFixture<DbTableSettingsComponent>;
-  let tablesService: TablesService;
-  let connectionsService: ConnectionsService;
+	let component: DbTableSettingsComponent;
+	let fixture: ComponentFixture<DbTableSettingsComponent>;
+	let tablesService: TablesService;
+	let connectionsService: ConnectionsService;
 
-  const fakeFirstName = {
-    "column_name": "FirstName",
-    "column_default": null,
-    "data_type": "varchar",
-    "isExcluded": false,
-    "isSearched": false,
-    "auto_increment": false,
-    "allow_null": false,
-    "character_maximum_length": 30
-  };
-  const fakeId = {
-    "column_name": "Id",
-    "column_default": "auto_increment",
-    "data_type": "int",
-    "isExcluded": false,
-    "isSearched": false,
-    "auto_increment": true,
-    "allow_null": false,
-    "character_maximum_length": null
-  };
-  const fakeBool = {
-    "column_name": "bool",
-    "column_default": null,
-    "data_type": "tinyint",
-    "isExcluded": false,
-    "isSearched": true,
-    "auto_increment": false,
-    "allow_null": true,
-    "character_maximum_length": 1
-  };
+	const fakeFirstName = {
+		column_name: 'FirstName',
+		column_default: null,
+		data_type: 'varchar',
+		isExcluded: false,
+		isSearched: false,
+		auto_increment: false,
+		allow_null: false,
+		character_maximum_length: 30,
+	};
+	const fakeId = {
+		column_name: 'Id',
+		column_default: 'auto_increment',
+		data_type: 'int',
+		isExcluded: false,
+		isSearched: false,
+		auto_increment: true,
+		allow_null: false,
+		character_maximum_length: null,
+	};
+	const fakeBool = {
+		column_name: 'bool',
+		column_default: null,
+		data_type: 'tinyint',
+		isExcluded: false,
+		isSearched: true,
+		auto_increment: false,
+		allow_null: true,
+		character_maximum_length: 1,
+	};
 
-  const mockTableStructure = {
-    "structure": [
-      fakeFirstName,
-      fakeId,
-      fakeBool
-    ],
-    "primaryColumns": [
-      {
-        "data_type": "int",
-        "column_name": "Id"
-      }
-    ],
-    "foreignKeys": [
-      {
-        "referenced_column_name": "CustomerId",
-        "referenced_table_name": "Customers",
-        "constraint_name": "Orders_ibfk_2",
-        "column_name": "Id"
-      }
-    ],
-    "readonly_fields": [],
-    "table_widgets": []
-  }
+	const mockTableStructure = {
+		structure: [fakeFirstName, fakeId, fakeBool],
+		primaryColumns: [
+			{
+				data_type: 'int',
+				column_name: 'Id',
+			},
+		],
+		foreignKeys: [
+			{
+				referenced_column_name: 'CustomerId',
+				referenced_table_name: 'Customers',
+				constraint_name: 'Orders_ibfk_2',
+				column_name: 'Id',
+			},
+		],
+		readonly_fields: [],
+		table_widgets: [],
+	};
 
-  const mockTableSettings: TableSettings = {
-    // id: "f3df6ca8-18af-4347-9777-47c086d83969",
-    table_name: "actor",
-    display_name: "",
-    icon: "",
-    search_fields: [],
-    excluded_fields: [],
-    list_fields: [],
-    // identification_fields: [],
-    // list_per_page: null,
-    ordering: TableOrdering.Ascending,
-    ordering_field: "",
-    identity_column: "",
-    readonly_fields: [],
-    sortable_by: [],
-    autocomplete_columns: [
-      "FirstName"
-    ],
-    columns_view: [],
-    sensitive_fields: [],
-    connection_id: "63f804e4-8588-4957-8d7f-655e2309fef7",
-    allow_csv_export: true,
-    allow_csv_import: true,
-    can_delete: true,
-  }
+	const mockTableSettings: TableSettings = {
+		// id: "f3df6ca8-18af-4347-9777-47c086d83969",
+		table_name: 'actor',
+		display_name: '',
+		icon: '',
+		search_fields: [],
+		excluded_fields: [],
+		list_fields: [],
+		ordering: TableOrdering.Ascending,
+    	ordering_field: "",
+		columns_view: [],
+		// identification_fields: [],
+		// list_per_page: null,
+		identity_column: '',
+		readonly_fields: [],
+		sortable_by: [],
+		autocomplete_columns: ['FirstName'],
+		sensitive_fields: [],
+		connection_id: '63f804e4-8588-4957-8d7f-655e2309fef7',
+		allow_csv_export: true,
+		allow_csv_import: true,
+		can_delete: true,
+	};
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        MatSnackBarModule,
-        MatDialogModule,
-        FormsModule,
-        MatSelectModule,
-        MatRadioModule,
-        MatInputModule,
-        BrowserAnimationsModule,
-        Angulartics2Module.forRoot(),
-        DbTableSettingsComponent
-      ],
-      providers: [provideHttpClient(), provideRouter([])]
-    }).compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [
+				MatSnackBarModule,
+				MatDialogModule,
+				FormsModule,
+				MatSelectModule,
+				MatRadioModule,
+				MatInputModule,
+				BrowserAnimationsModule,
+				Angulartics2Module.forRoot(),
+				DbTableSettingsComponent,
+			],
+			providers: [provideHttpClient(), provideRouter([])],
+		}).compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DbTableSettingsComponent);
-    component = fixture.componentInstance;
-    tablesService = TestBed.inject(TablesService);
-    connectionsService = TestBed.inject(ConnectionsService);
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(DbTableSettingsComponent);
+		component = fixture.componentInstance;
+		tablesService = TestBed.inject(TablesService);
+		connectionsService = TestBed.inject(ConnectionsService);
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 
-  it('should set initial state', () => {
-    spyOnProperty(connectionsService, 'currentConnectionID').and.returnValue('12345678');
-    spyOnProperty(tablesService, 'currentTableName').and.returnValue('users');
-    spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
-    spyOn(tablesService, 'fetchTableSettings').and.returnValue(of(mockTableSettings));
+	it('should set initial state', () => {
+		vi.spyOn(connectionsService, 'currentConnectionID', 'get').mockReturnValue('12345678');
+		vi.spyOn(tablesService, 'currentTableName', 'get').mockReturnValue('users');
+		vi.spyOn(tablesService, 'fetchTableStructure').mockReturnValue(of(mockTableStructure));
+		vi.spyOn(tablesService, 'fetchTableSettings').mockReturnValue(of(mockTableSettings));
 
-    component.ngOnInit();
-    fixture.detectChanges();
+		component.ngOnInit();
+		fixture.detectChanges();
 
-    expect(component.fields).toEqual(['FirstName', 'Id', 'bool']);
-    expect(component.fields_to_exclude).toEqual(['FirstName', 'bool']);
-    expect(component.tableSettings).toEqual(mockTableSettings);
-  });
+		expect(component.fields).toEqual(['FirstName', 'Id', 'bool']);
+		expect(component.fields_to_exclude).toEqual(['FirstName', 'bool']);
+		expect(component.tableSettings).toEqual(mockTableSettings);
+	});
 
-  it('should update settings', () => {
-    const fakeUpdateTableSettings = spyOn(tablesService, 'updateTableSettings').and.returnValue(of());
-    component.isSettingsExist = true;
-    component.connectionID = '12345678';
-    component.tableName = 'users';
-    component.tableSettings = mockTableSettings;
+	it('should update settings', () => {
+		const fakeUpdateTableSettings = vi.spyOn(tablesService, 'updateTableSettings').mockReturnValue(of());
+		component.isSettingsExist = true;
+		component.connectionID = '12345678';
+		component.tableName = 'users';
+		component.tableSettings = mockTableSettings;
 
-    component.updateSettings();
+		component.updateSettings();
 
-    expect(fakeUpdateTableSettings).toHaveBeenCalledOnceWith(true, '12345678', 'users', mockTableSettings);
-  });
+		expect(fakeUpdateTableSettings).toHaveBeenCalledWith(true, '12345678', 'users', mockTableSettings);
+	});
 
-  it('should delete settings', () => {
-    // const fakeUpdateTableSettings = spyOn(tablesService, 'updateTableSettings').and.returnValue(of());
-    // component.isSettingsExist = true;
-    component.connectionID = '12345678';
-    component.tableName = 'users';
-    // component.tableSettings = mockTableSettings;
-    const fakeDeleteSettings = spyOn(tablesService, 'deleteTableSettings').and.returnValue(of());
+	it('should delete settings', () => {
+		// const fakeUpdateTableSettings = vi.spyOn(tablesService, 'updateTableSettings').mockReturnValue(of());
+		// component.isSettingsExist = true;
+		component.connectionID = '12345678';
+		component.tableName = 'users';
+		// component.tableSettings = mockTableSettings;
+		const fakeDeleteSettings = vi.spyOn(tablesService, 'deleteTableSettings').mockReturnValue(of());
 
-    const testForm = <NgForm>{
-      value: {
-          name: "tableSettingsForm",
-      }
-    };
+		const testForm = <NgForm>{
+			value: {
+				name: 'tableSettingsForm',
+			},
+		};
 
-    component.resetSettings(testForm);
+		component.resetSettings(testForm);
 
-    expect(fakeDeleteSettings).toHaveBeenCalledOnceWith('12345678', 'users');
-  });
+		expect(fakeDeleteSettings).toHaveBeenCalledWith('12345678', 'users');
+	});
 });

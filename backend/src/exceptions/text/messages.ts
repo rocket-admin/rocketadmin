@@ -13,8 +13,10 @@ import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 export const Messages = {
+	API_KEY_SUSPENDED: 'API key is suspended',
 	AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',
 	AI_THREAD_NOT_FOUND: 'Thread with specified parameters not found',
+	AI_CHAT_NOT_FOUND: 'AI chat with specified parameters not found',
 	ACCOUNT_SUSPENDED:
 		'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
 	ACCESS_LEVEL_INVALID: 'Access level is invalid',
@@ -107,6 +109,8 @@ export const Messages = {
 	DONT_HAVE_PERMISSIONS: 'You do not have permission to perform this operation',
 	DONT_HAVE_NON_TEST_CONNECTIONS:
 		'You only have test connections. To remove test connections please add your connection first',
+	DASHBOARD_NOT_FOUND: 'Dashboard with specified parameters not found',
+	DASHBOARD_WIDGET_NOT_FOUND: 'Dashboard widget with specified parameters not found',
 	SAVED_QUERY_NOT_FOUND: 'Saved query with specified parameters not found',
 	ENCRYPTION_ALGORITHM_INCORRECT: (alg: string) =>
 		`Unsupported algorithm type${alg ? ` ${alg}.` : '.'} We supports only ${enumToString(
@@ -378,4 +382,6 @@ export const Messages = {
 	SECRET_DELETED_SUCCESSFULLY: 'Secret deleted successfully',
 	USER_NOT_FOUND_OR_NOT_IN_COMPANY: 'User not found or not associated with a company',
 	PERSONAL_TABLE_SETTINGS_NOT_FOUND: 'Personal table settings with this parameters not found',
+	SELF_HOSTED_ALREADY_CONFIGURED: 'Instance is already configured',
+	ENDPOINT_NOT_AVAILABLE_IN_THIS_MODE: 'This endpoint is not available in the current mode',
 };

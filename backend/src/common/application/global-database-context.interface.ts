@@ -58,6 +58,14 @@ import { IPersonalTableSettingsRepository } from '../../entities/table-settings/
 import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
 import { SavedDbQueryEntity } from '../../entities/visualizations/saved-db-query/saved-db-query.entity.js';
 import { ISavedDbQueryRepository } from '../../entities/visualizations/saved-db-query/repository/saved-db-query.repository.interface.js';
+import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
+import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
+import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
+import { UserAiChatEntity } from '../../entities/ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
+import { IUserAiChatRepository } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.interface.js';
+import { AiChatMessageEntity } from '../../entities/ai/ai-conversation-history/ai-chat-messages/ai-chat-message.entity.js';
+import { IAiChatMessageRepository } from '../../entities/ai/ai-conversation-history/ai-chat-messages/repository/ai-chat-message-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
 	userRepository: Repository<UserEntity> & IUserRepository;
@@ -98,4 +106,8 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 	personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
 	savedDbQueryRepository: Repository<SavedDbQueryEntity> & ISavedDbQueryRepository;
+	dashboardRepository: Repository<DashboardEntity> & IDashboardRepository;
+	dashboardWidgetRepository: Repository<DashboardWidgetEntity> & IDashboardWidgetRepository;
+	userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
+	aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
 }

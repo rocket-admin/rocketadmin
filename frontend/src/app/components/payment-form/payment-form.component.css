@@ -1,5 +1,9 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+}
+
 .payment-page {
-    margin: 3em auto;
+    margin: var(--top-margin) auto;
     width: clamp(18.75em, 96%, 45em);
 }
 

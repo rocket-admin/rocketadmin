@@ -30,8 +30,10 @@ import { FoundPersonalTableSettingsDto } from './dto/found-personal-table-settin
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
 import { CreatePersonalTableSettingsDs } from './data-structures/create-personal-table-settings.ds.js';
 import { CreatePersonalTableSettingsDto } from './dto/create-personal-table-settings.dto.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Personal table settings')
@@ -116,8 +118,8 @@ export class PersonalTableSettingsController {
 				columns_view: personalSettingsData.columns_view || null,
 				list_fields: personalSettingsData.list_fields || null,
 				list_per_page: personalSettingsData.list_per_page || null,
-				ordering: personalSettingsData.ordering || null,
-				ordering_field: personalSettingsData.ordering_field || null,
+				ordering: personalSettingsData.ordering,
+				ordering_field: personalSettingsData.ordering_field,
 				original_names: personalSettingsData.original_names || null,
 			},
 		};

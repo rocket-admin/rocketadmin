@@ -1,351 +1,362 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+
+	position: absolute;
+    top: var(--mat-toolbar-standard-height);
+    width: calc(100% - 48px);
+}
+
 .wrapper {
-    height: calc(100vh - 56px);
-    padding: 16px;
+	height: calc(100vh - 56px);
+	padding: 16px;
 }
 
 @media (width <= 600px) {
-    .wrapper {
-        padding: 0;
-        width: 100vw;
-    }
+	.wrapper {
+		padding: 0;
+		width: 100vw;
+	}
 }
 
 .login-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
 }
 
 @media (width <= 600px) {
-    .login-page {
-        justify-content: flex-start;
-    }
+	.login-page {
+		justify-content: flex-start;
+	}
 }
 
 .login-form {
-    display: grid;
-    grid-template-columns: 360px 52px 360px;
-    grid-template-rows: auto 64px 64px 64px auto;
-    justify-items: center;
+	display: grid;
+	grid-template-columns: 360px 52px 360px;
+	grid-template-rows: auto 64px 64px 64px auto;
+	justify-items: center;
 }
 
 .login-form--native-login {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: clamp(360px, 30%, 600px);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: clamp(360px, 30%, 600px);
 }
 
 @media (width <= 600px) {
-    .login-form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        padding: 40px 9vw;
-        width: 100%;
-    }
+	.login-form {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		padding: 40px 9vw;
+		width: 100%;
+	}
 }
 
 .login-header {
-    grid-column: 1 / span 3;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 40px;
+	grid-column: 1 / span 3;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding-bottom: 40px;
 }
 
 @media (width <= 600px) {
-    .login-header {
-        padding-bottom: 0;
-    }
+	.login-header {
+		padding-bottom: 0;
+	}
 }
 
 .login-header__logo {
-    margin-bottom: 36px;
-    width: 44px;
+	margin-bottom: 36px;
+	width: 44px;
 }
 
 @media (width <= 600px) {
-    .login-header__logo {
-        margin-bottom: 12px;
-    }
+	.login-header__logo {
+		margin-bottom: 12px;
+	}
 }
 
 @media (prefers-color-scheme: dark) {
-    .login-header__logo path {
-        fill: white;
-    }
+	.login-header__logo path {
+		fill: white;
+	}
 }
 
 .loginTitle {
-    font-weight: 600 !important;
-    margin-bottom: 40px !important;
-    text-align: center !important;
+	font-weight: 600 !important;
+	margin-bottom: 40px !important;
+	text-align: center !important;
 }
 
 .loginTitle__emphasis {
-    color: var(--color-accentedPalette-500);
+	color: var(--color-accentedPalette-500);
 }
 
 @media (width <= 600px) {
-    .login-header__directions {
-        display: none;
-    }
+	.login-header__directions {
+		display: none;
+	}
 }
 
-[hidden] { display: none !important;}
+[hidden] {
+	display: none !important;
+}
 
 .login-form__email {
-    grid-column: 1;
-    grid-row: 2;
-    width: 100%;
+	grid-column: 1;
+	grid-row: 2;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .login-form__email {
-        order: 1;
-    }
+	.login-form__email {
+		order: 1;
+	}
 }
 
 .login-form__companies {
-    width: 100%;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .login-form__companies {
-        order: 2;
-    }
+	.login-form__companies {
+		order: 2;
+	}
 }
 
 .login-form__password {
-    /* grid-column: 1;
+	/* grid-column: 1;
     grid-row: 3; */
-    width: 100%;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .login-form__password {
-        order: 3;
-    }
+	.login-form__password {
+		order: 3;
+	}
 }
 
 .login-form__login-button {
-    grid-column: 1 / span 3;
-    grid-row: 5;
-    width: 360px;
-    margin-top: 40px;
+	grid-column: 1 / span 3;
+	grid-row: 5;
+	width: 360px;
+	margin-top: 40px;
 }
 
 @media (width <= 600px) {
-    .login-form__login-button {
-        order: 4;
-        margin-top: 0;
-        width: 100%;
-    }
+	.login-form__login-button {
+		order: 4;
+		margin-top: 0;
+		width: 100%;
+	}
 }
 
 .login-form__google-button {
-    grid-column: 3;
-    grid-row: 2;
+	grid-column: 3;
+	grid-row: 2;
 }
 
 @media (width <= 600px) {
-    .login-form__google-button {
-        order: 6;
-        margin: 4px 0;
-    }
+	.login-form__google-button {
+		order: 6;
+		margin: 4px 0;
+	}
 }
 
 .login-form__github-button-box {
-    grid-column: 3;
-    grid-row: 3;
-    width: 100%;
+	grid-column: 3;
+	grid-row: 3;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .login-form__github-button-box {
-        order: 7;
-        margin: 4px 0;
-    }
+	.login-form__github-button-box {
+		order: 7;
+		margin: 4px 0;
+	}
 }
 
 .login-form__github-button {
-    height: 40px;
-    width: 100%;
+	height: 40px;
+	width: 100%;
 }
 
 .login-form__github-button ::ng-deep .mdc-button__label {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
 }
 
 .login-form__github-caption {
-    flex: 1 0 auto;
-    text-align: center;
+	flex: 1 0 auto;
+	text-align: center;
 }
 
 .login-form__github-icon {
-    --mat-outlined-button-icon-spacing: 0;
-    --mat-outlined-button-icon-offset: 0;
+	--mat-button-outlined-icon-spacing: 0;
+	--mat-button-outlined-icon-offset: 0;
 }
 
 .login-form__github-button:disabled .login-form__github-icon {
-    filter: invert(0.85);
+	filter: invert(0.85);
 }
 
 @media (prefers-color-scheme: dark) {
-    .login-form__github-icon ::ng-deep svg path {
-        fill: #fff;
-    }
+	.login-form__github-icon ::ng-deep svg path {
+		fill: #fff;
+	}
 }
 
 .login-form__sso-button-box {
-    grid-column: 3;
-    grid-row: 4;
-    width: 100%;
+	grid-column: 3;
+	grid-row: 4;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .login-form__sso-button-box {
-        order: 8;
-        margin: 4px 0;
-    }
+	.login-form__sso-button-box {
+		order: 8;
+		margin: 4px 0;
+	}
 }
 
 .login-form__sso-button {
-    height: 40px;
-    width: 100%;
+	height: 40px;
+	width: 100%;
 }
 
 .login-form__sso-button ::ng-deep .mdc-button__label {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
 }
 
 .login-form__sso-caption {
-    flex: 1 0 auto;
-    text-align: center;
+	flex: 1 0 auto;
+	text-align: center;
 }
 
 .login-form__sso-icon {
-    height: 18px;
-    width: 18px;
+	height: 18px;
+	width: 18px;
 }
 
 .login-form__sso-button:disabled .login-form__sso-icon {
-    filter: invert(0.85);
+	filter: invert(0.85);
 }
 
 .login-form__link {
-    grid-column: 1 / span 3;
-    grid-row: 6;
-    color: var(--color-accentedPalette-500);
-    margin-top: 48px;
-    text-decoration: none;
+	grid-column: 1 / span 3;
+	grid-row: 6;
+	color: var(--color-accentedPalette-500);
+	margin-top: 48px;
+	text-decoration: none;
 }
 
 @media (width <= 600px) {
-    .login-form__link {
-        order: 9;
-    }
+	.login-form__link {
+		order: 9;
+	}
 }
 
 .divider {
-    grid-column: 2;
-    grid-row: 2 / span 3;
-    align-self: center;
-    position: relative;
-    background-color: #E8E8E8;
-    margin: 36px 0;
-    height: 100%;
-    width: 1px;
+	grid-column: 2;
+	grid-row: 2 / span 3;
+	align-self: center;
+	position: relative;
+	background-color: #e8e8e8;
+	margin: 36px 0;
+	height: 100%;
+	width: 1px;
 }
 
 @media (width <= 600px) {
-    .divider {
-        order: 5;
-        height: 1px;
-        margin: 28px 0 8px;
-        width: 100%;
-    }
+	.divider {
+		order: 5;
+		height: 1px;
+		margin: 28px 0 8px;
+		width: 100%;
+	}
 }
 
 .divider__label {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--mat-sidenav-content-background-color);
-    font-size: 14px;
-    padding: 0 16px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: var(--mat-sidenav-content-background-color);
+	font-size: 14px;
+	padding: 0 16px;
 }
 
 .qr-verification {
-    display: flex;
-    flex-direction: column;
-    width: 400px;
+	display: flex;
+	flex-direction: column;
+	width: 400px;
 }
 
 .qr-verification__title {
-    text-align: center;
-    margin-bottom: 32px;
+	text-align: center;
+	margin-bottom: 32px;
 }
 
 .companiesRadioGroup {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 12px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	margin-bottom: 12px;
 }
 
 .login-form__field-loader {
-    position: relative;
-    background-color: rgba(0, 0, 0, 0.06);
-    overflow: hidden;
-    height: 44px;
-    width: 100%;
+	position: relative;
+	background-color: rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+	height: 44px;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .login-form__field-loader {
-        order: 2;
-    }
+	.login-form__field-loader {
+		order: 2;
+	}
 }
 
 .login-form__field-loader::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    transform: translateX(-100%);
-    background-image: linear-gradient(
-        90deg,
-        transparent 40%,
-        var(--mat-sidenav-content-background-color, #fff),
-        transparent 60%
-    );
-    animation: shimmer 800ms ease-in-out infinite alternate;
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	transform: translateX(-100%);
+	background-image: linear-gradient(
+		90deg,
+		transparent 40%,
+		var(--mat-sidenav-content-background-color, #fff),
+		transparent 60%
+	);
+	animation: shimmer 800ms ease-in-out infinite alternate;
 }
 
 @media (prefers-color-scheme: dark) {
-    .login-form__field-loader::after {
-        background-image: linear-gradient(
-            90deg,
-            transparent 40%,
-            var(--mat-sidenav-content-background-color, #303030),
-            transparent 60%
-        );
-    }
+	.login-form__field-loader::after {
+		background-image: linear-gradient(
+			90deg,
+			transparent 40%,
+			var(--mat-sidenav-content-background-color, #303030),
+			transparent 60%
+		);
+	}
 }
 
 @keyframes shimmer {
-    100% {
-        transform: translateX(100%);
-    }
+	100% {
+		transform: translateX(100%);
+	}
 }

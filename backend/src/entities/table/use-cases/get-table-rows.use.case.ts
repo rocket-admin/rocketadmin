@@ -250,15 +250,16 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				can_add: can_add,
 				table_settings: {
 					sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
-					ordering: personalTableSettings.ordering ? personalTableSettings.ordering : undefined,
+					ordering: builtDAOsTableSettings.ordering ? builtDAOsTableSettings.ordering : undefined,
 					identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
-					list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
+					list_fields: builtDAOsTableSettings?.list_fields?.length > 0 ? builtDAOsTableSettings.list_fields : [],
 					allow_csv_export: allowCsvExport,
 					allow_csv_import: allowCsvImport,
 					can_delete: can_delete,
 					can_update: can_update,
 					can_add: can_add,
-					columns_view: personalTableSettings?.columns_view ? personalTableSettings.columns_view : [],
+					columns_view: builtDAOsTableSettings?.columns_view ? builtDAOsTableSettings.columns_view : [],
+					ordering_field: builtDAOsTableSettings.ordering_field ? builtDAOsTableSettings.ordering_field : undefined,
 				},
 			};
 

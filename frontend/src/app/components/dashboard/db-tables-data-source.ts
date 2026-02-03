@@ -1,28 +1,24 @@
-import * as JSON5 from 'json5';
-
-import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, Widget } from 'src/app/models/table';
-import { catchError, finalize } from 'rxjs/operators';
-
-import { AccessLevel } from 'src/app/models/user';
 import { CollectionViewer } from '@angular/cdk/collections';
-import { ConnectionsService } from 'src/app/services/connections.service';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { TableRowService } from 'src/app/services/table-row.service';
-// import { MatSort } from '@angular/material/sort';
-import { TablesService } from 'src/app/services/tables.service';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { filter } from "lodash";
+import JSON5 from 'json5';
+import { filter } from 'lodash-es';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
+import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
+import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { AccessLevel } from 'src/app/models/user';
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { TableRowService } from 'src/app/services/table-row.service';
+import { TablesService } from 'src/app/services/tables.service';
 import { normalizeFieldName } from 'src/app/lib/normalize';
 
 interface Column {
-  title: string,
-  normalizedTitle: string,
-  selected: boolean
+	title: string;
+	normalizedTitle: string;
+	selected: boolean;
 }
 
 interface RowsParams {
@@ -35,8 +31,7 @@ interface RowsParams {
   filters?: object,
   comparators?: object,
   search?: string,
-  isTablePageSwitched?: boolean,
-  shownColumns?: string[]
+  isTablePageSwitched?: boolean
 }
 
 export class TablesDataSource implements DataSource<Object> {
@@ -46,7 +41,6 @@ export class TablesDataSource implements DataSource<Object> {
 
   public loading$ = this.loadingSubject.asObservable();
   public paginator: MatPaginator;
-  // public sort: MatSort;
 
   public structure;
   public keyAttributes;
@@ -56,6 +50,10 @@ export class TablesDataSource implements DataSource<Object> {
   public displayedColumns: string[];
   public displayedDataColumns: string[];
   public sortByColumns: string[];
+  public defaultSort: {
+    column: string;
+    direction: 'asc' | 'desc';
+  } | null;
   public foreignKeysList: string[] = [];
   public foreignKeys: TableForeignKey[] = [];
   public widgetsList: string[];
@@ -89,7 +87,6 @@ export class TablesDataSource implements DataSource<Object> {
   constructor(
     private _tables: TablesService,
     private _connections: ConnectionsService,
-    private _uiSettings: UiSettingsService,
     private _tableRow: TableRowService,
   ) {}
 
@@ -123,8 +120,7 @@ export class TablesDataSource implements DataSource<Object> {
     sortOrder,
     filters, comparators,
     search,
-    isTablePageSwitched,
-    shownColumns
+    isTablePageSwitched
   }: RowsParams) {
       this.loadingSubject.next(true);
       this.alert_primaryKeysInfo = null;
@@ -198,7 +194,7 @@ export class TablesDataSource implements DataSource<Object> {
 
                 try {
                   parsedParams = JSON5.parse(widget.widget_params);
-                } catch {
+                } catch (error) {
                   parsedParams = {};
                 }
 
@@ -215,8 +211,8 @@ export class TablesDataSource implements DataSource<Object> {
           this.tableTypes = getTableTypes(res.structure, this.foreignKeysList);
 
           let orderedColumns: TableField[];
-          if (res.list_fields.length) {
-            orderedColumns = res.structure.sort((fieldA: TableField, fieldB: TableField) => res.list_fields.indexOf(fieldA.column_name) - res.list_fields.indexOf(fieldB.column_name));
+          if (res.table_settings.list_fields.length) {
+            orderedColumns = res.structure.sort((fieldA: TableField, fieldB: TableField) => res.table_settings.list_fields.indexOf(fieldA.column_name) - res.table_settings.list_fields.indexOf(fieldB.column_name));
           } else {
             orderedColumns = [...res.structure];
           };
@@ -224,11 +220,11 @@ export class TablesDataSource implements DataSource<Object> {
           if (isTablePageSwitched === undefined) this.columns = orderedColumns
             .filter (item => item.isExcluded === false)
             .map((item, index) => {
-              if (shownColumns?.length) {
+              if (res.table_settings.columns_view && res.table_settings.columns_view.length !== 0) {
                 return {
                   title: item.column_name,
                   normalizedTitle: this.widgets[item.column_name]?.name || normalizeFieldName(item.column_name),
-                  selected: shownColumns.includes(item.column_name)
+                  selected: res.table_settings.columns_view.includes(item.column_name)
                 }
               } else if (res.columns_view && res.columns_view.length !== 0) {
                 return {
@@ -283,6 +279,16 @@ export class TablesDataSource implements DataSource<Object> {
 
           this.sortByColumns = res.sortable_by;
 
+          // Only set defaultSort if both ordering_field and ordering are present
+          if (res.table_settings.ordering_field && res.table_settings.ordering) {
+            this.defaultSort = {
+              column: res.table_settings.ordering_field,
+              direction: res.table_settings.ordering.toLowerCase() as 'asc' | 'desc'
+            };
+          } else {
+            this.defaultSort = null;
+          }
+
           const widgetsConfigured = res.widgets?.length;
           if (!res.configured && !widgetsConfigured
             && this._connections.connectionAccessLevel !== AccessLevel.None
@@ -292,6 +298,10 @@ export class TablesDataSource implements DataSource<Object> {
               type: AlertType.Info,
               message: 'Configure now to reveal advanced table functionality and features.',
               actions: [
+                // {
+                //   type: AlertActionType.Button,
+                //   caption: 'AI generate',
+                // },
                 {
                   type: AlertActionType.Link,
                   caption: 'Settings',
@@ -326,8 +336,6 @@ export class TablesDataSource implements DataSource<Object> {
     } else {
       this.displayedColumns = [...this.displayedDataColumns];
     };
-
-    this._uiSettings.updateTableSetting(connectionId, tableName, 'shownColumns', this.displayedDataColumns);
   }
 
   getQueryParams(row, action) {
