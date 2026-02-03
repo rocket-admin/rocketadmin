@@ -1,5 +1,3 @@
-export type DashboardWidgetType = 'table' | 'chart' | 'counter' | 'text';
-
 export interface Dashboard {
 	id: string;
 	name: string;
@@ -12,15 +10,10 @@ export interface Dashboard {
 
 export interface DashboardWidget {
 	id: string;
-	widget_type: DashboardWidgetType;
-	chart_type?: string;
-	name: string;
-	description: string | null;
 	position_x: number;
 	position_y: number;
 	width: number;
 	height: number;
-	widget_options: Record<string, unknown>;
 	query_id: string | null;
 	dashboard_id: string;
 }
@@ -36,27 +29,17 @@ export interface UpdateDashboardPayload {
 }
 
 export interface CreateWidgetPayload {
-	widget_type: DashboardWidgetType;
-	chart_type?: string;
-	name: string;
-	description?: string;
 	position_x: number;
 	position_y: number;
 	width: number;
 	height: number;
-	widget_options?: Record<string, unknown>;
-	query_id?: string;
+	query_id: string;
 }
 
 export interface UpdateWidgetPayload {
-	widget_type?: DashboardWidgetType;
-	chart_type?: string;
-	name?: string;
-	description?: string;
 	position_x?: number;
 	position_y?: number;
 	width?: number;
 	height?: number;
-	widget_options?: Record<string, unknown>;
 	query_id?: string;
 }

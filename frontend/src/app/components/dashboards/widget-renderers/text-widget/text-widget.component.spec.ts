@@ -16,21 +16,34 @@ describe('TextWidgetComponent', () => {
 		component = fixture.componentInstance;
 		component.widget = {
 			id: 'test-id',
-			name: 'Test Text',
-			widget_type: 'text',
-			description: null,
 			position_x: 0,
 			position_y: 0,
 			width: 4,
 			height: 4,
-			widget_options: { text_content: '# Hello World' },
 			query_id: null,
 			dashboard_id: 'test-dashboard',
+		};
+		component.preloadedQuery = {
+			id: 'test-query',
+			name: 'Test Text',
+			description: null,
+			widget_type: 'text',
+			chart_type: null,
+			widget_options: { text_content: '# Hello World' },
+			query_text: '',
+			connection_id: 'test-conn',
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
 		};
 		fixture.detectChanges();
 	});
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	it('should compute text content from preloaded query', () => {
+		const textContent = component['textContent']();
+		expect(textContent).toBe('# Hello World');
 	});
 });

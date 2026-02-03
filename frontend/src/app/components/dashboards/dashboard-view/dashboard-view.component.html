@@ -8,9 +8,9 @@
             </button>
             <div class="header-info">
                 <h1 class="mat-h1">{{ dashboard()?.name || 'Loading...' }}</h1>
-                <p *ngIf="dashboard()?.description" class="dashboard-description">
-                    {{ dashboard()?.description }}
-                </p>
+                @if (dashboard()?.description) {
+                    <p class="dashboard-description">{{ dashboard()?.description }}</p>
+                }
             </div>
         </div>
         <div class="header-actions">
@@ -30,66 +30,52 @@
         </div>
     </div>
 
-    <div *ngIf="loading()" class="loading-container">
-        <mat-spinner diameter="48"></mat-spinner>
-    </div>
+    @if (loading()) {
+        <div class="loading-container">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
+    }
 
-    <div *ngIf="!loading() && gridsterItems().length === 0" class="no-widgets">
-        <mat-icon class="no-widgets-icon">bar_chart</mat-icon>
-        <h3>No charts yet</h3>
-        <p>Add charts to visualize your data from saved queries.</p>
-        <button mat-stroked-button color="primary" (click)="openAddWidgetDialog()">
-            <mat-icon>add</mat-icon>
-            Add Chart
-        </button>
-    </div>
+    @if (!loading() && gridsterItems().length === 0) {
+        <div class="no-widgets">
+            <mat-icon class="no-widgets-icon">bar_chart</mat-icon>
+            <h3>No charts yet</h3>
+            <p>Add charts to visualize your data from saved queries.</p>
+            <button mat-stroked-button color="primary" (click)="openAddWidgetDialog()">
+                <mat-icon>add</mat-icon>
+                Add Chart
+            </button>
+        </div>
+    }
 
-    <gridster *ngIf="!loading() && gridsterItems().length > 0" [options]="gridsterOptions" class="dashboard-grid">
-        @for (item of gridsterItems(); track item.widget.id) {
-            <gridster-item [item]="item" class="widget-item" [class.edit-mode]="editMode()">
-                <div class="widget-header">
-                    <span class="widget-title">{{ item.widget.name }}</span>
-                    <button mat-icon-button [matMenuTriggerFor]="widgetMenu" class="widget-menu-button">
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
-                    <mat-menu #widgetMenu="matMenu">
-                        <button mat-menu-item (click)="openEditWidgetDialog(item.widget)">
-                            <mat-icon>edit</mat-icon>
-                            <span>Edit</span>
+    @if (!loading() && gridsterItems().length > 0) {
+        <gridster [options]="gridsterOptions" class="dashboard-grid">
+            @for (item of gridsterItems(); track item.widget.id) {
+                <gridster-item [item]="item" class="widget-item" [class.edit-mode]="editMode()">
+                    <div class="widget-header">
+                        <span class="widget-title">{{ widgetRef.savedQuery()?.name || 'Loading...' }}</span>
+                        <button mat-icon-button [matMenuTriggerFor]="widgetMenu" class="widget-menu-button">
+                            <mat-icon>more_vert</mat-icon>
                         </button>
-                        <button mat-menu-item (click)="openDeleteWidgetDialog(item.widget)" class="delete-action">
-                            <mat-icon color="warn">delete</mat-icon>
-                            <span>Delete</span>
-                        </button>
-                    </mat-menu>
-                </div>
-                <div class="widget-content">
-                    @switch (item.widget.widget_type) {
-                        @case ('chart') {
-                            <app-chart-widget
-                                [widget]="item.widget"
-                                [connectionId]="connectionId()">
-                            </app-chart-widget>
-                        }
-                        @case ('table') {
-                            <app-table-widget
-                                [widget]="item.widget"
-                                [connectionId]="connectionId()">
-                            </app-table-widget>
-                        }
-                        @case ('counter') {
-                            <app-counter-widget
-                                [widget]="item.widget"
-                                [connectionId]="connectionId()">
-                            </app-counter-widget>
-                        }
-                        @case ('text') {
-                            <app-text-widget [widget]="item.widget">
-                            </app-text-widget>
-                        }
-                    }
-                </div>
-            </gridster-item>
-        }
-    </gridster>
+                        <mat-menu #widgetMenu="matMenu">
+                            <button mat-menu-item (click)="openEditWidgetDialog(item.widget)">
+                                <mat-icon>edit</mat-icon>
+                                <span>Edit</span>
+                            </button>
+                            <button mat-menu-item (click)="openDeleteWidgetDialog(item.widget)" class="delete-action">
+                                <mat-icon color="warn">delete</mat-icon>
+                                <span>Delete</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+                    <div class="widget-content">
+                        <app-dashboard-widget #widgetRef
+                            [widget]="item.widget"
+                            [connectionId]="connectionId()">
+                        </app-dashboard-widget>
+                    </div>
+                </gridster-item>
+            }
+        </gridster>
+    }
 </div>

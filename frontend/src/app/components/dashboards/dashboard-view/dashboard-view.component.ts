@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,10 +13,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
 	CompactType,
 	DisplayGrid,
-	Gridster,
+	GridsterComponent,
 	GridsterConfig,
 	GridsterItem,
-	GridsterItemConfig,
+	GridsterItemComponent,
 	GridType,
 } from 'angular-gridster2';
 import { Angulartics2 } from 'angulartics2';
@@ -26,12 +26,9 @@ import { DashboardsService } from 'src/app/services/dashboards.service';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { WidgetDeleteDialogComponent } from '../widget-delete-dialog/widget-delete-dialog.component';
 import { WidgetEditDialogComponent } from '../widget-edit-dialog/widget-edit-dialog.component';
-import { ChartWidgetComponent } from '../widget-renderers/chart-widget/chart-widget.component';
-import { CounterWidgetComponent } from '../widget-renderers/counter-widget/counter-widget.component';
-import { TableWidgetComponent } from '../widget-renderers/table-widget/table-widget.component';
-import { TextWidgetComponent } from '../widget-renderers/text-widget/text-widget.component';
+import { DashboardWidgetComponent } from '../widget-renderers/dashboard-widget/dashboard-widget.component';
 
-interface GridsterWidgetItem extends GridsterItemConfig {
+interface GridsterWidgetItem extends GridsterItem {
 	widget: DashboardWidget;
 }
 
@@ -39,6 +36,7 @@ interface GridsterWidgetItem extends GridsterItemConfig {
 	selector: 'app-dashboard-view',
 	templateUrl: './dashboard-view.component.html',
 	styleUrls: ['./dashboard-view.component.css'],
+	encapsulation: ViewEncapsulation.None,
 	imports: [
 		CommonModule,
 		RouterModule,
@@ -48,13 +46,10 @@ interface GridsterWidgetItem extends GridsterItemConfig {
 		MatTooltipModule,
 		MatSlideToggleModule,
 		MatProgressSpinnerModule,
-		Gridster,
-		GridsterItem,
+		GridsterComponent,
+		GridsterItemComponent,
 		AlertComponent,
-		ChartWidgetComponent,
-		TableWidgetComponent,
-		CounterWidgetComponent,
-		TextWidgetComponent,
+		DashboardWidgetComponent,
 	],
 })
 export class DashboardViewComponent implements OnInit {
@@ -74,18 +69,8 @@ export class DashboardViewComponent implements OnInit {
 	protected dashboard = computed(() => this._dashboards.dashboard());
 	protected loading = computed(() => this._dashboards.dashboardLoading());
 
-	// Convert widgets to gridster items
-	protected gridsterItems = computed<GridsterWidgetItem[]>(() => {
-		const dashboard = this.dashboard();
-		if (!dashboard?.widgets) return [];
-		return dashboard.widgets.map((widget) => ({
-			x: widget.position_x,
-			y: widget.position_y,
-			cols: widget.width,
-			rows: widget.height,
-			widget: widget,
-		}));
-	});
+	// Writable signal for gridster items (gridster needs mutable items)
+	protected gridsterItems = signal<GridsterWidgetItem[]>([]);
 
 	protected gridsterOptions: GridsterConfig = {
 		gridType: GridType.Fit,
@@ -94,9 +79,22 @@ export class DashboardViewComponent implements OnInit {
 		pushItems: true,
 		draggable: {
 			enabled: false,
+			ignoreContentClass: 'widget-content',
+			ignoreContent: true,
+			dragHandleClass: 'widget-header',
 		},
 		resizable: {
 			enabled: false,
+			handles: {
+				s: true,
+				e: true,
+				n: true,
+				w: true,
+				se: true,
+				ne: true,
+				sw: true,
+				nw: true,
+			},
 		},
 		minCols: 12,
 		maxCols: 12,
@@ -108,13 +106,30 @@ export class DashboardViewComponent implements OnInit {
 		minItemRows: 2,
 		maxItemCols: 12,
 		maxItemRows: 12,
-		itemChangeCallback: (item: GridsterItemConfig, itemComponent: GridsterItem) =>
-			this._onItemChange(item as GridsterWidgetItem),
+		itemChangeCallback: (item: GridsterItem) => this._onItemChange(item as GridsterWidgetItem),
 	};
 
 	private connectionTitle = toSignal(this._connections.getCurrentConnectionTitle(), { initialValue: '' });
 
 	constructor() {
+		// Sync gridster items when dashboard changes
+		effect(() => {
+			const dashboard = this.dashboard();
+			if (dashboard?.widgets) {
+				this.gridsterItems.set(
+					dashboard.widgets.map((widget) => ({
+						x: widget.position_x,
+						y: widget.position_y,
+						cols: widget.width,
+						rows: widget.height,
+						widget: widget,
+					})),
+				);
+			} else {
+				this.gridsterItems.set([]);
+			}
+		});
+
 		// Connection title effect
 		effect(() => {
 			const dashboard = this.dashboard();
@@ -225,12 +240,19 @@ export class DashboardViewComponent implements OnInit {
 			widget.width !== item.cols ||
 			widget.height !== item.rows
 		) {
+			// Update local widget state to prevent duplicate saves
+			widget.position_x = item.x ?? widget.position_x;
+			widget.position_y = item.y ?? widget.position_y;
+			widget.width = item.cols ?? widget.width;
+			widget.height = item.rows ?? widget.height;
+
+			// Save to backend
 			this._dashboards
 				.updateWidgetPosition(this.connectionId(), this.dashboardId(), widget.id, {
-					position_x: item.x,
-					position_y: item.y,
-					width: item.cols,
-					height: item.rows,
+					position_x: widget.position_x,
+					position_y: widget.position_y,
+					width: widget.width,
+					height: widget.height,
 				})
 				.subscribe();
 		}

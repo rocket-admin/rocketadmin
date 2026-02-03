@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, Input, inject, signal } from '@angular/core';
+import { Component, computed, Input, OnInit, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DashboardWidget } from 'src/app/models/dashboard';
-import { SavedQueriesService } from 'src/app/services/saved-queries.service';
+import { SavedQuery } from 'src/app/models/saved-query';
 
 @Component({
 	selector: 'app-counter-widget',
@@ -10,22 +10,21 @@ import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 	styleUrls: ['./counter-widget.component.css'],
 	imports: [CommonModule, MatProgressSpinnerModule],
 })
-export class CounterWidgetComponent {
+export class CounterWidgetComponent implements OnInit {
 	@Input({ required: true }) widget!: DashboardWidget;
 	@Input({ required: true }) connectionId!: string;
+	@Input() preloadedQuery: SavedQuery | null = null;
+	@Input() preloadedData: Record<string, unknown>[] = [];
 
-	private _savedQueries = inject(SavedQueriesService);
-
-	protected loading = signal(false);
-	protected error = signal<string | null>(null);
 	protected data = signal<Record<string, unknown>[]>([]);
+	protected savedQuery = signal<SavedQuery | null>(null);
 
 	protected counterValue = computed(() => {
 		const data = this.data();
-		if (!data.length) return null;
+		const query = this.savedQuery();
+		if (!data.length || !query) return null;
 
-		// Get the value column from widget options or use the first column
-		const valueColumn = (this.widget.widget_options?.['value_column'] as string) || Object.keys(data[0])[0];
+		const valueColumn = this._getValueColumn(query, data);
 		if (!valueColumn) return null;
 
 		const value = data[0][valueColumn];
@@ -37,44 +36,33 @@ export class CounterWidgetComponent {
 
 	protected label = computed(() => {
 		const data = this.data();
-		if (!data.length) return '';
+		const query = this.savedQuery();
+		if (!data.length || !query) return '';
 
-		const labelColumn = this.widget.widget_options?.['label_column'] as string;
+		const labelColumn = query.widget_options?.['label_column'] as string | undefined;
 		if (labelColumn && data[0][labelColumn]) {
 			return String(data[0][labelColumn]);
 		}
 
-		const valueColumn = (this.widget.widget_options?.['value_column'] as string) || Object.keys(data[0])[0];
+		const valueColumn = this._getValueColumn(query, data);
 		return valueColumn || '';
 	});
 
-	constructor() {
-		effect(() => {
-			if (this.widget?.query_id) {
-				this._loadData();
-			}
-		});
+	ngOnInit(): void {
+		if (this.preloadedQuery) {
+			this.savedQuery.set(this.preloadedQuery);
+		}
+		if (this.preloadedData.length > 0) {
+			this.data.set(this.preloadedData);
+		}
 	}
 
-	private _loadData(): void {
-		if (!this.widget.query_id) {
-			this.error.set('No query linked to this widget');
-			return;
-		}
+	private _getValueColumn(query: SavedQuery, data: Record<string, unknown>[]): string | null {
+		const valueCol = query.widget_options?.['value_column'] as string | undefined;
+		if (valueCol) return valueCol;
 
-		this.loading.set(true);
-		this.error.set(null);
-
-		this._savedQueries.executeSavedQuery(this.connectionId, this.widget.query_id).subscribe({
-			next: (result) => {
-				this.data.set(result.data);
-				this.loading.set(false);
-			},
-			error: (err) => {
-				this.error.set(err?.error?.message || 'Failed to load data');
-				this.loading.set(false);
-			},
-		});
+		if (!data.length) return null;
+		return Object.keys(data[0])[0] || null;
 	}
 
 	private _formatNumber(value: number): string {

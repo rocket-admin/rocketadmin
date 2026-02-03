@@ -84,6 +84,15 @@
                         </mat-select>
                     </mat-form-field>
 
+                    <mat-form-field appearance="outline" class="chart-config-field" *ngIf="showLabelTypeOption()">
+                        <mat-label>Label Type</mat-label>
+                        <mat-select [ngModel]="labelType()" (ngModelChange)="labelType.set($event)" data-testid="label-type-select">
+                            <mat-option *ngFor="let type of labelTypes" [value]="type.value">
+                                {{ type.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
                     <mat-form-field appearance="outline" class="chart-config-field">
                         <mat-label>Value Column</mat-label>
                         <mat-select [ngModel]="valueColumn()" (ngModelChange)="valueColumn.set($event)" data-testid="value-column-select">
@@ -99,7 +108,8 @@
                         [chartType]="chartType()"
                         [data]="testResults()"
                         [labelColumn]="labelColumn()"
-                        [valueColumn]="valueColumn()">
+                        [valueColumn]="valueColumn()"
+                        [labelType]="labelType()">
                     </app-chart-preview>
                 </div>
 

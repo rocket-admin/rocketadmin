@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, Input, inject, signal } from '@angular/core';
+import { Component, computed, Input, OnInit, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { DashboardWidget } from 'src/app/models/dashboard';
-import { SavedQueriesService } from 'src/app/services/saved-queries.service';
+import { SavedQuery } from 'src/app/models/saved-query';
 
 @Component({
 	selector: 'app-table-widget',
@@ -11,14 +11,12 @@ import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 	styleUrls: ['./table-widget.component.css'],
 	imports: [CommonModule, MatTableModule, MatProgressSpinnerModule],
 })
-export class TableWidgetComponent {
+export class TableWidgetComponent implements OnInit {
 	@Input({ required: true }) widget!: DashboardWidget;
 	@Input({ required: true }) connectionId!: string;
+	@Input() preloadedQuery: SavedQuery | null = null;
+	@Input() preloadedData: Record<string, unknown>[] = [];
 
-	private _savedQueries = inject(SavedQueriesService);
-
-	protected loading = signal(false);
-	protected error = signal<string | null>(null);
 	protected data = signal<Record<string, unknown>[]>([]);
 
 	protected columns = computed(() => {
@@ -27,32 +25,9 @@ export class TableWidgetComponent {
 		return Object.keys(data[0]);
 	});
 
-	constructor() {
-		effect(() => {
-			if (this.widget?.query_id) {
-				this._loadData();
-			}
-		});
-	}
-
-	private _loadData(): void {
-		if (!this.widget.query_id) {
-			this.error.set('No query linked to this widget');
-			return;
+	ngOnInit(): void {
+		if (this.preloadedData.length > 0) {
+			this.data.set(this.preloadedData);
 		}
-
-		this.loading.set(true);
-		this.error.set(null);
-
-		this._savedQueries.executeSavedQuery(this.connectionId, this.widget.query_id).subscribe({
-			next: (result) => {
-				this.data.set(result.data);
-				this.loading.set(false);
-			},
-			error: (err) => {
-				this.error.set(err?.error?.message || 'Failed to load data');
-				this.loading.set(false);
-			},
-		});
 	}
 }

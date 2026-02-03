@@ -1,43 +1,7 @@
-<h2 mat-dialog-title>{{ isEdit ? 'Edit Chart' : 'Add Chart' }}</h2>
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Widget' : 'Add Widget' }}</h2>
 
 <mat-dialog-content>
     <form [formGroup]="form" class="widget-form">
-        <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Name</mat-label>
-            <input matInput
-                formControlName="name"
-                placeholder="Enter chart name"
-                data-testid="widget-name-input">
-            @if (form.get('name')?.hasError('required')) {
-                <mat-error>Name is required</mat-error>
-            }
-            @if (form.get('name')?.hasError('maxlength')) {
-                <mat-error>Name must be less than 255 characters</mat-error>
-            }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description</mat-label>
-            <textarea matInput
-                formControlName="description"
-                placeholder="Enter chart description (optional)"
-                rows="2"
-                data-testid="widget-description-input"></textarea>
-            @if (form.get('description')?.hasError('maxlength')) {
-                <mat-error>Description must be less than 1000 characters</mat-error>
-            }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Chart Type</mat-label>
-            <mat-select formControlName="chart_type"
-                data-testid="widget-chart-type-select">
-                @for (type of chartTypes; track type.value) {
-                    <mat-option [value]="type.value">{{ type.label }}</mat-option>
-                }
-            </mat-select>
-        </mat-form-field>
-
         <mat-form-field appearance="outline" class="full-width">
             <mat-label>Saved Query</mat-label>
             <mat-select formControlName="query_id"
@@ -46,10 +10,10 @@
                     <mat-option [value]="query.id">{{ query.name }}</mat-option>
                 }
             </mat-select>
+            <mat-hint>Select a saved query to display in this widget</mat-hint>
             @if (form.get('query_id')?.hasError('required')) {
-                <mat-error>Saved query is required</mat-error>
+                <mat-error>Please select a saved query</mat-error>
             }
-            <mat-hint>Select a saved query to fetch data for this chart</mat-hint>
         </mat-form-field>
     </form>
 </mat-dialog-content>

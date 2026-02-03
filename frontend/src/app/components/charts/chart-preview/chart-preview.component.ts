@@ -15,6 +15,7 @@ export class ChartPreviewComponent implements OnChanges {
 	@Input() data: Record<string, unknown>[] = [];
 	@Input() labelColumn = '';
 	@Input() valueColumn = '';
+	@Input() labelType: 'values' | 'datetime' = 'values';
 
 	public chartData: ChartData<ChartJsType> | null = null;
 	public chartOptions: ChartConfiguration['options'] = {
@@ -42,7 +43,13 @@ export class ChartPreviewComponent implements OnChanges {
 	];
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes['data'] || changes['labelColumn'] || changes['valueColumn'] || changes['chartType']) {
+		if (
+			changes['data'] ||
+			changes['labelColumn'] ||
+			changes['valueColumn'] ||
+			changes['chartType'] ||
+			changes['labelType']
+		) {
 			this.updateChartData();
 		}
 	}
@@ -57,7 +64,13 @@ export class ChartPreviewComponent implements OnChanges {
 			return;
 		}
 
-		const labels = this.data.map((row) => String(row[this.labelColumn] ?? ''));
+		const labels = this.data.map((row) => {
+			const val = row[this.labelColumn];
+			if (this.labelType === 'datetime' && val) {
+				return this.formatDatetime(val);
+			}
+			return String(val ?? '');
+		});
 		const values = this.data.map((row) => {
 			const val = row[this.valueColumn];
 			return typeof val === 'number' ? val : parseFloat(String(val)) || 0;
@@ -91,6 +104,25 @@ export class ChartPreviewComponent implements OnChanges {
 					},
 				],
 			};
+		}
+	}
+
+	private formatDatetime(value: unknown): string {
+		if (!value) return '';
+
+		try {
+			const date = new Date(value as string | number | Date);
+			if (isNaN(date.getTime())) {
+				return String(value);
+			}
+			// Format as localized date string
+			return date.toLocaleDateString(undefined, {
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric',
+			});
+		} catch {
+			return String(value);
 		}
 	}
 }

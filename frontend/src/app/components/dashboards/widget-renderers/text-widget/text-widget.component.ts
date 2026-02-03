@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Input } from '@angular/core';
+import { Component, computed, Input, signal } from '@angular/core';
 import { MarkdownModule } from 'ngx-markdown';
 import { DashboardWidget } from 'src/app/models/dashboard';
+import { SavedQuery } from 'src/app/models/saved-query';
 
 @Component({
 	selector: 'app-text-widget',
@@ -11,8 +12,11 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 })
 export class TextWidgetComponent {
 	@Input({ required: true }) widget!: DashboardWidget;
+	@Input() preloadedQuery: SavedQuery | null = null;
 
 	protected textContent = computed(() => {
-		return (this.widget.widget_options?.['text_content'] as string) || '';
+		const query = this.preloadedQuery;
+		if (!query) return '';
+		return (query.widget_options?.['text_content'] as string) || '';
 	});
 }

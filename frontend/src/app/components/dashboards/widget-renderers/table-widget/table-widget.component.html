@@ -1,17 +1,4 @@
-@if (loading()) {
-    <div class="loading-container">
-        <mat-spinner diameter="32"></mat-spinner>
-    </div>
-} @else if (error()) {
-    <div class="error-container">
-        <p class="error-message">{{ error() }}</p>
-    </div>
-} @else if (!widget.query_id) {
-    <div class="no-query-container">
-        <p>No query linked to this table widget.</p>
-        <p class="hint">Edit this widget to link a saved query.</p>
-    </div>
-} @else if (data().length > 0) {
+@if (data().length > 0) {
     <div class="table-container">
         <table mat-table [dataSource]="data()">
             @for (column of columns(); track column) {

@@ -5868,16 +5868,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"angular-gridster2@npm:^21.0.1":
-  version: 21.0.1
-  resolution: "angular-gridster2@npm:21.0.1"
+"angular-gridster2@npm:^20.0.0":
+  version: 20.2.4
+  resolution: "angular-gridster2@npm:20.2.4"
   dependencies:
     tslib: ^2.4.0
   peerDependencies:
-    "@angular/common": ^21.0.0
-    "@angular/core": ^21.0.0
+    "@angular/common": ^20.0.0
+    "@angular/core": ^20.0.0
     rxjs: ^7.0.0
-  checksum: e40d09a1c55dc25f05078d25b060d4c7b221993d5bbf7df7c799bb837eec749f6333a40ac8c74b0fad1dad3d282089d50bfdefb92e500c607f8916a2bff8f422
+  checksum: 2c62a5c9ff1cbf7930f4a886fc0eb769f2f6fc5e41dd75778e7a6873c4510c4e0ec1c562b00da9c3dccd37291c3c0b2e21aab2c1901c04514c68b25cf0ad4fb9
   languageName: node
   linkType: hard
 
@@ -11725,7 +11725,7 @@ __metadata:
     "@zxcvbn-ts/core": ^3.0.4
     "@zxcvbn-ts/language-en": ^3.0.2
     amplitude-js: ^8.21.9
-    angular-gridster2: ^21.0.1
+    angular-gridster2: ^20.0.0
     angular-password-strength-meter: "npm:@eresearchqut/angular-password-strength-meter@^13.0.7"
     angulartics2: ^14.1.0
     chart.js: ^4.5.1

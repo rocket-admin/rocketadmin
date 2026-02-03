@@ -46,6 +46,9 @@ describe('ChartEditComponent', () => {
 		id: '1',
 		name: 'Test Query',
 		description: 'Test description',
+		widget_type: 'chart',
+		chart_type: 'bar',
+		widget_options: { label_column: 'name', value_column: 'count' },
 		query_text: 'SELECT * FROM users',
 		connection_id: 'conn-1',
 		created_at: '2024-01-01',
@@ -228,6 +231,9 @@ describe('ChartEditComponent', () => {
 				name: 'New Query',
 				description: undefined,
 				query_text: 'SELECT 1',
+				widget_type: 'chart',
+				chart_type: 'bar',
+				widget_options: undefined,
 			});
 		});
 

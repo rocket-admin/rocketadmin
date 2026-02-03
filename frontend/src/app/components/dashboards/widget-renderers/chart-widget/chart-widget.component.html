@@ -1,17 +1,4 @@
-@if (loading()) {
-    <div class="loading-container">
-        <mat-spinner diameter="32"></mat-spinner>
-    </div>
-} @else if (error()) {
-    <div class="error-container">
-        <p class="error-message">{{ error() }}</p>
-    </div>
-} @else if (!widget.query_id) {
-    <div class="no-query-container">
-        <p>No query linked to this chart widget.</p>
-        <p class="hint">Edit this widget to link a saved query.</p>
-    </div>
-} @else if (chartData()) {
+@if (chartData()) {
     <div class="chart-container">
         <canvas baseChart
             [data]="chartData()!"
