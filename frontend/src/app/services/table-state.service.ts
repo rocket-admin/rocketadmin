@@ -72,9 +72,7 @@ export class TableStateService {
     this.clearSelection();
     const isOpening = !this.aiPanelSubject.value;
     this.aiPanelSubject.next(isOpening);
-    if (isOpening) {
-      this.restoreAIPanelExpandedState();
-    } else {
+    if (!isOpening) {
       this.aiPanelExpandedSubject.next(false);
     }
   }
@@ -91,13 +89,5 @@ export class TableStateService {
   toggleAIPanelExpanded() {
     const newValue = !this.aiPanelExpandedSubject.value;
     this.aiPanelExpandedSubject.next(newValue);
-    this.setSessionStorageItem('aiPanelExpanded', newValue);
-  }
-
-  restoreAIPanelExpandedState() {
-    const savedState = this.getSessionStorageItem('aiPanelExpanded');
-    if (savedState !== null) {
-      this.aiPanelExpandedSubject.next(savedState);
-    }
   }
 }

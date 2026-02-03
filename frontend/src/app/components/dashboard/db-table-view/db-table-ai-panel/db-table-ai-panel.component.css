@@ -102,11 +102,16 @@
     }
 }
 
+.ai-panel-sidebar-content ::ng-deep .ai-message {
+    overflow-x: auto;
+}
+
 .ai-panel-sidebar-content ::ng-deep .ai-message table {
-    width: 100%;
+    min-width: 100%;
+    width: max-content;
     border-collapse: collapse;
     margin: 8px 0;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .ai-panel-sidebar-content ::ng-deep .ai-message table thead {
@@ -121,9 +126,10 @@
 
 .ai-panel-sidebar-content ::ng-deep .ai-message table th,
 .ai-panel-sidebar-content ::ng-deep .ai-message table td {
-    padding: 8px 12px;
+    padding: 6px 8px;
     text-align: left;
     border: 1px solid rgba(0, 0, 0, 0.12);
+    white-space: nowrap;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -236,7 +242,7 @@
 
 .ai-message {
     align-self: flex-start;
-    background-color: rgba(168, 85, 247, 0.1);
+    background-color: rgba(168, 85, 247, 0.05);
     border-radius: 8px;
     padding: 8px 8px 0;
     margin: 4px 0;
@@ -244,7 +250,7 @@
 
 @media (prefers-color-scheme: dark) {
     .ai-message {
-        background-color: rgba(168, 85, 247, 0.15);
+        background-color: rgba(168, 85, 247, 0.1);
     }
 }
 
@@ -359,6 +365,7 @@
 @media (prefers-color-scheme: dark) {
     .suggestion-chip {
         border-color: #4a4a4a;
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .suggestion-chip:hover {
