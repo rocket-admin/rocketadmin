@@ -1,0 +1,48 @@
+<app-alert></app-alert>
+
+<div class="wrapper background-decoration">
+    <div class="setup-page">
+        <form class="setup-form" #setupForm="ngForm" (ngSubmit)="createAdminAccount()">
+            <div class="setup-header">
+                <svg class="setup-header__logo" width="56" height="54" viewBox="0 0 56 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M47.2367 17.9125H35.1499C33.3671 17.9125 32.4833 16.5678 33.1783 14.9286L37.5295 4.71527C38.5191 2.39612 37.2651 0.5 34.742 0.5H23.4711C22.3682 0.5 21.1142 1.33097 20.6836 2.34323L15.4485 14.634C14.5798 16.6661 15.6827 18.328 17.8885 18.328H29.4465C30.7231 18.328 31.8789 19.0909 32.3775 20.2618L37.5295 32.3486C38.232 33.9954 37.3406 35.3401 35.5578 35.3401H8.62703C7.52411 35.3401 6.27011 36.1711 5.83952 37.1833L0.823517 48.9453C-0.166086 51.2644 1.08792 53.1605 3.61103 53.1605H29.8242C30.9271 53.1605 32.1811 52.3296 32.6117 51.3173L38.4435 37.629C38.9346 36.4808 40.0526 35.7405 41.299 35.7405H52.6833C54.9722 35.7405 56.1053 34.0181 55.2064 31.918L50.0242 19.7633C49.5936 18.751 48.3396 17.92 47.2367 17.92V17.9125Z" fill="#08041B"/>
+                </svg>
+                <h1 class="mat-headline-4 setup-title">
+                    Welcome to <br>
+                    <span class="setup-title__emphasis">Rocketadmin</span>
+                </h1>
+                <div class="mat-body-1 setup-header__directions">
+                    Create your admin account to get started.
+                </div>
+            </div>
+
+            <mat-form-field appearance="fill" floatLabel="always" class="setup-form__email">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" name="email" emailValidator
+                    placeholder="Email"
+                    data-testid="setup-email-input"
+                    #emailInput="ngModel" required
+                    [ngModel]="email()"
+                    (ngModelChange)="onEmailChange($event)">
+                @if (emailInput.errors?.isInvalidEmail) {
+                    <mat-error>Invalid email format.</mat-error>
+                }
+            </mat-form-field>
+
+            <app-user-password
+                [value]="password()"
+                [label]="'Password'"
+                (onFieldChange)="onPasswordChange($event)"
+                class="setup-form__password">
+            </app-user-password>
+
+            <button
+                type="submit" mat-flat-button color="accent"
+                data-testid="setup-submit-button"
+                class="setup-form__submit-button"
+                [disabled]="submitting() || setupForm.form.invalid || setupForm.form.pristine">
+                {{ submitting() ? 'Creating...' : 'Create Admin Account' }}
+            </button>
+        </form>
+    </div>
+</div>
