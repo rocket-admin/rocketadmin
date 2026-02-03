@@ -229,7 +229,7 @@
     align-self: flex-end;
     background-color: #f0f4f8;
     border-radius: 8px;
-    padding: 8px 8px 12px;
+    padding: 12px 16px 16px;
     margin: 4px 0 16px;
     max-width: 80%;
 }
@@ -242,15 +242,15 @@
 
 .ai-message {
     align-self: flex-start;
-    background-color: rgba(168, 85, 247, 0.05);
+    background-color: rgba(99, 132, 255, 0.06);
     border-radius: 8px;
-    padding: 8px 8px 0;
+    padding: 12px 16px 8px;
     margin: 4px 0;
 }
 
 @media (prefers-color-scheme: dark) {
     .ai-message {
-        background-color: rgba(168, 85, 247, 0.1);
+        background-color: rgba(99, 132, 255, 0.1);
     }
 }
 
@@ -656,4 +656,174 @@
 
 .ai-panel-sidebar-content_expanded .template-card__description {
     white-space: nowrap;
+}
+
+/* Welcome centered layout */
+.ai-welcome-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 16px;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.ai-welcome-centered__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    gap: 24px;
+}
+
+.ai-welcome-centered__title {
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.7);
+    margin: 0;
+    text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-welcome-centered__title {
+        color: rgba(255, 255, 255, 0.7);
+    }
+}
+
+.ai-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.ai-welcome-form {
+    width: 100%;
+}
+
+.ai-welcome-form__field {
+    width: 100%;
+}
+
+.ai-welcome-form__field ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading,
+.ai-welcome-form__field ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
+    border-radius: 24px;
+}
+
+.ai-welcome-form__field ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading {
+    border-radius: 24px 0 0 24px;
+    width: 24px;
+}
+
+.ai-welcome-form__field ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
+    border-radius: 0 24px 24px 0;
+}
+
+.ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__leading,
+.ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__trailing,
+.ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__notch {
+    border-color: #6384FF !important;
+    border-width: 2px !important;
+}
+
+.ai-welcome-form__button {
+    color: #6384FF !important;
+}
+
+.ai-completions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--mat-sidenav-content-background-color);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-completions {
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.ai-completion-item {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.87);
+    transition: background-color 0.15s ease;
+}
+
+.ai-completion-item:hover {
+    background-color: rgba(99, 132, 255, 0.08);
+}
+
+.ai-completion-item:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-completion-item {
+        color: rgba(255, 255, 255, 0.87);
+    }
+
+    .ai-completion-item:not(:last-child) {
+        border-bottom-color: rgba(255, 255, 255, 0.06);
+    }
+}
+
+.ai-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.ai-category {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-category__title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(0, 0, 0, 0.4);
+    margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-category__title {
+        color: rgba(255, 255, 255, 0.4);
+    }
+}
+
+.ai-category__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.suggestion-chip_active {
+    background-color: rgba(99, 132, 255, 0.15) !important;
+    border-color: #6384FF !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .suggestion-chip_active {
+        background-color: rgba(99, 132, 255, 0.25) !important;
+    }
 }

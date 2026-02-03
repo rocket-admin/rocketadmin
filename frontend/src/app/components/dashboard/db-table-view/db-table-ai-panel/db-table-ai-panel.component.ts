@@ -46,27 +46,11 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     type: string;
     text: string
   }[] = [];
-  public aiRequestTemplates: { title: string; description: string; icon: string; prompt: string }[] = [
-    {
-      title: 'Summarize this table',
-      description: 'Quick overview of columns, types, and size',
-      icon: 'bar_chart',
-      prompt: 'Summarize this table structure and data'
-    },
-    {
-      title: 'Top values',
-      description: 'See most frequent values per column',
-      icon: 'trending_up',
-      prompt: 'Show top 10 most common values in each column'
-    },
-    {
-      title: 'Missing data',
-      description: 'Find NULLs and empty fields',
-      icon: 'warning',
-      prompt: 'Find records with NULL or empty values'
-    }
-  ];
-  public aiSuggestions: { title: string; prompt: string }[] = [];
+  public aiSuggestions: { title: string; prompt: string; completions: string[] }[] = [];
+  public suggestionCategories: { title: string; suggestions: { title: string; prompt: string; completions: string[] }[] }[] = [];
+  public activeSuggestion: { title: string; prompt: string; completions: string[] } | null = null;
+  public activeCompletions: string[] = [];
+  public showCompletions: boolean = false;
   public submitting: boolean = false;
   public isExpanded: boolean = false;
   public textareaRows: number = 4;
@@ -94,11 +78,11 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     });
 
     this.adjustTextareaRows();
-    this.generateSuggestions();
+    this.generateSuggestionCategories();
   }
 
   ngOnChanges(): void {
-    this.generateSuggestions();
+    this.generateSuggestionCategories();
   }
 
   async ngAfterViewInit() {
@@ -279,72 +263,168 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  private generateSuggestions(): void {
-    if (!this.tableColumns || this.tableColumns.length === 0) {
-      this.aiSuggestions = [];
-      return;
-    }
+  private generateSuggestionCategories(): void {
+    const categories: { title: string; suggestions: { title: string; prompt: string; completions: string[] }[] }[] = [];
 
-    const suggestions: { title: string; prompt: string }[] = [];
-    const columns = this.tableColumns.slice(0, 5);
-
-    columns.forEach(column => {
-      const columnName = this._formatColumnName(column);
-
-      if (column.toLowerCase().includes('date') || column.toLowerCase().includes('time') || column.toLowerCase().includes('created') || column.toLowerCase().includes('updated')) {
-        suggestions.push({
-          title: `Analyze ${columnName} trends`,
-          prompt: `Analyze trends and patterns in the "${column}" column over time`
-        });
-      } else if (column.toLowerCase().includes('status') || column.toLowerCase().includes('state') || column.toLowerCase().includes('type')) {
-        suggestions.push({
-          title: `${columnName} distribution`,
-          prompt: `Show the distribution of values in the "${column}" column`
-        });
-      } else if (column.toLowerCase().includes('price') || column.toLowerCase().includes('amount') || column.toLowerCase().includes('cost') || column.toLowerCase().includes('total')) {
-        suggestions.push({
-          title: `${columnName} statistics`,
-          prompt: `Calculate statistics (min, max, average, sum) for the "${column}" column`
-        });
-      } else if (column.toLowerCase().includes('email') || column.toLowerCase().includes('name') || column.toLowerCase().includes('user')) {
-        suggestions.push({
-          title: `Unique ${columnName}`,
-          prompt: `How many unique values are in the "${column}" column?`
-        });
-      } else {
-        suggestions.push({
-          title: `Analyze ${columnName}`,
-          prompt: `What are the most common values in the "${column}" column?`
-        });
-      }
+    // Category: Explore Data
+    categories.push({
+      title: 'Explore',
+      suggestions: [
+        {
+          title: 'Show recent records',
+          prompt: 'Show recent records',
+          completions: [
+            'Show me the 10 most recently added records',
+            'Show records from the last 24 hours',
+            'What was the last entry added to this table?',
+            'Show records with the newest timestamps'
+          ]
+        },
+        {
+          title: 'Summarize table',
+          prompt: 'Summarize table',
+          completions: [
+            'Give me an overview of this table structure and content',
+            'What kind of data is stored in this table?',
+            'Describe the purpose of each column',
+            'How many records are there and what do they represent?'
+          ]
+        },
+        {
+          title: 'Find patterns',
+          prompt: 'Find patterns',
+          completions: [
+            'What patterns do you see in this data?',
+            'Are there any correlations between columns?',
+            'What are the most common combinations of values?',
+            'Identify any seasonal or cyclical patterns'
+          ]
+        }
+      ]
     });
 
-    this.aiSuggestions = suggestions.slice(0, 3);
+    // Category: Data Quality
+    categories.push({
+      title: 'Data Quality',
+      suggestions: [
+        {
+          title: 'Find issues',
+          prompt: 'Find issues',
+          completions: [
+            'Are there any data quality issues I should know about?',
+            'Find records with missing or NULL values',
+            'Identify potential duplicates',
+            'Check for inconsistent data formats'
+          ]
+        },
+        {
+          title: 'Check duplicates',
+          prompt: 'Check duplicates',
+          completions: [
+            'Are there any duplicate records?',
+            'Find rows that look like duplicates',
+            'Which values appear more than once where they shouldn\'t?',
+            'Identify records that might be entered twice'
+          ]
+        },
+        {
+          title: 'Validate data',
+          prompt: 'Validate data',
+          completions: [
+            'Check if all required fields are filled',
+            'Are there any values that look incorrect?',
+            'Find records that don\'t match expected patterns',
+            'Identify outliers or unusual values'
+          ]
+        }
+      ]
+    });
+
+    // Category: Insights
+    categories.push({
+      title: 'Insights',
+      suggestions: [
+        {
+          title: 'Top values',
+          prompt: 'Top values',
+          completions: [
+            'What are the most common values in each column?',
+            'Show me the top 10 most frequent entries',
+            'Which categories have the most records?',
+            'What values appear most often?'
+          ]
+        },
+        {
+          title: 'Statistics',
+          prompt: 'Statistics',
+          completions: [
+            'Calculate basic statistics for numeric columns',
+            'What are the min, max, and average values?',
+            'Show the distribution of values',
+            'Give me a statistical summary of this data'
+          ]
+        },
+        {
+          title: 'Anomalies',
+          prompt: 'Anomalies',
+          completions: [
+            'Are there any unusual or unexpected values?',
+            'Find records that stand out from the rest',
+            'Identify statistical outliers',
+            'What looks different or wrong in this data?'
+          ]
+        }
+      ]
+    });
+
+    this.suggestionCategories = categories;
   }
 
-  private _formatColumnName(column: string): string {
-    return column
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
-      .trim()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  }
-
-  onSuggestionClick(suggestion: { title: string; prompt: string }): void {
-    // Send the message
-    if (this.threadID) {
-      this.sendMessage(suggestion.prompt);
-    } else {
-      this.createThread(suggestion.prompt);
-    }
+  onSuggestionChipClick(suggestion: { title: string; prompt: string; completions: string[] }): void {
+    this.activeSuggestion = suggestion;
+    this.message = '';
+    this.activeCompletions = suggestion.completions;
+    this.showCompletions = true;
 
     this.angulartics2.eventTrack.next({
-      action: 'AI panel: suggestion clicked',
+      action: 'AI panel: suggestion chip clicked',
       properties: {
         suggestionTitle: suggestion.title
       }
     });
+  }
+
+  selectCompletion(completion: string): void {
+    this.message = completion;
+    this.showCompletions = false;
+    this.activeSuggestion = null;
+    this.createThread(completion);
+
+    this.angulartics2.eventTrack.next({
+      action: 'AI panel: completion selected',
+      properties: {
+        completion: completion
+      }
+    });
+  }
+
+  onWelcomeInputChange(): void {
+    if (this.message.length > 0) {
+      this.showCompletions = false;
+      this.activeSuggestion = null;
+    }
+  }
+
+  onWelcomeInputFocus(): void {
+    if (this.activeSuggestion) {
+      this.showCompletions = true;
+    }
+  }
+
+  onWelcomeInputBlur(): void {
+    // Delay hiding to allow click on completion
+    setTimeout(() => {
+      this.showCompletions = false;
+    }, 200);
   }
 }

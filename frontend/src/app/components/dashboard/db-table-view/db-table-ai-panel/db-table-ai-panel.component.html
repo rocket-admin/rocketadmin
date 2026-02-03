@@ -30,36 +30,49 @@
         </div>
 
         <ng-template #suggestions>
-            <div class="ai-welcome">
-                <div class="ai-welcome__message">
-                    <p>Explore patterns, issues, and summaries instantly.</p>
-                </div>
+            <div class="ai-welcome-centered">
+                <div class="ai-welcome-centered__content">
+                    <p class="ai-welcome-centered__title">Ask anything about your data</p>
 
-                <div class="ai-welcome__section" *ngIf="aiSuggestions.length">
-                    <p class="ai-welcome__section-title">Suggestions for this table:</p>
-                    <div class="suggestions-container">
-                        <button *ngFor="let suggestion of aiSuggestions"
-                            class="suggestion-chip"
-                            (click)="onSuggestionClick(suggestion)">
-                            <span>{{suggestion.title}}</span>
-                        </button>
+                    <div class="ai-input-wrapper">
+                        <form (ngSubmit)="createThread()" class="ai-welcome-form">
+                            <mat-form-field appearance="outline" class="ai-welcome-form__field">
+                                <mat-label>Ask a question about this table...</mat-label>
+                                <input matInput
+                                    name="welcomeMessage"
+                                    [(ngModel)]="message"
+                                    (input)="onWelcomeInputChange()"
+                                    (focus)="onWelcomeInputFocus()"
+                                    (blur)="onWelcomeInputBlur()"
+                                    autocomplete="off"
+                                    maxlength="255">
+                                <button mat-icon-button matSuffix type="submit" class="ai-welcome-form__button">
+                                    <mat-icon>send</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </form>
+
+                        <div class="ai-completions" *ngIf="showCompletions && activeCompletions.length">
+                            <button *ngFor="let completion of activeCompletions"
+                                class="ai-completion-item"
+                                (mousedown)="selectCompletion(completion)">
+                                <span class="ai-completion-text">{{completion}}</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="ai-welcome__section">
-                    <p class="ai-welcome__section-title">Templates:</p>
-                    <div class="templates-container">
-                        <button *ngFor="let template of aiRequestTemplates"
-                            class="template-card"
-                            (click)="createThread(template.prompt)"
-                            angulartics2On="click"
-                            angularticsAction="AI panel: template is clicked">
-                            <mat-icon class="template-card__icon" fontSet="material-icons-outlined">{{template.icon}}</mat-icon>
-                            <div class="template-card__content">
-                                <span class="template-card__title">{{template.title}}</span>
-                                <span class="template-card__description">{{template.description}}</span>
+                    <div class="ai-categories">
+                        <div class="ai-category" *ngFor="let category of suggestionCategories">
+                            <p class="ai-category__title">{{category.title}}</p>
+                            <div class="ai-category__chips">
+                                <button *ngFor="let suggestion of category.suggestions"
+                                    class="suggestion-chip"
+                                    [class.suggestion-chip_active]="activeSuggestion?.title === suggestion.title"
+                                    (click)="onSuggestionChipClick(suggestion)">
+                                    <span>{{suggestion.title}}</span>
+                                </button>
                             </div>
-                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -76,7 +89,7 @@
             </div>
         </div>
 
-        <form (ngSubmit)="threadID ? sendMessage() : createThread()" class="ai-message-form">
+        <form *ngIf="messagesChain.length" (ngSubmit)="threadID ? sendMessage() : createThread()" class="ai-message-form">
             <mat-form-field class="form-field" appearance="outline" class="ai-message-form__textarea">
                 <mat-label class="ai-message-form__label">Ask a question about this table...</mat-label>
                 <textarea matInput name="message"
@@ -98,7 +111,7 @@
             </div>
         </form>
 
-        <div class="footer">
+        <div class="footer" *ngIf="messagesChain.length">
             <p class="mat-small">
                 AI may provide inaccurate responses.<br/>Check our <a href="https://rocketadmin.com/privacy/" class="link">Privacy policy</a>.
             </p>
