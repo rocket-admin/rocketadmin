@@ -6,7 +6,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
 import { IPasswordStrengthMeterService } from 'angular-password-strength-meter';
 import { Angulartics2Module } from 'angulartics2';
-import { of } from 'rxjs';
 import { SelfhostedService } from 'src/app/services/selfhosted.service';
 import { SetupComponent } from './setup.component';
 
@@ -53,39 +52,37 @@ describe('SetupComponent', () => {
 		expect(testable.password()).toBe('SecurePass123');
 	});
 
-	it('should not submit if email is empty', () => {
+	it('should not submit if email is empty', async () => {
 		const testable = component as SetupComponentTestable;
 		const fakeCreateInitialUser = vi.spyOn(selfhostedService, 'createInitialUser');
 
 		testable.email.set('');
 		testable.password.set('SecurePass123');
 
-		component.createAdminAccount();
+		await component.createAdminAccount();
 		expect(fakeCreateInitialUser).not.toHaveBeenCalled();
 	});
 
-	it('should not submit if password is empty', () => {
+	it('should not submit if password is empty', async () => {
 		const testable = component as SetupComponentTestable;
 		const fakeCreateInitialUser = vi.spyOn(selfhostedService, 'createInitialUser');
 
 		testable.email.set('test@example.com');
 		testable.password.set('');
 
-		component.createAdminAccount();
+		await component.createAdminAccount();
 		expect(fakeCreateInitialUser).not.toHaveBeenCalled();
 	});
 
-	it('should create admin account and navigate to login on success', () => {
+	it('should create admin account and navigate to login on success', async () => {
 		const testable = component as SetupComponentTestable;
-		const fakeCreateInitialUser = vi
-			.spyOn(selfhostedService, 'createInitialUser')
-			.mockReturnValue(of({ success: true }));
+		const fakeCreateInitialUser = vi.spyOn(selfhostedService, 'createInitialUser').mockResolvedValue({ success: true });
 		const fakeNavigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
 		testable.email.set('admin@example.com');
 		testable.password.set('SecurePass123');
 
-		component.createAdminAccount();
+		await component.createAdminAccount();
 
 		expect(fakeCreateInitialUser).toHaveBeenCalledWith({
 			email: 'admin@example.com',
