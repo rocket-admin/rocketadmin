@@ -96,6 +96,14 @@
     position: initial;
 }
 
+.alerts app-alert:empty {
+    display: none;
+}
+
+.alerts:has(app-alert:only-child:empty) {
+    margin: 0;
+}
+
 .error-details {
     margin-top: 8px;
 }

@@ -533,7 +533,7 @@ export class TablesService {
 	createAIthread(connectionID, tableName, message) {
 		return this._http
 			.post<any>(
-				`/ai/v2/request/${connectionID}`,
+				`/ai/v4/request/${connectionID}`,
 				{ user_message: message },
 				{
 					responseType: 'text' as 'json',
@@ -563,7 +563,7 @@ export class TablesService {
 		console.log('threadId', threadId);
 		return this._http
 			.post<any>(
-				`/ai/v2/request/${connectionID}`,
+				`/ai/v4/request/${connectionID}`,
 				{ user_message: message },
 				{
 					responseType: 'text' as 'json',
