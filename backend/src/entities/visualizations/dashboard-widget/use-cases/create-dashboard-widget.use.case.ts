@@ -22,21 +22,7 @@ export class CreateDashboardWidgetUseCase
 	}
 
 	public async implementation(inputData: CreateDashboardWidgetDs): Promise<FoundDashboardWidgetDto> {
-		const {
-			dashboardId,
-			connectionId,
-			masterPassword,
-			widget_type,
-			chart_type,
-			name,
-			description,
-			position_x,
-			position_y,
-			width,
-			height,
-			widget_options,
-			query_id,
-		} = inputData;
+		const { dashboardId, connectionId, masterPassword, query_id, position_x, position_y, width, height } = inputData;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -68,15 +54,10 @@ export class CreateDashboardWidgetUseCase
 		}
 
 		const newWidget = new DashboardWidgetEntity();
-		newWidget.widget_type = widget_type;
-		newWidget.chart_type = chart_type || null;
-		newWidget.name = name || null;
-		newWidget.description = description || null;
 		newWidget.position_x = position_x ?? 0;
 		newWidget.position_y = position_y ?? 0;
 		newWidget.width = width ?? 4;
 		newWidget.height = height ?? 3;
-		newWidget.widget_options = widget_options ? JSON.stringify(widget_options) : null;
 		newWidget.dashboard_id = dashboardId;
 		newWidget.query_id = query_id || null;
 
