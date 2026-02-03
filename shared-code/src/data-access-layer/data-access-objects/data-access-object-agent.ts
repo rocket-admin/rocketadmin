@@ -1,25 +1,12 @@
 /* eslint-disable security/detect-object-injection */
+
+import { Readable, Stream } from 'node:stream';
 import axios from 'axios';
-import jwt from 'jsonwebtoken';
-import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
-import { ConnectionAgentParams } from '../shared/data-structures/connections-params.ds.js';
-import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
-import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
-import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
-import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
-import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
-import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
-import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
-import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
-import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { IDataAccessObjectAgent } from '../../shared/interfaces/data-access-object-agent.interface.js';
-import { DataAccessObjectCommandsEnum } from '../../shared/enums/data-access-object-commands.enum.js';
-import { LRUStorage } from '../../caching/lru-storage.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
-import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
+import jwt from 'jsonwebtoken';
 import PQueue from 'p-queue';
+import { LRUStorage } from '../../caching/lru-storage.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import {
 	formatOracleDate,
 	isMSSQLDateOrTimeType,
@@ -31,6 +18,20 @@ import {
 	isPostgresDateStringByRegexp,
 } from '../../helpers/is-database-date.js';
 import { ConnectionTypesEnum } from '../../shared/enums/connection-types-enum.js';
+import { DataAccessObjectCommandsEnum } from '../../shared/enums/data-access-object-commands.enum.js';
+import { IDataAccessObjectAgent } from '../../shared/interfaces/data-access-object-agent.interface.js';
+import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
+import { ConnectionAgentParams } from '../shared/data-structures/connections-params.ds.js';
+import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
+import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
+import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
+import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
+import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
+import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
+import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
+import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 	private readonly connection: ConnectionAgentParams;
