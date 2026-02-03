@@ -27,7 +27,7 @@ export class SavedDbQueryEntity {
 	@Column({ type: 'text', default: null, nullable: true })
 	description: string | null;
 
-	@Column({ type: 'varchar' })
+	@Column({ type: 'varchar', nullable: true, default: DashboardWidgetTypeEnum.Chart })
 	widget_type: DashboardWidgetTypeEnum;
 
 	@Column({ type: 'varchar', default: null, nullable: true })
@@ -36,7 +36,7 @@ export class SavedDbQueryEntity {
 	@Column('json', { default: null, nullable: true })
 	widget_options: string | null;
 
-	@Column({ type: 'text' })
+	@Column({ type: 'text', nullable: true, default: null })
 	query_text: string;
 
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
