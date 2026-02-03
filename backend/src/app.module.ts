@@ -99,7 +99,7 @@ import { SelfHostedOperationsModule } from './selfhosted-operations/selhosted-op
 		SavedDbQueryModule,
 		DashboardModule,
 		DashboardWidgetModule,
-		SelfHostedOperationsModule,
+		SelfHostedOperationsModule.register(),
 	],
 	controllers: [AppController],
 	providers: [

@@ -272,6 +272,7 @@ export class ConnectionEntity {
 	@ManyToOne(
 		(_) => CompanyInfoEntity,
 		(company) => company.connections,
+		{ onDelete: 'CASCADE' },
 	)
 	@JoinTable()
 	company: Relation<CompanyInfoEntity>;
