@@ -40,9 +40,7 @@
                     <div class="suggestions-container">
                         <button *ngFor="let suggestion of aiSuggestions"
                             class="suggestion-chip"
-                            (click)="createThread(suggestion.prompt)"
-                            angulartics2On="click"
-                            angularticsAction="AI panel: suggestion is clicked">
+                            (click)="onSuggestionClick(suggestion)">
                             <span>{{suggestion.title}}</span>
                         </button>
                     </div>

@@ -289,7 +289,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const columns = this.tableColumns.slice(0, 5);
 
     columns.forEach(column => {
-      const columnName = this.formatColumnName(column);
+      const columnName = this._formatColumnName(column);
 
       if (column.toLowerCase().includes('date') || column.toLowerCase().includes('time') || column.toLowerCase().includes('created') || column.toLowerCase().includes('updated')) {
         suggestions.push({
@@ -322,7 +322,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     this.aiSuggestions = suggestions.slice(0, 3);
   }
 
-  private formatColumnName(column: string): string {
+  private _formatColumnName(column: string): string {
     return column
       .replace(/_/g, ' ')
       .replace(/([A-Z])/g, ' $1')
@@ -330,5 +330,21 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
+  }
+
+  onSuggestionClick(suggestion: { title: string; prompt: string }): void {
+    // Send the message
+    if (this.threadID) {
+      this.sendMessage(suggestion.prompt);
+    } else {
+      this.createThread(suggestion.prompt);
+    }
+
+    this.angulartics2.eventTrack.next({
+      action: 'AI panel: suggestion clicked',
+      properties: {
+        suggestionTitle: suggestion.title
+      }
+    });
   }
 }
