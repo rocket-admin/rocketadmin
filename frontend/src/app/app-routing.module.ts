@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './auth.guard';
+import { configurationGuard } from './guards/configuration.guard';
+import { setupGuard } from './guards/setup.guard';
 
 const routes: Routes = [
 	{ path: '', redirectTo: '/connections-list', pathMatch: 'full' },
@@ -13,8 +15,15 @@ const routes: Routes = [
 		loadChildren: () => import('./routes/registration.routes').then((m) => m.REGISTRATION_ROUTES),
 	},
 	{
+		path: 'setup',
+		loadComponent: () => import('./components/setup/setup.component').then((m) => m.SetupComponent),
+		canActivate: [setupGuard],
+		title: 'Setup | Rocketadmin',
+	},
+	{
 		path: 'login',
 		loadComponent: () => import('./components/login/login.component').then((m) => m.LoginComponent),
+		canActivate: [configurationGuard],
 		title: 'Login | Rocketadmin',
 	},
 	{

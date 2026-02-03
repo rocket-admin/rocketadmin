@@ -382,4 +382,6 @@ export const Messages = {
 	SECRET_DELETED_SUCCESSFULLY: 'Secret deleted successfully',
 	USER_NOT_FOUND_OR_NOT_IN_COMPANY: 'User not found or not associated with a company',
 	PERSONAL_TABLE_SETTINGS_NOT_FOUND: 'Personal table settings with this parameters not found',
+	SELF_HOSTED_ALREADY_CONFIGURED: 'Instance is already configured',
+	ENDPOINT_NOT_AVAILABLE_IN_THIS_MODE: 'This endpoint is not available in the current mode',
 };
