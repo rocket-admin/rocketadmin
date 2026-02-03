@@ -1,6 +1,5 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { map, of } from 'rxjs';
 import { SelfhostedService } from '../services/selfhosted.service';
 
 /**
@@ -8,33 +7,30 @@ import { SelfhostedService } from '../services/selfhosted.service';
  * In self-hosted mode, redirects to /setup if the app is not configured.
  * In SaaS mode, allows access immediately.
  */
-export const configurationGuard: CanActivateFn = () => {
+export const configurationGuard: CanActivateFn = async () => {
 	const selfhostedService = inject(SelfhostedService);
 	const router = inject(Router);
 
 	// In SaaS mode, always allow access to login
 	if (!selfhostedService.isSelfHosted()) {
-		return of(true);
+		return true;
 	}
 
 	// If we already know the configuration state, use it
 	const currentState = selfhostedService.isConfigured();
 	if (currentState !== null) {
 		if (currentState) {
-			return of(true);
+			return true;
 		} else {
-			return of(router.createUrlTree(['/setup']));
+			return router.createUrlTree(['/setup']);
 		}
 	}
 
 	// Check configuration from the server
-	return selfhostedService.checkConfiguration().pipe(
-		map((response) => {
-			if (response.isConfigured) {
-				return true;
-			} else {
-				return router.createUrlTree(['/setup']);
-			}
-		}),
-	);
+	const response = await selfhostedService.checkConfiguration();
+	if (response.isConfigured) {
+		return true;
+	} else {
+		return router.createUrlTree(['/setup']);
+	}
 };

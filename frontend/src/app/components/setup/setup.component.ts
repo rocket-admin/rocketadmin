@@ -41,29 +41,23 @@ export class SetupComponent {
 		this.password.set(value);
 	}
 
-	createAdminAccount(): void {
+	async createAdminAccount(): Promise<void> {
 		if (!this.email() || !this.password()) {
 			return;
 		}
 
 		this.submitting.set(true);
 
-		this._selfhostedService
-			.createInitialUser({
+		try {
+			await this._selfhostedService.createInitialUser({
 				email: this.email(),
 				password: this.password(),
-			})
-			.subscribe({
-				next: () => {
-					this.submitting.set(false);
-					this._router.navigate(['/login']);
-				},
-				error: () => {
-					this.submitting.set(false);
-				},
-				complete: () => {
-					this.submitting.set(false);
-				},
 			});
+			this._router.navigate(['/login']);
+		} catch {
+			// Error handling is done in the service
+		} finally {
+			this.submitting.set(false);
+		}
 	}
 }
