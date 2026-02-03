@@ -21,14 +21,17 @@
     opacity: 1;
     transform: translateX(24px);
     width: clamp(200px, 22vw, 400px);
-    transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1),
+    transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1),
                 opacity 400ms cubic-bezier(0.4, 0, 0.2, 1),
-                width 0ms;
+                width 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ai-panel-sidebar_open.ai-panel-sidebar_expanded {
-    width: calc(100vw - 65px);
-    transition: width 0ms;
+    /* Keep the same width as collapsed - don't push the table */
+    width: clamp(200px, 22vw, 400px);
+    transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                width 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -62,17 +65,22 @@
 .ai-panel-sidebar-content_open {
     left: calc(100vw - clamp(200px, 22vw, 400px));
     visibility: visible;
+    transition: left 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                width 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                padding-left 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-left 300ms ease;
 }
 
 .ai-panel-sidebar-content_open.ai-panel-sidebar-content_expanded {
     left: 65px;
-    right: 0;
-    width: auto;
+    width: calc(100vw - 65px);
     padding-left: 175px;
     border-left: none;
-    z-index: 1;
-    transition: padding-left 500ms cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 400ms ease-out;
+    z-index: 3;
+    transition: left 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                width 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                padding-left 400ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-left 300ms ease;
 }
 
 .ai-panel-sidebar-content_open.ai-panel-sidebar-content_expanded.ai-panel-sidebar-content_sidebar-collapsed {
@@ -94,11 +102,16 @@
     }
 }
 
+.ai-panel-sidebar-content ::ng-deep .ai-message {
+    overflow-x: auto;
+}
+
 .ai-panel-sidebar-content ::ng-deep .ai-message table {
-    width: 100%;
+    min-width: 100%;
+    width: max-content;
     border-collapse: collapse;
     margin: 8px 0;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .ai-panel-sidebar-content ::ng-deep .ai-message table thead {
@@ -113,9 +126,10 @@
 
 .ai-panel-sidebar-content ::ng-deep .ai-message table th,
 .ai-panel-sidebar-content ::ng-deep .ai-message table td {
-    padding: 8px 12px;
+    padding: 6px 8px;
     text-align: left;
     border: 1px solid rgba(0, 0, 0, 0.12);
+    white-space: nowrap;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -228,7 +242,7 @@
 
 .ai-message {
     align-self: flex-start;
-    background-color: rgba(168, 85, 247, 0.1);
+    background-color: rgba(168, 85, 247, 0.05);
     border-radius: 8px;
     padding: 8px 8px 0;
     margin: 4px 0;
@@ -236,7 +250,7 @@
 
 @media (prefers-color-scheme: dark) {
     .ai-message {
-        background-color: rgba(168, 85, 247, 0.15);
+        background-color: rgba(168, 85, 247, 0.1);
     }
 }
 
@@ -351,6 +365,7 @@
 @media (prefers-color-scheme: dark) {
     .suggestion-chip {
         border-color: #4a4a4a;
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .suggestion-chip:hover {

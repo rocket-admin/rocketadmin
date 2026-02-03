@@ -1,5 +1,6 @@
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -70,6 +71,8 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   public isExpanded: boolean = false;
   public textareaRows: number = 4;
 
+  private _currentRequest: Subscription = null;
+
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
@@ -105,12 +108,30 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   };
 
   ngOnDestroy() {
+    this.cancelRequest();
     this.angulartics2.eventTrack.next({
       action: 'AI panel: destroyed',
       properties: {
         messagesLength: this.messagesChain.length
       }
     });
+  }
+
+  cancelRequest(): void {
+    if (this._currentRequest) {
+      this._currentRequest.unsubscribe();
+      this._currentRequest = null;
+      this.submitting = false;
+
+      this.messagesChain.push({
+        type: 'ai-error',
+        text: 'Request cancelled'
+      });
+
+      this.angulartics2.eventTrack.next({
+        action: 'AI panel: request cancelled',
+      });
+    }
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -149,7 +170,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const messageCopy = this.message;
     this.message = '';
 
-    this._tables.createAIthread(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
+    this._currentRequest = this._tables.createAIthread(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
       this.threadID = response.threadId;
 
       this.messagesChain.push({
@@ -157,6 +178,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         text: this.markdownService.parse(response.responseMessage) as string
       });
       this.submitting = false;
+      this._currentRequest = null;
 
       this.angulartics2.eventTrack.next({
         action: 'AI panel: thread created successfully',
@@ -170,9 +192,11 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         this.angulartics2.eventTrack.next({
           action: 'AI panel: thread creation returned an error',
         });
+        this._currentRequest = null;
       },
       () => {
         this.submitting = false;
+        this._currentRequest = null;
       }
     );
   }
@@ -189,12 +213,13 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const messageCopy = this.message;
     this.message = '';
     this.charactrsNumber = 0;
-    this._tables.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy).subscribe((response_message) => {
+    this._currentRequest = this._tables.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy).subscribe((response_message) => {
       this.messagesChain.push({
         type: 'ai',
         text: this.markdownService.parse(response_message) as string
       });
       this.submitting = false;
+      this._currentRequest = null;
 
       this.angulartics2.eventTrack.next({
         action: 'AI panel: message sent successfully',
@@ -206,12 +231,14 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
           text: error_message
         });
         this.submitting = false;
+        this._currentRequest = null;
         this.angulartics2.eventTrack.next({
           action: 'AI panel: message sent and returned an error',
         });
       },
       () => {
         this.submitting = false;
+        this._currentRequest = null;
       })
   }
 
@@ -262,7 +289,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const columns = this.tableColumns.slice(0, 5);
 
     columns.forEach(column => {
-      const columnName = this.formatColumnName(column);
+      const columnName = this._formatColumnName(column);
 
       if (column.toLowerCase().includes('date') || column.toLowerCase().includes('time') || column.toLowerCase().includes('created') || column.toLowerCase().includes('updated')) {
         suggestions.push({
@@ -295,7 +322,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     this.aiSuggestions = suggestions.slice(0, 3);
   }
 
-  private formatColumnName(column: string): string {
+  private _formatColumnName(column: string): string {
     return column
       .replace(/_/g, ' ')
       .replace(/([A-Z])/g, ' $1')
@@ -303,5 +330,21 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
+  }
+
+  onSuggestionClick(suggestion: { title: string; prompt: string }): void {
+    // Send the message
+    if (this.threadID) {
+      this.sendMessage(suggestion.prompt);
+    } else {
+      this.createThread(suggestion.prompt);
+    }
+
+    this.angulartics2.eventTrack.next({
+      action: 'AI panel: suggestion clicked',
+      properties: {
+        suggestionTitle: suggestion.title
+      }
+    });
   }
 }
