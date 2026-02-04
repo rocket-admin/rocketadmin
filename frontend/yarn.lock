@@ -6470,6 +6470,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chartjs-adapter-date-fns@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "chartjs-adapter-date-fns@npm:3.0.0"
+  peerDependencies:
+    chart.js: ">=2.8.0"
+    date-fns: ">=2.0.0"
+  checksum: c39bfdf490749faa589fba6e0dc0a2c5a467a5f06aaa52c5180e10fd9c83414807a064f6950538448bffee354c8064c0ce9d957bccbf2048e7ee2257aa95f138
+  languageName: node
+  linkType: hard
+
 "check-error@npm:^2.1.1":
   version: 2.1.3
   resolution: "check-error@npm:2.1.3"
@@ -11729,6 +11739,7 @@ __metadata:
     angular-password-strength-meter: "npm:@eresearchqut/angular-password-strength-meter@^13.0.7"
     angulartics2: ^14.1.0
     chart.js: ^4.5.1
+    chartjs-adapter-date-fns: ^3.0.0
     color-string: ^2.0.1
     convert: ^5.12.0
     date-fns: ^4.1.0

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, Input, inject, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
@@ -47,7 +47,7 @@ export class DashboardWidgetComponent {
 		});
 	}
 
-	private _loadData(): void {
+	private async _loadData(): Promise<void> {
 		if (!this.widget.query_id) {
 			this.loading.set(false);
 			this.error.set('No query linked to this widget');
@@ -57,19 +57,19 @@ export class DashboardWidgetComponent {
 		this.loading.set(true);
 		this.error.set(null);
 
-		forkJoin({
-			query: this._savedQueries.fetchSavedQuery(this.connectionId, this.widget.query_id),
-			result: this._savedQueries.executeSavedQuery(this.connectionId, this.widget.query_id),
-		}).subscribe({
-			next: ({ query, result }) => {
-				this.savedQuery.set(query);
-				this.queryData.set(result.data);
-				this.loading.set(false);
-			},
-			error: (err) => {
-				this.error.set(err?.error?.message || 'Failed to load data');
-				this.loading.set(false);
-			},
-		});
+		try {
+			const [query, result] = await Promise.all([
+				firstValueFrom(this._savedQueries.fetchSavedQuery(this.connectionId, this.widget.query_id)),
+				firstValueFrom(this._savedQueries.executeSavedQuery(this.connectionId, this.widget.query_id)),
+			]);
+
+			this.savedQuery.set(query);
+			this.queryData.set(result.data);
+			this.loading.set(false);
+		} catch (err: unknown) {
+			const error = err as { error?: { message?: string } };
+			this.error.set(error?.error?.message || 'Failed to load data');
+			this.loading.set(false);
+		}
 	}
 }

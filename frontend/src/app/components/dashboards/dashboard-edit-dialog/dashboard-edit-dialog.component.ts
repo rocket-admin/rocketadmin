@@ -46,38 +46,29 @@ export class DashboardEditDialogComponent implements OnInit {
 		});
 	}
 
-	onSubmit(): void {
+	async onSubmit(): Promise<void> {
 		if (this.form.invalid) return;
 
 		this.submitting.set(true);
 		const payload = this.form.value;
 
 		if (this.isEdit) {
-			this._dashboards.updateDashboard(this.data.connectionId, this.data.dashboard!.id, payload).subscribe({
-				next: () => {
-					this.angulartics2.eventTrack.next({
-						action: 'Dashboards: dashboard updated successfully',
-					});
-					this.submitting.set(false);
-					this.dialogRef.close(true);
-				},
-				error: () => {
-					this.submitting.set(false);
-				},
-			});
+			const result = await this._dashboards.updateDashboard(this.data.connectionId, this.data.dashboard!.id, payload);
+			if (result) {
+				this.angulartics2.eventTrack.next({
+					action: 'Dashboards: dashboard updated successfully',
+				});
+				this.dialogRef.close(true);
+			}
 		} else {
-			this._dashboards.createDashboard(this.data.connectionId, payload).subscribe({
-				next: () => {
-					this.angulartics2.eventTrack.next({
-						action: 'Dashboards: dashboard created successfully',
-					});
-					this.submitting.set(false);
-					this.dialogRef.close(true);
-				},
-				error: () => {
-					this.submitting.set(false);
-				},
-			});
+			const result = await this._dashboards.createDashboard(this.data.connectionId, payload);
+			if (result) {
+				this.angulartics2.eventTrack.next({
+					action: 'Dashboards: dashboard created successfully',
+				});
+				this.dialogRef.close(true);
+			}
 		}
+		this.submitting.set(false);
 	}
 }

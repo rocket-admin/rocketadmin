@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, Input, OnInit, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ChartConfiguration, ChartData, ChartType as ChartJsType } from 'chart.js';
+import 'chartjs-adapter-date-fns';
 import { BaseChartDirective } from 'ng2-charts';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
@@ -32,60 +33,94 @@ export class ChartWidgetComponent implements OnInit {
 
 		if (!labelColumn || !valueColumn) return null;
 
-		const labels = data.map((row) => {
-			const val = row[labelColumn];
-			if (labelType === 'datetime' && val) {
-				return this._formatDatetime(val);
-			}
-			return String(val ?? '');
-		});
-		const values = data.map((row) => {
-			const val = row[valueColumn];
-			return typeof val === 'number' ? val : parseFloat(String(val)) || 0;
-		});
-
 		const chartType = query.chart_type || 'bar';
 		const isPieType = ['pie', 'doughnut', 'polarArea'].includes(chartType);
+		const useTimeScale = labelType === 'datetime' && !isPieType;
 
-		if (isPieType) {
+		if (useTimeScale) {
+			// For time scale, use {x, y} data points
+			const dataPoints = data
+				.map((row) => {
+					const dateVal = row[labelColumn];
+					const numVal = row[valueColumn];
+					const date = this._parseDate(dateVal);
+					if (!date) return null;
+					return {
+						x: date.getTime(),
+						y: typeof numVal === 'number' ? numVal : parseFloat(String(numVal)) || 0,
+					};
+				})
+				.filter((point): point is { x: number; y: number } => point !== null)
+				.sort((a, b) => a.x - b.x);
+
 			return {
-				labels,
-				datasets: [
-					{
-						data: values,
-						backgroundColor: this.colorPalette.slice(0, values.length),
-						borderColor: this.colorPalette.slice(0, values.length).map((c) => c.replace('0.8', '1')),
-						borderWidth: 1,
-					},
-				],
-			};
-		} else {
-			return {
-				labels,
 				datasets: [
 					{
 						label: valueColumn,
-						data: values,
+						data: dataPoints,
 						backgroundColor: this.colorPalette[0],
 						borderColor: this.colorPalette[0].replace('0.8', '1'),
 						borderWidth: 1,
 						fill: chartType === 'line',
+						spanGaps: false,
 					},
 				],
 			};
+		} else {
+			// For categorical scale, use labels + values
+			const labels = data.map((row) => String(row[labelColumn] ?? ''));
+			const values = data.map((row) => {
+				const val = row[valueColumn];
+				return typeof val === 'number' ? val : parseFloat(String(val)) || 0;
+			});
+
+			if (isPieType) {
+				return {
+					labels,
+					datasets: [
+						{
+							data: values,
+							backgroundColor: this.colorPalette.slice(0, values.length),
+							borderColor: this.colorPalette.slice(0, values.length).map((c) => c.replace('0.8', '1')),
+							borderWidth: 1,
+						},
+					],
+				};
+			} else {
+				return {
+					labels,
+					datasets: [
+						{
+							label: valueColumn,
+							data: values,
+							backgroundColor: this.colorPalette[0],
+							borderColor: this.colorPalette[0].replace('0.8', '1'),
+							borderWidth: 1,
+							fill: chartType === 'line',
+						},
+					],
+				};
+			}
 		}
 	});
 
-	protected chartOptions: ChartConfiguration['options'] = {
-		responsive: true,
-		maintainAspectRatio: false,
-		plugins: {
-			legend: {
-				display: true,
-				position: 'top',
-			},
-		},
-	};
+	protected chartOptions = computed<ChartConfiguration['options']>(() => {
+		const query = this.savedQuery();
+		const data = this.data();
+		if (!query || !data.length) return this._getDefaultOptions();
+
+		const labelColumn = this._getLabelColumn(query, data);
+		const valueColumn = this._getValueColumn(query, data);
+		const labelType = (query.widget_options?.['label_type'] as 'values' | 'datetime') || 'values';
+		const chartType = query.chart_type || 'bar';
+		const isPieType = ['pie', 'doughnut', 'polarArea'].includes(chartType);
+		const useTimeScale = labelType === 'datetime' && !isPieType;
+
+		if (useTimeScale) {
+			return this._getTimeScaleOptions(labelColumn || '', valueColumn || '');
+		}
+		return this._getDefaultOptions();
+	});
 
 	private colorPalette = [
 		'rgba(99, 102, 241, 0.8)',
@@ -130,21 +165,68 @@ export class ChartWidgetComponent implements OnInit {
 		return keys[1] || keys[0] || null;
 	}
 
-	private _formatDatetime(value: unknown): string {
-		if (!value) return '';
+	private _parseDate(value: unknown): Date | null {
+		if (!value) return null;
 
 		try {
 			const date = new Date(value as string | number | Date);
 			if (isNaN(date.getTime())) {
-				return String(value);
+				return null;
 			}
-			return date.toLocaleDateString(undefined, {
-				year: 'numeric',
-				month: 'short',
-				day: 'numeric',
-			});
+			return date;
 		} catch {
-			return String(value);
+			return null;
 		}
+	}
+
+	private _getDefaultOptions(): ChartConfiguration['options'] {
+		return {
+			responsive: true,
+			maintainAspectRatio: false,
+			plugins: {
+				legend: {
+					display: true,
+					position: 'top',
+				},
+			},
+		};
+	}
+
+	private _getTimeScaleOptions(labelColumn: string, valueColumn: string): ChartConfiguration['options'] {
+		return {
+			responsive: true,
+			maintainAspectRatio: false,
+			plugins: {
+				legend: {
+					display: true,
+					position: 'top',
+				},
+			},
+			scales: {
+				x: {
+					type: 'time',
+					time: {
+						tooltipFormat: 'MMM d, yyyy',
+						displayFormats: {
+							day: 'MMM d',
+							week: 'MMM d',
+							month: 'MMM yyyy',
+							year: 'yyyy',
+						},
+					},
+					title: {
+						display: true,
+						text: labelColumn,
+					},
+				},
+				y: {
+					beginAtZero: true,
+					title: {
+						display: true,
+						text: valueColumn,
+					},
+				},
+			},
+		};
 	}
 }

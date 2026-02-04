@@ -57,64 +57,72 @@
                 </div>
             </div>
 
-            <div class="preview-section" *ngIf="showResults()">
-                <div class="section-header">
-                    <h3>Chart Preview</h3>
-                    <span class="execution-time" *ngIf="executionTime() !== null">
-                        Executed in {{ executionTime() }}ms
-                    </span>
+            <div class="right-panel" *ngIf="showResults()">
+                <div class="config-section">
+                    <div class="section-header">
+                        <h3>Chart Configuration</h3>
+                        <span class="execution-time" *ngIf="executionTime() !== null">
+                            Executed in {{ executionTime() }}ms
+                        </span>
+                    </div>
+
+                    <div class="chart-config">
+                        <mat-form-field appearance="outline" class="chart-config-field">
+                            <mat-label>Chart Type</mat-label>
+                            <mat-select [ngModel]="chartType()" (ngModelChange)="chartType.set($event)" data-testid="chart-type-select">
+                                <mat-option *ngFor="let type of chartTypes" [value]="type.value">
+                                    {{ type.label }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="chart-config-field">
+                            <mat-label>Label Column</mat-label>
+                            <mat-select [ngModel]="labelColumn()" (ngModelChange)="labelColumn.set($event)" data-testid="label-column-select">
+                                <mat-option *ngFor="let col of resultColumns()" [value]="col">
+                                    {{ col }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="chart-config-field" *ngIf="showLabelTypeOption()">
+                            <mat-label>Label Type</mat-label>
+                            <mat-select [ngModel]="labelType()" (ngModelChange)="labelType.set($event)" data-testid="label-type-select">
+                                <mat-option *ngFor="let type of labelTypes" [value]="type.value">
+                                    {{ type.label }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="chart-config-field">
+                            <mat-label>Value Column</mat-label>
+                            <mat-select [ngModel]="valueColumn()" (ngModelChange)="valueColumn.set($event)" data-testid="value-column-select">
+                                <mat-option *ngFor="let col of resultColumns()" [value]="col">
+                                    {{ col }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                 </div>
 
-                <div class="chart-config">
-                    <mat-form-field appearance="outline" class="chart-config-field">
-                        <mat-label>Chart Type</mat-label>
-                        <mat-select [ngModel]="chartType()" (ngModelChange)="chartType.set($event)" data-testid="chart-type-select">
-                            <mat-option *ngFor="let type of chartTypes" [value]="type.value">
-                                {{ type.label }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                <div class="preview-section">
+                    <div class="section-header">
+                        <h3>Chart Preview</h3>
+                    </div>
 
-                    <mat-form-field appearance="outline" class="chart-config-field">
-                        <mat-label>Label Column</mat-label>
-                        <mat-select [ngModel]="labelColumn()" (ngModelChange)="labelColumn.set($event)" data-testid="label-column-select">
-                            <mat-option *ngFor="let col of resultColumns()" [value]="col">
-                                {{ col }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <div class="chart-container" *ngIf="hasChartData()">
+                        <app-chart-preview
+                            [chartType]="chartType()"
+                            [data]="testResults()"
+                            [labelColumn]="labelColumn()"
+                            [valueColumn]="valueColumn()"
+                            [labelType]="labelType()">
+                        </app-chart-preview>
+                    </div>
 
-                    <mat-form-field appearance="outline" class="chart-config-field" *ngIf="showLabelTypeOption()">
-                        <mat-label>Label Type</mat-label>
-                        <mat-select [ngModel]="labelType()" (ngModelChange)="labelType.set($event)" data-testid="label-type-select">
-                            <mat-option *ngFor="let type of labelTypes" [value]="type.value">
-                                {{ type.label }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="chart-config-field">
-                        <mat-label>Value Column</mat-label>
-                        <mat-select [ngModel]="valueColumn()" (ngModelChange)="valueColumn.set($event)" data-testid="value-column-select">
-                            <mat-option *ngFor="let col of resultColumns()" [value]="col">
-                                {{ col }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-
-                <div class="chart-container" *ngIf="hasChartData()">
-                    <app-chart-preview
-                        [chartType]="chartType()"
-                        [data]="testResults()"
-                        [labelColumn]="labelColumn()"
-                        [valueColumn]="valueColumn()"
-                        [labelType]="labelType()">
-                    </app-chart-preview>
-                </div>
-
-                <div class="no-chart-data" *ngIf="!hasChartData() && testResults().length > 0">
-                    <p>Select label and value columns to display the chart</p>
+                    <div class="no-chart-data" *ngIf="!hasChartData() && testResults().length > 0">
+                        <p>Select label and value columns to display the chart</p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -53,6 +53,7 @@ export class DashboardsListComponent implements OnInit {
 	private dialog = inject(MatDialog);
 	private angulartics2 = inject(Angulartics2);
 	private title = inject(Title);
+	private destroyRef = inject(DestroyRef);
 
 	// Use service signals for dashboards and loading
 	protected dashboards = computed(() => this._dashboards.dashboards());
@@ -68,9 +69,16 @@ export class DashboardsListComponent implements OnInit {
 		);
 	});
 
-	private connectionTitle = toSignal(this._connections.getCurrentConnectionTitle(), { initialValue: '' });
+	// Connection title signal (bridging from legacy Observable-based service)
+	private connectionTitle = signal('');
 
 	constructor() {
+		// Subscribe to connection title (legacy service bridge)
+		this._connections
+			.getCurrentConnectionTitle()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe((title) => this.connectionTitle.set(title));
+
 		// Connection title effect
 		effect(() => {
 			const title = this.connectionTitle();

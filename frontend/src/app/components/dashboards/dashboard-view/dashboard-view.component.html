@@ -58,9 +58,13 @@
                             <mat-icon>more_vert</mat-icon>
                         </button>
                         <mat-menu #widgetMenu="matMenu">
+                            <a mat-menu-item [routerLink]="['/charts', connectionId(), item.widget.query_id]">
+                                <mat-icon>tune</mat-icon>
+                                <span>Configure Chart</span>
+                            </a>
                             <button mat-menu-item (click)="openEditWidgetDialog(item.widget)">
-                                <mat-icon>edit</mat-icon>
-                                <span>Edit</span>
+                                <mat-icon>swap_horiz</mat-icon>
+                                <span>Change Query</span>
                             </button>
                             <button mat-menu-item (click)="openDeleteWidgetDialog(item.widget)" class="delete-action">
                                 <mat-icon color="warn">delete</mat-icon>

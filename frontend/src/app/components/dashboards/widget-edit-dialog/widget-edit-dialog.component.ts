@@ -45,7 +45,7 @@ export class WidgetEditDialogComponent implements OnInit {
 		});
 	}
 
-	onSubmit(): void {
+	async onSubmit(): Promise<void> {
 		if (this.form.invalid) return;
 
 		this.submitting.set(true);
@@ -56,20 +56,18 @@ export class WidgetEditDialogComponent implements OnInit {
 				query_id: formValue.query_id,
 			};
 
-			this._dashboards
-				.updateWidget(this.data.connectionId, this.data.dashboardId, this.data.widget!.id, payload)
-				.subscribe({
-					next: () => {
-						this.angulartics2.eventTrack.next({
-							action: 'Dashboards: widget updated successfully',
-						});
-						this.submitting.set(false);
-						this.dialogRef.close(true);
-					},
-					error: () => {
-						this.submitting.set(false);
-					},
+			const result = await this._dashboards.updateWidget(
+				this.data.connectionId,
+				this.data.dashboardId,
+				this.data.widget!.id,
+				payload,
+			);
+			if (result) {
+				this.angulartics2.eventTrack.next({
+					action: 'Dashboards: widget updated successfully',
 				});
+				this.dialogRef.close(true);
+			}
 		} else {
 			const payload = {
 				query_id: formValue.query_id,
@@ -79,18 +77,14 @@ export class WidgetEditDialogComponent implements OnInit {
 				height: 4,
 			};
 
-			this._dashboards.createWidget(this.data.connectionId, this.data.dashboardId, payload).subscribe({
-				next: () => {
-					this.angulartics2.eventTrack.next({
-						action: 'Dashboards: widget created successfully',
-					});
-					this.submitting.set(false);
-					this.dialogRef.close(true);
-				},
-				error: () => {
-					this.submitting.set(false);
-				},
-			});
+			const result = await this._dashboards.createWidget(this.data.connectionId, this.data.dashboardId, payload);
+			if (result) {
+				this.angulartics2.eventTrack.next({
+					action: 'Dashboards: widget created successfully',
+				});
+				this.dialogRef.close(true);
+			}
 		}
+		this.submitting.set(false);
 	}
 }

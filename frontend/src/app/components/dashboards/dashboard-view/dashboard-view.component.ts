@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -64,6 +64,7 @@ export class DashboardViewComponent implements OnInit {
 	private dialog = inject(MatDialog);
 	private angulartics2 = inject(Angulartics2);
 	private title = inject(Title);
+	private destroyRef = inject(DestroyRef);
 
 	// Use service signals
 	protected dashboard = computed(() => this._dashboards.dashboard());
@@ -71,6 +72,9 @@ export class DashboardViewComponent implements OnInit {
 
 	// Writable signal for gridster items (gridster needs mutable items)
 	protected gridsterItems = signal<GridsterWidgetItem[]>([]);
+
+	// Connection title signal (bridging from legacy Observable-based service)
+	private connectionTitle = signal('');
 
 	protected gridsterOptions: GridsterConfig = {
 		gridType: GridType.Fit,
@@ -109,9 +113,13 @@ export class DashboardViewComponent implements OnInit {
 		itemChangeCallback: (item: GridsterItem) => this._onItemChange(item as GridsterWidgetItem),
 	};
 
-	private connectionTitle = toSignal(this._connections.getCurrentConnectionTitle(), { initialValue: '' });
-
 	constructor() {
+		// Subscribe to connection title (legacy service bridge)
+		this._connections
+			.getCurrentConnectionTitle()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe((title) => this.connectionTitle.set(title));
+
 		// Sync gridster items when dashboard changes
 		effect(() => {
 			const dashboard = this.dashboard();
@@ -171,7 +179,7 @@ export class DashboardViewComponent implements OnInit {
 		});
 	}
 
-	openAddWidgetDialog(): void {
+	async openAddWidgetDialog(): Promise<void> {
 		const dialogRef = this.dialog.open(WidgetEditDialogComponent, {
 			width: '600px',
 			data: {
@@ -180,17 +188,17 @@ export class DashboardViewComponent implements OnInit {
 				widget: null,
 			},
 		});
-		dialogRef.afterClosed().subscribe((result) => {
-			if (result) {
-				this._dashboards.refreshDashboard();
-			}
-		});
 		this.angulartics2.eventTrack.next({
 			action: 'Dashboards: add widget dialog opened',
 		});
+
+		const result = await dialogRef.afterClosed().toPromise();
+		if (result) {
+			this._dashboards.refreshDashboard();
+		}
 	}
 
-	openEditWidgetDialog(widget: DashboardWidget): void {
+	async openEditWidgetDialog(widget: DashboardWidget): Promise<void> {
 		const dialogRef = this.dialog.open(WidgetEditDialogComponent, {
 			width: '600px',
 			data: {
@@ -199,17 +207,17 @@ export class DashboardViewComponent implements OnInit {
 				widget: widget,
 			},
 		});
-		dialogRef.afterClosed().subscribe((result) => {
-			if (result) {
-				this._dashboards.refreshDashboard();
-			}
-		});
 		this.angulartics2.eventTrack.next({
 			action: 'Dashboards: edit widget dialog opened',
 		});
+
+		const result = await dialogRef.afterClosed().toPromise();
+		if (result) {
+			this._dashboards.refreshDashboard();
+		}
 	}
 
-	openDeleteWidgetDialog(widget: DashboardWidget): void {
+	async openDeleteWidgetDialog(widget: DashboardWidget): Promise<void> {
 		const dialogRef = this.dialog.open(WidgetDeleteDialogComponent, {
 			width: '400px',
 			data: {
@@ -218,21 +226,21 @@ export class DashboardViewComponent implements OnInit {
 				widget: widget,
 			},
 		});
-		dialogRef.afterClosed().subscribe((result) => {
-			if (result) {
-				this._dashboards.refreshDashboard();
-			}
-		});
 		this.angulartics2.eventTrack.next({
 			action: 'Dashboards: delete widget dialog opened',
 		});
+
+		const result = await dialogRef.afterClosed().toPromise();
+		if (result) {
+			this._dashboards.refreshDashboard();
+		}
 	}
 
 	navigateBack(): void {
 		this.router.navigate(['/dashboards', this.connectionId()]);
 	}
 
-	private _onItemChange(item: GridsterWidgetItem): void {
+	private async _onItemChange(item: GridsterWidgetItem): Promise<void> {
 		const widget = item.widget;
 		if (
 			widget.position_x !== item.x ||
@@ -247,14 +255,12 @@ export class DashboardViewComponent implements OnInit {
 			widget.height = item.rows ?? widget.height;
 
 			// Save to backend
-			this._dashboards
-				.updateWidgetPosition(this.connectionId(), this.dashboardId(), widget.id, {
-					position_x: widget.position_x,
-					position_y: widget.position_y,
-					width: widget.width,
-					height: widget.height,
-				})
-				.subscribe();
+			await this._dashboards.updateWidgetPosition(this.connectionId(), this.dashboardId(), widget.id, {
+				position_x: widget.position_x,
+				position_y: widget.position_y,
+				width: widget.width,
+				height: widget.height,
+			});
 		}
 	}
 }

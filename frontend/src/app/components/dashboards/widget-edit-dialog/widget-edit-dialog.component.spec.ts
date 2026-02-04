@@ -5,7 +5,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Angulartics2Module } from 'angulartics2';
-import { of } from 'rxjs';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { DashboardsService } from 'src/app/services/dashboards.service';
@@ -59,8 +58,8 @@ describe('WidgetEditDialogComponent', () => {
 		mockDialogRef = { close: vi.fn() };
 
 		mockDashboardsService = {
-			createWidget: vi.fn().mockReturnValue(of({ id: 'new-widget' })),
-			updateWidget: vi.fn().mockReturnValue(of({ id: 'updated-widget' })),
+			createWidget: vi.fn().mockResolvedValue({ id: 'new-widget' }),
+			updateWidget: vi.fn().mockResolvedValue({ id: 'updated-widget' }),
 		} as Partial<DashboardsService>;
 
 		mockSavedQueriesService = {
@@ -123,9 +122,10 @@ describe('WidgetEditDialogComponent', () => {
 			});
 		});
 
-		it('should close dialog after successful widget creation', () => {
+		it('should close dialog after successful widget creation', async () => {
 			testable.form.get('query_id')?.setValue('query-1');
-			testable.onSubmit();
+			await testable.onSubmit();
+			await fixture.whenStable();
 
 			expect(mockDialogRef.close).toHaveBeenCalledWith(true);
 		});
@@ -167,9 +167,10 @@ describe('WidgetEditDialogComponent', () => {
 			});
 		});
 
-		it('should close dialog after successful widget update', () => {
+		it('should close dialog after successful widget update', async () => {
 			testable.form.get('query_id')?.setValue('query-2');
-			testable.onSubmit();
+			await testable.onSubmit();
+			await fixture.whenStable();
 
 			expect(mockDialogRef.close).toHaveBeenCalledWith(true);
 		});

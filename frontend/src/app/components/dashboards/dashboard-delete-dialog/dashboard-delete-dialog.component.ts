@@ -23,19 +23,15 @@ export class DashboardDeleteDialogComponent {
 		private angulartics2: Angulartics2,
 	) {}
 
-	onDelete(): void {
+	async onDelete(): Promise<void> {
 		this.submitting.set(true);
-		this._dashboards.deleteDashboard(this.data.connectionId, this.data.dashboard.id).subscribe({
-			next: () => {
-				this.angulartics2.eventTrack.next({
-					action: 'Dashboards: dashboard deleted successfully',
-				});
-				this.submitting.set(false);
-				this.dialogRef.close(true);
-			},
-			error: () => {
-				this.submitting.set(false);
-			},
-		});
+		const result = await this._dashboards.deleteDashboard(this.data.connectionId, this.data.dashboard.id);
+		if (result) {
+			this.angulartics2.eventTrack.next({
+				action: 'Dashboards: dashboard deleted successfully',
+			});
+			this.dialogRef.close(true);
+		}
+		this.submitting.set(false);
 	}
 }
