@@ -192,6 +192,46 @@
     }
 }
 
+.ai-icon {
+    animation: rocket-float 3s ease-in-out infinite;
+}
+
+.ai-icon ::ng-deep svg path[fill="#C177FC"] {
+    animation: sparkle-twinkle 1.5s ease-in-out infinite;
+}
+
+.ai-icon ::ng-deep svg path[fill="#C177FC"]:nth-of-type(2) {
+    animation-delay: 0.3s;
+}
+
+.ai-icon ::ng-deep svg path[fill="#C177FC"]:nth-of-type(3) {
+    animation-delay: 0.6s;
+}
+
+.ai-icon ::ng-deep svg path[fill="#C177FC"]:nth-of-type(4) {
+    animation-delay: 0.9s;
+}
+
+@keyframes rocket-float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-2px) rotate(2deg);
+    }
+}
+
+@keyframes sparkle-twinkle {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(0.8);
+    }
+}
+
 .ai-panel-sidebar__title {
     display: flex;
     align-items: center;
@@ -667,7 +707,7 @@
     flex: 1;
     padding: 16px;
     min-height: 0;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 .ai-welcome-centered__content {
@@ -677,6 +717,38 @@
     width: 100%;
     max-width: 500px;
     gap: 24px;
+}
+
+.ai-welcome-icon {
+    width: 48px !important;
+    height: 48px !important;
+    animation: rocket-float 3s ease-in-out infinite;
+}
+
+.ai-welcome-icon ::ng-deep svg path:first-of-type {
+    fill: rgba(0, 0, 0, 0.6);
+}
+
+.ai-welcome-icon ::ng-deep svg path[fill="#C177FC"] {
+    animation: sparkle-twinkle 1.5s ease-in-out infinite;
+}
+
+.ai-welcome-icon ::ng-deep svg path[fill="#C177FC"]:nth-of-type(2) {
+    animation-delay: 0.3s;
+}
+
+.ai-welcome-icon ::ng-deep svg path[fill="#C177FC"]:nth-of-type(3) {
+    animation-delay: 0.6s;
+}
+
+.ai-welcome-icon ::ng-deep svg path[fill="#C177FC"]:nth-of-type(4) {
+    animation-delay: 0.9s;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ai-welcome-icon ::ng-deep svg path:first-of-type {
+        fill: rgba(255, 255, 255, 0.7);
+    }
 }
 
 .ai-welcome-centered__title {
@@ -721,10 +793,18 @@
 }
 
 .ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__leading,
-.ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__trailing,
-.ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__notch {
+.ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__trailing {
     border-color: #6384FF !important;
     border-width: 2px !important;
+}
+
+.ai-welcome-form__field ::ng-deep .mdc-text-field--focused .mdc-notched-outline__notch {
+    border-color: #6384FF !important;
+    border-width: 2px 0 !important;
+}
+
+.ai-welcome-form__field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
 }
 
 .ai-welcome-form__button {
@@ -741,7 +821,7 @@
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 10;
-    margin-top: 4px;
+    margin-top: 2px;
     overflow: hidden;
 }
 

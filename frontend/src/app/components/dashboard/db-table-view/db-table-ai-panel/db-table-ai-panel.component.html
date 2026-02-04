@@ -5,7 +5,6 @@
     [ngClass]="{'ai-panel-sidebar-content_expanded': isExpanded, 'ai-panel-sidebar-content_sidebar-collapsed': !sidebarExpanded}">
     <div class="ai-panel-sidebar__header">
         <h2 class="mat-heading-2 ai-panel-sidebar__title">
-            <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
             <span *ngIf="isExpanded">AI insights for {{displayName}}</span>
             <span *ngIf="!isExpanded">AI insights</span>
         </h2>
@@ -32,6 +31,7 @@
         <ng-template #suggestions>
             <div class="ai-welcome-centered">
                 <div class="ai-welcome-centered__content">
+                    <mat-icon svgIcon="ai_rocket" class="ai-welcome-icon"></mat-icon>
                     <p class="ai-welcome-centered__title">Ask anything about your data</p>
 
                     <div class="ai-input-wrapper">
@@ -80,7 +80,7 @@
 
         <div class="loading" *ngIf="submitting">
             <div class="loading-content">
-                <span class="loading-text">Generating an answer</span>
+                <span class="loading-text">{{ currentLoadingStep }}</span>
                 <div class="loading-dots">
                     <span class="loading-dot"></span>
                     <span class="loading-dot"></span>

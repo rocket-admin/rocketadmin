@@ -54,8 +54,19 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   public submitting: boolean = false;
   public isExpanded: boolean = false;
   public textareaRows: number = 4;
+  public currentLoadingStep: string = '';
 
   private _currentRequest: Subscription = null;
+  private _loadingStepsInterval: any = null;
+  private _loadingSteps: string[] = [
+    'Connecting to database',
+    'Analyzing table structure',
+    'Scanning records',
+    'Processing your query',
+    'Searching for patterns',
+    'Generating response'
+  ];
+  private _currentStepIndex: number = 0;
 
   constructor(
     private _connections: ConnectionsService,
@@ -93,6 +104,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.cancelRequest();
+    this.stopLoadingSteps();
     this.angulartics2.eventTrack.next({
       action: 'AI panel: destroyed',
       properties: {
@@ -106,6 +118,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       this._currentRequest.unsubscribe();
       this._currentRequest = null;
       this.submitting = false;
+      this.stopLoadingSteps();
 
       this.messagesChain.push({
         type: 'ai-error',
@@ -115,6 +128,22 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       this.angulartics2.eventTrack.next({
         action: 'AI panel: request cancelled',
       });
+    }
+  }
+
+  startLoadingSteps(): void {
+    this._currentStepIndex = 0;
+    this.currentLoadingStep = this._loadingSteps[0];
+    this._loadingStepsInterval = setInterval(() => {
+      this._currentStepIndex = (this._currentStepIndex + 1) % this._loadingSteps.length;
+      this.currentLoadingStep = this._loadingSteps[this._currentStepIndex];
+    }, 2000);
+  }
+
+  stopLoadingSteps(): void {
+    if (this._loadingStepsInterval) {
+      clearInterval(this._loadingStepsInterval);
+      this._loadingStepsInterval = null;
     }
   }
 
@@ -147,6 +176,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       this.message = suggestedMessage;
     }
     this.submitting = true;
+    this.startLoadingSteps();
     this.messagesChain.push({
       type: 'user',
       text: this.message
@@ -162,6 +192,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         text: this.markdownService.parse(response.responseMessage) as string
       });
       this.submitting = false;
+      this.stopLoadingSteps();
       this._currentRequest = null;
 
       this.angulartics2.eventTrack.next({
@@ -176,10 +207,12 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         this.angulartics2.eventTrack.next({
           action: 'AI panel: thread creation returned an error',
         });
+        this.stopLoadingSteps();
         this._currentRequest = null;
       },
       () => {
         this.submitting = false;
+        this.stopLoadingSteps();
         this._currentRequest = null;
       }
     );
@@ -190,6 +223,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       this.message = suggestedMessage;
     }
     this.submitting = true;
+    this.startLoadingSteps();
     this.messagesChain.push({
       type: 'user',
       text: this.message
@@ -203,6 +237,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         text: this.markdownService.parse(response_message) as string
       });
       this.submitting = false;
+      this.stopLoadingSteps();
       this._currentRequest = null;
 
       this.angulartics2.eventTrack.next({
@@ -215,6 +250,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
           text: error_message
         });
         this.submitting = false;
+        this.stopLoadingSteps();
         this._currentRequest = null;
         this.angulartics2.eventTrack.next({
           action: 'AI panel: message sent and returned an error',
@@ -222,6 +258,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       },
       () => {
         this.submitting = false;
+        this.stopLoadingSteps();
         this._currentRequest = null;
       })
   }
@@ -245,6 +282,21 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   @HostListener('window:resize')
   onWindowResize() {
     this.adjustTextareaRows();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.showCompletions) return;
+
+    const target = event.target as HTMLElement;
+    const clickedOnChip = target.closest('.suggestion-chip');
+    const clickedOnDropdown = target.closest('.ai-completions');
+    const clickedOnInput = target.closest('.ai-welcome-form__field');
+
+    if (!clickedOnChip && !clickedOnDropdown && !clickedOnInput) {
+      this.showCompletions = false;
+      this.activeSuggestion = null;
+    }
   }
 
   private adjustTextareaRows() {
@@ -422,9 +474,6 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   }
 
   onWelcomeInputBlur(): void {
-    // Delay hiding to allow click on completion
-    setTimeout(() => {
-      this.showCompletions = false;
-    }, 200);
+    // Dropdown closing is now handled by document click listener
   }
 }
