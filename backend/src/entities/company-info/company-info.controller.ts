@@ -224,6 +224,7 @@ export class CompanyInfoController {
 		type: InvitedUserInCompanyAndConnectionGroupDs,
 	})
 	@UseGuards(CompanyAdminGuard)
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Put('user/:companyId')
 	async inviteUserInCompanyAndConnectionGroup(
 		@UserId() userId: string,
