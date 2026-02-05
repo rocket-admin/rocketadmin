@@ -98,7 +98,7 @@
             <td mat-cell *matCellDef="let element"
                 [ngClass]="{'cell_centered': plan.key !== 'title', cell_current: plan.key === currentPlan.key}">
                 <span *ngIf="plan.key === 'title'">{{element[plan.key]}}</span>
-                <mat-icon *ngIf="element[plan.key] === '∞'" class="person-icon" fontSet="material-icons-outlined">all_inclusive</mat-icon>
+                <mat-icon *ngIf="element[plan.key] === '∞'" class="person-icon" fontSet="material-symbols-outlined">all_inclusive</mat-icon>
                 <span *ngIf="element[plan.key] !== '∞' && plan.key !== 'title'">{{element[plan.key]}}<mat-icon class="person-icon">person</mat-icon></span>
             </td>
         </ng-container>

@@ -3,6 +3,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { APP_INITIALIZER, ErrorHandler, enableProdMode, importProvidersFrom } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MAT_ICON_DEFAULT_OPTIONS, MatIconDefaultOptions } from '@angular/material/icon';
 import { BrowserModule, bootstrapApplication, Title } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
@@ -148,5 +149,11 @@ bootstrapApplication(AppComponent, {
 		provideHttpClient(withInterceptorsFromDi()),
 		provideAnimations(),
 		provideCharts(withDefaultRegisterables()),
+		{
+			provide: MAT_ICON_DEFAULT_OPTIONS,
+			useValue: {
+				fontSet: 'material-symbols-outlined',
+			} as MatIconDefaultOptions,
+		},
 	],
 }).catch((err) => console.error(err));

@@ -25,15 +25,15 @@
                         matTooltipPosition="right"
                         (click)="onCollapsedFolderClick(folder)">
                     <span *ngIf="folder.name === 'All Tables'"
-                        class="material-icons collapsed-folder-icon">dehaze</span>
+                        class="material-symbols-outlined collapsed-folder-icon">dehaze</span>
                         <span *ngIf="folder.name !== 'All Tables'"
-                            class="material-icons collapsed-folder-icon"
+                            class="material-symbols-outlined collapsed-folder-icon"
                             [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
                     </div>
                 </div>
                 <!-- Fallback to dehaze if no folders -->
                 <span *ngIf="folders.length === 0"
-                    class="material-icons collapsed-folder-icon"
+                    class="material-symbols-outlined collapsed-folder-icon"
                     matTooltip="All Tables"
                     matTooltipPosition="right">dehaze</span>
 
@@ -104,10 +104,10 @@
                                 (click)="toggleFolder(folder.id)">
                                 <!-- Folder icon on the left -->
                                 <span *ngIf="folder.name === 'All Tables'"
-                                    class="material-icons folder-icon"
+                                    class="material-symbols-outlined folder-icon"
                                     [style.color]="getFolderIconColor(folder)">dehaze</span>
                                 <span *ngIf="folder.name !== 'All Tables'"
-                                    class="material-icons folder-icon"
+                                    class="material-symbols-outlined folder-icon"
                                     [style.color]="getFolderIconColor(folder)">folder</span>
 
                                 <div class="folder-name">
@@ -129,11 +129,11 @@
                                     </mat-icon>
                                     <mat-menu #folderMenu="matMenu">
                                         <button mat-menu-item (click)="showEditTablesDialog(folder)">
-                                            <mat-icon fontSet="material-icons-outlined">edit_note</mat-icon>
+                                            <mat-icon fontSet="material-symbols-outlined">edit_note</mat-icon>
                                             <span>Edit</span>
                                         </button>
                                         <button mat-menu-item (click)="deleteFolder(folder)">
-                                            <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+                                            <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
                                             <span>Delete</span>
                                         </button>
                                     </mat-menu>
