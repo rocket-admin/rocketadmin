@@ -63,6 +63,7 @@ export class ChartEditComponent implements OnInit {
 	protected chartType = signal<ChartType>('bar');
 	protected labelColumn = signal('');
 	protected valueColumn = signal('');
+	protected labelType = signal<'values' | 'datetime'>('values');
 
 	public chartTypes: { value: ChartType; label: string }[] = [
 		{ value: 'bar', label: 'Bar Chart' },
@@ -71,6 +72,13 @@ export class ChartEditComponent implements OnInit {
 		{ value: 'doughnut', label: 'Doughnut Chart' },
 		{ value: 'polarArea', label: 'Polar Area Chart' },
 	];
+
+	public labelTypes: { value: 'values' | 'datetime'; label: string }[] = [
+		{ value: 'values', label: 'Values' },
+		{ value: 'datetime', label: 'Datetime' },
+	];
+
+	protected showLabelTypeOption = computed(() => ['bar', 'line'].includes(this.chartType()));
 
 	// Use a signal for codeModel to ensure change detection works on load
 	// Only update this signal when loading a query, not during typing (to preserve cursor position)
@@ -140,6 +148,21 @@ export class ChartEditComponent implements OnInit {
 					this.queryName.set(query.name);
 					this.queryDescription.set(query.description || '');
 					this.queryText.set(query.query_text);
+					// Load chart configuration
+					if (query.chart_type) {
+						this.chartType.set(query.chart_type);
+					}
+					if (query.widget_options) {
+						if (query.widget_options['label_column']) {
+							this.labelColumn.set(query.widget_options['label_column'] as string);
+						}
+						if (query.widget_options['value_column']) {
+							this.valueColumn.set(query.widget_options['value_column'] as string);
+						}
+						if (query.widget_options['label_type']) {
+							this.labelType.set(query.widget_options['label_type'] as 'values' | 'datetime');
+						}
+					}
 					// Set codeModel value for Monaco editor (only on load, not during typing)
 					this.codeModel.set({ language: 'sql', uri: 'query.sql', value: query.query_text });
 					// Automatically test the query to show chart preview
@@ -190,10 +213,25 @@ export class ChartEditComponent implements OnInit {
 
 		this.saving.set(true);
 
+		// Build widget_options with column selections
+		const widgetOptions: Record<string, unknown> = {};
+		if (this.labelColumn()) {
+			widgetOptions['label_column'] = this.labelColumn();
+		}
+		if (this.valueColumn()) {
+			widgetOptions['value_column'] = this.valueColumn();
+		}
+		if (this.labelType() && this.showLabelTypeOption()) {
+			widgetOptions['label_type'] = this.labelType();
+		}
+
 		const payload = {
 			name: this.queryName(),
 			description: this.queryDescription() || undefined,
 			query_text: this.queryText(),
+			widget_type: 'chart' as const,
+			chart_type: this.chartType(),
+			widget_options: Object.keys(widgetOptions).length > 0 ? widgetOptions : undefined,
 		};
 
 		if (this.isEditMode()) {

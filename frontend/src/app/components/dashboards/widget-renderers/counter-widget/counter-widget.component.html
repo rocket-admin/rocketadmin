@@ -1,0 +1,12 @@
+@if (counterValue() !== null) {
+    <div class="counter-container">
+        <span class="counter-value">{{ counterValue() }}</span>
+        @if (label()) {
+            <span class="counter-label">{{ label() }}</span>
+        }
+    </div>
+} @else {
+    <div class="no-data-container">
+        <p>No data available</p>
+    </div>
+}

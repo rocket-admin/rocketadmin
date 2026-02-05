@@ -1,0 +1,10 @@
+@if (textContent()) {
+    <div class="text-container">
+        <markdown [data]="textContent()"></markdown>
+    </div>
+} @else {
+    <div class="no-content-container">
+        <p>No content</p>
+        <p class="hint">Edit this widget to add text content.</p>
+    </div>
+}

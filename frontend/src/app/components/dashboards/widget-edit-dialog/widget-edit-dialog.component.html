@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Widget' : 'Add Widget' }}</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="form" class="widget-form">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Saved Query</mat-label>
+            <mat-select formControlName="query_id"
+                data-testid="widget-query-select">
+                @for (query of savedQueries(); track query.id) {
+                    <mat-option [value]="query.id">{{ query.name }}</mat-option>
+                }
+            </mat-select>
+            <mat-hint>Select a saved query to display in this widget</mat-hint>
+            @if (form.get('query_id')?.hasError('required')) {
+                <mat-error>Please select a saved query</mat-error>
+            }
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close [disabled]="submitting()">Cancel</button>
+    <button mat-flat-button color="primary"
+        (click)="onSubmit()"
+        [disabled]="submitting() || form.invalid"
+        data-testid="widget-save-button">
+        {{ submitting() ? 'Saving...' : (isEdit ? 'Update' : 'Add') }}
+    </button>
+</mat-dialog-actions>

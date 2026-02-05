@@ -72,9 +72,9 @@ export class CreateSecretDialogComponent {
 
   get slugError(): string {
     const control = this.form.get('slug');
-    if (control?.hasError('required')) return 'Slug is required';
-    if (control?.hasError('maxlength')) return 'Slug must be 255 characters or less';
-    if (control?.hasError('pattern')) return 'Only letters, numbers, hyphens, and underscores allowed';
+    if (control?.hasError('required')) return 'Unique identifier is required';
+    if (control?.hasError('maxlength')) return 'Unique identifier must be 255 characters or less';
+    if (control?.hasError('pattern')) return 'Only letters, numbers, hyphens, and underscores allowed (no spaces)';
     return '';
   }
 
