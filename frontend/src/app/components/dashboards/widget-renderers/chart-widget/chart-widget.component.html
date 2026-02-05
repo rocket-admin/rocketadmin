@@ -1,0 +1,13 @@
+@if (chartData()) {
+    <div class="chart-container">
+        <canvas baseChart
+            [data]="chartData()!"
+            [type]="mappedChartType"
+            [options]="chartOptions()">
+        </canvas>
+    </div>
+} @else {
+    <div class="no-data-container">
+        <p>No data available</p>
+    </div>
+}

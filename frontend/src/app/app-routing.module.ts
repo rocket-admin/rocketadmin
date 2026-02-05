@@ -215,6 +215,22 @@ const routes: Routes = [
 		title: 'Edit Query | Rocketadmin',
 	},
 	{
+		path: 'dashboards/:connection-id',
+		loadComponent: () =>
+			import('./components/dashboards/dashboards-list/dashboards-list.component').then(
+				(m) => m.DashboardsListComponent,
+			),
+		canActivate: [AuthGuard],
+		title: 'Dashboards | Rocketadmin',
+	},
+	{
+		path: 'dashboards/:connection-id/:dashboard-id',
+		loadComponent: () =>
+			import('./components/dashboards/dashboard-view/dashboard-view.component').then((m) => m.DashboardViewComponent),
+		canActivate: [AuthGuard],
+		title: 'Dashboard | Rocketadmin',
+	},
+	{
 		path: '**',
 		loadComponent: () =>
 			import('./components/page-not-found/page-not-found.component').then((m) => m.PageNotFoundComponent),
