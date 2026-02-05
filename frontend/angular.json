@@ -29,7 +29,14 @@
 								"output": "./assets/monaco"
 							}
 						],
-						"styles": ["src/custom-theme.scss", "src/styles.scss"],
+						"styles": [
+							"node_modules/@fontsource/noto-sans/300.css",
+							"node_modules/@fontsource/noto-sans/400.css",
+							"node_modules/@fontsource/noto-sans/500.css",
+							"node_modules/@material-symbols/font-400/outlined.css",
+							"src/custom-theme.scss",
+							"src/styles.scss"
+						],
 						"stylePreprocessorOptions": {
 							"includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
 						},
