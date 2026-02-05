@@ -11,8 +11,11 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { ContentLoaderComponent } from 'src/app/components/ui-components/content-loader/content-loader.component';
 import { Observable, map, startWith } from 'rxjs';
@@ -36,6 +39,8 @@ import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
+    MatSlideToggleModule,
+    MatMenuModule,
     MatCheckboxModule,
     MatRadioModule,
     DynamicModule,
@@ -43,7 +48,8 @@ import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
     MatDialogModule,
     MatSnackBarModule,
     ContentLoaderComponent,
-    Angulartics2OnModule
+    Angulartics2OnModule,
+    MatTooltipModule
   ],
   templateUrl: './saved-filters-dialog.component.html',
   styleUrl: './saved-filters-dialog.component.css'
