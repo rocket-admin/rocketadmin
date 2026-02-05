@@ -16,6 +16,7 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CookieService } from 'ngx-cookie-service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
+import posthog from 'posthog-js';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
 import { ConfigModule } from './app/modules/config.module';
@@ -82,6 +83,11 @@ if ((environment as any).saas) {
 		replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 	});
 }
+
+posthog.init('phc_VPnWHIMj9UjhRLPr7shATjgL0J4KrWWOHkK3JwZbnkw', {
+	api_host: 'https://us.i.posthog.com',
+	defaults: '2025-11-30',
+});
 
 bootstrapApplication(AppComponent, {
 	providers: [

@@ -57,6 +57,7 @@
 		"ngx-stripe": "^19.0.0",
 		"pluralize": "^8.0.0",
 		"postgres-interval": "^4.0.2",
+		"posthog-js": "^1.341.0",
 		"private-ip": "^3.0.2",
 		"puppeteer": "^24.29.1",
 		"rxjs": "^7.4.0",
