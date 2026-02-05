@@ -248,6 +248,7 @@ export const Messages = {
 	SAAS_RECOUNT_USERS_IN_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to recount users in company. Please contact our support team.`,
 	SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
 	SLACK_URL_MISSING: 'Slack url is missing',
+	ACTION_URL_HOST_NOT_ALLOWED: 'Action URL cannot target this host',
 	SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
 	SOMETHING_WENT_WRONG_AI_THREAD: 'Something went wrong on AI thread creation, check inserted parameters and try again',
 	SOMETHING_WENT_WRONG_AI_THREAD_MESSAGE:
