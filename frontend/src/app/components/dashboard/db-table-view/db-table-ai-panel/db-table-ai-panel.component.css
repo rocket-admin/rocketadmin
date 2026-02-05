@@ -882,7 +882,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: rgba(0, 0, 0, 0.4);
-    margin: 12px 0 4px 0;
+    margin: 12px 0 4px 0 !important;
 }
 
 .ai-category:first-child .ai-category__title {
