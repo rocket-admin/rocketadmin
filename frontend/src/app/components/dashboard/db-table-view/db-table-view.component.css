@@ -342,10 +342,6 @@
 	grid-template-columns: repeat(var(--colCount), auto) !important;
 }
 
-/* .db-table ::ng-deep .mat-mdc-row:nth-child(even) {
-    background-color: rgba(0, 0, 0, 0.02);
-} */
-
 .db-table ::ng-deep .db-table-row {
 	cursor: pointer;
 }
@@ -492,6 +488,7 @@ td.mat-cell {
 
 /* Sortable header styles */
 .sortable-header__content {
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -507,12 +504,25 @@ td.mat-cell {
 }
 
 .sortable-header__button {
+	position: absolute;
+	right: 0;
 	opacity: 0;
 	width: 24px;
 	height: 24px;
 	line-height: 24px;
-	flex-shrink: 0;
 	transition: opacity 0.2s ease;
+}
+
+@media (prefers-color-scheme: light) {
+	.sortable-header__button {
+		background: rgba(255, 255, 255, 1);
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.sortable-header__button {
+		background: rgba(32, 32, 32, 1);
+	}
 }
 
 .sortable-header:hover .sortable-header__button,

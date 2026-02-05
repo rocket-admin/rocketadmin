@@ -8,85 +8,87 @@ import { get2FaScope } from '../../user/utils/is-jwt-scope-need.util.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import { IVerifyInviteUserInCompanyAndConnectionGroup } from './company-info-use-cases.interface.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
-  extends AbstractUseCase<AcceptUserValidationInCompany, IToken>
-  implements IVerifyInviteUserInCompanyAndConnectionGroup
+	extends AbstractUseCase<AcceptUserValidationInCompany, IToken>
+	implements IVerifyInviteUserInCompanyAndConnectionGroup
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: AcceptUserValidationInCompany): Promise<IToken> {
-    const { verificationString, userPassword, userName } = inputData;
-    const foundInvitation =
-      await this._dbContext.invitationInCompanyRepository.findNonExpiredInvitationInCompanyWithUsersByVerificationString(
-        verificationString,
-      );
-    if (!foundInvitation) {
-      throw new HttpException(
-        {
-          message: Messages.VERIFICATION_LINK_INCORRECT,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const {
-      company: { users, id: companyId },
-      groupId,
-      role,
-    } = foundInvitation;
-    const invitedUserEmail = foundInvitation.invitedUserEmail.toLowerCase();
-    const foundUser = users.find((user) => user.email === invitedUserEmail);
-    if (foundUser?.isActive) {
-      throw new HttpException(
-        {
-          message: Messages.USER_ALREADY_ADDED_IN_COMPANY,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (foundUser) {
-      foundUser.isActive = true;
-      foundUser.role = role;
-      await this._dbContext.userRepository.saveUserEntity(foundUser);
-      return generateGwtToken(foundUser, get2FaScope(foundUser, foundInvitation.company));
-    }
-    const newUser = await this._dbContext.userRepository.saveRegisteringUser({
-      email: invitedUserEmail,
-      gclidValue: null,
-      password: userPassword,
-      isActive: true,
-      role,
-      name: userName,
-    });
-    newUser.company = foundInvitation.company;
-    const savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
-    if (groupId) {
-      const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-      if (!foundGroup) {
-        throw new HttpException(
-          {
-            message: Messages.GROUP_NOT_FOUND,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      const userAlreadyIngroup = foundGroup.users.find(
-        (user) => user.email.toLowerCase() === savedUser.email.toLowerCase(),
-      );
-      if (!userAlreadyIngroup) {
-        foundGroup.users.push(savedUser);
-        await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
-      }
-    }
-    await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
-    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
-    return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company));
-  }
+	protected async implementation(inputData: AcceptUserValidationInCompany): Promise<IToken> {
+		const { verificationString, userPassword, userName } = inputData;
+		const hashedToken = Encryptor.hashVerificationToken(verificationString);
+		const foundInvitation =
+			await this._dbContext.invitationInCompanyRepository.findNonExpiredInvitationInCompanyWithUsersByVerificationString(
+				hashedToken,
+			);
+		if (!foundInvitation) {
+			throw new HttpException(
+				{
+					message: Messages.VERIFICATION_LINK_INCORRECT,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const {
+			company: { users, id: companyId },
+			groupId,
+			role,
+		} = foundInvitation;
+		const invitedUserEmail = foundInvitation.invitedUserEmail.toLowerCase();
+		const foundUser = users.find((user) => user.email === invitedUserEmail);
+		if (foundUser?.isActive) {
+			throw new HttpException(
+				{
+					message: Messages.USER_ALREADY_ADDED_IN_COMPANY,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		if (foundUser) {
+			foundUser.isActive = true;
+			foundUser.role = role;
+			await this._dbContext.userRepository.saveUserEntity(foundUser);
+			return generateGwtToken(foundUser, get2FaScope(foundUser, foundInvitation.company));
+		}
+		const newUser = await this._dbContext.userRepository.saveRegisteringUser({
+			email: invitedUserEmail,
+			gclidValue: null,
+			password: userPassword,
+			isActive: true,
+			role,
+			name: userName,
+		});
+		newUser.company = foundInvitation.company;
+		const savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
+		if (groupId) {
+			const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+			if (!foundGroup) {
+				throw new HttpException(
+					{
+						message: Messages.GROUP_NOT_FOUND,
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+			const userAlreadyIngroup = foundGroup.users.find(
+				(user) => user.email.toLowerCase() === savedUser.email.toLowerCase(),
+			);
+			if (!userAlreadyIngroup) {
+				foundGroup.users.push(savedUser);
+				await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
+			}
+		}
+		await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
+		await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
+		return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company));
+	}
 }

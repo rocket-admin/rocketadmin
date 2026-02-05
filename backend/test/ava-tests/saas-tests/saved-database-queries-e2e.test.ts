@@ -25,6 +25,7 @@ import { UpdateSavedDbQueryDto } from '../../../src/entities/visualizations/save
 import { ExecuteSavedDbQueryResultDto } from '../../../src/entities/visualizations/saved-db-query/dto/execute-saved-db-query-result.dto.js';
 import { TestDbQueryDto } from '../../../src/entities/visualizations/saved-db-query/dto/test-db-query.dto.js';
 import { TestDbQueryResultDto } from '../../../src/entities/visualizations/saved-db-query/dto/test-db-query-result.dto.js';
+import { DashboardWidgetTypeEnum } from '../../../src/enums/dashboard-widget-type.enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -81,6 +82,7 @@ test.serial(`${currentTest} should create a new saved query`, async (t) => {
 		name: 'Test Query',
 		description: 'A test query for e2e testing',
 		query_text: `SELECT * FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())
@@ -179,6 +181,7 @@ test.serial(`${currentTest} should return all saved queries for a connection`, a
 		name: 'Test Query 1',
 		description: 'First test query',
 		query_text: `SELECT * FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	await request(app.getHttpServer())
@@ -193,6 +196,7 @@ test.serial(`${currentTest} should return all saved queries for a connection`, a
 		name: 'Test Query 2',
 		description: 'Second test query',
 		query_text: `SELECT id FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	await request(app.getHttpServer())
@@ -262,6 +266,7 @@ test.serial(`${currentTest} should return a saved query by id`, async (t) => {
 		name: 'Test Query',
 		description: 'A test query for e2e testing',
 		query_text: `SELECT * FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())
@@ -332,6 +337,7 @@ test.serial(`${currentTest} should update a saved query`, async (t) => {
 		name: 'Original Query Name',
 		description: 'Original description',
 		query_text: `SELECT * FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())
@@ -384,6 +390,7 @@ test.serial(`${currentTest} should update only provided fields`, async (t) => {
 		name: 'Original Query Name',
 		description: 'Original description',
 		query_text: `SELECT * FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())
@@ -462,6 +469,7 @@ test.serial(`${currentTest} should delete a saved query`, async (t) => {
 		name: 'Query to Delete',
 		description: 'This query will be deleted',
 		query_text: `SELECT * FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())
@@ -539,6 +547,7 @@ test.serial(`${currentTest} should execute a saved query and return results`, as
 		name: 'Query to Execute',
 		description: 'This query will be executed',
 		query_text: `SELECT * FROM "${testTableName}"`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())
@@ -621,6 +630,7 @@ test.serial(`${currentTest} should not return queries from other connections`, a
 		name: 'Query in Connection 1',
 		description: 'This query belongs to connection 1',
 		query_text: `SELECT * FROM ${testTableName}`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	await request(app.getHttpServer())
@@ -907,6 +917,7 @@ test.serial(`${currentTest} should reject unsafe query when creating saved query
 		name: 'Unsafe Query',
 		description: 'This should be rejected',
 		query_text: `DELETE FROM "${testTableName}"`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())
@@ -938,6 +949,7 @@ test.serial(`${currentTest} should reject unsafe query when updating saved query
 		name: 'Safe Query',
 		description: 'This is safe',
 		query_text: `SELECT * FROM "${testTableName}"`,
+		widget_type: DashboardWidgetTypeEnum.Table,
 	};
 
 	const createSavedQueryResponse = await request(app.getHttpServer())

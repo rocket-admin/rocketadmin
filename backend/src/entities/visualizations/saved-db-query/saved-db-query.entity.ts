@@ -1,3 +1,4 @@
+import sjson from 'secure-json-parse';
 import {
 	AfterLoad,
 	BeforeInsert,
@@ -13,6 +14,7 @@ import {
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { DashboardWidgetEntity } from '../dashboard-widget/dashboard-widget.entity.js';
+import { DashboardWidgetTypeEnum } from '../../../enums/dashboard-widget-type.enum.js';
 
 @Entity('saved_db_query')
 export class SavedDbQueryEntity {
@@ -25,7 +27,16 @@ export class SavedDbQueryEntity {
 	@Column({ type: 'text', default: null, nullable: true })
 	description: string | null;
 
-	@Column({ type: 'text' })
+	@Column({ type: 'varchar', nullable: true, default: DashboardWidgetTypeEnum.Chart })
+	widget_type: DashboardWidgetTypeEnum;
+
+	@Column({ type: 'varchar', default: null, nullable: true })
+	chart_type: string | null;
+
+	@Column('json', { default: null, nullable: true })
+	widget_options: string | null;
+
+	@Column({ type: 'text', nullable: true, default: null })
 	query_text: string;
 
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -35,24 +46,48 @@ export class SavedDbQueryEntity {
 	updated_at: Date;
 
 	@BeforeInsert()
-	encryptQueryTextOnInsert(): void {
+	encryptQueryTextStringifyOptionsOnInsert(): void {
 		if (this.query_text) {
 			this.query_text = Encryptor.encryptData(this.query_text);
+		}
+		try {
+			if (this.widget_options && typeof this.widget_options === 'object') {
+				this.widget_options = JSON.stringify(this.widget_options);
+			}
+		} catch (e) {
+			console.error('-> Error widget options stringify ' + e.message);
 		}
 	}
 
 	@BeforeUpdate()
-	encryptQueryTextOnUpdate(): void {
+	encryptQueryTextStringifyOptionsOnUpdate(): void {
 		this.updated_at = new Date();
 		if (this.query_text) {
 			this.query_text = Encryptor.encryptData(this.query_text);
 		}
+		try {
+			if (this.widget_options && typeof this.widget_options === 'object') {
+				this.widget_options = JSON.stringify(this.widget_options);
+			}
+		} catch (e) {
+			console.error('-> Error widget options stringify ' + e.message);
+		}
 	}
 
 	@AfterLoad()
-	decryptQueryText(): void {
+	decryptQueryTextParseOptions(): void {
 		if (this.query_text) {
 			this.query_text = Encryptor.decryptData(this.query_text);
+		}
+		try {
+			if (this.widget_options && typeof this.widget_options === 'string') {
+				this.widget_options = sjson.parse(this.widget_options, null, {
+					protoAction: 'remove',
+					constructorAction: 'remove',
+				});
+			}
+		} catch (e) {
+			console.error('-> Error widget options parse ' + e.message);
 		}
 	}
 
