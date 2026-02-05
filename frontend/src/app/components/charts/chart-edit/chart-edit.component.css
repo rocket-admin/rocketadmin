@@ -72,6 +72,13 @@
 }
 
 .editor-section,
+.right-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.config-section,
 .preview-section {
 	display: flex;
 	flex-direction: column;
