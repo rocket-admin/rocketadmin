@@ -431,7 +431,7 @@ export class ConnectionController {
 				cognitoUserName: userId,
 			},
 		};
-		return await this.createGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
+		return await this.createGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 
 	@ApiOperation({ summary: 'Find all groups in connection' })
