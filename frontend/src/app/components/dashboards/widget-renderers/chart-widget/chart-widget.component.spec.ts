@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartWidgetComponent } from './chart-widget.component';
 
 describe('ChartWidgetComponent', () => {
@@ -11,7 +12,7 @@ describe('ChartWidgetComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [ChartWidgetComponent, BrowserAnimationsModule],
-			providers: [provideHttpClient(), provideHttpClientTesting()],
+			providers: [provideHttpClient(), provideHttpClientTesting(), provideCharts(withDefaultRegisterables())],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(ChartWidgetComponent);
