@@ -326,30 +326,30 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
           title: 'Show recent records',
           prompt: 'Show recent records',
           completions: [
-            'Show me the 10 most recently added records',
-            'Show records from the last 24 hours',
-            'What was the last entry added to this table?',
-            'Show records with the newest timestamps'
+            'Show recent records - the 10 most recently added',
+            'Show recent records - from the last 24 hours',
+            'Show recent records - the last entry added',
+            'Show recent records - with newest timestamps'
           ]
         },
         {
           title: 'Summarize table',
           prompt: 'Summarize table',
           completions: [
-            'Give me an overview of this table structure and content',
-            'What kind of data is stored in this table?',
-            'Describe the purpose of each column',
-            'How many records are there and what do they represent?'
+            'Summarize table - structure and content overview',
+            'Summarize table - what kind of data is stored',
+            'Summarize table - purpose of each column',
+            'Summarize table - record count and what they represent'
           ]
         },
         {
           title: 'Find patterns',
           prompt: 'Find patterns',
           completions: [
-            'What patterns do you see in this data?',
-            'Are there any correlations between columns?',
-            'What are the most common combinations of values?',
-            'Identify any seasonal or cyclical patterns'
+            'Find patterns - in this data',
+            'Find patterns - correlations between columns',
+            'Find patterns - common value combinations',
+            'Find patterns - seasonal or cyclical trends'
           ]
         }
       ]
@@ -363,30 +363,30 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
           title: 'Find issues',
           prompt: 'Find issues',
           completions: [
-            'Are there any data quality issues I should know about?',
-            'Find records with missing or NULL values',
-            'Identify potential duplicates',
-            'Check for inconsistent data formats'
+            'Find issues - data quality problems',
+            'Find issues - missing or NULL values',
+            'Find issues - potential duplicates',
+            'Find issues - inconsistent data formats'
           ]
         },
         {
           title: 'Check duplicates',
           prompt: 'Check duplicates',
           completions: [
-            'Are there any duplicate records?',
-            'Find rows that look like duplicates',
-            'Which values appear more than once where they shouldn\'t?',
-            'Identify records that might be entered twice'
+            'Check duplicates - any duplicate records',
+            'Check duplicates - rows that look similar',
+            'Check duplicates - values appearing multiple times',
+            'Check duplicates - records entered twice'
           ]
         },
         {
           title: 'Validate data',
           prompt: 'Validate data',
           completions: [
-            'Check if all required fields are filled',
-            'Are there any values that look incorrect?',
-            'Find records that don\'t match expected patterns',
-            'Identify outliers or unusual values'
+            'Validate data - required fields filled',
+            'Validate data - incorrect values',
+            'Validate data - records not matching patterns',
+            'Validate data - outliers and unusual values'
           ]
         }
       ]
@@ -400,30 +400,30 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
           title: 'Top values',
           prompt: 'Top values',
           completions: [
-            'What are the most common values in each column?',
-            'Show me the top 10 most frequent entries',
-            'Which categories have the most records?',
-            'What values appear most often?'
+            'Top values - most common in each column',
+            'Top values - 10 most frequent entries',
+            'Top values - categories with most records',
+            'Top values - what appears most often'
           ]
         },
         {
           title: 'Statistics',
           prompt: 'Statistics',
           completions: [
-            'Calculate basic statistics for numeric columns',
-            'What are the min, max, and average values?',
-            'Show the distribution of values',
-            'Give me a statistical summary of this data'
+            'Statistics - for numeric columns',
+            'Statistics - min, max, and average',
+            'Statistics - distribution of values',
+            'Statistics - summary of this data'
           ]
         },
         {
           title: 'Anomalies',
           prompt: 'Anomalies',
           completions: [
-            'Are there any unusual or unexpected values?',
-            'Find records that stand out from the rest',
-            'Identify statistical outliers',
-            'What looks different or wrong in this data?'
+            'Anomalies - unusual or unexpected values',
+            'Anomalies - records that stand out',
+            'Anomalies - statistical outliers',
+            'Anomalies - what looks different or wrong'
           ]
         }
       ]
@@ -434,7 +434,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   onSuggestionChipClick(suggestion: { title: string; prompt: string; completions: string[] }): void {
     this.activeSuggestion = suggestion;
-    this.message = '';
+    this.message = suggestion.prompt;
     this.activeCompletions = suggestion.completions;
     this.showCompletions = true;
 
@@ -461,9 +461,19 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   }
 
   onWelcomeInputChange(): void {
-    if (this.message.length > 0) {
+    if (this.message.length > 0 && (!this.activeSuggestion || this.message !== this.activeSuggestion.prompt)) {
       this.showCompletions = false;
       this.activeSuggestion = null;
+    }
+  }
+
+  onCompletionHover(completion: string): void {
+    this.message = completion;
+  }
+
+  onCompletionMouseLeave(): void {
+    if (this.activeSuggestion) {
+      this.message = this.activeSuggestion.prompt;
     }
   }
 

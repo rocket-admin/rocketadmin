@@ -52,9 +52,11 @@
                             </mat-form-field>
                         </form>
 
-                        <div class="ai-completions" *ngIf="showCompletions && activeCompletions.length">
+                        <div class="ai-completions" *ngIf="showCompletions && activeCompletions.length"
+                            (mouseleave)="onCompletionMouseLeave()">
                             <button *ngFor="let completion of activeCompletions"
                                 class="ai-completion-item"
+                                (mouseenter)="onCompletionHover(completion)"
                                 (mousedown)="selectCompletion(completion)">
                                 <span class="ai-completion-text">{{completion}}</span>
                             </button>

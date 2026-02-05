@@ -866,14 +866,14 @@
 .ai-categories {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 0;
     width: 100%;
 }
 
 .ai-category {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
 }
 
 .ai-category__title {
@@ -882,7 +882,11 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: rgba(0, 0, 0, 0.4);
-    margin: 0;
+    margin: 12px 0 4px 0;
+}
+
+.ai-category:first-child .ai-category__title {
+    margin-top: 0;
 }
 
 @media (prefers-color-scheme: dark) {
