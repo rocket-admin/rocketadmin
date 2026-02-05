@@ -407,17 +407,18 @@
 
 /* Add lock icon when unchecked */
 .quick-edit-toggle ::ng-deep .mdc-switch__handle::after {
-    font-family: 'Material Icons';
+    font-family: 'Material Symbols Outlined';
     content: 'lock';
-    font-size: 16px;
+    font-size: 14px;
     position: absolute;
     color: #fff;
 }
 
 /* Add edit icon when checked */
 .quick-edit-toggle.mat-mdc-slide-toggle-checked ::ng-deep .mdc-switch__handle::after {
+    font-family: 'Material Symbols Outlined';
     content: 'edit';
-    font-size: 16px;
+    font-size: 14px;
     color: #fff;
 }
 
