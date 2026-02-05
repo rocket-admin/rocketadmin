@@ -71,6 +71,8 @@ import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto
 import { RequestRestUserPasswordDto } from './dto/request-rest-user-password.dto.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
+import { Throttle } from '@nestjs/throttler';
+import { isTest } from '../../helpers/app/is-test.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()
@@ -143,6 +145,7 @@ export class UserController {
 		description: 'Login successful.',
 		type: TokenExpDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/login/')
 	async usualLogin(
 		@Res({ passthrough: true }) response: Response,
@@ -294,6 +297,7 @@ export class UserController {
 		description: 'Password reset requested.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/password/reset/request/')
 	async askResetUserPassword(@Body() emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
 		return await this.requestResetUserPasswordUseCase.execute(emailData, InTransactionEnum.ON);

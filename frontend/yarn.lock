@@ -6108,6 +6108,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"angular-gridster2@npm:^20.0.0":
+  version: 20.2.4
+  resolution: "angular-gridster2@npm:20.2.4"
+  dependencies:
+    tslib: ^2.4.0
+  peerDependencies:
+    "@angular/common": ^20.0.0
+    "@angular/core": ^20.0.0
+    rxjs: ^7.0.0
+  checksum: 2c62a5c9ff1cbf7930f4a886fc0eb769f2f6fc5e41dd75778e7a6873c4510c4e0ec1c562b00da9c3dccd37291c3c0b2e21aab2c1901c04514c68b25cf0ad4fb9
+  languageName: node
+  linkType: hard
+
 "angular-password-strength-meter@npm:@eresearchqut/angular-password-strength-meter@^13.0.7":
   version: 13.0.7
   resolution: "@eresearchqut/angular-password-strength-meter@npm:13.0.7"
@@ -6694,6 +6707,16 @@ __metadata:
   dependencies:
     "@kurkle/color": ^0.3.0
   checksum: 34b35b373642994b2adac197e91363625930530e29fc1baa6dbb411b5e1295f9f6572922003a0224a21a3019aec916567c1ed00c33b1373081f189fc188e5a7b
+  languageName: node
+  linkType: hard
+
+"chartjs-adapter-date-fns@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "chartjs-adapter-date-fns@npm:3.0.0"
+  peerDependencies:
+    chart.js: ">=2.8.0"
+    date-fns: ">=2.0.0"
+  checksum: c39bfdf490749faa589fba6e0dc0a2c5a467a5f06aaa52c5180e10fd9c83414807a064f6950538448bffee354c8064c0ce9d957bccbf2048e7ee2257aa95f138
   languageName: node
   linkType: hard
 
@@ -12021,9 +12044,11 @@ __metadata:
     "@zxcvbn-ts/core": ^3.0.4
     "@zxcvbn-ts/language-en": ^3.0.2
     amplitude-js: ^8.21.9
+    angular-gridster2: ^20.0.0
     angular-password-strength-meter: "npm:@eresearchqut/angular-password-strength-meter@^13.0.7"
     angulartics2: ^14.1.0
     chart.js: ^4.5.1
+    chartjs-adapter-date-fns: ^3.0.0
     color-string: ^2.0.1
     convert: ^5.12.0
     date-fns: ^4.1.0

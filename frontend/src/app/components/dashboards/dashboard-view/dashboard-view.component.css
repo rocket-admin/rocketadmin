@@ -1,0 +1,287 @@
+/* Scoped to app-dashboard-view to prevent style leakage with ViewEncapsulation.None */
+
+app-dashboard-view .dashboard-view-page {
+	padding: 24px;
+	height: calc(100vh - 64px);
+	display: flex;
+	flex-direction: column;
+}
+
+app-dashboard-view .dashboard-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 24px;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+app-dashboard-view .header-left {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+app-dashboard-view .header-info {
+	display: flex;
+	flex-direction: column;
+}
+
+app-dashboard-view .header-info h1 {
+	margin: 0;
+	line-height: 1.2;
+}
+
+app-dashboard-view .dashboard-description {
+	margin: 4px 0 0 0;
+	color: rgba(0, 0, 0, 0.64);
+	font-size: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .dashboard-description {
+		color: rgba(255, 255, 255, 0.7);
+	}
+}
+
+app-dashboard-view .header-actions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+app-dashboard-view .loading-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex: 1;
+}
+
+app-dashboard-view .no-widgets {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.02);
+	border-radius: 8px;
+	padding: 64px 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .no-widgets {
+		background-color: rgba(255, 255, 255, 0.05);
+	}
+}
+
+app-dashboard-view .no-widgets-icon {
+	font-size: 64px;
+	width: 64px;
+	height: 64px;
+	color: rgba(0, 0, 0, 0.26);
+	margin-bottom: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .no-widgets-icon {
+		color: rgba(255, 255, 255, 0.3);
+	}
+}
+
+app-dashboard-view .no-widgets h3 {
+	margin: 0 0 8px 0;
+	color: rgba(0, 0, 0, 0.87);
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .no-widgets h3 {
+		color: rgba(255, 255, 255, 0.87);
+	}
+}
+
+app-dashboard-view .no-widgets p {
+	margin: 0 0 16px 0;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .no-widgets p {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+app-dashboard-view .dashboard-grid {
+	flex: 1;
+	background-color: rgba(0, 0, 0, 0.02);
+	border-radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .dashboard-grid {
+		background-color: rgba(255, 255, 255, 0.02);
+	}
+}
+
+app-dashboard-view .widget-item {
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .widget-item {
+		background: #1e1e1e;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	}
+}
+
+app-dashboard-view .widget-item.edit-mode {
+	border: 2px dashed var(--mdc-filled-button-container-color, #1976d2);
+}
+
+app-dashboard-view .widget-item.edit-mode .widget-header {
+	cursor: move;
+}
+
+/* Gridster resize handles - gridster controls visibility via resizable.enabled */
+app-dashboard-view gridster-item .gridster-item-resizable-handler {
+	position: absolute;
+	z-index: 100;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-s {
+	bottom: -4px;
+	left: 25%;
+	width: 50%;
+	height: 8px;
+	cursor: ns-resize;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-e {
+	right: -4px;
+	top: 25%;
+	width: 8px;
+	height: 50%;
+	cursor: ew-resize;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-n {
+	top: -4px;
+	left: 25%;
+	width: 50%;
+	height: 8px;
+	cursor: ns-resize;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-w {
+	left: -4px;
+	top: 25%;
+	width: 8px;
+	height: 50%;
+	cursor: ew-resize;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-se {
+	bottom: -4px;
+	right: -4px;
+	width: 16px;
+	height: 16px;
+	cursor: se-resize;
+	background: var(--mdc-filled-button-container-color, #1976d2);
+	border-radius: 2px 0 6px 0;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-ne {
+	top: -4px;
+	right: -4px;
+	width: 16px;
+	height: 16px;
+	cursor: ne-resize;
+	background: var(--mdc-filled-button-container-color, #1976d2);
+	border-radius: 0 6px 0 2px;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-sw {
+	bottom: -4px;
+	left: -4px;
+	width: 16px;
+	height: 16px;
+	cursor: sw-resize;
+	background: var(--mdc-filled-button-container-color, #1976d2);
+	border-radius: 0 2px 0 6px;
+}
+
+app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-nw {
+	top: -4px;
+	left: -4px;
+	width: 16px;
+	height: 16px;
+	cursor: nw-resize;
+	background: var(--mdc-filled-button-container-color, #1976d2);
+	border-radius: 6px 0 2px 0;
+}
+
+app-dashboard-view .widget-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 8px 8px 16px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+	flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .widget-header {
+		border-bottom-color: rgba(255, 255, 255, 0.12);
+	}
+}
+
+app-dashboard-view .widget-title {
+	font-weight: 500;
+	font-size: 14px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+app-dashboard-view .widget-menu-button {
+	flex-shrink: 0;
+}
+
+app-dashboard-view .widget-content {
+	flex: 1;
+	padding: 16px;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+app-dashboard-view .delete-action {
+	color: #c62828;
+}
+
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .delete-action {
+		color: #ef5350;
+	}
+}
+
+@media (width <= 600px) {
+	app-dashboard-view .dashboard-view-page {
+		padding: 16px;
+	}
+
+	app-dashboard-view .dashboard-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	app-dashboard-view .header-actions {
+		width: 100%;
+		justify-content: space-between;
+	}
+}
