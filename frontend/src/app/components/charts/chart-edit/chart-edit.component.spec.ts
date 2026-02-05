@@ -233,7 +233,7 @@ describe('ChartEditComponent', () => {
 				query_text: 'SELECT 1',
 				widget_type: 'chart',
 				chart_type: 'bar',
-				widget_options: undefined,
+				widget_options: { label_type: 'values' },
 			});
 		});
 
