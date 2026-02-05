@@ -297,6 +297,7 @@ export class UserController {
 		description: 'Password reset requested.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/password/reset/request/')
 	async askResetUserPassword(@Body() emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
 		return await this.requestResetUserPasswordUseCase.execute(emailData, InTransactionEnum.ON);
