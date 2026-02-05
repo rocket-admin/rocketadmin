@@ -13,48 +13,49 @@ import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
 
 @Injectable()
 export class VerifyResetUserPasswordUseCase
-  extends AbstractUseCase<ResetUsualUserPasswordDs, RegisteredUserDs>
-  implements IVerifyPasswordReset
+	extends AbstractUseCase<ResetUsualUserPasswordDs, RegisteredUserDs>
+	implements IVerifyPasswordReset
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: ResetUsualUserPasswordDs): Promise<RegisteredUserDs> {
-    const { verificationString, newUserPassword } = inputData;
-    ValidationHelper.isPasswordStrongOrThrowError(newUserPassword);
-    const verificationEntity =
-      await this._dbContext.passwordResetRepository.findPasswordResetWidthVerificationString(verificationString);
-    if (!verificationEntity || !verificationEntity.user) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_RESET_VERIFICATION_FAILED,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const foundUser = await this._dbContext.userRepository.findOneUserById(verificationEntity.user.id);
-    if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    foundUser.password = await Encryptor.hashUserPassword(newUserPassword);
-    await this._dbContext.passwordResetRepository.removePasswordResetEntity(verificationEntity);
-    const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
-    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(savedUser.id);
-    return {
-      id: foundUser.id,
-      email: foundUser.email,
-      token: generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany)),
-      name: foundUser.name,
-      externalRegistrationProvider: foundUser.externalRegistrationProvider,
-    };
-  }
+	protected async implementation(inputData: ResetUsualUserPasswordDs): Promise<RegisteredUserDs> {
+		const { verificationString, newUserPassword } = inputData;
+		ValidationHelper.isPasswordStrongOrThrowError(newUserPassword);
+		const hashedToken = Encryptor.hashVerificationToken(verificationString);
+		const verificationEntity =
+			await this._dbContext.passwordResetRepository.findPasswordResetWidthVerificationString(hashedToken);
+		if (!verificationEntity || !verificationEntity.user) {
+			throw new HttpException(
+				{
+					message: Messages.PASSWORD_RESET_VERIFICATION_FAILED,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const foundUser = await this._dbContext.userRepository.findOneUserById(verificationEntity.user.id);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		foundUser.password = await Encryptor.hashUserPassword(newUserPassword);
+		await this._dbContext.passwordResetRepository.removePasswordResetEntity(verificationEntity);
+		const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
+		const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(savedUser.id);
+		return {
+			id: foundUser.id,
+			email: foundUser.email,
+			token: generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany)),
+			name: foundUser.name,
+			externalRegistrationProvider: foundUser.externalRegistrationProvider,
+		};
+	}
 }

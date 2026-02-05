@@ -164,6 +164,14 @@ export class Encryptor {
 		return hmac.digest('hex');
 	}
 
+	static hashVerificationToken(token: string): string {
+		const privateKey = Encryptor.getPrivateKey();
+		if (!privateKey) {
+			throw new Error('PRIVATE_KEY environment variable is required for token hashing');
+		}
+		return Encryptor.hashDataHMAC(token);
+	}
+
 	static hashDataHMACexternalKey(key: string, dataToHash: string): string {
 		const hmac = createHmac('sha256', key);
 		hmac.update(dataToHash);
