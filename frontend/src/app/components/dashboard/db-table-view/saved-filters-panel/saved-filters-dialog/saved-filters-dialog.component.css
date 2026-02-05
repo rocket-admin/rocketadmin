@@ -22,7 +22,7 @@
 }
 
 .empty-conditions-container {
-    grid-column: 1 / span 6;
+    grid-column: 1 / span 5;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -118,10 +118,49 @@
     top: 100%;
 }
 
-.dynamic-column-radio {
+.quick-edit-header {
+    grid-column: 6;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.quick-edit-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.quick-edit-info-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: rgba(0, 0, 0, 0.35);
+    cursor: help;
+}
+
+.quick-edit-toggle {
     grid-column: 6;
     margin-top: -16px;
     align-self: center;
+    display: flex;
+    justify-content: center;
+}
+
+@media (prefers-color-scheme: dark) {
+    .quick-edit-title {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .quick-edit-info-icon {
+        color: rgba(255, 255, 255, 0.35);
+    }
 }
 
 .comparator-select-field {
@@ -185,15 +224,6 @@
     padding-bottom: 0;
 }
 
-.dynamic-column-radio ::ng-deep .mdc-form-field {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.dynamic-column-radio ::ng-deep .mdc-form-field>label {
-    white-space: nowrap;
-}
 
 .filter-save-form {
     grid-column: 1 / span 6;
