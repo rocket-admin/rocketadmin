@@ -12,6 +12,7 @@ import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filt
 import {
   inviteUserInCompanyAndAcceptInvitation,
   registerUserAndReturnUserInfo,
+  createInitialTestUser,
 } from '../../utils/register-user-and-return-user-info.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import request from 'supertest';
@@ -57,6 +58,7 @@ test.before(async () => {
     }),
   );
   await app.init();
+  await createInitialTestUser(app);
   app.getHttpServer().listen(0);
 });
 
