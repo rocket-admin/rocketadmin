@@ -5,3 +5,8 @@
 .field-display {
 	justify-content: flex-end;
 }
+
+.field-copy-button {
+	right: auto;
+	left: 0;
+}

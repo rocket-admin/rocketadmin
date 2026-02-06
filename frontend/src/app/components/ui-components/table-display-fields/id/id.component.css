@@ -12,3 +12,8 @@
 	font-weight: 500;
 	flex-grow: 1;
 }
+
+.field-copy-button {
+	right: auto;
+	left: 0;
+}
