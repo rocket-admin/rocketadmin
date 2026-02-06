@@ -89,7 +89,10 @@ export class DashboardsListComponent implements OnInit {
 		// Dashboards update effect
 		effect(() => {
 			const action = this._dashboards.dashboardsUpdated();
-			if (action) this._dashboards.refreshDashboards();
+			if (action) {
+				this._dashboards.refreshDashboards();
+				this._dashboards.clearDashboardsUpdated();
+			}
 		});
 	}
 

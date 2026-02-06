@@ -85,6 +85,10 @@ export class DashboardsService {
 		this._dashboardsResource.reload();
 	}
 
+	clearDashboardsUpdated(): void {
+		this._dashboardsUpdated.set('');
+	}
+
 	refreshDashboard(): void {
 		this._dashboardResource.reload();
 	}
