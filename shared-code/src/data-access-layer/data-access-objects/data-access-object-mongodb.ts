@@ -28,625 +28,628 @@ import { IDataAccessObject } from '../../shared/interfaces/data-access-object.in
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export type MongoClientDB = {
-  db: Db;
-  dbClient: MongoClient;
+	db: Db;
+	dbClient: MongoClient;
 };
 
 export class DataAccessObjectMongo extends BasicDataAccessObject implements IDataAccessObject {
+	public async addRowInTable(
+		tableName: string,
+		row: Record<string, unknown>,
+	): Promise<number | Record<string, unknown>> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		delete row._id;
+		const result = await collection.insertOne(row);
+		return { _id: this.processMongoIdField(result?.insertedId) };
+	}
 
-  public async addRowInTable(
-    tableName: string,
-    row: Record<string, unknown>,
-  ): Promise<number | Record<string, unknown>> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    delete row._id;
-    const result = await collection.insertOne(row);
-    return { _id: this.processMongoIdField(result?.insertedId) };
-  }
+	public async deleteRowInTable(
+		tableName: string,
+		primaryKey: Record<string, unknown>,
+	): Promise<Record<string, unknown>> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const objectId = this.createObjectIdFromSting(primaryKey._id as string);
+		await collection.deleteOne({ _id: objectId });
+		return { _id: this.processMongoIdField(objectId) };
+	}
 
-  public async deleteRowInTable(
-    tableName: string,
-    primaryKey: Record<string, unknown>,
-  ): Promise<Record<string, unknown>> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const objectId = this.createObjectIdFromSting(primaryKey._id as string);
-    await collection.deleteOne({ _id: objectId });
-    return { _id: this.processMongoIdField(objectId) };
-  }
+	public async getIdentityColumns(
+		tableName: string,
+		referencedFieldName: string,
+		identityColumnName: string,
+		fieldValues: (string | number)[],
+	): Promise<Record<string, unknown>[]> {
+		if (!referencedFieldName || !fieldValues.length) {
+			return [];
+		}
 
-  public async getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: (string | number)[],
-  ): Promise<Record<string, unknown>[]> {
-    if (!referencedFieldName || !fieldValues.length) {
-      return [];
-    }
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
 
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
+		if (referencedFieldName === '_id') {
+			fieldValues = fieldValues.map((value) => this.createObjectIdFromSting(String(value))) as any;
+		}
 
-    if (referencedFieldName === '_id') {
-      fieldValues = fieldValues.map((value) => this.createObjectIdFromSting(String(value))) as any;
-    }
+		const query = {
+			[referencedFieldName]: { $in: fieldValues },
+		};
 
-    const query = {
-      [referencedFieldName]: { $in: fieldValues },
-    };
+		const projection = identityColumnName
+			? { [identityColumnName]: 1, [referencedFieldName]: 1 }
+			: { [referencedFieldName]: 1 };
 
-    const projection = identityColumnName
-      ? { [identityColumnName]: 1, [referencedFieldName]: 1 }
-      : { [referencedFieldName]: 1 };
+		const results = await collection.find(query).project(projection).toArray();
 
-    const results = await collection.find(query).project(projection).toArray();
+		return results.map((doc) => ({
+			...doc,
+			_id: this.processMongoIdField(doc._id),
+		}));
+	}
 
-    return results.map((doc) => ({
-      ...doc,
-      _id: this.processMongoIdField(doc._id),
-    }));
-  }
+	public async getRowByPrimaryKey(
+		tableName: string,
+		primaryKey: Record<string, unknown>,
+		settings: TableSettingsDS,
+	): Promise<Record<string, unknown>> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const objectId = this.createObjectIdFromSting(primaryKey._id as string);
 
-  public async getRowByPrimaryKey(
-    tableName: string,
-    primaryKey: Record<string, unknown>,
-    settings: TableSettingsDS,
-  ): Promise<Record<string, unknown>> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const objectId = this.createObjectIdFromSting(primaryKey._id as string);
+		let availableFields: string[] = [];
+		if (settings) {
+			const tableStructure = await this.getTableStructure(tableName);
+			availableFields = this.findAvailableFields(settings, tableStructure);
+		}
 
-    let availableFields: string[] = [];
-    if (settings) {
-      const tableStructure = await this.getTableStructure(tableName);
-      availableFields = this.findAvailableFields(settings, tableStructure);
-    }
+		const foundRow = await collection.findOne({ _id: objectId });
+		if (!foundRow) {
+			return null;
+		}
 
-    const foundRow = await collection.findOne({ _id: objectId });
-    if (!foundRow) {
-      return null;
-    }
+		const rowKeys = Object.keys(foundRow);
+		if (availableFields.length > 0) {
+			for (const key of rowKeys) {
+				if (!availableFields.includes(key)) {
+					delete foundRow[key];
+				}
+			}
+		}
+		return {
+			...foundRow,
+			_id: this.processMongoIdField(objectId),
+		};
+	}
 
-    const rowKeys = Object.keys(foundRow);
-    if (availableFields.length > 0) {
-      for (const key of rowKeys) {
-        if (!availableFields.includes(key)) {
-          delete foundRow[key];
-        }
-      }
-    }
-    return {
-      ...foundRow,
-      _id: this.processMongoIdField(objectId),
-    };
-  }
+	public async bulkGetRowsFromTableByPrimaryKeys(
+		tableName: string,
+		primaryKeys: Array<Record<string, unknown>>,
+		settings: TableSettingsDS,
+	): Promise<Array<Record<string, unknown>>> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
 
-  public async bulkGetRowsFromTableByPrimaryKeys(
-    tableName: string,
-    primaryKeys: Array<Record<string, unknown>>,
-    settings: TableSettingsDS,
-  ): Promise<Array<Record<string, unknown>>> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
+		const objectIds = primaryKeys.map((primaryKey) => {
+			if (primaryKey._id) {
+				return this.createObjectIdFromSting(primaryKey._id as string);
+			}
+			throw new Error('Missing _id in primary key');
+		});
 
-    const objectIds = primaryKeys.map((primaryKey) => {
-      if (primaryKey._id) {
-        return this.createObjectIdFromSting(primaryKey._id as string);
-      }
-      throw new Error('Missing _id in primary key');
-    });
+		let availableFields: string[] = [];
+		if (settings) {
+			const tableStructure = await this.getTableStructure(tableName);
+			availableFields = this.findAvailableFields(settings, tableStructure);
+		}
 
-    let availableFields: string[] = [];
-    if (settings) {
-      const tableStructure = await this.getTableStructure(tableName);
-      availableFields = this.findAvailableFields(settings, tableStructure);
-    }
+		const query = { _id: { $in: objectIds } };
 
-    const query = { _id: { $in: objectIds } };
+		const rows = await collection.find(query).toArray();
 
-    const rows = await collection.find(query).toArray();
+		return rows.map((row) => {
+			const processedRow = { ...row, _id: this.processMongoIdField(row._id) };
+			if (availableFields.length > 0) {
+				Object.keys(processedRow).forEach((key) => {
+					if (!availableFields.includes(key)) {
+						delete processedRow[key];
+					}
+				});
+			}
+			return processedRow;
+		});
+	}
 
-    return rows.map((row) => {
-      const processedRow = { ...row, _id: this.processMongoIdField(row._id) };
-      if (availableFields.length > 0) {
-        Object.keys(processedRow).forEach((key) => {
-          if (!availableFields.includes(key)) {
-            delete processedRow[key];
-          }
-        });
-      }
-      return processedRow;
-    });
-  }
+	public async getRowsFromTable(
+		tableName: string,
+		settings: TableSettingsDS,
+		page: number,
+		perPage: number,
+		searchedFieldValue: string,
+		filteringFields: FilteringFieldsDS[],
+		autocompleteFields: AutocompleteFieldsDS,
+		tableStructure: TableStructureDS[] | null,
+	): Promise<FoundRowsDS> {
+		page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+		perPage =
+			perPage > 0
+				? perPage
+				: settings.list_per_page > 0
+					? settings.list_per_page
+					: DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
-  public async getRowsFromTable(
-    tableName: string,
-    settings: TableSettingsDS,
-    page: number,
-    perPage: number,
-    searchedFieldValue: string,
-    filteringFields: FilteringFieldsDS[],
-    autocompleteFields: AutocompleteFieldsDS,
-    tableStructure: TableStructureDS[] | null,
-  ): Promise<FoundRowsDS> {
-    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-    perPage =
-      perPage > 0
-        ? perPage
-        : settings.list_per_page > 0
-          ? settings.list_per_page
-          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+		const offset = (page - 1) * perPage;
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
 
-    const offset = (page - 1) * perPage;
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
+		if (!tableStructure) {
+			tableStructure = await this.getTableStructure(tableName);
+		}
+		const availableFields = this.findAvailableFields(settings, tableStructure);
 
-    if (!tableStructure) {
-      tableStructure = await this.getTableStructure(tableName);
-    }
-    const availableFields = this.findAvailableFields(settings, tableStructure);
+		if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
+			const { fields, value } = autocompleteFields;
+			const query = fields.reduce((acc, field) => {
+				acc[field] = new RegExp(this.escapeRegex(String(value)), 'i');
+				return acc;
+			}, {});
+			const rows = await collection.find(query).limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT).toArray();
+			const { large_dataset } = await this.getRowsCount(tableName, query);
+			return {
+				data: rows.map((row) => {
+					Object.keys(row).forEach((key) => {
+						if (!availableFields.includes(key)) {
+							delete row[key];
+						}
+					});
+					return {
+						...row,
+						_id: this.processMongoIdField(row?._id),
+					};
+				}),
+				large_dataset,
+				pagination: {} as any,
+			};
+		}
 
-    if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
-      const { fields, value } = autocompleteFields;
-      const query = fields.reduce((acc, field) => {
-        acc[field] = new RegExp(String(value), 'i');
-        return acc;
-      }, {});
-      const rows = await collection.find(query).limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT).toArray();
-      const { large_dataset } = await this.getRowsCount(tableName, query);
-      return {
-        data: rows.map((row) => {
-          Object.keys(row).forEach((key) => {
-            if (!availableFields.includes(key)) {
-              delete row[key];
-            }
-          });
-          return {
-            ...row,
-            _id: this.processMongoIdField(row?._id),
-          };
-        }),
-        large_dataset,
-        pagination: {} as any,
-      };
-    }
+		const query = {};
 
-    const query = {};
+		let { search_fields } = settings;
+		if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+			search_fields = availableFields;
+		}
 
-    let { search_fields } = settings;
-    if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
-      search_fields = availableFields;
-    }
+		if (searchedFieldValue && search_fields?.length > 0) {
+			const searchQuery = search_fields.reduce((acc, field) => {
+				let condition;
+				if (field === '_id') {
+					const parsedSearchedFieldValue = Buffer.from(searchedFieldValue, 'binary').toString('hex');
+					condition = { [field]: this.createObjectIdFromSting(parsedSearchedFieldValue) };
+				} else {
+					condition = { [field]: new RegExp(this.escapeRegex(String(searchedFieldValue)), 'i') };
+				}
+				acc.push(condition);
+				return acc;
+			}, []);
+			Object.assign(query, { $or: searchQuery });
+		}
 
-    if (searchedFieldValue && search_fields?.length > 0) {
-      const searchQuery = search_fields.reduce((acc, field) => {
-        let condition;
-        if (field === '_id') {
-          const parsedSearchedFieldValue = Buffer.from(searchedFieldValue, 'binary').toString('hex');
-          condition = { [field]: this.createObjectIdFromSting(parsedSearchedFieldValue) };
-        } else {
-          condition = { [field]: new RegExp(String(searchedFieldValue), 'i') };
-        }
-        acc.push(condition);
-        return acc;
-      }, []);
-      Object.assign(query, { $or: searchQuery });
-    }
+		if (filteringFields?.length > 0) {
+			const groupedFilters = filteringFields.reduce((acc, filterObject) => {
+				// eslint-disable-next-line prefer-const
+				let { field, criteria, value } = filterObject;
+				if (field === '_id') {
+					value = this.createObjectIdFromSting(value as string);
+				}
+				if (!acc[field]) {
+					acc[field] = {};
+				}
+				switch (criteria) {
+					case FilterCriteriaEnum.eq:
+						acc[field] = value;
+						break;
+					case FilterCriteriaEnum.contains:
+						acc[field] = new RegExp(this.escapeRegex(String(value)), 'i');
+						break;
+					case FilterCriteriaEnum.gt:
+						acc[field].$gt = value;
+						break;
+					case FilterCriteriaEnum.lt:
+						acc[field].$lt = value;
+						break;
+					case FilterCriteriaEnum.gte:
+						acc[field].$gte = value;
+						break;
+					case FilterCriteriaEnum.lte:
+						acc[field].$lte = value;
+						break;
+					case FilterCriteriaEnum.icontains:
+						acc[field].$not = new RegExp(this.escapeRegex(String(value)), 'i');
+						break;
+					case FilterCriteriaEnum.startswith:
+						acc[field] = new RegExp(`^${this.escapeRegex(String(value))}`, 'i');
+						break;
+					case FilterCriteriaEnum.endswith:
+						acc[field] = new RegExp(`${this.escapeRegex(String(value))}$`, 'i');
+						break;
+					case FilterCriteriaEnum.empty:
+						acc[field].$exists = false;
+						break;
+					default:
+						break;
+				}
+				return acc;
+			}, {});
 
-    if (filteringFields?.length > 0) {
-      const groupedFilters = filteringFields.reduce((acc, filterObject) => {
-        // eslint-disable-next-line prefer-const
-        let { field, criteria, value } = filterObject;
-        if (field === '_id') {
-          value = this.createObjectIdFromSting(value as string);
-        }
-        if (!acc[field]) {
-          acc[field] = {};
-        }
-        switch (criteria) {
-          case FilterCriteriaEnum.eq:
-            acc[field] = value;
-            break;
-          case FilterCriteriaEnum.contains:
-            acc[field] = new RegExp(String(value), 'i');
-            break;
-          case FilterCriteriaEnum.gt:
-            acc[field].$gt = value;
-            break;
-          case FilterCriteriaEnum.lt:
-            acc[field].$lt = value;
-            break;
-          case FilterCriteriaEnum.gte:
-            acc[field].$gte = value;
-            break;
-          case FilterCriteriaEnum.lte:
-            acc[field].$lte = value;
-            break;
-          case FilterCriteriaEnum.icontains:
-            acc[field].$not = new RegExp(String(value), 'i');
-            break;
-          case FilterCriteriaEnum.startswith:
-            acc[field] = new RegExp(`^${String(value)}`, 'i');
-            break;
-          case FilterCriteriaEnum.endswith:
-            acc[field] = new RegExp(`${String(value)}$`, 'i');
-            break;
-          case FilterCriteriaEnum.empty:
-            acc[field].$exists = false;
-            break;
-          default:
-            break;
-        }
-        return acc;
-      }, {});
+			Object.assign(query, groupedFilters);
+		}
 
-      Object.assign(query, groupedFilters);
-    }
+		const { large_dataset, rowsCount } = await this.getRowsCount(tableName, query);
+		const rows = await collection.find(query).skip(offset).limit(perPage).toArray();
+		const pagination = {
+			total: rowsCount,
+			lastPage: Math.ceil(rowsCount / perPage),
+			perPage: perPage,
+			currentPage: page,
+		};
+		return {
+			data: rows.map((row) => {
+				Object.keys(row).forEach((key) => {
+					if (!availableFields.includes(key)) {
+						delete row[key];
+					}
+				});
+				return {
+					...row,
+					_id: this.processMongoIdField(row?._id),
+				};
+			}),
+			pagination,
+			large_dataset,
+		};
+	}
 
-    const { large_dataset, rowsCount } = await this.getRowsCount(tableName, query);
-    const rows = await collection.find(query).skip(offset).limit(perPage).toArray();
-    const pagination = {
-      total: rowsCount,
-      lastPage: Math.ceil(rowsCount / perPage),
-      perPage: perPage,
-      currentPage: page,
-    };
-    return {
-      data: rows.map((row) => {
-        Object.keys(row).forEach((key) => {
-          if (!availableFields.includes(key)) {
-            delete row[key];
-          }
-        });
-        return {
-          ...row,
-          _id: this.processMongoIdField(row?._id),
-        };
-      }),
-      pagination,
-      large_dataset,
-    };
-  }
+	public async getTableForeignKeys(_tableName: string): Promise<ForeignKeyDS[]> {
+		return [];
+	}
 
-  public async getTableForeignKeys(_tableName: string): Promise<ForeignKeyDS[]> {
-    return [];
-  }
+	public async getTablePrimaryColumns(_tableName: string): Promise<PrimaryKeyDS[]> {
+		return [
+			{
+				column_name: '_id',
+				data_type: 'string',
+			},
+		];
+	}
 
-  public async getTablePrimaryColumns(_tableName: string): Promise<PrimaryKeyDS[]> {
-    return [
-      {
-        column_name: '_id',
-        data_type: 'string',
-      },
-    ];
-  }
+	public async getTablesFromDB(): Promise<TableDS[]> {
+		const db = await this.getConnectionToDatabase();
+		const collections = await db.listCollections().toArray();
+		return collections.map((collection) => {
+			return {
+				tableName: collection.name,
+				isView: false,
+			};
+		});
+	}
 
-  public async getTablesFromDB(): Promise<TableDS[]> {
-    const db = await this.getConnectionToDatabase();
-    const collections = await db.listCollections().toArray();
-    return collections.map((collection) => {
-      return {
-        tableName: collection.name,
-        isView: false,
-      };
-    });
-  }
+	public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
+		return await this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
+	}
 
-  public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
-    return await this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
-  }
+	public async testConnect(): Promise<TestConnectionResultDS> {
+		if (!this.connection.id) {
+			this.connection.id = nanoid(6);
+		}
+		try {
+			await this.getConnectionToDatabase();
+			return {
+				result: true,
+				message: 'Successfully connected',
+			};
+		} catch (error) {
+			return {
+				result: false,
+				message: error.message,
+			};
+		} finally {
+			LRUStorage.delMongoDbCache(this.connection);
+		}
+	}
 
-  public async testConnect(): Promise<TestConnectionResultDS> {
-    if (!this.connection.id) {
-      this.connection.id = nanoid(6);
-    }
-    try {
-      await this.getConnectionToDatabase();
-      return {
-        result: true,
-        message: 'Successfully connected',
-      };
-    } catch (error) {
-      return {
-        result: false,
-        message: error.message,
-      };
-    } finally {
-      LRUStorage.delMongoDbCache(this.connection);
-    }
-  }
+	public async updateRowInTable(
+		tableName: string,
+		row: Record<string, unknown>,
+		primaryKey: Record<string, unknown>,
+	): Promise<Record<string, unknown>> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const objectId = this.createObjectIdFromSting(primaryKey._id as string);
+		delete row._id;
+		await collection.updateOne({ _id: objectId }, { $set: row });
+		return { _id: this.processMongoIdField(objectId) };
+	}
 
-  public async updateRowInTable(
-    tableName: string,
-    row: Record<string, unknown>,
-    primaryKey: Record<string, unknown>,
-  ): Promise<Record<string, unknown>> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const objectId = this.createObjectIdFromSting(primaryKey._id as string);
-    delete row._id;
-    await collection.updateOne({ _id: objectId }, { $set: row });
-    return { _id: this.processMongoIdField(objectId) };
-  }
+	public async bulkUpdateRowsInTable(
+		tableName: string,
+		newValues: Record<string, unknown>,
+		primaryKeys: Record<string, unknown>[],
+	): Promise<Array<Record<string, unknown>>> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
+		await collection.updateMany({ _id: { $in: objectIds } }, { $set: newValues });
+		return primaryKeys;
+	}
 
-  public async bulkUpdateRowsInTable(
-    tableName: string,
-    newValues: Record<string, unknown>,
-    primaryKeys: Record<string, unknown>[],
-  ): Promise<Array<Record<string, unknown>>> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
-    await collection.updateMany({ _id: { $in: objectIds } }, { $set: newValues });
-    return primaryKeys;
-  }
+	public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
+		await collection.deleteMany({ _id: { $in: objectIds } });
+		return primaryKeys.length;
+	}
 
-  public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
-    await collection.deleteMany({ _id: { $in: objectIds } });
-    return primaryKeys.length;
-  }
+	public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
+		const [tableStructure, primaryColumns] = await Promise.all([
+			this.getTableStructure(tableName),
+			this.getTablePrimaryColumns(tableName),
+		]);
+		return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
+	}
 
-  public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
-    const [tableStructure, primaryColumns] = await Promise.all([
-      this.getTableStructure(tableName),
-      this.getTablePrimaryColumns(tableName),
-    ]);
-    return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
-  }
+	public async getReferencedTableNamesAndColumns(_tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
+		return [];
+	}
 
-  public async getReferencedTableNamesAndColumns(_tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
-    return [];
-  }
+	public async isView(_tableName: string): Promise<boolean> {
+		return false;
+	}
 
-  public async isView(_tableName: string): Promise<boolean> {
-    return false;
-  }
+	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const stream = new Readable();
+		stream.push(file.buffer);
+		stream.push(null);
+		const parser = stream.pipe(csv.parse({ columns: true }));
+		const results: any[] = [];
+		for await (const record of parser) {
+			results.push(record);
+		}
+		await collection.insertMany(results);
+	}
 
-  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const stream = new Readable();
-    stream.push(file.buffer);
-    stream.push(null);
-    const parser = stream.pipe(csv.parse({ columns: true }));
-    const results: any[] = [];
-    for await (const record of parser) {
-      results.push(record);
-    }
-      await collection.insertMany(results);
-  }
+	public async getTableRowsStream(
+		tableName: string,
+		settings: TableSettingsDS,
+		page: number,
+		perPage: number,
+		searchedFieldValue: string,
+		filteringFields: FilteringFieldsDS[],
+	): Promise<Stream & AsyncIterable<any>> {
+		const result = await this.getRowsFromTable(
+			tableName,
+			settings,
+			page,
+			perPage,
+			searchedFieldValue,
+			filteringFields,
+			null,
+			null,
+		);
+		return result.data as any;
+	}
 
-  public async getTableRowsStream(
-    tableName: string,
-    settings: TableSettingsDS,
-    page: number,
-    perPage: number,
-    searchedFieldValue: string,
-    filteringFields: FilteringFieldsDS[],
-  ): Promise<Stream & AsyncIterable<any>> {
-    const result = await this.getRowsFromTable(
-      tableName,
-      settings,
-      page,
-      perPage,
-      searchedFieldValue,
-      filteringFields,
-      null,
-      null,
-    );
-    return result.data as any;
-  }
+	public async executeRawQuery(query: string, tableName: string): Promise<Record<string, unknown>[]> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const aggregationPipeline = JSON.parse(query);
+		const result = await collection.aggregate(aggregationPipeline).toArray();
+		return result;
+	}
 
-  public async executeRawQuery(query: string, tableName: string): Promise<Record<string, unknown>[]> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const aggregationPipeline = JSON.parse(query);
-    const result = await collection.aggregate(aggregationPipeline).toArray();
-    return result;
-  }
+	private async getConnectionToDatabase(): Promise<Db> {
+		if (this.connection.ssh) {
+			const { db } = await this.createTunneledConnection(this.connection);
+			return db;
+		}
+		const { db } = await this.getUsualConnection();
+		return db;
+	}
 
-  private async getConnectionToDatabase(): Promise<Db> {
-    if (this.connection.ssh) {
-      const { db } = await this.createTunneledConnection(this.connection);
-      return db;
-    }
-    const { db } = await this.getUsualConnection();
-    return db;
-  }
+	private async getUsualConnection(): Promise<MongoClientDB> {
+		const cachedDatabase = LRUStorage.getMongoDbCache(this.connection);
+		if (cachedDatabase) {
+			return cachedDatabase;
+		}
 
-  private async getUsualConnection(): Promise<MongoClientDB> {
-    const cachedDatabase = LRUStorage.getMongoDbCache(this.connection);
-    if (cachedDatabase) {
-      return cachedDatabase;
-    }
+		let mongoConnectionString = '';
+		if (this.connection.host.includes('mongodb+srv')) {
+			const hostNameParts = this.connection.host.split('//');
+			mongoConnectionString = `${hostNameParts[0]}//${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${hostNameParts[1]}/${this.connection.database}`;
+		} else {
+			mongoConnectionString = `mongodb://${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${this.connection.host}:${this.connection.port}/${this.connection.database || ''}`;
+		}
 
-    let mongoConnectionString = '';
-    if (this.connection.host.includes('mongodb+srv')) {
-      const hostNameParts = this.connection.host.split('//');
-      mongoConnectionString = `${hostNameParts[0]}//${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${hostNameParts[1]}/${this.connection.database}`;
-    } else {
-      mongoConnectionString = `mongodb://${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${this.connection.host}:${this.connection.port}/${this.connection.database || ''}`;
-    }
+		let options: MongoClientOptions = {};
+		if (this.connection.ssl) {
+			options = {
+				ssl: true,
+				ca: this.connection.cert ? [this.connection.cert] : undefined,
+			};
+		}
 
-    let options: MongoClientOptions = {};
-    if (this.connection.ssl) {
-      options = {
-        ssl: true,
-        ca: this.connection.cert ? [this.connection.cert] : undefined,
-      };
-    }
+		if (this.connection.authSource) {
+			mongoConnectionString += mongoConnectionString.includes('?') ? '&' : '?';
+			mongoConnectionString += `authSource=${this.connection.authSource}`;
+		}
 
-    if (this.connection.authSource) {
-      mongoConnectionString += mongoConnectionString.includes('?') ? '&' : '?';
-      mongoConnectionString += `authSource=${this.connection.authSource}`;
-    }
+		const client = new MongoClient(mongoConnectionString, options);
+		let clientDb: MongoClientDB;
+		try {
+			const connectedClient = await client.connect();
+			clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
+			LRUStorage.setMongoDbCache(this.connection, clientDb);
+		} catch (error) {
+			console.error('Mongo connection error:', error);
+			throw error;
+		}
+		return clientDb;
+	}
 
-    const client = new MongoClient(mongoConnectionString, options);
-    let clientDb: MongoClientDB;
-    try {
-      const connectedClient = await client.connect();
-      clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
-      LRUStorage.setMongoDbCache(this.connection, clientDb);
-    } catch (error) {
-      console.error('Mongo connection error:', error);
-      throw error;
-    }
-    return clientDb;
-  }
+	private async createTunneledConnection(connection: ConnectionParams): Promise<MongoClientDB> {
+		const connectionCopy = { ...connection };
+		return new Promise<MongoClientDB>(async (resolve, reject): Promise<MongoClientDB> => {
+			const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
+			if (cachedTnl?.mongo && cachedTnl.server && cachedTnl.client) {
+				resolve(cachedTnl.db);
+				return;
+			}
 
-  private async createTunneledConnection(connection: ConnectionParams): Promise<MongoClientDB> {
-    const connectionCopy = { ...connection };
-    return new Promise<MongoClientDB>(async (resolve, reject): Promise<MongoClientDB> => {
-      const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
-      if (cachedTnl?.mongo && cachedTnl.server && cachedTnl.client) {
-        resolve(cachedTnl.db);
-        return;
-      }
+			const freePort = await getPort();
 
-      const freePort = await getPort();
+			try {
+				const [server, client] = await getTunnel(connectionCopy, freePort);
+				connection.host = '127.0.0.1';
+				connection.port = freePort;
+				const database = await this.getUsualConnection();
 
-      try {
-        const [server, client] = await getTunnel(connectionCopy, freePort);
-        connection.host = '127.0.0.1';
-        connection.port = freePort;
-        const database = await this.getUsualConnection();
+				const tnlCachedObj = {
+					server: server,
+					client: client,
+					mongo: database,
+				};
+				LRUStorage.setTunnelCache(connectionCopy, tnlCachedObj);
+				resolve(tnlCachedObj.mongo);
+				client.on('error', (e) => {
+					LRUStorage.delTunnelCache(connectionCopy);
+					reject(e);
+					return;
+				});
 
-        const tnlCachedObj = {
-          server: server,
-          client: client,
-          mongo: database,
-        };
-        LRUStorage.setTunnelCache(connectionCopy, tnlCachedObj);
-        resolve(tnlCachedObj.mongo);
-        client.on('error', (e) => {
-          LRUStorage.delTunnelCache(connectionCopy);
-          reject(e);
-          return;
-        });
+				server.on('error', (e) => {
+					LRUStorage.delTunnelCache(connectionCopy);
+					reject(e);
+					return;
+				});
+				return;
+			} catch (error) {
+				LRUStorage.delTunnelCache(connectionCopy);
+				reject(error);
+				return;
+			}
+		});
+	}
 
-        server.on('error', (e) => {
-          LRUStorage.delTunnelCache(connectionCopy);
-          reject(e);
-          return;
-        });
-        return;
-      } catch (error) {
-        LRUStorage.delTunnelCache(connectionCopy);
-        reject(error);
-        return;
-      }
-    });
-  }
+	private async getRowsCount(
+		tableName: string,
+		query: Record<string, any>,
+	): Promise<{ rowsCount: number; large_dataset: boolean }> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const count = await collection.countDocuments(query);
+		return { rowsCount: count, large_dataset: count > DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT };
+	}
 
-  private async getRowsCount(
-    tableName: string,
-    query: Record<string, any>,
-  ): Promise<{ rowsCount: number; large_dataset: boolean }> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const count = await collection.countDocuments(query);
-    return { rowsCount: count, large_dataset: count > DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT };
-  }
+	private createObjectIdFromSting(id: string): ObjectId {
+		try {
+			return new ObjectId(id);
+		} catch (_error) {
+			throw new Error(ERROR_MESSAGES.INVALID_OBJECT_ID_FORMAT);
+		}
+	}
 
-  private createObjectIdFromSting(id: string): ObjectId {
-    try {
-      return new ObjectId(id);
-    } catch (_error) {
-      throw new Error(ERROR_MESSAGES.INVALID_OBJECT_ID_FORMAT);
-    }
-  }
+	private getMongoDataTypeByValue(value: unknown): string {
+		switch (true) {
+			case Array.isArray(value):
+				return 'array';
+			case typeof value === 'object' && value !== null:
+				return 'object';
+			case value instanceof BSON.Double:
+				return 'double';
+			case value instanceof BSON.Int32:
+				return 'int32';
+			case value instanceof BSON.Binary:
+				return 'binary';
+			case value instanceof BSON.ObjectId:
+				return 'objectid';
+			case value instanceof BSON.Timestamp:
+				return 'timestamp';
+			case value instanceof BSON.Long:
+				return 'long';
+			case value instanceof BSON.Decimal128:
+				return 'decimal128';
+			case value instanceof BSON.BSONRegExp:
+				return 'regexp';
+			case typeof value === 'string':
+				return 'string';
+			case typeof value === 'number':
+				return 'number';
+			case typeof value === 'boolean':
+				return 'boolean';
+			case value instanceof Date:
+				return 'date';
+			default:
+				return 'unknown';
+		}
+	}
 
-  private getMongoDataTypeByValue(value: unknown): string {
-    switch (true) {
-      case Array.isArray(value):
-        return 'array';
-      case typeof value === 'object' && value !== null:
-        return 'object';
-      case value instanceof BSON.Double:
-        return 'double';
-      case value instanceof BSON.Int32:
-        return 'int32';
-      case value instanceof BSON.Binary:
-        return 'binary';
-      case value instanceof BSON.ObjectId:
-        return 'objectid';
-      case value instanceof BSON.Timestamp:
-        return 'timestamp';
-      case value instanceof BSON.Long:
-        return 'long';
-      case value instanceof BSON.Decimal128:
-        return 'decimal128';
-      case value instanceof BSON.BSONRegExp:
-        return 'regexp';
-      case typeof value === 'string':
-        return 'string';
-      case typeof value === 'number':
-        return 'number';
-      case typeof value === 'boolean':
-        return 'boolean';
-      case value instanceof Date:
-        return 'date';
-      default:
-        return 'unknown';
-    }
-  }
+	private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName: string): Promise<TableStructureDS[]> {
+		const db = await this.getConnectionToDatabase();
+		const collection = db.collection(tableName);
+		const document = await collection.findOne({});
+		if (!document) {
+			return [];
+		}
+		const structure: TableStructureDS[] = Object.keys(document).map((key) => ({
+			allow_null: document[key] === null,
+			character_maximum_length: null,
+			column_default: key === '_id' ? 'autoincrement' : null,
+			column_name: key,
+			data_type: key === '_id' ? 'string' : this.getMongoDataTypeByValue(document[key]),
+			data_type_params: null,
+			udt_name: null,
+			extra: null,
+		}));
 
-  private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName: string): Promise<TableStructureDS[]> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const document = await collection.findOne({});
-    if (!document) {
-      return [];
-    }
-    const structure: TableStructureDS[] = Object.keys(document).map((key) => ({
-      allow_null: document[key] === null,
-      character_maximum_length: null,
-      column_default: key === '_id' ? 'autoincrement' : null,
-      column_name: key,
-      data_type: key === '_id' ? 'string' : this.getMongoDataTypeByValue(document[key]),
-      data_type_params: null,
-      udt_name: null,
-      extra: null,
-    }));
+		if (!structure.length) {
+			const primaryColumns = await this.getTablePrimaryColumns(tableName);
+			return primaryColumns.map((column) => ({
+				allow_null: false,
+				character_maximum_length: null,
+				column_default: null,
+				column_name: column.column_name,
+				data_type: column.data_type,
+				data_type_params: null,
+				udt_name: null,
+				extra: null,
+			}));
+		}
+		return structure;
+	}
 
-    if (!structure.length) {
-      const primaryColumns = await this.getTablePrimaryColumns(tableName);
-      return primaryColumns.map((column) => ({
-        allow_null: false,
-        character_maximum_length: null,
-        column_default: null,
-        column_name: column.column_name,
-        data_type: column.data_type,
-        data_type_params: null,
-        udt_name: null,
-        extra: null,
-      }));
-    }
-    return structure;
-  }
+	private processMongoIdField(_id: unknown): string | undefined {
+		if (!_id) {
+			return;
+		}
+		if (typeof _id === 'string') {
+			return _id;
+		}
+		if (_id instanceof ObjectId) {
+			return (_id as ObjectId).toHexString();
+		}
+		try {
+			return _id.toString();
+		} catch (_error) {}
+		try {
+			return new ObjectId(_id as string).toHexString();
+		} catch (_error) {
+			return _id as any;
+		}
+	}
 
-  private processMongoIdField(_id: unknown): string | undefined {
-    if (!_id) {
-      return;
-    }
-    if (typeof _id === 'string') {
-      return _id;
-    }
-    if (_id instanceof ObjectId) {
-      return (_id as ObjectId).toHexString();
-    }
-    try {
-      return _id.toString();
-    } catch (_error) {}
-    try {
-      return new ObjectId(_id as string).toHexString();
-    } catch (_error) {
-      return _id as any;
-    }
-  }
+	private escapeRegex(str: string): string {
+		return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	}
 }
