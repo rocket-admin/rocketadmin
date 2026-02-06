@@ -15,91 +15,89 @@ import { Constants } from './helpers/constants/constants.js';
 import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
 
 async function bootstrap() {
-  try {
-    requiredEnvironmentVariablesValidator();
-    const appOptions: NestApplicationOptions = {
-      rawBody: true,
-      logger: new WinstonLogger(),
-    };
+	try {
+		requiredEnvironmentVariablesValidator();
+		const appOptions: NestApplicationOptions = {
+			rawBody: true,
+			logger: new WinstonLogger(),
+		};
 
-    const app = await NestFactory.create<NestExpressApplication>(ApplicationModule, appOptions);
-    app.useLogger(app.get(WinstonLogger));
-    app.set('query parser', 'extended');
+		const app = await NestFactory.create<NestExpressApplication>(ApplicationModule, appOptions);
+		app.useLogger(app.get(WinstonLogger));
+		app.set('query parser', 'extended');
 
-    Sentry.init({
-      dsn: process.env.SENTRY_DSN,
-      tracesSampleRate: 1.0,
-    });
+		Sentry.init({
+			dsn: process.env.SENTRY_DSN,
+			tracesSampleRate: 1.0,
+		});
 
-    const globalPrefix = process.env.GLOBAL_PREFIX || '/';
-    app.setGlobalPrefix(globalPrefix);
+		const globalPrefix = process.env.GLOBAL_PREFIX || '/';
+		app.setGlobalPrefix(globalPrefix);
 
-    app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
+		app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
 
-    app.use(helmet());
+		app.use(helmet());
 
-    app.use(cookieParser());
+		app.enableCors({
+			origin: [
+				'https://app.autoadmin.org',
+				'http://localhost:4200',
+				'https://app.rocketadmin.org',
+				'https://saas.rocketadmin.com',
+				'https://app-beta.rocketadmin.com',
+				Constants.APP_DOMAIN_ADDRESS,
+			],
+			methods: 'GET,PUT,PATCH,POST,DELETE',
+			credentials: true,
+			preflightContinue: false,
+			optionsSuccessStatus: 204,
+		});
 
-    app.enableCors({
-      origin: [
-        'https://app.autoadmin.org',
-        'http://localhost:4200',
-        'https://app.rocketadmin.org',
-        'https://saas.rocketadmin.com',
-        'https://app-beta.rocketadmin.com',
-        Constants.APP_DOMAIN_ADDRESS,
-      ],
-      methods: 'GET,PUT,PATCH,POST,DELETE',
-      credentials: true,
-      preflightContinue: false,
-      optionsSuccessStatus: 204,
-    });
+		app.use(cookieParser());
 
-    app.use(cookieParser());
+		app.use(bodyParser.json({ limit: '10mb' }));
+		app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-    app.use(bodyParser.json({ limit: '10mb' }));
-    app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+		const config = new DocumentBuilder()
+			.setTitle('Rocketadmin')
+			.setDescription('The Rocketadmin API description')
+			.setVersion('1.0')
+			.addTag('rocketadmin')
+			.setBasePath(globalPrefix)
+			.addApiKey({
+				type: 'apiKey',
+				name: 'x-api-key',
+				in: 'header',
+			})
+			.addCookieAuth(Constants.JWT_COOKIE_KEY_NAME)
+			.build();
+		const document = SwaggerModule.createDocument(app, config);
+		SwaggerModule.setup('docs', app, document);
 
-    const config = new DocumentBuilder()
-      .setTitle('Rocketadmin')
-      .setDescription('The Rocketadmin API description')
-      .setVersion('1.0')
-      .addTag('rocketadmin')
-      .setBasePath(globalPrefix)
-      .addApiKey({
-        type: 'apiKey',
-        name: 'x-api-key',
-        in: 'header',
-      })
-      .addCookieAuth(Constants.JWT_COOKIE_KEY_NAME)
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, document);
+		app.useGlobalPipes(
+			new ValidationPipe({
+				exceptionFactory(validationErrors: ValidationError[] = []) {
+					return new ValidationException(validationErrors);
+				},
+			}),
+		);
 
-    app.useGlobalPipes(
-      new ValidationPipe({
-        exceptionFactory(validationErrors: ValidationError[] = []) {
-          return new ValidationException(validationErrors);
-        },
-      }),
-    );
-
-    await app.listen(3000);
-  } catch (e) {
-    console.error(`Failed to initialize, due to ${e}`);
-    process.exit(1);
-  }
+		await app.listen(3000);
+	} catch (e) {
+		console.error(`Failed to initialize, due to ${e}`);
+		process.exit(1);
+	}
 }
 
 const temp = process.exit;
 
 process.exit = () => {
-  console.trace();
-  process.exit = temp;
-  process.exit();
+	console.trace();
+	process.exit = temp;
+	process.exit();
 };
 
 bootstrap().catch((e) => {
-  console.error(`Bootstrap promise failed with error: ${e}`);
-  process.exit(1);
+	console.error(`Bootstrap promise failed with error: ${e}`);
+	process.exit(1);
 });
