@@ -315,6 +315,10 @@
 .db-table {
 	display: grid;
 	width: 100%;
+	font-family: "IBM Plex Mono", monospace;
+	--mat-table-header-headline-font: "IBM Plex Mono", monospace;
+	--mat-table-row-item-label-text-font: "IBM Plex Mono", monospace;
+	--mat-table-footer-supporting-text-font: "IBM Plex Mono", monospace;
 }
 
 @media (width <= 600px) {
