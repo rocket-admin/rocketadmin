@@ -1,12 +1,11 @@
-import { AfterViewInit, Component, input, signal } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-const SIDEBAR_COLLAPSED_KEY = 'dashboards_sidebar_collapsed';
+import { UiSettingsService } from '../../../services/ui-settings.service';
 
 @Component({
 	selector: 'app-dashboards-sidebar',
@@ -21,12 +20,18 @@ const SIDEBAR_COLLAPSED_KEY = 'dashboards_sidebar_collapsed';
 		MatTooltipModule,
 	],
 })
-export class DashboardsSidebarComponent implements AfterViewInit {
+export class DashboardsSidebarComponent implements OnInit, AfterViewInit {
 	connectionId = input.required<string>();
 	activeTab = input<'dashboards' | 'queries'>('dashboards');
 
-	collapsed = signal(this._loadCollapsedState());
+	collapsed = signal(false);
 	initialized = signal(false);
+
+	private _uiSettings = inject(UiSettingsService);
+
+	ngOnInit(): void {
+		this._loadCollapsedState();
+	}
 
 	ngAfterViewInit(): void {
 		// Enable transitions after initial render to prevent animation on page load
@@ -36,17 +41,14 @@ export class DashboardsSidebarComponent implements AfterViewInit {
 	toggleCollapsed(): void {
 		this.collapsed.update((v) => {
 			const newValue = !v;
-			this._saveCollapsedState(newValue);
+			this._uiSettings.updateConnectionSetting(this.connectionId(), 'dashboardsSidebarCollapsed', newValue);
 			return newValue;
 		});
 	}
 
-	private _loadCollapsedState(): boolean {
-		const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
-		return saved === 'true';
-	}
-
-	private _saveCollapsedState(collapsed: boolean): void {
-		localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(collapsed));
+	private _loadCollapsedState(): void {
+		this._uiSettings.getUiSettings().subscribe((settings) => {
+			this.collapsed.set(settings?.connections?.[this.connectionId()]?.dashboardsSidebarCollapsed ?? false);
+		});
 	}
 }
