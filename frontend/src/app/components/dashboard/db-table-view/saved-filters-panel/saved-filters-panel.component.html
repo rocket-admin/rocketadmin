@@ -179,7 +179,7 @@
             </div>
         </form>
         <div class="static-filters" *ngIf="savedFilterMap[selectedFilterSetId]?.staticFilters?.length">
-            <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip" data-hj-suppress>
+            <mat-chip *ngFor="let filter of savedFilterMap[selectedFilterSetId]?.staticFilters" class="static-filter-chip" data-ph-no-capture>
                 {{ getFilter(filter) }}
             </mat-chip>
         </div>

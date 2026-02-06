@@ -32,7 +32,8 @@ export class FindAllDashboardsUseCase
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
 
-		const dashboards = await this._dbContext.dashboardRepository.findAllDashboardsByConnectionId(connectionId);
+		const dashboards =
+			await this._dbContext.dashboardRepository.findAllDashboardsWithWidgetsByConnectionId(connectionId);
 
 		return dashboards.map(buildFoundDashboardDto);
 	}
