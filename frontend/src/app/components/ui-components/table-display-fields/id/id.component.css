@@ -1,9 +1,14 @@
+:host {
+	text-align: right;
+}
+
 .field-display-id {
-  display: flex;
-  align-items: center;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
 }
 
 .field-value-id {
-  font-weight: 500;
-  flex-grow: 1;
+	font-weight: 500;
+	flex-grow: 1;
 }

@@ -1,1 +1,7 @@
+:host {
+	text-align: right;
+}
 
+.field-display {
+	justify-content: flex-end;
+}
