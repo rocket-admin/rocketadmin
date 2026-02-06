@@ -11,7 +11,10 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import {
+	registerUserAndReturnUserInfo,
+	createInitialTestUser,
+} from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
@@ -23,521 +26,536 @@ let currentTest: string;
 
 // Helper to create a user with connection and optionally create secrets
 async function setupUserWithSecrets(
-  secrets: Array<{ slug: string; value: string; masterEncryption?: boolean; masterPassword?: string; expiresAt?: string }> = [],
+	secrets: Array<{
+		slug: string;
+		value: string;
+		masterEncryption?: boolean;
+		masterPassword?: string;
+		expiresAt?: string;
+	}> = [],
 ): Promise<{ token: string; connectionId: string }> {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const newConnection = getTestData(mockFactory).newEncryptedConnection;
-  const createdConnection = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const newConnection = getTestData(mockFactory).newEncryptedConnection;
+	const createdConnection = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  const connectionId = JSON.parse(createdConnection.text).id;
+	const connectionId = JSON.parse(createdConnection.text).id;
 
-  for (const secret of secrets) {
-    await request(app.getHttpServer())
-      .post('/secrets')
-      .set('Cookie', token)
-      .set('masterpwd', 'ahalaimahalai')
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
-      .send(secret);
-  }
+	for (const secret of secrets) {
+		await request(app.getHttpServer())
+			.post('/secrets')
+			.set('Cookie', token)
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json')
+			.send(secret);
+	}
 
-  return { token, connectionId };
+	return { token, connectionId };
 }
 
 test.before(async () => {
-  setSaasEnvVariable();
-  const moduleFixture = await Test.createTestingModule({
-    imports: [ApplicationModule, DatabaseModule],
-    providers: [DatabaseService],
-  }).compile();
-  app = moduleFixture.createNestApplication();
+	setSaasEnvVariable();
+	const moduleFixture = await Test.createTestingModule({
+		imports: [ApplicationModule, DatabaseModule],
+		providers: [DatabaseService],
+	}).compile();
+	app = moduleFixture.createNestApplication();
 
-  app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      exceptionFactory(validationErrors: ValidationError[] = []) {
-        return new ValidationException(validationErrors);
-      },
-    }),
-  );
-  await app.init();
-  app.getHttpServer().listen(0);
+	app.use(cookieParser());
+	app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
+	app.useGlobalPipes(
+		new ValidationPipe({
+			exceptionFactory(validationErrors: ValidationError[] = []) {
+				return new ValidationException(validationErrors);
+			},
+		}),
+	);
+	await app.init();
+	await createInitialTestUser(app);
+	app.getHttpServer().listen(0);
 });
 
 test.after(async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After tests error ' + e);
-  }
+	try {
+		await Cacher.clearAllCache();
+		await app.close();
+	} catch (e) {
+		console.error('After tests error ' + e);
+	}
 });
 
 currentTest = 'POST /secrets';
 test.serial(`${currentTest} - should create a new secret`, async (t) => {
-  const { token } = await setupUserWithSecrets([]);
+	const { token } = await setupUserWithSecrets([]);
 
-  const createDto = {
-    slug: 'test-api-key',
-    value: 'sk-test-1234567890',
-    masterEncryption: false,
-  };
+	const createDto = {
+		slug: 'test-api-key',
+		value: 'sk-test-1234567890',
+		masterEncryption: false,
+	};
 
-  const response = await request(app.getHttpServer())
-    .post('/secrets')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(createDto);
+	const response = await request(app.getHttpServer())
+		.post('/secrets')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(createDto);
 
-  t.is(response.status, 201, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.slug, 'test-api-key');
-  t.is(responseBody.masterEncryption, false);
-  t.truthy(responseBody.id);
-  t.truthy(responseBody.createdAt);
-  t.falsy(responseBody.value);
+	t.is(response.status, 201, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.is(responseBody.slug, 'test-api-key');
+	t.is(responseBody.masterEncryption, false);
+	t.truthy(responseBody.id);
+	t.truthy(responseBody.createdAt);
+	t.falsy(responseBody.value);
 });
 
 test.serial(`${currentTest} - should return 409 for duplicate slug`, async (t) => {
-  // Create user with an existing secret
-  const { token } = await setupUserWithSecrets([{ slug: 'duplicate-test-key', value: 'sk-test-1234567890' }]);
+	// Create user with an existing secret
+	const { token } = await setupUserWithSecrets([{ slug: 'duplicate-test-key', value: 'sk-test-1234567890' }]);
 
-  // Try to create another secret with the same slug
-  const createDto = {
-    slug: 'duplicate-test-key',
-    value: 'sk-another-key',
-  };
+	// Try to create another secret with the same slug
+	const createDto = {
+		slug: 'duplicate-test-key',
+		value: 'sk-another-key',
+	};
 
-  const response = await request(app.getHttpServer())
-    .post('/secrets')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(createDto);
+	const response = await request(app.getHttpServer())
+		.post('/secrets')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(createDto);
 
-  t.is(response.status, 409, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.truthy(responseBody.message);
+	t.is(response.status, 409, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.truthy(responseBody.message);
 });
 
 test.serial(`${currentTest} - should validate slug format`, async (t) => {
-  const { token } = await setupUserWithSecrets([]);
+	const { token } = await setupUserWithSecrets([]);
 
-  const createDto = {
-    slug: 'invalid slug with spaces!',
-    value: 'sk-test-key',
-  };
+	const createDto = {
+		slug: 'invalid slug with spaces!',
+		value: 'sk-test-key',
+	};
 
-  const response = await request(app.getHttpServer())
-    .post('/secrets')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(createDto);
+	const response = await request(app.getHttpServer())
+		.post('/secrets')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(createDto);
 
-  t.is(response.status, 400, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.truthy(responseBody.message);
+	t.is(response.status, 400, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.truthy(responseBody.message);
 });
 
 currentTest = 'GET /secrets';
 test.serial(`${currentTest} - should return list of company secrets`, async (t) => {
-  // Create user with at least one secret
-  const { token } = await setupUserWithSecrets([{ slug: 'list-test-secret', value: 'sk-list-test-value' }]);
+	// Create user with at least one secret
+	const { token } = await setupUserWithSecrets([{ slug: 'list-test-secret', value: 'sk-list-test-value' }]);
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.truthy(responseBody.data);
-  t.true(Array.isArray(responseBody.data));
-  t.truthy(responseBody.pagination);
-  t.is(responseBody.pagination.currentPage, 1);
-  t.true(responseBody.data.length > 0);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.truthy(responseBody.data);
+	t.true(Array.isArray(responseBody.data));
+	t.truthy(responseBody.pagination);
+	t.is(responseBody.pagination.currentPage, 1);
+	t.true(responseBody.data.length > 0);
 
-  const firstSecret = responseBody.data[0];
-  t.falsy(firstSecret.value);
-  t.truthy(firstSecret.slug);
+	const firstSecret = responseBody.data[0];
+	t.falsy(firstSecret.value);
+	t.truthy(firstSecret.slug);
 });
 
 test.serial(`${currentTest}?search=test - should filter secrets by slug`, async (t) => {
-  // Create user with secrets that include 'test' in the slug and one that doesn't
-  const { token } = await setupUserWithSecrets([
-    { slug: 'test-search-key', value: 'value1' },
-    { slug: 'another-test-key', value: 'value2' },
-    { slug: 'unrelated-secret', value: 'value3' },
-  ]);
+	// Create user with secrets that include 'test' in the slug and one that doesn't
+	const { token } = await setupUserWithSecrets([
+		{ slug: 'test-search-key', value: 'value1' },
+		{ slug: 'another-test-key', value: 'value2' },
+		{ slug: 'unrelated-secret', value: 'value3' },
+	]);
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets?search=test')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets?search=test')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.truthy(responseBody.data);
-  t.true(responseBody.data.length >= 2);
-  t.true(responseBody.data.every((s: any) => s.slug.includes('test')));
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.truthy(responseBody.data);
+	t.true(responseBody.data.length >= 2);
+	t.true(responseBody.data.every((s: any) => s.slug.includes('test')));
 });
 
 currentTest = 'GET /secrets/:slug';
 test.serial(`${currentTest} - should return secret metadata without value`, async (t) => {
-  // Create user with a secret to retrieve
-  const { token } = await setupUserWithSecrets([{ slug: 'get-test-api-key', value: 'sk-get-test-value' }]);
+	// Create user with a secret to retrieve
+	const { token } = await setupUserWithSecrets([{ slug: 'get-test-api-key', value: 'sk-get-test-value' }]);
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets/get-test-api-key')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets/get-test-api-key')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.slug, 'get-test-api-key');
-  t.falsy(responseBody.value);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.is(responseBody.slug, 'get-test-api-key');
+	t.falsy(responseBody.value);
 });
 
 test.serial(`${currentTest} - should return 404 for non-existent secret`, async (t) => {
-  const { token } = await setupUserWithSecrets([]);
+	const { token } = await setupUserWithSecrets([]);
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets/non-existent-secret')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets/non-existent-secret')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 404, response.text);
+	t.is(response.status, 404, response.text);
 });
 
 currentTest = 'POST /secrets';
 test.serial(`${currentTest} - should create secret with master password`, async (t) => {
-  const { token } = await setupUserWithSecrets([]);
+	const { token } = await setupUserWithSecrets([]);
 
-  const createDto = {
-    slug: 'protected-secret',
-    value: 'sensitive-data',
-    masterEncryption: true,
-    masterPassword: 'MasterPass123!',
-  };
+	const createDto = {
+		slug: 'protected-secret',
+		value: 'sensitive-data',
+		masterEncryption: true,
+		masterPassword: 'MasterPass123!',
+	};
 
-  const response = await request(app.getHttpServer())
-    .post('/secrets')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(createDto);
+	const response = await request(app.getHttpServer())
+		.post('/secrets')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(createDto);
 
-  t.is(response.status, 201, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.slug, 'protected-secret');
-  t.is(responseBody.masterEncryption, true);
+	t.is(response.status, 201, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.is(responseBody.slug, 'protected-secret');
+	t.is(responseBody.masterEncryption, true);
 });
 
 currentTest = 'GET /secrets/:slug';
 test.serial(`${currentTest} - should return protected secret metadata without master password`, async (t) => {
-  // Create user with a protected secret
-  const { token } = await setupUserWithSecrets([
-    { slug: 'protected-secret-200', value: 'sensitive-data', masterEncryption: true, masterPassword: 'SecretPass123!' },
-  ]);
+	// Create user with a protected secret
+	const { token } = await setupUserWithSecrets([
+		{ slug: 'protected-secret-200', value: 'sensitive-data', masterEncryption: true, masterPassword: 'SecretPass123!' },
+	]);
 
-  // Access without master password should return metadata (no value is returned anyway)
-  const response = await request(app.getHttpServer())
-    .get('/secrets/protected-secret-200')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	// Access without master password should return metadata (no value is returned anyway)
+	const response = await request(app.getHttpServer())
+		.get('/secrets/protected-secret-200')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.slug, 'protected-secret-200');
-  t.falsy(responseBody.value);
-  t.is(responseBody.masterEncryption, true);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.is(responseBody.slug, 'protected-secret-200');
+	t.falsy(responseBody.value);
+	t.is(responseBody.masterEncryption, true);
 });
 
-test.serial(`${currentTest} - should return protected secret metadata with master password (no value returned)`, async (t) => {
-  // Create user with a protected secret
-  const { token } = await setupUserWithSecrets([
-    { slug: 'protected-secret-with-pwd', value: 'sensitive-data', masterEncryption: true, masterPassword: 'MasterPass123!' },
-  ]);
+test.serial(
+	`${currentTest} - should return protected secret metadata with master password (no value returned)`,
+	async (t) => {
+		// Create user with a protected secret
+		const { token } = await setupUserWithSecrets([
+			{
+				slug: 'protected-secret-with-pwd',
+				value: 'sensitive-data',
+				masterEncryption: true,
+				masterPassword: 'MasterPass123!',
+			},
+		]);
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets/protected-secret-with-pwd')
-    .set('Cookie', token)
-    .set('masterpwd', 'MasterPass123!')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+		const response = await request(app.getHttpServer())
+			.get('/secrets/protected-secret-with-pwd')
+			.set('Cookie', token)
+			.set('masterpwd', 'MasterPass123!')
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.slug, 'protected-secret-with-pwd');
-  t.falsy(responseBody.value);
-});
+		t.is(response.status, 200, response.text);
+		const responseBody = JSON.parse(response.text);
+		t.is(responseBody.slug, 'protected-secret-with-pwd');
+		t.falsy(responseBody.value);
+	},
+);
 
 currentTest = 'PUT /secrets/:slug';
 test.serial(`${currentTest} - should update secret value`, async (t) => {
-  // Create user with a secret to update
-  const { token } = await setupUserWithSecrets([{ slug: 'update-test-key', value: 'original-value' }]);
+	// Create user with a secret to update
+	const { token } = await setupUserWithSecrets([{ slug: 'update-test-key', value: 'original-value' }]);
 
-  const updateDto = {
-    value: 'updated-secret-value',
-  };
+	const updateDto = {
+		value: 'updated-secret-value',
+	};
 
-  const response = await request(app.getHttpServer())
-    .put('/secrets/update-test-key')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(updateDto);
+	const response = await request(app.getHttpServer())
+		.put('/secrets/update-test-key')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(updateDto);
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.slug, 'update-test-key');
-  t.truthy(responseBody.updatedAt);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.is(responseBody.slug, 'update-test-key');
+	t.truthy(responseBody.updatedAt);
 });
 
 test.serial(`${currentTest} - should update expiration date`, async (t) => {
-  // Create user with a secret to update
-  const { token } = await setupUserWithSecrets([{ slug: 'update-expiry-key', value: 'original-value' }]);
+	// Create user with a secret to update
+	const { token } = await setupUserWithSecrets([{ slug: 'update-expiry-key', value: 'original-value' }]);
 
-  const futureDate = new Date();
-  futureDate.setFullYear(futureDate.getFullYear() + 1);
+	const futureDate = new Date();
+	futureDate.setFullYear(futureDate.getFullYear() + 1);
 
-  const updateDto = {
-    value: 'updated-secret-value',
-    expiresAt: futureDate.toISOString(),
-  };
+	const updateDto = {
+		value: 'updated-secret-value',
+		expiresAt: futureDate.toISOString(),
+	};
 
-  const response = await request(app.getHttpServer())
-    .put('/secrets/update-expiry-key')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(updateDto);
+	const response = await request(app.getHttpServer())
+		.put('/secrets/update-expiry-key')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(updateDto);
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.truthy(responseBody.expiresAt);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.truthy(responseBody.expiresAt);
 });
 
 test.serial(`${currentTest} - should return 404 for non-existent secret`, async (t) => {
-  const { token } = await setupUserWithSecrets([]);
+	const { token } = await setupUserWithSecrets([]);
 
-  const updateDto = {
-    value: 'new-value',
-  };
+	const updateDto = {
+		value: 'new-value',
+	};
 
-  const response = await request(app.getHttpServer())
-    .put('/secrets/non-existent')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(updateDto);
+	const response = await request(app.getHttpServer())
+		.put('/secrets/non-existent')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(updateDto);
 
-  t.is(response.status, 404, response.text);
+	t.is(response.status, 404, response.text);
 });
 
 currentTest = 'GET /secrets/:slug/audit-log';
 test.serial(`${currentTest} - should return audit log entries`, async (t) => {
-  // Create user with a secret
-  const { token } = await setupUserWithSecrets([{ slug: 'audit-log-test', value: 'audit-value' }]);
+	// Create user with a secret
+	const { token } = await setupUserWithSecrets([{ slug: 'audit-log-test', value: 'audit-value' }]);
 
-  // Access the secret multiple times to create audit log entries
-  for (let i = 0; i < 3; i++) {
-    await request(app.getHttpServer())
-      .get('/secrets/audit-log-test')
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-  }
+	// Access the secret multiple times to create audit log entries
+	for (let i = 0; i < 3; i++) {
+		await request(app.getHttpServer())
+			.get('/secrets/audit-log-test')
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+	}
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets/audit-log-test/audit-log')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets/audit-log-test/audit-log')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.truthy(responseBody.data);
-  t.true(Array.isArray(responseBody.data));
-  t.truthy(responseBody.pagination);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.truthy(responseBody.data);
+	t.true(Array.isArray(responseBody.data));
+	t.truthy(responseBody.pagination);
 
-  // At least 1 entry from creation + 3 from access
-  t.true(responseBody.data.length >= 1);
+	// At least 1 entry from creation + 3 from access
+	t.true(responseBody.data.length >= 1);
 
-  const logEntry = responseBody.data[0];
-  t.truthy(logEntry.id);
-  t.truthy(logEntry.action);
-  t.truthy(logEntry.user);
-  t.truthy(logEntry.accessedAt);
-  t.is(logEntry.success, true);
+	const logEntry = responseBody.data[0];
+	t.truthy(logEntry.id);
+	t.truthy(logEntry.action);
+	t.truthy(logEntry.user);
+	t.truthy(logEntry.accessedAt);
+	t.is(logEntry.success, true);
 });
 
 test.serial(`${currentTest}?page=1&limit=2 - should paginate audit log`, async (t) => {
-  // Create user with a secret
-  const { token } = await setupUserWithSecrets([{ slug: 'audit-paginate-test', value: 'audit-value' }]);
+	// Create user with a secret
+	const { token } = await setupUserWithSecrets([{ slug: 'audit-paginate-test', value: 'audit-value' }]);
 
-  // Access the secret multiple times to create audit log entries
-  for (let i = 0; i < 3; i++) {
-    await request(app.getHttpServer())
-      .get('/secrets/audit-paginate-test')
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-  }
+	// Access the secret multiple times to create audit log entries
+	for (let i = 0; i < 3; i++) {
+		await request(app.getHttpServer())
+			.get('/secrets/audit-paginate-test')
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+	}
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets/audit-paginate-test/audit-log?page=1&limit=2')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets/audit-paginate-test/audit-log?page=1&limit=2')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.pagination.perPage, '2');
-  t.true(responseBody.data.length <= 2);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.is(responseBody.pagination.perPage, '2');
+	t.true(responseBody.data.length <= 2);
 });
 
 currentTest = 'POST /secrets';
 test.serial(`${currentTest} - should create expired secret`, async (t) => {
-  const { token } = await setupUserWithSecrets([]);
+	const { token } = await setupUserWithSecrets([]);
 
-  const pastDate = new Date();
-  pastDate.setFullYear(pastDate.getFullYear() - 1);
+	const pastDate = new Date();
+	pastDate.setFullYear(pastDate.getFullYear() - 1);
 
-  const createDto = {
-    slug: 'expired-secret',
-    value: 'expired-value',
-    expiresAt: pastDate.toISOString(),
-  };
+	const createDto = {
+		slug: 'expired-secret',
+		value: 'expired-value',
+		expiresAt: pastDate.toISOString(),
+	};
 
-  const response = await request(app.getHttpServer())
-    .post('/secrets')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(createDto);
+	const response = await request(app.getHttpServer())
+		.post('/secrets')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(createDto);
 
-  t.is(response.status, 201, response.text);
+	t.is(response.status, 201, response.text);
 });
 
 currentTest = 'GET /secrets/:slug';
 test.serial(`${currentTest} - should return 410 for expired secret`, async (t) => {
-  // Create user with an expired secret
-  const pastDate = new Date();
-  pastDate.setFullYear(pastDate.getFullYear() - 1);
+	// Create user with an expired secret
+	const pastDate = new Date();
+	pastDate.setFullYear(pastDate.getFullYear() - 1);
 
-  const { token } = await setupUserWithSecrets([
-    { slug: 'expired-secret-410', value: 'expired-value', expiresAt: pastDate.toISOString() },
-  ]);
+	const { token } = await setupUserWithSecrets([
+		{ slug: 'expired-secret-410', value: 'expired-value', expiresAt: pastDate.toISOString() },
+	]);
 
-  const response = await request(app.getHttpServer())
-    .get('/secrets/expired-secret-410')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets/expired-secret-410')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 410, response.text);
+	t.is(response.status, 410, response.text);
 });
 
 currentTest = 'DELETE /secrets/:slug';
 test.serial(`${currentTest} - should delete secret`, async (t) => {
-  // Create user with a secret to delete
-  const { token } = await setupUserWithSecrets([{ slug: 'delete-test-key', value: 'delete-value' }]);
+	// Create user with a secret to delete
+	const { token } = await setupUserWithSecrets([{ slug: 'delete-test-key', value: 'delete-value' }]);
 
-  const response = await request(app.getHttpServer())
-    .delete('/secrets/delete-test-key')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.delete('/secrets/delete-test-key')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 200, response.text);
-  const responseBody = JSON.parse(response.text);
-  t.is(responseBody.message, 'Secret deleted successfully');
-  t.truthy(responseBody.deletedAt);
+	t.is(response.status, 200, response.text);
+	const responseBody = JSON.parse(response.text);
+	t.is(responseBody.message, 'Secret deleted successfully');
+	t.truthy(responseBody.deletedAt);
 });
 
 currentTest = 'GET /secrets/:slug';
 test.serial(`${currentTest} - should return 404 after deletion`, async (t) => {
-  // Create user with a secret, then delete it
-  const { token } = await setupUserWithSecrets([{ slug: 'delete-then-get', value: 'delete-value' }]);
+	// Create user with a secret, then delete it
+	const { token } = await setupUserWithSecrets([{ slug: 'delete-then-get', value: 'delete-value' }]);
 
-  // Delete the secret
-  await request(app.getHttpServer())
-    .delete('/secrets/delete-then-get')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	// Delete the secret
+	await request(app.getHttpServer())
+		.delete('/secrets/delete-then-get')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  // Try to get the deleted secret
-  const response = await request(app.getHttpServer())
-    .get('/secrets/delete-then-get')
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	// Try to get the deleted secret
+	const response = await request(app.getHttpServer())
+		.get('/secrets/delete-then-get')
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 404, response.text);
+	t.is(response.status, 404, response.text);
 });
 
 currentTest = 'DELETE /secrets/:slug';
 test.serial(`${currentTest} - should return 404 for non-existent secret`, async (t) => {
-  const { token } = await setupUserWithSecrets([]);
+	const { token } = await setupUserWithSecrets([]);
 
-  const response = await request(app.getHttpServer())
-    .delete('/secrets/non-existent')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.delete('/secrets/non-existent')
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 404, response.text);
+	t.is(response.status, 404, response.text);
 });
 
 currentTest = 'GET /secrets';
 test.serial(`${currentTest} - unauthorized without token`, async (t) => {
-  const response = await request(app.getHttpServer())
-    .get('/secrets')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const response = await request(app.getHttpServer())
+		.get('/secrets')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  t.is(response.status, 401, response.text);
+	t.is(response.status, 401, response.text);
 });
 
 currentTest = 'POST /secrets';
 test.serial(`${currentTest} - unauthorized without token`, async (t) => {
-  const createDto = {
-    slug: 'test-secret',
-    value: 'value',
-  };
+	const createDto = {
+		slug: 'test-secret',
+		value: 'value',
+	};
 
-  const response = await request(app.getHttpServer())
-    .post('/secrets')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(createDto);
+	const response = await request(app.getHttpServer())
+		.post('/secrets')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send(createDto);
 
-  t.is(response.status, 401, response.text);
+	t.is(response.status, 401, response.text);
 });
