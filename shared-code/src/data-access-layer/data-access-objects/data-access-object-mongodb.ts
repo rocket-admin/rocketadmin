@@ -649,11 +649,6 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
 		}
 	}
 
-	/**
-	 * Escapes special regex metacharacters to prevent ReDoS attacks.
-	 * @param str - The string to escape
-	 * @returns The escaped string safe for use in RegExp
-	 */
 	private escapeRegex(str: string): string {
 		return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 	}
