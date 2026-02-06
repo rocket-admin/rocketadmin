@@ -26,7 +26,7 @@
                     <mat-icon matSuffix>search</mat-icon>
                 </mat-form-field>
 
-                <button mat-flat-button color="primary"
+                <button *ngIf="filteredDashboards().length > 0" mat-flat-button color="primary"
                     (click)="openCreateDialog()"
                     data-testid="create-dashboard-button">
                     <mat-icon>add</mat-icon>
@@ -41,8 +41,9 @@
                 <h3>No dashboards found</h3>
                 <p *ngIf="searchQuery()">No dashboards match your search criteria.</p>
                 <p *ngIf="!searchQuery()">Create your first dashboard to visualize your data.</p>
-                <button *ngIf="!searchQuery()" mat-stroked-button color="primary"
-                    (click)="openCreateDialog()">
+                <button mat-flat-button color="primary"
+                    (click)="openCreateDialog()"
+                    data-testid="create-dashboard-button">
                     <mat-icon>add</mat-icon>
                     Create Dashboard
                 </button>
