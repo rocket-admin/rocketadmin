@@ -8,31 +8,33 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
 
 let app: INestApplication;
 
 test.before(async () => {
-  setSaasEnvVariable();
-  const moduleFixture = await Test.createTestingModule({
-    imports: [ApplicationModule, DatabaseModule],
-    providers: [DatabaseService],
-  }).compile();
-  app = moduleFixture.createNestApplication();
-  await app.init();
+	setSaasEnvVariable();
+	const moduleFixture = await Test.createTestingModule({
+		imports: [ApplicationModule, DatabaseModule],
+		providers: [DatabaseService],
+	}).compile();
+	app = moduleFixture.createNestApplication();
+	await app.init();
+	await createInitialTestUser(app);
 });
 
 test.after(async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After tests error ' + e);
-  }
+	try {
+		await Cacher.clearAllCache();
+		await app.close();
+	} catch (e) {
+		console.error('After tests error ' + e);
+	}
 });
 
 test.serial(' > get hello', async (t) => {
-  const result = await request(app.getHttpServer()).get('/hello');
-  const responseText = result.text;
-  t.assert('Hello World!', responseText);
-  t.pass();
+	const result = await request(app.getHttpServer()).get('/hello');
+	const responseText = result.text;
+	t.assert('Hello World!', responseText);
+	t.pass();
 });

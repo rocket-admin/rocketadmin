@@ -15,6 +15,7 @@ import { TestUtils } from '../../utils/test.utils.js';
 import {
   inviteUserInCompanyAndAcceptInvitation,
   registerUserAndReturnUserInfo,
+  createInitialTestUser,
 } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
@@ -49,6 +50,7 @@ test.before(async () => {
     }),
   );
   await app.init();
+  await createInitialTestUser(app);
   app.getHttpServer().listen(0);
 });
 
