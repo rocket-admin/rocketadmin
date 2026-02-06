@@ -26,7 +26,7 @@
                     <mat-icon matSuffix>search</mat-icon>
                 </mat-form-field>
 
-                <a mat-flat-button color="primary"
+                <a *ngIf="filteredQueries().length > 0" mat-flat-button color="primary"
                     [routerLink]="['/charts', connectionId(), 'new']"
                     (click)="trackCreatePageOpened()"
                     data-testid="create-widget-button">
@@ -42,7 +42,7 @@
                 <h3>No widgets found</h3>
                 <p *ngIf="searchQuery()">No widgets match your search criteria.</p>
                 <p *ngIf="!searchQuery()">Create your first widget to visualize your data.</p>
-                <a *ngIf="!searchQuery()" mat-stroked-button color="primary"
+                <a mat-flat-button color="primary"
                     [routerLink]="['/charts', connectionId(), 'new']"
                     (click)="trackCreatePageOpened()">
                     <mat-icon>add</mat-icon>
