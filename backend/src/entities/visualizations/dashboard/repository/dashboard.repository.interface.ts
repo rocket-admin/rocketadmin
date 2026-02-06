@@ -7,4 +7,5 @@ export interface IDashboardRepository {
 	findAllDashboardsByConnectionId(connectionId: string): Promise<DashboardEntity[]>;
 	saveDashboard(dashboard: DashboardEntity): Promise<DashboardEntity>;
 	removeDashboard(dashboard: DashboardEntity): Promise<DashboardEntity>;
+	findAllDashboardsWithWidgetsByConnectionId(connectionId: string): Promise<DashboardEntity[]>;
 }

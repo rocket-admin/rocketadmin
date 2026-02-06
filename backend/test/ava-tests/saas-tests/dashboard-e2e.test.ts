@@ -115,7 +115,6 @@ test.serial(`${currentTest} should create a new dashboard`, async (t) => {
 		.set('Accept', 'application/json');
 
 	const createDashboardRO = JSON.parse(createDashboard.text);
-	console.log('🚀 ~ createDashboardRO:', createDashboardRO);
 	t.is(createDashboard.status, 201);
 	t.is(createDashboardRO.name, newDashboard.name);
 	t.is(createDashboardRO.description, newDashboard.description);
