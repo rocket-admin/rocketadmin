@@ -99,6 +99,7 @@ export class DashboardsListComponent implements OnInit {
 	ngOnInit(): void {
 		const connId = this.route.snapshot.paramMap.get('connection-id') || '';
 		this.connectionId.set(connId);
+		this._dashboards.setActiveDashboard(null);
 		this._dashboards.setActiveConnection(connId);
 	}
 

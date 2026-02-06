@@ -13,21 +13,23 @@
                 }
             </div>
         </div>
-        <div class="header-actions">
-            <mat-slide-toggle
-                [checked]="editMode()"
-                (change)="toggleEditMode()"
-                color="primary"
-                data-testid="edit-mode-toggle">
-                Edit Mode
-            </mat-slide-toggle>
-            <button mat-flat-button color="primary"
-                (click)="openAddWidgetDialog()"
-                data-testid="add-widget-button">
-                <mat-icon>add</mat-icon>
-                Add Chart
-            </button>
-        </div>
+        @if (gridsterItems().length > 0) {
+            <div class="header-actions">
+                <mat-slide-toggle
+                    [checked]="editMode()"
+                    (change)="toggleEditMode()"
+                    color="primary"
+                    data-testid="edit-mode-toggle">
+                    Edit Mode
+                </mat-slide-toggle>
+                <button mat-flat-button color="primary"
+                    (click)="openAddWidgetDialog()"
+                    data-testid="add-widget-button">
+                    <mat-icon>add</mat-icon>
+                    Add Chart
+                </button>
+            </div>
+        }
     </div>
 
     @if (loading()) {
@@ -41,7 +43,7 @@
             <mat-icon class="no-widgets-icon">bar_chart</mat-icon>
             <h3>No charts yet</h3>
             <p>Add charts to visualize your data from saved queries.</p>
-            <button mat-stroked-button color="primary" (click)="openAddWidgetDialog()">
+            <button mat-flat-button color="primary" (click)="openAddWidgetDialog()">
                 <mat-icon>add</mat-icon>
                 Add Chart
             </button>
