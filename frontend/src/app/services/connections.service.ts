@@ -163,13 +163,13 @@ export class ConnectionsService {
 					});
 				} else {
 					this.isCustomAccentedColor = false;
-					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' } });
+					this._themeService.updateColors({ palettes: { primaryPalette: '#2563eb', accentedPalette: '#2563eb' } });
 				}
 			});
 		} else {
 			this.connection = { ...this.connectionInitialState };
 			this.isCustomAccentedColor = false;
-			this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' } });
+			this._themeService.updateColors({ palettes: { primaryPalette: '#2563eb', accentedPalette: '#2563eb' } });
 		}
 
 		console.log('this.defaultDisplayTable');
@@ -275,7 +275,7 @@ export class ConnectionsService {
 					});
 				} else {
 					this.defaultDisplayTable = null;
-					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#C177FC' } });
+					this._themeService.updateColors({ palettes: { primaryPalette: '#2563eb', accentedPalette: '#2563eb' } });
 				}
 				return { ...res, connection };
 			}),
