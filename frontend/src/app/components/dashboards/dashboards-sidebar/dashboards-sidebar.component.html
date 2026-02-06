@@ -1,0 +1,42 @@
+<div class="dashboards-sidebar"
+    [class.dashboards-sidebar_collapsed]="collapsed()"
+    [class.dashboards-sidebar_initialized]="initialized()">
+    <button mat-button type="button"
+        *ngIf="!collapsed(); else collapsedToggle"
+        class="sidebar-toggle-button"
+        (click)="toggleCollapsed()">
+        Collapse
+        <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <ng-template #collapsedToggle>
+        <button mat-icon-button type="button"
+            class="sidebar-toggle-button sidebar-toggle-button_collapsed"
+            (click)="toggleCollapsed()">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </ng-template>
+
+    <mat-nav-list class="sidebar-nav">
+        <a mat-list-item
+            [routerLink]="['/dashboards', connectionId()]"
+            [class.active-link]="activeTab() === 'dashboards'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Dashboards' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>dashboard</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Dashboards</span>
+        </a>
+        <a mat-list-item
+            [routerLink]="['/charts', connectionId()]"
+            [class.active-link]="activeTab() === 'queries'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Widgets' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>widgets</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Widgets</span>
+        </a>
+    </mat-nav-list>
+</div>

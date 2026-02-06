@@ -4,7 +4,10 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { Router, RouterModule } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { DashboardsService } from 'src/app/services/dashboards.service';
@@ -14,7 +17,17 @@ import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 	selector: 'app-widget-edit-dialog',
 	templateUrl: './widget-edit-dialog.component.html',
 	styleUrls: ['./widget-edit-dialog.component.css'],
-	imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatSelectModule],
+	imports: [
+		CommonModule,
+		ReactiveFormsModule,
+		RouterModule,
+		MatDialogModule,
+		MatButtonModule,
+		MatDividerModule,
+		MatFormFieldModule,
+		MatIconModule,
+		MatSelectModule,
+	],
 })
 export class WidgetEditDialogComponent implements OnInit {
 	protected submitting = signal(false);
@@ -26,9 +39,10 @@ export class WidgetEditDialogComponent implements OnInit {
 	constructor(
 		@Inject(MAT_DIALOG_DATA)
 		public data: { connectionId: string; dashboardId: string; widget: DashboardWidget | null },
-		private dialogRef: MatDialogRef<WidgetEditDialogComponent>,
+		public dialogRef: MatDialogRef<WidgetEditDialogComponent>,
 		private _dashboards: DashboardsService,
 		private _savedQueries: SavedQueriesService,
+		private _router: Router,
 		private fb: FormBuilder,
 		private angulartics2: Angulartics2,
 	) {
@@ -86,5 +100,10 @@ export class WidgetEditDialogComponent implements OnInit {
 			}
 		}
 		this.submitting.set(false);
+	}
+
+	navigateToCreateQuery(): void {
+		this.dialogRef.close();
+		this._router.navigate(['/charts', this.data.connectionId, 'new']);
 	}
 }

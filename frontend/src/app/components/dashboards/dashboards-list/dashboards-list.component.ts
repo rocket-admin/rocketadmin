@@ -3,13 +3,13 @@ import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -21,6 +21,7 @@ import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table
 import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { DashboardDeleteDialogComponent } from '../dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { DashboardEditDialogComponent } from '../dashboard-edit-dialog/dashboard-edit-dialog.component';
+import { DashboardsSidebarComponent } from '../dashboards-sidebar/dashboards-sidebar.component';
 
 @Component({
 	selector: 'app-dashboards-list',
@@ -30,8 +31,8 @@ import { DashboardEditDialogComponent } from '../dashboard-edit-dialog/dashboard
 		CommonModule,
 		FormsModule,
 		RouterModule,
-		MatTableModule,
 		MatButtonModule,
+		MatCardModule,
 		MatIconModule,
 		MatMenuModule,
 		MatInputModule,
@@ -40,12 +41,12 @@ import { DashboardEditDialogComponent } from '../dashboard-edit-dialog/dashboard
 		MatDividerModule,
 		PlaceholderTableDataComponent,
 		AlertComponent,
+		DashboardsSidebarComponent,
 	],
 })
 export class DashboardsListComponent implements OnInit {
 	protected searchQuery = signal('');
 	protected connectionId = signal('');
-	public displayedColumns = ['name', 'description', 'updatedAt', 'actions'];
 
 	private _dashboards = inject(DashboardsService);
 	private _connections = inject(ConnectionsService);
@@ -88,13 +89,17 @@ export class DashboardsListComponent implements OnInit {
 		// Dashboards update effect
 		effect(() => {
 			const action = this._dashboards.dashboardsUpdated();
-			if (action) this._dashboards.refreshDashboards();
+			if (action) {
+				this._dashboards.refreshDashboards();
+				this._dashboards.clearDashboardsUpdated();
+			}
 		});
 	}
 
 	ngOnInit(): void {
 		const connId = this.route.snapshot.paramMap.get('connection-id') || '';
 		this.connectionId.set(connId);
+		this._dashboards.setActiveDashboard(null);
 		this._dashboards.setActiveConnection(connId);
 	}
 

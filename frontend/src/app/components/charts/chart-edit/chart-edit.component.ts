@@ -19,6 +19,7 @@ import { ChartType, TestQueryResult } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/dashboards-sidebar.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { ChartPreviewComponent } from '../chart-preview/chart-preview.component';
 
@@ -41,6 +42,7 @@ import { ChartPreviewComponent } from '../chart-preview/chart-preview.component'
 		CodeEditorModule,
 		ChartPreviewComponent,
 		AlertComponent,
+		DashboardsSidebarComponent,
 	],
 })
 export class ChartEditComponent implements OnInit {
