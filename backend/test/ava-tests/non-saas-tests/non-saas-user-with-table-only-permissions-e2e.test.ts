@@ -22,7 +22,7 @@ import { DatabaseModule } from "../../../src/shared/database/database.module.js"
 import { DatabaseService } from "../../../src/shared/database/database.service.js";
 import { MockFactory } from "../../mock.factory.js";
 import { compareTableWidgetsArrays } from "../../utils/compare-table-widgets-arrays.js";
-import { inviteUserInCompanyAndAcceptInvitation } from "../../utils/register-user-and-return-user-info.js";
+import { inviteUserInCompanyAndAcceptInvitation, createInitialTestUser } from "../../utils/register-user-and-return-user-info.js";
 import { setSaasEnvVariable } from "../../utils/set-saas-env-variable.js";
 import { TestUtils } from "../../utils/test.utils.js";
 import { createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions } from "../../utils/user-with-different-permissions-utils.js";
@@ -63,6 +63,7 @@ test.before(async () => {
 		}),
 	);
 	await app.init();
+	await createInitialTestUser(app);
 	app.getHttpServer().listen(0);
 });
 

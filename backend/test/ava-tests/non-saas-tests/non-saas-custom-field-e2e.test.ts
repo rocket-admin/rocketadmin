@@ -9,7 +9,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { MockFactory } from '../../mock.factory.js';
 import { Encryptor } from '../../../src/helpers/encryption/encryptor.js';
 import test from 'ava';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { registerUserAndReturnUserInfo, createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import request from 'supertest';
 import { replaceTextInCurlies } from '../../../src/helpers/index.js';
@@ -56,6 +56,7 @@ test.before(async () => {
 		}),
 	);
 	await app.init();
+	await createInitialTestUser(app);
 	app.getHttpServer().listen(0);
 });
 

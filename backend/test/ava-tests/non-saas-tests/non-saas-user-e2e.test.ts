@@ -14,7 +14,10 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import {
+	registerUserAndReturnUserInfo,
+	createInitialTestUser,
+} from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
@@ -41,6 +44,7 @@ test.beforeEach(async () => {
 		}),
 	);
 	await app.init();
+	await createInitialTestUser(app);
 	app.getHttpServer().listen(0);
 });
 
