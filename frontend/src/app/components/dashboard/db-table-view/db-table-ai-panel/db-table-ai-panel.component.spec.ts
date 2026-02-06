@@ -32,6 +32,7 @@ describe('DbTableAiPanelComponent', () => {
 
 	const mockTableStateService = {
 		aiPanelCast: of(false),
+		aiPanelExpandedCast: of(false),
 		handleViewAIpanel: vi.fn(),
 	};
 
@@ -63,9 +64,9 @@ describe('DbTableAiPanelComponent', () => {
 		expect(component.tableName).toBe('users');
 	});
 
-	it('should have default AI request suggestions', () => {
-		expect(component.aiRequestSuggestions.length).toBeGreaterThan(0);
-		expect(component.aiRequestSuggestions).toContain('How many records were created last month?');
+	it('should have default suggestion categories', () => {
+		expect(component.suggestionCategories.length).toBeGreaterThan(0);
+		expect(component.suggestionCategories[0].title).toBe('Explore');
 	});
 
 	it('should update character count on keydown', () => {

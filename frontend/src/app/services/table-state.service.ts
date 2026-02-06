@@ -10,8 +10,11 @@ export class TableStateService {
   private selectedRowSubject = new BehaviorSubject<any>(null);
   cast = this.selectedRowSubject.asObservable();
 
-  private aiPanelSubject = new BehaviorSubject<any>(null);
+  private aiPanelSubject = new BehaviorSubject<boolean>(false);
   aiPanelCast = this.aiPanelSubject.asObservable();
+
+  private aiPanelExpandedSubject = new BehaviorSubject<boolean>(false);
+  aiPanelExpandedCast = this.aiPanelExpandedSubject.asObservable();
 
   // private backUrlFilters: any;
   // private backUrlParams: any;
@@ -67,7 +70,11 @@ export class TableStateService {
 
   handleViewAIpanel() {
     this.clearSelection();
-    this.aiPanelSubject.next(!this.aiPanelSubject.value);
+    const isOpening = !this.aiPanelSubject.value;
+    this.aiPanelSubject.next(isOpening);
+    if (!isOpening) {
+      this.aiPanelExpandedSubject.next(false);
+    }
   }
 
   clearSelection() {
@@ -76,5 +83,11 @@ export class TableStateService {
 
   closeAIpanel() {
     this.aiPanelSubject.next(false);
+    this.aiPanelExpandedSubject.next(false);
+  }
+
+  toggleAIPanelExpanded() {
+    const newValue = !this.aiPanelExpandedSubject.value;
+    this.aiPanelExpandedSubject.next(newValue);
   }
 }
