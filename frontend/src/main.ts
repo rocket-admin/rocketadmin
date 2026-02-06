@@ -85,10 +85,12 @@ if ((environment as any).saas) {
 	});
 }
 
-posthog.init('phc_VPnWHIMj9UjhRLPr7shATjgL0J4KrWWOHkK3JwZbnkw', {
-	api_host: 'https://us.i.posthog.com',
-	defaults: '2025-11-30',
-});
+if ((environment as any).saas) {
+	posthog.init('phc_VPnWHIMj9UjhRLPr7shATjgL0J4KrWWOHkK3JwZbnkw', {
+		api_host: 'https://us.i.posthog.com',
+		defaults: '2025-11-30',
+	});
+}
 
 bootstrapApplication(AppComponent, {
 	providers: [
