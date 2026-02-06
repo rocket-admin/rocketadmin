@@ -12,94 +12,139 @@ import { UserEntity } from '../../src/entities/user/user.entity.js';
 import { CompanyInfoEntity } from '../../src/entities/company-info/company-info.entity.js';
 import { generateGwtToken } from '../../src/entities/user/utils/generate-gwt-token.js';
 import { UserRoleEnum } from '../../src/entities/user/enums/user-role.enum.js';
+import { buildRegisteringUser } from '../../src/entities/user/utils/build-registering-user.util.js';
+import { RegisterUserDs } from '../../src/entities/user/application/data-structures/register-user-ds.js';
+
+export async function createInitialTestUser(
+	app: INestApplication,
+	email: string = 'admin@email.local',
+	password: string = 'test12345',
+): Promise<{
+	token: string;
+	email: string;
+	password: string;
+}> {
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const userRepository = dataSource.getRepository(UserEntity);
+	const companyRepository = dataSource.getRepository(CompanyInfoEntity);
+
+	const existingUser = await userRepository.findOneBy({ email: email.toLowerCase() });
+	if (existingUser) {
+		const tokenData = generateGwtToken(existingUser, []);
+		const token = `${Constants.JWT_COOKIE_KEY_NAME}=${tokenData.token}`;
+		return { token, email: existingUser.email, password };
+	}
+
+	const registerUserData: RegisterUserDs = {
+		email: email.toLowerCase(),
+		password: password,
+		isActive: true,
+		gclidValue: null,
+		name: 'Admin',
+		role: UserRoleEnum.ADMIN,
+	};
+
+	const savedUser = await userRepository.save(buildRegisteringUser(registerUserData));
+
+	const newCompanyInfo = new CompanyInfoEntity();
+	newCompanyInfo.id = faker.string.uuid();
+	const savedCompanyInfo = await companyRepository.save(newCompanyInfo);
+
+	savedUser.company = savedCompanyInfo;
+	const finalUser = await userRepository.save(savedUser);
+	const tokenData = generateGwtToken(finalUser, []);
+	const token = `${Constants.JWT_COOKIE_KEY_NAME}=${tokenData.token}`;
+
+	return { token, email: finalUser.email, password };
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function registerUserAndReturnUserInfo(app: INestApplication): Promise<{
-  token: string;
-  email: string;
-  password: string;
+	token: string;
+	email: string;
+	password: string;
 }> {
-  if (isSaaS()) {
-    return await registerUserOnSaasAndReturnUserInfo();
-  }
-  const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
-  const userRepository = dataSource.getRepository(UserEntity);
-  const companyRepository = dataSource.getRepository(CompanyInfoEntity);
+	if (isSaaS()) {
+		return await registerUserOnSaasAndReturnUserInfo();
+	}
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const userRepository = dataSource.getRepository(UserEntity);
+	const companyRepository = dataSource.getRepository(CompanyInfoEntity);
 
-  const email = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`.toLowerCase();
-  const password = `#r@dY^e&7R4b5Ib@31iE4xbn`;
-  const companyName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`;
+	const email = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`.toLowerCase();
+	const password = `#r@dY^e&7R4b5Ib@31iE4xbn`;
+	const companyName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`;
 
-  // Create company
-  const company = companyRepository.create({
-    id: faker.string.uuid(),
-    name: companyName,
-  });
-  const savedCompany = await companyRepository.save(company);
+	// Create company
+	const company = companyRepository.create({
+		id: faker.string.uuid(),
+		name: companyName,
+	});
+	const savedCompany = await companyRepository.save(company);
 
-  // Create user
-  const user = userRepository.create({
-    email,
-    password,
-    isActive: true,
-    company: savedCompany,
-    role: UserRoleEnum.ADMIN,
-  });
-  const savedUser = await userRepository.save(user);
+	// Create user
+	const user = userRepository.create({
+		email,
+		password,
+		isActive: true,
+		company: savedCompany,
+		role: UserRoleEnum.ADMIN,
+	});
+	const savedUser = await userRepository.save(user);
 
-  // Generate JWT token
-  const tokenData = generateGwtToken(savedUser, []);
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${tokenData.token}`;
+	// Generate JWT token
+	const tokenData = generateGwtToken(savedUser, []);
+	const token = `${Constants.JWT_COOKIE_KEY_NAME}=${tokenData.token}`;
 
-  return { token, email, password };
+	return { token, email, password };
 }
 
 export async function registerUserOnSaasAndReturnUserInfo(
-  email: string = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
+	email: string = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
 ): Promise<{
-  token: string;
-  email: string;
-  password: string;
+	token: string;
+	email: string;
+	password: string;
 }> {
-  const userRegisterInfo: RegisterUserData & { companyName: string } = {
-    email: email,
-    password: `#r@dY^e&7R4b5Ib@31iE4xbn`,
-    companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`,
-  };
+	const userRegisterInfo: RegisterUserData & { companyName: string } = {
+		email: email,
+		password: `#r@dY^e&7R4b5Ib@31iE4xbn`,
+		companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`,
+	};
 
-  const result = await fetch('http://rocketadmin-private-microservice:3001/saas/user/register', {
-    method: 'POST',
-    body: JSON.stringify(userRegisterInfo),
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-  });
-  if (result.status > 201) {
-    console.info('result.body -> ', await result.json());
-  }
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse2(result)}`;
-  return { token: token, ...userRegisterInfo };
+	const result = await fetch('http://rocketadmin-private-microservice:3001/saas/user/register', {
+		method: 'POST',
+		body: JSON.stringify(userRegisterInfo),
+		headers: {
+			'Content-Type': 'application/json',
+			Accept: 'application/json',
+		},
+	});
+	if (result.status > 201) {
+		console.info('result.body -> ', await result.json());
+	}
+	const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse2(result)}`;
+	return { token: token, ...userRegisterInfo };
 }
 
 type RegisterUserData = {
-  email: string;
-  password: string;
+	email: string;
+	password: string;
 };
 
 export async function inviteUserInCompanyAndAcceptInvitation(
-  inviterJwtToken: string,
-  role: 'ADMIN' | 'USER' = 'USER',
-  app: INestApplication,
-  groupId: string,
-  invitedUserEmail?: string,
+	inviterJwtToken: string,
+	role: 'ADMIN' | 'USER' = 'USER',
+	app: INestApplication,
+	groupId: string,
+	invitedUserEmail?: string,
 ): Promise<{
-  email: string;
-  password: string;
-  token: string;
+	email: string;
+	password: string;
+	token: string;
 }> {
-  return await inviteUserInCompanyAndGroupAndAcceptInvitation(inviterJwtToken, role, groupId, app, invitedUserEmail);
-  /*
+	return await inviteUserInCompanyAndGroupAndAcceptInvitation(inviterJwtToken, role, groupId, app, invitedUserEmail);
+	/*
 
   const foundUser: any = await request(app.getHttpServer())
     .get('/user/')
@@ -151,59 +196,59 @@ export async function inviteUserInCompanyAndAcceptInvitation(
 }
 
 export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
-  inviterJwtToken: string,
-  role: 'ADMIN' | 'USER' = 'USER',
-  groupId: string,
-  app: INestApplication,
-  newEmail?: string,
+	inviterJwtToken: string,
+	role: 'ADMIN' | 'USER' = 'USER',
+	groupId: string,
+	app: INestApplication,
+	newEmail?: string,
 ): Promise<{
-  email: string;
-  password: string;
-  token: string;
+	email: string;
+	password: string;
+	token: string;
 }> {
-  const foundUser: any = await request(app.getHttpServer())
-    .get('/user/')
-    .set('Cookie', inviterJwtToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const foundUserJson = JSON.parse(foundUser.text);
-  const companyId = foundUserJson.company.id;
-  if (!newEmail) {
-    newEmail = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`;
-  }
-  const newPassword = `#r@dY^e&7R4b5Ib@31iE4xbn`;
-  const invitationRequestBody = {
-    companyId: foundUserJson.company.id,
-    email: newEmail,
-    role: role,
-    groupId: groupId,
-  };
+	const foundUser: any = await request(app.getHttpServer())
+		.get('/user/')
+		.set('Cookie', inviterJwtToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const foundUserJson = JSON.parse(foundUser.text);
+	const companyId = foundUserJson.company.id;
+	if (!newEmail) {
+		newEmail = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`;
+	}
+	const newPassword = `#r@dY^e&7R4b5Ib@31iE4xbn`;
+	const invitationRequestBody = {
+		companyId: foundUserJson.company.id,
+		email: newEmail,
+		role: role,
+		groupId: groupId,
+	};
 
-  const invitationResult = await request(app.getHttpServer())
-    .put(`/company/user/${companyId}`)
-    .send(invitationRequestBody)
-    .set('Cookie', inviterJwtToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+	const invitationResult = await request(app.getHttpServer())
+		.put(`/company/user/${companyId}`)
+		.send(invitationRequestBody)
+		.set('Cookie', inviterJwtToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-  const invitationRO: InvitedUserInCompanyAndConnectionGroupDs & { verificationString: string } = JSON.parse(
-    invitationResult.text,
-  );
-  if (invitationResult.status > 201) {
-    console.info('invitationResult.body -> ', invitationRO);
-  }
-  const verificationResult = await request(app.getHttpServer())
-    .post(`/company/invite/verify/${invitationRO.verificationString}`)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send({
-      password: newPassword,
-      userName: newEmail,
-    });
-  const verificationRO = JSON.parse(verificationResult.text);
-  if (verificationResult.status > 201) {
-    console.info('verificationResult.body -> ', verificationRO);
-  }
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(verificationResult)}`;
-  return { email: newEmail, password: newPassword, token: token };
+	const invitationRO: InvitedUserInCompanyAndConnectionGroupDs & { verificationString: string } = JSON.parse(
+		invitationResult.text,
+	);
+	if (invitationResult.status > 201) {
+		console.info('invitationResult.body -> ', invitationRO);
+	}
+	const verificationResult = await request(app.getHttpServer())
+		.post(`/company/invite/verify/${invitationRO.verificationString}`)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send({
+			password: newPassword,
+			userName: newEmail,
+		});
+	const verificationRO = JSON.parse(verificationResult.text);
+	if (verificationResult.status > 201) {
+		console.info('verificationResult.body -> ', verificationRO);
+	}
+	const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(verificationResult)}`;
+	return { email: newEmail, password: newPassword, token: token };
 }

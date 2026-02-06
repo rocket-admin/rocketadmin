@@ -21,7 +21,6 @@ export async function validateConnectionToken(connectionToken: string): Promise<
 
 	try {
 		const checkUrl = `${config.checkConnectionTokenUrl}?token=${connectionToken}`;
-		logger.info({ url: checkUrl }, 'Validating connection token');
 
 		const response = await fetch(checkUrl);
 
