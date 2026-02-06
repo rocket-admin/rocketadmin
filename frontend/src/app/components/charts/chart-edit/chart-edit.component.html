@@ -1,6 +1,13 @@
-<app-alert></app-alert>
+<div class="chart-edit-layout">
+    <app-dashboards-sidebar
+        [connectionId]="connectionId()"
+        activeTab="queries">
+    </app-dashboards-sidebar>
 
-<div class="chart-edit-page">
+    <div class="chart-edit-main">
+        <app-alert></app-alert>
+
+        <div class="chart-edit-page">
     <div class="chart-edit-header">
         <button mat-icon-button (click)="cancel()" matTooltip="Back to list">
             <mat-icon>arrow_back</mat-icon>
@@ -148,18 +155,20 @@
             <mat-icon>info</mat-icon>
             <p>Query executed successfully but returned no results.</p>
         </div>
+    </div>
 
-        <div class="actions">
-            <button mat-button (click)="cancel()" data-testid="cancel-button">
-                Cancel
-            </button>
-            <button mat-flat-button color="primary"
-                (click)="saveQuery()"
-                [disabled]="!canSave()"
-                data-testid="save-query-button">
-                <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
-                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Query' : 'Save Query') }}
-            </button>
+    <div class="actions" *ngIf="!loading()">
+        <button mat-button (click)="cancel()" data-testid="cancel-button">
+            Cancel
+        </button>
+        <button mat-flat-button color="primary"
+            (click)="saveQuery()"
+            [disabled]="!canSave()"
+            data-testid="save-query-button">
+            <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
+            {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Query' : 'Save Query') }}
+        </button>
+    </div>
         </div>
     </div>
 </div>

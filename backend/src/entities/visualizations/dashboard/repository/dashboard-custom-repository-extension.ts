@@ -19,10 +19,11 @@ export const dashboardCustomRepositoryExtension = {
 	},
 
 	async findAllDashboardsByConnectionId(connectionId: string): Promise<DashboardEntity[]> {
-		return await this.find({
-			where: { connection_id: connectionId },
-			order: { created_at: 'DESC' },
-		});
+		const qb = this.createQueryBuilder('dashboard')
+			.leftJoinAndSelect('dashboard.widgets', 'widgets')
+			.where('dashboard.connection_id = :connectionId', { connectionId })
+			.orderBy('dashboard.created_at', 'DESC');
+		return await qb.getMany();
 	},
 
 	async saveDashboard(dashboard: DashboardEntity): Promise<DashboardEntity> {

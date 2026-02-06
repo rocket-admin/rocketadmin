@@ -149,6 +149,7 @@ export class DashboardsService {
 				this._http.post<DashboardWidget>(`/dashboard/${dashboardId}/widget/${connectionId}`, payload),
 			);
 			this._notifications.showSuccessSnackbar('Widget created successfully');
+			this._dashboardsUpdated.set('updated');
 			return widget;
 		} catch (err: unknown) {
 			const error = err as { error?: { message?: string } };
@@ -202,6 +203,7 @@ export class DashboardsService {
 				this._http.delete<DashboardWidget>(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`),
 			);
 			this._notifications.showSuccessSnackbar('Widget deleted successfully');
+			this._dashboardsUpdated.set('updated');
 			return widget;
 		} catch (err: unknown) {
 			const error = err as { error?: { message?: string } };

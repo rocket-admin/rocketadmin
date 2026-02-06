@@ -3,23 +3,25 @@ import { Component, computed, effect, inject, OnInit, signal } from '@angular/co
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
-import { SavedQuery } from 'src/app/models/saved-query';
+import { ChartType, SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
+import { ChartMiniPreviewComponent } from '../../dashboards/chart-mini-preview/chart-mini-preview.component';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { ChartDeleteDialogComponent } from '../chart-delete-dialog/chart-delete-dialog.component';
+import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/dashboards-sidebar.component';
 
 @Component({
 	selector: 'app-charts-list',
@@ -29,22 +31,35 @@ import { ChartDeleteDialogComponent } from '../chart-delete-dialog/chart-delete-
 		CommonModule,
 		FormsModule,
 		RouterModule,
-		MatTableModule,
 		MatButtonModule,
+		MatCardModule,
 		MatIconModule,
 		MatMenuModule,
 		MatInputModule,
 		MatFormFieldModule,
 		MatTooltipModule,
 		MatDividerModule,
+		ChartMiniPreviewComponent,
 		PlaceholderTableDataComponent,
 		AlertComponent,
+		DashboardsSidebarComponent,
 	],
 })
 export class ChartsListComponent implements OnInit {
 	protected searchQuery = signal('');
 	protected connectionId = signal('');
-	public displayedColumns = ['name', 'description', 'updatedAt', 'actions'];
+
+	private chartTypeIcons: Record<ChartType, string> = {
+		bar: 'bar_chart',
+		line: 'show_chart',
+		pie: 'pie_chart',
+		doughnut: 'donut_large',
+		polarArea: 'radar',
+	};
+
+	getChartIcon(chartType: ChartType | null): string {
+		return chartType ? this.chartTypeIcons[chartType] : 'bar_chart';
+	}
 
 	private _savedQueries = inject(SavedQueriesService);
 	private _connections = inject(ConnectionsService);
