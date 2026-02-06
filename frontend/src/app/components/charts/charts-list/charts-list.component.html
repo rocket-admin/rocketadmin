@@ -50,58 +50,77 @@
                 </a>
             </div>
 
-            <div *ngIf="!loading() && filteredQueries().length > 0" class="widgets-grid">
-                <mat-card *ngFor="let query of filteredQueries(); let i = index"
-                    class="widget-card"
-                    attr.data-testid="widget-card-{{i}}">
+            <table *ngIf="!loading() && filteredQueries().length > 0" mat-table [dataSource]="filteredQueries()" class="widgets-table">
+                <!-- Preview Column -->
+                <ng-container matColumnDef="preview">
+                    <th mat-header-cell *matHeaderCellDef>Type</th>
+                    <td mat-cell *matCellDef="let query" class="preview-cell">
+                        <a [routerLink]="['/charts', connectionId(), query.id]"
+                            (click)="trackEditPageOpened()"
+                            class="preview-link"
+                            [matTooltip]="getChartTypeName(query.chart_type)">
+                            <app-chart-mini-preview [chartType]="query.chart_type"></app-chart-mini-preview>
+                        </a>
+                    </td>
+                </ng-container>
 
-                    <!-- Preview area -->
-                    <a [routerLink]="['/charts', connectionId(), query.id]"
-                        (click)="trackEditPageOpened()"
-                        class="widget-preview">
-                        <app-chart-mini-preview [chartType]="query.chart_type"></app-chart-mini-preview>
-                    </a>
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let query">
+                        <a [routerLink]="['/charts', connectionId(), query.id]"
+                            (click)="trackEditPageOpened()"
+                            class="widget-name-link">
+                            {{query.name}}
+                        </a>
+                    </td>
+                </ng-container>
 
-                    <!-- Card content -->
-                    <mat-card-content class="widget-card-content">
-                        <div class="widget-card-header">
-                            <a [routerLink]="['/charts', connectionId(), query.id]"
+                <!-- Description Column -->
+                <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef>Description</th>
+                    <td mat-cell *matCellDef="let query" class="description-cell">
+                        {{query.description || '—'}}
+                    </td>
+                </ng-container>
+
+                <!-- Updated Column -->
+                <ng-container matColumnDef="updated">
+                    <th mat-header-cell *matHeaderCellDef>Updated</th>
+                    <td mat-cell *matCellDef="let query" class="updated-cell">
+                        {{formatUpdatedAt(query.updated_at)}}
+                    </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let query; let i = index" class="actions-cell">
+                        <button mat-icon-button [matMenuTriggerFor]="rowMenu"
+                            attr.data-testid="widget-actions-{{i}}-button">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #rowMenu="matMenu">
+                            <a mat-menu-item
+                                [routerLink]="['/charts', connectionId(), query.id]"
                                 (click)="trackEditPageOpened()"
-                                class="widget-name">
-                                {{query.name}}
+                                attr.data-testid="widget-edit-{{i}}-menu-item">
+                                <mat-icon>edit</mat-icon>
+                                <span>Edit</span>
                             </a>
-                            <button mat-icon-button [matMenuTriggerFor]="cardMenu"
-                                class="widget-menu-button"
-                                attr.data-testid="widget-actions-{{i}}-button">
-                                <mat-icon>more_vert</mat-icon>
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item (click)="openDeleteDialog(query)" class="delete-action"
+                                attr.data-testid="widget-delete-{{i}}-menu-item">
+                                <mat-icon color="warn">delete</mat-icon>
+                                <span>Delete</span>
                             </button>
-                            <mat-menu #cardMenu="matMenu">
-                                <a mat-menu-item
-                                    [routerLink]="['/charts', connectionId(), query.id]"
-                                    (click)="trackEditPageOpened()"
-                                    attr.data-testid="widget-edit-{{i}}-menu-item">
-                                    <mat-icon>edit</mat-icon>
-                                    <span>Edit</span>
-                                </a>
-                                <mat-divider></mat-divider>
-                                <button mat-menu-item (click)="openDeleteDialog(query)" class="delete-action"
-                                    attr.data-testid="widget-delete-{{i}}-menu-item">
-                                    <mat-icon color="warn">delete</mat-icon>
-                                    <span>Delete</span>
-                                </button>
-                            </mat-menu>
-                        </div>
-                        <p *ngIf="query.description" class="widget-description-text">
-                            {{query.description}}
-                        </p>
-                        <div class="widget-meta">
-                            <span class="widget-updated">
-                                {{query.updated_at | date:'mediumDate'}}
-                            </span>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-            </div>
+                        </mat-menu>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
         </div>
     </div>
 </div>

@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -39,6 +40,7 @@ import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/
 		MatFormFieldModule,
 		MatTooltipModule,
 		MatDividerModule,
+		MatTableModule,
 		ChartMiniPreviewComponent,
 		PlaceholderTableDataComponent,
 		AlertComponent,
@@ -48,6 +50,7 @@ import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/
 export class ChartsListComponent implements OnInit {
 	protected searchQuery = signal('');
 	protected connectionId = signal('');
+	protected displayedColumns = ['preview', 'name', 'description', 'updated', 'actions'];
 
 	private chartTypeIcons: Record<ChartType, string> = {
 		bar: 'bar_chart',
@@ -59,6 +62,17 @@ export class ChartsListComponent implements OnInit {
 
 	getChartIcon(chartType: ChartType | null): string {
 		return chartType ? this.chartTypeIcons[chartType] : 'bar_chart';
+	}
+
+	getChartTypeName(chartType: ChartType | null): string {
+		const names: Record<ChartType, string> = {
+			bar: 'Bar Chart',
+			line: 'Line Chart',
+			pie: 'Pie Chart',
+			doughnut: 'Doughnut Chart',
+			polarArea: 'Polar Area Chart',
+		};
+		return chartType ? names[chartType] : 'Bar Chart';
 	}
 
 	private _savedQueries = inject(SavedQueriesService);
@@ -124,5 +138,21 @@ export class ChartsListComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: delete chart dialog opened',
 		});
+	}
+
+	formatUpdatedAt(date: string): string {
+		const now = new Date();
+		const updated = new Date(date);
+		const diffMs = now.getTime() - updated.getTime();
+		const diffMins = Math.floor(diffMs / 60000);
+		const diffHours = Math.floor(diffMs / 3600000);
+		const diffDays = Math.floor(diffMs / 86400000);
+
+		if (diffMins < 1) return 'Just now';
+		if (diffMins < 60) return `${diffMins} min ago`;
+		if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+		if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+		return updated.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 	}
 }

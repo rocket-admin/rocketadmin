@@ -12,7 +12,7 @@
         <button mat-icon-button (click)="cancel()" matTooltip="Back to list">
             <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1 class="mat-h1">{{ isEditMode() ? 'Edit Saved Query' : 'Create Saved Query' }}</h1>
+        <h1 class="mat-h1">{{ isEditMode() ? 'Edit Widget' : 'Create Widget' }}</h1>
     </div>
 
     <div *ngIf="loading()" class="loading-container">
@@ -48,9 +48,10 @@
                     <button mat-stroked-button
                         (click)="testQuery()"
                         [disabled]="!canTest()"
+                        class="test-query-button"
                         data-testid="test-query-button">
                         <mat-icon *ngIf="!testing()">play_arrow</mat-icon>
-                        <mat-spinner *ngIf="testing()" diameter="18"></mat-spinner>
+                        <mat-spinner *ngIf="testing()" diameter="18" class="button-spinner"></mat-spinner>
                         {{ testing() ? 'Testing...' : 'Test Query' }}
                     </button>
                 </div>

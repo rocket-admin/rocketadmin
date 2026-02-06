@@ -54,6 +54,7 @@
 .query-details {
 	display: flex;
 	gap: 16px;
+	margin-top: 8px;
 }
 
 @media (width <= 600px) {
@@ -247,4 +248,10 @@
 .actions button mat-spinner {
 	display: inline-block;
 	margin-right: 8px;
+}
+
+.test-query-button .button-spinner {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 4px;
 }
