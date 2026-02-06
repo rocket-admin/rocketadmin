@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 import { AuthGuard } from './auth.guard';
 import { configurationGuard } from './guards/configuration.guard';
 import { setupGuard } from './guards/setup.guard';
@@ -18,6 +19,7 @@ const routes: Routes = [
 		path: 'setup',
 		loadComponent: () => import('./components/setup/setup.component').then((m) => m.SetupComponent),
 		canActivate: [setupGuard],
+		providers: [provideZxvbnServiceForPSM()],
 		title: 'Setup | Rocketadmin',
 	},
 	{
