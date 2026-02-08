@@ -162,6 +162,11 @@
 	pointer-events: none;
 }
 
+.ai-insights-button {
+    order: 999;
+    margin-left: auto;
+}
+
 @media (prefers-color-scheme: light) {
 	.ai-insights-button {
 		background: var(--color-accentedPalette-50);
