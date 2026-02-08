@@ -74,6 +74,7 @@ describe('ChartEditComponent', () => {
 
 		mockUiSettingsService = {
 			editorTheme: 'vs-dark',
+			getUiSettings: vi.fn().mockReturnValue(of({})),
 		};
 
 		await TestBed.configureTestingModule({

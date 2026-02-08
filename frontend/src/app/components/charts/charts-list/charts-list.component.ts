@@ -50,7 +50,7 @@ import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/
 export class ChartsListComponent implements OnInit {
 	protected searchQuery = signal('');
 	protected connectionId = signal('');
-	protected displayedColumns = ['preview', 'name', 'description', 'updated', 'actions'];
+	displayedColumns = ['preview', 'name', 'description', 'updated', 'actions'];
 
 	private chartTypeIcons: Record<ChartType, string> = {
 		bar: 'bar_chart',
