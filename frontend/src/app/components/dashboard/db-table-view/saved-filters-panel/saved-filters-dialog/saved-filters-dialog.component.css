@@ -1,6 +1,6 @@
 .filters-content {
     display: grid;
-    grid-template-columns: 32px auto 228px 0 1fr 120px;
+    grid-template-columns: 32px auto 228px 0 1fr 100px;
     grid-column-gap: 8px;
     align-content: flex-start;
     align-items: center;
@@ -22,7 +22,7 @@
 }
 
 .empty-conditions-container {
-    grid-column: 1 / span 6;
+    grid-column: 1 / span 5;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -118,10 +118,318 @@
     top: 100%;
 }
 
-.dynamic-column-radio {
+.quick-edit-header {
+    grid-column: 6;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.quick-edit-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.quick-edit-info-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+}
+
+/* Quick edit help menu styles */
+::ng-deep .quick-edit-help-menu {
+    max-width: none !important;
+}
+
+.quick-edit-help-content {
+    padding: 16px;
+    cursor: default;
+}
+
+.quick-edit-help-text {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.7);
+    line-height: 1.4;
+}
+
+/* Animated example */
+.quick-edit-animated-example {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.example-toggle-animated {
+    flex-shrink: 0;
+}
+
+.toggle-track {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: toggleTrack 3s ease-in-out infinite;
+}
+
+.toggle-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    animation: toggleThumb 3s ease-in-out infinite;
+}
+
+@keyframes toggleTrack {
+    0%, 40% {
+        background-color: rgba(0, 0, 0, 0.25);
+    }
+    50%, 90% {
+        background-color: #C177FC;
+    }
+    100% {
+        background-color: rgba(0, 0, 0, 0.25);
+    }
+}
+
+@keyframes toggleThumb {
+    0%, 40% {
+        left: 2px;
+    }
+    50%, 90% {
+        left: 18px;
+    }
+    100% {
+        left: 2px;
+    }
+}
+
+.example-filter-animated {
+    position: relative;
+    height: 36px;
+    min-width: 110px;
+    margin-top: 4px;
+}
+
+.example-chip-animated {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    animation: chipFade 3s ease-in-out infinite;
+}
+
+.example-editable-animated {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: transparent;
+    border: 1px solid #C177FC;
+    border-radius: 4px;
+    padding: 8px 8px 4px 8px;
+    opacity: 0;
+    animation: editableFade 3s ease-in-out infinite;
+}
+
+.example-editable-label {
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    font-size: 10px;
+    color: #C177FC;
+    background-color: #fff;
+    padding: 0 4px;
+}
+
+.example-editable-value {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.87);
+    display: flex;
+    align-items: center;
+}
+
+.typing-text::after {
+    content: 'active';
+    animation: typeText 3s ease-in-out infinite;
+}
+
+@keyframes typeText {
+    0%, 40% {
+        content: '';
+    }
+    45% {
+        content: 'p';
+    }
+    50% {
+        content: 'pe';
+    }
+    55% {
+        content: 'pen';
+    }
+    60% {
+        content: 'pend';
+    }
+    65% {
+        content: 'pendi';
+    }
+    70%, 90% {
+        content: 'pending';
+    }
+    100% {
+        content: '';
+    }
+}
+
+.example-typing-cursor {
+    font-size: 12px;
+    color: #C177FC;
+    font-weight: 300;
+    animation: cursorBlink 0.5s step-end infinite;
+}
+
+@keyframes cursorBlink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
+}
+
+@keyframes chipFade {
+    0%, 40% {
+        opacity: 1;
+    }
+    50%, 90% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes editableFade {
+    0%, 40% {
+        opacity: 0;
+    }
+    50%, 90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .quick-edit-help-text {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .toggle-track {
+        animation: toggleTrackDark 3s ease-in-out infinite;
+    }
+
+    @keyframes toggleTrackDark {
+        0%, 40% {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        50%, 90% {
+            background-color: #C177FC;
+        }
+        100% {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+    }
+
+    .example-chip-animated {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .example-editable-animated {
+        background-color: transparent;
+    }
+
+    .example-editable-label {
+        color: #C177FC;
+        background-color: #424242;
+    }
+
+    .example-editable-value {
+        color: rgba(255, 255, 255, 0.87);
+    }
+
+    .example-typing-cursor {
+        color: #C177FC;
+    }
+}
+
+.quick-edit-toggle {
     grid-column: 6;
     margin-top: -16px;
     align-self: center;
+    justify-self: center;
+}
+
+/* Hide default icons */
+.quick-edit-toggle ::ng-deep .mdc-switch__icons {
+    display: none;
+}
+
+/* Style the thumb to contain our icon */
+.quick-edit-toggle ::ng-deep .mdc-switch__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Add lock icon when unchecked */
+.quick-edit-toggle ::ng-deep .mdc-switch__handle::after {
+    font-family: 'Material Symbols Outlined';
+    content: 'lock';
+    font-size: 14px;
+    position: absolute;
+    color: #fff;
+}
+
+/* Add edit icon when checked */
+.quick-edit-toggle.mat-mdc-slide-toggle-checked ::ng-deep .mdc-switch__handle::after {
+    font-family: 'Material Symbols Outlined';
+    content: 'edit';
+    font-size: 14px;
+    color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .quick-edit-title {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .quick-edit-info-icon {
+        color: rgba(255, 255, 255, 0.35);
+    }
 }
 
 .comparator-select-field {
@@ -185,15 +493,6 @@
     padding-bottom: 0;
 }
 
-.dynamic-column-radio ::ng-deep .mdc-form-field {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.dynamic-column-radio ::ng-deep .mdc-form-field>label {
-    white-space: nowrap;
-}
 
 .filter-save-form {
     grid-column: 1 / span 6;

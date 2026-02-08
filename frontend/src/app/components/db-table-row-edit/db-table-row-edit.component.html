@@ -26,19 +26,19 @@
                     routerLink="/dashboard/{{connectionID}}/{{tableName}}/entry"
                     [queryParams]="dubURLParams"
                     matTooltip="Duplicate row">
-                    <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
+                    <mat-icon fontSet="material-symbols-outlined">difference</mat-icon>
                 </a>
                 <button type="button" mat-icon-button *ngIf="permissions.delete && canDelete && hasKeyAttributesFromURL"
                     matTooltip="Delete row"
                     (click)="handleDeleteRow()">
-                    <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+                    <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
                 </button>
                 <div *ngIf="rowActions && rowActions.length">
                     <div class="custom-actions_desktop">
                         <button type="button" mat-icon-button *ngFor="let action of rowActions"
                             [matTooltip]="action.title"
                             (click)="handleActivateAction(action)">
-                            <mat-icon fontSet="material-icons-outlined">
+                            <mat-icon fontSet="material-symbols-outlined">
                                 {{action.icon}}
                             </mat-icon>
                         </button>
@@ -46,7 +46,7 @@
                     <div class="custom-actions_mobile">
                         <button type="button" mat-stroked-button *ngFor="let action of rowActions"
                             (click)="handleActivateAction(action)">
-                            <mat-icon fontSet="material-icons-outlined">
+                            <mat-icon fontSet="material-symbols-outlined">
                                 {{action.icon}}
                             </mat-icon>
                             {{action.title}}
@@ -138,7 +138,7 @@
                                 [ngClass]="{ 'widget-info_centered': tableWidgets[value].widget_type === 'Boolean' || tableTypes[value] === 'boolean' }"
                                 [matTooltip]="tableWidgets[value].description"
                                 matTooltipPosition="above">
-                                info_outline
+                                info
                             </mat-icon>
                         </div>
 
@@ -175,7 +175,7 @@
                         *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit && pageMode === 'view'"
                         data-testid="switch-to-editing-button"
                         (click)="switchToEditMode()">
-                        <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+                        <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
                         Edit
                     </button>
 

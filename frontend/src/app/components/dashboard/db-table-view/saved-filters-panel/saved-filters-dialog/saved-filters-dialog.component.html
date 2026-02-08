@@ -49,6 +49,37 @@
                 <mat-icon class="column-name-icon">subdirectory_arrow_right</mat-icon>
                 <span class="where-label">where</span>
             </div>
+            <div class="quick-edit-header" *ngIf="hasSelectedFilters">
+                <span class="quick-edit-title">Quick edit</span>
+                <mat-icon class="quick-edit-info-icon"
+                    [matMenuTriggerFor]="quickEditHelpMenu">
+                    info_outline
+                </mat-icon>
+                <mat-menu #quickEditHelpMenu="matMenu" class="quick-edit-help-menu">
+                    <div class="quick-edit-help-content" (click)="$event.stopPropagation()">
+                        <p class="quick-edit-help-text">Enable to change this value<br>directly from the table view</p>
+                        <div class="quick-edit-animated-example">
+                            <div class="example-toggle-animated">
+                                <div class="toggle-track">
+                                    <div class="toggle-thumb"></div>
+                                </div>
+                            </div>
+                            <div class="example-filter-animated">
+                                <div class="example-chip-animated">
+                                    <span>status = active</span>
+                                </div>
+                                <div class="example-editable-animated">
+                                    <span class="example-editable-label">status:</span>
+                                    <span class="example-editable-value">
+                                        <span class="typing-text"></span>
+                                        <span class="example-typing-cursor">|</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-menu>
+            </div>
 
             <!-- Added Filters -->
             <div class="conditions-vertical-line" *ngIf="hasSelectedFilters"></div>
@@ -170,13 +201,13 @@
                         }"
                     ></ndc-dynamic>
                 </ng-template>
-                <div class="dynamic-column-radio">
-                    <mat-checkbox
-                        [checked]="dynamicColumn === value.key"
-                        (change)="toggleDynamicColumn(value.key)">
-                        Editable
-                    </mat-checkbox>
-                </div>
+                <mat-slide-toggle
+                    class="quick-edit-toggle"
+                    [checked]="dynamicColumn === value.key"
+                    [matTooltip]="dynamicColumn === value.key ? 'Disable editing' : 'Enable editing'"
+                    matTooltipPosition="above"
+                    (change)="toggleDynamicColumn(value.key)">
+                </mat-slide-toggle>
             </ng-container>
 
             <!-- Add Condition Button -->

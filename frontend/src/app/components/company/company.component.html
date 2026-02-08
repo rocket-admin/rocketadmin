@@ -80,7 +80,7 @@
                     [disabled]="currentPlan === 'free' && usersCount >= 3 && isSaas">
                     Invite member
                     <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3 && isSaas">
-                        info_outline
+                        info
                     </mat-icon>
                 </button>
             </div>
@@ -101,7 +101,7 @@
                 <mat-icon *ngIf="element.externalRegistrationProvider === null"
                     class="company-member-cell_email-icon"
                     matTooltip="Email registration">
-                    mail_outline
+                    mail
                 </mat-icon>
                 <mat-icon *ngIf="element.externalRegistrationProvider !== null"
                     class="company-member-cell_email-icon"
@@ -236,8 +236,8 @@
             <td mat-cell *matCellDef="let element; let i = index"
                 data-label="Access"
                 class="company-member-cell company-member-cell_content-center">
-                <mat-icon *ngIf="element.has_groups" class="company-member-cell_accessed" fontSet="material-icons-outlined">check_circle</mat-icon>
-                <mat-icon *ngIf="!element.has_groups" class="company-member-cell_not-accessed" fontSet="material-icons-outlined">cancel</mat-icon>
+                <mat-icon *ngIf="element.has_groups" class="company-member-cell_accessed" fontSet="material-symbols-outlined">check_circle</mat-icon>
+                <mat-icon *ngIf="!element.has_groups" class="company-member-cell_not-accessed" fontSet="material-symbols-outlined">cancel</mat-icon>
             </td>
         </ng-container>
 
@@ -324,7 +324,7 @@
                     <form #uploadLogoForm="ngForm" class="upload-logo-form">
                         <div class="file-uploader-appearance">
                             <button mat-stroked-button type="button" (click)="logoInput.click()">
-                                <mat-icon fontSet="material-icons-outlined">upload</mat-icon>
+                                <mat-icon fontSet="material-symbols-outlined">upload</mat-icon>
                                 Company logo
                             </button>
                             <input #logoInput type="file" class="file-input" name="company-logo-uploader" (change)="onCompanyLogoSelected($event)" hidden>
@@ -338,7 +338,7 @@
                     <form #uploadFaviconForm="ngForm" class="upload-logo-form">
                         <div class="file-uploader-appearance">
                             <button mat-stroked-button type="button" (click)="faviconInput.click()">
-                                <mat-icon fontSet="material-icons-outlined">upload</mat-icon>
+                                <mat-icon fontSet="material-symbols-outlined">upload</mat-icon>
                                 Favicon
                             </button>
                             <input #faviconInput type="file" class="file-input" name="company-favicon-uploader" (change)="onFaviconSelected($event)" hidden>

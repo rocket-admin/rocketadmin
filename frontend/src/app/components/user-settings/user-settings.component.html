@@ -27,7 +27,7 @@
         <div class="user-settings__section-heading">
             <mat-icon *ngIf="currentUser.externalRegistrationProvider === null"
                 matTooltip="You registred with your email">
-                mail_outline
+                mail
             </mat-icon>
             <mat-icon *ngIf="currentUser.externalRegistrationProvider !== null"
                 [svgIcon]="authProviderIcons[currentUser.externalRegistrationProvider]"
@@ -71,7 +71,7 @@
                 </mat-slide-toggle>
                 <mat-icon *ngIf="!currentUser.isActive" class="twoFAhint"
                     matTooltip="Available only after email confirmation.">
-                    info_outline
+                    info
                 </mat-icon>
             </div>
 
@@ -146,7 +146,7 @@
                             attr.data-testid="api-key-{{i}}-delete-button"
                             matTooltip="Remove API key"
                             (click)="deleteAPIkey(apiKey)">
-                            <mat-icon>delete_outline</mat-icon>
+                            <mat-icon>delete</mat-icon>
                         </button>
                     </div>
                 </mat-list-item>

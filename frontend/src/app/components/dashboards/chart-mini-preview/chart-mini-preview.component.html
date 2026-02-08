@@ -1,0 +1,54 @@
+<div class="chart-mini-preview">
+	<!-- Bar Chart -->
+	<svg *ngIf="displayType === 'bar'" viewBox="0 0 100 60" class="chart-svg">
+		<rect x="18" y="30" width="16" height="25" rx="2" class="bar bar-1"/>
+		<rect x="42" y="15" width="16" height="40" rx="2" class="bar bar-2"/>
+		<rect x="66" y="22" width="16" height="33" rx="2" class="bar bar-3"/>
+	</svg>
+
+	<!-- Line Chart -->
+	<svg *ngIf="displayType === 'line'" viewBox="0 0 100 60" class="chart-svg">
+		<defs>
+			<linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+				<stop offset="0%" class="gradient-start"/>
+				<stop offset="100%" class="gradient-end"/>
+			</linearGradient>
+		</defs>
+		<path d="M10,45 L30,30 L50,38 L70,18 L90,25" class="line-path" fill="none"/>
+		<path d="M10,45 L30,30 L50,38 L70,18 L90,25 L90,55 L10,55 Z" class="line-area"/>
+		<circle cx="10" cy="45" r="3" class="line-dot"/>
+		<circle cx="30" cy="30" r="3" class="line-dot"/>
+		<circle cx="50" cy="38" r="3" class="line-dot"/>
+		<circle cx="70" cy="18" r="3" class="line-dot"/>
+		<circle cx="90" cy="25" r="3" class="line-dot"/>
+	</svg>
+
+	<!-- Pie Chart -->
+	<svg *ngIf="displayType === 'pie'" viewBox="0 0 60 60" class="chart-svg">
+		<g transform="translate(30, 30)">
+			<path d="M0,-26 A26,26 0 0,1 22.5,13 L0,0 Z" class="pie-slice slice-1"/>
+			<path d="M22.5,13 A26,26 0 0,1 -22.5,13 L0,0 Z" class="pie-slice slice-2"/>
+			<path d="M-22.5,13 A26,26 0 0,1 0,-26 L0,0 Z" class="pie-slice slice-3"/>
+		</g>
+	</svg>
+
+	<!-- Doughnut Chart -->
+	<svg *ngIf="displayType === 'doughnut'" viewBox="0 0 60 60" class="chart-svg">
+		<g transform="translate(30, 30)">
+			<path d="M0,-26 A26,26 0 0,1 22.5,13 L13.5,7.8 A15.6,15.6 0 0,0 0,-15.6 Z" class="doughnut-slice slice-1"/>
+			<path d="M22.5,13 A26,26 0 0,1 -22.5,13 L-13.5,7.8 A15.6,15.6 0 0,0 13.5,7.8 Z" class="doughnut-slice slice-2"/>
+			<path d="M-22.5,13 A26,26 0 0,1 0,-26 L0,-15.6 A15.6,15.6 0 0,0 -13.5,7.8 Z" class="doughnut-slice slice-3"/>
+		</g>
+	</svg>
+
+	<!-- Polar Area Chart -->
+	<svg *ngIf="displayType === 'polarArea'" viewBox="0 0 60 60" class="chart-svg">
+		<g transform="translate(30, 30)">
+			<path d="M0,0 L0,-26 A26,26 0 0,1 24.7,-8 Z" class="polar-slice slice-1"/>
+			<path d="M0,0 L17,-5.5 A18,18 0 0,1 5.5,17 Z" class="polar-slice slice-2"/>
+			<path d="M0,0 L4.7,14.5 A15,15 0 0,1 -14.5,4.7 Z" class="polar-slice slice-3"/>
+			<path d="M0,0 L-20,6.5 A21,21 0 0,1 -6.5,-20 Z" class="polar-slice slice-4"/>
+			<path d="M0,0 L-4.8,-15 A16,16 0 0,1 0,-16 Z" class="polar-slice slice-5"/>
+		</g>
+	</svg>
+</div>
