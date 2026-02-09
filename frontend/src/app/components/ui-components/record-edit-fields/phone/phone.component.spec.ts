@@ -6,7 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { PhoneEditComponent } from './phone.component';
+import { WidgetStructure } from 'src/app/models/table';
+import { CountryCode, PhoneEditComponent } from './phone.component';
 
 describe('PhoneEditComponent', () => {
 	let component: PhoneEditComponent;
@@ -177,7 +178,7 @@ describe('PhoneEditComponent', () => {
 			component.onPhoneNumberChange();
 
 			expect(component.selectedCountry.code).toBe('GB');
-			expect(component.countryControl.value?.code).toBe('GB');
+			expect((component.countryControl.value as CountryCode)?.code).toBe('GB');
 		});
 
 		it('should detect US from +1 number', () => {
@@ -187,7 +188,7 @@ describe('PhoneEditComponent', () => {
 			component.onPhoneNumberChange();
 
 			expect(component.selectedCountry.code).toBe('US');
-			expect(component.countryControl.value?.code).toBe('US');
+			expect((component.countryControl.value as CountryCode)?.code).toBe('US');
 		});
 	});
 
@@ -269,7 +270,7 @@ describe('PhoneEditComponent', () => {
 		});
 
 		it('should handle empty selected country', () => {
-			component.selectedCountry = null as any;
+			component.selectedCountry = null as unknown as CountryCode;
 			component.displayPhoneNumber = '5551234567';
 
 			expect(() => component.onPhoneNumberChange()).not.toThrow();
@@ -296,7 +297,7 @@ describe('PhoneEditComponent', () => {
 					enable_placeholder: false,
 					phone_validation: false,
 				},
-			} as any;
+			} as Partial<WidgetStructure> as WidgetStructure;
 
 			component.configureFromWidgetParams();
 
@@ -306,7 +307,7 @@ describe('PhoneEditComponent', () => {
 		});
 
 		it('should handle missing widget params', () => {
-			component.widgetStructure = {} as any;
+			component.widgetStructure = {} as Partial<WidgetStructure> as WidgetStructure;
 
 			expect(() => component.configureFromWidgetParams()).not.toThrow();
 		});

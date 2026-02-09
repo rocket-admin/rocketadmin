@@ -12,7 +12,7 @@
             class="language-input">
     </div>
     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-        @for (language of filteredLanguages | async; track language.value) {
+        @for (language of filteredLanguages(); track language.value) {
             <mat-option
                 [value]="language"
                 (onSelectionChange)="language && onLanguageSelected(language)">

@@ -1,116 +1,120 @@
-import { COUNTRIES, getCountryFlag } from '../../../../consts/countries';
-import { CUSTOM_ELEMENTS_SCHEMA, Component, Input } from '@angular/core';
-import { map, startWith } from 'rxjs/operators';
-
-import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CommonModule } from '@angular/common';
-import { FormControl } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, Input, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Observable } from 'rxjs';
-import { ReactiveFormsModule } from '@angular/forms';
+import { COUNTRIES, getCountryFlag } from '../../../../consts/countries';
+import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
+
+interface CountryOption {
+	value: string | null;
+	label: string;
+	flag: string;
+}
 
 @Component({
-  selector: 'app-edit-country',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatAutocompleteModule, MatInputModule],
-  templateUrl: './country.component.html',
-  styleUrls: ['./country.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+	selector: 'app-edit-country',
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatAutocompleteModule, MatInputModule],
+	templateUrl: './country.component.html',
+	styleUrls: ['./country.component.css'],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CountryEditComponent extends BaseEditFieldComponent {
-  @Input() value: string;
+	@Input() value: string;
 
-  public countries: {value: string | null, label: string, flag: string}[] = [];
-  public countryControl = new FormControl<{value: string | null, label: string, flag: string} | string>('');
-  public filteredCountries: Observable<{value: string | null, label: string, flag: string}[]>;
-  public showFlag: boolean = true;
-  public selectedCountryFlag: string = '';
+	public countries: CountryOption[] = [];
+	public countryControl = new FormControl<CountryOption | string>('');
+	public selectedCountryFlag = signal('');
 
-  originalOrder = () => { return 0; }
+	public showFlag = computed(() => {
+		if (this.widgetStructure?.widget_params) {
+			try {
+				const params =
+					typeof this.widgetStructure.widget_params === 'string'
+						? JSON.parse(this.widgetStructure.widget_params)
+						: this.widgetStructure.widget_params;
 
-  getCountryFlag = getCountryFlag;
+				if (params.show_flag !== undefined) {
+					return params.show_flag;
+				}
+			} catch (e) {
+				console.error('Error parsing country widget params:', e);
+			}
+		}
+		return true;
+	});
 
-  ngOnInit(): void {
-    super.ngOnInit();
-    this.parseWidgetParams();
-    this.loadCountries();
-    this.setupAutocomplete();
-    this.setInitialValue();
-  }
+	private _controlValue = toSignal(this.countryControl.valueChanges, { initialValue: '' as CountryOption | string });
 
-  private parseWidgetParams(): void {
-    if (this.widgetStructure?.widget_params) {
-      try {
-        const params = typeof this.widgetStructure.widget_params === 'string' 
-          ? JSON.parse(this.widgetStructure.widget_params) 
-          : this.widgetStructure.widget_params;
-        
-        if (params.show_flag !== undefined) {
-          this.showFlag = params.show_flag;
-        }
-      } catch (e) {
-        console.error('Error parsing country widget params:', e);
-      }
-    }
-  }
+	public filteredCountries = computed(() => {
+		const value = this._controlValue();
+		return this._filter(typeof value === 'string' ? value : value?.label || '');
+	});
 
-  private setupAutocomplete(): void {
-    this.filteredCountries = this.countryControl.valueChanges.pipe(
-      startWith(''),
-      map(value => {
-        // Update flag when value changes
-        if (typeof value === 'object' && value !== null) {
-          this.selectedCountryFlag = value.flag;
-        } else if (typeof value === 'string') {
-          // Clear flag if user is typing
-          this.selectedCountryFlag = '';
-        }
-        return this._filter(typeof value === 'string' ? value : (value?.label || ''));
-      })
-    );
-  }
+	originalOrder = () => {
+		return 0;
+	};
 
-  private setInitialValue(): void {
-    if (this.value) {
-      const country = this.countries.find(c => c.value === this.value);
-      if (country) {
-        this.countryControl.setValue(country);
-        this.selectedCountryFlag = country.flag;
-      }
-    }
-  }
+	getCountryFlag = getCountryFlag;
 
-  private _filter(value: string): {value: string | null, label: string, flag: string}[] {
-    const filterValue = value.toLowerCase();
-    return this.countries.filter(country => 
-      country.label?.toLowerCase().includes(filterValue) ||
-      (country.value?.toLowerCase().includes(filterValue))
-    );
-  }
+	constructor() {
+		super();
+		effect(() => {
+			const value = this._controlValue();
+			if (typeof value === 'object' && value !== null) {
+				this.selectedCountryFlag.set(value.flag);
+			} else if (typeof value === 'string') {
+				this.selectedCountryFlag.set('');
+			}
+		});
+	}
 
-  onCountrySelected(selectedCountry: {value: string | null, label: string, flag: string}): void {
-    this.value = selectedCountry.value;
-    this.selectedCountryFlag = selectedCountry.flag;
-    this.onFieldChange.emit(this.value);
-  }
+	ngOnInit(): void {
+		super.ngOnInit();
+		this.loadCountries();
+		this.setInitialValue();
+	}
 
-  displayFn(country: any): string {
-    if (!country) return '';
-    // Only return the country label, flag is shown separately
-    return typeof country === 'string' ? country : country.label;
-  }
+	onCountrySelected(selectedCountry: CountryOption): void {
+		this.value = selectedCountry.value;
+		this.selectedCountryFlag.set(selectedCountry.flag);
+		this.onFieldChange.emit(this.value);
+	}
 
-  private loadCountries(): void {
-    this.countries = COUNTRIES.map(country => ({
-      value: country.code,
-      label: country.name,
-      flag: getCountryFlag(country.code)
-    })).toSorted((a, b) => a.label.localeCompare(b.label));
+	displayFn(country: CountryOption | string): string {
+		if (!country) return '';
+		return typeof country === 'string' ? country : country.label;
+	}
 
-    if (this.widgetStructure?.widget_params?.allow_null || this.structure?.allow_null) {
-      this.countries = [{ value: null, label: '', flag: '' }, ...this.countries];
-    }
-  }
+	private setInitialValue(): void {
+		if (this.value) {
+			const country = this.countries.find((c) => c.value === this.value);
+			if (country) {
+				this.countryControl.setValue(country);
+				this.selectedCountryFlag.set(country.flag);
+			}
+		}
+	}
+
+	private _filter(value: string): CountryOption[] {
+		const filterValue = value.toLowerCase();
+		return this.countries.filter(
+			(country) =>
+				country.label?.toLowerCase().includes(filterValue) || country.value?.toLowerCase().includes(filterValue),
+		);
+	}
+
+	private loadCountries(): void {
+		this.countries = COUNTRIES.map((country) => ({
+			value: country.code,
+			label: country.name,
+			flag: getCountryFlag(country.code),
+		})).toSorted((a, b) => a.label.localeCompare(b.label));
+
+		if (this.widgetStructure?.widget_params?.allow_null || this.structure?.allow_null) {
+			this.countries = [{ value: null, label: '', flag: '' }, ...this.countries];
+		}
+	}
 }
