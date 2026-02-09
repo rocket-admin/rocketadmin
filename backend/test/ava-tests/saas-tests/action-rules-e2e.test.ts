@@ -1328,3 +1328,91 @@ test.serial(`${currentTest} should create trigger and activate http table action
 	t.truthy(userUpdatedRowSlackMessageRequestBody.text.includes(`[{"id":"1"}]`));
 	scope.done();
 });
+
+currentTest = 'POST /event/actions/activate/:eventId/:connectionId - logs operation_custom_action_name';
+
+test.serial(`${currentTest} should log custom action event title in operation_custom_action_name field`, async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const createConnectionResult = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const createConnectionRO = JSON.parse(createConnectionResult.text);
+	t.is(createConnectionResult.status, 201);
+
+	await resetPostgresTestDB();
+
+	const fakeUrl = 'http://www.example.com';
+	const customEventTitle = 'Test Custom Action Title';
+	const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+		title: 'Test rule for logging',
+		table_name: testTableName,
+		events: [
+			{
+				type: TableActionTypeEnum.single,
+				event: TableActionEventEnum.CUSTOM,
+				title: customEventTitle,
+				icon: 'test-icon',
+				require_confirmation: false,
+			},
+		],
+		table_actions: [
+			{
+				url: fakeUrl,
+				method: TableActionMethodEnum.URL,
+				slack_url: undefined,
+				emails: [],
+			},
+		],
+	};
+
+	const createTableRuleResult = await request(app.getHttpServer())
+		.post(`/action/rule/${createConnectionRO.id}`)
+		.send(tableRuleDTO)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+	t.is(createTableRuleResult.status, 201);
+
+	const scope = nock(fakeUrl)
+		.post('/')
+		.reply(201, () => {
+			return {
+				status: 201,
+				message: 'Table action was triggered',
+			};
+		});
+
+	const activateTableRuleResult = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${createTableRuleRO.events[0].id}/${createConnectionRO.id}`)
+		.set('Cookie', token)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const activateTableRuleRO: ActivatedTableActionsDTO = JSON.parse(activateTableRuleResult.text);
+	t.is(activateTableRuleResult.status, 201);
+	t.is(Object.hasOwn(activateTableRuleRO, 'activationResults'), true);
+
+	// Check that the custom action activation was logged with the correct event title
+	const getLogsResponse = await request(app.getHttpServer())
+		.get(`/logs/${createConnectionRO.id}?tableName=${testTableName}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(getLogsResponse.status, 200);
+	const getLogsRO = JSON.parse(getLogsResponse.text);
+	t.is(Object.hasOwn(getLogsRO, 'logs'), true);
+	t.is(getLogsRO.logs.length > 0, true);
+
+	const actionActivatedLog = getLogsRO.logs.find((log) => log.operationType === 'actionActivated');
+	t.truthy(actionActivatedLog);
+	t.is(actionActivatedLog.operation_custom_action_name, customEventTitle);
+
+	scope.done();
+});

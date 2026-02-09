@@ -33,6 +33,9 @@ export class FoundLogRecordDs {
 
   @ApiProperty()
   table_name: string;
+
+  @ApiProperty()
+  operation_custom_action_name: string | null;
 }
 
 export class FoundLogsDs {
