@@ -15,116 +15,116 @@ import { WinstonLogger } from '../../logging/winston-logger.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class InviteUserInCompanyAndConnectionGroupUseCase
-  extends AbstractUseCase<InviteUserInCompanyAndConnectionGroupDs, InvitedUserInCompanyAndConnectionGroupDs>
-  implements IInviteUserInCompanyAndConnectionGroup
+	extends AbstractUseCase<InviteUserInCompanyAndConnectionGroupDs, InvitedUserInCompanyAndConnectionGroupDs>
+	implements IInviteUserInCompanyAndConnectionGroup
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
-    private readonly emailService: EmailService,
-    private readonly companyInfoHelperService: CompanyInfoHelperService,
-    private readonly logger: WinstonLogger,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+		private readonly emailService: EmailService,
+		private readonly companyInfoHelperService: CompanyInfoHelperService,
+		private readonly logger: WinstonLogger,
+	) {
+		super();
+	}
 
-  protected async implementation(
-    inputData: InviteUserInCompanyAndConnectionGroupDs,
-  ): Promise<InvitedUserInCompanyAndConnectionGroupDs> {
-    const { inviterId, companyId, groupId, invitedUserCompanyRole } = inputData;
-    const invitedUserEmail = inputData.invitedUserEmail.toLowerCase();
-    const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
-    if (!foundCompany) {
-      throw new HttpException(
-        {
-          message: Messages.COMPANY_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+	protected async implementation(
+		inputData: InviteUserInCompanyAndConnectionGroupDs,
+	): Promise<InvitedUserInCompanyAndConnectionGroupDs> {
+		const { inviterId, companyId, groupId, invitedUserCompanyRole } = inputData;
+		const invitedUserEmail = inputData.invitedUserEmail.toLowerCase();
+		const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
+		if (!foundCompany) {
+			throw new HttpException(
+				{
+					message: Messages.COMPANY_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    if (isSaaS()) {
-      const canInviteMoreUsers = await this.companyInfoHelperService.canInviteMoreUsers(companyId);
-      if (!canInviteMoreUsers) {
-        throw new HttpException(
-          {
-            message: Messages.MAXIMUM_INVITATIONS_COUNT_REACHED_CANT_INVITE,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
+		if (isSaaS()) {
+			const canInviteMoreUsers = await this.companyInfoHelperService.canInviteMoreUsers(companyId);
+			if (!canInviteMoreUsers) {
+				throw new HttpException(
+					{
+						message: Messages.MAXIMUM_INVITATIONS_COUNT_REACHED_CANT_INVITE,
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
 
-    const foundInvitedUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(
-      invitedUserEmail,
-      companyId,
-    );
+		const foundInvitedUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(
+			invitedUserEmail,
+			companyId,
+		);
 
-    if (foundInvitedUser?.isActive) {
-      throw new HttpException(
-        {
-          message: Messages.USER_ALREADY_ADDED_IN_COMPANY,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		if (foundInvitedUser?.isActive) {
+			throw new HttpException(
+				{
+					message: Messages.USER_ALREADY_ADDED_IN_COMPANY,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    if (foundInvitedUser && !foundInvitedUser.isActive) {
-      const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-      const renewedEmailVerification =
-        await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
+		if (foundInvitedUser && !foundInvitedUser.isActive) {
+			const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+			const { rawToken } =
+				await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
 
-      const sendEmailResult = await this.emailService.sendEmailConfirmation(
-        foundInvitedUser.email,
-        renewedEmailVerification.verification_string,
-        companyCustomDomain,
-      );
+			const sendEmailResult = await this.emailService.sendEmailConfirmation(
+				foundInvitedUser.email,
+				rawToken,
+				companyCustomDomain,
+			);
 
-      if (!sendEmailResult && !isTest() && !isSaaS()) {
-        throw new HttpException(
-          {
-            message: Messages.EMAIL_SEND_FAILED(invitedUserEmail),
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+			if (!sendEmailResult && !isTest() && !isSaaS()) {
+				throw new HttpException(
+					{
+						message: Messages.EMAIL_SEND_FAILED(invitedUserEmail),
+					},
+					HttpStatus.INTERNAL_SERVER_ERROR,
+				);
+			}
 
-      if (!isSaaS()) {
-        this.logger.printTechString(`Invitation verification string: ${renewedEmailVerification.verification_string}`);
-      }
-      throw new HttpException(
-        {
-          message: Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE_IN_COMPANY,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+			if (!isSaaS()) {
+				this.logger.printTechString(`Invitation verification string: ${rawToken}`);
+			}
+			throw new HttpException(
+				{
+					message: Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE_IN_COMPANY,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    const newInvitation = await this._dbContext.invitationInCompanyRepository.createOrUpdateInvitationInCompany(
-      foundCompany,
-      groupId,
-      inviterId,
-      invitedUserEmail,
-      invitedUserCompanyRole,
-    );
-    const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-    await this.emailService.sendInvitationToCompany(
-      invitedUserEmail,
-      newInvitation.verification_string,
-      companyId,
-      foundCompany.name,
-      companyCustomDomain,
-    );
-    const invitationRO: any = {
-      companyId: companyId,
-      groupId: groupId,
-      email: invitedUserEmail,
-      role: invitedUserCompanyRole,
-    };
-    if (process.env.NODE_ENV === 'test') {
-      invitationRO.verificationString = newInvitation.verification_string;
-    }
-    return invitationRO;
-  }
+		const { rawToken } = await this._dbContext.invitationInCompanyRepository.createOrUpdateInvitationInCompany(
+			foundCompany,
+			groupId,
+			inviterId,
+			invitedUserEmail,
+			invitedUserCompanyRole,
+		);
+		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+		await this.emailService.sendInvitationToCompany(
+			invitedUserEmail,
+			rawToken,
+			companyId,
+			foundCompany.name,
+			companyCustomDomain,
+		);
+		const invitationRO: any = {
+			companyId: companyId,
+			groupId: groupId,
+			email: invitedUserEmail,
+			role: invitedUserCompanyRole,
+		};
+		if (process.env.NODE_ENV === 'test') {
+			invitationRO.verificationString = rawToken;
+		}
+		return invitationRO;
+	}
 }

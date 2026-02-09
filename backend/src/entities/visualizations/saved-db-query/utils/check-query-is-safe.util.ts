@@ -249,6 +249,8 @@ export function validateQuerySafety(query: string, connectionType: ConnectionTyp
 
 function normalizeQuery(query: string): string {
 	return query
+		.replace(/\/\*!(\d+)?\s*([\s\S]*?)\*\//g, ' $2 ')
+		.replace(/#.*$/gm, '')
 		.replace(/--.*$/gm, '')
 		.replace(/\/\*[\s\S]*?\*\//g, '')
 		.replace(/\s+/g, ' ')

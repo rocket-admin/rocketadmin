@@ -7,3 +7,4 @@ export { BodyUuid } from './body-uuid.decorator.js';
 export { QueryUuid } from './query-uuid.decorator.js';
 export { BodyEmail } from './body-email.decorator.js';
 export { QueryTableName } from './query-table-name.decorator.js';
+export { Timeout, TIMEOUT_KEY, TimeoutDefaults } from './timeout.decorator.js';

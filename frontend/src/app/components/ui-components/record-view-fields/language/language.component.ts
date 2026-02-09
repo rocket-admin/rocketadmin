@@ -1,51 +1,48 @@
-import { LANGUAGES, getLanguageFlag } from '../../../../consts/languages';
-import { Component, Injectable, OnInit } from '@angular/core';
-
-import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 import { CommonModule } from '@angular/common';
+import { Component, computed, input, output } from '@angular/core';
+import { TableField, WidgetStructure } from 'src/app/models/table';
+import { getLanguageFlag, LANGUAGES } from '../../../../consts/languages';
 
-@Injectable()
 @Component({
-  selector: 'app-language-record-view',
-  templateUrl: './language.component.html',
-  styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './language.component.css'],
-  imports: [CommonModule]
+	selector: 'app-language-record-view',
+	templateUrl: './language.component.html',
+	styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './language.component.css'],
+	imports: [CommonModule],
 })
-export class LanguageRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
-  static type = 'language';
+export class LanguageRecordViewComponent {
+	static type = 'language';
 
-  public languageName: string = '';
-  public languageFlag: string = '';
-  public showFlag: boolean = true;
+	readonly key = input<string>();
+	readonly value = input<any>();
+	readonly structure = input<TableField>();
+	readonly widgetStructure = input<WidgetStructure>();
+	readonly rowData = input<Record<string, unknown>>();
+	readonly primaryKeys = input<Record<string, unknown>>();
 
-  ngOnInit(): void {
-    this.parseWidgetParams();
+	readonly onCopyToClipboard = output<string>();
 
-    if (this.value) {
-      const language = LANGUAGES.find(l => l.code.toLowerCase() === this.value.toLowerCase());
-      this.languageName = language ? language.name : this.value;
-      if (language) {
-        this.languageFlag = getLanguageFlag(language);
-      }
-    } else {
-      this.languageName = '—';
-      this.languageFlag = '';
-    }
-  }
+	readonly showFlag = computed(() => {
+		const ws = this.widgetStructure();
+		if (!ws?.widget_params) return true;
+		try {
+			const params = typeof ws.widget_params === 'string' ? JSON.parse(ws.widget_params) : ws.widget_params;
+			return params.show_flag !== undefined ? params.show_flag : true;
+		} catch {
+			return true;
+		}
+	});
 
-  private parseWidgetParams(): void {
-    if (this.widgetStructure?.widget_params) {
-      try {
-        const params = typeof this.widgetStructure.widget_params === 'string'
-          ? JSON.parse(this.widgetStructure.widget_params)
-          : this.widgetStructure.widget_params;
+	readonly languageName = computed(() => {
+		const val = this.value();
+		if (!val) return '—';
+		const language = LANGUAGES.find((l) => l.code.toLowerCase() === val.toLowerCase());
+		return language ? language.name : val;
+	});
 
-        if (params.show_flag !== undefined) {
-          this.showFlag = params.show_flag;
-        }
-      } catch (e) {
-        console.error('Error parsing language widget params:', e);
-      }
-    }
-  }
+	readonly languageFlag = computed(() => {
+		const val = this.value();
+		if (!val) return '';
+		const language = LANGUAGES.find((l) => l.code.toLowerCase() === val.toLowerCase());
+		return language ? getLanguageFlag(language) : '';
+	});
 }

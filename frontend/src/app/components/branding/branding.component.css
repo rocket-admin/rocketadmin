@@ -1,0 +1,173 @@
+.profile-layout {
+    display: flex;
+    height: calc(100vh - 64px);
+}
+
+.profile-main {
+    flex: 1;
+    overflow-y: auto;
+}
+
+::ng-deep .profile-main > app-alert {
+    position: relative;
+    top: 0;
+    margin: 24px;
+}
+
+.branding-page {
+    margin: 3em auto;
+    padding: 0 clamp(40px, 5vw, 100px);
+    max-width: 1200px;
+}
+
+@media (width <= 600px) {
+    .branding-page {
+        padding: 0 16px;
+        margin: 1.5em auto;
+    }
+}
+
+.branding-page-header {
+    margin-bottom: 8px;
+}
+
+.branding-description {
+    color: rgba(0, 0, 0, 0.64);
+    margin-top: 0;
+    margin-bottom: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .branding-description {
+        color: rgba(255, 255, 255, 0.7);
+    }
+}
+
+.text-filed-edit {
+    position: relative;
+}
+
+.text-filed-edit__input {
+    width: 100%;
+}
+
+.text-filed-edit__buttons {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(calc(-50% - 10px));
+    display: flex;
+    gap: 4px;
+}
+
+.white-label {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 32px;
+    margin-bottom: 32px;
+}
+
+@media (width <= 900px) {
+    .white-label {
+        grid-template-columns: 1fr;
+        grid-row-gap: 32px;
+    }
+}
+
+.white-label-settings {
+    position: relative;
+}
+
+.white-label-settings-images {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+
+.upload-logo-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.white-label-preview {
+    height: auto;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.white-label-how-to {
+    border: 1px solid var(--color-primaryPalette-100);
+    color: rgba(0,0,0,0.72);
+    padding: 20px;
+    height: fit-content;
+}
+
+@media (prefers-color-scheme: dark) {
+    .white-label-how-to {
+        border: 1px solid var(--color-primaryPalette-700);
+        color: rgba(255,255,255,0.7);
+    }
+}
+
+.white-label-settings__overlay {
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.64);
+    z-index: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+    .white-label-settings__overlay {
+        background-color: rgba(0,0,0,0.64);
+    }
+}
+
+.cname-instructions {
+    list-style: none;
+    padding-left: 0;
+}
+
+.cname-hint {
+    margin-top: 2px;
+}
+
+.cname-hint_dimmed {
+    color: rgba(0,0,0,0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+    .cname-hint_dimmed {
+        color: rgba(255,255,255,0.7);
+    }
+}
+
+.cname-value {
+    position: relative;
+    padding: 0 4px;
+}
+
+.cname-value::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--color-accentedPalette-200);
+    border-radius: 4px;
+    height: 100%;
+    opacity: 0.5;
+    width: 100%;
+    z-index: -1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .cname-value::after {
+        background-color: var(--color-accentedPalette-700);
+    }
+}

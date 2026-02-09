@@ -1,5 +1,6 @@
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -10,7 +11,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 
@@ -25,7 +25,6 @@ import { TablesService } from 'src/app/services/tables.service';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatListModule,
     MatButtonModule,
     Angulartics2Module
   ]
@@ -33,6 +32,8 @@ import { TablesService } from 'src/app/services/tables.service';
 export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   @Input() public displayName: string;
+  @Input() public tableColumns: string[] = [];
+  @Input() public sidebarExpanded: boolean = true;
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
   public connectionID: string;
@@ -45,14 +46,27 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     type: string;
     text: string
   }[] = [];
-  public aiRequestSuggestions: string[] = [
-    'How many records were created last month?',
-    'Are there any duplicate rows in this table?',
-    // 'Are there any columns with inconsistent data types?',
-    'Which columns have empty values?',
-    'What trends can you predict based on this table?'
-  ]
+  public aiSuggestions: { title: string; prompt: string; completions: string[] }[] = [];
+  public suggestionCategories: { title: string; suggestions: { title: string; prompt: string; completions: string[] }[] }[] = [];
+  public activeSuggestion: { title: string; prompt: string; completions: string[] } | null = null;
+  public activeCompletions: string[] = [];
+  public showCompletions: boolean = false;
   public submitting: boolean = false;
+  public isExpanded: boolean = false;
+  public textareaRows: number = 4;
+  public currentLoadingStep: string = '';
+
+  private _currentRequest: Subscription = null;
+  private _loadingStepsInterval: any = null;
+  private _loadingSteps: string[] = [
+    'Connecting to database',
+    'Analyzing table structure',
+    'Scanning records',
+    'Processing your query',
+    'Searching for patterns',
+    'Generating response'
+  ];
+  private _currentStepIndex: number = 0;
 
   constructor(
     private _connections: ConnectionsService,
@@ -69,6 +83,17 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     this._tableState.aiPanelCast.subscribe((isAIpanelOpened) => {
       this.isAIpanelOpened = isAIpanelOpened;
     });
+
+    this._tableState.aiPanelExpandedCast.subscribe((isExpanded) => {
+      this.isExpanded = isExpanded;
+    });
+
+    this.adjustTextareaRows();
+    this.generateSuggestionCategories();
+  }
+
+  ngOnChanges(): void {
+    this.generateSuggestionCategories();
   }
 
   async ngAfterViewInit() {
@@ -78,12 +103,48 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
   };
 
   ngOnDestroy() {
+    this.cancelRequest();
+    this.stopLoadingSteps();
     this.angulartics2.eventTrack.next({
       action: 'AI panel: destroyed',
       properties: {
         messagesLength: this.messagesChain.length
       }
     });
+  }
+
+  cancelRequest(): void {
+    if (this._currentRequest) {
+      this._currentRequest.unsubscribe();
+      this._currentRequest = null;
+      this.submitting = false;
+      this.stopLoadingSteps();
+
+      this.messagesChain.push({
+        type: 'ai-error',
+        text: 'Request cancelled'
+      });
+
+      this.angulartics2.eventTrack.next({
+        action: 'AI panel: request cancelled',
+      });
+    }
+  }
+
+  startLoadingSteps(): void {
+    this._currentStepIndex = 0;
+    this.currentLoadingStep = this._loadingSteps[0];
+    this._loadingStepsInterval = setInterval(() => {
+      this._currentStepIndex = (this._currentStepIndex + 1) % this._loadingSteps.length;
+      this.currentLoadingStep = this._loadingSteps[this._currentStepIndex];
+    }, 2000);
+  }
+
+  stopLoadingSteps(): void {
+    if (this._loadingStepsInterval) {
+      clearInterval(this._loadingStepsInterval);
+      this._loadingStepsInterval = null;
+    }
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -115,6 +176,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       this.message = suggestedMessage;
     }
     this.submitting = true;
+    this.startLoadingSteps();
     this.messagesChain.push({
       type: 'user',
       text: this.message
@@ -122,7 +184,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const messageCopy = this.message;
     this.message = '';
 
-    this._tables.createAIthread(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
+    this._currentRequest = this._tables.createAIthread(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
       this.threadID = response.threadId;
 
       this.messagesChain.push({
@@ -130,6 +192,8 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         text: this.markdownService.parse(response.responseMessage) as string
       });
       this.submitting = false;
+      this.stopLoadingSteps();
+      this._currentRequest = null;
 
       this.angulartics2.eventTrack.next({
         action: 'AI panel: thread created successfully',
@@ -143,9 +207,13 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
         this.angulartics2.eventTrack.next({
           action: 'AI panel: thread creation returned an error',
         });
+        this.stopLoadingSteps();
+        this._currentRequest = null;
       },
       () => {
         this.submitting = false;
+        this.stopLoadingSteps();
+        this._currentRequest = null;
       }
     );
   }
@@ -155,6 +223,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
       this.message = suggestedMessage;
     }
     this.submitting = true;
+    this.startLoadingSteps();
     this.messagesChain.push({
       type: 'user',
       text: this.message
@@ -162,12 +231,14 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
     const messageCopy = this.message;
     this.message = '';
     this.charactrsNumber = 0;
-    this._tables.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy).subscribe((response_message) => {
+    this._currentRequest = this._tables.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy).subscribe((response_message) => {
       this.messagesChain.push({
         type: 'ai',
         text: this.markdownService.parse(response_message) as string
       });
       this.submitting = false;
+      this.stopLoadingSteps();
+      this._currentRequest = null;
 
       this.angulartics2.eventTrack.next({
         action: 'AI panel: message sent successfully',
@@ -179,12 +250,16 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
           text: error_message
         });
         this.submitting = false;
+        this.stopLoadingSteps();
+        this._currentRequest = null;
         this.angulartics2.eventTrack.next({
           action: 'AI panel: message sent and returned an error',
         });
       },
       () => {
         this.submitting = false;
+        this.stopLoadingSteps();
+        this._currentRequest = null;
       })
   }
 
@@ -198,5 +273,217 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   handleClose() {
     this._tableState.handleViewAIpanel();
+  }
+
+  toggleExpand() {
+    this._tableState.toggleAIPanelExpanded();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.adjustTextareaRows();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.showCompletions) return;
+
+    const target = event.target as HTMLElement;
+    const clickedOnChip = target.closest('.suggestion-chip');
+    const clickedOnDropdown = target.closest('.ai-completions');
+    const clickedOnInput = target.closest('.ai-welcome-form__field');
+
+    if (!clickedOnChip && !clickedOnDropdown && !clickedOnInput) {
+      this.showCompletions = false;
+      this.activeSuggestion = null;
+    }
+  }
+
+  private adjustTextareaRows() {
+    const windowHeight = window.innerHeight;
+
+    if (windowHeight < 500) {
+      this.textareaRows = 1;
+    } else if (windowHeight < 650) {
+      this.textareaRows = 2;
+    } else if (windowHeight < 800) {
+      this.textareaRows = 3;
+    } else if (windowHeight < 950) {
+      this.textareaRows = 4;
+    } else {
+      this.textareaRows = 5;
+    }
+  }
+
+  private generateSuggestionCategories(): void {
+    const categories: { title: string; suggestions: { title: string; prompt: string; completions: string[] }[] }[] = [];
+
+    // Category: Explore Data
+    categories.push({
+      title: 'Explore',
+      suggestions: [
+        {
+          title: 'Show recent records',
+          prompt: 'Show recent records',
+          completions: [
+            'Show recent records - the 10 most recently added',
+            'Show recent records - from the last 24 hours',
+            'Show recent records - the last entry added',
+            'Show recent records - with newest timestamps'
+          ]
+        },
+        {
+          title: 'Summarize table',
+          prompt: 'Summarize table',
+          completions: [
+            'Summarize table - structure and content overview',
+            'Summarize table - what kind of data is stored',
+            'Summarize table - purpose of each column',
+            'Summarize table - record count and what they represent'
+          ]
+        },
+        {
+          title: 'Find patterns',
+          prompt: 'Find patterns',
+          completions: [
+            'Find patterns - in this data',
+            'Find patterns - correlations between columns',
+            'Find patterns - common value combinations',
+            'Find patterns - seasonal or cyclical trends'
+          ]
+        }
+      ]
+    });
+
+    // Category: Data Quality
+    categories.push({
+      title: 'Data Quality',
+      suggestions: [
+        {
+          title: 'Find issues',
+          prompt: 'Find issues',
+          completions: [
+            'Find issues - data quality problems',
+            'Find issues - missing or NULL values',
+            'Find issues - potential duplicates',
+            'Find issues - inconsistent data formats'
+          ]
+        },
+        {
+          title: 'Check duplicates',
+          prompt: 'Check duplicates',
+          completions: [
+            'Check duplicates - any duplicate records',
+            'Check duplicates - rows that look similar',
+            'Check duplicates - values appearing multiple times',
+            'Check duplicates - records entered twice'
+          ]
+        },
+        {
+          title: 'Validate data',
+          prompt: 'Validate data',
+          completions: [
+            'Validate data - required fields filled',
+            'Validate data - incorrect values',
+            'Validate data - records not matching patterns',
+            'Validate data - outliers and unusual values'
+          ]
+        }
+      ]
+    });
+
+    // Category: Insights
+    categories.push({
+      title: 'Insights',
+      suggestions: [
+        {
+          title: 'Top values',
+          prompt: 'Top values',
+          completions: [
+            'Top values - most common in each column',
+            'Top values - 10 most frequent entries',
+            'Top values - categories with most records',
+            'Top values - what appears most often'
+          ]
+        },
+        {
+          title: 'Statistics',
+          prompt: 'Statistics',
+          completions: [
+            'Statistics - for numeric columns',
+            'Statistics - min, max, and average',
+            'Statistics - distribution of values',
+            'Statistics - summary of this data'
+          ]
+        },
+        {
+          title: 'Anomalies',
+          prompt: 'Anomalies',
+          completions: [
+            'Anomalies - unusual or unexpected values',
+            'Anomalies - records that stand out',
+            'Anomalies - statistical outliers',
+            'Anomalies - what looks different or wrong'
+          ]
+        }
+      ]
+    });
+
+    this.suggestionCategories = categories;
+  }
+
+  onSuggestionChipClick(suggestion: { title: string; prompt: string; completions: string[] }): void {
+    this.activeSuggestion = suggestion;
+    this.message = suggestion.prompt;
+    this.activeCompletions = suggestion.completions;
+    this.showCompletions = true;
+
+    this.angulartics2.eventTrack.next({
+      action: 'AI panel: suggestion chip clicked',
+      properties: {
+        suggestionTitle: suggestion.title
+      }
+    });
+  }
+
+  selectCompletion(completion: string): void {
+    this.message = completion;
+    this.showCompletions = false;
+    this.activeSuggestion = null;
+    this.createThread(completion);
+
+    this.angulartics2.eventTrack.next({
+      action: 'AI panel: completion selected',
+      properties: {
+        completion: completion
+      }
+    });
+  }
+
+  onWelcomeInputChange(): void {
+    if (this.message.length > 0 && (!this.activeSuggestion || this.message !== this.activeSuggestion.prompt)) {
+      this.showCompletions = false;
+      this.activeSuggestion = null;
+    }
+  }
+
+  onCompletionHover(completion: string): void {
+    this.message = completion;
+  }
+
+  onCompletionMouseLeave(): void {
+    if (this.activeSuggestion) {
+      this.message = this.activeSuggestion.prompt;
+    }
+  }
+
+  onWelcomeInputFocus(): void {
+    if (this.activeSuggestion) {
+      this.showCompletions = true;
+    }
+  }
+
+  onWelcomeInputBlur(): void {
+    // Dropdown closing is now handled by document click listener
   }
 }

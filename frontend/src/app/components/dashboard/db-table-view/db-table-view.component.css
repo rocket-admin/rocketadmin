@@ -162,6 +162,11 @@
 	pointer-events: none;
 }
 
+.ai-insights-button {
+    order: 999;
+    margin-left: auto;
+}
+
 @media (prefers-color-scheme: light) {
 	.ai-insights-button {
 		background: var(--color-accentedPalette-50);
@@ -190,6 +195,61 @@
 
 .db-table-manage-columns-button {
 	display: inline-block;
+}
+
+.active-filters {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+::ng-deep .active-filters .mat-mdc-chip {
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
+	--mdc-chip-container-shape-radius: 16px !important;
+	background-color: #e8ecee !important;
+	border-radius: 16px !important;
+}
+
+::ng-deep .active-filters .mat-mdc-chip:hover {
+	--mdc-chip-container-color: #e8ecee !important;
+	--mdc-chip-elevated-container-color: #e8ecee !important;
+	background-color: #e8ecee !important;
+}
+
+::ng-deep .active-filters .mdc-evolution-chip__cell {
+	background-color: #e8ecee !important;
+	border-radius: 16px !important;
+}
+
+::ng-deep .active-filters .mdc-evolution-chip__cell:hover {
+	background-color: #e8ecee !important;
+}
+
+@media (prefers-color-scheme: dark) {
+	::ng-deep .active-filters .mat-mdc-chip {
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		--mdc-chip-label-text-color: rgba(255, 255, 255, 0.87) !important;
+		background-color: #3a4a5c !important;
+		color: rgba(255, 255, 255, 0.87) !important;
+	}
+
+	::ng-deep .active-filters .mat-mdc-chip:hover {
+		--mdc-chip-container-color: #3a4a5c !important;
+		--mdc-chip-elevated-container-color: #3a4a5c !important;
+		background-color: #3a4a5c !important;
+	}
+
+	::ng-deep .active-filters .mdc-evolution-chip__cell {
+		background-color: #3a4a5c !important;
+	}
+
+	::ng-deep .active-filters .mdc-evolution-chip__cell:hover {
+		background-color: #3a4a5c !important;
+	}
 }
 
 .db-table-manage-columns-button__count {
@@ -242,7 +302,7 @@
 }
 
 .table-surface {
-	margin-bottom: 24px;
+	margin-bottom: 72px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -260,6 +320,10 @@
 .db-table {
 	display: grid;
 	width: 100%;
+	font-family: "IBM Plex Mono", monospace;
+	--mat-table-header-headline-font: "IBM Plex Mono", monospace;
+	--mat-table-row-item-label-text-font: "IBM Plex Mono", monospace;
+	--mat-table-footer-supporting-text-font: "IBM Plex Mono", monospace;
 }
 
 @media (width <= 600px) {
@@ -281,10 +345,6 @@
 .db-table_withoutActions {
 	grid-template-columns: repeat(var(--colCount), auto) !important;
 }
-
-/* .db-table ::ng-deep .mat-mdc-row:nth-child(even) {
-    background-color: rgba(0, 0, 0, 0.02);
-} */
 
 .db-table ::ng-deep .db-table-row {
 	cursor: pointer;
@@ -430,6 +490,109 @@ td.mat-cell {
 	text-align: left;
 }
 
+/* Sortable header styles */
+.sortable-header__content {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	gap: 4px;
+}
+
+.sortable-header__text {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sortable-header__button {
+	position: absolute;
+	right: 0;
+	opacity: 0;
+	width: 24px;
+	height: 24px;
+	line-height: 24px;
+	transition: opacity 0.2s ease;
+}
+
+@media (prefers-color-scheme: light) {
+	.sortable-header__button {
+		background: rgba(255, 255, 255, 1);
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.sortable-header__button {
+		background: rgba(32, 32, 32, 1);
+	}
+}
+
+.sortable-header:hover .sortable-header__button,
+.sortable-header_active .sortable-header__button {
+	opacity: 1;
+}
+
+.sortable-header__icon {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+.sortable-header_active .sortable-header__icon {
+	color: var(--color-primaryPalette-500);
+}
+
+@media (prefers-color-scheme: dark) {
+	.sortable-header__icon {
+		color: rgba(255, 255, 255, 0.54);
+	}
+
+	.sortable-header_active .sortable-header__icon {
+		color: var(--color-primaryPalette-300);
+	}
+}
+
+/* Sort menu styles */
+.sort-menu__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sort-menu__item mat-icon {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.sort-menu__item-content {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 10px;
+	border-radius: 4px;
+	margin: -4px -10px;
+}
+
+.sort-menu__item-content_active {
+	background-color: rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+	.sort-menu__item-content_active {
+		background-color: rgba(255, 255, 255, 0.06);
+	}
+}
+
+.sort-menu__lock-icon {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
 .db-table-cell-checkbox {
 	display: flex;
 	align-items: center;
@@ -555,4 +718,87 @@ tr.mat-row:hover {
 	margin: -20px 0;
 	padding: 8px 0;
 	width: 100%;
+}
+
+.hidden {
+	display: none;
+}
+
+/* Columns Menu Drag and Drop Styles */
+.columns-list {
+	max-height: 400px;
+	overflow-y: auto;
+	padding: 8px 0;
+}
+
+.draggable-column-item {
+	cursor: move;
+	display: flex !important;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 0px;
+	padding: 8px 24px 8px 8px !important;
+	min-height: 48px !important;
+	transition: background-color 0.2s ease;
+}
+
+.draggable-column-item .drag-handle {
+	color: #9e9e9e;
+	cursor: grab;
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	margin-right: 0px;
+	flex-shrink: 0;
+}
+
+.draggable-column-item ::ng-deep .mat-mdc-checkbox {
+	align-items: center !important;
+}
+
+.draggable-column-item ::ng-deep .mat-mdc-checkbox-label {
+	text-align: left;
+	line-height: 1.5;
+}
+
+.draggable-column-item ::ng-deep .mdc-form-field {
+	align-items: center !important;
+}
+
+.draggable-column-item:active .drag-handle {
+	cursor: grabbing;
+}
+
+.draggable-column-item:hover .drag-handle {
+	color: #616161;
+}
+
+@media (prefers-color-scheme: dark) {
+	.draggable-column-item .drag-handle {
+		color: #757575;
+	}
+
+	.draggable-column-item:hover .drag-handle {
+		color: #bdbdbd;
+	}
+}
+
+.cdk-drag-preview.draggable-column-item {
+	box-shadow:
+		0 5px 5px -3px rgba(0, 0, 0, 0.2),
+		0 8px 10px 1px rgba(0, 0, 0, 0.14),
+		0 3px 14px 2px rgba(0, 0, 0, 0.12);
+	opacity: 0.9;
+}
+
+.cdk-drag-placeholder {
+	opacity: 0.3;
+}
+
+.cdk-drag-animating {
+	transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.columns-list.cdk-drop-list-dragging .draggable-column-item:not(.cdk-drag-placeholder) {
+	transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

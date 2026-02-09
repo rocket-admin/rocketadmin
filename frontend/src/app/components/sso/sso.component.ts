@@ -7,9 +7,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
-import { SamlConfig } from 'src/app/models/company';
+import { RouterModule } from '@angular/router';
+import { Title } from '@angular/platform-browser';
+import { SamlConfig, Company } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
+import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
 
 @Component({
 	selector: 'app-sso',
@@ -23,12 +27,15 @@ import { CompanyService } from 'src/app/services/company.service';
 		FormsModule,
 		RouterModule,
 		MatFormFieldModule,
+		AlertComponent,
+		ProfileSidebarComponent,
+		PlaceholderCompanyComponent,
 	],
 	templateUrl: './sso.component.html',
 	styleUrl: './sso.component.css',
 })
 export class SsoComponent implements OnInit {
-	public companyId: string;
+	public company: Company = null;
 
 	public samlConfigInitial: SamlConfig = {
 		name: '',
@@ -50,29 +57,33 @@ export class SsoComponent implements OnInit {
 	public samlConfig: SamlConfig = this.samlConfigInitial;
 
 	public submitting: boolean = false;
+	public saved: boolean = false;
 
 	constructor(
-		private router: Router,
 		private _company: CompanyService,
+		private title: Title,
 	) {}
 
 	ngOnInit() {
-		this.companyId = this.router.routerState.snapshot.root.firstChild.params['company-id'];
+		this._company.getCurrentTabTitle().subscribe(tabTitle => {
+			this.title.setTitle(`SAML SSO | ${tabTitle || 'Rocketadmin'}`);
+		});
 
-		this._company.fetchSamlConfiguration(this.companyId).subscribe((config) => {
-			if (config.length) this.samlConfig = config[0];
+		this._company.fetchCompany().subscribe(res => {
+			this.company = res;
+			this._company.fetchSamlConfiguration(res.id).subscribe((config) => {
+				if (config.length) this.samlConfig = config[0];
+			});
 		});
 	}
 
 	createSamlConfiguration() {
 		this.submitting = true;
-		this._company.createSamlConfiguration(this.companyId, this.samlConfig).subscribe(
+		this._company.createSamlConfiguration(this.company.id, this.samlConfig).subscribe(
 			() => {
 				this.submitting = false;
-				this.router.navigate(['/company']);
-			},
-			() => {
-				this.submitting = false;
+				this.saved = true;
+				setTimeout(() => this.saved = false, 3000);
 			},
 			() => {
 				this.submitting = false;
@@ -85,10 +96,8 @@ export class SsoComponent implements OnInit {
 		this._company.updateSamlConfiguration(this.samlConfig).subscribe(
 			() => {
 				this.submitting = false;
-				this.router.navigate(['/company']);
-			},
-			() => {
-				this.submitting = false;
+				this.saved = true;
+				setTimeout(() => this.saved = false, 3000);
 			},
 			() => {
 				this.submitting = false;

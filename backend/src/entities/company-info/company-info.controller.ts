@@ -87,8 +87,10 @@ import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-comp
 import { PaidFeatureGuard } from '../../guards/paid-feature.guard.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { TurnstileService } from '../../shared/services/turnstile.service.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller('company')
 @ApiBearerAuth()
 @ApiTags('Company')
@@ -222,6 +224,7 @@ export class CompanyInfoController {
 		type: InvitedUserInCompanyAndConnectionGroupDs,
 	})
 	@UseGuards(CompanyAdminGuard)
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Put('user/:companyId')
 	async inviteUserInCompanyAndConnectionGroup(
 		@UserId() userId: string,

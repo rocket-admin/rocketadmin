@@ -11,7 +11,7 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { getTestKnex } from '../../utils/get-test-knex.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { registerUserAndReturnUserInfo, createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
@@ -48,6 +48,7 @@ test.before(async () => {
     }),
   );
   await app.init();
+  await createInitialTestUser(app);
   app.getHttpServer().listen(0);
 });
 

@@ -2,42 +2,93 @@
     <h1 mat-dialog-title class="filters-header">
         <span>New fast filter for <strong>{{ data.displayTableName }}</strong></span>
     </h1>
+    <p class="filters-header-description mat-body-2">
+        Use conditions to quickly filter {{ data.displayTableName.toLowerCase() }} and optionally edit one column.
+    </p>
     <app-content-loader *ngIf="!fields || !tableTypes; else filterControls"></app-content-loader>
     <ng-template #filterControls>
         <mat-dialog-content class="filters-content">
             <!-- Filter Name and Description Fields -->
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline" class="full-width filter-name-field" [class.mat-form-field-invalid]="showNameError">
                 <mat-label>Fast filter name</mat-label>
                 <input matInput required
                     name="filters_set_name"
-                    [(ngModel)]="data.filtersSet.name">
-                <mat-error *ngIf="!data.filtersSet.name">
+                    [(ngModel)]="data.filtersSet.name"
+                    (input)="showNameError = false">
+                <mat-error *ngIf="showNameError || !data.filtersSet.name">
                     Fast filter name is required
                 </mat-error>
             </mat-form-field>
 
-            <h3 class="section-title">Conditions & main column</h3>
-            <p class="section-description">
-                Select which conditions to add and choose a main column. Main columns remain editable, while conditions are set.
-            </p>
+            <ng-template #conditionInputField>
+                <mat-form-field class="filters-select" appearance="outline">
+                    <mat-label>Click here to add condition</mat-label>
+                    <input type="text" matInput name="filter_columns"
+                        [matAutocomplete]="auto"
+                        [formControl]="fieldSearchControl"
+                        (blur)="handleInputBlur()">
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
+                        <mat-option *ngFor="let field of foundFields | async"
+                            [ngClass]="{'disabled': field === 'No matches'}"
+                            [value]="field">
+                            {{field}}
+                        </mat-option>
+                    </mat-autocomplete>
+                    <button *ngIf="hasSelectedFilters"
+                        mat-icon-button
+                        matSuffix
+                        type="button"
+                        aria-label="Cancel adding condition"
+                        (click)="cancelAddConditionInput()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+            </ng-template>
 
-            <!-- Filter Selection -->
-            <mat-form-field class="filters-select" appearance="outline">
-                <mat-label>Click here to add condition</mat-label>
-                <input type="text" matInput name="filter_columns"
-                    [matAutocomplete]="auto"
-                    [formControl]="fieldSearchControl">
-                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
-                    <mat-option *ngFor="let field of foundFields | async"
-                        [ngClass]="{'disabled': field === 'No matches'}"
-                        [value]="field">
-                        {{field}}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
+            <div class="empty-conditions-container">
+                <mat-icon class="column-name-icon">subdirectory_arrow_right</mat-icon>
+                <span class="where-label">where</span>
+            </div>
+            <div class="quick-edit-header" *ngIf="hasSelectedFilters">
+                <span class="quick-edit-title">Quick edit</span>
+                <mat-icon class="quick-edit-info-icon"
+                    [matMenuTriggerFor]="quickEditHelpMenu">
+                    info_outline
+                </mat-icon>
+                <mat-menu #quickEditHelpMenu="matMenu" class="quick-edit-help-menu">
+                    <div class="quick-edit-help-content" (click)="$event.stopPropagation()">
+                        <p class="quick-edit-help-text">Enable to change this value<br>directly from the table view</p>
+                        <div class="quick-edit-animated-example">
+                            <div class="example-toggle-animated">
+                                <div class="toggle-track">
+                                    <div class="toggle-thumb"></div>
+                                </div>
+                            </div>
+                            <div class="example-filter-animated">
+                                <div class="example-chip-animated">
+                                    <span>status = active</span>
+                                </div>
+                                <div class="example-editable-animated">
+                                    <span class="example-editable-label">status:</span>
+                                    <span class="example-editable-value">
+                                        <span class="typing-text"></span>
+                                        <span class="example-typing-cursor">|</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-menu>
+            </div>
 
             <!-- Added Filters -->
+            <div class="conditions-vertical-line" *ngIf="hasSelectedFilters"></div>
             <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; trackBy:trackByFn">
+                <button mat-icon-button type="button" class="filter-delete-button"
+                    matTooltip="Remove"
+                    (click)="removeFilter(value.key)">
+                    <mat-icon>close</mat-icon>
+                </button>
                 <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
 
                     <div *ngIf="isWidget(value.key); else defaultTableField">
@@ -75,50 +126,63 @@
                     <span class='mat-body-1 column-name'>{{value.key}}</span>
 
                     <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'text'"
-                        appearance="outline">
+                        appearance="outline"
+                        class="comparator-select-field">
                         <mat-select name="textComparator-{{value.key}}"
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
                             (ngModelChange)="updateComparator($event, value.key)">
                             <mat-option value="startswith">
-                                starts with
+                                <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                                <span>starts with</span>
                             </mat-option>
                             <mat-option value="endswith">
-                                ends with
+                                <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                                <span>ends with</span>
                             </mat-option>
                             <mat-option value="eq">
-                                equal
+                                <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                                <span>equal</span>
                             </mat-option>
                             <mat-option value="contains">
-                                contains
+                                <mat-icon class="comparator-icon">search</mat-icon>
+                                <span>contains</span>
                             </mat-option>
                             <mat-option value="icontains">
-                                not contains
+                                <mat-icon class="comparator-icon">block</mat-icon>
+                                <span>not contains</span>
                             </mat-option>
                             <mat-option value="empty">
-                                is empty
+                                <mat-icon class="comparator-icon">space_bar</mat-icon>
+                                <span>is empty</span>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
 
                     <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'number'"
-                        appearance="outline">
+                        appearance="outline"
+                        class="comparator-select-field">
                         <mat-select name="numberComparator-{{value.key}}"
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
                             (ngModelChange)="updateComparator($event, value.key)">
                             <mat-option value="eq">
-                                equal
+                                <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                                <span>equal</span>
                             </mat-option>
                             <mat-option value="gt">
-                                greater than
+                                <mat-icon class="comparator-icon">keyboard_arrow_right</mat-icon>
+                                <span>greater than</span>
                             </mat-option>
                             <mat-option value="lt">
-                                less than
+                                <mat-icon class="comparator-icon">keyboard_arrow_left</mat-icon>
+                                <span>less than</span>
                             </mat-option>
                             <mat-option value="gte">
-                                greater than or equal
+                                <mat-icon class="comparator-icon">keyboard_double_arrow_right</mat-icon>
+                                <span>greater than or equal</span>
                             </mat-option>
                             <mat-option value="lte">
-                                less than or equal
+                                <mat-icon class="comparator-icon">keyboard_double_arrow_left</mat-icon>
+                                <span>less than or equal</span>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -137,19 +201,51 @@
                         }"
                     ></ndc-dynamic>
                 </ng-template>
-                <div class="dynamic-column-radio">
-                    <mat-checkbox
-                        [checked]="dynamicColumn === value.key"
-                        (change)="toggleDynamicColumn(value.key)">
-                        Main column
-                    </mat-checkbox>
-                </div>
-                <button mat-icon-button type="button" class="filter-delete-button"
-                    matTooltip="Remove"
-                    (click)="removeFilter(value.key)">
-                    <mat-icon>close</mat-icon>
-                </button>
+                <mat-slide-toggle
+                    class="quick-edit-toggle"
+                    [checked]="dynamicColumn === value.key"
+                    [matTooltip]="dynamicColumn === value.key ? 'Disable editing' : 'Enable editing'"
+                    matTooltipPosition="above"
+                    (change)="toggleDynamicColumn(value.key)">
+                </mat-slide-toggle>
             </ng-container>
+
+            <!-- Add Condition Button -->
+            <div class="add-condition-container">
+                <button *ngIf="!showAddConditionField" mat-stroked-button type="button" (click)="handleAddConditionButtonClick()" class="add-condition-button accent-button">
+                    <mat-icon class="add-icon">add</mat-icon>
+                    <span>Add condition</span>
+                </button>
+                <mat-form-field *ngIf="showAddConditionField" class="filters-select empty-condition-input" appearance="outline" [class.mat-form-field-invalid]="showConditionsError">
+                    <mat-label>Click here to add condition</mat-label>
+                    <input type="text" matInput name="filter_columns"
+                        [matAutocomplete]="auto"
+                        [formControl]="fieldSearchControl"
+                        (blur)="handleInputBlur()"
+                        (input)="showConditionsError = false">
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
+                        <mat-option *ngFor="let field of foundFields | async"
+                            [ngClass]="{'disabled': field === 'No matches'}"
+                            [value]="field">
+                            {{field}}
+                        </mat-option>
+                    </mat-autocomplete>
+                    <button *ngIf="hasSelectedFilters"
+                        mat-icon-button
+                        matSuffix
+                        type="button"
+                        aria-label="Cancel adding condition"
+                        (click)="cancelAddConditionInput()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                    <mat-error *ngIf="showConditionsError">
+                        At least one condition is required
+                    </mat-error>
+                </mat-form-field>
+                <p *ngIf="showConditionsError && !showAddConditionField" class="conditions-error-message">
+                    At least one condition is required
+                </p>
+            </div>
         </mat-dialog-content>
     </ng-template>
 

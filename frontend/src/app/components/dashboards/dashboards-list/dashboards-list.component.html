@@ -1,0 +1,117 @@
+<div class="dashboards-layout">
+    <app-dashboards-sidebar
+        [connectionId]="connectionId()"
+        activeTab="dashboards">
+    </app-dashboards-sidebar>
+
+    <div class="dashboards-main">
+        <app-alert></app-alert>
+
+        <div class="dashboards-page">
+            <div class="dashboards-header">
+                <h1 class="mat-h1">Dashboards</h1>
+                <p class="dashboards-description">
+                    Create and manage custom dashboards with charts, tables, and metrics.
+                </p>
+            </div>
+
+            <div class="dashboards-toolbar">
+                <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Search dashboards</mat-label>
+                    <input matInput
+                        [ngModel]="searchQuery()"
+                        (ngModelChange)="searchQuery.set($event)"
+                        placeholder="Search by name or description..."
+                        data-testid="dashboards-search-input">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+
+                <button *ngIf="filteredDashboards().length > 0" mat-flat-button color="primary"
+                    (click)="openCreateDialog()"
+                    data-testid="create-dashboard-button">
+                    <mat-icon>add</mat-icon>
+                    Create Dashboard
+                </button>
+            </div>
+
+            <app-placeholder-table-data *ngIf="loading()"></app-placeholder-table-data>
+
+            <div *ngIf="!loading() && filteredDashboards().length === 0" class="no-dashboards">
+                <mat-icon class="no-dashboards-icon">dashboard</mat-icon>
+                <h3>No dashboards found</h3>
+                <p *ngIf="searchQuery()">No dashboards match your search criteria.</p>
+                <p *ngIf="!searchQuery()">Create your first dashboard to visualize your data.</p>
+                <button mat-flat-button color="primary"
+                    (click)="openCreateDialog()"
+                    data-testid="create-dashboard-button">
+                    <mat-icon>add</mat-icon>
+                    Create Dashboard
+                </button>
+            </div>
+
+            <div *ngIf="!loading() && filteredDashboards().length > 0" class="dashboards-grid">
+                <mat-card *ngFor="let dashboard of filteredDashboards(); let i = index"
+                    class="dashboard-card"
+                    attr.data-testid="dashboard-card-{{i}}">
+
+                    <!-- Preview area -->
+                    <a [routerLink]="['/dashboards', connectionId(), dashboard.id]"
+                        (click)="trackViewDashboardOpened()"
+                        class="dashboard-preview">
+                        <div class="preview-placeholder">
+                            <mat-icon class="preview-placeholder-icon">dashboard</mat-icon>
+                        </div>
+                    </a>
+
+                    <!-- Card content -->
+                    <mat-card-content class="dashboard-card-content">
+                        <div class="dashboard-card-header">
+                            <a [routerLink]="['/dashboards', connectionId(), dashboard.id]"
+                                (click)="trackViewDashboardOpened()"
+                                class="dashboard-name">
+                                {{dashboard.name}}
+                            </a>
+                            <button mat-icon-button [matMenuTriggerFor]="cardMenu"
+                                class="dashboard-menu-button"
+                                attr.data-testid="dashboard-actions-{{i}}-button">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #cardMenu="matMenu">
+                                <a mat-menu-item
+                                    [routerLink]="['/dashboards', connectionId(), dashboard.id]"
+                                    (click)="trackViewDashboardOpened()"
+                                    attr.data-testid="dashboard-view-{{i}}-menu-item">
+                                    <mat-icon>visibility</mat-icon>
+                                    <span>View</span>
+                                </a>
+                                <button mat-menu-item (click)="openEditDialog(dashboard)"
+                                    attr.data-testid="dashboard-edit-{{i}}-menu-item">
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Edit</span>
+                                </button>
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item (click)="openDeleteDialog(dashboard)" class="delete-action"
+                                    attr.data-testid="dashboard-delete-{{i}}-menu-item">
+                                    <mat-icon color="warn">delete</mat-icon>
+                                    <span>Delete</span>
+                                </button>
+                            </mat-menu>
+                        </div>
+                        <p *ngIf="dashboard.description" class="dashboard-description-text">
+                            {{dashboard.description}}
+                        </p>
+                        <div class="dashboard-meta">
+                            <span class="dashboard-widgets-count">
+                                <mat-icon class="meta-icon">widgets</mat-icon>
+                                {{dashboard.widgets?.length || 0}} widgets
+                            </span>
+                            <span class="dashboard-updated">
+                                {{dashboard.updated_at | date:'mediumDate'}}
+                            </span>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+    </div>
+</div>

@@ -3,6 +3,7 @@
     flex-direction: column;
     align-items: stretch;
     margin: 0 auto;
+    height: 100%;
     width: clamp(300px, 75vw, 1000px);
 }
 
@@ -120,7 +121,8 @@ td.mat-cell {
 }
 
 .audit-banner {
-    margin-top: 60px;
+    margin: -60px calc((100vw - clamp(300px, 75vw, 1000px)) / -2) 0;
+    width: 100vw;
 }
 
 .hidden {

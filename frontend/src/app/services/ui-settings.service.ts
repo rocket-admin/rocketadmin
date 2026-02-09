@@ -47,13 +47,13 @@ export class UiSettingsService {
 	}
 
 	updateTableSetting(connectionId: string, tableName: string, key: string, value: any) {
-		console.log('updateTableSetting');
+		console.log('updateTableSetting')
 		if (!this.settings.connections[connectionId]) {
-			this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
+		this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
 		}
-		if (!this.settings.connections[connectionId].tables[tableName]) {
-			this.settings.connections[connectionId].tables[tableName] = { shownColumns: [] };
-		}
+		// if (!this.settings.connections[connectionId].tables[tableName]) {
+		//   this.settings.connections[connectionId].tables[tableName] = { shownColumns: [] };
+		// }
 		this.settings.connections[connectionId].tables[tableName][key] = value;
 		this.syncUiSettings().subscribe();
 	}

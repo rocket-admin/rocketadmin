@@ -15,9 +15,10 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { registerUserAndReturnUserInfo, createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
+import { DashboardWidgetTypeEnum } from '../../../src/enums/dashboard-widget-type.enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -45,6 +46,7 @@ test.before(async () => {
 		}),
 	);
 	await app.init();
+	await createInitialTestUser(app);
 	app.getHttpServer().listen(0);
 });
 
@@ -311,7 +313,7 @@ test.serial(`${currentTest} should delete dashboard`, async (t) => {
 
 currentTest = 'POST /dashboards/:connectionId/:dashboardId/widget';
 
-test.serial(`${currentTest} should create a new widget in dashboard`, async (t) => {
+test.serial(`${currentTest} should create a new widget in dashboard without query`, async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const newConnection = getTestData(mockFactory).newEncryptedConnection;
 	const createdConnection = await request(app.getHttpServer())
@@ -335,9 +337,6 @@ test.serial(`${currentTest} should create a new widget in dashboard`, async (t) 
 	const dashboardId = JSON.parse(createDashboard.text).id;
 
 	const newWidget = {
-		widget_type: 'table',
-		name: 'Test Widget',
-		description: 'Test widget description',
 		position_x: 0,
 		position_y: 0,
 		width: 4,
@@ -354,9 +353,7 @@ test.serial(`${currentTest} should create a new widget in dashboard`, async (t) 
 
 	const createWidgetRO = JSON.parse(createWidget.text);
 	t.is(createWidget.status, 201);
-	t.is(createWidgetRO.widget_type, newWidget.widget_type);
-	t.is(createWidgetRO.name, newWidget.name);
-	t.is(createWidgetRO.description, newWidget.description);
+	t.is(createWidgetRO.query_id, null);
 	t.is(createWidgetRO.position_x, newWidget.position_x);
 	t.is(createWidgetRO.position_y, newWidget.position_y);
 	t.is(createWidgetRO.width, newWidget.width);
@@ -364,7 +361,7 @@ test.serial(`${currentTest} should create a new widget in dashboard`, async (t) 
 	t.is(createWidgetRO.dashboard_id, dashboardId);
 });
 
-test.serial(`${currentTest} should create widget with all types`, async (t) => {
+test.serial(`${currentTest} should create widget and attach query later`, async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const newConnection = getTestData(mockFactory).newEncryptedConnection;
 	const createdConnection = await request(app.getHttpServer())
@@ -390,17 +387,45 @@ test.serial(`${currentTest} should create widget with all types`, async (t) => {
 	const widgetTypes = ['table', 'chart', 'counter', 'text'];
 
 	for (const widgetType of widgetTypes) {
+		// Create widget first without query
 		const createWidget = await request(app.getHttpServer())
 			.post(`/dashboard/${dashboardId}/widget/${connectionId}`)
-			.send({ widget_type: widgetType, name: `${widgetType} Widget` })
+			.send({})
 			.set('Cookie', token)
 			.set('masterpwd', 'ahalaimahalai')
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
 		t.is(createWidget.status, 201);
-		const createWidgetRO = JSON.parse(createWidget.text);
-		t.is(createWidgetRO.widget_type, widgetType);
+		const widgetId = JSON.parse(createWidget.text).id;
+
+		// Create a saved query with the specific widget_type
+		const createQuery = await request(app.getHttpServer())
+			.post(`/connection/${connectionId}/saved-query`)
+			.send({
+				name: `${widgetType} Query`,
+				query_text: 'SELECT * FROM connection LIMIT 10',
+				widget_type: widgetType,
+			})
+			.set('Cookie', token)
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		const queryId = JSON.parse(createQuery.text).id;
+
+		// Attach query to widget
+		const updateWidget = await request(app.getHttpServer())
+			.put(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`)
+			.send({ query_id: queryId })
+			.set('Cookie', token)
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		t.is(updateWidget.status, 200);
+		const updateWidgetRO = JSON.parse(updateWidget.text);
+		t.is(updateWidgetRO.query_id, queryId);
 	}
 });
 
@@ -431,7 +456,7 @@ test.serial(`${currentTest} should update widget`, async (t) => {
 
 	const createWidget = await request(app.getHttpServer())
 		.post(`/dashboard/${dashboardId}/widget/${connectionId}`)
-		.send({ widget_type: 'table', name: 'Original Widget Name' })
+		.send({})
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Content-Type', 'application/json')
@@ -440,7 +465,6 @@ test.serial(`${currentTest} should update widget`, async (t) => {
 	const widgetId = JSON.parse(createWidget.text).id;
 
 	const updateData = {
-		name: 'Updated Widget Name',
 		position_x: 2,
 		position_y: 1,
 		width: 6,
@@ -457,7 +481,6 @@ test.serial(`${currentTest} should update widget`, async (t) => {
 
 	const updateWidgetRO = JSON.parse(updateWidget.text);
 	t.is(updateWidget.status, 200);
-	t.is(updateWidgetRO.name, updateData.name);
 	t.is(updateWidgetRO.position_x, updateData.position_x);
 	t.is(updateWidgetRO.position_y, updateData.position_y);
 	t.is(updateWidgetRO.width, updateData.width);
@@ -491,7 +514,7 @@ test.serial(`${currentTest} should delete widget from dashboard`, async (t) => {
 
 	const createWidget = await request(app.getHttpServer())
 		.post(`/dashboard/${dashboardId}/widget/${connectionId}`)
-		.send({ widget_type: 'counter', name: 'Widget to Delete' })
+		.send({})
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Content-Type', 'application/json')
@@ -538,12 +561,13 @@ test.serial(`${currentTest} should create widget linked to a saved query`, async
 
 	const connectionId = JSON.parse(createdConnection.text).id;
 
-	// Create a saved query first
+	// Create a saved query first (with widget_type)
 	const createQuery = await request(app.getHttpServer())
 		.post(`/connection/${connectionId}/saved-query`)
 		.send({
 			name: 'Test Query for Widget',
 			query_text: 'SELECT * FROM connection LIMIT 10',
+			widget_type: DashboardWidgetTypeEnum.Table,
 		})
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
@@ -567,8 +591,6 @@ test.serial(`${currentTest} should create widget linked to a saved query`, async
 	const createWidget = await request(app.getHttpServer())
 		.post(`/dashboard/${dashboardId}/widget/${connectionId}`)
 		.send({
-			widget_type: 'table',
-			name: 'Query Result Widget',
 			query_id: queryId,
 		})
 		.set('Cookie', token)
@@ -609,8 +631,6 @@ test.serial(`${currentTest} should fail to create widget with non-existent query
 	const createWidget = await request(app.getHttpServer())
 		.post(`/dashboard/${dashboardId}/widget/${connectionId}`)
 		.send({
-			widget_type: 'table',
-			name: 'Widget with Fake Query',
 			query_id: fakeQueryId,
 		})
 		.set('Cookie', token)

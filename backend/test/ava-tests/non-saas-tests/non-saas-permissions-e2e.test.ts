@@ -11,7 +11,7 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import cookieParser from 'cookie-parser';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { registerUserAndReturnUserInfo, createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import request from 'supertest';
 import { AccessLevelEnum } from '../../../src/enums/index.js';
@@ -46,6 +46,7 @@ test.before(async () => {
     }),
   );
   await app.init();
+  await createInitialTestUser(app);
   app.getHttpServer().listen(0);
 });
 

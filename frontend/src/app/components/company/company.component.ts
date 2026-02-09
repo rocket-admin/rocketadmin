@@ -29,6 +29,7 @@ import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import { orderBy } from "lodash-es";
+import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 
 @Component({
   selector: 'app-company',
@@ -50,12 +51,12 @@ import { orderBy } from "lodash-es";
     Angulartics2OnModule,
     AlertComponent,
     PlaceholderCompanyComponent,
-    PlaceholderTableDataComponent
+    PlaceholderTableDataComponent,
+    ProfileSidebarComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CompanyComponent {
-
   CompanyMemberRole = CompanyMemberRole;
   public isSaas = (environment as any).saas;
   public company: Company = null;

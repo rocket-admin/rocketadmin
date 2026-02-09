@@ -45,8 +45,10 @@ import {
 	IUpdateSavedDbQuery,
 } from './use-cases/saved-db-query-use-cases.interface.js';
 import { TestDbQueryDs } from './data-structures/test-db-query.ds.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Saved database queries')
@@ -157,6 +159,9 @@ export class SavedDbQueryController {
 			masterPassword: masterPwd,
 			name: createDto.name,
 			description: createDto.description,
+			widget_type: createDto.widget_type,
+			chart_type: createDto.chart_type,
+			widget_options: createDto.widget_options,
 			query_text: createDto.query_text,
 		};
 		return await this.createSavedDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -193,6 +198,9 @@ export class SavedDbQueryController {
 			masterPassword: masterPwd,
 			name: updateDto.name,
 			description: updateDto.description,
+			widget_type: updateDto.widget_type,
+			chart_type: updateDto.chart_type,
+			widget_options: updateDto.widget_options,
 			query_text: updateDto.query_text,
 		};
 		return await this.updateSavedDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);

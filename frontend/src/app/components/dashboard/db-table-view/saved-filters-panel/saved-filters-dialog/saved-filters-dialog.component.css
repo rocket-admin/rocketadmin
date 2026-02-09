@@ -1,25 +1,498 @@
 .filters-content {
     display: grid;
-    grid-template-columns: auto 228px 0 1fr 160px 32px;
+    grid-template-columns: 32px auto 228px 0 1fr 100px;
     grid-column-gap: 8px;
     align-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
     padding-top: 4px !important;
 }
 
+::ng-deep mat-dialog-content.filters-content {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+}
+
 .filters-select {
-    grid-column: 1 / span 6;
+    grid-column: 2 / span 5;
     margin-bottom: 16px;
 }
 
 .filter-line {
-    grid-column: 1 / span 4;
+    grid-column: 2 / span 4;
 }
 
-.dynamic-column-radio {
-    grid-column: 5;
+.empty-conditions-container {
+    grid-column: 1 / span 5;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-top: 8px;
+    margin-bottom: 16px;
 }
+
+.add-condition-container {
+    grid-column: 1 / span 6;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.where-label {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+    white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+    .where-label {
+        color: rgba(255, 255, 255, 0.87);
+    }
+}
+
+.add-condition-button {
+    width: auto;
+    min-width: auto;
+    min-height: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: none;
+    margin: 0 !important;
+    padding: 0 16px;
+    gap: 4px;
+}
+
+.add-condition-button.accent-button {
+    color: #C177FC;
+}
+
+.add-condition-button.accent-button:hover {
+    background-color: rgba(193, 119, 252, 0.04);
+}
+
+.add-condition-button.accent-button .add-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+}
+
+.empty-conditions-container .column-name-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+.empty-condition-input {
+    width: auto;
+    min-width: 200px;
+    max-width: 300px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-form-field {
+    margin: 0;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.empty-condition-input ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 0;
+    position: absolute;
+    top: 100%;
+}
+
+.quick-edit-header {
+    grid-column: 6;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.quick-edit-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.quick-edit-info-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+}
+
+/* Quick edit help menu styles */
+::ng-deep .quick-edit-help-menu {
+    max-width: none !important;
+}
+
+.quick-edit-help-content {
+    padding: 16px;
+    cursor: default;
+}
+
+.quick-edit-help-text {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.7);
+    line-height: 1.4;
+}
+
+/* Animated example */
+.quick-edit-animated-example {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.example-toggle-animated {
+    flex-shrink: 0;
+}
+
+.toggle-track {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: toggleTrack 3s ease-in-out infinite;
+}
+
+.toggle-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    animation: toggleThumb 3s ease-in-out infinite;
+}
+
+@keyframes toggleTrack {
+    0%, 40% {
+        background-color: rgba(0, 0, 0, 0.25);
+    }
+    50%, 90% {
+        background-color: #C177FC;
+    }
+    100% {
+        background-color: rgba(0, 0, 0, 0.25);
+    }
+}
+
+@keyframes toggleThumb {
+    0%, 40% {
+        left: 2px;
+    }
+    50%, 90% {
+        left: 18px;
+    }
+    100% {
+        left: 2px;
+    }
+}
+
+.example-filter-animated {
+    position: relative;
+    height: 36px;
+    min-width: 110px;
+    margin-top: 4px;
+}
+
+.example-chip-animated {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    animation: chipFade 3s ease-in-out infinite;
+}
+
+.example-editable-animated {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: transparent;
+    border: 1px solid #C177FC;
+    border-radius: 4px;
+    padding: 8px 8px 4px 8px;
+    opacity: 0;
+    animation: editableFade 3s ease-in-out infinite;
+}
+
+.example-editable-label {
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    font-size: 10px;
+    color: #C177FC;
+    background-color: #fff;
+    padding: 0 4px;
+}
+
+.example-editable-value {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.87);
+    display: flex;
+    align-items: center;
+}
+
+.typing-text::after {
+    content: 'active';
+    animation: typeText 3s ease-in-out infinite;
+}
+
+@keyframes typeText {
+    0%, 40% {
+        content: '';
+    }
+    45% {
+        content: 'p';
+    }
+    50% {
+        content: 'pe';
+    }
+    55% {
+        content: 'pen';
+    }
+    60% {
+        content: 'pend';
+    }
+    65% {
+        content: 'pendi';
+    }
+    70%, 90% {
+        content: 'pending';
+    }
+    100% {
+        content: '';
+    }
+}
+
+.example-typing-cursor {
+    font-size: 12px;
+    color: #C177FC;
+    font-weight: 300;
+    animation: cursorBlink 0.5s step-end infinite;
+}
+
+@keyframes cursorBlink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
+}
+
+@keyframes chipFade {
+    0%, 40% {
+        opacity: 1;
+    }
+    50%, 90% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes editableFade {
+    0%, 40% {
+        opacity: 0;
+    }
+    50%, 90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .quick-edit-help-text {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .toggle-track {
+        animation: toggleTrackDark 3s ease-in-out infinite;
+    }
+
+    @keyframes toggleTrackDark {
+        0%, 40% {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        50%, 90% {
+            background-color: #C177FC;
+        }
+        100% {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+    }
+
+    .example-chip-animated {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .example-editable-animated {
+        background-color: transparent;
+    }
+
+    .example-editable-label {
+        color: #C177FC;
+        background-color: #424242;
+    }
+
+    .example-editable-value {
+        color: rgba(255, 255, 255, 0.87);
+    }
+
+    .example-typing-cursor {
+        color: #C177FC;
+    }
+}
+
+.quick-edit-toggle {
+    grid-column: 6;
+    margin-top: -16px;
+    align-self: center;
+    justify-self: center;
+}
+
+/* Hide default icons */
+.quick-edit-toggle ::ng-deep .mdc-switch__icons {
+    display: none;
+}
+
+/* Style the thumb to contain our icon */
+.quick-edit-toggle ::ng-deep .mdc-switch__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Add lock icon when unchecked */
+.quick-edit-toggle ::ng-deep .mdc-switch__handle::after {
+    font-family: 'Material Symbols Outlined';
+    content: 'lock';
+    font-size: 14px;
+    position: absolute;
+    color: #fff;
+}
+
+/* Add edit icon when checked */
+.quick-edit-toggle.mat-mdc-slide-toggle-checked ::ng-deep .mdc-switch__handle::after {
+    font-family: 'Material Symbols Outlined';
+    content: 'edit';
+    font-size: 14px;
+    color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .quick-edit-title {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .quick-edit-info-icon {
+        color: rgba(255, 255, 255, 0.35);
+    }
+}
+
+.comparator-select-field {
+    grid-column: 3;
+}
+
+.add-condition-footer {
+    grid-column: 1 / span 6;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.add-condition-footer button {
+    width: auto;
+    min-width: auto;
+    min-height: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: none;
+    margin: 0 0 16px 0 !important;
+    padding: 0 16px;
+}
+
+.add-condition-footer .filters-select {
+    width: auto;
+    min-width: 200px;
+    max-width: 300px;
+    margin: 0 !important;
+    min-height: 36px;
+    margin-top: 0 !important;
+    flex-shrink: 0;
+}
+
+.add-condition-footer .filters-select ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.add-condition-footer .filters-select ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.add-condition-footer ::ng-deep .mat-mdc-form-field {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.add-condition-footer ::ng-deep .mat-mdc-form-field-wrapper {
+    padding-bottom: 0;
+}
+
 
 .filter-save-form {
     grid-column: 1 / span 6;
@@ -49,6 +522,7 @@
     grid-column: 1 / span 6;
     margin: 0 0 16px 0;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 @media (prefers-color-scheme: light) {
@@ -67,6 +541,10 @@
     grid-column: 1 / -1;
 }
 
+.full-width.filter-name-field {
+    max-width: 400px;
+}
+
 .default-filter-checkbox {
     margin-bottom: 16px;
 }
@@ -83,20 +561,72 @@
     flex-direction: column;
 }
 
+.filters-header-description {
+    margin: 0 24px 16px 24px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+@media (prefers-color-scheme: light) {
+    .filters-header-description {
+        color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .filters-header-description {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
 ::ng-deep .mat-dialog-container {
     display: flex;
 }
 
-.filters-content {
-    flex: 1 0 auto;
+.column-name {
+    grid-column: 2;
+    margin-top: -8px;
+    align-self: center;
 }
 
-.column-name {
-    margin-top: 12px;
+.conditions-vertical-line {
+    grid-column: 1;
+    grid-row: 2 / -1;
+    width: 1px;
+    background-color: rgba(0, 0, 0, 0.12);
+    margin-left: 9px;
+    margin-top: 0;
+    margin-bottom: 0;
+    z-index: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .conditions-vertical-line {
+        background-color: rgba(255, 255, 255, 0.12);
+    }
 }
 
 .filter-delete-button {
-    margin-top: 4px;
+    grid-column: 1;
+    margin-top: -20px;
+    margin-right: 0;
+    margin-left: 0;
+    align-self: center;
+    justify-self: center;
+    position: relative;
+    z-index: 1;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-delete-button ::ng-deep .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
 }
 
 .settings-form__reset-button {
@@ -108,4 +638,82 @@
     color: rgba(0, 0, 0, 0.6);
     font-style: italic;
     margin: 16px 0;
+}
+
+.comparator-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+    display: flex;
+    align-items: center;
+}
+
+.comparator-select-field {
+    width: auto;
+    min-width: 140px;
+    max-width: none;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-form-field-infix {
+    width: 100% !important;
+    min-width: fit-content;
+    padding-left: 0;
+    position: relative;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-trigger {
+    width: 100%;
+    min-width: fit-content;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-value-text {
+    width: auto;
+    min-width: fit-content;
+    flex: 1;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-arrow-wrapper {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-panel {
+    min-width: max-content !important;
+    width: max-content !important;
+}
+
+.conditions-error-message {
+    grid-column: 1 / span 6;
+    color: #f44336;
+    font-size: 12px;
+    margin: 8px 0 0 0;
+    padding-left: 16px;
+}
+
+/* Add more spacing for multiline textarea inputs (more than 2 rows) */
+.filters-content ::ng-deep .filter-line mat-form-field:has(textarea[rows]):not(:has(textarea[rows="1"])):not(:has(textarea[rows="2"])),
+.filters-content ::ng-deep .filter-line mat-form-field:has(textarea.long-textarea),
+.filters-content ::ng-deep .filter-line mat-form-field:has(textarea.form-textarea) {
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
+}
+
+/* Add more spacing for foreign key fields */
+.filters-content ::ng-deep .filter-line .foreign-key,
+.filters-content ::ng-deep .filter-line app-edit-foreign-key,
+.filters-content ::ng-deep .foreign-key {
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
 }

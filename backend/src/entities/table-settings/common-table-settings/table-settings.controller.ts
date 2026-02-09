@@ -1,16 +1,16 @@
 import {
-  Body,
-  ClassSerializerInterceptor,
-  Controller,
-  Delete,
-  Get,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Post,
-  Put,
-  UseGuards,
-  UseInterceptors,
+	Body,
+	ClassSerializerInterceptor,
+	Controller,
+	Delete,
+	Get,
+	HttpStatus,
+	Inject,
+	Injectable,
+	Post,
+	Put,
+	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -28,237 +28,259 @@ import { FindTableSettingsDs } from '../application/data-structures/find-table-s
 import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds.js';
 import { CreateTableSettingsDto } from './dto/index.js';
 import {
-  ICreateTableSettings,
-  IDeleteTableSettings,
-  IFindTableSettings,
-  IUpdateTableSettings,
+	ICreateTableSettings,
+	IDeleteTableSettings,
+	IFindTableSettings,
+	IUpdateTableSettings,
 } from './use-cases/use-cases.interface.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Table settings')
 @Injectable()
 export class TableSettingsController {
-  constructor(
-    @Inject(UseCaseType.FIND_TABLE_SETTINGS)
-    private readonly findTableSettingsUseCase: IFindTableSettings,
-    @Inject(UseCaseType.CREATE_TABLE_SETTINGS)
-    private readonly createTableSettingsUseCase: ICreateTableSettings,
-    @Inject(UseCaseType.UPDATE_TABLE_SETTINGS)
-    private readonly updateTableSettingsUseCase: IUpdateTableSettings,
-    @Inject(UseCaseType.DELETE_TABLE_SETTINGS)
-    private readonly deleteTableSettingsUseCase: IDeleteTableSettings,
-  ) {}
+	constructor(
+		@Inject(UseCaseType.FIND_TABLE_SETTINGS)
+		private readonly findTableSettingsUseCase: IFindTableSettings,
+		@Inject(UseCaseType.CREATE_TABLE_SETTINGS)
+		private readonly createTableSettingsUseCase: ICreateTableSettings,
+		@Inject(UseCaseType.UPDATE_TABLE_SETTINGS)
+		private readonly updateTableSettingsUseCase: IUpdateTableSettings,
+		@Inject(UseCaseType.DELETE_TABLE_SETTINGS)
+		private readonly deleteTableSettingsUseCase: IDeleteTableSettings,
+	) {}
 
-  @ApiOperation({ summary: 'Find all table settings in this connection' })
-  @ApiResponse({
-    status: 200,
-    description: 'Table settings found.',
-    type: FoundTableSettingsDs,
-  })
-  @ApiQuery({ name: 'connectionId', required: true })
-  @ApiQuery({ name: 'tableName', required: true })
-  @UseGuards(ConnectionReadGuard)
-  @Get('/settings/')
-  @UseInterceptors(ClassSerializerInterceptor)
-  async findAll(
-    @QueryUuid('connectionId') connectionId: string,
-    @QueryTableName() tableName: string,
-    @MasterPassword() masterPwd: string,
-  ): Promise<FoundTableSettingsDs> {
-    if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+	@ApiOperation({ summary: 'Find all table settings in this connection' })
+	@ApiResponse({
+		status: 200,
+		description: 'Table settings found.',
+		type: FoundTableSettingsDs,
+	})
+	@ApiQuery({ name: 'connectionId', required: true })
+	@ApiQuery({ name: 'tableName', required: true })
+	@UseGuards(ConnectionReadGuard)
+	@Get('/settings/')
+	@UseInterceptors(ClassSerializerInterceptor)
+	async findAll(
+		@QueryUuid('connectionId') connectionId: string,
+		@QueryTableName() tableName: string,
+		@MasterPassword() masterPwd: string,
+	): Promise<FoundTableSettingsDs> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    const inputData: FindTableSettingsDs = {
-      connectionId: connectionId,
-      tableName: tableName,
-      masterPassword: masterPwd,
-    };
-    return await this.findTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
-  }
+		const inputData: FindTableSettingsDs = {
+			connectionId: connectionId,
+			tableName: tableName,
+			masterPassword: masterPwd,
+		};
+		return await this.findTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
 
-  @ApiOperation({ summary: 'Create new table settings' })
-  @ApiBody({ type: CreateTableSettingsDs })
-  @ApiResponse({
-    status: 201,
-    description: 'Table settings created.',
-    type: FoundTableSettingsDs,
-  })
-  @ApiQuery({ name: 'connectionId', required: true })
-  @ApiQuery({ name: 'tableName', required: true })
-  @UseGuards(ConnectionEditGuard)
-  @Post('/settings/')
-  async createSettings(
-    @QueryUuid('connectionId') connectionId: string,
-    @QueryTableName() tableName: string,
-    @Body('search_fields') search_fields: Array<string>,
-    @Body('display_name') display_name: string,
-    @Body('excluded_fields') excluded_fields: Array<string>,
-    @Body('identification_fields') identification_fields: Array<string>,
-    @Body('readonly_fields') readonly_fields: Array<string>,
-    @Body('sensitive_fields') sensitive_fields: Array<string>,
-    @Body('sortable_by') sortable_by: Array<string>,
-    @Body('autocomplete_columns') autocomplete_columns: Array<string>,
-    @Body('customFields') customFields: Array<CustomFieldsEntity>,
-    @Body('identity_column') identity_column: string,
-    @Body('can_delete') can_delete: boolean,
-    @Body('can_update') can_update: boolean,
-    @Body('can_add') can_add: boolean,
-    @Body('icon') icon: string,
-    @Body('allow_csv_export') allow_csv_export: boolean,
-    @Body('allow_csv_import') allow_csv_import: boolean,
-    @UserId() userId: string,
-    @MasterPassword() masterPwd: string,
-  ): Promise<FoundTableSettingsDs> {
-    const inputData: CreateTableSettingsDs = {
-      table_name: tableName,
-      display_name: display_name,
-      connection_id: connectionId,
-      search_fields: search_fields,
-      excluded_fields: excluded_fields,
-      readonly_fields: readonly_fields,
-      sortable_by: sortable_by,
-      autocomplete_columns: autocomplete_columns,
-      custom_fields: customFields,
-      identification_fields: identification_fields,
-      sensitive_fields: sensitive_fields,
-      identity_column: identity_column,
-      masterPwd: masterPwd,
-      userId: userId,
-      table_widgets: undefined,
-      can_delete: can_delete,
-      can_update: can_update,
-      can_add: can_add,
-      icon: icon,
-      allow_csv_export: allow_csv_export,
-      allow_csv_import: allow_csv_import,
-    };
+	@ApiOperation({ summary: 'Create new table settings' })
+	@ApiBody({ type: CreateTableSettingsDs })
+	@ApiResponse({
+		status: 201,
+		description: 'Table settings created.',
+		type: FoundTableSettingsDs,
+	})
+	@ApiQuery({ name: 'connectionId', required: true })
+	@ApiQuery({ name: 'tableName', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Post('/settings/')
+	async createSettings(
+		@QueryUuid('connectionId') connectionId: string,
+		@QueryTableName() tableName: string,
+		@Body('search_fields') search_fields: Array<string>,
+		@Body('display_name') display_name: string,
+		@Body('excluded_fields') excluded_fields: Array<string>,
+		@Body('identification_fields') identification_fields: Array<string>,
+		@Body('readonly_fields') readonly_fields: Array<string>,
+		@Body('sensitive_fields') sensitive_fields: Array<string>,
+		@Body('sortable_by') sortable_by: Array<string>,
+		@Body('autocomplete_columns') autocomplete_columns: Array<string>,
+		@Body('customFields') customFields: Array<CustomFieldsEntity>,
+		@Body('identity_column') identity_column: string,
+		@Body('can_delete') can_delete: boolean,
+		@Body('can_update') can_update: boolean,
+		@Body('can_add') can_add: boolean,
+		@Body('icon') icon: string,
+		@Body('allow_csv_export') allow_csv_export: boolean,
+		@Body('allow_csv_import') allow_csv_import: boolean,
+		@Body('list_per_page') list_per_page: number,
+		@Body('list_fields') list_fields: string[],
+		@Body('ordering') ordering: string,
+		@Body('ordering_field') ordering_field: string,
+		@Body('columns_view') columns_view: string[],
+		@UserId() userId: string,
+		@MasterPassword() masterPwd: string,
+	): Promise<FoundTableSettingsDs> {
+		const inputData: CreateTableSettingsDs = {
+			table_name: tableName,
+			display_name: display_name,
+			connection_id: connectionId,
+			search_fields: search_fields,
+			excluded_fields: excluded_fields,
+			readonly_fields: readonly_fields,
+			sortable_by: sortable_by,
+			autocomplete_columns: autocomplete_columns,
+			custom_fields: customFields,
+			identification_fields: identification_fields,
+			sensitive_fields: sensitive_fields,
+			identity_column: identity_column,
+			masterPwd: masterPwd,
+			userId: userId,
+			table_widgets: undefined,
+			can_delete: can_delete,
+			can_update: can_update,
+			can_add: can_add,
+			icon: icon,
+			allow_csv_export: allow_csv_export,
+			allow_csv_import: allow_csv_import,
+			list_per_page: list_per_page,
+			list_fields: list_fields,
+			ordering: ordering,
+			ordering_field: ordering_field,
+			columns_view: columns_view,
+		};
 
-    const errors = this.validateParameters(inputData);
-    if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return await this.createTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
-  }
+		const errors = this.validateParameters(inputData);
+		if (errors.length > 0) {
+			throw new HttpException(
+				{
+					message: toPrettyErrorsMsg(errors),
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		return await this.createTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
 
-  @ApiOperation({ summary: 'Update table settings' })
-  @ApiBody({ type: CreateTableSettingsDs })
-  @ApiResponse({
-    status: 200,
-    description: 'Table settings updated.',
-    type: FoundTableSettingsDs,
-  })
-  @ApiQuery({ name: 'connectionId', required: true })
-  @ApiQuery({ name: 'tableName', required: true })
-  @UseGuards(ConnectionEditGuard)
-  @Put('/settings/')
-  async updateSettings(
-    @QueryUuid('connectionId') connectionId: string,
-    @QueryTableName() tableName: string,
-    @Body('search_fields') search_fields: Array<string>,
-    @Body('display_name') display_name: string,
-    @Body('excluded_fields') excluded_fields: Array<string>,
-    @Body('identification_fields') identification_fields: Array<string>,
-    @Body('readonly_fields') readonly_fields: Array<string>,
-    @Body('sensitive_fields') sensitive_fields: Array<string>,
-    @Body('sortable_by') sortable_by: Array<string>,
-    @Body('autocomplete_columns') autocomplete_columns: Array<string>,
-    @Body('customFields') customFields: Array<CustomFieldsEntity>,
-    @Body('identity_column') identity_column: string,
-    @Body('can_delete') can_delete: boolean,
-    @Body('can_update') can_update: boolean,
-    @Body('can_add') can_add: boolean,
-    @Body('icon') icon: string,
-    @Body('allow_csv_export') allow_csv_export: boolean,
-    @Body('allow_csv_import') allow_csv_import: boolean,
-    @UserId() userId: string,
-    @MasterPassword() masterPwd: string,
-  ): Promise<FoundTableSettingsDs> {
-    const inputData: CreateTableSettingsDs = {
-      autocomplete_columns: autocomplete_columns,
-      connection_id: connectionId,
-      custom_fields: customFields,
-      display_name: display_name,
-      excluded_fields: excluded_fields,
-      identification_fields: identification_fields,
-      identity_column: identity_column,
-      masterPwd: masterPwd,
-      readonly_fields: readonly_fields,
-      search_fields: search_fields,
-      sensitive_fields: sensitive_fields,
-      sortable_by: sortable_by,
-      table_name: tableName,
-      userId: userId,
-      can_delete: can_delete,
-      can_update: can_update,
-      can_add: can_add,
-      icon: icon,
-      allow_csv_export: allow_csv_export,
-      allow_csv_import: allow_csv_import,
-    };
+	@ApiOperation({ summary: 'Update table settings' })
+	@ApiBody({ type: CreateTableSettingsDs })
+	@ApiResponse({
+		status: 200,
+		description: 'Table settings updated.',
+		type: FoundTableSettingsDs,
+	})
+	@ApiQuery({ name: 'connectionId', required: true })
+	@ApiQuery({ name: 'tableName', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Put('/settings/')
+	async updateSettings(
+		@QueryUuid('connectionId') connectionId: string,
+		@QueryTableName() tableName: string,
+		@Body('search_fields') search_fields: Array<string>,
+		@Body('display_name') display_name: string,
+		@Body('excluded_fields') excluded_fields: Array<string>,
+		@Body('identification_fields') identification_fields: Array<string>,
+		@Body('readonly_fields') readonly_fields: Array<string>,
+		@Body('sensitive_fields') sensitive_fields: Array<string>,
+		@Body('sortable_by') sortable_by: Array<string>,
+		@Body('autocomplete_columns') autocomplete_columns: Array<string>,
+		@Body('customFields') customFields: Array<CustomFieldsEntity>,
+		@Body('identity_column') identity_column: string,
+		@Body('can_delete') can_delete: boolean,
+		@Body('can_update') can_update: boolean,
+		@Body('can_add') can_add: boolean,
+		@Body('icon') icon: string,
+		@Body('allow_csv_export') allow_csv_export: boolean,
+		@Body('allow_csv_import') allow_csv_import: boolean,
+		@Body('list_per_page') list_per_page: number,
+		@Body('list_fields') list_fields: string[],
+		@Body('ordering') ordering: string,
+		@Body('ordering_field') ordering_field: string,
+		@Body('columns_view') columns_view: string[],
+		@UserId() userId: string,
+		@MasterPassword() masterPwd: string,
+	): Promise<FoundTableSettingsDs> {
+		const inputData: CreateTableSettingsDs = {
+			autocomplete_columns: autocomplete_columns,
+			connection_id: connectionId,
+			custom_fields: customFields,
+			display_name: display_name,
+			excluded_fields: excluded_fields,
+			identification_fields: identification_fields,
+			identity_column: identity_column,
+			masterPwd: masterPwd,
+			readonly_fields: readonly_fields,
+			search_fields: search_fields,
+			sensitive_fields: sensitive_fields,
+			sortable_by: sortable_by,
+			table_name: tableName,
+			userId: userId,
+			can_delete: can_delete,
+			can_update: can_update,
+			can_add: can_add,
+			icon: icon,
+			allow_csv_export: allow_csv_export,
+			allow_csv_import: allow_csv_import,
+			list_fields,
+			list_per_page,
+			ordering,
+			ordering_field,
+			columns_view,
+		};
 
-    const errors = this.validateParameters(inputData);
-    if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return await this.updateTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
-  }
+		const errors = this.validateParameters(inputData);
+		if (errors.length > 0) {
+			throw new HttpException(
+				{
+					message: toPrettyErrorsMsg(errors),
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		return await this.updateTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
+	}
 
-  @ApiOperation({ summary: 'Delete table settings' })
-  @ApiBody({ type: CreateTableSettingsDs })
-  @ApiResponse({
-    status: 200,
-    description: 'Table settings deleted.',
-    type: FoundTableSettingsDs,
-  })
-  @ApiQuery({ name: 'connectionId', required: true })
-  @ApiQuery({ name: 'tableName', required: true })
-  @UseGuards(ConnectionEditGuard)
-  @Delete('/settings/')
-  async deleteSettings(
-    @QueryUuid('connectionId') connectionId: string,
-    @QueryTableName() tableName: string,
-  ): Promise<FoundTableSettingsDs> {
-    if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const inputData: DeleteTableSettingsDs = {
-      connectionId: connectionId,
-      tableName: tableName,
-    };
-    return await this.deleteTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
-  }
+	@ApiOperation({ summary: 'Delete table settings' })
+	@ApiBody({ type: CreateTableSettingsDs })
+	@ApiResponse({
+		status: 200,
+		description: 'Table settings deleted.',
+		type: FoundTableSettingsDs,
+	})
+	@ApiQuery({ name: 'connectionId', required: true })
+	@ApiQuery({ name: 'tableName', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Delete('/settings/')
+	async deleteSettings(
+		@QueryUuid('connectionId') connectionId: string,
+		@QueryTableName() tableName: string,
+	): Promise<FoundTableSettingsDs> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.PARAMETER_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: DeleteTableSettingsDs = {
+			connectionId: connectionId,
+			tableName: tableName,
+		};
+		return await this.deleteTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
+	}
 
-  private validateParameters(tableSettingsDTO: CreateTableSettingsDto): Array<string> {
-    const errors = [];
-    if (!tableSettingsDTO.table_name) {
-      errors.push(Messages.TABLE_NAME_MISSING);
-    }
-    if (!tableSettingsDTO.connection_id) {
-      errors.push(Messages.CONNECTION_ID_MISSING);
-    }
-    return errors;
-  }
+	private validateParameters(tableSettingsDTO: CreateTableSettingsDto): Array<string> {
+		const errors = [];
+		if (!tableSettingsDTO.table_name) {
+			errors.push(Messages.TABLE_NAME_MISSING);
+		}
+		if (!tableSettingsDTO.connection_id) {
+			errors.push(Messages.CONNECTION_ID_MISSING);
+		}
+		return errors;
+	}
 }

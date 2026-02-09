@@ -1,3 +1,19 @@
+.profile-layout {
+    display: flex;
+    height: calc(100vh - 64px);
+}
+
+.profile-main {
+    flex: 1;
+    overflow-y: auto;
+}
+
+::ng-deep .profile-main > app-alert {
+    position: relative;
+    top: 0;
+    margin: 24px;
+}
+
 .zapier-page {
     display: flex;
     flex-direction: column;

@@ -3,6 +3,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { APP_INITIALIZER, ErrorHandler, enableProdMode, importProvidersFrom } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MAT_ICON_DEFAULT_OPTIONS, MatIconDefaultOptions } from '@angular/material/icon';
 import { BrowserModule, bootstrapApplication, Title } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
@@ -11,9 +12,12 @@ import { provideCodeEditor } from '@ngstack/code-editor';
 import * as Sentry from '@sentry/angular';
 import { Angulartics2Module } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
+import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CookieService } from 'ngx-cookie-service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
+import posthog from 'posthog-js';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
 import { ConfigModule } from './app/modules/config.module';
@@ -42,7 +46,7 @@ const saasExtraProviders = (environment as any).saas
 const colorConfig: IColorConfig<Palettes, Colors> = {
 	palettes: {
 		primaryPalette: '#212121',
-		accentedPalette: '#C177FC',
+		accentedPalette: '#2563eb',
 		warnPalette: '#B71C1C',
 		whitePalette: '#FFFFFF',
 		warnDarkPalette: '#E53935',
@@ -81,6 +85,13 @@ if ((environment as any).saas) {
 	});
 }
 
+if ((environment as any).saas) {
+	posthog.init('phc_VPnWHIMj9UjhRLPr7shATjgL0J4KrWWOHkK3JwZbnkw', {
+		api_host: 'https://us.i.posthog.com',
+		defaults: '2025-11-30',
+	});
+}
+
 bootstrapApplication(AppComponent, {
 	providers: [
 		importProvidersFrom(
@@ -90,6 +101,7 @@ bootstrapApplication(AppComponent, {
 			ReactiveFormsModule,
 			RouterModule,
 			DynamicModule,
+			SignalComponentIoModule,
 			Angulartics2Module.forRoot(),
 			ClipboardModule,
 			DragDropModule,
@@ -138,5 +150,12 @@ bootstrapApplication(AppComponent, {
 		...saasExtraProviders,
 		provideHttpClient(withInterceptorsFromDi()),
 		provideAnimations(),
+		provideCharts(withDefaultRegisterables()),
+		{
+			provide: MAT_ICON_DEFAULT_OPTIONS,
+			useValue: {
+				fontSet: 'material-symbols-outlined',
+			} as MatIconDefaultOptions,
+		},
 	],
 }).catch((err) => console.error(err));

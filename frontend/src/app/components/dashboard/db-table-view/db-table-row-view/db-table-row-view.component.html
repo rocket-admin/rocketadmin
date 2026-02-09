@@ -15,15 +15,13 @@
                 [queryParams]="getDedicatedPageLinkParams()"
                 matTooltip="Open the record"
                 (click)="stashUrlParams()">
-                <mat-icon fontSet="material-icons-outlined">create</mat-icon>
+                <mat-icon fontSet="material-symbols-outlined">create</mat-icon>
             </a>
         </div>
         <button mat-icon-button (click)="handleClose()">
             <mat-icon>close</mat-icon>
         </button>
     </div>
-
-    <br />
 
     <mat-expansion-panel *ngIf="selectedRow?.relatedRecords?.referenced_by?.length" class="related-records-panel">
         <mat-expansion-panel-header class="related-records-panel__header">
@@ -82,10 +80,9 @@
     <ng-container *ngIf="selectedRow && selectedRow.record; else loadingContent">
         <div *ngFor="let column of columns; let i = index" class="row-preview-sidebar__field">
             <strong>{{column.normalizedTitle}}</strong>
-            <div data-hj-suppress class="row-preview-sidebar__value">
+            <div data-ph-no-capture class="row-preview-sidebar__value">
                 <ng-container *ngIf="isForeignKey(column.title); else recordContent">
                     <app-foreign-key-record-view
-                        [key]="i"
                         link="/dashboard/{{selectedRow.connectionID}}/{{selectedRow.foreignKeys[column.title]?.referenced_table_name}}/entry"
                         [primaryKeysParams]="getForeignKeyQueryParams(column.title)"
                         [displayValue]="getForeignKeyValue(column.title)"

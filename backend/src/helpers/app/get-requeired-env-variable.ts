@@ -6,3 +6,8 @@ export function getRequiredEnvVariable(variableName: string): string {
   }
   return variableValue;
 }
+
+export function getOptionalEnvVariable(variableName: string): string | undefined {
+  // eslint-disable-next-line security/detect-object-injection
+  return process.env[variableName];
+}

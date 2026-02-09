@@ -80,8 +80,8 @@
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
             <div class="table-preview-content">
-                <app-alert class="server-alert"></app-alert>
                 <div class="alerts">
+                    <app-alert></app-alert>
                     <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
                     <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
                     <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
@@ -113,6 +113,8 @@
             ></app-db-table-row-view>
             <app-db-table-ai-panel *ngIf="isAIpanelOpened"
                 [displayName]="selectedTableDisplayName"
+                [tableColumns]="dataSource?.dataColumns || []"
+                [sidebarExpanded]="shownTableTitles"
             ></app-db-table-ai-panel>
         </mat-sidenav-content>
     </mat-sidenav-container>
