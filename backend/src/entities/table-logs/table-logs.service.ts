@@ -117,7 +117,7 @@ export class TableLogsService {
       operationStatusResult: OperationResultStatusEnum;
       row: Record<string, unknown>;
       old_data: Record<string, unknown>;
-      affected_primary_key: string;
+      affected_primary_key: string; 
     }>,
     userId: string,
     connection: ConnectionEntity,
