@@ -30,6 +30,7 @@ describe('DashboardsListComponent', () => {
 			dashboardsLoading: dashboardsLoadingSignal.asReadonly(),
 			dashboardsUpdated: dashboardsUpdatedSignal.asReadonly(),
 			setActiveConnection: vi.fn(),
+			setActiveDashboard: vi.fn(),
 			refreshDashboards: vi.fn(),
 		};
 

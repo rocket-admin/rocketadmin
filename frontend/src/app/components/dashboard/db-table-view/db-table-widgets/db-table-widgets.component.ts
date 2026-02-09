@@ -23,7 +23,6 @@ import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcr
 import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
 import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
 import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
-import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
 import { PasswordEditComponent } from '../../../ui-components/record-edit-fields/password/password.component';
 import { SelectEditComponent } from '../../../ui-components/record-edit-fields/select/select.component';
 import { TextEditComponent } from '../../../ui-components/record-edit-fields/text/text.component';
@@ -49,7 +48,6 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 		PasswordEditComponent,
 		ImageEditComponent,
 		CodeEditComponent,
-		MarkdownEditComponent,
 		WidgetComponent,
 		TextEditComponent,
 		LongTextEditComponent,
