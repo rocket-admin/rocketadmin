@@ -1,5 +1,17 @@
-:host app-alert:not(:empty) {
-	--alert-margin: 24px;
+.profile-layout {
+	display: flex;
+	height: calc(100vh - 64px);
+}
+
+.profile-main {
+	flex: 1;
+	overflow-y: auto;
+}
+
+::ng-deep .profile-main > app-alert {
+	position: relative;
+	top: 0;
+	margin: 24px;
 }
 
 /* .upgrade-box {
@@ -12,7 +24,7 @@
 } */
 
 .plans {
-	margin: var(--top-margin) auto;
+	margin: 24px auto;
 	width: clamp(300px, 90%, 840px);
 }
 

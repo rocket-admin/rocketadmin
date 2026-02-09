@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { PaymentService } from 'src/app/services/payment.service';
 import { PlanKey } from 'src/app/models/plans';
+import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { RouterModule } from '@angular/router';
 import plans from '../../consts/plans';
 
@@ -22,7 +23,8 @@ import plans from '../../consts/plans';
     MatTableModule,
     MatChipsModule,
     RouterModule,
-    AlertComponent
+    AlertComponent,
+    ProfileSidebarComponent
   ],
   templateUrl: './upgrade.component.html',
   styleUrls: ['./upgrade.component.css']
