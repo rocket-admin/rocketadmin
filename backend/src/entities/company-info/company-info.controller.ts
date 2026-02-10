@@ -210,7 +210,7 @@ export class CompanyInfoController {
 		type: FoundUserFullCompanyInfoDs,
 	})
 	@UseGuards(CompanyUserGuard)
-	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Get('my/full')
 	async getUserCompanies(@UserId() userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
 		return await this.getUserFullCompanyInfoUseCase.execute(userId);
@@ -224,7 +224,7 @@ export class CompanyInfoController {
 		type: InvitedUserInCompanyAndConnectionGroupDs,
 	})
 	@UseGuards(CompanyAdminGuard)
-	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
+	@Throttle({ default: { limit: isTest() ? 200 : 15, ttl: 60000 } })
 	@Put('user/:companyId')
 	async inviteUserInCompanyAndConnectionGroup(
 		@UserId() userId: string,
@@ -294,6 +294,7 @@ export class CompanyInfoController {
 		description: 'User was successfully invited.',
 		type: TokenExpirationResponseDto,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('/invite/verify/:verificationString')
 	async verifyCompanyInvitation(
 		@Req() request: Request,
@@ -514,7 +515,7 @@ export class CompanyInfoController {
 		@SlugUuid('companyId') companyId: string,
 		@UploadedFile(
 			new ParseFilePipeBuilder()
-				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
+				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/, skipMagicNumbersValidation: true })
 				.addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_LOGO_SIZE })
 				.build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
 		)
@@ -566,7 +567,7 @@ export class CompanyInfoController {
 		@SlugUuid('companyId') companyId: string,
 		@UploadedFile(
 			new ParseFilePipeBuilder()
-				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
+				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/, skipMagicNumbersValidation: true })
 				.addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_FAVICON_SIZE })
 				.build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
 		)
