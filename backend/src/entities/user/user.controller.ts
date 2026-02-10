@@ -145,7 +145,7 @@ export class UserController {
 		description: 'Login successful.',
 		type: TokenExpDs,
 	})
-	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Post('user/login/')
 	async usualLogin(
 		@Res({ passthrough: true }) response: Response,
@@ -252,6 +252,7 @@ export class UserController {
 		description: 'Email verification requested.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/verify/request')
 	async requestEmailVerification(@UserId() userId: string): Promise<OperationResultMessageDs> {
 		return await this.requestEmailVerificationUseCase.execute(userId, InTransactionEnum.ON);
@@ -263,6 +264,7 @@ export class UserController {
 		description: 'Email verified.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/verify/:verificationString')
 	async verifyEmail(
 		@VerificationString('verificationString') verificationString: string,
@@ -270,7 +272,6 @@ export class UserController {
 		return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
 	}
 
-	//todo: make admin endpoint
 	@ApiOperation({ summary: 'Verify user password reset' })
 	@ApiBody({ type: PasswordDto })
 	@ApiResponse({
@@ -278,6 +279,7 @@ export class UserController {
 		description: 'Password reset verified.',
 		type: RegisteredUserDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/password/reset/verify/:verificationString')
 	async resetUserPassword(
 		@Body() passwordData: PasswordDto,
@@ -309,6 +311,7 @@ export class UserController {
 		description: 'Email change requested.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/change/request/')
 	async askChangeUserEmail(@UserId() userId: string): Promise<OperationResultMessageDs> {
 		return await this.requestChangeUserEmailUseCase.execute(userId, InTransactionEnum.ON);
@@ -321,6 +324,7 @@ export class UserController {
 		description: 'Email change verified.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/email/change/verify/:verificationString')
 	async verifyChangeUserEmail(
 		@BodyEmail('email') email: string,
@@ -407,6 +411,7 @@ export class UserController {
 		description: 'Token verified.',
 		type: OtpValidationResultDS,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Post('user/otp/verify/')
 	async verifyOtp(@UserId() userId: string, @Body() otpTokenData: OtpTokenDto): Promise<OtpValidationResultDS> {
 		const { otpToken } = otpTokenData;
@@ -433,6 +438,7 @@ export class UserController {
 		description: 'Two-factor authentication token validated.',
 		type: TokenExpDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Post('user/otp/login/')
 	async validateOtp(
 		@Req() request: Request,
