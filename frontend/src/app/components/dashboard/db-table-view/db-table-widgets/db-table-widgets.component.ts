@@ -270,12 +270,11 @@ export class DbTableWidgetsComponent implements OnInit {
 // prefix: Optional path prefix for uploaded files
 // region: AWS region (default: us-east-1)
 // type: "file" (default) - accepts all file types, "image" - accepts only images
-// aws_access_key_id_secret_name: Slug of the secret containing AWS Access Key ID
-// aws_secret_access_key_secret_name: Slug of the secret containing AWS Secret Access Key
+// aws_access_key_id_secret_name: Unique identifier of the secret containing AWS Access Key ID
+// aws_secret_access_key_secret_name: Unique identifier of the secret containing AWS Secret Access Key
 //
 // ⚠️ IMPORTANT: DO NOT INCLUDE AWS SECRETS DIRECTLY IN WIDGET SETTINGS!
-// Store your AWS credentials as secrets in Settings -> Secrets first,
-// then reference them by their slug names in the settings below.
+// Store your AWS credentials as secrets in Rocketadmin and reference them here by their unique identifiers to ensure security and prevent exposure of sensitive information.
 
 {
   "bucket": "your-bucket-name",
