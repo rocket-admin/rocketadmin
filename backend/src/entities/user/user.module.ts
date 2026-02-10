@@ -42,135 +42,135 @@ import { SignInAuditEntity } from '../user-sign-in-audit/sign-in-audit.entity.js
 import { SignInAuditService } from '../user-sign-in-audit/sign-in-audit.service.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      CustomFieldsEntity,
-      GroupEntity,
-      PermissionEntity,
-      TableLogsEntity,
-      TableSettingsEntity,
-      TableWidgetEntity,
-      UserEntity,
-      ConnectionPropertiesEntity,
-      LogOutEntity,
-      CompanyInfoEntity,
-      SignInAuditEntity,
-    ]),
-    AgentModule,
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_USER,
-      useClass: FindUserUseCase,
-    },
-    {
-      provide: UseCaseType.USUAL_LOGIN,
-      useClass: UsualLoginUseCase,
-    },
-    {
-      provide: UseCaseType.LOG_OUT,
-      useClass: LogOutUseCase,
-    },
-    {
-      provide: UseCaseType.CHANGE_USUAL_PASSWORD,
-      useClass: ChangeUsualPasswordUseCase,
-    },
-    {
-      provide: UseCaseType.VERIFY_EMAIL,
-      useClass: VerifyUserEmailUseCase,
-    },
-    {
-      provide: UseCaseType.VERIFY_RESET_USER_PASSWORD,
-      useClass: VerifyResetUserPasswordUseCase,
-    },
-    {
-      provide: UseCaseType.REQUEST_RESET_USER_PASSWORD,
-      useClass: RequestResetUserPasswordUseCase,
-    },
-    {
-      provide: UseCaseType.REQUEST_CHANGE_USER_EMAIL,
-      useClass: RequestChangeUserEmailUseCase,
-    },
-    {
-      provide: UseCaseType.VERIFY_EMAIL_CHANGE,
-      useClass: VerifyChangeUserEmailUseCase,
-    },
-    {
-      provide: UseCaseType.VERIFY_EMAIL_REQUEST,
-      useClass: RequestEmailVerificationUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_USER_ACCOUNT,
-      useClass: DeleteUserAccountUseCase,
-    },
-    {
-      provide: UseCaseType.CHANGE_USER_NAME,
-      useClass: ChangeUserNameUseCase,
-    },
-    {
-      provide: UseCaseType.GENERATE_OTP,
-      useClass: GenerateOtpUseCase,
-    },
-    {
-      provide: UseCaseType.VERIFY_OTP,
-      useClass: VerifyOtpUseCase,
-    },
-    {
-      provide: UseCaseType.OTP_LOGIN,
-      useClass: OtpLoginUseCase,
-    },
-    {
-      provide: UseCaseType.DISABLE_OTP,
-      useClass: DisableOtpUseCase,
-    },
-    {
-      provide: UseCaseType.SAVE_USER_SESSION_SETTINGS,
-      useClass: SaveUserSettingsUseCase,
-    },
-    {
-      provide: UseCaseType.GET_USER_SESSION_SETTINGS,
-      useClass: GetUserSessionSettingsUseCase,
-    },
-    {
-      provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE,
-      useClass: ToggleTestConnectionsDisplayModeUseCase,
-    },
-    UserHelperService,
-    SignInAuditService,
-  ],
-  controllers: [UserController],
-  exports: [UserHelperService],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			CustomFieldsEntity,
+			GroupEntity,
+			PermissionEntity,
+			TableLogsEntity,
+			TableSettingsEntity,
+			TableWidgetEntity,
+			UserEntity,
+			ConnectionPropertiesEntity,
+			LogOutEntity,
+			CompanyInfoEntity,
+			SignInAuditEntity,
+		]),
+		AgentModule,
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_USER,
+			useClass: FindUserUseCase,
+		},
+		{
+			provide: UseCaseType.USUAL_LOGIN,
+			useClass: UsualLoginUseCase,
+		},
+		{
+			provide: UseCaseType.LOG_OUT,
+			useClass: LogOutUseCase,
+		},
+		{
+			provide: UseCaseType.CHANGE_USUAL_PASSWORD,
+			useClass: ChangeUsualPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_EMAIL,
+			useClass: VerifyUserEmailUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_RESET_USER_PASSWORD,
+			useClass: VerifyResetUserPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.REQUEST_RESET_USER_PASSWORD,
+			useClass: RequestResetUserPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.REQUEST_CHANGE_USER_EMAIL,
+			useClass: RequestChangeUserEmailUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_EMAIL_CHANGE,
+			useClass: VerifyChangeUserEmailUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_EMAIL_REQUEST,
+			useClass: RequestEmailVerificationUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_USER_ACCOUNT,
+			useClass: DeleteUserAccountUseCase,
+		},
+		{
+			provide: UseCaseType.CHANGE_USER_NAME,
+			useClass: ChangeUserNameUseCase,
+		},
+		{
+			provide: UseCaseType.GENERATE_OTP,
+			useClass: GenerateOtpUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_OTP,
+			useClass: VerifyOtpUseCase,
+		},
+		{
+			provide: UseCaseType.OTP_LOGIN,
+			useClass: OtpLoginUseCase,
+		},
+		{
+			provide: UseCaseType.DISABLE_OTP,
+			useClass: DisableOtpUseCase,
+		},
+		{
+			provide: UseCaseType.SAVE_USER_SESSION_SETTINGS,
+			useClass: SaveUserSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.GET_USER_SESSION_SETTINGS,
+			useClass: GetUserSessionSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE,
+			useClass: ToggleTestConnectionsDisplayModeUseCase,
+		},
+		UserHelperService,
+		SignInAuditService,
+	],
+	controllers: [UserController],
+	exports: [UserHelperService],
 })
 export class UserModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: 'user', method: RequestMethod.GET },
-        { path: 'user', method: RequestMethod.PUT },
-        { path: 'user/name/', method: RequestMethod.PUT },
-        { path: 'user/permissions/:slug', method: RequestMethod.GET },
-        { path: 'user/logout/', method: RequestMethod.POST },
-        { path: 'user/email/verify/request', method: RequestMethod.GET },
-        { path: 'user/delete/', method: RequestMethod.PUT },
-        { path: 'user/email/change/request', method: RequestMethod.GET },
-        { path: 'user/settings', method: RequestMethod.POST },
-        { path: 'user/settings', method: RequestMethod.GET },
-        { path: 'user/test/connections/display/', method: RequestMethod.PUT },
-        { path: 'user/password/change', method: RequestMethod.POST },
-      )
-      .apply(TemporaryAuthMiddleware)
-      .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST })
-      .apply(NonScopedAuthMiddleware)
-      .forRoutes(
-        { path: 'user/otp/generate', method: RequestMethod.POST },
-        { path: 'user/otp/verify', method: RequestMethod.POST },
-        { path: 'user/otp/disable', method: RequestMethod.POST },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): void {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: 'user', method: RequestMethod.GET },
+				{ path: 'user', method: RequestMethod.PUT },
+				{ path: 'user/name/', method: RequestMethod.PUT },
+				{ path: 'user/permissions/:slug', method: RequestMethod.GET },
+				{ path: 'user/logout/', method: RequestMethod.POST },
+				{ path: 'user/email/verify/request', method: RequestMethod.GET },
+				{ path: 'user/delete/', method: RequestMethod.PUT },
+				{ path: 'user/email/change/request', method: RequestMethod.GET },
+				{ path: 'user/settings', method: RequestMethod.POST },
+				{ path: 'user/settings', method: RequestMethod.GET },
+				{ path: 'user/test/connections/display/', method: RequestMethod.PUT },
+				{ path: 'user/password/change', method: RequestMethod.POST },
+			)
+			.apply(TemporaryAuthMiddleware)
+			.forRoutes({ path: 'user/otp/login', method: RequestMethod.POST })
+			.apply(NonScopedAuthMiddleware)
+			.forRoutes(
+				{ path: 'user/otp/generate', method: RequestMethod.POST },
+				{ path: 'user/otp/verify', method: RequestMethod.POST },
+				{ path: 'user/otp/disable', method: RequestMethod.POST },
+			);
+	}
 }

@@ -15,45 +15,45 @@ import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateTableSettingsUseCase
-  extends AbstractUseCase<CreateTableSettingsDs, FoundTableSettingsDs>
-  implements ICreateTableSettings
+	extends AbstractUseCase<CreateTableSettingsDs, FoundTableSettingsDs>
+	implements ICreateTableSettings
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: CreateTableSettingsDs): Promise<FoundTableSettingsDs> {
-    const { connection_id, masterPwd, table_name } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connection_id,
-      masterPwd,
-    );
-    const dao = getDataAccessObject(foundConnection);
-    const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
-    const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
-    if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const newTableSettingEntity = buildNewTableSettingsEntity(inputData, foundConnection);
+	protected async implementation(inputData: CreateTableSettingsDs): Promise<FoundTableSettingsDs> {
+		const { connection_id, masterPwd, table_name } = inputData;
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connection_id,
+			masterPwd,
+		);
+		const dao = getDataAccessObject(foundConnection);
+		const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
+		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
+		if (errors.length > 0) {
+			throw new HttpException(
+				{
+					message: toPrettyErrorsMsg(errors),
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const newTableSettingEntity = buildNewTableSettingsEntity(inputData, foundConnection);
 
-    const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
-      connection_id,
-      table_name,
-    );
-    if (foundTableSettings) {
-      await this._dbContext.tableSettingsRepository.remove(foundTableSettings);
-    }
+		const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+			connection_id,
+			table_name,
+		);
+		if (foundTableSettings) {
+			await this._dbContext.tableSettingsRepository.remove(foundTableSettings);
+		}
 
-    const savedTableSettings =
-      await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(newTableSettingEntity);
-    return buildFoundTableSettingsDs(savedTableSettings);
-  }
+		const savedTableSettings =
+			await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(newTableSettingEntity);
+		return buildFoundTableSettingsDs(savedTableSettings);
+	}
 }

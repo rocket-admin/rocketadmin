@@ -3,17 +3,17 @@ import { hexToBinary } from '../../../helpers/binary-to-hex.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function convertHexDataInRowUtil(
-  row: Record<string, unknown>,
-  structure: Array<TableStructureDS>,
+	row: Record<string, unknown>,
+	structure: Array<TableStructureDS>,
 ): Record<string, unknown> {
-  const binaryColumns = structure.filter((el) => isBinary(el.data_type));
+	const binaryColumns = structure.filter((el) => isBinary(el.data_type));
 
-  for (const column of binaryColumns) {
-    const columnValue = row[column.column_name];
-    if (columnValue) {
-      row[column.column_name] = hexToBinary(columnValue as string);
-    }
-  }
+	for (const column of binaryColumns) {
+		const columnValue = row[column.column_name];
+		if (columnValue) {
+			row[column.column_name] = hexToBinary(columnValue as string);
+		}
+	}
 
-  return row;
+	return row;
 }

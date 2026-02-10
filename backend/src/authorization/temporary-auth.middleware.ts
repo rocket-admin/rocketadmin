@@ -1,9 +1,9 @@
 import {
-  HttpException,
-  Injectable,
-  InternalServerErrorException,
-  NestMiddleware,
-  UnauthorizedException,
+	HttpException,
+	Injectable,
+	InternalServerErrorException,
+	NestMiddleware,
+	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Response } from 'express';
@@ -19,55 +19,55 @@ import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
 export class TemporaryAuthMiddleware implements NestMiddleware {
-  public constructor(
-    @InjectRepository(UserEntity)readonly _userRepository: Repository<UserEntity>,
-    @InjectRepository(LogOutEntity)
-    private readonly logOutRepository: Repository<LogOutEntity>,
-  ) {}
-  async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
-    console.log(`temporary auth middleware triggered ->: ${new Date().toISOString()}`);
-    let token: string;
-    try {
-      token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
-    } catch (_e) {
-      if (process.env.NODE_ENV !== 'test') {
-        throw new UnauthorizedException('JWT verification failed');
-      }
-    }
+	public constructor(
+		@InjectRepository(UserEntity) readonly _userRepository: Repository<UserEntity>,
+		@InjectRepository(LogOutEntity)
+		private readonly logOutRepository: Repository<LogOutEntity>,
+	) {}
+	async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+		console.log(`temporary auth middleware triggered ->: ${new Date().toISOString()}`);
+		let token: string;
+		try {
+			token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
+		} catch (_e) {
+			if (process.env.NODE_ENV !== 'test') {
+				throw new UnauthorizedException('JWT verification failed');
+			}
+		}
 
-    if (!token) {
-      throw new UnauthorizedException('Token is missing');
-    }
+		if (!token) {
+			throw new UnauthorizedException('Token is missing');
+		}
 
-    const isLoggedOut = !!(await this.logOutRepository.findOne({ where: { jwtToken: token } }));
-    if (isLoggedOut) {
-      throw new UnauthorizedException('JWT verification failed');
-    }
+		const isLoggedOut = !!(await this.logOutRepository.findOne({ where: { jwtToken: token } }));
+		if (isLoggedOut) {
+			throw new UnauthorizedException('JWT verification failed');
+		}
 
-    try {
-      const jwtSecret = process.env.TEMPORARY_JWT_SECRET;
-      const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
-      const userId = data.id;
-      if (!userId) {
-        throw new UnauthorizedException('JWT verification failed');
-      }
-      const payload = {
-        sub: userId,
-        email: data.email,
-        exp: data.exp,
-        iat: data.iat,
-      };
-      if (!payload || isObjectEmpty(payload)) {
-        throw new UnauthorizedException('JWT verification failed');
-      }
-      req.decoded = payload;
-      next();
-    } catch (e) {
-      Sentry.captureException(e);
-      if (e instanceof HttpException || e instanceof UnauthorizedException) {
-        throw e;
-      }
-      throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
-    }
-  }
+		try {
+			const jwtSecret = process.env.TEMPORARY_JWT_SECRET;
+			const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
+			const userId = data.id;
+			if (!userId) {
+				throw new UnauthorizedException('JWT verification failed');
+			}
+			const payload = {
+				sub: userId,
+				email: data.email,
+				exp: data.exp,
+				iat: data.iat,
+			};
+			if (!payload || isObjectEmpty(payload)) {
+				throw new UnauthorizedException('JWT verification failed');
+			}
+			req.decoded = payload;
+			next();
+		} catch (e) {
+			Sentry.captureException(e);
+			if (e instanceof HttpException || e instanceof UnauthorizedException) {
+				throw e;
+			}
+			throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
+		}
+	}
 }

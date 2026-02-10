@@ -9,24 +9,24 @@ import { ToggleConnectionDisplayModeDs } from '../application/data-structures/to
 
 @Injectable({ scope: Scope.REQUEST })
 export class ToggleTestConnectionsDisplayModeUseCase
-  extends AbstractUseCase<ToggleConnectionDisplayModeDs, SuccessResponse>
-  implements IToggleTestConnectionsMode
+	extends AbstractUseCase<ToggleConnectionDisplayModeDs, SuccessResponse>
+	implements IToggleTestConnectionsMode
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: ToggleConnectionDisplayModeDs): Promise<SuccessResponse> {
-    const { userId, displayMode } = inputData;
-    const user = await this._dbContext.userRepository.findOneUserById(userId);
-    if (!user) {
-      throw new NotFoundException(Messages.USER_NOT_FOUND);
-    }
-    user.showTestConnections = displayMode;
-    await this._dbContext.userRepository.save(user);
-    return { success: true };
-  }
+	public async implementation(inputData: ToggleConnectionDisplayModeDs): Promise<SuccessResponse> {
+		const { userId, displayMode } = inputData;
+		const user = await this._dbContext.userRepository.findOneUserById(userId);
+		if (!user) {
+			throw new NotFoundException(Messages.USER_NOT_FOUND);
+		}
+		user.showTestConnections = displayMode;
+		await this._dbContext.userRepository.save(user);
+		return { success: true };
+	}
 }

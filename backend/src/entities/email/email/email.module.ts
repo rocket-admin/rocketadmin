@@ -6,9 +6,9 @@ import { EmailTransporterService } from '../transporter/email-transporter-servic
 
 @Global()
 @Module({
-  imports: [NunjucksModule],
-  controllers: [],
-  providers: [EmailService, EmailConfigService, EmailTransporterService],
-  exports: [EmailService],
+	imports: [NunjucksModule],
+	controllers: [],
+	providers: [EmailService, EmailConfigService, EmailTransporterService],
+	exports: [EmailService],
 })
 export class EmailModule {}

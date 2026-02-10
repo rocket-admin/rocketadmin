@@ -9,22 +9,22 @@ import { buildActionEventDto } from '../utils/build-found-action-event-dto.util.
 
 @Injectable()
 export class FindCustomEventsUseCase
-  extends AbstractUseCase<FindActionRulesDS, Array<FoundActionEventDTO>>
-  implements IFindCustomEvents
+	extends AbstractUseCase<FindActionRulesDS, Array<FoundActionEventDTO>>
+	implements IFindCustomEvents
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: FindActionRulesDS): Promise<Array<FoundActionEventDTO>> {
-    const { connectionId, tableName } = inputData;
-    const foundRuleEvents = await this._dbContext.actionEventsRepository.findCustomEventsForTable(
-      connectionId,
-      tableName,
-    );
-    return foundRuleEvents.map((actionEvent) => buildActionEventDto(actionEvent));
-  }
+	public async implementation(inputData: FindActionRulesDS): Promise<Array<FoundActionEventDTO>> {
+		const { connectionId, tableName } = inputData;
+		const foundRuleEvents = await this._dbContext.actionEventsRepository.findCustomEventsForTable(
+			connectionId,
+			tableName,
+		);
+		return foundRuleEvents.map((actionEvent) => buildActionEventDto(actionEvent));
+	}
 }

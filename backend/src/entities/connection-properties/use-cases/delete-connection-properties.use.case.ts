@@ -10,31 +10,29 @@ import { IDeleteConnectionProperties } from './connection-properties-use.cases.i
 
 @Injectable()
 export class DeleteConnectionPropertiesUseCase
-  extends AbstractUseCase<string, FoundConnectionPropertiesDs>
-  implements IDeleteConnectionProperties
+	extends AbstractUseCase<string, FoundConnectionPropertiesDs>
+	implements IDeleteConnectionProperties
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(connectionId: string): Promise<FoundConnectionPropertiesDs> {
-    const connectionPropertiesToDelete = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(
-      connectionId,
-    );
-    if (!connectionPropertiesToDelete) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_PROPERTIES_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const deletedProperties = await this._dbContext.connectionPropertiesRepository.removeConnectionProperties(
-      connectionPropertiesToDelete,
-    );
-    return buildFoundConnectionPropertiesDs(deletedProperties);
-  }
+	protected async implementation(connectionId: string): Promise<FoundConnectionPropertiesDs> {
+		const connectionPropertiesToDelete =
+			await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
+		if (!connectionPropertiesToDelete) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_PROPERTIES_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const deletedProperties =
+			await this._dbContext.connectionPropertiesRepository.removeConnectionProperties(connectionPropertiesToDelete);
+		return buildFoundConnectionPropertiesDs(deletedProperties);
+	}
 }

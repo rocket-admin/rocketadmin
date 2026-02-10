@@ -9,25 +9,25 @@ import { GetSecretsDS, SecretsListDS } from '../application/data-structures/get-
 import { UpdatedSecretDS, UpdateSecretDS } from '../application/data-structures/update-secret.ds.js';
 
 export interface ICreateSecret {
-  execute(inputData: CreateSecretDS, inTransaction: InTransactionEnum): Promise<CreatedSecretDS>;
+	execute(inputData: CreateSecretDS, inTransaction: InTransactionEnum): Promise<CreatedSecretDS>;
 }
 
 export interface IGetSecrets {
-  execute(inputData: GetSecretsDS): Promise<SecretsListDS>;
+	execute(inputData: GetSecretsDS): Promise<SecretsListDS>;
 }
 
 export interface IGetSecretBySlug {
-  execute(inputData: GetSecretDS): Promise<FoundSecretDS>;
+	execute(inputData: GetSecretDS): Promise<FoundSecretDS>;
 }
 
 export interface IUpdateSecret {
-  execute(inputData: UpdateSecretDS, inTransaction: InTransactionEnum): Promise<UpdatedSecretDS>;
+	execute(inputData: UpdateSecretDS, inTransaction: InTransactionEnum): Promise<UpdatedSecretDS>;
 }
 
 export interface IDeleteSecret {
-  execute(inputData: DeleteSecretDS, inTransaction: InTransactionEnum): Promise<DeletedSecretDS>;
+	execute(inputData: DeleteSecretDS, inTransaction: InTransactionEnum): Promise<DeletedSecretDS>;
 }
 
 export interface IGetSecretAuditLog {
-  execute(inputData: GetAuditLogDS): Promise<AuditLogListDS>;
+	execute(inputData: GetAuditLogDS): Promise<AuditLogListDS>;
 }

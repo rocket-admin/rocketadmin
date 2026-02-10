@@ -6,23 +6,23 @@ import { IGlobalDatabaseContext } from '../common/application/global-database-co
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetHelloUseCase extends AbstractUseCase<void, string> implements IGetHello {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(): Promise<string> {
-    const result = await this._dbContext.userRepository.getTrue();
-    if (result) {
-      return 'Hello World!';
-    }
-    throw new HttpException(
-      {
-        message: 'Database not alive',
-      },
-      HttpStatus.GATEWAY_TIMEOUT,
-    );
-  }
+	protected async implementation(): Promise<string> {
+		const result = await this._dbContext.userRepository.getTrue();
+		if (result) {
+			return 'Hello World!';
+		}
+		throw new HttpException(
+			{
+				message: 'Database not alive',
+			},
+			HttpStatus.GATEWAY_TIMEOUT,
+		);
+	}
 }

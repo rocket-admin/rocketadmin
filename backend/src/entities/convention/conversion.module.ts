@@ -10,21 +10,21 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ConnectionEntity, UserEntity, TableLogsEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.GET_CONVERSIONS,
-      useClass: GetConversionsUseCase,
-    },
-  ],
-  controllers: [ConversionController],
+	imports: [TypeOrmModule.forFeature([ConnectionEntity, UserEntity, TableLogsEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.GET_CONVERSIONS,
+			useClass: GetConversionsUseCase,
+		},
+	],
+	controllers: [ConversionController],
 })
 export class ConversionModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(BasicAuthMiddleware).forRoutes({ path: '/conversions', method: RequestMethod.GET });
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer.apply(BasicAuthMiddleware).forRoutes({ path: '/conversions', method: RequestMethod.GET });
+	}
 }

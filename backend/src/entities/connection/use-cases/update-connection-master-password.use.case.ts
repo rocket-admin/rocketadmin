@@ -9,22 +9,22 @@ import { SuccessResponse } from '../../../microservices/saas-microservice/data-s
 
 @Injectable()
 export class UpdateConnectionMasterPasswordUseCase
-  extends AbstractUseCase<UpdateMasterPasswordDs, SuccessResponse>
-  implements IUpdateMasterPassword
+	extends AbstractUseCase<UpdateMasterPasswordDs, SuccessResponse>
+	implements IUpdateMasterPassword
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: UpdateMasterPasswordDs): Promise<SuccessResponse> {
-    const { connectionId, newMasterPwd, oldMasterPwd } = inputData;
-    let connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, oldMasterPwd);
-    connection = Encryptor.encryptConnectionCredentials(connection, newMasterPwd);
-    connection.master_hash = await Encryptor.hashUserPassword(newMasterPwd);
-    const updatedConnection = await this._dbContext.connectionRepository.saveNewConnection(connection);
-    return { success: !!updatedConnection };
-  }
+	protected async implementation(inputData: UpdateMasterPasswordDs): Promise<SuccessResponse> {
+		const { connectionId, newMasterPwd, oldMasterPwd } = inputData;
+		let connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, oldMasterPwd);
+		connection = Encryptor.encryptConnectionCredentials(connection, newMasterPwd);
+		connection.master_hash = await Encryptor.hashUserPassword(newMasterPwd);
+		const updatedConnection = await this._dbContext.connectionRepository.saveNewConnection(connection);
+		return { success: !!updatedConnection };
+	}
 }

@@ -6,18 +6,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
+	imports: [TypeOrmModule.forFeature([])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
 
-    DemoDataService,
-  ],
-  controllers: [],
-  exports: [DemoDataService],
+		DemoDataService,
+	],
+	controllers: [],
+	exports: [DemoDataService],
 })
 export class DemoDataModule {
-  public configure(_consumer: MiddlewareConsumer): any {}
+	public configure(_consumer: MiddlewareConsumer): any {}
 }

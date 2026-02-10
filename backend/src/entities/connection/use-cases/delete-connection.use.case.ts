@@ -10,31 +10,31 @@ import { IDeleteConnection } from './use-cases.interfaces.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteConnectionUseCase
-  extends AbstractUseCase<DeleteConnectionDs, CreatedConnectionDTO>
-  implements IDeleteConnection
+	extends AbstractUseCase<DeleteConnectionDs, CreatedConnectionDTO>
+	implements IDeleteConnection
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: DeleteConnectionDs): Promise<CreatedConnectionDTO> {
-    const connectionToDelete = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      inputData.connectionId,
-      inputData.masterPwd,
-    );
-    if (!connectionToDelete) {
-      throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
-    }
-    const userNonTestConnections = await this._dbContext.connectionRepository.findAllUserNonTestsConnections(
-      inputData.cognitoUserName,
-    );
-    if (userNonTestConnections.length === 0) {
-      throw new BadRequestException(Messages.DONT_HAVE_NON_TEST_CONNECTIONS);
-    }
-    const result = await this._dbContext.connectionRepository.removeConnection(connectionToDelete);
-    return buildCreatedConnectionDs(result, null, inputData.masterPwd);
-  }
+	protected async implementation(inputData: DeleteConnectionDs): Promise<CreatedConnectionDTO> {
+		const connectionToDelete = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			inputData.connectionId,
+			inputData.masterPwd,
+		);
+		if (!connectionToDelete) {
+			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+		}
+		const userNonTestConnections = await this._dbContext.connectionRepository.findAllUserNonTestsConnections(
+			inputData.cognitoUserName,
+		);
+		if (userNonTestConnections.length === 0) {
+			throw new BadRequestException(Messages.DONT_HAVE_NON_TEST_CONNECTIONS);
+		}
+		const result = await this._dbContext.connectionRepository.removeConnection(connectionToDelete);
+		return buildCreatedConnectionDs(result, null, inputData.masterPwd);
+	}
 }

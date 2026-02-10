@@ -9,41 +9,41 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateGroupTitleUseCase
-  extends AbstractUseCase<UpdateGroupTitleDto, FoundGroupDataInfoDs>
-  implements IUpdateGroupTitle
+	extends AbstractUseCase<UpdateGroupTitleDto, FoundGroupDataInfoDs>
+	implements IUpdateGroupTitle
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(groupData: UpdateGroupTitleDto): Promise<FoundGroupDataInfoDs> {
-    const { groupId, title } = groupData;
-    const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-    if (!groupToUpdate) {
-      throw new HttpException(
-        {
-          message: Messages.GROUP_NOT_FOUND,
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    const connectionWithGroups = await this._dbContext.connectionRepository.findConnectionWithGroups(
-      groupToUpdate.connection.id,
-    );
+	protected async implementation(groupData: UpdateGroupTitleDto): Promise<FoundGroupDataInfoDs> {
+		const { groupId, title } = groupData;
+		const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+		if (!groupToUpdate) {
+			throw new HttpException(
+				{
+					message: Messages.GROUP_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		const connectionWithGroups = await this._dbContext.connectionRepository.findConnectionWithGroups(
+			groupToUpdate.connection.id,
+		);
 
-    if (connectionWithGroups.groups.find((group) => group.title === title)) {
-      throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);
-    }
+		if (connectionWithGroups.groups.find((group) => group.title === title)) {
+			throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);
+		}
 
-    groupToUpdate.title = title;
-    const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-    return {
-      id: updatedGroup.id,
-      title: updatedGroup.title,
-      isMain: updatedGroup.isMain,
-    };
-  }
+		groupToUpdate.title = title;
+		const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
+		return {
+			id: updatedGroup.id,
+			title: updatedGroup.title,
+			isMain: updatedGroup.isMain,
+		};
+	}
 }

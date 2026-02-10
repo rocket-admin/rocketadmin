@@ -9,38 +9,38 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteSecretUseCase extends AbstractUseCase<DeleteSecretDS, DeletedSecretDS> implements IDeleteSecret {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: DeleteSecretDS): Promise<DeletedSecretDS> {
-    const { userId, slug } = inputData;
+	protected async implementation(inputData: DeleteSecretDS): Promise<DeletedSecretDS> {
+		const { userId, slug } = inputData;
 
-    const user = await this._dbContext.userRepository.findOne({
-      where: { id: userId },
-      relations: ['company'],
-    });
+		const user = await this._dbContext.userRepository.findOne({
+			where: { id: userId },
+			relations: ['company'],
+		});
 
-    if (!user || !user.company) {
-      throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
-    }
+		if (!user || !user.company) {
+			throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
+		}
 
-    const secret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);
+		const secret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);
 
-    if (!secret) {
-      throw new NotFoundException(Messages.SECRET_NOT_FOUND);
-    }
+		if (!secret) {
+			throw new NotFoundException(Messages.SECRET_NOT_FOUND);
+		}
 
-    await this._dbContext.secretAccessLogRepository.createAccessLog(secret.id, userId, SecretActionEnum.DELETE);
+		await this._dbContext.secretAccessLogRepository.createAccessLog(secret.id, userId, SecretActionEnum.DELETE);
 
-    await this._dbContext.userSecretRepository.remove(secret);
+		await this._dbContext.userSecretRepository.remove(secret);
 
-    return {
-      message: Messages.SECRET_DELETED_SUCCESSFULLY,
-      deletedAt: new Date(),
-    };
-  }
+		return {
+			message: Messages.SECRET_DELETED_SUCCESSFULLY,
+			deletedAt: new Date(),
+		};
+	}
 }

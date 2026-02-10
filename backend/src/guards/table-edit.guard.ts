@@ -1,10 +1,10 @@
 import {
-  BadRequestException,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Inject,
-  Injectable,
+	BadRequestException,
+	CanActivate,
+	ExecutionContext,
+	ForbiddenException,
+	Inject,
+	Injectable,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
@@ -17,45 +17,45 @@ import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 @Injectable()
 export class TableEditGuard implements CanActivate {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {}
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {}
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    return new Promise(async (resolve, reject) => {
-      const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
-      const cognitoUserName = request.decoded.sub;
-      const connectionId: string = request.params?.slug || request.params?.connectionId;
-      const tableName: string = request.query?.tableName;
-      const masterPwd = getMasterPwd(request);
-      if (!tableName) {
-        reject(new BadRequestException(Messages.TABLE_NAME_MISSING));
-        return;
-      }
-      if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
-        reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
-        return;
-      }
-      let userTableEdit = false;
-      try {
-        userTableEdit = await this._dbContext.userAccessRepository.checkTableEdit(
-          cognitoUserName,
-          connectionId,
-          tableName,
-          masterPwd,
-        );
-      } catch (e) {
-        reject(e);
-        return;
-      }
-      if (userTableEdit) {
-        resolve(userTableEdit);
-        return;
-      } else {
-        reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
-        return;
-      }
-    });
-  }
+	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+		return new Promise(async (resolve, reject) => {
+			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
+			const cognitoUserName = request.decoded.sub;
+			const connectionId: string = request.params?.slug || request.params?.connectionId;
+			const tableName: string = request.query?.tableName;
+			const masterPwd = getMasterPwd(request);
+			if (!tableName) {
+				reject(new BadRequestException(Messages.TABLE_NAME_MISSING));
+				return;
+			}
+			if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
+				reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
+				return;
+			}
+			let userTableEdit = false;
+			try {
+				userTableEdit = await this._dbContext.userAccessRepository.checkTableEdit(
+					cognitoUserName,
+					connectionId,
+					tableName,
+					masterPwd,
+				);
+			} catch (e) {
+				reject(e);
+				return;
+			}
+			if (userTableEdit) {
+				resolve(userTableEdit);
+				return;
+			} else {
+				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+				return;
+			}
+		});
+	}
 }

@@ -14,7 +14,6 @@ export enum AIProviderType {
 }
 
 export interface IAIService {
-
 	complete(prompt: string, config?: AIProviderConfig): Promise<string>;
 
 	completeWithProvider(provider: AIProviderType, prompt: string, config?: AIProviderConfig): Promise<string>;

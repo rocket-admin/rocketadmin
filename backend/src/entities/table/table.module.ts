@@ -31,100 +31,100 @@ import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middlew
 import { FindTablesInConnectionV2UseCase } from './use-cases/find-tables-in-connection-v2.use.case.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      CustomFieldsEntity,
-      GroupEntity,
-      PermissionEntity,
-      TableLogsEntity,
-      TableSettingsEntity,
-      TableWidgetEntity,
-      UserEntity,
-      ConnectionPropertiesEntity,
-      LogOutEntity,
-    ]),
-    AgentModule,
-    ConnectionModule,
-    UserModule,
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_TABLES_IN_CONNECTION,
-      useClass: FindTablesInConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_TABLES_IN_CONNECTION_V2,
-      useClass: FindTablesInConnectionV2UseCase,
-    },
-    {
-      provide: UseCaseType.GET_ALL_TABLE_ROWS,
-      useClass: GetTableRowsUseCase,
-    },
-    {
-      provide: UseCaseType.GET_TABLE_STRUCTURE,
-      useClass: GetTableStructureUseCase,
-    },
-    {
-      provide: UseCaseType.ADD_ROW_IN_TABLE,
-      useClass: AddRowInTableUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_ROW_IN_TABLE,
-      useClass: UpdateRowInTableUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_ROW_FROM_TABLE,
-      useClass: DeleteRowFromTableUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_ROWS_FROM_TABLE,
-      useClass: DeleteRowsFromTableUseCase,
-    },
-    {
-      provide: UseCaseType.GET_ROW_BY_PRIMARY_KEY,
-      useClass: GetRowByPrimaryKeyUseCase,
-    },
-    {
-      provide: UseCaseType.EXPORT_CSV_FROM_TABLE,
-      useClass: ExportCSVFromTableUseCase,
-    },
-    {
-      provide: UseCaseType.BULK_UPDATE_ROWS_IN_TABLE,
-      useClass: BulkUpdateRowsInTableUseCase,
-    },
-    {
-      provide: UseCaseType.IMPORT_CSV_TO_TABLE,
-      useClass: ImportCSVInTableUseCase,
-    },
-  ],
-  controllers: [TableController],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			CustomFieldsEntity,
+			GroupEntity,
+			PermissionEntity,
+			TableLogsEntity,
+			TableSettingsEntity,
+			TableWidgetEntity,
+			UserEntity,
+			ConnectionPropertiesEntity,
+			LogOutEntity,
+		]),
+		AgentModule,
+		ConnectionModule,
+		UserModule,
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_TABLES_IN_CONNECTION,
+			useClass: FindTablesInConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_TABLES_IN_CONNECTION_V2,
+			useClass: FindTablesInConnectionV2UseCase,
+		},
+		{
+			provide: UseCaseType.GET_ALL_TABLE_ROWS,
+			useClass: GetTableRowsUseCase,
+		},
+		{
+			provide: UseCaseType.GET_TABLE_STRUCTURE,
+			useClass: GetTableStructureUseCase,
+		},
+		{
+			provide: UseCaseType.ADD_ROW_IN_TABLE,
+			useClass: AddRowInTableUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_ROW_IN_TABLE,
+			useClass: UpdateRowInTableUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_ROW_FROM_TABLE,
+			useClass: DeleteRowFromTableUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_ROWS_FROM_TABLE,
+			useClass: DeleteRowsFromTableUseCase,
+		},
+		{
+			provide: UseCaseType.GET_ROW_BY_PRIMARY_KEY,
+			useClass: GetRowByPrimaryKeyUseCase,
+		},
+		{
+			provide: UseCaseType.EXPORT_CSV_FROM_TABLE,
+			useClass: ExportCSVFromTableUseCase,
+		},
+		{
+			provide: UseCaseType.BULK_UPDATE_ROWS_IN_TABLE,
+			useClass: BulkUpdateRowsInTableUseCase,
+		},
+		{
+			provide: UseCaseType.IMPORT_CSV_TO_TABLE,
+			useClass: ImportCSVInTableUseCase,
+		},
+	],
+	controllers: [TableController],
 })
 export class TableModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthWithApiMiddleware)
-      .forRoutes(
-        { path: '/table/columns/:connectionId', method: RequestMethod.GET },
-        { path: '/table/rows/:connectionId', method: RequestMethod.GET },
-        { path: '/table/:connectionId', method: RequestMethod.GET },
-        { path: '/connection/tables/:connectionId', method: RequestMethod.GET },
-        { path: '/connection/tables/v2/:connectionId', method: RequestMethod.GET },
-        { path: '/table/rows/:connectionId', method: RequestMethod.GET },
-        { path: '/table/rows/find/:connectionId', method: RequestMethod.POST },
-        { path: '/table/structure/:connectionId', method: RequestMethod.GET },
-        { path: '/table/row/:connectionId', method: RequestMethod.POST },
-        { path: '/table/row/:connectionId', method: RequestMethod.PUT },
-        { path: '/table/row/:connectionId', method: RequestMethod.DELETE },
-        { path: '/table/rows/delete/:connectionId', method: RequestMethod.PUT },
-        { path: '/table/rows/update/:connectionId', method: RequestMethod.PUT },
-        { path: '/table/row/:connectionId', method: RequestMethod.GET },
-        { path: '/table/csv/export/:connectionId', method: RequestMethod.POST },
-        { path: '/table/csv/import/:connectionId', method: RequestMethod.POST },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthWithApiMiddleware)
+			.forRoutes(
+				{ path: '/table/columns/:connectionId', method: RequestMethod.GET },
+				{ path: '/table/rows/:connectionId', method: RequestMethod.GET },
+				{ path: '/table/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/tables/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/tables/v2/:connectionId', method: RequestMethod.GET },
+				{ path: '/table/rows/:connectionId', method: RequestMethod.GET },
+				{ path: '/table/rows/find/:connectionId', method: RequestMethod.POST },
+				{ path: '/table/structure/:connectionId', method: RequestMethod.GET },
+				{ path: '/table/row/:connectionId', method: RequestMethod.POST },
+				{ path: '/table/row/:connectionId', method: RequestMethod.PUT },
+				{ path: '/table/row/:connectionId', method: RequestMethod.DELETE },
+				{ path: '/table/rows/delete/:connectionId', method: RequestMethod.PUT },
+				{ path: '/table/rows/update/:connectionId', method: RequestMethod.PUT },
+				{ path: '/table/row/:connectionId', method: RequestMethod.GET },
+				{ path: '/table/csv/export/:connectionId', method: RequestMethod.POST },
+				{ path: '/table/csv/import/:connectionId', method: RequestMethod.POST },
+			);
+	}
 }

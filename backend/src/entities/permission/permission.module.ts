@@ -19,46 +19,46 @@ import { PermissionEntity } from './permission.entity.js';
 import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-permissions.use.case.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      CustomFieldsEntity,
-      GroupEntity,
-      PermissionEntity,
-      TableLogsEntity,
-      TableSettingsEntity,
-      TableWidgetEntity,
-      UserEntity,
-      ConnectionPropertiesEntity,
-      LogOutEntity,
-    ]),
-    AgentModule,
-    GroupModule,
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.CREATE_OR_UPDATE_PERMISSIONS,
-      useClass: CreateOrUpdatePermissionsUseCase,
-    },
-  ],
-  controllers: [PermissionController],
-  exports: [],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			CustomFieldsEntity,
+			GroupEntity,
+			PermissionEntity,
+			TableLogsEntity,
+			TableSettingsEntity,
+			TableWidgetEntity,
+			UserEntity,
+			ConnectionPropertiesEntity,
+			LogOutEntity,
+		]),
+		AgentModule,
+		GroupModule,
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.CREATE_OR_UPDATE_PERMISSIONS,
+			useClass: CreateOrUpdatePermissionsUseCase,
+		},
+	],
+	controllers: [PermissionController],
+	exports: [],
 })
 export class PermissionModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: 'permissions/all', method: RequestMethod.GET },
-        { path: 'permission/:slug', method: RequestMethod.POST },
-        { path: 'permission/group/:slug', method: RequestMethod.POST },
-        { path: 'permission/group/:slug', method: RequestMethod.PUT },
-        { path: 'permissions/:slug', method: RequestMethod.POST },
-        { path: 'permissions/:slug', method: RequestMethod.PUT },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: 'permissions/all', method: RequestMethod.GET },
+				{ path: 'permission/:slug', method: RequestMethod.POST },
+				{ path: 'permission/group/:slug', method: RequestMethod.POST },
+				{ path: 'permission/group/:slug', method: RequestMethod.PUT },
+				{ path: 'permissions/:slug', method: RequestMethod.POST },
+				{ path: 'permissions/:slug', method: RequestMethod.PUT },
+			);
+	}
 }

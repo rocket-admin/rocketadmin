@@ -8,21 +8,21 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetFullCompanyInfoByUserIdUseCase
-  extends AbstractUseCase<string, CompanyInfoEntity>
-  implements ISaaSGetCompanyInfoByUserId
+	extends AbstractUseCase<string, CompanyInfoEntity>
+	implements ISaaSGetCompanyInfoByUserId
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(userId: string): Promise<CompanyInfoEntity> {
-    const foundCompany = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
-    if (!foundCompany) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
-    return foundCompany;
-  }
+	protected async implementation(userId: string): Promise<CompanyInfoEntity> {
+		const foundCompany = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
+		if (!foundCompany) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
+		return foundCompany;
+	}
 }

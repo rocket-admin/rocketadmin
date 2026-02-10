@@ -10,28 +10,28 @@ import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteGroupFromConnectionUseCase
-  extends AbstractUseCase<DeleteGroupInConnectionDs, FoundGroupResponseDto>
-  implements IDeleteGroupInConnection
+	extends AbstractUseCase<DeleteGroupInConnectionDs, FoundGroupResponseDto>
+	implements IDeleteGroupInConnection
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: DeleteGroupInConnectionDs): Promise<FoundGroupResponseDto> {
-    const groupToDelete = await this._dbContext.groupRepository.findGroupInConnection(
-      inputData.groupId,
-      inputData.connectionId,
-    );
-    if (!groupToDelete) {
-      throw new BadRequestException(Messages.GROUP_NOT_FOUND);
-    }
-    if (groupToDelete.isMain) {
-      throw new ForbiddenException(Messages.CANT_DELETE_ADMIN_GROUP);
-    }
-    const removedGroup = await this._dbContext.groupRepository.removeGroupEntity(groupToDelete);
-    return buildFoundGroupResponseDto(removedGroup);
-  }
+	protected async implementation(inputData: DeleteGroupInConnectionDs): Promise<FoundGroupResponseDto> {
+		const groupToDelete = await this._dbContext.groupRepository.findGroupInConnection(
+			inputData.groupId,
+			inputData.connectionId,
+		);
+		if (!groupToDelete) {
+			throw new BadRequestException(Messages.GROUP_NOT_FOUND);
+		}
+		if (groupToDelete.isMain) {
+			throw new ForbiddenException(Messages.CANT_DELETE_ADMIN_GROUP);
+		}
+		const removedGroup = await this._dbContext.groupRepository.removeGroupEntity(groupToDelete);
+		return buildFoundGroupResponseDto(removedGroup);
+	}
 }

@@ -27,277 +27,277 @@ import { WinstonLogger } from '../../logging/winston-logger.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
-  extends AbstractUseCase<FindTablesDs, Array<FoundTableDs>>
-  implements IFindTablesInConnection
+	extends AbstractUseCase<FindTablesDs, Array<FoundTableDs>>
+	implements IFindTablesInConnection
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private amplitudeService: AmplitudeService,
-    private readonly logger: WinstonLogger,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private amplitudeService: AmplitudeService,
+		private readonly logger: WinstonLogger,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: FindTablesDs): Promise<Array<FoundTableDs>> {
-    const { connectionId, hiddenTablesOption, masterPwd, userId } = inputData;
-    let connection: ConnectionEntity;
-    try {
-      connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-    } catch (error) {
-      if (error.message === Messages.MASTER_PASSWORD_MISSING) {
-        throw new HttpException(
-          {
-            message: Messages.MASTER_PASSWORD_MISSING,
-            type: 'no_master_key',
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
-        throw new HttpException(
-          {
-            message: Messages.MASTER_PASSWORD_INCORRECT,
-            type: 'invalid_master_key',
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
-    if (!connection) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const dao = getDataAccessObject(connection);
-    let userEmail: string;
-    let operationResult = false;
-    if (isConnectionTypeAgent(connection.type)) {
-      userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-    }
-    let tables: Array<TableDS>;
-    try {
-      tables = await dao.getTablesFromDB(userEmail);
-      operationResult = true;
-    } catch (e) {
-      operationResult = false;
-      Sentry.captureException(e);
-      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
-    } finally {
-      if (!connection.isTestConnection && tables && tables.length) {
-        this.logger.log({
-          tables: tables.map((table) => table.tableName),
-          connectionId: connectionId,
-          connectionType: connection.type,
-        });
-      }
-      const isTest = isTestConnectionUtil(connection);
-      await this.amplitudeService.formAndSendLogRecord(
-        isTest ? AmplitudeEventTypeEnum.tableListReceivedTest : AmplitudeEventTypeEnum.tableListReceived,
-        userId,
-        { tablesCount: tables?.length ? tables.length : 0 },
-      );
-      if (
-        connection.saved_table_info === 0 &&
-        !connection.isTestConnection &&
-        operationResult &&
-        process.env.NODE_ENV !== 'test'
-      ) {
-        this.saveTableInfoInDatabase(connection.id, userId, tables, masterPwd);
-      }
-    }
-    const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
-    const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
-    let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
-    if (excludedTables?.hidden_tables?.length) {
-      if (!hiddenTablesOption) {
-        tablesRO = tablesRO.filter((tableRO) => {
-          return !excludedTables.hidden_tables.includes(tableRO.table);
-        });
-      } else {
-        const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(
-          userId,
-          connectionId,
-        );
-        if (!userConnectionEdit) {
-          throw new HttpException(
-            {
-              message: Messages.DONT_HAVE_PERMISSIONS,
-            },
-            HttpStatus.FORBIDDEN,
-          );
-        }
-      }
-    }
-    return tablesRO.sort((tableRO1, tableRO2) => {
-      const display_name1 = tableRO1.display_name;
-      const display_name2 = tableRO2.display_name;
-      if (display_name1 && display_name2) {
-        return display_name1.localeCompare(display_name2);
-      }
-      if (!display_name1 && !display_name2) {
-        return tableRO1.table.localeCompare(tableRO2.table);
-      }
-      if (!display_name1 && display_name2) {
-        return tableRO1.table.localeCompare(display_name2);
-      }
-      if (display_name1 && !display_name2) {
-        return display_name1.localeCompare(tableRO2.table);
-      }
-      return 0;
-    });
-  }
+	protected async implementation(inputData: FindTablesDs): Promise<Array<FoundTableDs>> {
+		const { connectionId, hiddenTablesOption, masterPwd, userId } = inputData;
+		let connection: ConnectionEntity;
+		try {
+			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+		} catch (error) {
+			if (error.message === Messages.MASTER_PASSWORD_MISSING) {
+				throw new HttpException(
+					{
+						message: Messages.MASTER_PASSWORD_MISSING,
+						type: 'no_master_key',
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+			if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
+				throw new HttpException(
+					{
+						message: Messages.MASTER_PASSWORD_INCORRECT,
+						type: 'invalid_master_key',
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
+		if (!connection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const dao = getDataAccessObject(connection);
+		let userEmail: string;
+		let operationResult = false;
+		if (isConnectionTypeAgent(connection.type)) {
+			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+		}
+		let tables: Array<TableDS>;
+		try {
+			tables = await dao.getTablesFromDB(userEmail);
+			operationResult = true;
+		} catch (e) {
+			operationResult = false;
+			Sentry.captureException(e);
+			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+		} finally {
+			if (!connection.isTestConnection && tables && tables.length) {
+				this.logger.log({
+					tables: tables.map((table) => table.tableName),
+					connectionId: connectionId,
+					connectionType: connection.type,
+				});
+			}
+			const isTest = isTestConnectionUtil(connection);
+			await this.amplitudeService.formAndSendLogRecord(
+				isTest ? AmplitudeEventTypeEnum.tableListReceivedTest : AmplitudeEventTypeEnum.tableListReceived,
+				userId,
+				{ tablesCount: tables?.length ? tables.length : 0 },
+			);
+			if (
+				connection.saved_table_info === 0 &&
+				!connection.isTestConnection &&
+				operationResult &&
+				process.env.NODE_ENV !== 'test'
+			) {
+				this.saveTableInfoInDatabase(connection.id, userId, tables, masterPwd);
+			}
+		}
+		const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
+		const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
+		let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
+		if (excludedTables?.hidden_tables?.length) {
+			if (!hiddenTablesOption) {
+				tablesRO = tablesRO.filter((tableRO) => {
+					return !excludedTables.hidden_tables.includes(tableRO.table);
+				});
+			} else {
+				const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(
+					userId,
+					connectionId,
+				);
+				if (!userConnectionEdit) {
+					throw new HttpException(
+						{
+							message: Messages.DONT_HAVE_PERMISSIONS,
+						},
+						HttpStatus.FORBIDDEN,
+					);
+				}
+			}
+		}
+		return tablesRO.sort((tableRO1, tableRO2) => {
+			const display_name1 = tableRO1.display_name;
+			const display_name2 = tableRO2.display_name;
+			if (display_name1 && display_name2) {
+				return display_name1.localeCompare(display_name2);
+			}
+			if (!display_name1 && !display_name2) {
+				return tableRO1.table.localeCompare(tableRO2.table);
+			}
+			if (!display_name1 && display_name2) {
+				return tableRO1.table.localeCompare(display_name2);
+			}
+			if (display_name1 && !display_name2) {
+				return display_name1.localeCompare(tableRO2.table);
+			}
+			return 0;
+		});
+	}
 
-  private async addDisplayNamesForTables(
-    connectionId: string,
-    tablesObjArr: Array<ITableAndViewPermissionData>,
-  ): Promise<Array<FoundTableDs>> {
-    const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
-    return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
-      const foundTableSettings =
-        tableSettings[
-          tableSettings.findIndex((el: TableSettingsEntity) => {
-            return el.table_name === tableObj.tableName;
-          })
-        ];
-      const displayName = foundTableSettings ? foundTableSettings.display_name : undefined;
-      const icon = foundTableSettings ? foundTableSettings.icon : undefined;
-      return {
-        table: tableObj.tableName,
-        isView: tableObj.isView || false,
-        permissions: tableObj.accessLevel,
-        display_name: displayName,
-        icon: icon,
-      };
-    });
-  }
+	private async addDisplayNamesForTables(
+		connectionId: string,
+		tablesObjArr: Array<ITableAndViewPermissionData>,
+	): Promise<Array<FoundTableDs>> {
+		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
+		return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
+			const foundTableSettings =
+				tableSettings[
+					tableSettings.findIndex((el: TableSettingsEntity) => {
+						return el.table_name === tableObj.tableName;
+					})
+				];
+			const displayName = foundTableSettings ? foundTableSettings.display_name : undefined;
+			const icon = foundTableSettings ? foundTableSettings.icon : undefined;
+			return {
+				table: tableObj.tableName,
+				isView: tableObj.isView || false,
+				permissions: tableObj.accessLevel,
+				display_name: displayName,
+				icon: icon,
+			};
+		});
+	}
 
-  private async getUserPermissionsForAvailableTables(
-    userId: string,
-    connectionId: string,
-    tables: Array<TableDS>,
-  ): Promise<Array<ITableAndViewPermissionData>> {
-    const connectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
-    if (connectionEdit) {
-      return tables.map((table) => {
-        return {
-          tableName: table.tableName,
-          isView: table.isView,
-          accessLevel: {
-            visibility: true,
-            readonly: false,
-            add: true,
-            delete: true,
-            edit: true,
-          },
-        };
-      });
-    }
+	private async getUserPermissionsForAvailableTables(
+		userId: string,
+		connectionId: string,
+		tables: Array<TableDS>,
+	): Promise<Array<ITableAndViewPermissionData>> {
+		const connectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
+		if (connectionEdit) {
+			return tables.map((table) => {
+				return {
+					tableName: table.tableName,
+					isView: table.isView,
+					accessLevel: {
+						visibility: true,
+						readonly: false,
+						add: true,
+						delete: true,
+						edit: true,
+					},
+				};
+			});
+		}
 
-    const allTablePermissions =
-      await this._dbContext.permissionRepository.getAllUserPermissionsForAllTablesInConnection(userId, connectionId);
-    const tablesAndAccessLevels = {};
-    tables.map((table) => {
-      if (table.tableName !== '__proto__') {
-        tablesAndAccessLevels[table.tableName] = [];
-      }
-    });
-    tables.map((table) => {
-      allTablePermissions.map((permission) => {
-        if (
-          permission.tableName === table.tableName &&
-          isObjectPropertyExists(tablesAndAccessLevels, table.tableName)
-        ) {
-          tablesAndAccessLevels[table.tableName].push(permission.accessLevel);
-        }
-      });
-    });
-    const tablesWithPermissions: Array<ITableAndViewPermissionData> = [];
-    for (const key in tablesAndAccessLevels) {
-      // eslint-disable-next-line security/detect-object-injection
-      const addPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.add);
-      // eslint-disable-next-line security/detect-object-injection
-      const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
-      // eslint-disable-next-line security/detect-object-injection
-      const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
+		const allTablePermissions =
+			await this._dbContext.permissionRepository.getAllUserPermissionsForAllTablesInConnection(userId, connectionId);
+		const tablesAndAccessLevels = {};
+		tables.map((table) => {
+			if (table.tableName !== '__proto__') {
+				tablesAndAccessLevels[table.tableName] = [];
+			}
+		});
+		tables.map((table) => {
+			allTablePermissions.map((permission) => {
+				if (
+					permission.tableName === table.tableName &&
+					isObjectPropertyExists(tablesAndAccessLevels, table.tableName)
+				) {
+					tablesAndAccessLevels[table.tableName].push(permission.accessLevel);
+				}
+			});
+		});
+		const tablesWithPermissions: Array<ITableAndViewPermissionData> = [];
+		for (const key in tablesAndAccessLevels) {
+			// eslint-disable-next-line security/detect-object-injection
+			const addPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.add);
+			// eslint-disable-next-line security/detect-object-injection
+			const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
+			// eslint-disable-next-line security/detect-object-injection
+			const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
 
-      const readOnly = !(addPermission || deletePermission || editPermission);
-      tablesWithPermissions.push({
-        tableName: key,
-        isView: tables.find((table) => table.tableName === key).isView,
-        accessLevel: {
-          // eslint-disable-next-line security/detect-object-injection
-          visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
-          // eslint-disable-next-line security/detect-object-injection
-          readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly) && !readOnly,
-          add: addPermission,
-          delete: deletePermission,
-          edit: editPermission,
-        },
-      });
-    }
-    return tablesWithPermissions.filter((tableWithPermission: ITableAndViewPermissionData) => {
-      return !!tableWithPermission.accessLevel.visibility;
-    });
-  }
+			const readOnly = !(addPermission || deletePermission || editPermission);
+			tablesWithPermissions.push({
+				tableName: key,
+				isView: tables.find((table) => table.tableName === key).isView,
+				accessLevel: {
+					// eslint-disable-next-line security/detect-object-injection
+					visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
+					// eslint-disable-next-line security/detect-object-injection
+					readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly) && !readOnly,
+					add: addPermission,
+					delete: deletePermission,
+					edit: editPermission,
+				},
+			});
+		}
+		return tablesWithPermissions.filter((tableWithPermission: ITableAndViewPermissionData) => {
+			return !!tableWithPermission.accessLevel.visibility;
+		});
+	}
 
-  private async saveTableInfoInDatabase(
-    connectionId: string,
-    _userId: string,
-    tables: Array<TableDS>,
-    masterPwd: string,
-  ): Promise<void> {
-    try {
-      const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
-      if (!foundConnection) {
-        return;
-      }
-      const decryptedConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-        connectionId,
-        masterPwd,
-      );
-      const tableNames: Array<string> = tables.map((table) => table.tableName);
-      const queue = new PQueue({ concurrency: 2 });
-      const dao = getDataAccessObject(decryptedConnection);
-      const tablesStructures: Array<{
-        tableName: string;
-        structure: Array<TableStructureDS>;
-      }> = (await Promise.all(
-        tableNames.map(async (tableName) => {
-          return await queue.add(async () => {
-            const structure = await dao.getTableStructure(tableName, undefined);
-            return {
-              tableName: tableName,
-              structure: structure,
-            };
-          });
-        }),
-      )) as Array<{
-        tableName: string;
-        structure: Array<TableStructureDS>;
-      }>;
-      foundConnection.tables_info = (await Promise.all(
-        tablesStructures.map(async (tableStructure) => {
-          return await queue.add(async () => {
-            const newTableInfo = buildTableInfoEntity(tableStructure.tableName, foundConnection);
-            const savedTableInfo = await this._dbContext.tableInfoRepository.save(newTableInfo);
-            const newTableFieldsInfos = tableStructure.structure.map((el) =>
-              buildTableFieldInfoEntity(el, savedTableInfo),
-            );
-            newTableInfo.table_fields_info = await this._dbContext.tableFieldInfoRepository.save(newTableFieldsInfos);
-            await this._dbContext.tableInfoRepository.save(newTableInfo);
-            return newTableInfo;
-          });
-        }),
-      )) as Array<TableInfoEntity>;
-      foundConnection.saved_table_info = ++foundConnection.saved_table_info;
-      await this._dbContext.connectionRepository.saveUpdatedConnection(foundConnection);
-    } catch (e) {
-      Sentry.captureException(e);
-      console.error(e);
-    }
-  }
+	private async saveTableInfoInDatabase(
+		connectionId: string,
+		_userId: string,
+		tables: Array<TableDS>,
+		masterPwd: string,
+	): Promise<void> {
+		try {
+			const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
+			if (!foundConnection) {
+				return;
+			}
+			const decryptedConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+				connectionId,
+				masterPwd,
+			);
+			const tableNames: Array<string> = tables.map((table) => table.tableName);
+			const queue = new PQueue({ concurrency: 2 });
+			const dao = getDataAccessObject(decryptedConnection);
+			const tablesStructures: Array<{
+				tableName: string;
+				structure: Array<TableStructureDS>;
+			}> = (await Promise.all(
+				tableNames.map(async (tableName) => {
+					return await queue.add(async () => {
+						const structure = await dao.getTableStructure(tableName, undefined);
+						return {
+							tableName: tableName,
+							structure: structure,
+						};
+					});
+				}),
+			)) as Array<{
+				tableName: string;
+				structure: Array<TableStructureDS>;
+			}>;
+			foundConnection.tables_info = (await Promise.all(
+				tablesStructures.map(async (tableStructure) => {
+					return await queue.add(async () => {
+						const newTableInfo = buildTableInfoEntity(tableStructure.tableName, foundConnection);
+						const savedTableInfo = await this._dbContext.tableInfoRepository.save(newTableInfo);
+						const newTableFieldsInfos = tableStructure.structure.map((el) =>
+							buildTableFieldInfoEntity(el, savedTableInfo),
+						);
+						newTableInfo.table_fields_info = await this._dbContext.tableFieldInfoRepository.save(newTableFieldsInfos);
+						await this._dbContext.tableInfoRepository.save(newTableInfo);
+						return newTableInfo;
+					});
+				}),
+			)) as Array<TableInfoEntity>;
+			foundConnection.saved_table_info = ++foundConnection.saved_table_info;
+			await this._dbContext.connectionRepository.saveUpdatedConnection(foundConnection);
+		} catch (e) {
+			Sentry.captureException(e);
+			console.error(e);
+		}
+	}
 }

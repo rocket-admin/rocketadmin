@@ -22,56 +22,56 @@ import { FindTableSettingsUseCase } from './use-cases/find-table-settings.use.ca
 import { UpdateTableSettingsUseCase } from './use-cases/update-table-settings.use.case.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      CustomFieldsEntity,
-      GroupEntity,
-      PermissionEntity,
-      TableLogsEntity,
-      TableSettingsEntity,
-      TableWidgetEntity,
-      UserEntity,
-      ConnectionPropertiesEntity,
-      LogOutEntity,
-    ]),
-    AgentModule,
-    UserModule,
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_TABLE_SETTINGS,
-      useClass: FindTableSettingsUseCase,
-    },
-    {
-      provide: UseCaseType.CREATE_TABLE_SETTINGS,
-      useClass: CreateTableSettingsUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_TABLE_SETTINGS,
-      useClass: UpdateTableSettingsUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_TABLE_SETTINGS,
-      useClass: DeleteTableSettingsUseCase,
-    },
-  ],
-  controllers: [TableSettingsController],
-  exports: [],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			CustomFieldsEntity,
+			GroupEntity,
+			PermissionEntity,
+			TableLogsEntity,
+			TableSettingsEntity,
+			TableWidgetEntity,
+			UserEntity,
+			ConnectionPropertiesEntity,
+			LogOutEntity,
+		]),
+		AgentModule,
+		UserModule,
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_TABLE_SETTINGS,
+			useClass: FindTableSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.CREATE_TABLE_SETTINGS,
+			useClass: CreateTableSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_TABLE_SETTINGS,
+			useClass: UpdateTableSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_TABLE_SETTINGS,
+			useClass: DeleteTableSettingsUseCase,
+		},
+	],
+	controllers: [TableSettingsController],
+	exports: [],
 })
 export class TableSettingsModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: '/settings/', method: RequestMethod.GET },
-        { path: '/settings/', method: RequestMethod.POST },
-        { path: '/settings/', method: RequestMethod.PUT },
-        { path: '/settings/', method: RequestMethod.DELETE },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: '/settings/', method: RequestMethod.GET },
+				{ path: '/settings/', method: RequestMethod.POST },
+				{ path: '/settings/', method: RequestMethod.PUT },
+				{ path: '/settings/', method: RequestMethod.DELETE },
+			);
+	}
 }

@@ -6,17 +6,17 @@ import { SharedJobsService } from './shared-jobs.service.js';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    SharedJobsService,
-  ],
-  controllers: [],
-  exports: [SharedJobsService],
+	imports: [TypeOrmModule.forFeature([])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		SharedJobsService,
+	],
+	controllers: [],
+	exports: [SharedJobsService],
 })
 export class SharedJobsModule {
-  public configure(_consumer: MiddlewareConsumer): any {}
+	public configure(_consumer: MiddlewareConsumer): any {}
 }

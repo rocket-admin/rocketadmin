@@ -10,40 +10,40 @@ import { generateQRCode } from '../utils/generate-qr-code.js';
 
 @Injectable()
 export class GenerateOtpUseCase extends AbstractUseCase<string, OtpSecretDS> implements IGenerateOTP {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(userId: string): Promise<OtpSecretDS> {
-    const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
-    if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+	protected async implementation(userId: string): Promise<OtpSecretDS> {
+		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    if (!foundUser.isActive) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_ACTIVE,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		if (!foundUser.isActive) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_ACTIVE,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    const otpSecretKey = authenticator.generateSecret();
-    foundUser.otpSecretKey = otpSecretKey;
-    await this._dbContext.userRepository.saveUserEntity(foundUser);
-    const { otpauth, qrCode } = await generateQRCode(foundUser.email, otpSecretKey);
-    return {
-      otpauth_url: otpauth,
-      qrCode: qrCode,
-    };
-  }
+		const otpSecretKey = authenticator.generateSecret();
+		foundUser.otpSecretKey = otpSecretKey;
+		await this._dbContext.userRepository.saveUserEntity(foundUser);
+		const { otpauth, qrCode } = await generateQRCode(foundUser.email, otpSecretKey);
+		return {
+			otpauth_url: otpauth,
+			qrCode: qrCode,
+		};
+	}
 }

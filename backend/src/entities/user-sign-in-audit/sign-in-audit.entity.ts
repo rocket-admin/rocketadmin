@@ -5,42 +5,42 @@ import { SignInMethodEnum } from './enums/sign-in-method.enum.js';
 
 @Entity('signInAudit')
 export class SignInAuditEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column({ default: null })
-  email: string;
+	@Column({ default: null })
+	email: string;
 
-  @Column('enum', {
-    nullable: false,
-    enum: SignInStatusEnum,
-    default: SignInStatusEnum.SUCCESS,
-  })
-  status: SignInStatusEnum;
+	@Column('enum', {
+		nullable: false,
+		enum: SignInStatusEnum,
+		default: SignInStatusEnum.SUCCESS,
+	})
+	status: SignInStatusEnum;
 
-  @Column('enum', {
-    nullable: false,
-    enum: SignInMethodEnum,
-    default: SignInMethodEnum.EMAIL,
-  })
-  signInMethod: SignInMethodEnum;
+	@Column('enum', {
+		nullable: false,
+		enum: SignInMethodEnum,
+		default: SignInMethodEnum.EMAIL,
+	})
+	signInMethod: SignInMethodEnum;
 
-  @Column({ default: null })
-  ipAddress: string;
+	@Column({ default: null })
+	ipAddress: string;
 
-  @Column({ default: null })
-  userAgent: string;
+	@Column({ default: null })
+	userAgent: string;
 
-  @Column({ default: null })
-  failureReason: string;
+	@Column({ default: null })
+	failureReason: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	createdAt: Date;
 
-  @ManyToOne((_) => UserEntity, { onDelete: 'CASCADE', nullable: true })
-  @JoinColumn({ name: 'userId' })
-  user: Relation<UserEntity>;
+	@ManyToOne((_) => UserEntity, { onDelete: 'CASCADE', nullable: true })
+	@JoinColumn({ name: 'userId' })
+	user: Relation<UserEntity>;
 
-  @Column({ nullable: true })
-  userId: string;
+	@Column({ nullable: true })
+	userId: string;
 }

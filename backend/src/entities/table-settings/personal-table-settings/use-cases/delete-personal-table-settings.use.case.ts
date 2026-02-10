@@ -9,29 +9,29 @@ import { buildFoundTableSettingsDto } from '../utils/build-found-table-settings-
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeletePersonalTableSettingsUseCase
-  extends AbstractUseCase<FindPersonalTableSettingsDs, FoundPersonalTableSettingsDto>
-  implements IDeletePersonalTableSettings
+	extends AbstractUseCase<FindPersonalTableSettingsDs, FoundPersonalTableSettingsDto>
+	implements IDeletePersonalTableSettings
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: FindPersonalTableSettingsDs): Promise<FoundPersonalTableSettingsDto> {
-    const { connectionId, userId, tableName } = inputData;
+	public async implementation(inputData: FindPersonalTableSettingsDs): Promise<FoundPersonalTableSettingsDto> {
+		const { connectionId, userId, tableName } = inputData;
 
-    const foundPersonalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
-      connectionId,
-      tableName,
-      userId,
-    );
+		const foundPersonalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
+			connectionId,
+			tableName,
+			userId,
+		);
 
-    if (foundPersonalTableSettings) {
-      await this._dbContext.personalTableSettingsRepository.remove(foundPersonalTableSettings);
-    }
+		if (foundPersonalTableSettings) {
+			await this._dbContext.personalTableSettingsRepository.remove(foundPersonalTableSettings);
+		}
 
-    return buildFoundTableSettingsDto(foundPersonalTableSettings);
-  }
+		return buildFoundTableSettingsDto(foundPersonalTableSettings);
+	}
 }

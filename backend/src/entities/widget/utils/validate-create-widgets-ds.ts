@@ -1,16 +1,13 @@
-import JSON5 from "json5";
-import {
-	EncryptionAlgorithmEnum,
-	WidgetTypeEnum,
-} from "../../../enums/index.js";
-import { Messages } from "../../../exceptions/text/messages.js";
-import { Constants } from "../../../helpers/constants/constants.js";
-import { getPropertyValueByDescriptor } from "../../../helpers/index.js";
-import { ConnectionEntity } from "../../connection/connection.entity.js";
-import { ForeignKeyDSInfo } from "../../table/table-datastructures.js";
-import { findTableFieldsUtil } from "../../table/utils/find-table-fields.util.js";
-import { findTablesInConnectionUtil } from "../../table/utils/find-tables-in-connection.util.js";
-import { CreateTableWidgetDs } from "../application/data-sctructures/create-table-widgets.ds.js";
+import JSON5 from 'json5';
+import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { getPropertyValueByDescriptor } from '../../../helpers/index.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { ForeignKeyDSInfo } from '../../table/table-datastructures.js';
+import { findTableFieldsUtil } from '../../table/utils/find-table-fields.util.js';
+import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util.js';
+import { CreateTableWidgetDs } from '../application/data-sctructures/create-table-widgets.ds.js';
 
 export async function validateCreateWidgetsDs(
 	widgetsDS: Array<CreateTableWidgetDs>,
@@ -20,21 +17,12 @@ export async function validateCreateWidgetsDs(
 	userEmail: string,
 ): Promise<Array<string>> {
 	const errors = [];
-	const availableTablesInConnection = await findTablesInConnectionUtil(
-		connection,
-		userId,
-		userEmail,
-	);
+	const availableTablesInConnection = await findTablesInConnectionUtil(connection, userId, userEmail);
 	if (!availableTablesInConnection.includes(tableName)) {
 		errors.push(Messages.TABLE_NOT_FOUND);
 		return errors;
 	}
-	const availableTableFields = await findTableFieldsUtil(
-		connection,
-		tableName,
-		userId,
-		userEmail,
-	);
+	const availableTableFields = await findTableFieldsUtil(connection, tableName, userId, userEmail);
 	if (!widgetsDS || !Array.isArray(widgetsDS)) {
 		errors.push(Messages.WIDGETS_PROPERTY_MISSING);
 		return errors;
@@ -57,60 +45,39 @@ export async function validateCreateWidgetsDs(
 		//   }
 		// }
 		if (widget_type && widget_type === WidgetTypeEnum.Password) {
-			let widget_params = widgetDS.widget_params as
-				| string
-				| Record<string, any>;
-			if (typeof widget_params === "string") {
+			let widget_params = widgetDS.widget_params as string | Record<string, any>;
+			if (typeof widget_params === 'string') {
 				widget_params = JSON5.parse<ForeignKeyDSInfo>(widget_params);
 			}
 
 			if (
 				widget_params.algorithm &&
-				!Object.keys(EncryptionAlgorithmEnum).find(
-					(key) => key === widget_params.algorithm,
-				)
+				!Object.keys(EncryptionAlgorithmEnum).find((key) => key === widget_params.algorithm)
 			) {
-				errors.push(
-					Messages.ENCRYPTION_ALGORITHM_INCORRECT(widget_params.algorithm),
-				);
+				errors.push(Messages.ENCRYPTION_ALGORITHM_INCORRECT(widget_params.algorithm));
 			}
 			if (widget_params.encrypt === undefined) {
-				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING("encrypt"));
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('encrypt'));
 			}
 		}
 
 		if (widget_type && widget_type === WidgetTypeEnum.Foreign_key) {
-			const widget_params: ForeignKeyDSInfo = JSON5.parse(
-				widgetDS.widget_params,
-			);
+			const widget_params: ForeignKeyDSInfo = JSON5.parse(widgetDS.widget_params);
 
 			for (const key in widget_params) {
 				if (!Constants.FOREIGN_KEY_FIELDS.includes(key)) {
-					errors.push(
-						Messages.WIDGET_PARAMETER_UNSUPPORTED(key, widgetDS.widget_type),
-					);
+					errors.push(Messages.WIDGET_PARAMETER_UNSUPPORTED(key, widgetDS.widget_type));
 					continue;
 				}
-				if (
-					!getPropertyValueByDescriptor(widget_params, key) &&
-					key !== "constraint_name"
-				) {
+				if (!getPropertyValueByDescriptor(widget_params, key) && key !== 'constraint_name') {
 					errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING(key));
 				}
 			}
 			if (errors.length > 0) {
 				return errors;
 			}
-			if (
-				!availableTablesInConnection.includes(
-					widget_params.referenced_table_name,
-				)
-			) {
-				errors.push(
-					Messages.TABLE_WITH_NAME_NOT_EXISTS(
-						widget_params.referenced_table_name,
-					),
-				);
+			if (!availableTablesInConnection.includes(widget_params.referenced_table_name)) {
+				errors.push(Messages.TABLE_WITH_NAME_NOT_EXISTS(widget_params.referenced_table_name));
 				return errors;
 			}
 			const foreignTableFields = await findTableFieldsUtil(
@@ -121,10 +88,7 @@ export async function validateCreateWidgetsDs(
 			);
 			if (!foreignTableFields.includes(widget_params.referenced_column_name)) {
 				errors.push(
-					Messages.NO_SUCH_FIELD_IN_TABLE(
-						widget_params.referenced_column_name,
-						widget_params.referenced_table_name,
-					),
+					Messages.NO_SUCH_FIELD_IN_TABLE(widget_params.referenced_column_name, widget_params.referenced_table_name),
 				);
 			}
 		}
@@ -132,26 +96,16 @@ export async function validateCreateWidgetsDs(
 		if (widget_type && widget_type === WidgetTypeEnum.S3) {
 			const rawParams = widgetDS.widget_params;
 			const widget_params: Record<string, any> =
-				typeof rawParams === "string"
-					? JSON5.parse(rawParams)
-					: (rawParams as Record<string, any>);
+				typeof rawParams === 'string' ? JSON5.parse(rawParams) : (rawParams as Record<string, any>);
 
 			if (!widget_params.bucket) {
-				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING("bucket"));
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('bucket'));
 			}
 			if (!widget_params.aws_access_key_id_secret_name) {
-				errors.push(
-					Messages.WIDGET_REQUIRED_PARAMETER_MISSING(
-						"aws_access_key_id_secret_name",
-					),
-				);
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('aws_access_key_id_secret_name'));
 			}
 			if (!widget_params.aws_secret_access_key_secret_name) {
-				errors.push(
-					Messages.WIDGET_REQUIRED_PARAMETER_MISSING(
-						"aws_secret_access_key_secret_name",
-					),
-				);
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('aws_secret_access_key_secret_name'));
 			}
 		}
 	}

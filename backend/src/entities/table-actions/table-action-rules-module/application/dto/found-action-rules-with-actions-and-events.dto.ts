@@ -4,64 +4,64 @@ import { TableActionMethodEnum } from '../../../../../enums/table-action-method-
 import { TableActionEventEnum } from '../../../../../enums/table-action-event-enum.js';
 
 export class FoundTableActionDTO {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty({ type: String, nullable: true })
-  url?: string | null;
+	@ApiProperty({ type: String, nullable: true })
+	url?: string | null;
 
-  @ApiProperty({ enum: TableActionMethodEnum })
-  method: TableActionMethodEnum;
+	@ApiProperty({ enum: TableActionMethodEnum })
+	method: TableActionMethodEnum;
 
-  @ApiProperty({ type: String, nullable: true })
-  slack_url?: string | null;
+	@ApiProperty({ type: String, nullable: true })
+	slack_url?: string | null;
 
-  @ApiProperty({ type: String, isArray: true })
-  emails: Array<string>;
+	@ApiProperty({ type: String, isArray: true })
+	emails: Array<string>;
 
-  @ApiProperty()
-  created_at: Date;
+	@ApiProperty()
+	created_at: Date;
 }
 
 export class FoundActionEventDTO {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty({ enum: TableActionEventEnum })
-  event: TableActionEventEnum;
+	@ApiProperty({ enum: TableActionEventEnum })
+	event: TableActionEventEnum;
 
-  @ApiProperty({ enum: TableActionTypeEnum })
-  type: TableActionTypeEnum;
+	@ApiProperty({ enum: TableActionTypeEnum })
+	type: TableActionTypeEnum;
 
-  @ApiProperty()
-  title: string;
+	@ApiProperty()
+	title: string;
 
-  @ApiProperty({ type: String, nullable: true })
-  icon: string | null;
+	@ApiProperty({ type: String, nullable: true })
+	icon: string | null;
 
-  @ApiProperty()
-  require_confirmation: boolean;
+	@ApiProperty()
+	require_confirmation: boolean;
 
-  @ApiProperty()
-  created_at: Date;
+	@ApiProperty()
+	created_at: Date;
 }
 
 export class FoundActionRulesWithActionsAndEventsDTO {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty()
-  table_name: string;
+	@ApiProperty()
+	table_name: string;
 
-  @ApiProperty()
-  title: string;
+	@ApiProperty()
+	title: string;
 
-  @ApiProperty()
-  created_at: Date;
+	@ApiProperty()
+	created_at: Date;
 
-  @ApiProperty({ type: FoundTableActionDTO, isArray: true })
-  table_actions: Array<FoundTableActionDTO>;
+	@ApiProperty({ type: FoundTableActionDTO, isArray: true })
+	table_actions: Array<FoundTableActionDTO>;
 
-  @ApiProperty({ type: FoundActionEventDTO, isArray: true })
-  events: Array<FoundActionEventDTO>;
+	@ApiProperty({ type: FoundActionEventDTO, isArray: true })
+	events: Array<FoundActionEventDTO>;
 }

@@ -8,23 +8,23 @@ import { slackPostMessage } from '../../../helpers/index.js';
 
 @Injectable()
 export class SuspendUsersOverLimitUseCase extends AbstractUseCase<string, void> implements ISuspendUsersOverLimit {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(companyId: string): Promise<void> {
-    const foundUsersInCompany = await this._dbContext.userRepository.findUsersInCompany(companyId, true);
-    const usersToSuspend = foundUsersInCompany.slice(Constants.FREE_PLAN_USERS_COUNT);
+	protected async implementation(companyId: string): Promise<void> {
+		const foundUsersInCompany = await this._dbContext.userRepository.findUsersInCompany(companyId, true);
+		const usersToSuspend = foundUsersInCompany.slice(Constants.FREE_PLAN_USERS_COUNT);
 
-    if (usersToSuspend.length > 0) {
-      const userIdsToSuspend = usersToSuspend.map((user) => user.id);
-      await this._dbContext.userRepository.suspendUsers(userIdsToSuspend);
-    }
-    await slackPostMessage(
-      `SuspendUsersOverLimitUseCase: Company ID ${companyId} - Suspended ${usersToSuspend.length} user(s).`,
-    );
-  }
+		if (usersToSuspend.length > 0) {
+			const userIdsToSuspend = usersToSuspend.map((user) => user.id);
+			await this._dbContext.userRepository.suspendUsers(userIdsToSuspend);
+		}
+		await slackPostMessage(
+			`SuspendUsersOverLimitUseCase: Company ID ${companyId} - Suspended ${usersToSuspend.length} user(s).`,
+		);
+	}
 }

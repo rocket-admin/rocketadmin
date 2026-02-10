@@ -1,4 +1,4 @@
 export class GetGroupsInConnectionDs {
-  cognitoUserName: string;
-  connectionId: string;
+	cognitoUserName: string;
+	connectionId: string;
 }

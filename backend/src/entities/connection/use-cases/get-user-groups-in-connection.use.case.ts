@@ -10,29 +10,29 @@ import { buildFoundUserGroupInConnectionDto } from '../utils/build-found-user-gr
 
 @Injectable()
 export class GetUserGroupsInConnectionUseCase
-  extends AbstractUseCase<GetGroupsInConnectionDs, Array<FoundUserGroupsInConnectionDTO>>
-  implements IGetUserGroupsInConnection
+	extends AbstractUseCase<GetGroupsInConnectionDs, Array<FoundUserGroupsInConnectionDTO>>
+	implements IGetUserGroupsInConnection
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: GetGroupsInConnectionDs): Promise<Array<FoundUserGroupsInConnectionDTO>> {
-    const userGroups = await this._dbContext.groupRepository.findAllUserGroupsInConnection(
-      inputData.connectionId,
-      inputData.cognitoUserName,
-    );
-    return await Promise.all(
-      userGroups.map(async (group: GroupEntity) => {
-        const userAccessLevel = await this._dbContext.userAccessRepository.getGroupAccessLevel(
-          inputData.cognitoUserName,
-          group.id,
-        );
-        return buildFoundUserGroupInConnectionDto(group, userAccessLevel);
-      }),
-    );
-  }
+	protected async implementation(inputData: GetGroupsInConnectionDs): Promise<Array<FoundUserGroupsInConnectionDTO>> {
+		const userGroups = await this._dbContext.groupRepository.findAllUserGroupsInConnection(
+			inputData.connectionId,
+			inputData.cognitoUserName,
+		);
+		return await Promise.all(
+			userGroups.map(async (group: GroupEntity) => {
+				const userAccessLevel = await this._dbContext.userAccessRepository.getGroupAccessLevel(
+					inputData.cognitoUserName,
+					group.id,
+				);
+				return buildFoundUserGroupInConnectionDto(group, userAccessLevel);
+			}),
+		);
+	}
 }

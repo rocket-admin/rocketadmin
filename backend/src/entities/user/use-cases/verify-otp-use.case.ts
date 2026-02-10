@@ -10,65 +10,65 @@ import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 
 @Injectable()
 export class VerifyOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpValidationResultDS> implements IVerifyOTP {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: VerifyOtpDS): Promise<OtpValidationResultDS> {
-    const { userId, otpToken } = inputData;
-    const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
-    if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+	protected async implementation(inputData: VerifyOtpDS): Promise<OtpValidationResultDS> {
+		const { userId, otpToken } = inputData;
+		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    if (!foundUser.isActive) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_ACTIVE,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		if (!foundUser.isActive) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_ACTIVE,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    const { otpSecretKey } = foundUser;
-    if (!otpSecretKey) {
-      throw new HttpException(
-        {
-          message: Messages.OTP_NOT_ENABLED,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    try {
-      const isValid = authenticator.check(otpToken, otpSecretKey);
-      if (isValid) {
-        foundUser.isOTPEnabled = true;
-        await this._dbContext.userRepository.saveUserEntity(foundUser);
-        return {
-          validated: true,
-        };
-      }
-    } catch (_error) {
-      throw new HttpException(
-        {
-          message: Messages.OTP_VALIDATION_FAILED,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    throw new HttpException(
-      {
-        message: Messages.OTP_VALIDATION_FAILED,
-      },
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
-  }
+		const { otpSecretKey } = foundUser;
+		if (!otpSecretKey) {
+			throw new HttpException(
+				{
+					message: Messages.OTP_NOT_ENABLED,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		try {
+			const isValid = authenticator.check(otpToken, otpSecretKey);
+			if (isValid) {
+				foundUser.isOTPEnabled = true;
+				await this._dbContext.userRepository.saveUserEntity(foundUser);
+				return {
+					validated: true,
+				};
+			}
+		} catch (_error) {
+			throw new HttpException(
+				{
+					message: Messages.OTP_VALIDATION_FAILED,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		throw new HttpException(
+			{
+				message: Messages.OTP_VALIDATION_FAILED,
+			},
+			HttpStatus.INTERNAL_SERVER_ERROR,
+		);
+	}
 }

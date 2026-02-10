@@ -11,28 +11,28 @@ import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateGroupInConnectionUseCase
-  extends AbstractUseCase<CreateGroupInConnectionDs, FoundGroupResponseDto>
-  implements ICreateGroupInConnection
+	extends AbstractUseCase<CreateGroupInConnectionDs, FoundGroupResponseDto>
+	implements ICreateGroupInConnection
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: CreateGroupInConnectionDs): Promise<FoundGroupResponseDto> {
-    const {
-      group_parameters: { connectionId, title },
-      creation_info: { cognitoUserName },
-    } = inputData;
-    const connectionToUpdate = await this._dbContext.connectionRepository.findConnectionWithGroups(connectionId);
-    if (connectionToUpdate.groups.find((group) => group.title === title)) {
-      throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);
-    }
-    const foundUser = await this._dbContext.userRepository.findOneUserById(cognitoUserName);
-    const newGroupEntity = buildNewGroupEntityForConnectionWithUser(connectionToUpdate, foundUser, title);
-    const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(newGroupEntity);
-    return buildFoundGroupResponseDto(savedGroup);
-  }
+	protected async implementation(inputData: CreateGroupInConnectionDs): Promise<FoundGroupResponseDto> {
+		const {
+			group_parameters: { connectionId, title },
+			creation_info: { cognitoUserName },
+		} = inputData;
+		const connectionToUpdate = await this._dbContext.connectionRepository.findConnectionWithGroups(connectionId);
+		if (connectionToUpdate.groups.find((group) => group.title === title)) {
+			throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);
+		}
+		const foundUser = await this._dbContext.userRepository.findOneUserById(cognitoUserName);
+		const newGroupEntity = buildNewGroupEntityForConnectionWithUser(connectionToUpdate, foundUser, title);
+		const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(newGroupEntity);
+		return buildFoundGroupResponseDto(savedGroup);
+	}
 }

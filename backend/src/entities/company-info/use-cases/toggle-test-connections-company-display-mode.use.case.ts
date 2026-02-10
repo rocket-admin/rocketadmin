@@ -9,28 +9,28 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ToggleCompanyTestConnectionsDisplayModeUseCase
-  extends AbstractUseCase<ToggleTestConnectionDisplayModeDs, SuccessResponse>
-  implements IToggleCompanyTestConnectionsMode
+	extends AbstractUseCase<ToggleTestConnectionDisplayModeDs, SuccessResponse>
+	implements IToggleCompanyTestConnectionsMode
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: ToggleTestConnectionDisplayModeDs): Promise<SuccessResponse> {
-    const { userId, displayMode } = inputData;
-    const foundCompanyInfo = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(userId);
-    if (!foundCompanyInfo) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
+	public async implementation(inputData: ToggleTestConnectionDisplayModeDs): Promise<SuccessResponse> {
+		const { userId, displayMode } = inputData;
+		const foundCompanyInfo = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(userId);
+		if (!foundCompanyInfo) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 
-    const companyToUpdate = await this._dbContext.companyInfoRepository.findOne({ where: { id: foundCompanyInfo.id } });
-    companyToUpdate.show_test_connections = displayMode;
-    await this._dbContext.companyInfoRepository.save(companyToUpdate);
-    return {
-      success: true,
-    };
-  }
+		const companyToUpdate = await this._dbContext.companyInfoRepository.findOne({ where: { id: foundCompanyInfo.id } });
+		companyToUpdate.show_test_connections = displayMode;
+		await this._dbContext.companyInfoRepository.save(companyToUpdate);
+		return {
+			success: true,
+		};
+	}
 }

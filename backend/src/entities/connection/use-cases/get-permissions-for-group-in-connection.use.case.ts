@@ -10,62 +10,62 @@ import { IGetPermissionsForGroupInConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class GetPermissionsForGroupInConnectionUseCase
-  extends AbstractUseCase<GetPermissionsInConnectionDs, FoundPermissionsInConnectionDs>
-  implements IGetPermissionsForGroupInConnection
+	extends AbstractUseCase<GetPermissionsInConnectionDs, FoundPermissionsInConnectionDs>
+	implements IGetPermissionsForGroupInConnection
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: GetPermissionsInConnectionDs): Promise<FoundPermissionsInConnectionDs> {
-    const groupPermissionForConnection = await this._dbContext.permissionRepository.getGroupPermissionForConnection(
-      inputData.connectionId,
-      inputData.groupId,
-    );
-    const groupPermissionForGroup = await this._dbContext.permissionRepository.getGroupPermissionsForGroup(
-      inputData.connectionId,
-      inputData.groupId,
-    );
-    const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      inputData.connectionId,
-      inputData.masterPwd,
-    );
-    const dao = getDataAccessObject(connection);
-    const tables: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
+	protected async implementation(inputData: GetPermissionsInConnectionDs): Promise<FoundPermissionsInConnectionDs> {
+		const groupPermissionForConnection = await this._dbContext.permissionRepository.getGroupPermissionForConnection(
+			inputData.connectionId,
+			inputData.groupId,
+		);
+		const groupPermissionForGroup = await this._dbContext.permissionRepository.getGroupPermissionsForGroup(
+			inputData.connectionId,
+			inputData.groupId,
+		);
+		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			inputData.connectionId,
+			inputData.masterPwd,
+		);
+		const dao = getDataAccessObject(connection);
+		const tables: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
 
-    const tablesWithAccessLevels: Array<TablePermissionDs> = await Promise.all(
-      tables.map(async (table: string) => {
-        return await this._dbContext.permissionRepository.getGroupPermissionsForTable(
-          inputData.connectionId,
-          inputData.groupId,
-          table,
-        );
-      }),
-    );
-    const allTableSettingsInConnection = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(
-      inputData.connectionId,
-    );
-    return {
-      connection: {
-        connectionId: inputData.connectionId,
-        accessLevel: groupPermissionForConnection,
-      },
-      group: {
-        groupId: inputData.groupId,
-        accessLevel: groupPermissionForGroup,
-      },
-      tables: tablesWithAccessLevels.map((table) => {
-        const tableSettings = allTableSettingsInConnection.find(
-          (tableSettings) => tableSettings.table_name === table.tableName,
-        );
-        return {
-          ...table,
-          display_name: tableSettings?.display_name ?? null,
-        };
-      }),
-    };
-  }
+		const tablesWithAccessLevels: Array<TablePermissionDs> = await Promise.all(
+			tables.map(async (table: string) => {
+				return await this._dbContext.permissionRepository.getGroupPermissionsForTable(
+					inputData.connectionId,
+					inputData.groupId,
+					table,
+				);
+			}),
+		);
+		const allTableSettingsInConnection = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(
+			inputData.connectionId,
+		);
+		return {
+			connection: {
+				connectionId: inputData.connectionId,
+				accessLevel: groupPermissionForConnection,
+			},
+			group: {
+				groupId: inputData.groupId,
+				accessLevel: groupPermissionForGroup,
+			},
+			tables: tablesWithAccessLevels.map((table) => {
+				const tableSettings = allTableSettingsInConnection.find(
+					(tableSettings) => tableSettings.table_name === table.tableName,
+				);
+				return {
+					...table,
+					display_name: tableSettings?.display_name ?? null,
+				};
+			}),
+		};
+	}
 }

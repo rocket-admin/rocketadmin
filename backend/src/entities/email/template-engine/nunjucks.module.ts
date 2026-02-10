@@ -13,15 +13,15 @@ assert(existsSync(pathToTemplates), `Email templates directory does not exist: $
 
 @Global()
 @Module({
-  providers: [
-    {
-      provide: BaseType.NUNJUCKS,
-      useFactory: () => {
-        const env = new nunjucks.Environment(new nunjucks.FileSystemLoader(pathToTemplates));
-        return env;
-      },
-    },
-  ],
-  exports: [BaseType.NUNJUCKS],
+	providers: [
+		{
+			provide: BaseType.NUNJUCKS,
+			useFactory: () => {
+				const env = new nunjucks.Environment(new nunjucks.FileSystemLoader(pathToTemplates));
+				return env;
+			},
+		},
+	],
+	exports: [BaseType.NUNJUCKS],
 })
 export class NunjucksModule {}

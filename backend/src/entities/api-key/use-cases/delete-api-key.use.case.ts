@@ -10,21 +10,21 @@ import { buildFoundApiKeyDS } from '../utils/build-found-api-key.ds.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteApiKeyUseCase extends AbstractUseCase<FindApiKeyDS, FoundApiKeyDS> implements IDeleteApiKey {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(apiKeyData: FindApiKeyDS): Promise<FoundApiKeyDS> {
-    const { apiKeyId, userId } = apiKeyData;
-    const foundApiKey = await this._dbContext.userApiKeysRepository.findApiKeyByIdAndUserId(apiKeyId, userId);
-    if (!foundApiKey) {
-      throw new NotFoundException(Messages.API_KEY_NOT_FOUND);
-    }
-    const foundApiKeyCopy = Object.assign({}, foundApiKey);
-    await this._dbContext.userApiKeysRepository.remove(foundApiKey);
-    return buildFoundApiKeyDS(foundApiKeyCopy);
-  }
+	public async implementation(apiKeyData: FindApiKeyDS): Promise<FoundApiKeyDS> {
+		const { apiKeyId, userId } = apiKeyData;
+		const foundApiKey = await this._dbContext.userApiKeysRepository.findApiKeyByIdAndUserId(apiKeyId, userId);
+		if (!foundApiKey) {
+			throw new NotFoundException(Messages.API_KEY_NOT_FOUND);
+		}
+		const foundApiKeyCopy = Object.assign({}, foundApiKey);
+		await this._dbContext.userApiKeysRepository.remove(foundApiKey);
+		return buildFoundApiKeyDS(foundApiKeyCopy);
+	}
 }

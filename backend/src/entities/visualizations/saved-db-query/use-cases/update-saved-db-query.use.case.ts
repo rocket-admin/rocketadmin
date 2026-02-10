@@ -24,7 +24,17 @@ export class UpdateSavedDbQueryUseCase
 	}
 
 	public async implementation(inputData: UpdateSavedDbQueryDs): Promise<FoundSavedDbQueryDto> {
-		const { queryId, connectionId, masterPassword, name, description, widget_type, chart_type, widget_options, query_text } = inputData;
+		const {
+			queryId,
+			connectionId,
+			masterPassword,
+			name,
+			description,
+			widget_type,
+			chart_type,
+			widget_options,
+			query_text,
+		} = inputData;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,

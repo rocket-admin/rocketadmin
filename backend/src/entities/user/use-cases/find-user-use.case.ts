@@ -12,22 +12,23 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable()
 export class FindUserUseCase
-  extends AbstractUseCase<FindUserDs | CreateUserDs, FoundUserDto>
-  implements IFindUserUseCase
+	extends AbstractUseCase<FindUserDs | CreateUserDs, FoundUserDto>
+	implements IFindUserUseCase
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,readonly _amplitudeService: AmplitudeService,
-    private readonly userHelperService: UserHelperService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		readonly _amplitudeService: AmplitudeService,
+		private readonly userHelperService: UserHelperService,
+	) {
+		super();
+	}
 
-  protected async implementation(userData: FindUserDs | CreateUserDs): Promise<FoundUserDto> {
-    const user = await this._dbContext.userRepository.findOneUserById(userData.id);
-    if (user) {
-      return await this.userHelperService.buildFoundUserDs(user);
-    }
-    throw new NotFoundException(Messages.USER_NOT_FOUND);
-  }
+	protected async implementation(userData: FindUserDs | CreateUserDs): Promise<FoundUserDto> {
+		const user = await this._dbContext.userRepository.findOneUserById(userData.id);
+		if (user) {
+			return await this.userHelperService.buildFoundUserDs(user);
+		}
+		throw new NotFoundException(Messages.USER_NOT_FOUND);
+	}
 }

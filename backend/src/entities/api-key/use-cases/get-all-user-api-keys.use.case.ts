@@ -8,15 +8,15 @@ import { buildFoundApiKeyDS } from '../utils/build-found-api-key.ds.js';
 
 @Injectable()
 export class GetAllUserApiKeysUseCase extends AbstractUseCase<string, Array<FoundApiKeyDS>> implements IGetApiKeys {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(userId: string): Promise<Array<FoundApiKeyDS>> {
-    const foundApiKeys = await this._dbContext.userApiKeysRepository.findApiKeysByUserId(userId);
-    return foundApiKeys.map((apiKey) => buildFoundApiKeyDS(apiKey));
-  }
+	protected async implementation(userId: string): Promise<Array<FoundApiKeyDS>> {
+		const foundApiKeys = await this._dbContext.userApiKeysRepository.findApiKeysByUserId(userId);
+		return foundApiKeys.map((apiKey) => buildFoundApiKeyDS(apiKey));
+	}
 }

@@ -8,22 +8,22 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class FreezeConnectionsInCompanyUseCase
-  extends AbstractUseCase<FreezeConnectionsInCompanyDS, SuccessResponse>
-  implements IFreezeConnectionsInCompany
+	extends AbstractUseCase<FreezeConnectionsInCompanyDS, SuccessResponse>
+	implements IFreezeConnectionsInCompany
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(_inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse> {
-    return { success: true };
-    // const { companyIds } = inputData;
-    // const companyPaidConnections = await this._dbContext.companyInfoRepository.findCompaniesPaidConnections(companyIds);
-    // const connectionsIds = companyPaidConnections.map((connection) => connection.id);
-    // await this._dbContext.connectionRepository.freezeConnections(connectionsIds);
-    // return { success: true };
-  }
+	protected async implementation(_inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse> {
+		return { success: true };
+		// const { companyIds } = inputData;
+		// const companyPaidConnections = await this._dbContext.companyInfoRepository.findCompaniesPaidConnections(companyIds);
+		// const connectionsIds = companyPaidConnections.map((connection) => connection.id);
+		// await this._dbContext.connectionRepository.freezeConnections(connectionsIds);
+		// return { success: true };
+	}
 }

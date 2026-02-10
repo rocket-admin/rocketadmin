@@ -6,28 +6,40 @@ import { ConnectionEntity } from '../connection/connection.entity.js';
 @Entity('group')
 @Unique(['connection', 'title'])
 export class GroupEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column()
-  title: string;
+	@Column()
+	title: string;
 
-  @Column({ default: false, type: 'boolean' })
-  isMain: boolean;
+	@Column({ default: false, type: 'boolean' })
+	isMain: boolean;
 
-  @ManyToMany((_) => PermissionEntity, (permission) => permission.groups, {
-    onDelete: 'CASCADE',
-  })
-  permissions?: Relation<PermissionEntity>[];
+	@ManyToMany(
+		(_) => PermissionEntity,
+		(permission) => permission.groups,
+		{
+			onDelete: 'CASCADE',
+		},
+	)
+	permissions?: Relation<PermissionEntity>[];
 
-  @ManyToMany((_) => UserEntity, (user) => user.groups, {
-    onDelete: 'CASCADE',
-  })
-  users?: Relation<UserEntity>[];
+	@ManyToMany(
+		(_) => UserEntity,
+		(user) => user.groups,
+		{
+			onDelete: 'CASCADE',
+		},
+	)
+	users?: Relation<UserEntity>[];
 
-  @ManyToOne((_) => ConnectionEntity, (connection) => connection.groups, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn()
-  connection: Relation<ConnectionEntity>;
+	@ManyToOne(
+		(_) => ConnectionEntity,
+		(connection) => connection.groups,
+		{
+			onDelete: 'CASCADE',
+		},
+	)
+	@JoinColumn()
+	connection: Relation<ConnectionEntity>;
 }

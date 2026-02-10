@@ -9,21 +9,21 @@ import { IFindAllUsersInGroup } from './use-cases.interfaces.js';
 
 @Injectable()
 export class FindAllUsersInGroupUseCase
-  extends AbstractUseCase<string, Array<FoundUserInGroupDs>>
-  implements IFindAllUsersInGroup
+	extends AbstractUseCase<string, Array<FoundUserInGroupDs>>
+	implements IFindAllUsersInGroup
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly userHelperService: UserHelperService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly userHelperService: UserHelperService,
+	) {
+		super();
+	}
 
-  protected async implementation(groupId: string): Promise<Array<FoundUserInGroupDs>> {
-    const result: Array<UserEntity> = await this._dbContext.groupRepository.findAllUsersInGroup(groupId);
-    return result.map((user: UserEntity) => {
-      return this.userHelperService.buildFoundUserInGroupDs(user);
-    });
-  }
+	protected async implementation(groupId: string): Promise<Array<FoundUserInGroupDs>> {
+		const result: Array<UserEntity> = await this._dbContext.groupRepository.findAllUsersInGroup(groupId);
+		return result.map((user: UserEntity) => {
+			return this.userHelperService.buildFoundUserInGroupDs(user);
+		});
+	}
 }

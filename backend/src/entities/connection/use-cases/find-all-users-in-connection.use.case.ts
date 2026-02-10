@@ -9,21 +9,21 @@ import { UserEntity } from '../../user/user.entity.js';
 
 @Injectable()
 export class FindAllUsersInConnectionUseCase
-  extends AbstractUseCase<string, Array<FoundUserDto>>
-  implements IFindUsersInConnection
+	extends AbstractUseCase<string, Array<FoundUserDto>>
+	implements IFindUsersInConnection
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(connectionId: string): Promise<Array<FoundUserDto>> {
-    const userInConnection = await this._dbContext.userRepository.findAllUsersInConnection(connectionId);
-    return userInConnection.map((user) => {
-      //todo fix type after repository types are fixed
-      return buildFoundUserDto(user as UserEntity);
-    });
-  }
+	protected async implementation(connectionId: string): Promise<Array<FoundUserDto>> {
+		const userInConnection = await this._dbContext.userRepository.findAllUsersInConnection(connectionId);
+		return userInConnection.map((user) => {
+			//todo fix type after repository types are fixed
+			return buildFoundUserDto(user as UserEntity);
+		});
+	}
 }

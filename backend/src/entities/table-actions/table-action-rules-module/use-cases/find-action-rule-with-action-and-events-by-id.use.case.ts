@@ -10,25 +10,25 @@ import { buildFoundActionRulesWithActionsAndEventsDTO } from '../utils/build-fou
 
 @Injectable()
 export class FindActionRuleWithActionsAndEventsUseCase
-  extends AbstractUseCase<FindActionRuleByIdDS, FoundActionRulesWithActionsAndEventsDTO>
-  implements IFindActionRuleById
+	extends AbstractUseCase<FindActionRuleByIdDS, FoundActionRulesWithActionsAndEventsDTO>
+	implements IFindActionRuleById
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: FindActionRuleByIdDS): Promise<FoundActionRulesWithActionsAndEventsDTO> {
-    const { connectionId, ruleId } = inputData;
-    const foundRuleWithActionsAndEvents = await this._dbContext.actionRulesRepository.findOneWithActionsAndEvents(
-      ruleId,
-      connectionId,
-    );
-    if (!foundRuleWithActionsAndEvents) {
-      throw new NotFoundException(Messages.RULE_NOT_FOUND);
-    }
-    return buildFoundActionRulesWithActionsAndEventsDTO(foundRuleWithActionsAndEvents);
-  }
+	public async implementation(inputData: FindActionRuleByIdDS): Promise<FoundActionRulesWithActionsAndEventsDTO> {
+		const { connectionId, ruleId } = inputData;
+		const foundRuleWithActionsAndEvents = await this._dbContext.actionRulesRepository.findOneWithActionsAndEvents(
+			ruleId,
+			connectionId,
+		);
+		if (!foundRuleWithActionsAndEvents) {
+			throw new NotFoundException(Messages.RULE_NOT_FOUND);
+		}
+		return buildFoundActionRulesWithActionsAndEventsDTO(foundRuleWithActionsAndEvents);
+	}
 }

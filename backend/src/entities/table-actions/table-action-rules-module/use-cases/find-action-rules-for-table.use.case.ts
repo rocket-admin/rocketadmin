@@ -9,27 +9,27 @@ import { FoundTableActionRulesRoDTO } from '../application/dto/found-table-actio
 
 @Injectable()
 export class FindActionRulesForTableUseCase
-  extends AbstractUseCase<FindActionRulesDS, FoundTableActionRulesRoDTO>
-  implements IFindActionRulesForTable
+	extends AbstractUseCase<FindActionRulesDS, FoundTableActionRulesRoDTO>
+	implements IFindActionRulesForTable
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: FindActionRulesDS): Promise<FoundTableActionRulesRoDTO> {
-    const { connectionId, tableName } = inputData;
-    const foundActionRules = await this._dbContext.actionRulesRepository.findAllFullActionRulesForTableInConnection(
-      connectionId,
-      tableName,
-    );
-    const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
-    const display_name = foundTableSettings?.display_name ?? tableName;
-    return {
-      display_name: display_name,
-      action_rules: foundActionRules.map((actionRule) => buildFoundActionRulesWithActionsAndEventsDTO(actionRule)),
-    };
-  }
+	public async implementation(inputData: FindActionRulesDS): Promise<FoundTableActionRulesRoDTO> {
+		const { connectionId, tableName } = inputData;
+		const foundActionRules = await this._dbContext.actionRulesRepository.findAllFullActionRulesForTableInConnection(
+			connectionId,
+			tableName,
+		);
+		const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
+		const display_name = foundTableSettings?.display_name ?? tableName;
+		return {
+			display_name: display_name,
+			action_rules: foundActionRules.map((actionRule) => buildFoundActionRulesWithActionsAndEventsDTO(actionRule)),
+		};
+	}
 }

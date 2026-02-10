@@ -4,9 +4,9 @@ import { InTransactionEnum } from '../../../enums/index.js';
 import { StreamableFile } from '@nestjs/common';
 
 export interface IFindLogs {
-  execute(inputData: FindLogsDs, inTransaction: InTransactionEnum): Promise<FoundLogsDs>;
+	execute(inputData: FindLogsDs, inTransaction: InTransactionEnum): Promise<FoundLogsDs>;
 }
 
 export interface IExportLogsAsCsv {
-  execute(inputData: FindLogsDs): Promise<StreamableFile>;
+	execute(inputData: FindLogsDs): Promise<StreamableFile>;
 }

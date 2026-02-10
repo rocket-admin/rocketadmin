@@ -45,166 +45,166 @@ import { FindCompanyWhiteLabelPropertiesUseCase } from './use-cases/find-company
 import { CompanyInfoHelperService } from './company-info-helper.service.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      UserEntity,
-      GroupEntity,
-      PermissionEntity,
-      TableSettingsEntity,
-      TableLogsEntity,
-      CustomFieldsEntity,
-      TableWidgetEntity,
-      ConnectionPropertiesEntity,
-      CompanyLogoEntity,
-      LogOutEntity,
-    ]),
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
-      useClass: InviteUserInCompanyAndConnectionGroupUseCase,
-    },
-    {
-      provide: UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
-      useClass: VerifyInviteUserInCompanyAndConnectionGroupUseCase,
-    },
-    {
-      provide: UseCaseType.GET_USER_COMPANY,
-      useClass: GetUserCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.GET_FULL_USER_COMPANIES_INFO,
-      useClass: GetUserCompanyFullInfoUseCase,
-    },
-    {
-      provide: UseCaseType.GET_USER_EMAIL_COMPANIES,
-      useClass: GetUserEmailCompaniesUseCase,
-    },
-    {
-      provide: UseCaseType.GET_USERS_IN_COMPANY,
-      useClass: GetAllUsersInCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.REMOVE_USER_FROM_COMPANY,
-      useClass: RemoveUserFromCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.REVOKE_INVITATION_IN_COMPANY,
-      useClass: RevokeUserInvitationInCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_COMPANY_NAME,
-      useClass: UpdateCompanyNameUseCase,
-    },
-    {
-      provide: UseCaseType.GET_COMPANY_NAME,
-      useClass: GetCompanyNameUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_USERS_COMPANY_ROLES,
-      useClass: UpdateUsersCompanyRolesUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_COMPANY,
-      useClass: DeleteCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.CHECK_IS_VERIFICATION_LINK_AVAILABLE,
-      useClass: CheckIsVerificationLinkAvailable,
-    },
-    {
-      provide: UseCaseType.UPDATE_USERS_2FA_STATUS_IN_COMPANY,
-      useClass: UpdateUses2faStatusInCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.SUSPEND_USERS_IN_COMPANY,
-      useClass: SuspendUsersInCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.UNSUSPEND_USERS_IN_COMPANY,
-      useClass: UnsuspendUsersInCompanyUseCase,
-    },
-    {
-      provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY,
-      useClass: ToggleCompanyTestConnectionsDisplayModeUseCase,
-    },
-    {
-      provide: UseCaseType.UPLOAD_COMPANY_LOGO,
-      useClass: UploadCompanyLogoUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_COMPANY_LOGO,
-      useClass: FindCompanyLogoUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_COMPANY_LOGO,
-      useClass: DeleteCompanyLogoUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_COMPANY_FAVICON,
-      useClass: DeleteCompanyFaviconUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_COMPANY_FAVICON,
-      useClass: FindCompanyFaviconUseCase,
-    },
-    {
-      provide: UseCaseType.UPLOAD_COMPANY_FAVICON,
-      useClass: UploadCompanyFaviconUseCase,
-    },
-    {
-      provide: UseCaseType.ADD_COMPANY_TAB_TITLE,
-      useClass: AddCompanyTabTitleUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_COMPANY_TAB_TITLE,
-      useClass: FindCompanyTabTitleUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_COMPANY_TAB_TITLE,
-      useClass: DeleteCompanyTabTitleUseCase,
-    },
-    {
-      provide: UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES,
-      useClass: FindCompanyWhiteLabelPropertiesUseCase,
-    },
-    CompanyInfoHelperService,
-  ],
-  controllers: [CompanyInfoController],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			UserEntity,
+			GroupEntity,
+			PermissionEntity,
+			TableSettingsEntity,
+			TableLogsEntity,
+			CustomFieldsEntity,
+			TableWidgetEntity,
+			ConnectionPropertiesEntity,
+			CompanyLogoEntity,
+			LogOutEntity,
+		]),
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
+			useClass: InviteUserInCompanyAndConnectionGroupUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
+			useClass: VerifyInviteUserInCompanyAndConnectionGroupUseCase,
+		},
+		{
+			provide: UseCaseType.GET_USER_COMPANY,
+			useClass: GetUserCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.GET_FULL_USER_COMPANIES_INFO,
+			useClass: GetUserCompanyFullInfoUseCase,
+		},
+		{
+			provide: UseCaseType.GET_USER_EMAIL_COMPANIES,
+			useClass: GetUserEmailCompaniesUseCase,
+		},
+		{
+			provide: UseCaseType.GET_USERS_IN_COMPANY,
+			useClass: GetAllUsersInCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.REMOVE_USER_FROM_COMPANY,
+			useClass: RemoveUserFromCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.REVOKE_INVITATION_IN_COMPANY,
+			useClass: RevokeUserInvitationInCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_COMPANY_NAME,
+			useClass: UpdateCompanyNameUseCase,
+		},
+		{
+			provide: UseCaseType.GET_COMPANY_NAME,
+			useClass: GetCompanyNameUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_USERS_COMPANY_ROLES,
+			useClass: UpdateUsersCompanyRolesUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_COMPANY,
+			useClass: DeleteCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.CHECK_IS_VERIFICATION_LINK_AVAILABLE,
+			useClass: CheckIsVerificationLinkAvailable,
+		},
+		{
+			provide: UseCaseType.UPDATE_USERS_2FA_STATUS_IN_COMPANY,
+			useClass: UpdateUses2faStatusInCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.SUSPEND_USERS_IN_COMPANY,
+			useClass: SuspendUsersInCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.UNSUSPEND_USERS_IN_COMPANY,
+			useClass: UnsuspendUsersInCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY,
+			useClass: ToggleCompanyTestConnectionsDisplayModeUseCase,
+		},
+		{
+			provide: UseCaseType.UPLOAD_COMPANY_LOGO,
+			useClass: UploadCompanyLogoUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_COMPANY_LOGO,
+			useClass: FindCompanyLogoUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_COMPANY_LOGO,
+			useClass: DeleteCompanyLogoUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_COMPANY_FAVICON,
+			useClass: DeleteCompanyFaviconUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_COMPANY_FAVICON,
+			useClass: FindCompanyFaviconUseCase,
+		},
+		{
+			provide: UseCaseType.UPLOAD_COMPANY_FAVICON,
+			useClass: UploadCompanyFaviconUseCase,
+		},
+		{
+			provide: UseCaseType.ADD_COMPANY_TAB_TITLE,
+			useClass: AddCompanyTabTitleUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_COMPANY_TAB_TITLE,
+			useClass: FindCompanyTabTitleUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_COMPANY_TAB_TITLE,
+			useClass: DeleteCompanyTabTitleUseCase,
+		},
+		{
+			provide: UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES,
+			useClass: FindCompanyWhiteLabelPropertiesUseCase,
+		},
+		CompanyInfoHelperService,
+	],
+	controllers: [CompanyInfoController],
 })
 export class CompanyInfoModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: '/company/user/:companyId', method: RequestMethod.PUT },
-        { path: '/company/my', method: RequestMethod.GET },
-        { path: '/company/my', method: RequestMethod.DELETE },
-        { path: '/company/my/full', method: RequestMethod.GET },
-        { path: '/company/users/:companyId', method: RequestMethod.GET },
-        { path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },
-        { path: '/company/invitation/revoke/:companyId', method: RequestMethod.PUT },
-        { path: '/company/name/:companyId', method: RequestMethod.PUT },
-        { path: '/company/users/roles/:companyId', method: RequestMethod.PUT },
-        { path: '/company/2fa/:companyId', method: RequestMethod.PUT },
-        { path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
-        { path: '/company/users/unsuspend/:companyId', method: RequestMethod.PUT },
-        { path: '/company/connections/display/', method: RequestMethod.PUT },
-        { path: '/company/logo/:companyId', method: RequestMethod.POST },
-        { path: '/company/logo/:companyId', method: RequestMethod.GET },
-        { path: '/company/logo/:companyId', method: RequestMethod.DELETE },
-        { path: '/company/favicon/:companyId', method: RequestMethod.POST },
-        { path: '/company/favicon/:companyId', method: RequestMethod.GET },
-        { path: '/company/favicon/:companyId', method: RequestMethod.DELETE },
-        { path: '/company/tab-title/:companyId', method: RequestMethod.POST },
-        { path: '/company/tab-title/:companyId', method: RequestMethod.GET },
-        { path: '/company/tab-title/:companyId', method: RequestMethod.DELETE },
-        { path: '/company/white-label-properties/:companyId', method: RequestMethod.GET },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: '/company/user/:companyId', method: RequestMethod.PUT },
+				{ path: '/company/my', method: RequestMethod.GET },
+				{ path: '/company/my', method: RequestMethod.DELETE },
+				{ path: '/company/my/full', method: RequestMethod.GET },
+				{ path: '/company/users/:companyId', method: RequestMethod.GET },
+				{ path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },
+				{ path: '/company/invitation/revoke/:companyId', method: RequestMethod.PUT },
+				{ path: '/company/name/:companyId', method: RequestMethod.PUT },
+				{ path: '/company/users/roles/:companyId', method: RequestMethod.PUT },
+				{ path: '/company/2fa/:companyId', method: RequestMethod.PUT },
+				{ path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
+				{ path: '/company/users/unsuspend/:companyId', method: RequestMethod.PUT },
+				{ path: '/company/connections/display/', method: RequestMethod.PUT },
+				{ path: '/company/logo/:companyId', method: RequestMethod.POST },
+				{ path: '/company/logo/:companyId', method: RequestMethod.GET },
+				{ path: '/company/logo/:companyId', method: RequestMethod.DELETE },
+				{ path: '/company/favicon/:companyId', method: RequestMethod.POST },
+				{ path: '/company/favicon/:companyId', method: RequestMethod.GET },
+				{ path: '/company/favicon/:companyId', method: RequestMethod.DELETE },
+				{ path: '/company/tab-title/:companyId', method: RequestMethod.POST },
+				{ path: '/company/tab-title/:companyId', method: RequestMethod.GET },
+				{ path: '/company/tab-title/:companyId', method: RequestMethod.DELETE },
+				{ path: '/company/white-label-properties/:companyId', method: RequestMethod.GET },
+			);
+	}
 }

@@ -10,30 +10,30 @@ import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_TABLE_CATEGORIES,
-      useClass: FindTableCategoriesUseCase,
-    },
-    {
-      provide: UseCaseType.CREATE_UPDATE_TABLE_CATEGORIES,
-      useClass: CreateOrUpdateTableCategoriesUseCase,
-    },
-  ],
-  controllers: [TableCategoriesController],
+	imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_TABLE_CATEGORIES,
+			useClass: FindTableCategoriesUseCase,
+		},
+		{
+			provide: UseCaseType.CREATE_UPDATE_TABLE_CATEGORIES,
+			useClass: CreateOrUpdateTableCategoriesUseCase,
+		},
+	],
+	controllers: [TableCategoriesController],
 })
 export class TableCategoriesModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: '/table-categories/:connectionId/', method: RequestMethod.GET },
-        { path: '/table-categories/:connectionId/', method: RequestMethod.PUT },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: '/table-categories/:connectionId/', method: RequestMethod.GET },
+				{ path: '/table-categories/:connectionId/', method: RequestMethod.PUT },
+			);
+	}
 }

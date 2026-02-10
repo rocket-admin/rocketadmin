@@ -10,47 +10,47 @@ import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-
 
 @Injectable()
 export class FindCompanyWhiteLabelPropertiesUseCase
-  extends AbstractUseCase<string, FoundCompanyWhiteLabelPropertiesRO>
-  implements IGetCompanyWhiteLabelProperties
+	extends AbstractUseCase<string, FoundCompanyWhiteLabelPropertiesRO>
+	implements IGetCompanyWhiteLabelProperties
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+	) {
+		super();
+	}
 
-  protected async implementation(companyId: string): Promise<FoundCompanyWhiteLabelPropertiesRO> {
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithWhiteLabelProperties(companyId);
-    if (!company) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
+	protected async implementation(companyId: string): Promise<FoundCompanyWhiteLabelPropertiesRO> {
+		const company = await this._dbContext.companyInfoRepository.findCompanyWithWhiteLabelProperties(companyId);
+		if (!company) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 
-    let companySubscriptionLevel = null;
-    if (isSaaS()) {
-      const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(companyId);
-      if (!companyInfoFromSaas) {
-        throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-      }
-      companySubscriptionLevel = companyInfoFromSaas.subscriptionLevel;
-    }
+		let companySubscriptionLevel = null;
+		if (isSaaS()) {
+			const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(companyId);
+			if (!companyInfoFromSaas) {
+				throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+			}
+			companySubscriptionLevel = companyInfoFromSaas.subscriptionLevel;
+		}
 
-    return {
-      logo: company.logo
-        ? {
-            image: company.logo.image.toString('base64'),
-            mimeType: company.logo.mimeType,
-          }
-        : null,
-      favicon: company.favicon
-        ? {
-            image: company.favicon.image.toString('base64'),
-            mimeType: company.favicon.mimeType,
-          }
-        : null,
-      tab_title: company.tab_title?.text ?? null,
-      subscriptionLevel: companySubscriptionLevel,
-    };
-  }
+		return {
+			logo: company.logo
+				? {
+						image: company.logo.image.toString('base64'),
+						mimeType: company.logo.mimeType,
+					}
+				: null,
+			favicon: company.favicon
+				? {
+						image: company.favicon.image.toString('base64'),
+						mimeType: company.favicon.mimeType,
+					}
+				: null,
+			tab_title: company.tab_title?.text ?? null,
+			subscriptionLevel: companySubscriptionLevel,
+		};
+	}
 }

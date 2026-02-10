@@ -10,23 +10,23 @@ import { buildCreatedTableFilterRO } from '../utils/build-created-table-filters-
 
 @Injectable()
 export class FindTableFiltersUseCase
-  extends AbstractUseCase<FindTableFiltersDs, Array<CreatedTableFilterRO>>
-  implements IFindTableFilters
+	extends AbstractUseCase<FindTableFiltersDs, Array<CreatedTableFilterRO>>
+	implements IFindTableFilters
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: FindTableFiltersDs): Promise<Array<CreatedTableFilterRO>> {
-    const { table_name, connection_id } = inputData;
-    const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(
-      table_name,
-      connection_id,
-    );
+	protected async implementation(inputData: FindTableFiltersDs): Promise<Array<CreatedTableFilterRO>> {
+		const { table_name, connection_id } = inputData;
+		const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(
+			table_name,
+			connection_id,
+		);
 
-    return foundTableFilters.map((tableFilters) => buildCreatedTableFilterRO(tableFilters));
-  }
+		return foundTableFilters.map((tableFilters) => buildCreatedTableFilterRO(tableFilters));
+	}
 }

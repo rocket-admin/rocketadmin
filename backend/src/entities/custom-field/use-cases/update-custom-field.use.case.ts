@@ -12,36 +12,36 @@ import { IUpdateCustomFields } from './custom-field-use-cases.interface.js';
 
 @Injectable()
 export class UpdateCustomFieldUseCase
-  extends AbstractUseCase<UpdateCustomFieldsDs, FoundCustomFieldsDs>
-  implements IUpdateCustomFields
+	extends AbstractUseCase<UpdateCustomFieldsDs, FoundCustomFieldsDs>
+	implements IUpdateCustomFields
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: UpdateCustomFieldsDs): Promise<FoundCustomFieldsDs> {
-    const updateFieldDto = inputData.updateFieldDto;
-    const { connectionId, tableName, masterPwd, userId } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connectionId,
-      masterPwd,
-    );
-    await validateCreateCustomFieldDto(updateFieldDto, foundConnection, userId, tableName);
-    const fieldToUpdate = await this._dbContext.customFieldsRepository.findCustomFieldById(updateFieldDto.id);
-    if (!fieldToUpdate) {
-      throw new HttpException(
-        {
-          message: Messages.CUSTOM_FIELD_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    delete updateFieldDto.id;
-    const updated = Object.assign(fieldToUpdate, updateFieldDto);
-    const updatedCustomFields = await this._dbContext.customFieldsRepository.saveCustomFieldsEntity(updated);
-    return buildFoundCustomFieldsDs(updatedCustomFields);
-  }
+	protected async implementation(inputData: UpdateCustomFieldsDs): Promise<FoundCustomFieldsDs> {
+		const updateFieldDto = inputData.updateFieldDto;
+		const { connectionId, tableName, masterPwd, userId } = inputData;
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connectionId,
+			masterPwd,
+		);
+		await validateCreateCustomFieldDto(updateFieldDto, foundConnection, userId, tableName);
+		const fieldToUpdate = await this._dbContext.customFieldsRepository.findCustomFieldById(updateFieldDto.id);
+		if (!fieldToUpdate) {
+			throw new HttpException(
+				{
+					message: Messages.CUSTOM_FIELD_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		delete updateFieldDto.id;
+		const updated = Object.assign(fieldToUpdate, updateFieldDto);
+		const updatedCustomFields = await this._dbContext.customFieldsRepository.saveCustomFieldsEntity(updated);
+		return buildFoundCustomFieldsDs(updatedCustomFields);
+	}
 }

@@ -8,25 +8,25 @@ import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/rem
 import { UpdateGroupTitleDto } from '../dto/update-group-title.dto.js';
 
 export interface IAddUserInGroup {
-  execute(inputData: AddUserInGroupWithSaaSDs, inTransaction: InTransactionEnum): Promise<AddedUserInGroupDs>;
+	execute(inputData: AddUserInGroupWithSaaSDs, inTransaction: InTransactionEnum): Promise<AddedUserInGroupDs>;
 }
 
 export interface IFindUserGroups {
-  execute(inputData: string, inTransaction: InTransactionEnum): Promise<FoundUserGroupsDs>;
+	execute(inputData: string, inTransaction: InTransactionEnum): Promise<FoundUserGroupsDs>;
 }
 
 export interface IFindAllUsersInGroup {
-  execute(inputData: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserInGroupDs>>;
+	execute(inputData: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserInGroupDs>>;
 }
 
 export interface IRemoveUserFromGroup {
-  execute(inputData: AddUserInGroupDs, inTransaction: InTransactionEnum): Promise<RemoveUserFromGroupResultDs>;
+	execute(inputData: AddUserInGroupDs, inTransaction: InTransactionEnum): Promise<RemoveUserFromGroupResultDs>;
 }
 
 export interface IDeleteGroup {
-  execute(groupId: string, inTransaction: InTransactionEnum): Promise<DeletedGroupResultDs>;
+	execute(groupId: string, inTransaction: InTransactionEnum): Promise<DeletedGroupResultDs>;
 }
 
 export interface IUpdateGroupTitle {
-  execute(inputData: UpdateGroupTitleDto, inTransaction: InTransactionEnum): Promise<FoundGroupDataInfoDs>;
+	execute(inputData: UpdateGroupTitleDto, inTransaction: InTransactionEnum): Promise<FoundGroupDataInfoDs>;
 }

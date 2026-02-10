@@ -10,40 +10,40 @@ import { CompanyTabTitleEntity } from '../../company-tab-title/company-tab-title
 
 @Injectable({ scope: Scope.REQUEST })
 export class AddCompanyTabTitleUseCase
-  extends AbstractUseCase<AddCompanyTabTitleDs, SuccessResponse>
-  implements IAddCompanyTabTitle
+	extends AbstractUseCase<AddCompanyTabTitleDs, SuccessResponse>
+	implements IAddCompanyTabTitle
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: AddCompanyTabTitleDs): Promise<SuccessResponse> {
-    const { companyId, tab_title } = inputData;
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithTabTitle(companyId);
-    if (!company) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
+	protected async implementation(inputData: AddCompanyTabTitleDs): Promise<SuccessResponse> {
+		const { companyId, tab_title } = inputData;
+		const company = await this._dbContext.companyInfoRepository.findCompanyWithTabTitle(companyId);
+		if (!company) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 
-    if (company.tab_title) {
-      const tabTitleForDeletion = await this._dbContext.companyTabTitleRepository.findOne({
-        where: {
-          company: {
-            id: companyId,
-          },
-        },
-      });
-      if (tabTitleForDeletion) {
-        await this._dbContext.companyTabTitleRepository.remove(tabTitleForDeletion);
-      }
-    }
+		if (company.tab_title) {
+			const tabTitleForDeletion = await this._dbContext.companyTabTitleRepository.findOne({
+				where: {
+					company: {
+						id: companyId,
+					},
+				},
+			});
+			if (tabTitleForDeletion) {
+				await this._dbContext.companyTabTitleRepository.remove(tabTitleForDeletion);
+			}
+		}
 
-    const newTabTitle = new CompanyTabTitleEntity();
-    newTabTitle.company = company;
-    newTabTitle.text = tab_title;
-    await this._dbContext.companyTabTitleRepository.save(newTabTitle);
-    return { success: true };
-  }
+		const newTabTitle = new CompanyTabTitleEntity();
+		newTabTitle.company = company;
+		newTabTitle.text = tab_title;
+		await this._dbContext.companyTabTitleRepository.save(newTabTitle);
+		return { success: true };
+	}
 }

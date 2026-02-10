@@ -11,24 +11,24 @@ import { buildCreatedApiKeyDS } from '../utils/build-created-api-key-ds.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateApiKeyUseCase extends AbstractUseCase<CreateApiKeyDS, CreatedApiKeyDS> implements ICreateApiKey {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: CreateApiKeyDS): Promise<CreatedApiKeyDS> {
-    const { userId } = inputData;
-    const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
-    if (!foundUser) {
-      throw new NotFoundException(Messages.USER_NOT_FOUND);
-    }
-    const newApiKey = buildNewApiKeyEntity(inputData);
-    newApiKey.user = foundUser;
-    const hashOriginal = newApiKey.hash;
-    const createdApiKey = await this._dbContext.userApiKeysRepository.save(newApiKey);
-    createdApiKey.hash = hashOriginal;
-    return buildCreatedApiKeyDS(createdApiKey);
-  }
+	protected async implementation(inputData: CreateApiKeyDS): Promise<CreatedApiKeyDS> {
+		const { userId } = inputData;
+		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
+		if (!foundUser) {
+			throw new NotFoundException(Messages.USER_NOT_FOUND);
+		}
+		const newApiKey = buildNewApiKeyEntity(inputData);
+		newApiKey.user = foundUser;
+		const hashOriginal = newApiKey.hash;
+		const createdApiKey = await this._dbContext.userApiKeysRepository.save(newApiKey);
+		createdApiKey.hash = hashOriginal;
+		return buildCreatedApiKeyDS(createdApiKey);
+	}
 }

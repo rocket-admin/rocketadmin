@@ -1,4 +1,4 @@
 export class CreateApiKeyDS {
-  title: string;
-  userId: string;
+	title: string;
+	userId: string;
 }

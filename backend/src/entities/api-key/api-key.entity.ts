@@ -6,24 +6,28 @@ import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.j
 
 @Entity('user_api_key')
 export class UserApiKeyEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column({ type: 'varchar', length: 255, unique: false, nullable: false })
-  title: string;
+	@Column({ type: 'varchar', length: 255, unique: false, nullable: false })
+	title: string;
 
-  @Column({ type: 'varchar', unique: true, nullable: false })
-  hash: string;
+	@Column({ type: 'varchar', unique: true, nullable: false })
+	hash: string;
 
-  @ManyToOne((_type) => UserEntity, (user) => user.api_keys, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  user: Relation<UserEntity>;
+	@ManyToOne(
+		(_type) => UserEntity,
+		(user) => user.api_keys,
+		{ onDelete: 'CASCADE' },
+	)
+	@JoinColumn()
+	user: Relation<UserEntity>;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	created_at: Date;
 
-  @BeforeInsert()
-  async generateHash() {
-    this.hash = await Encryptor.processDataWithAlgorithm(this.hash, EncryptionAlgorithmEnum.sha256);
-  }
+	@BeforeInsert()
+	async generateHash() {
+		this.hash = await Encryptor.processDataWithAlgorithm(this.hash, EncryptionAlgorithmEnum.sha256);
+	}
 }

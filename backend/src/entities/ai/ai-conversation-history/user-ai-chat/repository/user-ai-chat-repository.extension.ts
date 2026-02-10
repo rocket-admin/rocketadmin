@@ -34,10 +34,6 @@ export const userAiChatRepositoryExtension: IUserAiChatRepository = {
 	},
 
 	async updateChatName(chatId: string, name: string): Promise<void> {
-		await this.createQueryBuilder()
-			.update(UserAiChatEntity)
-			.set({ name })
-			.where('id = :chatId', { chatId })
-			.execute();
+		await this.createQueryBuilder().update(UserAiChatEntity).set({ name }).where('id = :chatId', { chatId }).execute();
 	},
 };

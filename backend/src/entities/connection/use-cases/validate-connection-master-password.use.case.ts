@@ -11,36 +11,36 @@ import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ValidateConnectionMasterPasswordUseCase
-  extends AbstractUseCase<ValidateConnectionMasterPasswordDs, ValidationResultRo>
-  implements IValidateConnectionMasterPassword
+	extends AbstractUseCase<ValidateConnectionMasterPasswordDs, ValidationResultRo>
+	implements IValidateConnectionMasterPassword
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
-  protected async implementation(
-    validateConnectionMasterPasswordData: ValidateConnectionMasterPasswordDs,
-  ): Promise<ValidationResultRo> {
-    const { connectionId, masterPassword } = validateConnectionMasterPasswordData;
-    const connection: ConnectionEntity = await this._dbContext.connectionRepository.findOne({
-      where: { id: connectionId },
-    });
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
+	protected async implementation(
+		validateConnectionMasterPasswordData: ValidateConnectionMasterPasswordDs,
+	): Promise<ValidationResultRo> {
+		const { connectionId, masterPassword } = validateConnectionMasterPasswordData;
+		const connection: ConnectionEntity = await this._dbContext.connectionRepository.findOne({
+			where: { id: connectionId },
+		});
 
-    if (!connection) {
-      throw new InternalServerErrorException(Messages.CONNECTION_NOT_FOUND);
-    }
+		if (!connection) {
+			throw new InternalServerErrorException(Messages.CONNECTION_NOT_FOUND);
+		}
 
-    if (!connection.masterEncryption) {
-      throw new BadRequestException(Messages.CONNECTION_NOT_ENCRYPTED);
-    }
+		if (!connection.masterEncryption) {
+			throw new BadRequestException(Messages.CONNECTION_NOT_ENCRYPTED);
+		}
 
-    if (!connection.master_hash) {
-      throw new BadRequestException(Messages.CONNECTION_MASTER_PASSWORD_NOT_SET);
-    }
-    
-    const isMasterPasswordValid = await Encryptor.verifyUserPassword(masterPassword, connection.master_hash);
-    return { isValid: isMasterPasswordValid };
-  }
+		if (!connection.master_hash) {
+			throw new BadRequestException(Messages.CONNECTION_MASTER_PASSWORD_NOT_SET);
+		}
+
+		const isMasterPasswordValid = await Encryptor.verifyUserPassword(masterPassword, connection.master_hash);
+		return { isValid: isMasterPasswordValid };
+	}
 }

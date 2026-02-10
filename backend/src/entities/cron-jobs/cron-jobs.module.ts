@@ -12,18 +12,18 @@ import { JobListEntity } from './job-list.entity.js';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([UserActionEntity, UserEntity, JobListEntity, TableLogsEntity]), UserActionModule],
-  providers: [
-    CronJobsService,
-    {
-      provide: UseCaseType.CHECK_USER_LOGS_AND_UPDATE_ACTIONS,
-      useClass: CheckUsersLogsAndUpdateActionsUseCase,
-    },
-    {
-      provide: UseCaseType.CHECK_USER_ACTIONS_AND_MAIL_USERS,
-      useClass: CheckUsersActionsAndMailingUsersUseCase,
-    },
-  ],
-  exports: [CronJobsService],
+	imports: [TypeOrmModule.forFeature([UserActionEntity, UserEntity, JobListEntity, TableLogsEntity]), UserActionModule],
+	providers: [
+		CronJobsService,
+		{
+			provide: UseCaseType.CHECK_USER_LOGS_AND_UPDATE_ACTIONS,
+			useClass: CheckUsersLogsAndUpdateActionsUseCase,
+		},
+		{
+			provide: UseCaseType.CHECK_USER_ACTIONS_AND_MAIL_USERS,
+			useClass: CheckUsersActionsAndMailingUsersUseCase,
+		},
+	],
+	exports: [CronJobsService],
 })
 export class CronJobsModule {}

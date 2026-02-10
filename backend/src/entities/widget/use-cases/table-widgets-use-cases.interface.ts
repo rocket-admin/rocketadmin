@@ -4,9 +4,9 @@ import { CreateTableWidgetsDs } from '../application/data-sctructures/create-tab
 import { InTransactionEnum } from '../../../enums/index.js';
 
 export interface IFindTableWidgets {
-  execute(inputData: FindTableWidgetsDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableWidgetsDs>>;
+	execute(inputData: FindTableWidgetsDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableWidgetsDs>>;
 }
 
 export interface ICreateUpdateDeleteTableWidgets {
-  execute(inputData: CreateTableWidgetsDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableWidgetsDs>>;
+	execute(inputData: CreateTableWidgetsDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableWidgetsDs>>;
 }

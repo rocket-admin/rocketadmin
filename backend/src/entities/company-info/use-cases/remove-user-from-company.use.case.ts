@@ -10,51 +10,51 @@ import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-
 
 @Injectable({ scope: Scope.REQUEST })
 export class RemoveUserFromCompanyUseCase
-  extends AbstractUseCase<RemoveUserFromCompanyDs, SuccessResponse>
-  implements IRemoveUserFromCompany
+	extends AbstractUseCase<RemoveUserFromCompanyDs, SuccessResponse>
+	implements IRemoveUserFromCompany
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: RemoveUserFromCompanyDs): Promise<SuccessResponse> {
-    const { companyId, userId } = inputData;
-    const foundCompanyWithUsers = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
-    if (!foundCompanyWithUsers) {
-      throw new HttpException(
-        {
-          message: Messages.COMPANY_NOT_FOUND,
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    if (foundCompanyWithUsers.users.length === 1) {
-      throw new HttpException(
-        {
-          message: Messages.CANT_REMOVE_LAST_USER_FROM_COMPANY,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const foundUser = foundCompanyWithUsers.users.find((user) => user.id === userId);
-    if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    foundCompanyWithUsers.users = foundCompanyWithUsers.users.filter((user) => user.id !== userId);
-    await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
-    await this._dbContext.userRepository.remove(foundUser);
-    await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
-    return {
-      success: true,
-    };
-  }
+	protected async implementation(inputData: RemoveUserFromCompanyDs): Promise<SuccessResponse> {
+		const { companyId, userId } = inputData;
+		const foundCompanyWithUsers = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
+		if (!foundCompanyWithUsers) {
+			throw new HttpException(
+				{
+					message: Messages.COMPANY_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		if (foundCompanyWithUsers.users.length === 1) {
+			throw new HttpException(
+				{
+					message: Messages.CANT_REMOVE_LAST_USER_FROM_COMPANY,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const foundUser = foundCompanyWithUsers.users.find((user) => user.id === userId);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		foundCompanyWithUsers.users = foundCompanyWithUsers.users.filter((user) => user.id !== userId);
+		await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
+		await this._dbContext.userRepository.remove(foundUser);
+		await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
+		return {
+			success: true,
+		};
+	}
 }

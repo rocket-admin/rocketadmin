@@ -8,26 +8,26 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable()
 export class GetCompanyNameUseCase extends AbstractUseCase<string, FoundCompanyNameDs> implements IGetCompanyName {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: string): Promise<FoundCompanyNameDs> {
-    const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: inputData });
-    if (!foundCompany) {
-      throw new HttpException(
-        {
-          message: Messages.COMPANY_NOT_FOUND,
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return {
-      id: foundCompany.id,
-      name: foundCompany.name,
-    };
-  }
+	protected async implementation(inputData: string): Promise<FoundCompanyNameDs> {
+		const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: inputData });
+		if (!foundCompany) {
+			throw new HttpException(
+				{
+					message: Messages.COMPANY_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		return {
+			id: foundCompany.id,
+			name: foundCompany.name,
+		};
+	}
 }

@@ -8,20 +8,20 @@ import { buildFoundTableCategoryRo } from '../utils/build-found-table-category.r
 
 @Injectable()
 export class FindTableCategoriesUseCase
-  extends AbstractUseCase<string, Array<FoundTableCategoryRo>>
-  implements IFindTableCategories
+	extends AbstractUseCase<string, Array<FoundTableCategoryRo>>
+	implements IFindTableCategories
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(connectionId: string): Promise<Array<FoundTableCategoryRo>> {
-    const foundTableCategories =
-      await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
+	protected async implementation(connectionId: string): Promise<Array<FoundTableCategoryRo>> {
+		const foundTableCategories =
+			await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
 
-    return foundTableCategories.map((category) => buildFoundTableCategoryRo(category));
-  }
+		return foundTableCategories.map((category) => buildFoundTableCategoryRo(category));
+	}
 }

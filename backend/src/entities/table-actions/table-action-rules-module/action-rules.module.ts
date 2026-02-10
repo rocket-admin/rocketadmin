@@ -16,55 +16,55 @@ import { FindCustomEventsUseCase } from './use-cases/find-custom-events-use.case
 import { ActivateActionsInEventUseCase } from './use-cases/activate-actions-in-rule.use.case.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.CREATE_ACTION_RULES,
-      useClass: CreateActionRuleUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_ACTION_RULES_FOR_TABLE,
-      useClass: FindActionRulesForTableUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_ACTION_RULE_IN_TABLE,
-      useClass: DeleteActionRuleWithActionsAndEventsUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_ACTION_RULE_BY_ID,
-      useClass: FindActionRuleWithActionsAndEventsUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_ACTION_RULE,
-      useClass: UpdateRuleUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_ACTION_RULE_CUSTOM_EVENTS,
-      useClass: FindCustomEventsUseCase,
-    },
-    {
-      provide: UseCaseType.ACTIVATE_TABLE_ACTIONS_IN_EVENT,
-      useClass: ActivateActionsInEventUseCase,
-    },
-  ],
-  controllers: [ActionRulesController],
+	imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.CREATE_ACTION_RULES,
+			useClass: CreateActionRuleUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_ACTION_RULES_FOR_TABLE,
+			useClass: FindActionRulesForTableUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_ACTION_RULE_IN_TABLE,
+			useClass: DeleteActionRuleWithActionsAndEventsUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_ACTION_RULE_BY_ID,
+			useClass: FindActionRuleWithActionsAndEventsUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_ACTION_RULE,
+			useClass: UpdateRuleUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_ACTION_RULE_CUSTOM_EVENTS,
+			useClass: FindCustomEventsUseCase,
+		},
+		{
+			provide: UseCaseType.ACTIVATE_TABLE_ACTIONS_IN_EVENT,
+			useClass: ActivateActionsInEventUseCase,
+		},
+	],
+	controllers: [ActionRulesController],
 })
 export class TableTriggersModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: '/action/rule/:connectionId', method: RequestMethod.POST },
-        { path: '/action/rules/:connectionId', method: RequestMethod.GET },
-        { path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.DELETE },
-        { path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.GET },
-        { path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.PUT },
-        { path: '/action/events/custom/:connectionId', method: RequestMethod.GET },
-        { path: '/event/actions/activate/:eventId/:connectionId', method: RequestMethod.POST },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: '/action/rule/:connectionId', method: RequestMethod.POST },
+				{ path: '/action/rules/:connectionId', method: RequestMethod.GET },
+				{ path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.DELETE },
+				{ path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.GET },
+				{ path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.PUT },
+				{ path: '/action/events/custom/:connectionId', method: RequestMethod.GET },
+				{ path: '/event/actions/activate/:eventId/:connectionId', method: RequestMethod.POST },
+			);
+	}
 }

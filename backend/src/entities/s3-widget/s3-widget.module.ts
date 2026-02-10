@@ -11,32 +11,32 @@ import { GetS3FileUrlUseCase } from './use-cases/get-s3-file-url.use.case.js';
 import { GetS3UploadUrlUseCase } from './use-cases/get-s3-upload-url.use.case.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
-  providers: [
-    S3HelperService,
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.GET_S3_FILE_URL,
-      useClass: GetS3FileUrlUseCase,
-    },
-    {
-      provide: UseCaseType.GET_S3_UPLOAD_URL,
-      useClass: GetS3UploadUrlUseCase,
-    },
-  ],
-  controllers: [S3WidgetController],
-  exports: [S3HelperService],
+	imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
+	providers: [
+		S3HelperService,
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.GET_S3_FILE_URL,
+			useClass: GetS3FileUrlUseCase,
+		},
+		{
+			provide: UseCaseType.GET_S3_UPLOAD_URL,
+			useClass: GetS3UploadUrlUseCase,
+		},
+	],
+	controllers: [S3WidgetController],
+	exports: [S3HelperService],
 })
 export class S3WidgetModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: '/s3/file/:connectionId', method: RequestMethod.GET },
-        { path: '/s3/upload-url/:connectionId', method: RequestMethod.POST },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: '/s3/file/:connectionId', method: RequestMethod.GET },
+				{ path: '/s3/upload-url/:connectionId', method: RequestMethod.POST },
+			);
+	}
 }

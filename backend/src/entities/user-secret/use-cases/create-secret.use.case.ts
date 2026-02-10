@@ -12,54 +12,54 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateSecretUseCase extends AbstractUseCase<CreateSecretDS, CreatedSecretDS> implements ICreateSecret {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: CreateSecretDS): Promise<CreatedSecretDS> {
-    const { userId, slug, value, expiresAt, masterEncryption, masterPassword } = inputData;
+	protected async implementation(inputData: CreateSecretDS): Promise<CreatedSecretDS> {
+		const { userId, slug, value, expiresAt, masterEncryption, masterPassword } = inputData;
 
-    const user = await this._dbContext.userRepository.findOne({
-      where: { id: userId },
-      relations: ['company'],
-    });
+		const user = await this._dbContext.userRepository.findOne({
+			where: { id: userId },
+			relations: ['company'],
+		});
 
-    if (!user || !user.company) {
-      throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
-    }
+		if (!user || !user.company) {
+			throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
+		}
 
-    const existing = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);
+		const existing = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, user.company.id);
 
-    if (existing) {
-      throw new ConflictException(Messages.SECRET_ALREADY_EXISTS);
-    }
+		if (existing) {
+			throw new ConflictException(Messages.SECRET_ALREADY_EXISTS);
+		}
 
-    let encryptedValue = value;
+		let encryptedValue = value;
 
-    if (masterEncryption && masterPassword) {
-      encryptedValue = Encryptor.encryptDataMasterPwd(encryptedValue, masterPassword);
-    }
+		if (masterEncryption && masterPassword) {
+			encryptedValue = Encryptor.encryptDataMasterPwd(encryptedValue, masterPassword);
+		}
 
-    encryptedValue = Encryptor.encryptData(encryptedValue);
+		encryptedValue = Encryptor.encryptData(encryptedValue);
 
-    const masterHash = masterPassword ? await Encryptor.hashUserPassword(masterPassword) : null;
+		const masterHash = masterPassword ? await Encryptor.hashUserPassword(masterPassword) : null;
 
-    const secret = this._dbContext.userSecretRepository.create({
-      slug,
-      encryptedValue,
-      companyId: user.company.id,
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
-      masterEncryption: masterEncryption || false,
-      masterHash,
-    });
+		const secret = this._dbContext.userSecretRepository.create({
+			slug,
+			encryptedValue,
+			companyId: user.company.id,
+			expiresAt: expiresAt ? new Date(expiresAt) : null,
+			masterEncryption: masterEncryption || false,
+			masterHash,
+		});
 
-    const saved = await this._dbContext.userSecretRepository.save(secret);
+		const saved = await this._dbContext.userSecretRepository.save(secret);
 
-    await this._dbContext.secretAccessLogRepository.createAccessLog(saved.id, userId, SecretActionEnum.CREATE);
+		await this._dbContext.secretAccessLogRepository.createAccessLog(saved.id, userId, SecretActionEnum.CREATE);
 
-    return buildCreatedSecretDS(saved);
-  }
+		return buildCreatedSecretDS(saved);
+	}
 }

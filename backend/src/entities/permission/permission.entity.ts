@@ -3,19 +3,22 @@ import { GroupEntity } from '../group/group.entity.js';
 
 @Entity('permission')
 export class PermissionEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column()
-  type: string;
+	@Column()
+	type: string;
 
-  @Column()
-  accessLevel: string;
+	@Column()
+	accessLevel: string;
 
-  @Column({ default: '' })
-  tableName?: string; //todo need reworking to required
+	@Column({ default: '' })
+	tableName?: string; //todo need reworking to required
 
-  @ManyToMany(() => GroupEntity, (group) => group.permissions)
-  @JoinTable()
-  groups: Relation<GroupEntity>[];
+	@ManyToMany(
+		() => GroupEntity,
+		(group) => group.permissions,
+	)
+	@JoinTable()
+	groups: Relation<GroupEntity>[];
 }

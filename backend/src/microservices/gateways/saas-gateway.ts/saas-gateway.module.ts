@@ -4,9 +4,9 @@ import { SaasCompanyGatewayService } from './saas-company-gateway.service.js';
 
 @Global()
 @Module({
-  imports: [],
-  controllers: [],
-  providers: [BaseSaasGatewayService, SaasCompanyGatewayService],
-  exports: [BaseSaasGatewayService, SaasCompanyGatewayService],
+	imports: [],
+	controllers: [],
+	providers: [BaseSaasGatewayService, SaasCompanyGatewayService],
+	exports: [BaseSaasGatewayService, SaasCompanyGatewayService],
 })
 export class SaaSGatewayModule {}

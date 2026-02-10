@@ -10,21 +10,21 @@ import { buildFoundApiKeyDS } from '../utils/build-found-api-key.ds.js';
 
 @Injectable()
 export class GetUserApiKeyUseCase extends AbstractUseCase<FindApiKeyDS, FoundApiKeyDS> implements IGetApiKey {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(apiKeyData: FindApiKeyDS): Promise<FoundApiKeyDS> {
-    const foundApiKey = await this._dbContext.userApiKeysRepository.findApiKeyByIdAndUserId(
-      apiKeyData.apiKeyId,
-      apiKeyData.userId,
-    );
-    if (!foundApiKey) {
-      throw new NotFoundException(Messages.API_KEY_NOT_FOUND);
-    }
-    return buildFoundApiKeyDS(foundApiKey);
-  }
+	protected async implementation(apiKeyData: FindApiKeyDS): Promise<FoundApiKeyDS> {
+		const foundApiKey = await this._dbContext.userApiKeysRepository.findApiKeyByIdAndUserId(
+			apiKeyData.apiKeyId,
+			apiKeyData.userId,
+		);
+		if (!foundApiKey) {
+			throw new NotFoundException(Messages.API_KEY_NOT_FOUND);
+		}
+		return buildFoundApiKeyDS(foundApiKey);
+	}
 }

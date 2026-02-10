@@ -10,41 +10,41 @@ import { CompanyLogoEntity } from '../../company-logo/company-logo.entity.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UploadCompanyLogoUseCase
-  extends AbstractUseCase<UploadCompanyWhiteLabelImages, SuccessResponse>
-  implements IUploadCompanyWhiteLabelImages
+	extends AbstractUseCase<UploadCompanyWhiteLabelImages, SuccessResponse>
+	implements IUploadCompanyWhiteLabelImages
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: UploadCompanyWhiteLabelImages): Promise<SuccessResponse> {
-    const { companyId, file } = inputData;
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithLogo(companyId);
-    if (!company) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
+	protected async implementation(inputData: UploadCompanyWhiteLabelImages): Promise<SuccessResponse> {
+		const { companyId, file } = inputData;
+		const company = await this._dbContext.companyInfoRepository.findCompanyWithLogo(companyId);
+		if (!company) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 
-    if (company.logo) {
-      const logoForDeletion = await this._dbContext.companyLogoRepository.findOne({
-        where: {
-          company: {
-            id: companyId,
-          },
-        },
-      });
-      if (logoForDeletion) {
-        await this._dbContext.companyLogoRepository.remove(logoForDeletion);
-      }
-    }
+		if (company.logo) {
+			const logoForDeletion = await this._dbContext.companyLogoRepository.findOne({
+				where: {
+					company: {
+						id: companyId,
+					},
+				},
+			});
+			if (logoForDeletion) {
+				await this._dbContext.companyLogoRepository.remove(logoForDeletion);
+			}
+		}
 
-    const newLogo = new CompanyLogoEntity();
-    newLogo.company = company;
-    newLogo.image = file.buffer;
-    newLogo.mimeType = file.mimetype;
-    await this._dbContext.companyLogoRepository.save(newLogo);
-    return { success: true };
-  }
+		const newLogo = new CompanyLogoEntity();
+		newLogo.company = company;
+		newLogo.image = file.buffer;
+		newLogo.mimeType = file.mimetype;
+		await this._dbContext.companyLogoRepository.save(newLogo);
+		return { success: true };
+	}
 }
