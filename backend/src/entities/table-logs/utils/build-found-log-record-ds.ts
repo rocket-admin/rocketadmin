@@ -25,5 +25,6 @@ export function buildFoundLogRecordDs(log: TableLogsEntity): FoundLogRecordDs {
     createdAt: createdAt,
     connection_id: connection_id.id,
     affected_primary_key: affected_primary_key,
+    operation_custom_action_name: log.operation_custom_action_name || null,
   };
 }

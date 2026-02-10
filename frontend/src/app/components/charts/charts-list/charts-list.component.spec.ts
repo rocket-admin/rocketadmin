@@ -116,7 +116,7 @@ describe('ChartsListComponent', () => {
 	});
 
 	it('should have correct displayed columns', () => {
-		expect(component.displayedColumns).toEqual(['name', 'description', 'updatedAt', 'actions']);
+		expect(component.displayedColumns).toEqual(['preview', 'name', 'description', 'updated', 'actions']);
 	});
 
 	describe('filteredQueries computed', () => {

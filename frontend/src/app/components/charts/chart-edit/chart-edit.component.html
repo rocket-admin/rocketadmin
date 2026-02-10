@@ -1,11 +1,18 @@
-<app-alert></app-alert>
+<div class="chart-edit-layout">
+    <app-dashboards-sidebar
+        [connectionId]="connectionId()"
+        activeTab="queries">
+    </app-dashboards-sidebar>
 
-<div class="chart-edit-page">
+    <div class="chart-edit-main">
+        <app-alert></app-alert>
+
+        <div class="chart-edit-page">
     <div class="chart-edit-header">
         <button mat-icon-button (click)="cancel()" matTooltip="Back to list">
             <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1 class="mat-h1">{{ isEditMode() ? 'Edit Saved Query' : 'Create Saved Query' }}</h1>
+        <h1 class="mat-h1">{{ isEditMode() ? 'Edit Widget' : 'Create Widget' }}</h1>
     </div>
 
     <div *ngIf="loading()" class="loading-container">
@@ -41,9 +48,10 @@
                     <button mat-stroked-button
                         (click)="testQuery()"
                         [disabled]="!canTest()"
+                        class="test-query-button"
                         data-testid="test-query-button">
                         <mat-icon *ngIf="!testing()">play_arrow</mat-icon>
-                        <mat-spinner *ngIf="testing()" diameter="18"></mat-spinner>
+                        <mat-spinner *ngIf="testing()" diameter="18" class="button-spinner"></mat-spinner>
                         {{ testing() ? 'Testing...' : 'Test Query' }}
                     </button>
                 </div>
@@ -148,18 +156,20 @@
             <mat-icon>info</mat-icon>
             <p>Query executed successfully but returned no results.</p>
         </div>
+    </div>
 
-        <div class="actions">
-            <button mat-button (click)="cancel()" data-testid="cancel-button">
-                Cancel
-            </button>
-            <button mat-flat-button color="primary"
-                (click)="saveQuery()"
-                [disabled]="!canSave()"
-                data-testid="save-query-button">
-                <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
-                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Query' : 'Save Query') }}
-            </button>
+    <div class="actions" *ngIf="!loading()">
+        <button mat-button (click)="cancel()" data-testid="cancel-button">
+            Cancel
+        </button>
+        <button mat-flat-button color="primary"
+            (click)="saveQuery()"
+            [disabled]="!canSave()"
+            data-testid="save-query-button">
+            <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
+            {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Query' : 'Save Query') }}
+        </button>
+    </div>
         </div>
     </div>
 </div>

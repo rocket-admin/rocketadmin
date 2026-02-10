@@ -36,6 +36,9 @@ export class TableLogsEntity {
   @Column({ default: null })
   email: string;
 
+  @Column({ default: null })
+  operation_custom_action_name: string | null;
+
   @Column('enum', {
     nullable: false,
     enum: LogOperationTypeEnum,
