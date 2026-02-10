@@ -515,7 +515,7 @@ export class CompanyInfoController {
 		@SlugUuid('companyId') companyId: string,
 		@UploadedFile(
 			new ParseFilePipeBuilder()
-				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
+				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/, skipMagicNumbersValidation: true })
 				.addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_LOGO_SIZE })
 				.build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
 		)
@@ -567,7 +567,7 @@ export class CompanyInfoController {
 		@SlugUuid('companyId') companyId: string,
 		@UploadedFile(
 			new ParseFilePipeBuilder()
-				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/ })
+				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/, skipMagicNumbersValidation: true })
 				.addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_FAVICON_SIZE })
 				.build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
 		)
