@@ -17,7 +17,7 @@
 .page {
     display: flex;
     flex-direction: column;
-    margin: 3em auto;
+    margin: var(--top-margin) auto;
     max-width: 520px;
     min-width: 300px;
     width: 96%;

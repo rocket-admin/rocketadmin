@@ -4,7 +4,7 @@
     <div class="profile-main">
         <app-alert></app-alert>
 
-        <app-placeholder-company *ngIf="!company"></app-placeholder-company>
+        <app-placeholder-sso *ngIf="!company"></app-placeholder-sso>
 
         <div *ngIf="company" class="sso-page">
             <h1 class="mat-h1">SAML SSO Configuration</h1>

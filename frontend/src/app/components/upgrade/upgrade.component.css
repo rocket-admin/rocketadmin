@@ -24,7 +24,7 @@
 } */
 
 .plans {
-	margin: 24px auto;
+	margin: var(--top-margin) auto;
 	width: clamp(300px, 90%, 840px);
 }
 
