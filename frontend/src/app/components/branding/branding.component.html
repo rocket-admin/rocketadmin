@@ -4,7 +4,7 @@
     <div class="profile-main">
         <app-alert></app-alert>
 
-        <app-placeholder-company *ngIf="!company || !currentUser"></app-placeholder-company>
+        <app-placeholder-branding *ngIf="!company || !currentUser"></app-placeholder-branding>
 
         <div *ngIf="company && currentUser" class="branding-page">
             <h1 class="mat-h1 branding-page-header">Branding</h1>
@@ -87,8 +87,7 @@
                     </div>
 
 
-                    <form *ngIf="isSaas"
-                        class="text-filed-edit"
+                    <form class="text-filed-edit"
                         (ngSubmit)="updateTabTitle()">
                         <mat-form-field appearance="outline" class="text-filed-edit__input" floatLabel="always">
                             <mat-label>Browser tab title</mat-label>
