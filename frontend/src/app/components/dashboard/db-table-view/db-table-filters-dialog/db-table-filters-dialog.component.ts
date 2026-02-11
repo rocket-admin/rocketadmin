@@ -14,6 +14,7 @@ import { Angulartics2OnModule } from 'angulartics2';
 import JSON5 from 'json5';
 import { DynamicModule } from 'ng-dynamic-component';
 import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
+import posthog from 'posthog-js';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { filterTypes } from 'src/app/consts/filter-types';
@@ -48,6 +49,7 @@ import { ContentLoaderComponent } from '../../../ui-components/content-loader/co
 	],
 })
 export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
+	protected posthog = posthog;
 	public tableFilters = [];
 	public fieldSearchControl = new FormControl('');
 

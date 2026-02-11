@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { Dashboard } from 'src/app/models/dashboard';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 
@@ -30,6 +31,7 @@ export class DashboardDeleteDialogComponent {
 			this.angulartics2.eventTrack.next({
 				action: 'Dashboards: dashboard deleted successfully',
 			});
+			posthog.capture('Dashboards: dashboard deleted successfully');
 			this.dialogRef.close(true);
 		}
 		this.submitting.set(false);

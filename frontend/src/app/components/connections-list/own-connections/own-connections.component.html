@@ -23,7 +23,8 @@
     <li *ngFor="let connectionItem of connections | slice:0:displayedCardCount" class="connectionItem">
         <a routerLink="/dashboard/{{connectionItem.connection.id}}" class="connection"
             angulartics2On="click"
-            angularticsAction="Connections: open own db is clicked">
+            angularticsAction="Connections: open own db is clicked"
+            (click)="posthog.capture('Connections: open own db is clicked')">
             <div  class="connectionLogoPreview">
                 <img *ngIf="connectionItem.connection.connection_properties?.logo_url; else noLogo"
                     [src]="connectionItem.connection.connection_properties?.logo_url"
@@ -61,7 +62,8 @@
         class="fabAddButton"
         routerLink="/connect-db"
         angulartics2On="click"
-        angularticsAction="Connections: Add connection button is clicked">
+        angularticsAction="Connections: Add connection button is clicked"
+        (click)="posthog.capture('Connections: Add connection button is clicked')">
         <mat-icon *ngIf="connections?.length">add</mat-icon>
         Add database
     </a>
@@ -72,7 +74,8 @@
     class="addButton"
     routerLink="/connect-db"
     angulartics2On="click"
-    angularticsAction="Connections: Add connection button is clicked">
+    angularticsAction="Connections: Add connection button is clicked"
+    (click)="posthog.capture('Connections: Add connection button is clicked')">
     <mat-icon *ngIf="connections?.length">add</mat-icon>
     Add database
 </a>-->

@@ -6,7 +6,7 @@
             mat-button type="button"
             angulartics2On="click"
             angularticsAction="Saved filters: first time setup is clicked"
-            (click)="handleOpenSavedFiltersDialog()">
+            (click)="handleOpenSavedFiltersDialog(); posthog.capture('Saved filters: first time setup is clicked')">
             <mat-icon>tune</mat-icon>
             Create fast filter
         </button>
@@ -15,7 +15,7 @@
             mat-icon-button type="button"
             class="create-filter-button"
             matTooltip="Create new fast filter"
-            (click)="handleOpenSavedFiltersDialog()"
+            (click)="handleOpenSavedFiltersDialog(); posthog.capture('Saved filters: create new filter is clicked')"
             angulartics2On="click"
             angularticsAction="Saved filters: create new filter is clicked">
             <mat-icon>add</mat-icon>

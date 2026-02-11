@@ -2,9 +2,9 @@ import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
@@ -12,6 +12,7 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { User } from '@sentry/angular';
 import { Angulartics2OnModule } from 'angulartics2';
+import posthog from 'posthog-js';
 import { merge } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { normalizeTableName } from 'src/app/lib/normalize';
@@ -52,6 +53,7 @@ import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 	styleUrls: ['./audit.component.css'],
 })
 export class AuditComponent implements OnInit {
+	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public connectionID: string;
 	public accesLevel: string;

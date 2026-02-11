@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { accounts } from 'google-one-tap';
+import posthog from 'posthog-js';
 import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { ExistingAuthUser } from 'src/app/models/user';
@@ -44,6 +45,7 @@ declare var google: any;
 	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LoginComponent implements OnInit, AfterViewInit {
+	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public isCustomDomain: boolean = false;
 	public user: ExistingAuthUser = {
@@ -101,6 +103,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 							this.angulartics2.eventTrack.next({
 								action: 'Login: google login success',
 							});
+							posthog.capture('Login: google login success');
 						});
 					});
 				},
@@ -124,6 +127,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
 					count: companies.length,
 				},
 			});
+			posthog.capture('Login: companies is received', {
+				count: companies.length,
+			});
 
 			this.userCompanies = companies;
 			this.isLoadingUserCompanies = false;
@@ -144,11 +150,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Login: login success',
 				});
+				posthog.capture('Login: login success');
 			},
 			(_error) => {
 				this.angulartics2.eventTrack.next({
 					action: 'Login: login unsuccessful',
 				});
+				posthog.capture('Login: login unsuccessful');
 				this.submitting = false;
 			},
 			() => (this.submitting = false),
@@ -160,6 +168,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Login: github login redirect',
 		});
+		posthog.capture('Login: github login redirect');
 	}
 
 	openLoginWithSSOdialog() {
@@ -176,11 +185,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Login: login with 2fa success',
 				});
+				posthog.capture('Login: login with 2fa success');
 			},
 			(_error) => {
 				this.angulartics2.eventTrack.next({
 					action: 'Login: login with 2fa unsuccessful',
 				});
+				posthog.capture('Login: login with 2fa unsuccessful');
 				this.submitting = false;
 			},
 			() => (this.submitting = false),

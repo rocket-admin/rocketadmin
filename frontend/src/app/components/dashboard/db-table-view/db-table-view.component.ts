@@ -35,6 +35,7 @@ import { Angulartics2OnModule } from 'angulartics2';
 import JSON5 from 'json5';
 import { DynamicModule } from 'ng-dynamic-component';
 import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
+import posthog from 'posthog-js';
 import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
@@ -110,6 +111,7 @@ export interface Folder {
 	],
 })
 export class DbTableViewComponent implements OnInit, OnChanges {
+	protected posthog = posthog;
 	@Input() name: string;
 	@Input() displayName: string;
 	@Input() permissions: TablePermissions;
