@@ -4,25 +4,26 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { ChartType, SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { ChartMiniPreviewComponent } from '../../dashboards/chart-mini-preview/chart-mini-preview.component';
+import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/dashboards-sidebar.component';
 import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { ChartDeleteDialogComponent } from '../chart-delete-dialog/chart-delete-dialog.component';
-import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/dashboards-sidebar.component';
 
 @Component({
 	selector: 'app-charts-list',
@@ -123,12 +124,14 @@ export class ChartsListComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: create chart page opened',
 		});
+		posthog.capture('Charts: create chart page opened');
 	}
 
 	trackEditPageOpened(): void {
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: edit chart page opened',
 		});
+		posthog.capture('Charts: edit chart page opened');
 	}
 
 	openQuery(query: SavedQuery): void {
@@ -144,6 +147,7 @@ export class ChartsListComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: delete chart dialog opened',
 		});
+		posthog.capture('Charts: delete chart dialog opened');
 	}
 
 	formatUpdatedAt(date: string): string {

@@ -7,7 +7,7 @@
                 type="button" class="add-icon-button"
                 angulartics2On="click"
                 angularticsAction="Actions: add first action is clicked"
-                (click)="addNewRule()">
+                (click)="addNewRule(); posthog.capture('Actions: add first action is clicked')">
                 <mat-icon>add</mat-icon>
             </button>
         </div>
@@ -195,7 +195,7 @@
             <button mat-flat-button color="accent"
                 angulartics2On="click"
                 angularticsAction="Actions: add first action is clicked"
-                (click)="addNewRule()">
+                (click)="addNewRule(); posthog.capture('Actions: add first action is clicked')">
                 Create automation
             </button>
             <div class="rules-examples">

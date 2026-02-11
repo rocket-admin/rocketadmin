@@ -18,6 +18,7 @@
                             data-testid="api-key-input"
                             angulartics2On="change"
                             angularticsAction="API Keys: api key title is edited"
+                            (change)="posthog.capture('API Keys: api key title is edited')"
                             [(ngModel)]="generatingAPIkeyTitle">
                     </mat-form-field>
                     <button type="submit" mat-flat-button color="primary" data-testid="generate-api-key-button"
