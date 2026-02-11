@@ -7,17 +7,17 @@ import { GetCustomFieldsDs } from '../application/data-structures/get-custom-fie
 import { UpdateCustomFieldsDs } from '../application/data-structures/update-custom-fields.ds.js';
 
 export interface IGetCustomFields {
-  execute(inputData: GetCustomFieldsDs, inTransaction: InTransactionEnum): Promise<Array<FoundCustomFieldsDs>>;
+	execute(inputData: GetCustomFieldsDs, inTransaction: InTransactionEnum): Promise<Array<FoundCustomFieldsDs>>;
 }
 
 export interface ICreateCustomFields {
-  execute(inputData: CreateCustomFieldsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
+	execute(inputData: CreateCustomFieldsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
 }
 
 export interface IUpdateCustomFields {
-  execute(inputData: UpdateCustomFieldsDs, inTransaction: InTransactionEnum): Promise<FoundCustomFieldsDs>;
+	execute(inputData: UpdateCustomFieldsDs, inTransaction: InTransactionEnum): Promise<FoundCustomFieldsDs>;
 }
 
 export interface IDeleteCustomField {
-  execute(inputData: DeleteCustomFieldsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
+	execute(inputData: DeleteCustomFieldsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
 }

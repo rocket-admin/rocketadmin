@@ -9,29 +9,29 @@ import { IDeleteTableFilters } from './table-filters-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteTableFiltersUseCase
-  extends AbstractUseCase<FindTableFiltersDs, SuccessResponse>
-  implements IDeleteTableFilters
+	extends AbstractUseCase<FindTableFiltersDs, SuccessResponse>
+	implements IDeleteTableFilters
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: FindTableFiltersDs): Promise<SuccessResponse> {
-    const { table_name, connection_id } = inputData;
-    const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(
-      table_name,
-      connection_id,
-    );
+	protected async implementation(inputData: FindTableFiltersDs): Promise<SuccessResponse> {
+		const { table_name, connection_id } = inputData;
+		const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(
+			table_name,
+			connection_id,
+		);
 
-    if (!foundTableFilters.length) {
-      throw new NotFoundException(Messages.TABLE_FILTERS_NOT_FOUND);
-    }
-    await this._dbContext.tableFiltersRepository.remove(foundTableFilters);
-    return {
-      success: true,
-    };
-  }
+		if (!foundTableFilters.length) {
+			throw new NotFoundException(Messages.TABLE_FILTERS_NOT_FOUND);
+		}
+		await this._dbContext.tableFiltersRepository.remove(foundTableFilters);
+		return {
+			success: true,
+		};
+	}
 }

@@ -12,31 +12,31 @@ import { IFindTableWidgets } from './table-widgets-use-cases.interface.js';
 
 @Injectable()
 export class FindTableWidgetsUseCase
-  extends AbstractUseCase<FindTableWidgetsDs, Array<FoundTableWidgetsDs>>
-  implements IFindTableWidgets
+	extends AbstractUseCase<FindTableWidgetsDs, Array<FoundTableWidgetsDs>>
+	implements IFindTableWidgets
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: FindTableWidgetsDs): Promise<Array<FoundTableWidgetsDs>> {
-    const { connectionId, masterPwd, tableName, userId } = inputData;
-    const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-    const tablesInConnection = await findTablesInConnectionUtil(connection, userId, null);
-    if (!tablesInConnection.includes(tableName)) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const foundTableWidgets = await this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName);
-    return foundTableWidgets.map((widget) => {
-      return buildFoundTableWidgetDs(widget);
-    });
-  }
+	protected async implementation(inputData: FindTableWidgetsDs): Promise<Array<FoundTableWidgetsDs>> {
+		const { connectionId, masterPwd, tableName, userId } = inputData;
+		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+		const tablesInConnection = await findTablesInConnectionUtil(connection, userId, null);
+		if (!tablesInConnection.includes(tableName)) {
+			throw new HttpException(
+				{
+					message: Messages.TABLE_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const foundTableWidgets = await this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName);
+		return foundTableWidgets.map((widget) => {
+			return buildFoundTableWidgetDs(widget);
+		});
+	}
 }

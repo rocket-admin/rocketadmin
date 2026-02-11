@@ -1,20 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UsualLoginDs {
-  @ApiProperty()
-  email: string;
+	@ApiProperty()
+	email: string;
 
-  @ApiProperty()
-  password: string;
+	@ApiProperty()
+	password: string;
 
-  @ApiProperty()
-  companyId: string;
+	@ApiProperty()
+	companyId: string;
 
-  gclidValue: string;
+	gclidValue: string;
 
-  request_domain: string;
+	request_domain: string;
 
-  ipAddress?: string;
+	ipAddress?: string;
 
-  userAgent?: string;
+	userAgent?: string;
 }

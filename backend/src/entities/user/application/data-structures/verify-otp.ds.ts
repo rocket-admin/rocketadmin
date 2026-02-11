@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class VerifyOtpDS {
-  userId: string;
+	userId: string;
 
-  @ApiProperty()
-  otpToken: string;
+	@ApiProperty()
+	otpToken: string;
 
-  ipAddress?: string;
+	ipAddress?: string;
 
-  userAgent?: string;
+	userAgent?: string;
 }

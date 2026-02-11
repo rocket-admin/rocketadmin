@@ -3,33 +3,33 @@ import { AccessLevelEnum } from '../../../../enums/index.js';
 import { SimpleFoundUserInfoDs } from '../../../user/dto/found-user.dto.js';
 
 export class FoundGroupDataInfoDs {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty()
-  title: string;
+	@ApiProperty()
+	title: string;
 
-  @ApiProperty()
-  isMain: boolean;
+	@ApiProperty()
+	isMain: boolean;
 }
 
 export class FoundGroupDataWithUsersDs extends FoundGroupDataInfoDs {
-  @ApiProperty({ isArray: true })
-  users: Array<SimpleFoundUserInfoDs>;
+	@ApiProperty({ isArray: true })
+	users: Array<SimpleFoundUserInfoDs>;
 }
 
 export class FoundGroupDataWithAccessLevelDs {
-  @ApiProperty()
-  group: FoundGroupDataInfoDs;
+	@ApiProperty()
+	group: FoundGroupDataInfoDs;
 
-  @ApiProperty({ enum: AccessLevelEnum })
-  accessLevel: AccessLevelEnum;
+	@ApiProperty({ enum: AccessLevelEnum })
+	accessLevel: AccessLevelEnum;
 }
 
 export class FoundUserGroupsDs {
-  @ApiProperty({ isArray: true, type: FoundGroupDataWithAccessLevelDs })
-  groups: Array<FoundGroupDataWithAccessLevelDs>;
+	@ApiProperty({ isArray: true, type: FoundGroupDataWithAccessLevelDs })
+	groups: Array<FoundGroupDataWithAccessLevelDs>;
 
-  @ApiProperty()
-  groupsCount: number;
+	@ApiProperty()
+	groupsCount: number;
 }

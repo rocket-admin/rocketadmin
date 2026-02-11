@@ -8,23 +8,22 @@ import { IFindConnectionProperties } from './connection-properties-use.cases.int
 
 @Injectable()
 export class FindConnectionPropertiesUseCase
-  extends AbstractUseCase<string, FoundConnectionPropertiesDs | null>
-  implements IFindConnectionProperties
+	extends AbstractUseCase<string, FoundConnectionPropertiesDs | null>
+	implements IFindConnectionProperties
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(connectionId: string): Promise<FoundConnectionPropertiesDs> {
-    const foundConnectionProperties = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(
-      connectionId,
-    );
-    if (!foundConnectionProperties) {
-      return null;
-    }
-    return buildFoundConnectionPropertiesDs(foundConnectionProperties);
-  }
+	protected async implementation(connectionId: string): Promise<FoundConnectionPropertiesDs> {
+		const foundConnectionProperties =
+			await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
+		if (!foundConnectionProperties) {
+			return null;
+		}
+		return buildFoundConnectionPropertiesDs(foundConnectionProperties);
+	}
 }

@@ -1,5 +1,5 @@
-import { ConnectionEntity } from '../../../connection/connection.entity.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
+import { ConnectionEntity } from '../../../connection/connection.entity.js';
 
 export class CreateLogRecordDs {
 	connection: ConnectionEntity;

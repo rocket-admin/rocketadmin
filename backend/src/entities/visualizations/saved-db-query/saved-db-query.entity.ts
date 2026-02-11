@@ -11,10 +11,10 @@ import {
 	PrimaryGeneratedColumn,
 	Relation,
 } from 'typeorm';
+import { DashboardWidgetTypeEnum } from '../../../enums/dashboard-widget-type.enum.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { DashboardWidgetEntity } from '../dashboard-widget/dashboard-widget.entity.js';
-import { DashboardWidgetTypeEnum } from '../../../enums/dashboard-widget-type.enum.js';
 
 @Entity('saved_db_query')
 export class SavedDbQueryEntity {

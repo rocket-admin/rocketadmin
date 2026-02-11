@@ -10,51 +10,49 @@ import { IRemoveUserFromGroup } from './use-cases.interfaces.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class RemoveUserFromGroupUseCase
-  extends AbstractUseCase<AddUserInGroupDs, RemoveUserFromGroupResultDs>
-  implements IRemoveUserFromGroup
+	extends AbstractUseCase<AddUserInGroupDs, RemoveUserFromGroupResultDs>
+	implements IRemoveUserFromGroup
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: AddUserInGroupDs): Promise<RemoveUserFromGroupResultDs> {
-    const { groupId } = inputData;
-    const email = inputData.email.toLowerCase();
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndGroupId(email, groupId);
-    if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-    if (groupToUpdate.isMain && groupToUpdate.users.length <= 1) {
-      throw new HttpException(
-        {
-          message: Messages.CANT_DELETE_LAST_USER,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
-    const usersArray = groupToUpdate.users;
-    const delIndex = usersArray
-      .map((e) => e.id)
-      .indexOf(foundUser.id);
-    if (delIndex === -1) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    groupToUpdate.users.splice(delIndex, 1);
-    const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-    return buildRemoveUserFromGroupResultDs(updatedGroup);
-  }
+	protected async implementation(inputData: AddUserInGroupDs): Promise<RemoveUserFromGroupResultDs> {
+		const { groupId } = inputData;
+		const email = inputData.email.toLowerCase();
+		const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndGroupId(email, groupId);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+		if (groupToUpdate.isMain && groupToUpdate.users.length <= 1) {
+			throw new HttpException(
+				{
+					message: Messages.CANT_DELETE_LAST_USER,
+				},
+				HttpStatus.FORBIDDEN,
+			);
+		}
+		const usersArray = groupToUpdate.users;
+		const delIndex = usersArray.map((e) => e.id).indexOf(foundUser.id);
+		if (delIndex === -1) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		groupToUpdate.users.splice(delIndex, 1);
+		const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
+		return buildRemoveUserFromGroupResultDs(updatedGroup);
+	}
 }

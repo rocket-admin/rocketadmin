@@ -10,25 +10,25 @@ import { UserActionController } from './user-action.controller.js';
 import { UserActionEntity } from './user-action.entity.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserActionEntity, UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.CREATE_USER_ACTION,
-      useClass: CreateUserActionUseCase,
-    },
-  ],
-  controllers: [UserActionController],
-  exports: [],
+	imports: [TypeOrmModule.forFeature([UserActionEntity, UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.CREATE_USER_ACTION,
+			useClass: CreateUserActionUseCase,
+		},
+	],
+	controllers: [UserActionController],
+	exports: [],
 })
 export class UserActionModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: 'action',
-      method: RequestMethod.POST,
-    });
-  }
+	public configure(consumer: MiddlewareConsumer): void {
+		consumer.apply(AuthMiddleware).forRoutes({
+			path: 'action',
+			method: RequestMethod.POST,
+		});
+	}
 }

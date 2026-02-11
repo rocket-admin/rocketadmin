@@ -1,4 +1,4 @@
 export class UnfreezeConnectionDs {
-  connectionId: string;
-  userId: string;
+	connectionId: string;
+	userId: string;
 }

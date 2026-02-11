@@ -5,8 +5,8 @@ import { databaseProviders } from './database.providers.js';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forRoot(configService.getTypeOrmConfig())],
-  providers: [...databaseProviders],
-  exports: [...databaseProviders],
+	imports: [TypeOrmModule.forRoot(configService.getTypeOrmConfig())],
+	providers: [...databaseProviders],
+	exports: [...databaseProviders],
 })
 export class DatabaseModule {}

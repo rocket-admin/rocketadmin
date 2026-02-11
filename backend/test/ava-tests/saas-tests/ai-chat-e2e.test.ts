@@ -89,7 +89,6 @@ test.after(async () => {
 	}
 });
 
-
 currentTest = 'GET /ai/chats';
 
 test.serial(`${currentTest} should return empty list when user has no chats`, async (t) => {
@@ -415,7 +414,6 @@ test.serial(`${currentTest} should not allow deleting another user's chat`, asyn
 		throw e;
 	}
 });
-
 
 currentTest = 'POST /ai/v4/request/:connectionId';
 

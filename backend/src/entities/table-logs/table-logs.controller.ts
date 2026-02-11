@@ -10,16 +10,16 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid, UserId } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum, LogOperationTypeEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { FindLogsDs } from './application/data-structures/find-logs.ds.js';
 import { FoundLogsDs } from './application/data-structures/found-logs.ds.js';
 import { IExportLogsAsCsv, IFindLogs } from './use-cases/use-cases.interface.js';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

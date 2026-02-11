@@ -21,7 +21,10 @@ import { MockFactory } from '../../mock.factory.js';
 import { createTestPostgresTableWithSchema } from '../../utils/create-test-table.js';
 import { dropTestTables } from '../../utils/drop-test-tables.js';
 import { getTestData } from '../../utils/get-test-data.js';
-import { registerUserAndReturnUserInfo, createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
+import {
+	registerUserAndReturnUserInfo,
+	createInitialTestUser,
+} from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 

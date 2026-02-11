@@ -14,6 +14,7 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid, UserId } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { GroupEditGuard, GroupReadGuard } from '../../guards/index.js';
@@ -37,7 +38,6 @@ import {
 	IRemoveUserFromGroup,
 	IUpdateGroupTitle,
 } from './use-cases/use-cases.interfaces.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

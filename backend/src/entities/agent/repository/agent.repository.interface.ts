@@ -1,11 +1,10 @@
-import { AgentEntity } from '../agent.entity.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { AgentEntity } from '../agent.entity.js';
 
 export interface IAgentRepository {
+	createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity>;
 
-  createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity>;
+	createNewAgentForConnectionAndReturnToken(connection: ConnectionEntity): Promise<string>;
 
-  createNewAgentForConnectionAndReturnToken(connection: ConnectionEntity): Promise<string>;
-
-  renewOrCreateConnectionToken(connectionId: string): Promise<string>;
+	renewOrCreateConnectionToken(connectionId: string): Promise<string>;
 }

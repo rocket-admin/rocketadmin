@@ -1,4 +1,4 @@
-import { SetMetadata, applyDecorators, UseInterceptors } from '@nestjs/common';
+import { applyDecorators, SetMetadata, UseInterceptors } from '@nestjs/common';
 import { TimeoutInterceptor } from '../interceptors/timeout.interceptor.js';
 
 export const TIMEOUT_KEY = 'custom_timeout';

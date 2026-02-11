@@ -1,35 +1,35 @@
-import { ConnectionEntity } from '../connection/connection.entity.js';
 import {
-	Entity,
+	AfterLoad,
+	BeforeInsert,
+	BeforeUpdate,
 	Column,
+	Entity,
 	JoinTable,
 	ManyToMany,
+	ManyToOne,
 	OneToMany,
 	OneToOne,
 	PrimaryGeneratedColumn,
-	BeforeInsert,
 	Relation,
-	BeforeUpdate,
-	AfterLoad,
-	ManyToOne,
 } from 'typeorm';
-import { GroupEntity } from '../group/group.entity.js';
-import { UserActionEntity } from '../user-actions/user-action.entity.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
-import { EmailVerificationEntity } from '../email/email-verification.entity.js';
-import { PasswordResetEntity } from './user-password/password-reset.entity.js';
-import { EmailChangeEntity } from './user-email/email-change.entity.js';
-import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
-import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
-import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
-import { UserRoleEnum } from './enums/user-role.enum.js';
-import { ExternalRegistrationProviderEnum } from './enums/external-registration-provider.enum.js';
-import { UserApiKeyEntity } from '../api-key/api-key.entity.js';
+import { UserAiChatEntity } from '../ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
 import { AiResponsesToUserEntity } from '../ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
-import { SignInAuditEntity } from '../user-sign-in-audit/sign-in-audit.entity.js';
+import { UserApiKeyEntity } from '../api-key/api-key.entity.js';
+import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { EmailVerificationEntity } from '../email/email-verification.entity.js';
+import { GroupEntity } from '../group/group.entity.js';
 import { SecretAccessLogEntity } from '../secret-access-log/secret-access-log.entity.js';
 import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
-import { UserAiChatEntity } from '../ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
+import { UserActionEntity } from '../user-actions/user-action.entity.js';
+import { SignInAuditEntity } from '../user-sign-in-audit/sign-in-audit.entity.js';
+import { ExternalRegistrationProviderEnum } from './enums/external-registration-provider.enum.js';
+import { UserRoleEnum } from './enums/user-role.enum.js';
+import { EmailChangeEntity } from './user-email/email-change.entity.js';
+import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
+import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
+import { PasswordResetEntity } from './user-password/password-reset.entity.js';
 
 @Entity('user')
 export class UserEntity {

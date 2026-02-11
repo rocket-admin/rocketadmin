@@ -17,8 +17,8 @@ import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import {
-  createTestIBMDB2TablesWithComplexPFKeys,
-  createTestIBMDB2TablesWithSimplePFKeys,
+	createTestIBMDB2TablesWithComplexPFKeys,
+	createTestIBMDB2TablesWithSimplePFKeys,
 } from '../../utils/test-utilities/create-test-ibmdb2-tables.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
@@ -35,198 +35,198 @@ let testTablesCompositeKeysData: TableCreationResult;
 let testTablesSimpleKeysData: TableCreationResult;
 
 test.before(async () => {
-  const moduleFixture = await Test.createTestingModule({
-    imports: [ApplicationModule, DatabaseModule],
-    providers: [DatabaseService, TestUtils],
-  }).compile();
-  app = moduleFixture.createNestApplication() as any;
-  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
+	const moduleFixture = await Test.createTestingModule({
+		imports: [ApplicationModule, DatabaseModule],
+		providers: [DatabaseService, TestUtils],
+	}).compile();
+	app = moduleFixture.createNestApplication() as any;
+	_testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
-  app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      exceptionFactory(validationErrors: ValidationError[] = []) {
-        return new ValidationException(validationErrors);
-      },
-    }),
-  );
-  await app.init();
-  app.getHttpServer().listen(0);
+	app.use(cookieParser());
+	app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
+	app.useGlobalPipes(
+		new ValidationPipe({
+			exceptionFactory(validationErrors: ValidationError[] = []) {
+				return new ValidationException(validationErrors);
+			},
+		}),
+	);
+	await app.init();
+	app.getHttpServer().listen(0);
 
-  testTablesCompositeKeysData = await createTestIBMDB2TablesWithComplexPFKeys(connectionToTestDB);
-  testTablesSimpleKeysData = await createTestIBMDB2TablesWithSimplePFKeys(connectionToTestDB);
+	testTablesCompositeKeysData = await createTestIBMDB2TablesWithComplexPFKeys(connectionToTestDB);
+	testTablesSimpleKeysData = await createTestIBMDB2TablesWithSimplePFKeys(connectionToTestDB);
 });
 
 test.after(async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After tests error ' + e);
-  }
+	try {
+		await Cacher.clearAllCache();
+		await app.close();
+	} catch (e) {
+		console.error('After tests error ' + e);
+	}
 });
 
 export type TableCreationResult = {
-  main_table: {
-    table_name: string;
-    column_names: string[];
-    foreign_key_column_names: string[];
-    binary_column_names: string[];
-    primary_key_column_names: string[];
-  };
-  first_referenced_table: {
-    table_name: string;
-    column_names: string[];
-    primary_key_column_names: string[];
-  };
-  second_referenced_table: {
-    table_name: string;
-    column_names: string[];
-    primary_key_column_names: string[];
-    foreign_key_column_names: string[];
-  };
+	main_table: {
+		table_name: string;
+		column_names: string[];
+		foreign_key_column_names: string[];
+		binary_column_names: string[];
+		primary_key_column_names: string[];
+	};
+	first_referenced_table: {
+		table_name: string;
+		column_names: string[];
+		primary_key_column_names: string[];
+	};
+	second_referenced_table: {
+		table_name: string;
+		column_names: string[];
+		primary_key_column_names: string[];
+		foreign_key_column_names: string[];
+	};
 };
 
 // GET /connection/tables/:slug
 
 test.serial(
-  `GET /connection/tables/:slug - Should return list of table rows with referenced columns, when primary and foreign keys has composite structure`,
-  async (t) => {
-    try {
-      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	`GET /connection/tables/:slug - Should return list of table rows with referenced columns, when primary and foreign keys has composite structure`,
+	async (t) => {
+		try {
+			const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(connectionToTestDB)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
-      t.is(createConnectionResponse.status, 201);
+			const createConnectionResponse = await request(app.getHttpServer())
+				.post('/connection')
+				.send(connectionToTestDB)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			const createConnectionRO = JSON.parse(createConnectionResponse.text);
+			t.is(createConnectionResponse.status, 201);
 
-      const { main_table, first_referenced_table, second_referenced_table } = testTablesCompositeKeysData;
+			const { main_table, first_referenced_table, second_referenced_table } = testTablesCompositeKeysData;
 
-      const getMainTableRowsResponse = await request(app.getHttpServer())
-        .get(`/table/rows/${createConnectionRO.id}?tableName=${main_table.table_name}`)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+			const getMainTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${createConnectionRO.id}?tableName=${main_table.table_name}`)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
 
-      const _getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
-      t.is(getMainTableRowsResponse.status, 200);
+			const _getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
+			t.is(getMainTableRowsResponse.status, 200);
 
-      const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
-        .get(`/table/rows/${createConnectionRO.id}?tableName=${first_referenced_table.table_name}`)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+			const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${createConnectionRO.id}?tableName=${first_referenced_table.table_name}`)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
 
-      const getFirstReferencedTableRowsRO = JSON.parse(getFirstReferencedTableRowsResponse.text);
-      t.is(getFirstReferencedTableRowsResponse.status, 200);
+			const getFirstReferencedTableRowsRO = JSON.parse(getFirstReferencedTableRowsResponse.text);
+			t.is(getFirstReferencedTableRowsResponse.status, 200);
 
-      const firstReturnedRows = getFirstReferencedTableRowsRO.rows;
+			const firstReturnedRows = getFirstReferencedTableRowsRO.rows;
 
-      for (const row of firstReturnedRows) {
-        t.is(typeof row.ORDER_ID, 'object');
-        t.truthy(Object.hasOwn(row.ORDER_ID, 'ORDER_ID'));
-        t.truthy(row.ORDER_ID.ORDER_ID);
-        t.truthy(typeof row.ORDER_ID.ORDER_ID === 'number');
-        t.is(typeof row.CUSTOMER_ID, 'object');
-        t.truthy(Object.hasOwn(row.CUSTOMER_ID, 'CUSTOMER_ID'));
-        t.truthy(row.CUSTOMER_ID.CUSTOMER_ID);
-        t.truthy(typeof row.CUSTOMER_ID.CUSTOMER_ID === 'number');
-      }
+			for (const row of firstReturnedRows) {
+				t.is(typeof row.ORDER_ID, 'object');
+				t.truthy(Object.hasOwn(row.ORDER_ID, 'ORDER_ID'));
+				t.truthy(row.ORDER_ID.ORDER_ID);
+				t.truthy(typeof row.ORDER_ID.ORDER_ID === 'number');
+				t.is(typeof row.CUSTOMER_ID, 'object');
+				t.truthy(Object.hasOwn(row.CUSTOMER_ID, 'CUSTOMER_ID'));
+				t.truthy(row.CUSTOMER_ID.CUSTOMER_ID);
+				t.truthy(typeof row.CUSTOMER_ID.CUSTOMER_ID === 'number');
+			}
 
-      const getSecondReferencedTableRowsResponse = await request(app.getHttpServer())
-        .get(`/table/rows/${createConnectionRO.id}?tableName=${second_referenced_table.table_name}`)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+			const getSecondReferencedTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${createConnectionRO.id}?tableName=${second_referenced_table.table_name}`)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
 
-      const getSecondReferencedTableRowsRO = JSON.parse(getSecondReferencedTableRowsResponse.text);
-      t.is(getSecondReferencedTableRowsResponse.status, 200);
-      const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
-      for (const row of secondReturnedRows) {
-        t.is(typeof row.ORDER_ID, 'object');
-        t.truthy(Object.hasOwn(row.ORDER_ID, 'ORDER_ID'));
-        t.truthy(row.ORDER_ID.ORDER_ID);
-        t.truthy(typeof row.ORDER_ID.ORDER_ID === 'number');
-        t.is(typeof row.CUSTOMER_ID, 'object');
-        t.truthy(Object.hasOwn(row.CUSTOMER_ID, 'CUSTOMER_ID'));
-        t.truthy(row.CUSTOMER_ID.CUSTOMER_ID);
-        t.truthy(typeof row.CUSTOMER_ID.CUSTOMER_ID === 'number');
-      }
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  },
+			const getSecondReferencedTableRowsRO = JSON.parse(getSecondReferencedTableRowsResponse.text);
+			t.is(getSecondReferencedTableRowsResponse.status, 200);
+			const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
+			for (const row of secondReturnedRows) {
+				t.is(typeof row.ORDER_ID, 'object');
+				t.truthy(Object.hasOwn(row.ORDER_ID, 'ORDER_ID'));
+				t.truthy(row.ORDER_ID.ORDER_ID);
+				t.truthy(typeof row.ORDER_ID.ORDER_ID === 'number');
+				t.is(typeof row.CUSTOMER_ID, 'object');
+				t.truthy(Object.hasOwn(row.CUSTOMER_ID, 'CUSTOMER_ID'));
+				t.truthy(row.CUSTOMER_ID.CUSTOMER_ID);
+				t.truthy(typeof row.CUSTOMER_ID.CUSTOMER_ID === 'number');
+			}
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	},
 );
 
 test.serial(
-  `GET /connection/tables/:slug - Should return list of table rows with referenced columns, when primary and foreign keys has simple structure`,
-  async (t) => {
-    try {
-      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	`GET /connection/tables/:slug - Should return list of table rows with referenced columns, when primary and foreign keys has simple structure`,
+	async (t) => {
+		try {
+			const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(connectionToTestDB)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
-      t.is(createConnectionResponse.status, 201);
+			const createConnectionResponse = await request(app.getHttpServer())
+				.post('/connection')
+				.send(connectionToTestDB)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			const createConnectionRO = JSON.parse(createConnectionResponse.text);
+			t.is(createConnectionResponse.status, 201);
 
-      const { main_table, first_referenced_table, second_referenced_table } = testTablesSimpleKeysData;
+			const { main_table, first_referenced_table, second_referenced_table } = testTablesSimpleKeysData;
 
-      const getMainTableRowsResponse = await request(app.getHttpServer())
-        .get(`/table/rows/${createConnectionRO.id}?tableName=${main_table.table_name}`)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+			const getMainTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${createConnectionRO.id}?tableName=${main_table.table_name}`)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
 
-      const _getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
-      t.is(getMainTableRowsResponse.status, 200);
+			const _getMainTableRowsRO = JSON.parse(getMainTableRowsResponse.text);
+			t.is(getMainTableRowsResponse.status, 200);
 
-      const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
-        .get(`/table/rows/${createConnectionRO.id}?tableName=${first_referenced_table.table_name}`)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+			const getFirstReferencedTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${createConnectionRO.id}?tableName=${first_referenced_table.table_name}`)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
 
-      const getFirstReferencedTableRowsRO = JSON.parse(getFirstReferencedTableRowsResponse.text);
-      t.is(getFirstReferencedTableRowsResponse.status, 200);
+			const getFirstReferencedTableRowsRO = JSON.parse(getFirstReferencedTableRowsResponse.text);
+			t.is(getFirstReferencedTableRowsResponse.status, 200);
 
-      const firstReturnedRows = getFirstReferencedTableRowsRO.rows;
+			const firstReturnedRows = getFirstReferencedTableRowsRO.rows;
 
-      for (const element of firstReturnedRows) {
-        t.is(typeof element.ORDER_ID, 'object');
-        t.truthy(Object.hasOwn(element.ORDER_ID, 'ORDER_ID'));
-        t.truthy(element.ORDER_ID.ORDER_ID);
-        t.truthy(typeof element.ORDER_ID.ORDER_ID === 'number');
-      }
+			for (const element of firstReturnedRows) {
+				t.is(typeof element.ORDER_ID, 'object');
+				t.truthy(Object.hasOwn(element.ORDER_ID, 'ORDER_ID'));
+				t.truthy(element.ORDER_ID.ORDER_ID);
+				t.truthy(typeof element.ORDER_ID.ORDER_ID === 'number');
+			}
 
-      const getSecondReferencedTableRowsResponse = await request(app.getHttpServer())
-        .get(`/table/rows/${createConnectionRO.id}?tableName=${second_referenced_table.table_name}`)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+			const getSecondReferencedTableRowsResponse = await request(app.getHttpServer())
+				.get(`/table/rows/${createConnectionRO.id}?tableName=${second_referenced_table.table_name}`)
+				.set('Cookie', firstUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
 
-      const getSecondReferencedTableRowsRO = JSON.parse(getSecondReferencedTableRowsResponse.text);
-      t.is(getSecondReferencedTableRowsResponse.status, 200);
+			const getSecondReferencedTableRowsRO = JSON.parse(getSecondReferencedTableRowsResponse.text);
+			t.is(getSecondReferencedTableRowsResponse.status, 200);
 
-      const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
-      for (const element of secondReturnedRows) {
-        t.is(typeof element.ORDER_ID, 'object');
-        t.truthy(Object.hasOwn(element.ORDER_ID, 'ORDER_ID'));
-        t.truthy(element.ORDER_ID.ORDER_ID);
-        t.truthy(typeof element.ORDER_ID.ORDER_ID === 'number');
-      }
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  },
+			const secondReturnedRows = getSecondReferencedTableRowsRO.rows;
+			for (const element of secondReturnedRows) {
+				t.is(typeof element.ORDER_ID, 'object');
+				t.truthy(Object.hasOwn(element.ORDER_ID, 'ORDER_ID'));
+				t.truthy(element.ORDER_ID.ORDER_ID);
+				t.truthy(typeof element.ORDER_ID.ORDER_ID === 'number');
+			}
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	},
 );

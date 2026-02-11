@@ -1,20 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { ChatOpenAI } from '@langchain/openai';
-import { BaseMessage, AIMessage, AIMessageChunk, HumanMessage, ToolMessage } from '@langchain/core/messages';
-import { IterableReadableStream } from '@langchain/core/utils/stream';
+import { AIMessage, AIMessageChunk, BaseMessage, HumanMessage, ToolMessage } from '@langchain/core/messages';
 import { tool } from '@langchain/core/tools';
-import { z } from 'zod';
+import { IterableReadableStream } from '@langchain/core/utils/stream';
+import { ChatOpenAI } from '@langchain/openai';
+import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
+import { z } from 'zod';
+import { getOptionalEnvVariable, getRequiredEnvVariable } from '../../helpers/app/get-requeired-env-variable.js';
 import {
-	IAIProvider,
-	AIProviderConfig,
 	AICompletionResult,
+	AIProviderConfig,
 	AIStreamChunk,
+	AIToolCall,
 	AIToolDefinition,
 	AIToolResult,
-	AIToolCall,
+	IAIProvider,
 } from '../interfaces/ai-provider.interface.js';
-import { getOptionalEnvVariable, getRequiredEnvVariable } from '../../helpers/app/get-requeired-env-variable.js';
 
 @Injectable()
 export class LangchainOpenAIProvider implements IAIProvider {

@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterCompanyWebhookDS {
-  @ApiProperty()
-  companyId: string;
+	@ApiProperty()
+	companyId: string;
 
-  @ApiProperty()
-  registrarUserId: string;
+	@ApiProperty()
+	registrarUserId: string;
 
-  @ApiProperty()
-  companyName: string;
+	@ApiProperty()
+	companyName: string;
 }

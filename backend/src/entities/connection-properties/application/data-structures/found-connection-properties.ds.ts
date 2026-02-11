@@ -2,42 +2,42 @@ import { ApiProperty } from '@nestjs/swagger';
 import { FoundTableCategoryRo } from '../../../table-categories/dto/found-table-category.ro.js';
 
 export class FoundConnectionPropertiesDs {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty({ isArray: true, type: String })
-  hidden_tables: Array<string>;
+	@ApiProperty({ isArray: true, type: String })
+	hidden_tables: Array<string>;
 
-  @ApiProperty()
-  connectionId: string;
+	@ApiProperty()
+	connectionId: string;
 
-  @ApiProperty()
-  logo_url: string;
+	@ApiProperty()
+	logo_url: string;
 
-  @ApiProperty()
-  primary_color: string;
+	@ApiProperty()
+	primary_color: string;
 
-  @ApiProperty()
-  secondary_color: string;
+	@ApiProperty()
+	secondary_color: string;
 
-  @ApiProperty()
-  hostname: string;
+	@ApiProperty()
+	hostname: string;
 
-  @ApiProperty()
-  company_name: string;
+	@ApiProperty()
+	company_name: string;
 
-  @ApiProperty()
-  tables_audit: boolean;
+	@ApiProperty()
+	tables_audit: boolean;
 
-  @ApiProperty()
-  human_readable_table_names: boolean;
+	@ApiProperty()
+	human_readable_table_names: boolean;
 
-  @ApiProperty()
-  allow_ai_requests: boolean;
+	@ApiProperty()
+	allow_ai_requests: boolean;
 
-  @ApiProperty()
-  default_showing_table: string;
+	@ApiProperty()
+	default_showing_table: string;
 
-  @ApiProperty({ isArray: true })
-  table_categories: Array<FoundTableCategoryRo>;
+	@ApiProperty({ isArray: true })
+	table_categories: Array<FoundTableCategoryRo>;
 }

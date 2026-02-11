@@ -1,6 +1,7 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -13,7 +14,6 @@ import { S3FileUrlResponseDs, S3GetFileUrlDs } from '../application/data-structu
 import { S3WidgetParams } from '../application/data-structures/s3-widget-params.ds.js';
 import { S3HelperService } from '../s3-helper.service.js';
 import { IGetS3FileUrl } from './s3-use-cases.interface.js';
-import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 
 @Injectable()
 export class GetS3FileUrlUseCase extends AbstractUseCase<S3GetFileUrlDs, S3FileUrlResponseDs> implements IGetS3FileUrl {
