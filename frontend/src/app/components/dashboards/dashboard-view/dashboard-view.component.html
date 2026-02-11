@@ -20,13 +20,13 @@
                     (change)="toggleEditMode()"
                     color="primary"
                     data-testid="edit-mode-toggle">
-                    Edit Mode
+                    Edit mode
                 </mat-slide-toggle>
                 <button mat-flat-button color="primary"
                     (click)="openAddWidgetDialog()"
                     data-testid="add-widget-button">
                     <mat-icon>add</mat-icon>
-                    Add Chart
+                    Add chart
                 </button>
             </div>
         }
@@ -45,7 +45,7 @@
             <p>Add charts to visualize your data from saved queries.</p>
             <button mat-flat-button color="primary" (click)="openAddWidgetDialog()">
                 <mat-icon>add</mat-icon>
-                Add Chart
+                Add chart
             </button>
         </div>
     }
@@ -62,11 +62,11 @@
                         <mat-menu #widgetMenu="matMenu">
                             <a mat-menu-item [routerLink]="['/charts', connectionId(), item.widget.query_id]">
                                 <mat-icon>tune</mat-icon>
-                                <span>Configure Chart</span>
+                                <span>Configure chart</span>
                             </a>
                             <button mat-menu-item (click)="openEditWidgetDialog(item.widget)">
                                 <mat-icon>swap_horiz</mat-icon>
-                                <span>Change Query</span>
+                                <span>Change query</span>
                             </button>
                             <button mat-menu-item (click)="openDeleteWidgetDialog(item.widget)" class="delete-action">
                                 <mat-icon color="warn">delete</mat-icon>

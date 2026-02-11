@@ -1,6 +1,15 @@
+:host {
+	display: block;
+	height: calc(100vh - 44px);
+	margin-bottom: -60px;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
 .dashboards-layout {
 	display: flex;
-	height: calc(100vh - 64px);
+	height: 100%;
 }
 
 .dashboards-main {
@@ -100,7 +109,7 @@
 	display: block;
 	height: 160px;
 	background-color: rgba(0, 0, 0, 0.03);
-	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+	border-bottom: 1px solid var(--mat-sidenav-container-divider-color);
 	text-decoration: none;
 	overflow: hidden;
 }
@@ -108,7 +117,6 @@
 @media (prefers-color-scheme: dark) {
 	.dashboard-preview {
 		background-color: rgba(255, 255, 255, 0.05);
-		border-bottom-color: rgba(255, 255, 255, 0.08);
 	}
 }
 
@@ -117,7 +125,7 @@
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	background-color: #f5f5f5;
+	background-color: var(--color-primaryPalette-100);
 }
 
 .preview-placeholder-icon {
@@ -129,7 +137,7 @@
 
 @media (prefers-color-scheme: dark) {
 	.preview-placeholder {
-		background-color: #2a2a2a;
+		background-color: var(--color-primaryPalette-800);
 	}
 
 	.preview-placeholder-icon {
@@ -168,13 +176,7 @@
 }
 
 .dashboard-name:hover {
-	color: #673ab7;
-}
-
-@media (prefers-color-scheme: dark) {
-	.dashboard-name:hover {
-		color: #b388ff;
-	}
+	color: var(--color-accentedPalette-500);
 }
 
 .dashboard-menu-button {
@@ -281,11 +283,11 @@
 }
 
 .delete-action {
-	color: #c62828;
+	color: var(--color-warnPalette-500);
 }
 
 @media (prefers-color-scheme: dark) {
 	.delete-action {
-		color: #ef5350;
+		color: var(--color-warnDarkPalette-500);
 	}
 }

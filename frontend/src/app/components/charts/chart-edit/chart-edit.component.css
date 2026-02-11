@@ -1,20 +1,33 @@
+:host {
+	display: block;
+	height: calc(100vh - 44px);
+	margin-bottom: -60px;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
 .chart-edit-layout {
 	display: flex;
-	height: calc(100vh - 64px);
+	height: 100%;
 }
 
 .chart-edit-main {
 	flex: 1;
 	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
 }
 
 .chart-edit-page {
 	display: flex;
 	flex-direction: column;
-	min-height: 100%;
+	flex: 1;
 	padding: 0 clamp(40px, 5vw, 100px);
 	max-width: 1400px;
 	margin: 3em auto;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 @media (width <= 600px) {
@@ -47,7 +60,6 @@
 	flex-direction: column;
 	gap: 24px;
 	flex: 1;
-	overflow-y: auto;
 	padding-bottom: 24px;
 }
 
@@ -130,15 +142,9 @@
 
 .code-editor-box {
 	height: 300px;
-	border: 1px solid rgba(0, 0, 0, 0.12);
+	border: 1px solid var(--mat-sidenav-container-divider-color);
 	border-radius: 4px;
 	overflow: hidden;
-}
-
-@media (prefers-color-scheme: dark) {
-	.code-editor-box {
-		border-color: rgba(255, 255, 255, 0.12);
-	}
 }
 
 .code-editor-box ngs-code-editor {
@@ -222,26 +228,34 @@
 }
 
 .no-results mat-icon {
-	color: #1976d2;
+	color: var(--color-accentedPalette-500);
 }
 
 .actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 16px;
-	padding: 16px 0;
-	border-top: 1px solid rgba(0, 0, 0, 0.12);
-	background-color: #fff;
-	flex-shrink: 0;
 	position: sticky;
 	bottom: 0;
-	margin-top: auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 0 clamp(40px, 5vw, 100px);
+	background-color: var(--mat-sidenav-content-background-color);
+	box-shadow: var(--shadow);
+	height: 64px;
+	flex-shrink: 0;
+	z-index: 10;
+	--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
 	.actions {
-		border-top-color: rgba(255, 255, 255, 0.12);
-		background-color: #1e1e1e;
+		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.5), 0 2px 2px 0 rgba(0, 0, 0, 0.64), 0 1px 5px 0 rgba(0, 0, 0, 0.85);
+	}
+}
+
+@media (width <= 600px) {
+	.actions {
+		padding: 0 16px;
 	}
 }
 

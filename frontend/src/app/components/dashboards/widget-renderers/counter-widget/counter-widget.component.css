@@ -19,13 +19,13 @@
 }
 
 .error-message {
-	color: #c62828;
+	color: var(--color-warnPalette-500);
 	margin: 0;
 }
 
 @media (prefers-color-scheme: dark) {
 	.error-message {
-		color: #ef5350;
+		color: var(--color-warnDarkPalette-500);
 	}
 }
 
@@ -51,7 +51,7 @@
 	font-size: 48px;
 	font-weight: 700;
 	line-height: 1;
-	color: var(--mdc-filled-button-container-color, #1976d2);
+	color: var(--color-accentedPalette-500);
 }
 
 .counter-label {

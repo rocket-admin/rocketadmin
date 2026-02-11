@@ -16,7 +16,7 @@
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	color: var(--mdc-theme-error, #f44336);
+	color: var(--color-warnDarkPalette-500);
 	font-size: 14px;
 	text-align: center;
 	padding: 16px;
