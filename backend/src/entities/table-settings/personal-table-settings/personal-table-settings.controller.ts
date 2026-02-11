@@ -12,25 +12,25 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
+import { MasterPassword } from '../../../decorators/master-password.decorator.js';
+import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
+import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
+import { UserId } from '../../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { TableReadGuard } from '../../../guards/table-read.guard.js';
+import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
+import { CreatePersonalTableSettingsDs } from './data-structures/create-personal-table-settings.ds.js';
+import { FindPersonalTableSettingsDs } from './data-structures/find-personal-table-settings.ds.js';
+import { CreatePersonalTableSettingsDto } from './dto/create-personal-table-settings.dto.js';
+import { FoundPersonalTableSettingsDto } from './dto/found-personal-table-settings.dto.js';
 import {
 	ICreateUpdatePersonalTableSettings,
 	IDeletePersonalTableSettings,
 	IFindPersonalTableSettings,
 } from './use-cases/personal-table-settings.use-cases.interface.js';
-import { TableReadGuard } from '../../../guards/table-read.guard.js';
-import { UserId } from '../../../decorators/user-id.decorator.js';
-import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
-import { MasterPassword } from '../../../decorators/master-password.decorator.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
-import { FindPersonalTableSettingsDs } from './data-structures/find-personal-table-settings.ds.js';
-import { FoundPersonalTableSettingsDto } from './dto/found-personal-table-settings.dto.js';
-import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
-import { CreatePersonalTableSettingsDs } from './data-structures/create-personal-table-settings.ds.js';
-import { CreatePersonalTableSettingsDto } from './dto/create-personal-table-settings.dto.js';
-import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

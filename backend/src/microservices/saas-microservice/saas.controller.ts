@@ -12,13 +12,16 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 import { SaasUsualUserRegisterDS } from '../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { Messages } from '../../exceptions/text/messages.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { SuccessResponse } from './data-structures/common-responce.ds.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
@@ -32,18 +35,15 @@ import {
 	IGetUserInfo,
 	ILoginUserWithGitHub,
 	ILoginUserWithGoogle,
-	ISaasDemoRegisterUser,
 	ISaaSGetCompanyInfoByUserId,
 	ISaaSGetUsersCountInCompany,
+	ISaasDemoRegisterUser,
 	ISaasGetUsersInfosByEmail,
 	ISaasRegisterUser,
 	ISaasSAMLRegisterUser,
 	ISuspendUsers,
 	ISuspendUsersOverLimit,
 } from './use-cases/saas-use-cases.interface.js';
-import { SkipThrottle } from '@nestjs/throttler';
-import { Messages } from '../../exceptions/text/messages.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @SkipThrottle()

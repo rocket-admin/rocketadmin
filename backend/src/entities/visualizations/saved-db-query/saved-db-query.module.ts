@@ -1,18 +1,18 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
-import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
-import { UserEntity } from '../../user/user.entity.js';
 import { LogOutEntity } from '../../log-out/log-out.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 import { SavedDbQueryController } from './saved-db-query.controller.js';
 import { CreateSavedDbQueryUseCase } from './use-cases/create-saved-db-query.use.case.js';
-import { UpdateSavedDbQueryUseCase } from './use-cases/update-saved-db-query.use.case.js';
-import { FindSavedDbQueryUseCase } from './use-cases/find-saved-db-query.use.case.js';
-import { FindAllSavedDbQueriesUseCase } from './use-cases/find-all-saved-db-queries.use.case.js';
 import { DeleteSavedDbQueryUseCase } from './use-cases/delete-saved-db-query.use.case.js';
 import { ExecuteSavedDbQueryUseCase } from './use-cases/execute-saved-db-query.use.case.js';
+import { FindAllSavedDbQueriesUseCase } from './use-cases/find-all-saved-db-queries.use.case.js';
+import { FindSavedDbQueryUseCase } from './use-cases/find-saved-db-query.use.case.js';
 import { TestDbQueryUseCase } from './use-cases/test-db-query.use.case.js';
+import { UpdateSavedDbQueryUseCase } from './use-cases/update-saved-db-query.use.case.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],

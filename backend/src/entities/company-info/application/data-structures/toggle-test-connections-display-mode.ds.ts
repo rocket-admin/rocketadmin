@@ -1,4 +1,4 @@
 export class ToggleTestConnectionDisplayModeDs {
-  userId: string;
-  displayMode: boolean;
+	userId: string;
+	displayMode: boolean;
 }

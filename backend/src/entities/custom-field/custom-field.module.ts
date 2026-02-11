@@ -4,8 +4,8 @@ import { AuthMiddleware } from '../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { AgentModule } from '../agent/agent.module.js';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { PermissionEntity } from '../permission/permission.entity.js';
@@ -22,56 +22,56 @@ import { GetCustomFieldsUseCase } from './use-cases/get-custom-fields.use.case.j
 import { UpdateCustomFieldUseCase } from './use-cases/update-custom-field.use.case.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      CustomFieldsEntity,
-      GroupEntity,
-      PermissionEntity,
-      TableLogsEntity,
-      TableSettingsEntity,
-      TableWidgetEntity,
-      UserEntity,
-      ConnectionPropertiesEntity,
-      LogOutEntity,
-    ]),
-    AgentModule,
-    UserModule,
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.GET_CUSTOM_FIELDS,
-      useClass: GetCustomFieldsUseCase,
-    },
-    {
-      provide: UseCaseType.CREATE_CUSTOM_FIELDS,
-      useClass: CreateCustomFieldsUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_CUSTOM_FIELDS,
-      useClass: UpdateCustomFieldUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_CUSTOM_FIELD,
-      useClass: DeleteCustomFieldUseCase,
-    },
-  ],
-  controllers: [CustomFieldController],
-  exports: [],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			CustomFieldsEntity,
+			GroupEntity,
+			PermissionEntity,
+			TableLogsEntity,
+			TableSettingsEntity,
+			TableWidgetEntity,
+			UserEntity,
+			ConnectionPropertiesEntity,
+			LogOutEntity,
+		]),
+		AgentModule,
+		UserModule,
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.GET_CUSTOM_FIELDS,
+			useClass: GetCustomFieldsUseCase,
+		},
+		{
+			provide: UseCaseType.CREATE_CUSTOM_FIELDS,
+			useClass: CreateCustomFieldsUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_CUSTOM_FIELDS,
+			useClass: UpdateCustomFieldUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_CUSTOM_FIELD,
+			useClass: DeleteCustomFieldUseCase,
+		},
+	],
+	controllers: [CustomFieldController],
+	exports: [],
 })
 export class CustomFieldModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: '/fields/:connectionId', method: RequestMethod.GET },
-        { path: '/field/:connectionId', method: RequestMethod.POST },
-        { path: '/field/:connectionId', method: RequestMethod.PUT },
-        { path: '/field/:connectionId', method: RequestMethod.DELETE },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: '/fields/:connectionId', method: RequestMethod.GET },
+				{ path: '/field/:connectionId', method: RequestMethod.POST },
+				{ path: '/field/:connectionId', method: RequestMethod.PUT },
+				{ path: '/field/:connectionId', method: RequestMethod.DELETE },
+			);
+	}
 }

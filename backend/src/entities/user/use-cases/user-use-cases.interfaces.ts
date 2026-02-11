@@ -8,8 +8,8 @@ import { FindUserDs } from '../application/data-structures/find-user.ds.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { OtpSecretDS } from '../application/data-structures/otp-secret.ds.js';
 import {
-  OtpDisablingResultDS,
-  OtpValidationResultDS,
+	OtpDisablingResultDS,
+	OtpValidationResultDS,
 } from '../application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
@@ -22,77 +22,77 @@ import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dt
 import { IToken } from '../utils/generate-gwt-token.js';
 
 export interface IFindUserUseCase {
-  execute(userData: FindUserDs | CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
+	execute(userData: FindUserDs | CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
 }
 
 export interface IUsualLogin {
-  execute(userData: UsualLoginDs, inTransaction: InTransactionEnum): Promise<IToken>;
+	execute(userData: UsualLoginDs, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IOtpLogin {
-  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<IToken>;
+	execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface ILogOut {
-  execute(token: string, inTransaction: InTransactionEnum): Promise<boolean>;
+	execute(token: string, inTransaction: InTransactionEnum): Promise<boolean>;
 }
 
 export interface IUsualPasswordChange {
-  execute(inputData: ChangeUsualUserPasswordDto, inTransaction: InTransactionEnum): Promise<IToken>;
+	execute(inputData: ChangeUsualUserPasswordDto, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IVerifyEmail {
-  execute(verificationString: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(verificationString: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IVerifyPasswordReset {
-  execute(inputData: ResetUsualUserPasswordDs, inTransaction: InTransactionEnum): Promise<RegisteredUserDs>;
+	execute(inputData: ResetUsualUserPasswordDs, inTransaction: InTransactionEnum): Promise<RegisteredUserDs>;
 }
 
 export interface IRequestPasswordReset {
-  execute(emailData: RequestRestUserPasswordDto, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(emailData: RequestRestUserPasswordDto, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IRequestEmailChange {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(userId: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IVerifyEmailChange {
-  execute(inputData: ChangeUserEmailDs, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(inputData: ChangeUserEmailDs, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IRequestEmailVerification {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(userId: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IDeleteUserAccount {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<Omit<RegisteredUserDs, 'token'>>;
+	execute(userId: string, inTransaction: InTransactionEnum): Promise<Omit<RegisteredUserDs, 'token'>>;
 }
 
 export interface IChangeUserName {
-  execute(inputData: ChangeUserNameDS, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
+	execute(inputData: ChangeUserNameDS, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
 }
 
 export interface IGenerateOTP {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<OtpSecretDS>;
+	execute(userId: string, inTransaction: InTransactionEnum): Promise<OtpSecretDS>;
 }
 
 export interface IVerifyOTP {
-  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpValidationResultDS>;
+	execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpValidationResultDS>;
 }
 
 export interface IDisableOTP {
-  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpDisablingResultDS>;
+	execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpDisablingResultDS>;
 }
 
 export interface ISaveUserSettings {
-  execute(settingsData: SaveUserSettingsDs, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
+	execute(settingsData: SaveUserSettingsDs, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
 }
 
 export interface IGetUserSettings {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
+	execute(userId: string, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
 }
 
 export interface IToggleTestConnectionsMode {
-  execute(inputData: ToggleConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: ToggleConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

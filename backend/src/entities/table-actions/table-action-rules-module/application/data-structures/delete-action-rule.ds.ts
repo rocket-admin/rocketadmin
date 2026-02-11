@@ -1,4 +1,4 @@
 export class FindActionRuleByIdDS {
-  connectionId: string;
-  ruleId: string;
+	connectionId: string;
+	ruleId: string;
 }

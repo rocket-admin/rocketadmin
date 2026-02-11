@@ -14,13 +14,13 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { S3FileUrlResponseDs, S3UploadUrlResponseDs } from './application/data-structures/s3-operation.ds.js';
 import { IGetS3FileUrl, IGetS3UploadUrl } from './use-cases/s3-use-cases.interface.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

@@ -3,30 +3,30 @@ import { SignInMethodEnum } from '../enums/sign-in-method.enum.js';
 import { SignInStatusEnum } from '../enums/sign-in-status.enum.js';
 
 export class FoundSignInAuditRecordDs {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty()
-  email: string;
+	@ApiProperty()
+	email: string;
 
-  @ApiProperty({ enum: SignInStatusEnum })
-  status: SignInStatusEnum;
+	@ApiProperty({ enum: SignInStatusEnum })
+	status: SignInStatusEnum;
 
-  @ApiProperty({ enum: SignInMethodEnum })
-  signInMethod: SignInMethodEnum;
+	@ApiProperty({ enum: SignInMethodEnum })
+	signInMethod: SignInMethodEnum;
 
-  @ApiProperty()
-  ipAddress: string;
+	@ApiProperty()
+	ipAddress: string;
 
-  @ApiProperty()
-  userAgent: string;
+	@ApiProperty()
+	userAgent: string;
 
-  @ApiProperty()
-  failureReason: string;
+	@ApiProperty()
+	failureReason: string;
 
-  @ApiProperty()
-  createdAt: Date;
+	@ApiProperty()
+	createdAt: Date;
 
-  @ApiProperty()
-  userId: string;
+	@ApiProperty()
+	userId: string;
 }

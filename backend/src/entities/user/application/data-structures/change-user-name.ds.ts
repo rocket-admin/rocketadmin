@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ChangeUserNameDS {
-  id: string;
+	id: string;
 
-  @ApiProperty()
-  name: string;
+	@ApiProperty()
+	name: string;
 }

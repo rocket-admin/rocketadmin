@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { ICheckVerificationLinkAvailable } from './company-info-use-cases.interface.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 
 @Injectable()
 export class CheckIsVerificationLinkAvailable

@@ -1,6 +1,6 @@
-import { IAiChatMessageRepository } from './ai-chat-message-repository.interface.js';
 import { AiChatMessageEntity } from '../ai-chat-message.entity.js';
 import { MessageRole } from '../message-role.enum.js';
+import { IAiChatMessageRepository } from './ai-chat-message-repository.interface.js';
 
 export const aiChatMessageRepositoryExtension: IAiChatMessageRepository = {
 	async findMessagesForChat(chatId: string): Promise<AiChatMessageEntity[]> {

@@ -1,4 +1,4 @@
 export enum TableActionTypeEnum {
-  single = 'single',
-  multiple = 'multiple',
+	single = 'single',
+	multiple = 'multiple',
 }

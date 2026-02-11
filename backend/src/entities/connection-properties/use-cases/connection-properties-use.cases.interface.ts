@@ -3,23 +3,23 @@ import { CreateConnectionPropertiesDs } from '../application/data-structures/cre
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
 
 export interface IFindConnectionProperties {
-  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<FoundConnectionPropertiesDs>;
+	execute(connectionId: string, inTransaction: InTransactionEnum): Promise<FoundConnectionPropertiesDs>;
 }
 
 export interface ICreateConnectionProperties {
-  execute(
-    inputData: CreateConnectionPropertiesDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<FoundConnectionPropertiesDs>;
+	execute(
+		inputData: CreateConnectionPropertiesDs,
+		inTransaction: InTransactionEnum,
+	): Promise<FoundConnectionPropertiesDs>;
 }
 
 export interface IUpdateConnectionProperties {
-  execute(
-    inputData: CreateConnectionPropertiesDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<FoundConnectionPropertiesDs>;
+	execute(
+		inputData: CreateConnectionPropertiesDs,
+		inTransaction: InTransactionEnum,
+	): Promise<FoundConnectionPropertiesDs>;
 }
 
 export interface IDeleteConnectionProperties {
-  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<FoundConnectionPropertiesDs>;
+	execute(connectionId: string, inTransaction: InTransactionEnum): Promise<FoundConnectionPropertiesDs>;
 }

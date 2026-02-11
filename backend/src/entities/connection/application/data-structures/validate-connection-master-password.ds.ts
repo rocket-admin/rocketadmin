@@ -1,4 +1,4 @@
 export class ValidateConnectionMasterPasswordDs {
-  connectionId: string;
-  masterPassword: string;
+	connectionId: string;
+	masterPassword: string;
 }

@@ -1,4 +1,4 @@
 export class CreateUserDs {
-  id: string;
-  gclidValue?: string;
+	id: string;
+	gclidValue?: string;
 }

@@ -14,42 +14,41 @@ import { ICreateCustomFields } from './custom-field-use-cases.interface.js';
 
 @Injectable()
 export class CreateCustomFieldsUseCase
-  extends AbstractUseCase<CreateCustomFieldsDs, FoundTableSettingsDs>
-  implements ICreateCustomFields
+	extends AbstractUseCase<CreateCustomFieldsDs, FoundTableSettingsDs>
+	implements ICreateCustomFields
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: CreateCustomFieldsDs): Promise<FoundTableSettingsDs> {
-    const { connectionId, tableName, masterPwd, createFieldDto, userId } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connectionId,
-      masterPwd,
-    );
-    await validateCreateCustomFieldDto(createFieldDto, foundConnection, userId, tableName);
-    const foundTableSettingToUpdate: TableSettingsEntity =
-      await this._dbContext.tableSettingsRepository.findTableSettingsWithCustomFields(connectionId, tableName);
-    const newCustomFieldEntity = buildNewCustomFieldsEntity(inputData);
-    const savedCustomFields = await this._dbContext.customFieldsRepository.saveCustomFieldsEntity(newCustomFieldEntity);
-    if (foundTableSettingToUpdate) {
-      if (Array.isArray(foundTableSettingToUpdate.custom_fields)) {
-        foundTableSettingToUpdate.custom_fields.push(savedCustomFields);
-      } else {
-        foundTableSettingToUpdate.custom_fields = [savedCustomFields];
-      }
-      const savedSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(
-        foundTableSettingToUpdate,
-      );
-      return buildFoundTableSettingsDs(savedSettings);
-    }
-    const emptyTableSettings: CreateTableSettingsDs = buildEmptyTableSettings(connectionId, tableName);
-    const savedTableSettings = await this._dbContext.tableSettingsRepository.createNewTableSettings(emptyTableSettings);
-    savedTableSettings.custom_fields = [savedCustomFields];
-    const savedSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(savedTableSettings);
-    return buildFoundTableSettingsDs(savedSettings);
-  }
+	protected async implementation(inputData: CreateCustomFieldsDs): Promise<FoundTableSettingsDs> {
+		const { connectionId, tableName, masterPwd, createFieldDto, userId } = inputData;
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connectionId,
+			masterPwd,
+		);
+		await validateCreateCustomFieldDto(createFieldDto, foundConnection, userId, tableName);
+		const foundTableSettingToUpdate: TableSettingsEntity =
+			await this._dbContext.tableSettingsRepository.findTableSettingsWithCustomFields(connectionId, tableName);
+		const newCustomFieldEntity = buildNewCustomFieldsEntity(inputData);
+		const savedCustomFields = await this._dbContext.customFieldsRepository.saveCustomFieldsEntity(newCustomFieldEntity);
+		if (foundTableSettingToUpdate) {
+			if (Array.isArray(foundTableSettingToUpdate.custom_fields)) {
+				foundTableSettingToUpdate.custom_fields.push(savedCustomFields);
+			} else {
+				foundTableSettingToUpdate.custom_fields = [savedCustomFields];
+			}
+			const savedSettings =
+				await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(foundTableSettingToUpdate);
+			return buildFoundTableSettingsDs(savedSettings);
+		}
+		const emptyTableSettings: CreateTableSettingsDs = buildEmptyTableSettings(connectionId, tableName);
+		const savedTableSettings = await this._dbContext.tableSettingsRepository.createNewTableSettings(emptyTableSettings);
+		savedTableSettings.custom_fields = [savedCustomFields];
+		const savedSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(savedTableSettings);
+		return buildFoundTableSettingsDs(savedSettings);
+	}
 }

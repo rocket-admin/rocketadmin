@@ -1,4 +1,4 @@
 export class FindApiKeyDS {
-  userId: string;
-  apiKeyId: string;
+	userId: string;
+	apiKeyId: string;
 }

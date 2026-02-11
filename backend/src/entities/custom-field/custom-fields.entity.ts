@@ -3,19 +3,23 @@ import { TableSettingsEntity } from '../table-settings/common-table-settings/tab
 
 @Entity('customFields')
 export class CustomFieldsEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column()
-  type: string;
+	@Column()
+	type: string;
 
-  @Column()
-  template_string: string;
+	@Column()
+	template_string: string;
 
-  @Column()
-  text: string;
+	@Column()
+	text: string;
 
-  @ManyToOne(() => TableSettingsEntity, (settings) => settings.custom_fields, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  settings: Relation<TableSettingsEntity>;
+	@ManyToOne(
+		() => TableSettingsEntity,
+		(settings) => settings.custom_fields,
+		{ onDelete: 'CASCADE' },
+	)
+	@JoinColumn()
+	settings: Relation<TableSettingsEntity>;
 }

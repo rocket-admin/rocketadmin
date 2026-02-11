@@ -1,47 +1,47 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { GetSecretsDS, SecretsListDS } from '../application/data-structures/get-secrets.ds.js';
-import { IGetSecrets } from './user-secret-use-cases.interface.js';
-import { buildSecretListItemDS } from '../utils/build-secret-list-item.ds.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { GetSecretsDS, SecretsListDS } from '../application/data-structures/get-secrets.ds.js';
+import { buildSecretListItemDS } from '../utils/build-secret-list-item.ds.js';
+import { IGetSecrets } from './user-secret-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetSecretsUseCase extends AbstractUseCase<GetSecretsDS, SecretsListDS> implements IGetSecrets {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: GetSecretsDS): Promise<SecretsListDS> {
-    const { userId, page, limit, search } = inputData;
+	protected async implementation(inputData: GetSecretsDS): Promise<SecretsListDS> {
+		const { userId, page, limit, search } = inputData;
 
-    const user = await this._dbContext.userRepository.findOne({
-      where: { id: userId },
-      relations: ['company'],
-    });
+		const user = await this._dbContext.userRepository.findOne({
+			where: { id: userId },
+			relations: ['company'],
+		});
 
-    if (!user || !user.company) {
-      throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
-    }
+		if (!user || !user.company) {
+			throw new NotFoundException(Messages.USER_NOT_FOUND_OR_NOT_IN_COMPANY);
+		}
 
-    const [secrets, total] = await this._dbContext.userSecretRepository.findSecretsForCompany(user.company.id, {
-      page,
-      limit,
-      search,
-    });
+		const [secrets, total] = await this._dbContext.userSecretRepository.findSecretsForCompany(user.company.id, {
+			page,
+			limit,
+			search,
+		});
 
-    return {
-      data: secrets.map((secret) => buildSecretListItemDS(secret)),
-      pagination: {
-        total,
-        currentPage: page,
-        perPage: limit,
-        lastPage: Math.ceil(total / limit),
-      },
-    };
-  }
+		return {
+			data: secrets.map((secret) => buildSecretListItemDS(secret)),
+			pagination: {
+				total,
+				currentPage: page,
+				perPage: limit,
+				lastPage: Math.ceil(total / limit),
+			},
+		};
+	}
 }

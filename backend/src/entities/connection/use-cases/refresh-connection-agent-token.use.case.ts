@@ -7,20 +7,20 @@ import { IRefreshConnectionAgentToken } from './use-cases.interfaces.js';
 
 @Injectable()
 export class RefreshConnectionAgentTokenUseCase
-  extends AbstractUseCase<string, TokenDs>
-  implements IRefreshConnectionAgentToken
+	extends AbstractUseCase<string, TokenDs>
+	implements IRefreshConnectionAgentToken
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(connectionId: string): Promise<TokenDs> {
-    const refreshedToken = await this._dbContext.agentRepository.renewOrCreateConnectionToken(connectionId);
-    return {
-      token: refreshedToken,
-    };
-  }
+	protected async implementation(connectionId: string): Promise<TokenDs> {
+		const refreshedToken = await this._dbContext.agentRepository.renewOrCreateConnectionToken(connectionId);
+		return {
+			token: refreshedToken,
+		};
+	}
 }

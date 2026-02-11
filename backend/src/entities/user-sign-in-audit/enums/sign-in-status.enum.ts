@@ -1,5 +1,5 @@
 export enum SignInStatusEnum {
-  SUCCESS = 'success',
-  FAILED = 'failed',
-  BLOCKED = 'blocked',
+	SUCCESS = 'success',
+	FAILED = 'failed',
+	BLOCKED = 'blocked',
 }

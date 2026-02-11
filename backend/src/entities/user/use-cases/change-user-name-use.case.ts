@@ -10,28 +10,28 @@ import { IChangeUserName } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, FoundUserDto> implements IChangeUserName {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly userHelperService: UserHelperService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly userHelperService: UserHelperService,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: ChangeUserNameDS): Promise<FoundUserDto> {
-    const { id, name } = inputData;
-    const foundUser = await this._dbContext.userRepository.findOneUserById(id);
-    if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+	protected async implementation(inputData: ChangeUserNameDS): Promise<FoundUserDto> {
+		const { id, name } = inputData;
+		const foundUser = await this._dbContext.userRepository.findOneUserById(id);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    foundUser.name = name;
-    const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
-    return await this.userHelperService.buildFoundUserDs(savedUser);
-  }
+		foundUser.name = name;
+		const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
+		return await this.userHelperService.buildFoundUserDs(savedUser);
+	}
 }
