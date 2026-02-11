@@ -10,6 +10,7 @@ import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { difference } from 'lodash-es';
+import posthog from 'posthog-js';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, Widget } from 'src/app/models/table';
@@ -56,6 +57,7 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 	],
 })
 export class DbTableWidgetsComponent implements OnInit {
+	protected posthog = posthog;
 	public connectionID: string | null = null;
 	public tableName: string | null = null;
 	public dispalyTableName: string;
@@ -427,6 +429,7 @@ export class DbTableWidgetsComponent implements OnInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Widgets: widgets are updated successfully',
 				});
+				posthog.capture('Widgets: widgets are updated successfully');
 				if (!afterDeleteAll) this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
 			},
 			undefined,

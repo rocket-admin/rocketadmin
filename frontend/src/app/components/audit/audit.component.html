@@ -7,6 +7,7 @@
                 <mat-select
                     angulartics2On="click"
                     angularticsAction="Audit: table is selected"
+                    (click)="posthog.capture('Audit: table is selected')"
                     [(ngModel)]="tableName"
                     (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
@@ -23,6 +24,7 @@
                 <mat-select
                     angulartics2On="click"
                     angularticsAction="Audit: user is selected"
+                    (click)="posthog.capture('Audit: user is selected')"
                     [(ngModel)]="userEmail" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
                     <mat-option *ngFor="let user of usersList" [value]="user.email">{{user.email}}</mat-option>
@@ -103,7 +105,7 @@
                     <button mat-button color="accent"
                         angulartics2On="click"
                         angularticsAction="Audit: view changes is clicked"
-                        (click)="openInfoLogDialog(element)">
+                        (click)="openInfoLogDialog(element); posthog.capture('Audit: view changes is clicked')">
                         Details
                     </button>
                 </td>

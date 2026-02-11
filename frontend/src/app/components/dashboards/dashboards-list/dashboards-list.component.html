@@ -30,11 +30,11 @@
                     (click)="openCreateDialog()"
                     data-testid="create-dashboard-button">
                     <mat-icon>add</mat-icon>
-                    Create Dashboard
+                    Create dashboard
                 </button>
             </div>
 
-            <app-placeholder-table-data *ngIf="loading()"></app-placeholder-table-data>
+            <app-placeholder-dashboards *ngIf="loading()"></app-placeholder-dashboards>
 
             <div *ngIf="!loading() && filteredDashboards().length === 0" class="no-dashboards">
                 <mat-icon class="no-dashboards-icon">dashboard</mat-icon>
@@ -45,7 +45,7 @@
                     (click)="openCreateDialog()"
                     data-testid="create-dashboard-button">
                     <mat-icon>add</mat-icon>
-                    Create Dashboard
+                    Create dashboard
                 </button>
             </div>
 

@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { Dashboard } from 'src/app/models/dashboard';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 
@@ -58,6 +59,7 @@ export class DashboardEditDialogComponent implements OnInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Dashboards: dashboard updated successfully',
 				});
+				posthog.capture('Dashboards: dashboard updated successfully');
 				this.dialogRef.close(true);
 			}
 		} else {
@@ -66,6 +68,7 @@ export class DashboardEditDialogComponent implements OnInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Dashboards: dashboard created successfully',
 				});
+				posthog.capture('Dashboards: dashboard created successfully');
 				this.dialogRef.close(true);
 			}
 		}

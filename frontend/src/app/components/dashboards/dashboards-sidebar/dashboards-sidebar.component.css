@@ -2,10 +2,10 @@
 	width: 220px;
 	min-width: 220px;
 	height: 100%;
-	border-right: 1px solid rgba(0, 0, 0, 0.12);
+	border-right: 1px solid var(--mat-sidenav-container-divider-color);
 	display: flex;
 	flex-direction: column;
-	background-color: #fafafa;
+	background-color: var(--color-primaryPalette-50);
 	overflow: hidden;
 }
 
@@ -15,8 +15,7 @@
 
 @media (prefers-color-scheme: dark) {
 	.dashboards-sidebar {
-		background-color: #1e1e1e;
-		border-right-color: rgba(255, 255, 255, 0.12);
+		background-color: var(--color-primaryPalette-900);
 	}
 }
 
@@ -66,23 +65,17 @@
 }
 
 .active-link {
-	background-color: rgba(103, 58, 183, 0.12);
+	background-color: var(--color-accentedPalette-100);
 }
 
 @media (prefers-color-scheme: dark) {
 	.active-link {
-		background-color: rgba(179, 136, 255, 0.16);
+		background-color: var(--color-accentedPalette-800);
 	}
 }
 
 .active-link mat-icon {
-	color: #673ab7;
-}
-
-@media (prefers-color-scheme: dark) {
-	.active-link mat-icon {
-		color: #b388ff;
-	}
+	color: var(--color-accentedPalette-500);
 }
 
 /* Mobile styles */

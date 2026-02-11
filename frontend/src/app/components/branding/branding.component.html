@@ -25,6 +25,7 @@
                                 data-testid="custom-domain-input"
                                 angulartics2On="change"
                                 angularticsAction="Company: custom domain is edited"
+                                (change)="posthog.capture('Company: custom domain is edited')"
                                 placeholder="e.g. {{companyCustomDomainPlaceholder}}"
                                 [readonly]="currentUser.role === 'DB_ADMIN' || isCustomDomain"
                                 [(ngModel)]="companyCustomDomainHostname">
@@ -95,6 +96,7 @@
                                 data-testid="custom-tab-title-input"
                                 angulartics2On="change"
                                 angularticsAction="Company: tab title domain is edited"
+                                (change)="posthog.capture('Company: tab title domain is edited')"
                                 placeholder="e.g. {{company.name}}"
                                 [readonly]="currentUser.role === 'DB_ADMIN'"
                                 [(ngModel)]="companyTabTitle">

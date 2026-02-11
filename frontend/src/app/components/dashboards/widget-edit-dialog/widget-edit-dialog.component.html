@@ -1,11 +1,11 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <h2 mat-dialog-title>{{ isEdit ? 'Edit Widget' : 'Add Chart' }}</h2>
+    <h2 mat-dialog-title>{{ isEdit ? 'Edit widget' : 'Add chart' }}</h2>
 
     <mat-dialog-content>
         @if (savedQueries().length > 0) {
             <div class="widget-form">
                 <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Saved Query</mat-label>
+                    <mat-label>Saved query</mat-label>
                     <mat-select formControlName="query_id"
                         data-testid="widget-query-select">
                         @for (query of savedQueries(); track query.id) {
@@ -32,7 +32,7 @@
                     [routerLink]="['/charts', data.connectionId, 'new']"
                     (click)="dialogRef.close()">
                     <mat-icon>add</mat-icon>
-                    Create Query
+                    Create query
                 </a>
             </div>
         }

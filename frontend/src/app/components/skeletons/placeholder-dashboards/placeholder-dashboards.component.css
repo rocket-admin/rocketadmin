@@ -1,0 +1,58 @@
+.dashboards-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 24px;
+}
+
+@media (width <= 600px) {
+	.dashboards-grid {
+		grid-template-columns: 1fr;
+		gap: 16px;
+	}
+}
+
+.dashboard-card {
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.card-preview {
+	height: 160px;
+}
+
+.card-content {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.card-title {
+	height: 20px;
+	width: 60%;
+	border-radius: 4px;
+}
+
+.card-description {
+	height: 16px;
+	width: 80%;
+	border-radius: 4px;
+}
+
+.card-meta {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 4px;
+}
+
+.card-meta-left {
+	height: 14px;
+	width: 80px;
+	border-radius: 4px;
+}
+
+.card-meta-right {
+	height: 14px;
+	width: 60px;
+	border-radius: 4px;
+}
