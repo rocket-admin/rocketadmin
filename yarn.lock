@@ -3970,7 +3970,7 @@ __metadata:
     cassandra-driver: ^4.8.0
     csv: ^6.4.1
     get-port: ^7.1.0
-    ibm_db: 3.3.0
+    ibm_db: 3.3.4
     jsonwebtoken: ^9.0.3
     knex: ^3.1.0
     lru-cache: ^11.2.6
@@ -6115,7 +6115,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.13.2, axios@npm:^1.13.5, axios@npm:^1.7.4":
+"axios@npm:^1.12.0, axios@npm:^1.13.2, axios@npm:^1.13.5":
   version: 1.13.5
   resolution: "axios@npm:1.13.5"
   dependencies:
@@ -8483,20 +8483,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ibm_db@npm:3.3.0":
-  version: 3.3.0
-  resolution: "ibm_db@npm:3.3.0"
+"ibm_db@npm:3.3.4":
+  version: 3.3.4
+  resolution: "ibm_db@npm:3.3.4"
   dependencies:
     adm-zip: ^0.5.16
-    axios: ^1.7.4
+    axios: ^1.12.0
     big-integer: ^1.6.51
     bindings: ^1.5.0
     fs-extra: ^11.1.1
     lodash: ^4.17.21
-    nan: ^2.22.0
+    nan: ^2.23.0
     q: ^1.5.1
     targz: ^1.0.1
-  checksum: 7a266c6bd5bbc9ba3d3fd83c82e7b207f704be72a80ceeed1b8f22fc05ebeb65e6baada7e6ca9710c773f48cb2a1a53ddc7a593eacf7b0d5b5f376696007bc5b
+  checksum: 3ac61a91a91770a269705db7e4bc2a165641b8586f7ea0f5a64e435a2dae2dac24ddb188c351faff05fc3062569cec8e7d5c707746e07d2331e4ccd4a960a187
   languageName: node
   linkType: hard
 
@@ -9984,7 +9984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.19.0, nan@npm:^2.22.0, nan@npm:^2.23.0":
+"nan@npm:^2.19.0, nan@npm:^2.23.0":
   version: 2.24.0
   resolution: "nan@npm:2.24.0"
   dependencies:
