@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
 import { ChatBedrockConverse } from '@langchain/aws';
-import { BaseMessage, AIMessage, AIMessageChunk, HumanMessage, ToolMessage } from '@langchain/core/messages';
-import { IterableReadableStream } from '@langchain/core/utils/stream';
+import { AIMessage, AIMessageChunk, BaseMessage, HumanMessage, ToolMessage } from '@langchain/core/messages';
 import { tool } from '@langchain/core/tools';
+import { IterableReadableStream } from '@langchain/core/utils/stream';
+import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import {
-	IAIProvider,
-	AIProviderConfig,
 	AICompletionResult,
+	AIProviderConfig,
 	AIStreamChunk,
+	AIToolCall,
 	AIToolDefinition,
 	AIToolResult,
-	AIToolCall,
+	IAIProvider,
 } from '../interfaces/ai-provider.interface.js';
 
 @Injectable()

@@ -1,5 +1,5 @@
-import { IUserAiChatRepository } from './user-ai-chat-repository.interface.js';
 import { UserAiChatEntity } from '../user-ai-chat.entity.js';
+import { IUserAiChatRepository } from './user-ai-chat-repository.interface.js';
 
 export const userAiChatRepositoryExtension: IUserAiChatRepository = {
 	async findAllChatsForUser(userId: string): Promise<UserAiChatEntity[]> {
@@ -34,10 +34,6 @@ export const userAiChatRepositoryExtension: IUserAiChatRepository = {
 	},
 
 	async updateChatName(chatId: string, name: string): Promise<void> {
-		await this.createQueryBuilder()
-			.update(UserAiChatEntity)
-			.set({ name })
-			.where('id = :chatId', { chatId })
-			.execute();
+		await this.createQueryBuilder().update(UserAiChatEntity).set({ name }).where('id = :chatId', { chatId }).execute();
 	},
 };

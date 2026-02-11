@@ -1,9 +1,9 @@
 export interface IDatabaseContext {
-  startTransaction(): Promise<void>;
+	startTransaction(): Promise<void>;
 
-  commitTransaction(): Promise<void>;
+	commitTransaction(): Promise<void>;
 
-  rollbackTransaction(): Promise<void>;
+	rollbackTransaction(): Promise<void>;
 
-  releaseQueryRunner(): Promise<void>;
+	releaseQueryRunner(): Promise<void>;
 }

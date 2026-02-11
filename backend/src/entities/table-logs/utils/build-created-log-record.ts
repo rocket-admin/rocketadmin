@@ -1,31 +1,31 @@
-import { TableLogsEntity } from '../table-logs.entity.js';
 import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds.js';
+import { TableLogsEntity } from '../table-logs.entity.js';
 
 export function buildCreatedLogRecord(log: TableLogsEntity): CreatedLogRecordDs {
-  const {
-    cognitoUserName,
-    connection_id,
-    createdAt,
-    email,
-    id,
-    old_data,
-    operationStatusResult,
-    operationType,
-    received_data,
-    table_name,
-    affected_primary_key,
-  } = log;
-  return {
-    createdAt: createdAt,
-    email: email,
-    id: id,
-    old_data: old_data,
-    operationStatusResult: operationStatusResult,
-    operationType: operationType,
-    received_data: received_data,
-    table_name: table_name,
-    connection_id: connection_id as unknown as string,
-    userId: cognitoUserName,
-    affected_primary_key: affected_primary_key,
-  };
+	const {
+		cognitoUserName,
+		connection_id,
+		createdAt,
+		email,
+		id,
+		old_data,
+		operationStatusResult,
+		operationType,
+		received_data,
+		table_name,
+		affected_primary_key,
+	} = log;
+	return {
+		createdAt: createdAt,
+		email: email,
+		id: id,
+		old_data: old_data,
+		operationStatusResult: operationStatusResult,
+		operationType: operationType,
+		received_data: received_data,
+		table_name: table_name,
+		connection_id: connection_id as unknown as string,
+		userId: cognitoUserName,
+		affected_primary_key: affected_primary_key,
+	};
 }

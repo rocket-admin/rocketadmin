@@ -2,17 +2,17 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SimpleFoundUserInfoDs } from '../../../entities/user/dto/found-user.dto.js';
-import { ICreateInitialUserUseCase } from './selfhosted-use-cases.interfaces.js';
-import { CreateInitialUserDs } from '../data-structures/create-initial-user.ds.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
-import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
-import { buildRegisteringUser } from '../../../entities/user/utils/build-registering-user.util.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
+import { SimpleFoundUserInfoDs } from '../../../entities/user/dto/found-user.dto.js';
+import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { buildSimpleUserInfoDs } from '../../../entities/user/utils/build-created-user.ds.js';
+import { buildRegisteringUser } from '../../../entities/user/utils/build-registering-user.util.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { CreateInitialUserDs } from '../data-structures/create-initial-user.ds.js';
+import { ICreateInitialUserUseCase } from './selfhosted-use-cases.interfaces.js';
 
 @Injectable()
 export class CreateInitialUserUseCase

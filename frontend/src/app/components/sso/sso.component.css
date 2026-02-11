@@ -15,7 +15,7 @@
 }
 
 .sso-page {
-    margin: 3em auto;
+    margin: var(--top-margin) auto;
     padding: 0 clamp(40px, 5vw, 100px);
     max-width: 800px;
 }

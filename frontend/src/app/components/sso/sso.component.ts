@@ -14,7 +14,7 @@ import { SubscriptionPlans } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
-import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
+import { PlaceholderSsoComponent } from '../skeletons/placeholder-sso/placeholder-sso.component';
 
 @Component({
 	selector: 'app-sso',
@@ -30,7 +30,7 @@ import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/pl
 		MatFormFieldModule,
 		AlertComponent,
 		ProfileSidebarComponent,
-		PlaceholderCompanyComponent,
+		PlaceholderSsoComponent,
 	],
 	templateUrl: './sso.component.html',
 	styleUrl: './sso.component.css',

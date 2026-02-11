@@ -2,8 +2,8 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { AppController } from './app.controller.js';
 import { AICoreModule } from './ai-core/ai-core.module.js';
+import { AppController } from './app.controller.js';
 import { GlobalDatabaseContext } from './common/application/global-database-context.js';
 import { BaseType, UseCaseType } from './common/data-injection.tokens.js';
 import { AIModule } from './entities/ai/ai.module.js';
@@ -31,23 +31,22 @@ import { TableCategoriesModule } from './entities/table-categories/table-categor
 import { TableFiltersModule } from './entities/table-filters/table-filters.module.js';
 import { TableLogsModule } from './entities/table-logs/table-logs.module.js';
 import { TableSettingsModule } from './entities/table-settings/common-table-settings/table-settings.module.js';
+import { PersonalTableSettingsModule } from './entities/table-settings/personal-table-settings/personal-table-settings.module.js';
 import { UserModule } from './entities/user/user.module.js';
 import { UserActionModule } from './entities/user-actions/user-action.module.js';
 import { UserSecretModule } from './entities/user-secret/user-secret.module.js';
 import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.module.js';
+import { DashboardModule } from './entities/visualizations/dashboard/dashboards.module.js';
+import { DashboardWidgetModule } from './entities/visualizations/dashboard-widget/dashboard-widget.module.js';
+import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/saved-db-query.module.js';
 import { TableWidgetModule } from './entities/widget/table-widget.module.js';
-
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
+import { SelfHostedOperationsModule } from './selfhosted-operations/selhosted-operations.module.js';
 import { DatabaseModule } from './shared/database/database.module.js';
 import { SharedModule } from './shared/shared.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
-import { PersonalTableSettingsModule } from './entities/table-settings/personal-table-settings/personal-table-settings.module.js';
-import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/saved-db-query.module.js';
-import { DashboardModule } from './entities/visualizations/dashboard/dashboards.module.js';
-import { DashboardWidgetModule } from './entities/visualizations/dashboard-widget/dashboard-widget.module.js';
-import { SelfHostedOperationsModule } from './selfhosted-operations/selhosted-operations.module.js';
 
 @Module({
 	imports: [

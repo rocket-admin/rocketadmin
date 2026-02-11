@@ -5,8 +5,8 @@ import { AmplitudeService } from './amplitude.service.js';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
-  providers: [AmplitudeService],
-  exports: [AmplitudeService],
+	imports: [TypeOrmModule.forFeature([UserEntity])],
+	providers: [AmplitudeService],
+	exports: [AmplitudeService],
 })
 export class AmplitudeModule {}

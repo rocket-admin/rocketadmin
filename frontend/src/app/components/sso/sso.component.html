@@ -4,7 +4,7 @@
     <div class="profile-main">
         <app-alert></app-alert>
 
-        <app-placeholder-company *ngIf="!company"></app-placeholder-company>
+        <app-placeholder-sso *ngIf="!company"></app-placeholder-sso>
 
         <div *ngIf="company && !hasEnterprisePlan" class="sso-page">
             <div class="upgrade-required">

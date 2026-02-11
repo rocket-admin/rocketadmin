@@ -1,4 +1,4 @@
 export class RevokeUserInvitationDs {
-  email: string;
-  companyId: string;
+	email: string;
+	companyId: string;
 }

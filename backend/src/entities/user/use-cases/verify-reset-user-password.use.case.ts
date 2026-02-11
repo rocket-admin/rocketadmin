@@ -8,8 +8,8 @@ import { ValidationHelper } from '../../../helpers/validators/validation-helper.
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
 import { generateGwtToken } from '../utils/generate-gwt-token.js';
-import { IVerifyPasswordReset } from './user-use-cases.interfaces.js';
 import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
+import { IVerifyPasswordReset } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class VerifyResetUserPasswordUseCase

@@ -19,7 +19,7 @@ import { Company } from 'src/app/models/company';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { DeleteDomainDialogComponent } from '../company/delete-domain-dialog/delete-domain-dialog.component';
 import { environment } from 'src/environments/environment';
-import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/placeholder-company.component';
+import { PlaceholderBrandingComponent } from '../skeletons/placeholder-branding/placeholder-branding.component';
 
 @Component({
   selector: 'app-branding',
@@ -37,7 +37,7 @@ import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/pl
     Angulartics2OnModule,
     AlertComponent,
     ProfileSidebarComponent,
-    PlaceholderCompanyComponent,
+    PlaceholderBrandingComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

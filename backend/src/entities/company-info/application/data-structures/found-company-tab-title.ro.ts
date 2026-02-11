@@ -1,3 +1,3 @@
 export class FoundCompanyTabTitleRO {
-  tab_title: string;
+	tab_title: string;
 }

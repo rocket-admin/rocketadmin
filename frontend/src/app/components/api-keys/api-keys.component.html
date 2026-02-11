@@ -50,6 +50,8 @@
                 <div class="api-keys-list">
                     <h3 class="api-keys-list__heading">Your API keys</h3>
 
+                    <app-placeholder-api-keys-list *ngIf="!apiKeys"></app-placeholder-api-keys-list>
+
                     <div *ngIf="apiKeys && apiKeys.length === 0" class="api-keys-empty">
                         <mat-icon class="api-keys-empty__icon">vpn_key_off</mat-icon>
                         <p>You don't have any API keys yet.</p>

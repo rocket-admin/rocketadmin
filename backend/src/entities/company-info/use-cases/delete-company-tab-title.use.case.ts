@@ -8,35 +8,35 @@ import { IDeleteCompanyTabTitle } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteCompanyTabTitleUseCase
-  extends AbstractUseCase<string, SuccessResponse>
-  implements IDeleteCompanyTabTitle
+	extends AbstractUseCase<string, SuccessResponse>
+	implements IDeleteCompanyTabTitle
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(companyId: string): Promise<SuccessResponse> {
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithTabTitle(companyId);
-    if (!company) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
+	protected async implementation(companyId: string): Promise<SuccessResponse> {
+		const company = await this._dbContext.companyInfoRepository.findCompanyWithTabTitle(companyId);
+		if (!company) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 
-    const tabTitleForDeletion = await this._dbContext.companyTabTitleRepository.findOne({
-      where: {
-        company: {
-          id: companyId,
-        },
-      },
-    });
+		const tabTitleForDeletion = await this._dbContext.companyTabTitleRepository.findOne({
+			where: {
+				company: {
+					id: companyId,
+				},
+			},
+		});
 
-    if (!tabTitleForDeletion) {
-      throw new NotFoundException(Messages.COMPANY_TAB_TITLE_NOT_FOUND);
-    }
+		if (!tabTitleForDeletion) {
+			throw new NotFoundException(Messages.COMPANY_TAB_TITLE_NOT_FOUND);
+		}
 
-    await this._dbContext.companyTabTitleRepository.remove(tabTitleForDeletion);
-    return { success: true };
-  }
+		await this._dbContext.companyTabTitleRepository.remove(tabTitleForDeletion);
+		return { success: true };
+	}
 }

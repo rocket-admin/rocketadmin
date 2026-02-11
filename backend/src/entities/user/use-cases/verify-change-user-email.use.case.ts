@@ -3,11 +3,11 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { IVerifyEmailChange } from './user-use-cases.interfaces.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 
 @Injectable()
 export class VerifyChangeUserEmailUseCase

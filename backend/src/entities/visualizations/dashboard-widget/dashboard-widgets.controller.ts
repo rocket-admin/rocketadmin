@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } 
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
@@ -29,7 +30,6 @@ import {
 	IDeleteDashboardWidget,
 	IUpdateDashboardWidget,
 } from './use-cases/dashboard-widget-use-cases.interface.js';
-import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

@@ -19,6 +19,7 @@ import { CompanyService } from 'src/app/services/company.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { ApiKey } from 'src/app/models/user';
 import { ApiKeyDeleteDialogComponent } from '../user-settings/api-key-delete-dialog/api-key-delete-dialog.component';
+import { PlaceholderApiKeysListComponent } from '../skeletons/placeholder-api-keys-list/placeholder-api-keys-list.component';
 
 @Component({
   selector: 'app-api-keys',
@@ -37,10 +38,11 @@ import { ApiKeyDeleteDialogComponent } from '../user-settings/api-key-delete-dia
     Angulartics2OnModule,
     AlertComponent,
     ProfileSidebarComponent,
+    PlaceholderApiKeysListComponent,
   ]
 })
 export class ApiKeysComponent implements OnInit {
-  public apiKeys: ApiKey[] = [];
+  public apiKeys: ApiKey[] = null;
   public generatingAPIkeyTitle: string = '';
   public generatedAPIkeyHash: string = '';
   public submitting: boolean = false;

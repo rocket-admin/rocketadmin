@@ -8,23 +8,23 @@ import { IUpdateCompanyName } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateCompanyNameUseCase
-  extends AbstractUseCase<UpdateCompanyNameDS, SuccessResponse>
-  implements IUpdateCompanyName
+	extends AbstractUseCase<UpdateCompanyNameDS, SuccessResponse>
+	implements IUpdateCompanyName
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: UpdateCompanyNameDS): Promise<SuccessResponse> {
-    const { companyId, name } = inputData;
-    const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
-    foundCompany.name = name;
-    await this._dbContext.companyInfoRepository.save(foundCompany);
-    return {
-      success: true,
-    };
-  }
+	protected async implementation(inputData: UpdateCompanyNameDS): Promise<SuccessResponse> {
+		const { companyId, name } = inputData;
+		const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
+		foundCompany.name = name;
+		await this._dbContext.companyInfoRepository.save(foundCompany);
+		return {
+			success: true,
+		};
+	}
 }

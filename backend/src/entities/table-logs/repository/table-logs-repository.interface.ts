@@ -6,28 +6,28 @@ import { FoundLogsEntities } from '../application/data-structures/found-logs.ds.
 import { TableLogsEntity } from '../table-logs.entity.js';
 
 export interface ITableLogsRepository {
-  createLogRecord(logsData: CreateLogRecordDs): Promise<CreatedLogRecordDs>;
+	createLogRecord(logsData: CreateLogRecordDs): Promise<CreatedLogRecordDs>;
 
-  findLogs(findOptions: IFindLogsOptions): Promise<FoundLogsEntities>;
+	findLogs(findOptions: IFindLogsOptions): Promise<FoundLogsEntities>;
 
-  saveNewOrUpdatedLogRecord(logRecord: TableLogsEntity): Promise<TableLogsEntity>;
+	saveNewOrUpdatedLogRecord(logRecord: TableLogsEntity): Promise<TableLogsEntity>;
 
-  findLogsAsStream(findOptions: IFindLogsOptions): Promise<ReadStream>;
+	findLogsAsStream(findOptions: IFindLogsOptions): Promise<ReadStream>;
 }
 
 export interface IFindLogsOptions {
-  connectionId: string;
-  currentUserId: string;
-  dateFrom: Date;
-  dateTo: Date;
-  order: QueryOrderingEnum;
-  page: number;
-  perPage: number;
-  searchedEmail: string;
-  tableName: string;
-  userConnectionEdit: boolean;
-  userInGroupsIds: Array<string>;
-  logOperationType: LogOperationTypeEnum;
-  logOperationTypes: Array<LogOperationTypeEnum>;
-  searchedAffectedPrimaryKey: string;
+	connectionId: string;
+	currentUserId: string;
+	dateFrom: Date;
+	dateTo: Date;
+	order: QueryOrderingEnum;
+	page: number;
+	perPage: number;
+	searchedEmail: string;
+	tableName: string;
+	userConnectionEdit: boolean;
+	userInGroupsIds: Array<string>;
+	logOperationType: LogOperationTypeEnum;
+	logOperationTypes: Array<LogOperationTypeEnum>;
+	searchedAffectedPrimaryKey: string;
 }

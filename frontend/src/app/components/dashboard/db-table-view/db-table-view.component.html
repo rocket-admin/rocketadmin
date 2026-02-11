@@ -185,8 +185,8 @@
 </div>
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
-    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue" data-ph-no-capture
-        class="db-table-active-filter-chip"    
+    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
+        class="db-table-active-filter-chip ph-no-capture"
         (removed)="removeFilter.emit(activeFilter.key)"
         (click)="handleActiveFilterClick(activeFilter.key)">
         {{ getFilter(activeFilter) }}
@@ -282,7 +282,7 @@
                         </button>
                     </mat-menu>
                 </mat-header-cell>
-                <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-ph-no-capture>
+                <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell ph-no-capture">
                     <div class="table-cell-content">
                         <ng-container *ngIf="isForeignKey(column); else contentCell">
                             <app-display-foreign-key

@@ -6,17 +6,17 @@ import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { AiService } from './ai.service.js';
+import { AiChatMessageEntity } from './ai-conversation-history/ai-chat-messages/ai-chat-message.entity.js';
+import { DeleteUserAiChatUseCase } from './ai-conversation-history/use-cases/delete-user-ai-chat.use.case.js';
+import { FindUserAiChatByIdUseCase } from './ai-conversation-history/use-cases/find-user-ai-chat-by-id.use.case.js';
+import { FindUserAiChatsUseCase } from './ai-conversation-history/use-cases/find-user-ai-chats.use.case.js';
+import { UserAiChatEntity } from './ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
+import { UserAiChatController } from './ai-conversation-history/user-ai-chat.controller.js';
 import { RequestAISettingsAndWidgetsCreationUseCase } from './use-cases/request-ai-settings-and-widgets-creation.use.case.js';
 import { RequestInfoFromTableWithAIUseCaseV5 } from './use-cases/request-info-from-table-with-ai-v5.use.case.js';
 import { RequestInfoFromTableWithAIUseCaseV6 } from './use-cases/request-info-from-table-with-ai-v6.use.case.js';
 import { RequestInfoFromTableWithAIUseCaseV7 } from './use-cases/request-info-from-table-with-ai-v7.use.case.js';
 import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
-import { UserAiChatController } from './ai-conversation-history/user-ai-chat.controller.js';
-import { FindUserAiChatsUseCase } from './ai-conversation-history/use-cases/find-user-ai-chats.use.case.js';
-import { FindUserAiChatByIdUseCase } from './ai-conversation-history/use-cases/find-user-ai-chat-by-id.use.case.js';
-import { DeleteUserAiChatUseCase } from './ai-conversation-history/use-cases/delete-user-ai-chat.use.case.js';
-import { UserAiChatEntity } from './ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
-import { AiChatMessageEntity } from './ai-conversation-history/ai-chat-messages/ai-chat-message.entity.js';
 
 @Global()
 @Module({

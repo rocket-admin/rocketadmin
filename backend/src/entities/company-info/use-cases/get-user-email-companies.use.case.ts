@@ -8,33 +8,33 @@ import { IGetUserEmailCompanies } from './company-info-use-cases.interface.js';
 
 @Injectable()
 export class GetUserEmailCompaniesUseCase
-  extends AbstractUseCase<string, Array<FoundUserEmailCompaniesInfoDs>>
-  implements IGetUserEmailCompanies
+	extends AbstractUseCase<string, Array<FoundUserEmailCompaniesInfoDs>>
+	implements IGetUserEmailCompanies
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
-    const useEmailCompaniesInfosFromCore = await this._dbContext.companyInfoRepository.findCompanyInfosByUserEmail(
-      userEmail.toLowerCase(),
-    );
-    if (!useEmailCompaniesInfosFromCore.length) {
-      throw new HttpException(
-        {
-          message: Messages.COMPANIES_USER_EMAIL_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return useEmailCompaniesInfosFromCore.map(({ id, name }) => {
-      return {
-        id,
-        name,
-      };
-    });
-  }
+	protected async implementation(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
+		const useEmailCompaniesInfosFromCore = await this._dbContext.companyInfoRepository.findCompanyInfosByUserEmail(
+			userEmail.toLowerCase(),
+		);
+		if (!useEmailCompaniesInfosFromCore.length) {
+			throw new HttpException(
+				{
+					message: Messages.COMPANIES_USER_EMAIL_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		return useEmailCompaniesInfosFromCore.map(({ id, name }) => {
+			return {
+				id,
+				name,
+			};
+		});
+	}
 }

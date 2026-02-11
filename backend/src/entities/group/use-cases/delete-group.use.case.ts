@@ -8,28 +8,28 @@ import { IDeleteGroup } from './use-cases.interfaces.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteGroupUseCase extends AbstractUseCase<string, DeletedGroupResultDs> implements IDeleteGroup {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(groupId: string): Promise<DeletedGroupResultDs> {
-    const groupToDelete = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-    if (groupToDelete.isMain) {
-      throw new HttpException(
-        {
-          message: Messages.CANT_DELETE_ADMIN_GROUP,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const deletedGroup = await this._dbContext.groupRepository.removeGroupEntity(groupToDelete);
-    return {
-      id: deletedGroup.id,
-      title: deletedGroup.title,
-      isMain: deletedGroup.isMain,
-    };
-  }
+	protected async implementation(groupId: string): Promise<DeletedGroupResultDs> {
+		const groupToDelete = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+		if (groupToDelete.isMain) {
+			throw new HttpException(
+				{
+					message: Messages.CANT_DELETE_ADMIN_GROUP,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const deletedGroup = await this._dbContext.groupRepository.removeGroupEntity(groupToDelete);
+		return {
+			id: deletedGroup.id,
+			title: deletedGroup.title,
+			isMain: deletedGroup.isMain,
+		};
+	}
 }
