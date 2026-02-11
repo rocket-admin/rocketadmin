@@ -26,6 +26,7 @@ import { DeleteSecretDialogComponent } from './delete-secret-dialog/delete-secre
 import { AuditLogDialogComponent } from './audit-log-dialog/audit-log-dialog.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
+import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 
 @Component({
   selector: 'app-secrets',
@@ -46,6 +47,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
     MatDividerModule,
     PlaceholderTableDataComponent,
     AlertComponent,
+    ProfileSidebarComponent,
   ]
 })
 export class SecretsComponent implements OnInit, OnDestroy {

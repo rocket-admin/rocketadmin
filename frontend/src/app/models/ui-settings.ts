@@ -1,6 +1,7 @@
 export interface GlobalSettingsUI {
     connectionsListCollapsed: boolean;
     lastFeatureNotificationId: string;
+    profileSidebarCollapsed?: boolean;
 }
 
 export interface TableSettingsUI {

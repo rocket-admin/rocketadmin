@@ -5,6 +5,8 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { IExportCSVFromTable } from './table-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
@@ -23,12 +25,13 @@ export class ExportCSVFromTableUseCase
 	extends AbstractUseCase<GetTableRowsDs, StreamableFile>
 	implements IExportCSVFromTable
 {
-	constructor(
-		@Inject(BaseType.GLOBAL_DB_CONTEXT)
-		protected _dbContext: IGlobalDatabaseContext,
-	) {
-		super();
-	}
+  constructor(
+    @Inject(BaseType.GLOBAL_DB_CONTEXT)
+    protected _dbContext: IGlobalDatabaseContext,
+    private tableLogsService: TableLogsService,
+  ) {
+    super();
+  }
 
 	protected async implementation(inputData: GetTableRowsDs): Promise<StreamableFile> {
 		// eslint-disable-next-line prefer-const
@@ -43,9 +46,11 @@ export class ExportCSVFromTableUseCase
 			);
 		}
 
-		if (connection.is_frozen) {
-			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-		}
+    if (connection.is_frozen) {
+      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
+    }
+
+    let operationResult = OperationResultStatusEnum.unknown;
 
 		try {
 			const dao = getDataAccessObject(connection);
@@ -94,48 +99,60 @@ export class ExportCSVFromTableUseCase
 					.map((field) => field.column_name);
 			}
 
-			const rowsStream = await dao.getTableRowsStream(
-				tableName,
-				builtDAOsTableSettings,
-				page,
-				perPage,
-				searchingFieldValue,
-				filteringFields,
-			);
+      const rowsStream = await dao.getTableRowsStream(
+        tableName,
+        builtDAOsTableSettings,
+        page,
+        perPage,
+        searchingFieldValue,
+        filteringFields,
+      );
 
-			//todo: rework as streams when node oracle driver will support it correctly
-			//todo: agent return data as array of table rows, not as stream, because we cant
-			//todo: transfer data as a stream from clint to server
-			if (
-				connection.type === 'oracledb' ||
-				connection.type === 'ibmdb2' ||
-				connection.type === 'mongodb' ||
-				connection.type === 'dynamodb' ||
-				connection.type === 'elasticsearch' ||
-				connection.type === 'redis' ||
-				isConnectionTypeAgent(connection.type)
-			) {
-				return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
-			}
-			return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
-		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			}
-			// todo: temporary debug log
-			await slackPostMessage(`
+      operationResult = OperationResultStatusEnum.successfully;
+
+      //todo: rework as streams when node oracle driver will support it correctly
+      //todo: agent return data as array of table rows, not as stream, because we cant
+      //todo: transfer data as a stream from clint to server
+      if (
+        connection.type === 'oracledb' ||
+        connection.type === 'ibmdb2' ||
+        connection.type === 'mongodb' ||
+        connection.type === 'dynamodb' ||
+        connection.type === 'elasticsearch' ||
+        connection.type === 'redis' ||
+        isConnectionTypeAgent(connection.type)
+      ) {
+        return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
+      }
+      return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
+    } catch (error) {
+      operationResult = OperationResultStatusEnum.unsuccessfully;
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      // todo: temporary debug log
+      await slackPostMessage(`
         CSV Export Failed with error: ${error.message}\n
         Connection type: ${connection.type}\n
         SSH Option: ${connection.ssh}\n
         SSL Option: ${connection.ssl}\n
         `);
-			throw new HttpException(
-				{
-					message: Messages.CSV_EXPORT_FAILED,
-					originalMessage: error.message,
-				},
-				HttpStatus.INTERNAL_SERVER_ERROR,
-			);
-		}
-	}
+      throw new HttpException(
+        {
+          message: Messages.CSV_EXPORT_FAILED,
+          originalMessage: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      const logRecord = {
+        table_name: tableName,
+        userId: userId,
+        connection: connection,
+        operationType: LogOperationTypeEnum.exportRows,
+        operationStatusResult: operationResult,
+      };
+      await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
+    }
+  }
 }

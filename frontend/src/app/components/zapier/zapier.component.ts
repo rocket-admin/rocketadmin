@@ -4,10 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 import { UserService } from 'src/app/services/user.service';
+import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
+import { AlertComponent } from '../ui-components/alert/alert.component';
 
 @Component({
 	selector: 'app-zapier',
-	imports: [MatIconModule, MatButtonModule],
+	imports: [MatIconModule, MatButtonModule, ProfileSidebarComponent, AlertComponent],
 	templateUrl: './zapier.component.html',
 	styleUrl: './zapier.component.css',
 	schemas: [CUSTOM_ELEMENTS_SCHEMA],
