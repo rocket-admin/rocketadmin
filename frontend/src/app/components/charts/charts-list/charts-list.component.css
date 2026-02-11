@@ -1,6 +1,15 @@
+:host {
+	display: block;
+	height: calc(100vh - 44px);
+	margin-bottom: -60px;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
 .charts-layout {
 	display: flex;
-	height: calc(100vh - 64px);
+	height: 100%;
 }
 
 .charts-main {
@@ -70,6 +79,17 @@
 
 .widgets-table tr.mat-mdc-row {
 	height: 64px;
+	cursor: pointer;
+}
+
+.widgets-table tr.mat-mdc-row:hover {
+	background-color: rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+	.widgets-table tr.mat-mdc-row:hover {
+		background-color: rgba(255, 255, 255, 0.04);
+	}
 }
 
 .widgets-table th.mat-mdc-header-cell {
@@ -98,7 +118,6 @@
 	justify-content: center;
 	width: 56px;
 	height: 56px;
-	text-decoration: none;
 	overflow: hidden;
 }
 
@@ -107,21 +126,9 @@
 	height: 40px;
 }
 
-/* Name Link */
-.widget-name-link {
+/* Name Cell */
+.widget-name-cell {
 	font-weight: 500;
-	color: inherit;
-	text-decoration: none;
-}
-
-.widget-name-link:hover {
-	color: #673ab7;
-}
-
-@media (prefers-color-scheme: dark) {
-	.widget-name-link:hover {
-		color: #b388ff;
-	}
 }
 
 /* Description Cell */
@@ -212,11 +219,11 @@
 }
 
 .delete-action {
-	color: #c62828;
+	color: var(--color-warnPalette-500);
 }
 
 @media (prefers-color-scheme: dark) {
 	.delete-action {
-		color: #ef5350;
+		color: var(--color-warnDarkPalette-500);
 	}
 }

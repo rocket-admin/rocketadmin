@@ -124,7 +124,7 @@ app-dashboard-view .dashboard-grid {
 }
 
 app-dashboard-view .widget-item {
-	background: white;
+	background: var(--mat-sidenav-content-background-color);
 	border-radius: 8px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	display: flex;
@@ -134,13 +134,12 @@ app-dashboard-view .widget-item {
 
 @media (prefers-color-scheme: dark) {
 	app-dashboard-view .widget-item {
-		background: #1e1e1e;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 	}
 }
 
 app-dashboard-view .widget-item.edit-mode {
-	border: 2px dashed var(--mdc-filled-button-container-color, #1976d2);
+	border: 2px dashed var(--color-accentedPalette-500);
 }
 
 app-dashboard-view .widget-item.edit-mode .widget-header {
@@ -191,7 +190,7 @@ app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-se {
 	width: 16px;
 	height: 16px;
 	cursor: se-resize;
-	background: var(--mdc-filled-button-container-color, #1976d2);
+	background: var(--color-accentedPalette-500);
 	border-radius: 2px 0 6px 0;
 }
 
@@ -201,7 +200,7 @@ app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-ne {
 	width: 16px;
 	height: 16px;
 	cursor: ne-resize;
-	background: var(--mdc-filled-button-container-color, #1976d2);
+	background: var(--color-accentedPalette-500);
 	border-radius: 0 6px 0 2px;
 }
 
@@ -211,7 +210,7 @@ app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-sw {
 	width: 16px;
 	height: 16px;
 	cursor: sw-resize;
-	background: var(--mdc-filled-button-container-color, #1976d2);
+	background: var(--color-accentedPalette-500);
 	border-radius: 0 2px 0 6px;
 }
 
@@ -221,7 +220,7 @@ app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-nw {
 	width: 16px;
 	height: 16px;
 	cursor: nw-resize;
-	background: var(--mdc-filled-button-container-color, #1976d2);
+	background: var(--color-accentedPalette-500);
 	border-radius: 6px 0 2px 0;
 }
 
@@ -230,14 +229,8 @@ app-dashboard-view .widget-header {
 	align-items: center;
 	justify-content: space-between;
 	padding: 8px 8px 8px 16px;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+	border-bottom: 1px solid var(--mat-sidenav-container-divider-color);
 	flex-shrink: 0;
-}
-
-@media (prefers-color-scheme: dark) {
-	app-dashboard-view .widget-header {
-		border-bottom-color: rgba(255, 255, 255, 0.12);
-	}
 }
 
 app-dashboard-view .widget-title {
@@ -261,12 +254,12 @@ app-dashboard-view .widget-content {
 }
 
 app-dashboard-view .delete-action {
-	color: #c62828;
+	color: var(--color-warnPalette-500);
 }
 
 @media (prefers-color-scheme: dark) {
 	app-dashboard-view .delete-action {
-		color: #ef5350;
+		color: var(--color-warnDarkPalette-500);
 	}
 }
 

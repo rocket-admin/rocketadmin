@@ -13,7 +13,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
 import { ChartType, SavedQuery } from 'src/app/models/saved-query';
@@ -79,6 +79,7 @@ export class ChartsListComponent implements OnInit {
 	private _savedQueries = inject(SavedQueriesService);
 	private _connections = inject(ConnectionsService);
 	private route = inject(ActivatedRoute);
+	private router = inject(Router);
 	private dialog = inject(MatDialog);
 	private angulartics2 = inject(Angulartics2);
 	private title = inject(Title);
@@ -131,6 +132,11 @@ export class ChartsListComponent implements OnInit {
 			action: 'Charts: edit chart page opened',
 		});
 		posthog.capture('Charts: edit chart page opened');
+	}
+
+	openQuery(query: SavedQuery): void {
+		this.trackEditPageOpened();
+		this.router.navigate(['/charts', this.connectionId(), query.id]);
 	}
 
 	openDeleteDialog(query: SavedQuery): void {

@@ -18,7 +18,7 @@ import posthog from 'posthog-js';
 import { Dashboard } from 'src/app/models/dashboard';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
-import { PlaceholderTableDataComponent } from '../../skeletons/placeholder-table-data/placeholder-table-data.component';
+import { PlaceholderDashboardsComponent } from '../../skeletons/placeholder-dashboards/placeholder-dashboards.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { DashboardDeleteDialogComponent } from '../dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { DashboardEditDialogComponent } from '../dashboard-edit-dialog/dashboard-edit-dialog.component';
@@ -40,7 +40,7 @@ import { DashboardsSidebarComponent } from '../dashboards-sidebar/dashboards-sid
 		MatFormFieldModule,
 		MatTooltipModule,
 		MatDividerModule,
-		PlaceholderTableDataComponent,
+		PlaceholderDashboardsComponent,
 		AlertComponent,
 		DashboardsSidebarComponent,
 	],
