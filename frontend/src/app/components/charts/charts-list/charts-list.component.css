@@ -115,13 +115,7 @@
 }
 
 .widget-name-link:hover {
-	color: #673ab7;
-}
-
-@media (prefers-color-scheme: dark) {
-	.widget-name-link:hover {
-		color: #b388ff;
-	}
+	color: var(--color-accentedPalette-500);
 }
 
 /* Description Cell */
@@ -212,11 +206,11 @@
 }
 
 .delete-action {
-	color: #c62828;
+	color: var(--color-warnPalette-500);
 }
 
 @media (prefers-color-scheme: dark) {
 	.delete-action {
-		color: #ef5350;
+		color: var(--color-warnDarkPalette-500);
 	}
 }
