@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRoleEnum } from '../../../user/enums/user-role.enum.js';
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { UserRoleEnum } from '../../../user/enums/user-role.enum.js';
 
 export class InviteUserInCompanyAndConnectionGroupDto {
 	@IsOptional()

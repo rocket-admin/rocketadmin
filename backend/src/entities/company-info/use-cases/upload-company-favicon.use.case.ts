@@ -10,41 +10,41 @@ import { IUploadCompanyWhiteLabelImages } from './company-info-use-cases.interfa
 
 @Injectable({ scope: Scope.REQUEST })
 export class UploadCompanyFaviconUseCase
-  extends AbstractUseCase<UploadCompanyWhiteLabelImages, SuccessResponse>
-  implements IUploadCompanyWhiteLabelImages
+	extends AbstractUseCase<UploadCompanyWhiteLabelImages, SuccessResponse>
+	implements IUploadCompanyWhiteLabelImages
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: UploadCompanyWhiteLabelImages): Promise<SuccessResponse> {
-    const { companyId, file } = inputData;
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithFavicon(companyId);
-    if (!company) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
+	protected async implementation(inputData: UploadCompanyWhiteLabelImages): Promise<SuccessResponse> {
+		const { companyId, file } = inputData;
+		const company = await this._dbContext.companyInfoRepository.findCompanyWithFavicon(companyId);
+		if (!company) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 
-    if (company.favicon) {
-      const faviconForDeletion = await this._dbContext.companyFaviconRepository.findOne({
-        where: {
-          company: {
-            id: companyId,
-          },
-        },
-      });
-      if (faviconForDeletion) {
-        await this._dbContext.companyFaviconRepository.remove(faviconForDeletion);
-      }
-    }
+		if (company.favicon) {
+			const faviconForDeletion = await this._dbContext.companyFaviconRepository.findOne({
+				where: {
+					company: {
+						id: companyId,
+					},
+				},
+			});
+			if (faviconForDeletion) {
+				await this._dbContext.companyFaviconRepository.remove(faviconForDeletion);
+			}
+		}
 
-    const newFavicon = new CompanyFaviconEntity();
-    newFavicon.company = company;
-    newFavicon.image = file.buffer;
-    newFavicon.mimeType = file.mimetype;
-    await this._dbContext.companyFaviconRepository.save(newFavicon);
-    return { success: true };
-  }
+		const newFavicon = new CompanyFaviconEntity();
+		newFavicon.company = company;
+		newFavicon.image = file.buffer;
+		newFavicon.mimeType = file.mimetype;
+		await this._dbContext.companyFaviconRepository.save(newFavicon);
+		return { success: true };
+	}
 }

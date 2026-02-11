@@ -11,22 +11,22 @@ import { Cacher } from '../../../src/helpers/cache/cacher.js';
 let app: INestApplication;
 
 test.before(async () => {
-  const moduleFixture = await Test.createTestingModule({
-    imports: [ApplicationModule, DatabaseModule],
-    providers: [DatabaseService],
-  }).compile();
-  app = moduleFixture.createNestApplication();
-  await app.init();
+	const moduleFixture = await Test.createTestingModule({
+		imports: [ApplicationModule, DatabaseModule],
+		providers: [DatabaseService],
+	}).compile();
+	app = moduleFixture.createNestApplication();
+	await app.init();
 });
 
 test.after(async () => {
-  await Cacher.clearAllCache();
-  await app.close();
+	await Cacher.clearAllCache();
+	await app.close();
 });
 
 test.serial(' > get hello', async (t) => {
-  const result = await request(app.getHttpServer()).get('/hello');
-  const responseText = result.text;
-  t.assert('Hello World!', responseText);
-  t.pass();
+	const result = await request(app.getHttpServer()).get('/hello');
+	const responseText = result.text;
+	t.assert('Hello World!', responseText);
+	t.pass();
 });

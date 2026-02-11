@@ -11,32 +11,32 @@ import { CreateUpdateDeleteTableWidgetsUseCase } from './use-cases/create-update
 import { FindTableWidgetsUseCase } from './use-cases/find-table-widgets.use.case.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TableWidgetEntity, UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_TABLE_WIDGETS,
-      useClass: FindTableWidgetsUseCase,
-    },
-    {
-      provide: UseCaseType.CREATE_UPDATE_DELETE_TABLE_WIDGETS,
-      useClass: CreateUpdateDeleteTableWidgetsUseCase,
-    },
-  ],
+	imports: [TypeOrmModule.forFeature([TableWidgetEntity, UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_TABLE_WIDGETS,
+			useClass: FindTableWidgetsUseCase,
+		},
+		{
+			provide: UseCaseType.CREATE_UPDATE_DELETE_TABLE_WIDGETS,
+			useClass: CreateUpdateDeleteTableWidgetsUseCase,
+		},
+	],
 
-  controllers: [TableWidgetController],
-  exports: [],
+	controllers: [TableWidgetController],
+	exports: [],
 })
 export class TableWidgetModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: '/widgets/:connectionId', method: RequestMethod.GET },
-        { path: '/widget/:connectionId', method: RequestMethod.POST },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: '/widgets/:connectionId', method: RequestMethod.GET },
+				{ path: '/widget/:connectionId', method: RequestMethod.POST },
+			);
+	}
 }

@@ -14,15 +14,20 @@ import {
 	Res,
 	UseInterceptors,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { Request, Response } from 'express';
 import isEmail from 'validator/lib/isEmail.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { slackPostMessage } from '../../helpers/index.js';
+import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { slackPostMessage } from '../../helpers/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
 import {
@@ -30,11 +35,21 @@ import {
 	ChangeUsualUserPasswordDto,
 } from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
-import { FoundUserDto } from './dto/found-user.dto.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
+import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
+import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
+import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
+import { EmailDto } from './dto/email.dto.js';
+import { FoundUserDto } from './dto/found-user.dto.js';
+import { LoginUserDto } from './dto/login-user.dto.js';
+import { OtpTokenDto } from './dto/otp-token.dto.js';
+import { PasswordDto } from './dto/password.dto.js';
+import { RequestRestUserPasswordDto } from './dto/request-rest-user-password.dto.js';
+import { UserNameDto } from './dto/user-name.dto.js';
+import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
 import {
 	IChangeUserName,
 	IDeleteUserAccount,
@@ -57,22 +72,7 @@ import {
 	IVerifyPasswordReset,
 } from './use-cases/user-use-cases.interfaces.js';
 import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
-import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
-import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PasswordDto } from './dto/password.dto.js';
-import { EmailDto } from './dto/email.dto.js';
-import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
-import { LoginUserDto } from './dto/login-user.dto.js';
-import { UserNameDto } from './dto/user-name.dto.js';
-import { OtpTokenDto } from './dto/otp-token.dto.js';
-import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
-import { RequestRestUserPasswordDto } from './dto/request-rest-user-password.dto.js';
-import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
-import { Throttle } from '@nestjs/throttler';
-import { isTest } from '../../helpers/app/is-test.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

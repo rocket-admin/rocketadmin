@@ -6,22 +6,22 @@ import { SaveUserSettingsDs } from '../application/data-structures/save-user-set
 import { ISaveUserSettings } from './user-use-cases.interfaces.js';
 
 export class SaveUserSettingsUseCase
-  extends AbstractUseCase<SaveUserSettingsDs, SaveUserSettingsDs>
-  implements ISaveUserSettings
+	extends AbstractUseCase<SaveUserSettingsDs, SaveUserSettingsDs>
+	implements ISaveUserSettings
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: SaveUserSettingsDs): Promise<SaveUserSettingsDs> {
-    const { userId, userSettings } = inputData;
-    const result = await this._dbContext.userSessionSettingsRepository.createOrUpdateUserSettings(userId, userSettings);
-    return {
-      userId: result.userId,
-      userSettings: result.userSettings,
-    };
-  }
+	protected async implementation(inputData: SaveUserSettingsDs): Promise<SaveUserSettingsDs> {
+		const { userId, userSettings } = inputData;
+		const result = await this._dbContext.userSessionSettingsRepository.createOrUpdateUserSettings(userId, userSettings);
+		return {
+			userId: result.userId,
+			userSettings: result.userSettings,
+		};
+	}
 }

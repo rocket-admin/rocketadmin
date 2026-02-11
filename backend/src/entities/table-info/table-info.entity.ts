@@ -4,16 +4,23 @@ import { TableFieldInfoEntity } from '../table-field-info/table-field-info.entit
 
 @Entity('table_info')
 export class TableInfoEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column()
-  table_name: string;
+	@Column()
+	table_name: string;
 
-  @ManyToOne(() => ConnectionEntity, (connection) => connection.tables_info, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  connection: Relation<ConnectionEntity>;
+	@ManyToOne(
+		() => ConnectionEntity,
+		(connection) => connection.tables_info,
+		{ onDelete: 'CASCADE' },
+	)
+	@JoinColumn()
+	connection: Relation<ConnectionEntity>;
 
-  @OneToMany(() => TableFieldInfoEntity, (table_field_info) => table_field_info.table_info)
-  table_fields_info: Relation<TableFieldInfoEntity>[];
+	@OneToMany(
+		() => TableFieldInfoEntity,
+		(table_field_info) => table_field_info.table_info,
+	)
+	table_fields_info: Relation<TableFieldInfoEntity>[];
 }

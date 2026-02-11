@@ -2,12 +2,12 @@ import { FoundTableActionDTO } from '../../table-action-rules-module/application
 import { TableActionEntity } from '../table-action.entity.js';
 
 export function buildFoundTableActionDTO(tableAction: TableActionEntity): FoundTableActionDTO {
-  return {
-    id: tableAction.id,
-    emails: tableAction.emails,
-    method: tableAction.method,
-    url: tableAction.url,
-    slack_url: tableAction.slack_url,
-    created_at: tableAction.created_at,
-  };
+	return {
+		id: tableAction.id,
+		emails: tableAction.emails,
+		method: tableAction.method,
+		url: tableAction.url,
+		slack_url: tableAction.slack_url,
+		created_at: tableAction.created_at,
+	};
 }

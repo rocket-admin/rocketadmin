@@ -13,35 +13,35 @@ import { ICreateTableFilters } from './table-filters-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateTableFiltersUseCase
-  extends AbstractUseCase<CreateTableFilterDs, CreatedTableFilterRO>
-  implements ICreateTableFilters
+	extends AbstractUseCase<CreateTableFilterDs, CreatedTableFilterRO>
+	implements ICreateTableFilters
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: CreateTableFilterDs): Promise<CreatedTableFilterRO> {
-    const { connection_id, masterPwd } = inputData;
+	protected async implementation(inputData: CreateTableFilterDs): Promise<CreatedTableFilterRO> {
+		const { connection_id, masterPwd } = inputData;
 
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connection_id,
-      masterPwd,
-    );
-    if (foundConnection.is_frozen) {
-      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-    }
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connection_id,
+			masterPwd,
+		);
+		if (foundConnection.is_frozen) {
+			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
+		}
 
-    const errors = await validateFiltersData(inputData, foundConnection);
-    if (errors.length > 0) {
-      throw new BadRequestException(errors.join(',\n'));
-    }
+		const errors = await validateFiltersData(inputData, foundConnection);
+		if (errors.length > 0) {
+			throw new BadRequestException(errors.join(',\n'));
+		}
 
-    const newTableFilters = buildNewTableFiltersEntity(inputData);
+		const newTableFilters = buildNewTableFiltersEntity(inputData);
 
-    const savedTableFilters = await this._dbContext.tableFiltersRepository.save(newTableFilters);
-    return buildCreatedTableFilterRO(savedTableFilters);
-  }
+		const savedTableFilters = await this._dbContext.tableFiltersRepository.save(newTableFilters);
+		return buildCreatedTableFilterRO(savedTableFilters);
+	}
 }

@@ -15,18 +15,19 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UserId } from '../../decorators/user-id.decorator.js';
-import { MasterPassword } from '../../decorators/master-password.decorator.js';
-import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
-import { CompanyUserGuard } from '../../guards/company-user.guard.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { CompanyUserGuard } from '../../guards/company-user.guard.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { AuditLogResponseDto } from './application/dto/audit-log.dto.js';
 import { CreateSecretDto } from './application/dto/create-secret.dto.js';
-import { UpdateSecretDto } from './application/dto/update-secret.dto.js';
+import { DeleteSecretResponseDto } from './application/dto/delete-secret.dto.js';
 import { FoundSecretDto } from './application/dto/found-secret.dto.js';
 import { SecretListResponseDto } from './application/dto/secret-list.dto.js';
-import { AuditLogResponseDto } from './application/dto/audit-log.dto.js';
-import { DeleteSecretResponseDto } from './application/dto/delete-secret.dto.js';
+import { UpdateSecretDto } from './application/dto/update-secret.dto.js';
 import {
 	ICreateSecret,
 	IDeleteSecret,
@@ -35,12 +36,11 @@ import {
 	IGetSecrets,
 	IUpdateSecret,
 } from './use-cases/user-secret-use-cases.interface.js';
+import { buildAuditLogResponseDto } from './utils/build-audit-log.dto.js';
 import { buildCreatedSecretDto } from './utils/build-created-secret.dto.js';
 import { buildFoundSecretDto } from './utils/build-found-secret.dto.js';
-import { buildUpdatedSecretDto } from './utils/build-updated-secret.dto.js';
 import { buildSecretListResponseDto } from './utils/build-secret-list.dto.js';
-import { buildAuditLogResponseDto } from './utils/build-audit-log.dto.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
+import { buildUpdatedSecretDto } from './utils/build-updated-secret.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

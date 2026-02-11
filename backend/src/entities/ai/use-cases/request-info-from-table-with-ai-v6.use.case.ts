@@ -1,3 +1,4 @@
+import { BaseMessage } from '@langchain/core/messages';
 import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
@@ -5,7 +6,18 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/inte
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import Sentry from '@sentry/minimal';
 import { Response } from 'express';
-import { BaseMessage } from '@langchain/core/messages';
+import {
+	AICoreService,
+	AIProviderType,
+	AIToolCall,
+	AIToolDefinition,
+	createDatabaseQuerySystemPrompt,
+	createDatabaseTools,
+	isValidMongoDbCommand,
+	isValidSQLQuery,
+	MessageBuilder,
+	wrapQueryWithLimit,
+} from '../../../ai-core/index.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -16,18 +28,6 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { AiResponsesToUserEntity } from '../ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
 import { IRequestInfoFromTableV2 } from '../ai-use-cases.interface.js';
 import { RequestInfoFromTableDSV2 } from '../application/data-structures/request-info-from-table.ds.js';
-import {
-	AICoreService,
-	AIToolDefinition,
-	AIToolCall,
-	MessageBuilder,
-	createDatabaseTools,
-	createDatabaseQuerySystemPrompt,
-	isValidSQLQuery,
-	isValidMongoDbCommand,
-	wrapQueryWithLimit,
-	AIProviderType,
-} from '../../../ai-core/index.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class RequestInfoFromTableWithAIUseCaseV6

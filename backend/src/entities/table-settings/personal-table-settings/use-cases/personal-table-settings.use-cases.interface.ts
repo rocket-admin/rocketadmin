@@ -4,22 +4,22 @@ import { FindPersonalTableSettingsDs } from '../data-structures/find-personal-ta
 import { FoundPersonalTableSettingsDto } from '../dto/found-personal-table-settings.dto.js';
 
 export interface IFindPersonalTableSettings {
-  execute(
-    inputData: FindPersonalTableSettingsDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<FoundPersonalTableSettingsDto>;
+	execute(
+		inputData: FindPersonalTableSettingsDs,
+		inTransaction: InTransactionEnum,
+	): Promise<FoundPersonalTableSettingsDto>;
 }
 
 export interface ICreateUpdatePersonalTableSettings {
-  execute(
-    inputData: CreatePersonalTableSettingsDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<FoundPersonalTableSettingsDto>;
+	execute(
+		inputData: CreatePersonalTableSettingsDs,
+		inTransaction: InTransactionEnum,
+	): Promise<FoundPersonalTableSettingsDto>;
 }
 
 export interface IDeletePersonalTableSettings {
-  execute(
-    inputData: FindPersonalTableSettingsDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<FoundPersonalTableSettingsDto>;
+	execute(
+		inputData: FindPersonalTableSettingsDs,
+		inTransaction: InTransactionEnum,
+	): Promise<FoundPersonalTableSettingsDto>;
 }

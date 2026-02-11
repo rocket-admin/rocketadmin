@@ -1,5 +1,5 @@
-import { SavedDbQueryEntity } from '../saved-db-query.entity.js';
 import { FoundSavedDbQueryDto } from '../dto/found-saved-db-query.dto.js';
+import { SavedDbQueryEntity } from '../saved-db-query.entity.js';
 
 export function buildFoundSavedDbQueryDto(entity: SavedDbQueryEntity): FoundSavedDbQueryDto {
 	return {

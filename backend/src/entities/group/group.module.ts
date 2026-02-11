@@ -20,66 +20,66 @@ import { AddUserInGroupUseCase } from './use-cases/saas-add-user-in-group-v2.use
 import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      GroupEntity,
-      PermissionEntity,
-      UserEntity,
-      TableSettingsEntity,
-      LogOutEntity,
-    ]),
-    UserModule,
-    AgentModule,
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.INVITE_USER_IN_GROUP,
-      useClass: AddUserInGroupUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_ALL_USER_GROUPS,
-      useClass: FindAllUserGroupsUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_ALL_USERS_IN_GROUP,
-      useClass: FindAllUsersInGroupUseCase,
-    },
-    {
-      provide: UseCaseType.REMOVE_USER_FROM_GROUP,
-      useClass: RemoveUserFromGroupUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_GROUP,
-      useClass: DeleteGroupUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_GROUP_TITLE,
-      useClass: UpdateGroupTitleUseCase,
-    },
-  ],
-  controllers: [GroupController],
-  exports: [],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			GroupEntity,
+			PermissionEntity,
+			UserEntity,
+			TableSettingsEntity,
+			LogOutEntity,
+		]),
+		UserModule,
+		AgentModule,
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.INVITE_USER_IN_GROUP,
+			useClass: AddUserInGroupUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_ALL_USER_GROUPS,
+			useClass: FindAllUserGroupsUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_ALL_USERS_IN_GROUP,
+			useClass: FindAllUsersInGroupUseCase,
+		},
+		{
+			provide: UseCaseType.REMOVE_USER_FROM_GROUP,
+			useClass: RemoveUserFromGroupUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_GROUP,
+			useClass: DeleteGroupUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_GROUP_TITLE,
+			useClass: UpdateGroupTitleUseCase,
+		},
+	],
+	controllers: [GroupController],
+	exports: [],
 })
 export class GroupModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        { path: 'groups', method: RequestMethod.GET },
-        { path: 'group', method: RequestMethod.POST },
-        { path: 'group/:slug', method: RequestMethod.DELETE },
-        { path: 'group/user', method: RequestMethod.PUT },
-        { path: '/group/user/delete', method: RequestMethod.PUT },
-        { path: 'group/permission', method: RequestMethod.PUT },
-        { path: '/group/permission/delete', method: RequestMethod.PUT },
-        { path: 'group/delete/:groupId', method: RequestMethod.DELETE },
-        { path: 'group/users/:groupId', method: RequestMethod.GET },
-        { path: 'group/title', method: RequestMethod.PUT },
-      );
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				{ path: 'groups', method: RequestMethod.GET },
+				{ path: 'group', method: RequestMethod.POST },
+				{ path: 'group/:slug', method: RequestMethod.DELETE },
+				{ path: 'group/user', method: RequestMethod.PUT },
+				{ path: '/group/user/delete', method: RequestMethod.PUT },
+				{ path: 'group/permission', method: RequestMethod.PUT },
+				{ path: '/group/permission/delete', method: RequestMethod.PUT },
+				{ path: 'group/delete/:groupId', method: RequestMethod.DELETE },
+				{ path: 'group/users/:groupId', method: RequestMethod.GET },
+				{ path: 'group/title', method: RequestMethod.PUT },
+			);
+	}
 }

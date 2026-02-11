@@ -1,5 +1,5 @@
 export enum ExternalRegistrationProviderEnum {
-  GOOGLE = 'GOOGLE',
-  GITHUB = 'GITHUB',
-  SAML = 'SAML',
+	GOOGLE = 'GOOGLE',
+	GITHUB = 'GITHUB',
+	SAML = 'SAML',
 }

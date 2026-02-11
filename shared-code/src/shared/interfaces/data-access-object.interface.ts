@@ -12,80 +12,80 @@ import { TableDS } from '../../data-access-layer/shared/data-structures/table.ds
 import { Stream } from 'node:stream';
 
 export interface IDataAccessObject {
-  addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown> | number>;
+	addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown> | number>;
 
-  deleteRowInTable(tableName: string, primaryKey: Record<string, unknown>): Promise<Record<string, unknown>>;
+	deleteRowInTable(tableName: string, primaryKey: Record<string, unknown>): Promise<Record<string, unknown>>;
 
-  getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: Array<string | number>,
-  ): Promise<Array<Record<string, unknown>>>;
+	getIdentityColumns(
+		tableName: string,
+		referencedFieldName: string,
+		identityColumnName: string,
+		fieldValues: Array<string | number>,
+	): Promise<Array<Record<string, unknown>>>;
 
-  getRowByPrimaryKey(
-    tableName: string,
-    primaryKey: Record<string, unknown>,
-    settings: TableSettingsDS,
-  ): Promise<Record<string, unknown>>;
+	getRowByPrimaryKey(
+		tableName: string,
+		primaryKey: Record<string, unknown>,
+		settings: TableSettingsDS,
+	): Promise<Record<string, unknown>>;
 
-  bulkGetRowsFromTableByPrimaryKeys(
-    tableName: string,
-    primaryKeys: Array<Record<string, unknown>>,
-    settings: TableSettingsDS,
-  ): Promise<Array<Record<string, unknown>>>;
+	bulkGetRowsFromTableByPrimaryKeys(
+		tableName: string,
+		primaryKeys: Array<Record<string, unknown>>,
+		settings: TableSettingsDS,
+	): Promise<Array<Record<string, unknown>>>;
 
-  getRowsFromTable(
-    tableName: string,
-    settings: TableSettingsDS,
-    page: number,
-    perPage: number,
-    searchedFieldValue: string,
-    filteringFields: Array<FilteringFieldsDS>,
-    autocompleteFields: AutocompleteFieldsDS,
-    tableStructure: TableStructureDS[] | null,
-  ): Promise<FoundRowsDS>;
+	getRowsFromTable(
+		tableName: string,
+		settings: TableSettingsDS,
+		page: number,
+		perPage: number,
+		searchedFieldValue: string,
+		filteringFields: Array<FilteringFieldsDS>,
+		autocompleteFields: AutocompleteFieldsDS,
+		tableStructure: TableStructureDS[] | null,
+	): Promise<FoundRowsDS>;
 
-  getTableForeignKeys(tableName: string): Promise<Array<ForeignKeyDS>>;
+	getTableForeignKeys(tableName: string): Promise<Array<ForeignKeyDS>>;
 
-  getTablePrimaryColumns(tableName: string): Promise<Array<PrimaryKeyDS>>;
+	getTablePrimaryColumns(tableName: string): Promise<Array<PrimaryKeyDS>>;
 
-  getTablesFromDB(): Promise<Array<TableDS>>;
+	getTablesFromDB(): Promise<Array<TableDS>>;
 
-  getTableStructure(tableName: string): Promise<Array<TableStructureDS>>;
+	getTableStructure(tableName: string): Promise<Array<TableStructureDS>>;
 
-  testConnect(): Promise<TestConnectionResultDS>;
+	testConnect(): Promise<TestConnectionResultDS>;
 
-  updateRowInTable(
-    tableName: string,
-    row: Record<string, unknown>,
-    primaryKey: Record<string, unknown>,
-  ): Promise<Record<string, unknown>>;
+	updateRowInTable(
+		tableName: string,
+		row: Record<string, unknown>,
+		primaryKey: Record<string, unknown>,
+	): Promise<Record<string, unknown>>;
 
-  bulkUpdateRowsInTable(
-    tableName: string,
-    newValues: Record<string, unknown>,
-    primaryKeys: Array<Record<string, unknown>>,
-  ): Promise<Array<Record<string, unknown>>>;
+	bulkUpdateRowsInTable(
+		tableName: string,
+		newValues: Record<string, unknown>,
+		primaryKeys: Array<Record<string, unknown>>,
+	): Promise<Array<Record<string, unknown>>>;
 
-  bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number>;
+	bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number>;
 
-  validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>>;
+	validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>>;
 
-  getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
+	getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
 
-  isView(tableName: string): Promise<boolean>;
+	isView(tableName: string): Promise<boolean>;
 
-  getTableRowsStream(
-    tableName: string,
-    settings: TableSettingsDS,
-    page: number,
-    perPage: number,
-    searchedFieldValue: string,
-    filteringFields: Array<FilteringFieldsDS>,
-  ): Promise<Stream & AsyncIterable<any>>;
+	getTableRowsStream(
+		tableName: string,
+		settings: TableSettingsDS,
+		page: number,
+		perPage: number,
+		searchedFieldValue: string,
+		filteringFields: Array<FilteringFieldsDS>,
+	): Promise<Stream & AsyncIterable<any>>;
 
-  importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void>;
+	importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void>;
 
-  executeRawQuery(query: string, tableName: string): Promise<Array<Record<string, unknown>>>;
+	executeRawQuery(query: string, tableName: string): Promise<Array<Record<string, unknown>>>;
 }

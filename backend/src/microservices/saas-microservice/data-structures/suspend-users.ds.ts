@@ -1,4 +1,4 @@
 export class SuspendUsersDS {
-  emailsToSuspend: Array<string>;
-  companyId: string
+	emailsToSuspend: Array<string>;
+	companyId: string;
 }

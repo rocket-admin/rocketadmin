@@ -6,166 +6,166 @@ import { SimpleFoundUserInfoDs } from '../../../user/dto/found-user.dto.js';
 import { UserEntity } from '../../../user/user.entity.js';
 
 export class FoundDirectConnectionsDs {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty({ required: false })
-  title?: string;
+	@ApiProperty({ required: false })
+	title?: string;
 
-  @ApiProperty()
-  masterEncryption: boolean;
+	@ApiProperty()
+	masterEncryption: boolean;
 
-  @ApiProperty({ enum: ConnectionTypesEnum })
-  type?: ConnectionTypesEnum | string;
+	@ApiProperty({ enum: ConnectionTypesEnum })
+	type?: ConnectionTypesEnum | string;
 
-  @ApiProperty()
-  host?: string;
+	@ApiProperty()
+	host?: string;
 
-  @ApiProperty()
-  port?: number | null;
+	@ApiProperty()
+	port?: number | null;
 
-  @ApiProperty()
-  username?: string;
+	@ApiProperty()
+	username?: string;
 
-  @ApiProperty()
-  database?: string;
+	@ApiProperty()
+	database?: string;
 
-  @ApiProperty()
-  schema?: string;
+	@ApiProperty()
+	schema?: string;
 
-  @ApiProperty({ required: false })
-  sid?: string;
+	@ApiProperty({ required: false })
+	sid?: string;
 
-  @ApiProperty({ required: false })
-  createdAt?: Date;
+	@ApiProperty({ required: false })
+	createdAt?: Date;
 
-  @ApiProperty({ required: false })
-  updatedAt?: Date;
+	@ApiProperty({ required: false })
+	updatedAt?: Date;
 
-  @ApiProperty()
-  ssh?: boolean;
+	@ApiProperty()
+	ssh?: boolean;
 
-  @ApiProperty({ required: false })
-  sshHost?: string;
+	@ApiProperty({ required: false })
+	sshHost?: string;
 
-  @ApiProperty({ required: false })
-  sshPort?: number;
+	@ApiProperty({ required: false })
+	sshPort?: number;
 
-  @ApiProperty()
-  ssl?: boolean;
+	@ApiProperty()
+	ssl?: boolean;
 
-  @ApiProperty({ required: false })
-  cert?: string;
+	@ApiProperty({ required: false })
+	cert?: string;
 
-  @ApiProperty({ required: false })
-  author?: UserEntity | string;
+	@ApiProperty({ required: false })
+	author?: UserEntity | string;
 
-  @ApiProperty({ required: false })
-  token?: string;
+	@ApiProperty({ required: false })
+	token?: string;
 
-  @ApiProperty({ required: false })
-  azure_encryption?: boolean;
+	@ApiProperty({ required: false })
+	azure_encryption?: boolean;
 
-  @ApiProperty()
-  signing_key: string;
+	@ApiProperty()
+	signing_key: string;
 
-  @ApiProperty({ required: false })
-  authSource?: string;
+	@ApiProperty({ required: false })
+	authSource?: string;
 
-  @ApiProperty({ required: false })
-  dataCenter?: string;
+	@ApiProperty({ required: false })
+	dataCenter?: string;
 
-  @ApiProperty()
-  isTestConnection: boolean;
+	@ApiProperty()
+	isTestConnection: boolean;
 
-  @ApiProperty({ required: false })
-  connection_properties?: any;
+	@ApiProperty({ required: false })
+	connection_properties?: any;
 
-  @ApiProperty()
-  isFrozen: boolean;
+	@ApiProperty()
+	isFrozen: boolean;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty({ required: false })
-  title?: string;
+	@ApiProperty({ required: false })
+	title?: string;
 
-  @ApiProperty()
-  type?: ConnectionTypesEnum | string;
+	@ApiProperty()
+	type?: ConnectionTypesEnum | string;
 
-  @ApiProperty()
-  database: string;
+	@ApiProperty()
+	database: string;
 
-  @ApiProperty()
-  isTestConnection: boolean;
+	@ApiProperty()
+	isTestConnection: boolean;
 
-  @ApiProperty()
-  connection_properties: any;
+	@ApiProperty()
+	connection_properties: any;
 
-  @ApiProperty()
-  isFrozen: boolean;
+	@ApiProperty()
+	isFrozen: boolean;
 }
 
 export class FoundAgentConnectionsDs {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty()
-  title?: string;
+	@ApiProperty()
+	title?: string;
 
-  @ApiProperty({ enum: ConnectionTypesEnum })
-  type?: ConnectionTypesEnum | string;
+	@ApiProperty({ enum: ConnectionTypesEnum })
+	type?: ConnectionTypesEnum | string;
 
-  @ApiProperty({ required: false })
-  author: UserEntity | string;
+	@ApiProperty({ required: false })
+	author: UserEntity | string;
 
-  @ApiProperty()
-  token: string;
+	@ApiProperty()
+	token: string;
 
-  @ApiProperty()
-  signing_key: string;
+	@ApiProperty()
+	signing_key: string;
 
-  @ApiProperty()
-  isTestConnection: boolean;
+	@ApiProperty()
+	isTestConnection: boolean;
 
-  @ApiProperty({ required: false })
-  connection_properties: any;
+	@ApiProperty({ required: false })
+	connection_properties: any;
 }
 
 export class FoundSipleConnectionInfoDS {
-  @ApiProperty()
-  id: string;
+	@ApiProperty()
+	id: string;
 
-  @ApiProperty()
-  title?: string;
+	@ApiProperty()
+	title?: string;
 
-  @ApiProperty({ enum: ConnectionTypesEnum })
-  type?: ConnectionTypesEnum | string;
+	@ApiProperty({ enum: ConnectionTypesEnum })
+	type?: ConnectionTypesEnum | string;
 
-  @ApiProperty()
-  isTestConnection: boolean;
+	@ApiProperty()
+	isTestConnection: boolean;
 
-  @ApiProperty({ required: false })
-  author: SimpleFoundUserInfoDs;
+	@ApiProperty({ required: false })
+	author: SimpleFoundUserInfoDs;
 
-  @ApiProperty({ isArray: true })
-  groups: Array<FoundGroupDataWithUsersDs>;
+	@ApiProperty({ isArray: true })
+	groups: Array<FoundGroupDataWithUsersDs>;
 }
 
 export class ConnectionWithAccessLevelDS {
-  @ApiProperty()
-  connection: FoundDirectConnectionsDs | FoundAgentConnectionsDs | FoundDirectConnectionsNonePermissionDs;
+	@ApiProperty()
+	connection: FoundDirectConnectionsDs | FoundAgentConnectionsDs | FoundDirectConnectionsNonePermissionDs;
 
-  @ApiProperty()
-  accessLevel: AccessLevelEnum;
+	@ApiProperty()
+	accessLevel: AccessLevelEnum;
 }
 
 export class FoundConnectionsDs {
-  @ApiProperty({ isArray: true, type: ConnectionWithAccessLevelDS })
-  connections: Array<ConnectionWithAccessLevelDS>;
+	@ApiProperty({ isArray: true, type: ConnectionWithAccessLevelDS })
+	connections: Array<ConnectionWithAccessLevelDS>;
 
-  @ApiProperty()
-  connectionsCount: number;
+	@ApiProperty()
+	connectionsCount: number;
 }

@@ -1,4 +1,4 @@
 export class GetUserInfoByIdDS {
-  userId: string;
-  companyId?: string;
+	userId: string;
+	companyId?: string;
 }

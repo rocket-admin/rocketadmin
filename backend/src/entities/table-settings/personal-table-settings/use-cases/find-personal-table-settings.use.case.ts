@@ -10,38 +10,38 @@ import { IFindPersonalTableSettings } from './personal-table-settings.use-cases.
 
 @Injectable()
 export class FindPersonalTableSettingsUseCase
-  extends AbstractUseCase<FindPersonalTableSettingsDs, FoundPersonalTableSettingsDto>
-  implements IFindPersonalTableSettings
+	extends AbstractUseCase<FindPersonalTableSettingsDs, FoundPersonalTableSettingsDto>
+	implements IFindPersonalTableSettings
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: FindPersonalTableSettingsDs): Promise<FoundPersonalTableSettingsDto> {
-    const { connectionId, userId, tableName, masterPassword } = inputData;
+	public async implementation(inputData: FindPersonalTableSettingsDs): Promise<FoundPersonalTableSettingsDto> {
+		const { connectionId, userId, tableName, masterPassword } = inputData;
 
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connectionId,
-      masterPassword,
-    );
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connectionId,
+			masterPassword,
+		);
 
-    if (!foundConnection) {
-      throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
-    }
+		if (!foundConnection) {
+			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+		}
 
-    const foundPersonalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
-      userId,
-      connectionId,
-      tableName,
-    );
+		const foundPersonalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
+			userId,
+			connectionId,
+			tableName,
+		);
 
-    if (!foundPersonalTableSettings) {
-      return {} as FoundPersonalTableSettingsDto;
-    }
+		if (!foundPersonalTableSettings) {
+			return {} as FoundPersonalTableSettingsDto;
+		}
 
-    return buildFoundTableSettingsDto(foundPersonalTableSettings);
-  }
+		return buildFoundTableSettingsDto(foundPersonalTableSettings);
+	}
 }

@@ -8,17 +8,17 @@ import { UserEntity } from '../user/user.entity.js';
 import { AgentEntity } from './agent.entity.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AgentEntity, UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-  ],
-  exports: [],
+	imports: [TypeOrmModule.forFeature([AgentEntity, UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+	],
+	exports: [],
 })
 export class AgentModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(AuthMiddleware).forRoutes();
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer.apply(AuthMiddleware).forRoutes();
+	}
 }

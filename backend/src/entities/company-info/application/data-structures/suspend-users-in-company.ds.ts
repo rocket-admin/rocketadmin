@@ -1,4 +1,4 @@
 export class SuspendUsersInCompanyDS {
-  companyInfoId: string;
-  usersEmails: Array<string>;
+	companyInfoId: string;
+	usersEmails: Array<string>;
 }

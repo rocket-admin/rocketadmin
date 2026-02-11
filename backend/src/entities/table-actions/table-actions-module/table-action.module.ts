@@ -10,18 +10,18 @@ import { TableActionActivationService } from './table-action-activation.service.
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    TableActionActivationService,
-  ],
-  exports: [TableActionActivationService],
+	imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		TableActionActivationService,
+	],
+	exports: [TableActionActivationService],
 })
 export class TableActionModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(AuthMiddleware).forRoutes();
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer.apply(AuthMiddleware).forRoutes();
+	}
 }
