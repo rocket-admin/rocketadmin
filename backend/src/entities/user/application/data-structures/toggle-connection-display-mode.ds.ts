@@ -1,4 +1,4 @@
 export class ToggleConnectionDisplayModeDs {
-  userId: string;
-  displayMode: boolean;
+	userId: string;
+	displayMode: boolean;
 }

@@ -1,4 +1,4 @@
 export class GetSecretDS {
-  userId: string;
-  slug: string;
+	userId: string;
+	slug: string;
 }

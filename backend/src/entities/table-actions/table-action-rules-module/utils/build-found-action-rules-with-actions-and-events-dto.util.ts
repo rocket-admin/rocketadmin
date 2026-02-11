@@ -4,14 +4,14 @@ import { ActionRulesEntity } from '../action-rules.entity.js';
 import { FoundActionRulesWithActionsAndEventsDTO } from '../application/dto/found-action-rules-with-actions-and-events.dto.js';
 
 export function buildFoundActionRulesWithActionsAndEventsDTO(
-  actionRule: ActionRulesEntity,
+	actionRule: ActionRulesEntity,
 ): FoundActionRulesWithActionsAndEventsDTO {
-  return {
-    id: actionRule.id,
-    table_name: actionRule.table_name,
-    created_at: actionRule.created_at,
-    title: actionRule.title,
-    table_actions: actionRule.table_actions.map((tableAction) => buildFoundTableActionDTO(tableAction)),
-    events: actionRule.action_events.map((actionEvent) => buildFoundActionEventDTO(actionEvent)),
-  };
+	return {
+		id: actionRule.id,
+		table_name: actionRule.table_name,
+		created_at: actionRule.created_at,
+		title: actionRule.title,
+		table_actions: actionRule.table_actions.map((tableAction) => buildFoundTableActionDTO(tableAction)),
+		events: actionRule.action_events.map((actionEvent) => buildFoundActionEventDTO(actionEvent)),
+	};
 }

@@ -2,10 +2,10 @@ import { Controller, Get, Inject, Injectable, Res, UseInterceptors } from '@nest
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { IGetConversions } from './use-cases/get-conversions-use-cases.interface.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

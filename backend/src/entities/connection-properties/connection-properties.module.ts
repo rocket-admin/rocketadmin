@@ -14,37 +14,45 @@ import { FindConnectionPropertiesUseCase } from './use-cases/find-connection-pro
 import { UpdateConnectionPropertiesUseCase } from './use-cases/update-connection-properties.use.case.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ConnectionEntity, ConnectionPropertiesEntity, UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_CONNECTION_PROPERTIES,
-      useClass: FindConnectionPropertiesUseCase,
-    },
-    {
-      provide: UseCaseType.CREATE_CONNECTION_PROPERTIES,
-      useClass: CreateConnectionPropertiesUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_CONNECTION_PROPERTIES,
-      useClass: UpdateConnectionPropertiesUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_CONNECTION_PROPERTIES,
-      useClass: DeleteConnectionPropertiesUseCase,
-    },
-  ],
-  controllers: [ConnectionPropertiesController],
-  exports: [],
+	imports: [TypeOrmModule.forFeature([ConnectionEntity, ConnectionPropertiesEntity, UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_CONNECTION_PROPERTIES,
+			useClass: FindConnectionPropertiesUseCase,
+		},
+		{
+			provide: UseCaseType.CREATE_CONNECTION_PROPERTIES,
+			useClass: CreateConnectionPropertiesUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_CONNECTION_PROPERTIES,
+			useClass: UpdateConnectionPropertiesUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_CONNECTION_PROPERTIES,
+			useClass: DeleteConnectionPropertiesUseCase,
+		},
+	],
+	controllers: [ConnectionPropertiesController],
+	exports: [],
 })
 export class ConnectionPropertiesModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.GET });
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.POST });
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.PUT });
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.DELETE });
-  }
+	public configure(consumer: MiddlewareConsumer): void {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.GET });
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.POST });
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.PUT });
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.DELETE });
+	}
 }

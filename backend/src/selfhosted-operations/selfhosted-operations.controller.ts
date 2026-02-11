@@ -1,15 +1,15 @@
 import { Body, Controller, Get, HttpStatus, Inject, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SentryInterceptor } from '../interceptors/index.js';
-import { IsConfiguredRo } from './application/responce-objects/is-configured.ro.js';
-import { CreateInitialUserDto } from './application/dto/create-initial-admin-user.dto.js';
-import { SimpleFoundUserInfoDs } from '../entities/user/dto/found-user.dto.js';
 import { UseCaseType } from '../common/data-injection.tokens.js';
-import {
-	IIsConfiguredUseCase,
-	ICreateInitialUserUseCase,
-} from './application/use-cases/selfhosted-use-cases.interfaces.js';
+import { SimpleFoundUserInfoDs } from '../entities/user/dto/found-user.dto.js';
 import { InTransactionEnum } from '../enums/index.js';
+import { SentryInterceptor } from '../interceptors/index.js';
+import { CreateInitialUserDto } from './application/dto/create-initial-admin-user.dto.js';
+import { IsConfiguredRo } from './application/responce-objects/is-configured.ro.js';
+import {
+	ICreateInitialUserUseCase,
+	IIsConfiguredUseCase,
+} from './application/use-cases/selfhosted-use-cases.interfaces.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('selfhosted')

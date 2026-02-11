@@ -1,8 +1,8 @@
 {
-  "monorepo": true,
-  "collection": "@nestjs/schematics",
-  "compilerOptions": {
-    "plugins": []
-  },
-  "sourceRoot": "src"
+	"monorepo": true,
+	"collection": "@nestjs/schematics",
+	"compilerOptions": {
+		"plugins": []
+	},
+	"sourceRoot": "src"
 }

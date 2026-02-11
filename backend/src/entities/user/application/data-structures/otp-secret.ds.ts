@@ -1,9 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class OtpSecretDS {
-  @ApiProperty()
-  otpauth_url: string;
+	@ApiProperty()
+	otpauth_url: string;
 
-  @ApiProperty()
-  qrCode: string;
+	@ApiProperty()
+	qrCode: string;
 }

@@ -1,5 +1,5 @@
 export class FoundApiKeyDS {
-  id: string;
-  title: string;
-  created_at: Date;
+	id: string;
+	title: string;
+	created_at: Date;
 }

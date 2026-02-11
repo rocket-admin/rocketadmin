@@ -1,5 +1,5 @@
 export class DeleteConnectionDs {
-  connectionId: string;
-  cognitoUserName: string;
-  masterPwd: string;
+	connectionId: string;
+	cognitoUserName: string;
+	masterPwd: string;
 }

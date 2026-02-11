@@ -3,21 +3,21 @@ import { IsArray, IsEnum, IsNotEmpty, IsString, IsUUID, ValidateNested } from 'c
 import { UserRoleEnum } from '../../../user/enums/user-role.enum.js';
 
 export class UpdateUserRoleRequestDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @IsUUID()
-  userId: string;
+	@ApiProperty()
+	@IsString()
+	@IsNotEmpty()
+	@IsUUID()
+	userId: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsEnum({ enum: UserRoleEnum })
-  role: UserRoleEnum;
+	@ApiProperty()
+	@IsNotEmpty()
+	@IsEnum({ enum: UserRoleEnum })
+	role: UserRoleEnum;
 }
 
 export class UpdateUsersRolesRequestDto {
-  @ApiProperty({ type: UpdateUserRoleRequestDto, isArray: true })
-  @IsArray()
-  @ValidateNested({ each: true })
-  users: Array<UpdateUserRoleRequestDto>;
+	@ApiProperty({ type: UpdateUserRoleRequestDto, isArray: true })
+	@IsArray()
+	@ValidateNested({ each: true })
+	users: Array<UpdateUserRoleRequestDto>;
 }

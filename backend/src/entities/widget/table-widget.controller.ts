@@ -14,6 +14,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
@@ -24,7 +25,6 @@ import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-
 import { CreateOrUpdateTableWidgetsDto } from './dto/index.js';
 import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

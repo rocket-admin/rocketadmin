@@ -1,4 +1,4 @@
 export class TestConnectionResultDs {
-  result: boolean;
-  message: string;
+	result: boolean;
+	message: string;
 }

@@ -5,9 +5,9 @@ import { IToken } from '../../user/utils/generate-gwt-token.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import { AddCompanyTabTitleDs } from '../application/data-structures/add-company-tab-title.ds.js';
 import {
-  FoundUserCompanyInfoDs,
-  FoundUserEmailCompaniesInfoDs,
-  FoundUserFullCompanyInfoDs,
+	FoundUserCompanyInfoDs,
+	FoundUserEmailCompaniesInfoDs,
+	FoundUserFullCompanyInfoDs,
 } from '../application/data-structures/found-company-info.ds.js';
 import { FoundCompanyNameDs } from '../application/data-structures/found-company-name.ds.js';
 import { FoundCompanyTabTitleRO } from '../application/data-structures/found-company-tab-title.ro.js';
@@ -25,97 +25,97 @@ import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from '../application/dto/fo
 import { FoundCompanyWhiteLabelPropertiesRO } from '../application/dto/found-company-white-label-properties.ro.js';
 
 export interface IInviteUserInCompanyAndConnectionGroup {
-  execute(inputData: InviteUserInCompanyAndConnectionGroupDs): Promise<InvitedUserInCompanyAndConnectionGroupDs>;
+	execute(inputData: InviteUserInCompanyAndConnectionGroupDs): Promise<InvitedUserInCompanyAndConnectionGroupDs>;
 }
 
 export interface IVerifyInviteUserInCompanyAndConnectionGroup {
-  execute(inputData: AcceptUserValidationInCompany, inTransaction?: InTransactionEnum): Promise<IToken>;
+	execute(inputData: AcceptUserValidationInCompany, inTransaction?: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IGetUserCompany {
-  execute(userId: string): Promise<FoundUserCompanyInfoDs>;
+	execute(userId: string): Promise<FoundUserCompanyInfoDs>;
 }
 
 export interface IGetCompanyName {
-  execute(companyId: string): Promise<FoundCompanyNameDs>;
+	execute(companyId: string): Promise<FoundCompanyNameDs>;
 }
 
 export interface IGetUserFullCompanyInfo {
-  execute(userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs>;
+	execute(userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs>;
 }
 
 export interface IGetUsersInCompany {
-  execute(companyId: string): Promise<Array<SimpleFoundUserInCompanyInfoDs>>;
+	execute(companyId: string): Promise<Array<SimpleFoundUserInCompanyInfoDs>>;
 }
 
 export interface IGetUserEmailCompanies {
-  execute(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>>;
+	execute(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>>;
 }
 
 export interface IRemoveUserFromCompany {
-  execute(inputData: RemoveUserFromCompanyDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: RemoveUserFromCompanyDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IRevokeUserInvitationInCompany {
-  execute(inputData: RevokeUserInvitationDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: RevokeUserInvitationDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IUpdateCompanyName {
-  execute(inputData: UpdateCompanyNameDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: UpdateCompanyNameDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IUpdateUsersCompanyRoles {
-  execute(inputData: UpdateUsersCompanyRolesDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: UpdateUsersCompanyRolesDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IDeleteCompany {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(userId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface ICheckVerificationLinkAvailable {
-  execute(verificationString: string): Promise<SuccessResponse>;
+	execute(verificationString: string): Promise<SuccessResponse>;
 }
 
 export interface IUpdateUsers2faStatusInCompany {
-  execute(inputData: UpdateUsers2faStatusInCompanyDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: UpdateUsers2faStatusInCompanyDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface ISuspendUsersInCompany {
-  execute(inputData: SuspendUsersInCompanyDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: SuspendUsersInCompanyDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IToggleCompanyTestConnectionsMode {
-  execute(inputData: ToggleTestConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: ToggleTestConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IUploadCompanyWhiteLabelImages {
-  execute(inputData: UploadCompanyWhiteLabelImages, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: UploadCompanyWhiteLabelImages, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IFindCompanyLogo {
-  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyLogoRO>;
+	execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyLogoRO>;
 }
 
 export interface IFindCompanyFavicon {
-  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyFaviconRO>;
+	execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyFaviconRO>;
 }
 
 export interface IDeleteCompanyWhiteLabelImages {
-  execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IAddCompanyTabTitle {
-  execute(inputData: AddCompanyTabTitleDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(inputData: AddCompanyTabTitleDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IFindCompanyTabTitle {
-  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyTabTitleRO>;
+	execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyTabTitleRO>;
 }
 
 export interface IDeleteCompanyTabTitle {
-  execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+	execute(companyId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IGetCompanyWhiteLabelProperties {
-  execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyWhiteLabelPropertiesRO>;
+	execute(companyId: string, inTransaction: InTransactionEnum): Promise<FoundCompanyWhiteLabelPropertiesRO>;
 }

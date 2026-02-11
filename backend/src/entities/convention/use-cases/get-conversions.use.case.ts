@@ -7,39 +7,39 @@ import { IGetConversions } from './get-conversions-use-cases.interface.js';
 
 @Injectable()
 export class GetConversionsUseCase extends AbstractUseCase<void, string> implements IGetConversions {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(): Promise<string> {
-    const freshUsers = await this._dbContext.userRepository.getUsersWithNotNullGCLIDsInTwoWeeks();
-    const workedFreshConnections = await this._dbContext.connectionRepository.getWorkedConnectionsInTwoWeeks();
+	protected async implementation(): Promise<string> {
+		const freshUsers = await this._dbContext.userRepository.getUsersWithNotNullGCLIDsInTwoWeeks();
+		const workedFreshConnections = await this._dbContext.connectionRepository.getWorkedConnectionsInTwoWeeks();
 
-    const conversionsArray = [];
+		const conversionsArray = [];
 
-    for (const user of freshUsers) {
-      conversionsArray.push({
-        "Google Click ID": user.gclid,
-        "Conversion Name": 'Registration',
-        "Conversion Time": user.createdAt,
-      });
-    }
+		for (const user of freshUsers) {
+			conversionsArray.push({
+				'Google Click ID': user.gclid,
+				'Conversion Name': 'Registration',
+				'Conversion Time': user.createdAt,
+			});
+		}
 
-    for (const connection of workedFreshConnections) {
-      conversionsArray.push({
-        "Google Click ID": connection.author.gclid,
-        "Conversion Name": 'Connection added',
-        "Conversion Time": connection.createdAt,
-      });
-    }
+		for (const connection of workedFreshConnections) {
+			conversionsArray.push({
+				'Google Click ID': connection.author.gclid,
+				'Conversion Name': 'Connection added',
+				'Conversion Time': connection.createdAt,
+			});
+		}
 
-    const fields = ['Google Click ID', 'Conversion Name', 'Conversion Time'];
-    const head = 'Parameters:TimeZone=-0500' + '\r\n';
-    const csvParser = new CsvParser({ fields });
-    const csvData: string = csvParser.parse(conversionsArray);
-    return head + csvData;
-  }
+		const fields = ['Google Click ID', 'Conversion Name', 'Conversion Time'];
+		const head = 'Parameters:TimeZone=-0500' + '\r\n';
+		const csvParser = new CsvParser({ fields });
+		const csvData: string = csvParser.parse(conversionsArray);
+		return head + csvData;
+	}
 }

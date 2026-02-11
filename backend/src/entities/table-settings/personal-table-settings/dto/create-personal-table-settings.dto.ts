@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { QueryOrderingEnum } from '../../../../enums/query-ordering.enum.js';
 import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
+import { QueryOrderingEnum } from '../../../../enums/query-ordering.enum.js';
 
 export class CreatePersonalTableSettingsDto {
 	@ApiProperty({ enumName: 'QueryOrderingEnum', enum: QueryOrderingEnum, description: 'The ordering direction' })
