@@ -21,6 +21,7 @@
                 data-testid="company-name-input"
                 angulartics2On="change"
                 angularticsAction="Company: company name is edited"
+                (change)="posthog.capture('Company: company name is edited')"
                 [(ngModel)]="company.name">
         </mat-form-field>
         <div class="text-filed-edit__buttons">
@@ -44,7 +45,8 @@
                 [href]="company.portal_link" target="_blank"
                 data-testid="company-payment-portal-link"
                 angulartics2On="click"
-                angularticsAction="Company: Payment settings is clicked">
+                angularticsAction="Company: Payment settings is clicked"
+                (click)="posthog.capture('Company: Payment settings is clicked')">
                 <span class="upgrade-button__caption_desktop">Payment settings</span>
                 <span class="upgrade-button__caption_mobile">Stripe</span>
             </a>
@@ -53,7 +55,8 @@
                 routerLink="/upgrade"
                 data-testid="company-payment-upgrade-link"
                 angulartics2On="click"
-                angularticsAction="Company: Upgrade is clicked">
+                angularticsAction="Company: Upgrade is clicked"
+                (click)="posthog.capture('Company: Upgrade is clicked')">
                 {{ company.portal_link ? 'Change' : 'Upgrade'}}
             </a>
         </div>
@@ -69,7 +72,7 @@
                     data-testid="company-invitation-button"
                     angulartics2On="click"
                     angularticsAction="Company: invite member is clicked"
-                    (click)="handleAddMemberDialogOpen()"
+                    (click)="handleAddMemberDialogOpen(); posthog.capture('Company: invite member is clicked')"
                     [disabled]="currentPlan === 'free' && usersCount >= 3 && isSaas">
                     Invite member
                     <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3 && isSaas">
@@ -125,7 +128,8 @@
                     <button mat-button type="button" [matMenuTriggerFor]="menu"
                         style="width: 100%"
                         angulartics2On="click"
-                        angularticsAction="Company: role is clicked">
+                        angularticsAction="Company: role is clicked"
+                        (click)="posthog.capture('Company: role is clicked')">
                         {{ companyRolesName[element.role] }}
                         <mat-icon iconPositionEnd style="margin-left: auto">arrow_drop_down</mat-icon>
                     </button>
@@ -163,6 +167,7 @@
                     class="role-select"
                     angulartics2On="click"
                     angularticsAction="Company: role is clicked"
+                    (click)="posthog.capture('Company: role is clicked')"
                     [(ngModel)]="element.role"
                     (ngModelChange)="updateRole(element.id, element.role)">
                     <mat-option value="ADMIN" attr.data-testid="company-member-superadmin-role-{{i}}-select-option">
@@ -215,6 +220,7 @@
                     attr.data-testid="company-member-active-{{i}}-toggle"
                     angulartics2On="click"
                     angularticsAction="Company: suspend user is toggled"
+                    (click)="posthog.capture('Company: suspend user is toggled')"
                     [angularticsProperties]="{'enable': element.suspended}"
                     [(ngModel)]="element.suspended"
                     (change)="switchSuspendance($event.checked, element.email)">
@@ -243,7 +249,7 @@
                     attr.data-testid="company-member-revoke-{{i}}-button"
                     angulartics2On="click"
                     angularticsAction="Company: Revoke invitation is clicked"
-                    (click)="handleRevokeInvitationDialogOpen(element.email)">
+                    (click)="handleRevokeInvitationDialogOpen(element.email); posthog.capture('Company: Revoke invitation is clicked')">
                     Revoke
                 </button>
                 <ng-template #deleteUserButton>
@@ -252,7 +258,7 @@
                         attr.data-testid="company-member-delete-{{i}}-button"
                         angulartics2On="click"
                         angularticsAction="Company: Delete member is clicked"
-                        (click)="handleDeleteMemberDialogOpen(element)">
+                        (click)="handleDeleteMemberDialogOpen(element); posthog.capture('Company: Delete member is clicked')">
                         Delete
                     </button>
                 </ng-template>

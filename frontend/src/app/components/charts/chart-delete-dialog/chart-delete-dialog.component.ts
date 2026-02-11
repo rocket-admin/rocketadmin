@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 
@@ -30,6 +31,7 @@ export class ChartDeleteDialogComponent {
 				this.angulartics2.eventTrack.next({
 					action: 'Charts: saved query deleted successfully',
 				});
+				posthog.capture('Charts: saved query deleted successfully');
 				this.submitting.set(false);
 				this.dialogRef.close(true);
 			},

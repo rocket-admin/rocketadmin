@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { differenceBy } from 'lodash-es';
+import posthog from 'posthog-js';
 import { forkJoin, Observable, Subscription, take, tap } from 'rxjs';
 import { Connection } from 'src/app/models/connection';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
@@ -46,6 +47,7 @@ import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dial
 	styleUrls: ['./users.component.css'],
 })
 export class UsersComponent implements OnInit, OnDestroy {
+	protected posthog = posthog;
 	public users: { [key: string]: GroupUser[] | 'empty' } = {};
 	public currentUser: User;
 	public groups: UserGroupInfo[] | null = null;

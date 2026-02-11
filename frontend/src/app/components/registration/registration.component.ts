@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
+import posthog from 'posthog-js';
 import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { NewAuthUser } from 'src/app/models/user';
@@ -37,6 +38,7 @@ import { UserPasswordComponent } from '../ui-components/user-password/user-passw
 	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class RegistrationComponent implements OnInit, AfterViewInit {
+	protected posthog = posthog;
 	@ViewChild(TurnstileComponent) turnstileWidget: TurnstileComponent;
 
 	public isSaas = (environment as any).saas;
@@ -64,6 +66,7 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Reg: Registration page (component) is loaded',
 		});
+		posthog.capture('Reg: Registration page (component) is loaded');
 
 		const error = new URLSearchParams(location.search).get('error');
 		if (error)
@@ -89,6 +92,7 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
 						this.angulartics2.eventTrack.next({
 							action: 'Reg: google register success',
 						});
+						posthog.capture('Reg: google register success');
 					});
 				});
 			},
@@ -121,11 +125,13 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Reg: sing up success',
 				});
+				posthog.capture('Reg: sing up success');
 			},
 			(_error) => {
 				this.angulartics2.eventTrack.next({
 					action: 'Reg: sing up unsuccessful',
 				});
+				posthog.capture('Reg: sing up unsuccessful');
 				this.submitting = false;
 				this._resetTurnstile();
 			},
@@ -157,5 +163,6 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Reg: github register redirect',
 		});
+		posthog.capture('Reg: github register redirect');
 	}
 }

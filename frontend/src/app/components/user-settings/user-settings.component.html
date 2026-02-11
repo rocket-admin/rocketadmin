@@ -19,6 +19,7 @@
                             data-testid="user-name-input"
                             angulartics2On="change"
                             angularticsAction="User settings: user name is edited"
+                            (change)="posthog.capture('User settings: user name is edited')"
                             [(ngModel)]="userName">
                     </mat-form-field>
                     <button type="submit" mat-button color="primary" data-testid="save-user-name-button"
@@ -58,6 +59,7 @@
                     color="primary"
                     angulartics2On="click"
                     angularticsAction="User settings: change password is clicked"
+                    (click)="posthog.capture('User settings: change password is clicked')"
                     [disabled]="!currentUser.isActive"
                     class="user-settings__button">
                     Change password
@@ -68,6 +70,7 @@
                         <mat-slide-toggle [(ngModel)]="is2FAEnabledToggle"
                             angulartics2On="click"
                             angularticsAction="User settings: 2fa is toggled"
+                            (click)="posthog.capture('User settings: 2fa is toggled')"
                             [angularticsProperties]="{'enable': is2FAEnabledToggle}"
                             [disabled]="!currentUser.isActive"
                             (change)="switch2FA($event)">
