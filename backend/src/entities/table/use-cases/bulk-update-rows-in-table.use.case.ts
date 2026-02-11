@@ -1,23 +1,23 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-in-table.ds.js';
-import { IBulkUpdateRowsInTable } from './table-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { TableLogsService } from '../../table-logs/table-logs.service.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
-import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
-import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
+import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
+import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-in-table.ds.js';
+import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
-import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
-import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
-import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
+import { IBulkUpdateRowsInTable } from './table-use-cases.interface.js';
 
 @Injectable()
 export class BulkUpdateRowsInTableUseCase

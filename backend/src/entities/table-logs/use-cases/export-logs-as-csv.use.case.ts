@@ -1,17 +1,17 @@
 import { HttpException, HttpStatus, Inject, Injectable, StreamableFile } from '@nestjs/common';
+import * as csv from 'csv';
+import { Transform } from 'stream';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { FindLogsDs } from '../application/data-structures/find-logs.ds.js';
-import { IExportLogsAsCsv } from './use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import * as csv from 'csv';
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
 import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
+import { FindLogsDs } from '../application/data-structures/find-logs.ds.js';
 import { IFindLogsOptions } from '../repository/table-logs-repository.interface.js';
-import { Transform } from 'stream';
+import { IExportLogsAsCsv } from './use-cases.interface.js';
 
 @Injectable()
 export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, StreamableFile> implements IExportLogsAsCsv {

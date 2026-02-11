@@ -1,8 +1,8 @@
 import { Global, MiddlewareConsumer, Module } from '@nestjs/common';
-import { DemoDataService } from './demo-data.service.js';
-import { BaseType } from '../../common/data-injection.tokens.js';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
+import { BaseType } from '../../common/data-injection.tokens.js';
+import { DemoDataService } from './demo-data.service.js';
 
 @Global()
 @Module({

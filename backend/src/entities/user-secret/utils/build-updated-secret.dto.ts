@@ -1,5 +1,5 @@
-import { FoundSecretDto } from '../application/dto/found-secret.dto.js';
 import { UpdatedSecretDS } from '../application/data-structures/update-secret.ds.js';
+import { FoundSecretDto } from '../application/dto/found-secret.dto.js';
 
 export function buildUpdatedSecretDto(ds: UpdatedSecretDS): FoundSecretDto {
 	return {

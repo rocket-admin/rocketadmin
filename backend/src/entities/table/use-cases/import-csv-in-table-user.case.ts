@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IImportCSVFinTable } from './table-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { ImportCSVInTableDs } from '../application/data-structures/import-scv-in-table.ds.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { ImportCSVInTableDs } from '../application/data-structures/import-scv-in-table.ds.js';
+import { IImportCSVFinTable } from './table-use-cases.interface.js';
 
 @Injectable()
 export class ImportCSVInTableUseCase

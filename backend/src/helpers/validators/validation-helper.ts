@@ -1,8 +1,8 @@
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import countries from 'i18n-iso-countries';
 import validator from 'validator';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Constants } from '../constants/constants.js';
-import countries from 'i18n-iso-countries';
 
 export class ValidationHelper {
 	public static isValidUrl(url: string): boolean {

@@ -1,5 +1,5 @@
-import { ConnectionPropertiesEntity } from '../connection-properties.entity.js';
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
+import { ConnectionPropertiesEntity } from '../connection-properties.entity.js';
 
 export function buildFoundConnectionPropertiesDs(
 	connectionProperties: ConnectionPropertiesEntity,

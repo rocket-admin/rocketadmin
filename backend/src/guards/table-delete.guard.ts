@@ -12,8 +12,8 @@ import { IGlobalDatabaseContext } from '../common/application/global-database-co
 import { BaseType } from '../common/data-injection.tokens.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { getMasterPwd } from '../helpers/index.js';
-import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
+import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class TableDeleteGuard implements CanActivate {

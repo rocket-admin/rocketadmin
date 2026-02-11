@@ -1,14 +1,14 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
+import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js';
 import { ICompanyRegistration } from './saas-use-cases.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
-import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
-import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class RegisteredCompanyWebhookUseCase

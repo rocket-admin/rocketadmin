@@ -1,11 +1,11 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { ToggleTestConnectionDisplayModeDs } from '../application/data-structures/toggle-test-connections-display-mode.ds.js';
 import { IToggleCompanyTestConnectionsMode } from './company-info-use-cases.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ToggleCompanyTestConnectionsDisplayModeUseCase

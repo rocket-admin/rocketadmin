@@ -1,16 +1,16 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { authenticator } from 'otplib';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IOtpLogin } from './user-use-cases.interfaces.js';
-import { IToken, generateGwtToken } from '../utils/generate-gwt-token.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
-import { authenticator } from 'otplib';
-import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
-import { SignInAuditService } from '../../user-sign-in-audit/sign-in-audit.service.js';
-import { SignInStatusEnum } from '../../user-sign-in-audit/enums/sign-in-status.enum.js';
 import { SignInMethodEnum } from '../../user-sign-in-audit/enums/sign-in-method.enum.js';
+import { SignInStatusEnum } from '../../user-sign-in-audit/enums/sign-in-status.enum.js';
+import { SignInAuditService } from '../../user-sign-in-audit/sign-in-audit.service.js';
+import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
+import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
+import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
+import { IOtpLogin } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implements IOtpLogin {

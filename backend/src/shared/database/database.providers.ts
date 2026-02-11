@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
-import { configService } from '../config/config.service.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
+import { configService } from '../config/config.service.js';
+
 let appDataSourceCache: DataSource = null;
 
 export const databaseProviders = [

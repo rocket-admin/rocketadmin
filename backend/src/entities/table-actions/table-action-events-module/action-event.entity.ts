@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
-import { ActionRulesEntity } from '../table-action-rules-module/action-rules.entity.js';
 import { TableActionTypeEnum } from '../../../enums/table-action-type.enum.js';
+import { ActionRulesEntity } from '../table-action-rules-module/action-rules.entity.js';
 
 @Entity('action_events')
 export class ActionEventsEntity {

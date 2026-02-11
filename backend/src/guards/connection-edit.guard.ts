@@ -8,11 +8,11 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
-import { Messages } from '../exceptions/text/messages.js';
-import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
-import { BaseType } from '../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
+import { BaseType } from '../common/data-injection.tokens.js';
+import { Messages } from '../exceptions/text/messages.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
+import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class ConnectionEditGuard implements CanActivate {

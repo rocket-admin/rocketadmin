@@ -1,21 +1,21 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UserEntity } from '../../user/user.entity.js';
-import { TableActionEntity } from './table-action.entity.js';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
-import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
-import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import axios, { AxiosResponse } from 'axios';
 import PQueue from 'p-queue';
+import { Repository } from 'typeorm';
+import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { escapeHtml } from '../../email/utils/escape-html.util.js';
-import { EmailService } from '../../email/email/email.service.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { EmailService } from '../../email/email/email.service.js';
+import { escapeHtml } from '../../email/utils/escape-html.util.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { TableActionEntity } from './table-action.entity.js';
 
 export type ActionActivationResult = {
 	location?: string;

@@ -6,11 +6,11 @@ import { DemoDataService } from '../../../entities/demo-data/demo-data.service.j
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
 import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
+import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
+import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
+import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { ILoginUserWithGoogle } from './saas-use-cases.interface.js';
-import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
-import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
-import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
 
 @Injectable()
 export class LoginWithGoogleUseCase

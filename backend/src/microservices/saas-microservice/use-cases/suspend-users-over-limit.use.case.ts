@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { ISuspendUsersOverLimit } from './saas-use-cases.interface.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { slackPostMessage } from '../../../helpers/index.js';
+import { ISuspendUsersOverLimit } from './saas-use-cases.interface.js';
 
 @Injectable()
 export class SuspendUsersOverLimitUseCase extends AbstractUseCase<string, void> implements ISuspendUsersOverLimit {

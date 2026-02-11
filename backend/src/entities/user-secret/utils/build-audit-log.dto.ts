@@ -1,5 +1,5 @@
-import { AuditLogResponseDto, AuditLogEntryDto } from '../application/dto/audit-log.dto.js';
-import { AuditLogListDS, AuditLogEntryDS } from '../application/data-structures/get-audit-log.ds.js';
+import { AuditLogEntryDS, AuditLogListDS } from '../application/data-structures/get-audit-log.ds.js';
+import { AuditLogEntryDto, AuditLogResponseDto } from '../application/dto/audit-log.dto.js';
 
 export function buildAuditLogEntryDto(ds: AuditLogEntryDS): AuditLogEntryDto {
 	return {

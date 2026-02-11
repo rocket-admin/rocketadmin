@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { Cacher } from '../../../helpers/cache/cacher.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
 import { ITablePermissionData } from '../../permission/permission.interface.js';
-import { IUserAccessRepository } from './user-access.repository.interface.js';
-import { Cacher } from '../../../helpers/cache/cacher.js';
 import { UserEntity } from '../../user/user.entity.js';
+import { IUserAccessRepository } from './user-access.repository.interface.js';
 
 export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
 	async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {

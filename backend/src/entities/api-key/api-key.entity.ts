@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { UserEntity } from '../user/user.entity.js';
-import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { UserEntity } from '../user/user.entity.js';
 
 @Entity('user_api_key')
 export class UserApiKeyEntity {

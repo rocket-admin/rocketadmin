@@ -9,8 +9,8 @@ import {
 	PrimaryGeneratedColumn,
 	Relation,
 } from 'typeorm';
-import { CompanyInfoEntity } from '../company-info.entity.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
+import { CompanyInfoEntity } from '../company-info.entity.js';
 
 @Entity('invitation_in_company')
 export class InvitationInCompanyEntity {

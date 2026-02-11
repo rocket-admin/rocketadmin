@@ -1,10 +1,10 @@
-import { CreateFieldDto } from '../application/data-structures/create-custom-fields.ds.js';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { HttpStatus } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers/index.js';
-import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { HttpStatus } from '@nestjs/common';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { CreateFieldDto } from '../application/data-structures/create-custom-fields.ds.js';
 
 export async function validateCreateCustomFieldDto(
 	createFieldDto: CreateFieldDto,

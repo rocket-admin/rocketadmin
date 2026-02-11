@@ -1,14 +1,15 @@
-import { join } from 'path';
-import { DataSourceOptions } from 'typeorm';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import parse from 'pg-connection-string';
 import dotenv from 'dotenv';
+import path, { join } from 'path';
+import parse from 'pg-connection-string';
+import { DataSourceOptions } from 'typeorm';
+import { fileURLToPath } from 'url';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp';
-import { PGliteDriver } from 'typeorm-pglite';
 import fs from 'fs';
+import { PGliteDriver } from 'typeorm-pglite';
 import { isTest } from '../../helpers/app/is-test.js';
 
 dotenv.config();

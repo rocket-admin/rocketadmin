@@ -3,9 +3,9 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundUserDto } from '../../user/dto/found-user.dto.js';
-import { IFindUsersInConnection } from './use-cases.interfaces.js';
-import { buildFoundUserDto } from '../../user/utils/build-found-user.dto.js';
 import { UserEntity } from '../../user/user.entity.js';
+import { buildFoundUserDto } from '../../user/utils/build-found-user.dto.js';
+import { IFindUsersInConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class FindAllUsersInConnectionUseCase

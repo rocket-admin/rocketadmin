@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { TableActionEntity } from '../table-actions-module/table-action.entity.js';
-import { ActionEventsEntity } from '../table-action-events-module/action-event.entity.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { ActionEventsEntity } from '../table-action-events-module/action-event.entity.js';
+import { TableActionEntity } from '../table-actions-module/table-action.entity.js';
 
 @Entity('action_rules')
 export class ActionRulesEntity {

@@ -1,4 +1,5 @@
 import { BaseMessage } from '@langchain/core/messages';
+import { IterableReadableStream } from '@langchain/core/utils/stream';
 import {
 	AICompletionResult,
 	AIProviderConfig,
@@ -6,7 +7,6 @@ import {
 	AIToolDefinition,
 	AIToolResult,
 } from './ai-provider.interface.js';
-import { IterableReadableStream } from '@langchain/core/utils/stream';
 
 export enum AIProviderType {
 	OPENAI = 'openai',

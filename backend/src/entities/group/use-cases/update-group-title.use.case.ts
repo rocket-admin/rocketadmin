@@ -2,10 +2,10 @@ import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Sco
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { FoundGroupDataInfoDs } from '../application/data-sctructures/found-user-groups.ds.js';
 import { UpdateGroupTitleDto } from '../dto/update-group-title.dto.js';
 import { IUpdateGroupTitle } from './use-cases.interfaces.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateGroupTitleUseCase

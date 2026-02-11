@@ -3,8 +3,8 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
 import { IDeleteConnection } from './use-cases.interfaces.js';
 

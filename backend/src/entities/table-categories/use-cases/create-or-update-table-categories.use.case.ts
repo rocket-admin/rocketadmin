@@ -2,11 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { ICreateTableCategories } from './table-categories-use-cases.interface.js';
-import { FoundTableCategoryRo } from '../dto/found-table-category.ro.js';
 import { CreateOrUpdateTableCategoriesDS } from '../data-sctructures/create-or-update-table-categories.ds.js';
-import { validateTableCategories } from '../utils/validate-table-categories.util.js';
+import { FoundTableCategoryRo } from '../dto/found-table-category.ro.js';
 import { buildFoundTableCategoryRo } from '../utils/build-found-table-category.ro.js';
+import { validateTableCategories } from '../utils/validate-table-categories.util.js';
+import { ICreateTableCategories } from './table-categories-use-cases.interface.js';
 
 @Injectable()
 export class CreateOrUpdateTableCategoriesUseCase

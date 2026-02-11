@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
-import { UserEntity } from '../user/user.entity.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { PermissionEntity } from '../permission/permission.entity.js';
+import { UserEntity } from '../user/user.entity.js';
 
 @Entity('group')
 @Unique(['connection', 'title'])

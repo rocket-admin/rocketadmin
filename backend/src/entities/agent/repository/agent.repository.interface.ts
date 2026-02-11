@@ -1,5 +1,5 @@
-import { AgentEntity } from '../agent.entity.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { AgentEntity } from '../agent.entity.js';
 
 export interface IAgentRepository {
 	createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity>;

@@ -1,11 +1,11 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { AuditLogListDS, GetAuditLogDS } from '../application/data-structures/get-audit-log.ds.js';
-import { IGetSecretAuditLog } from './user-secret-use-cases.interface.js';
-import { buildAuditLogEntryDS } from '../utils/build-audit-log-entry.ds.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { AuditLogListDS, GetAuditLogDS } from '../application/data-structures/get-audit-log.ds.js';
+import { buildAuditLogEntryDS } from '../utils/build-audit-log-entry.ds.js';
+import { IGetSecretAuditLog } from './user-secret-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetSecretAuditLogUseCase

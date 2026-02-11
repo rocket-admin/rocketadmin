@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import sjson from 'secure-json-parse';
 import {
 	AfterLoad,
@@ -9,9 +10,8 @@ import {
 	PrimaryGeneratedColumn,
 	Relation,
 } from 'typeorm';
-import { ConnectionEntity } from '../connection/connection.entity.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums/index.js';
-import { Transform } from 'class-transformer';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 
 @Entity('tableLogs')
 export class TableLogsEntity {

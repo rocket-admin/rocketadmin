@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
 import { ISuspendUsers } from './saas-use-cases.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 
 @Injectable()
 export class SuspendUsersUseCase extends AbstractUseCase<SuspendUsersDS, void> implements ISuspendUsers {

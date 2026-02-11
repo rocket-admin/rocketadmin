@@ -4,6 +4,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import {
 	CreatePermissionsDs,
 	PermissionsDs,
@@ -14,7 +15,6 @@ import { buildFinalTablesPermissions } from '../utils/build-final-tables-permiss
 import { buildNewPermissionEntityConnection } from '../utils/build-new-permission-entity-connection.js';
 import { buildNewPermissionEntityGroup } from '../utils/build-new-permission-entity-group.js';
 import { ICreateOrUpdatePermissions } from './permissions-use-cases.interface.js';
-import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 @Injectable()
 export class CreateOrUpdatePermissionsUseCase

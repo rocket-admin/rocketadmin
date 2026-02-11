@@ -1,9 +1,9 @@
-import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
-import { WidgetTypeEnum } from '../../../enums/index.js';
-import { IPasswordWidgetParams } from '../../widget/table-widget.interface.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import JSON5 from 'json5';
+import { WidgetTypeEnum } from '../../../enums/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
+import { IPasswordWidgetParams } from '../../widget/table-widget.interface.js';
 
 export async function hashPasswordsInRowUtil(
 	row: Record<string, unknown>,

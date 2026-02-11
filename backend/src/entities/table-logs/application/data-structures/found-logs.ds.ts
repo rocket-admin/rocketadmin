@@ -1,7 +1,7 @@
-import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
-import { TableLogsEntity } from '../../table-logs.entity.js';
 import { ApiProperty } from '@nestjs/swagger';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
+import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
+import { TableLogsEntity } from '../../table-logs.entity.js';
 
 export class FoundLogRecordDs {
 	@ApiProperty()

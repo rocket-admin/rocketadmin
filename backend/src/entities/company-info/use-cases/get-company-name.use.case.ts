@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { IGetCompanyName } from './company-info-use-cases.interface.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { FoundCompanyNameDs } from '../application/data-structures/found-company-name.ds.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { FoundCompanyNameDs } from '../application/data-structures/found-company-name.ds.js';
+import { IGetCompanyName } from './company-info-use-cases.interface.js';
 
 @Injectable()
 export class GetCompanyNameUseCase extends AbstractUseCase<string, FoundCompanyNameDs> implements IGetCompanyName {

@@ -4,6 +4,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { TableCategoriesEntity } from '../../table-categories/table-categories.entity.js';
 import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
 import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds.js';
@@ -13,7 +14,6 @@ import {
 } from '../utils/build-update-connection-properties-object.js';
 import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds.js';
 import { IUpdateConnectionProperties } from './connection-properties-use.cases.interface.js';
-import { TableCategoriesEntity } from '../../table-categories/table-categories.entity.js';
 
 @Injectable()
 export class UpdateConnectionPropertiesUseCase

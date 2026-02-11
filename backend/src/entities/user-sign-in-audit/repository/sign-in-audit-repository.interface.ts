@@ -1,7 +1,7 @@
 import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
+import { CreateSignInAuditRecordDs } from '../dto/create-sign-in-audit-record.ds.js';
 import { SignInMethodEnum } from '../enums/sign-in-method.enum.js';
 import { SignInStatusEnum } from '../enums/sign-in-status.enum.js';
-import { CreateSignInAuditRecordDs } from '../dto/create-sign-in-audit-record.ds.js';
 import { SignInAuditEntity } from '../sign-in-audit.entity.js';
 
 export interface ISignInAuditRepository {

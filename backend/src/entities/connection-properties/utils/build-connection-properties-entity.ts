@@ -1,6 +1,6 @@
-import { ConnectionPropertiesEntity } from '../connection-properties.entity.js';
-import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
+import { ConnectionPropertiesEntity } from '../connection-properties.entity.js';
 
 export function buildConnectionPropertiesEntity(
 	propertiesInfo: CreateConnectionPropertiesDs,

@@ -1,11 +1,11 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { GetSecretsDS, SecretsListDS } from '../application/data-structures/get-secrets.ds.js';
-import { IGetSecrets } from './user-secret-use-cases.interface.js';
-import { buildSecretListItemDS } from '../utils/build-secret-list-item.ds.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { GetSecretsDS, SecretsListDS } from '../application/data-structures/get-secrets.ds.js';
+import { buildSecretListItemDS } from '../utils/build-secret-list-item.ds.js';
+import { IGetSecrets } from './user-secret-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetSecretsUseCase extends AbstractUseCase<GetSecretsDS, SecretsListDS> implements IGetSecrets {

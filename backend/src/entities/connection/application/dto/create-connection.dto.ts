@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
-import { isTest } from '../../../../helpers/app/is-test.js';
 import {
 	ConnectionTypesEnum,
 	ConnectionTypeTestEnum,
 } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { isTest } from '../../../../helpers/app/is-test.js';
 
 export class CreateConnectionDto {
 	@ApiProperty({ required: false })

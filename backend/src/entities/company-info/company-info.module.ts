@@ -1,10 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
@@ -14,12 +15,17 @@ import { TableSettingsEntity } from '../table-settings/common-table-settings/tab
 import { UserEntity } from '../user/user.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { CompanyInfoController } from './company-info.controller.js';
+import { CompanyInfoHelperService } from './company-info-helper.service.js';
+import { AddCompanyTabTitleUseCase } from './use-cases/add-company-tab-title.use.case.js';
 import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification-link.available.use.case.js';
 import { DeleteCompanyFaviconUseCase } from './use-cases/delete-company-favicon.use.case.js';
 import { DeleteCompanyLogoUseCase } from './use-cases/delete-company-logo.use.case.js';
+import { DeleteCompanyTabTitleUseCase } from './use-cases/delete-company-tab-title.use.case.js';
 import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
 import { FindCompanyFaviconUseCase } from './use-cases/find-company-favicon.use.case.js';
 import { FindCompanyLogoUseCase } from './use-cases/find-company-logo.use.case.js';
+import { FindCompanyTabTitleUseCase } from './use-cases/find-company-tab-title.use.case.js';
+import { FindCompanyWhiteLabelPropertiesUseCase } from './use-cases/find-company-white-label-properties.use.case.js';
 import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-company.use.case.js';
 import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
 import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
@@ -37,12 +43,6 @@ import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa
 import { UploadCompanyFaviconUseCase } from './use-cases/upload-company-favicon.use.case.js';
 import { UploadCompanyLogoUseCase } from './use-cases/upload-company-logo-use-case.js';
 import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/verify-invite-user-in-company.use.case.js';
-import { AuthMiddleware } from '../../authorization/auth.middleware.js';
-import { AddCompanyTabTitleUseCase } from './use-cases/add-company-tab-title.use.case.js';
-import { FindCompanyTabTitleUseCase } from './use-cases/find-company-tab-title.use.case.js';
-import { DeleteCompanyTabTitleUseCase } from './use-cases/delete-company-tab-title.use.case.js';
-import { FindCompanyWhiteLabelPropertiesUseCase } from './use-cases/find-company-white-label-properties.use.case.js';
-import { CompanyInfoHelperService } from './company-info-helper.service.js';
 
 @Module({
 	imports: [

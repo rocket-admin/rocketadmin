@@ -1,10 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { IMessage } from '../email/email.interface.js';
 import { EmailConfigService } from '../email-config/email-config.service.js';
 import { IEmailTransporterInterface } from './email-transporter.interface.js';
-import { Injectable } from '@nestjs/common';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
 @Injectable()
 export class EmailTransporterService implements IEmailTransporterInterface {
 	private transporter: nodemailer.Transporter;

@@ -1,13 +1,13 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { CreateApiKeyDS } from '../application/data-structures/create-api-key.ds.js';
 import { CreatedApiKeyDS } from '../application/data-structures/created-api-key.ds.js';
-import { ICreateApiKey } from './api-key-use-cases.interface.js';
-import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { buildNewApiKeyEntity } from '../utils/build-new-api-key-entity.js';
 import { buildCreatedApiKeyDS } from '../utils/build-created-api-key-ds.js';
+import { buildNewApiKeyEntity } from '../utils/build-new-api-key-entity.js';
+import { ICreateApiKey } from './api-key-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateApiKeyUseCase extends AbstractUseCase<CreateApiKeyDS, CreatedApiKeyDS> implements ICreateApiKey {

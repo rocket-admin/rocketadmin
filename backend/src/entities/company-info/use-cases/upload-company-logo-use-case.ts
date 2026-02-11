@@ -1,12 +1,12 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
-import { IUploadCompanyWhiteLabelImages } from './company-info-use-cases.interface.js';
-import { UploadCompanyWhiteLabelImages } from '../application/data-structures/upload-company-white-label-images.ds.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { CompanyLogoEntity } from '../../company-logo/company-logo.entity.js';
+import { UploadCompanyWhiteLabelImages } from '../application/data-structures/upload-company-white-label-images.ds.js';
+import { IUploadCompanyWhiteLabelImages } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UploadCompanyLogoUseCase

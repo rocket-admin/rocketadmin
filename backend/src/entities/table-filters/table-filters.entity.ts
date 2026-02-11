@@ -8,8 +8,8 @@ import {
 	PrimaryGeneratedColumn,
 	Relation,
 } from 'typeorm';
-import { ConnectionEntity } from '../connection/connection.entity.js';
 import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 
 @Entity('table_filters')
 export class TableFiltersEntity {

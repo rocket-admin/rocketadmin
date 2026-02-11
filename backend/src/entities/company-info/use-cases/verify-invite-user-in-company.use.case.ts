@@ -3,12 +3,12 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { IToken, generateGwtToken } from '../../user/utils/generate-gwt-token.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
 import { get2FaScope } from '../../user/utils/is-jwt-scope-need.util.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import { IVerifyInviteUserInCompanyAndConnectionGroup } from './company-info-use-cases.interface.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VerifyInviteUserInCompanyAndConnectionGroupUseCase

@@ -1,17 +1,17 @@
-import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
-import { Knex } from 'knex';
-import { getProcessVariable } from '../get-process-variable.js';
-import { isSaaS } from '../app/is-saas.js';
-import {
-	parseTestMySQLConnectionString,
-	parseTestPostgresConnectionString,
-	parseTestMSSQLConnectionString,
-	parseTestOracleDBConnectionString,
-	parseTestMongoDBConnectionString,
-	parseTestDynamoDBConnectionString,
-} from '../parsers/string-connection-to-database-parsers.js';
-import { isTest } from '../app/is-test.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { Knex } from 'knex';
+import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
+import { isSaaS } from '../app/is-saas.js';
+import { isTest } from '../app/is-test.js';
+import { getProcessVariable } from '../get-process-variable.js';
+import {
+	parseTestDynamoDBConnectionString,
+	parseTestMongoDBConnectionString,
+	parseTestMSSQLConnectionString,
+	parseTestMySQLConnectionString,
+	parseTestOracleDBConnectionString,
+	parseTestPostgresConnectionString,
+} from '../parsers/string-connection-to-database-parsers.js';
 
 export type TestConnectionsFromJSON = {
 	//string value represents the connection string, to connect to the database

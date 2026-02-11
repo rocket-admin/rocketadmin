@@ -9,8 +9,8 @@ import {
 	ChangeUsualUserPasswordDto,
 } from '../application/data-structures/change-usual-user-password.ds.js';
 import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
-import { IUsualPasswordChange } from './user-use-cases.interfaces.js';
 import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
+import { IUsualPasswordChange } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class ChangeUsualPasswordUseCase

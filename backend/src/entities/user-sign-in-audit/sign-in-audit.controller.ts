@@ -2,6 +2,7 @@ import { Controller, Get, Inject, Injectable, Query, UseInterceptors } from '@ne
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { UserId } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { FindSignInAuditLogsDs } from './dto/find-sign-in-audit-logs.ds.js';
@@ -9,7 +10,6 @@ import { FoundSignInAuditLogsDs } from './dto/found-sign-in-audit-logs.ds.js';
 import { SignInMethodEnum } from './enums/sign-in-method.enum.js';
 import { SignInStatusEnum } from './enums/sign-in-status.enum.js';
 import { IFindSignInAuditLogs } from './use-cases/use-cases.interface.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

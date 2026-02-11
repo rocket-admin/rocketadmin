@@ -1,6 +1,6 @@
-import { GroupEntity } from '../group.entity.js';
-import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds.js';
 import { UserEntity } from '../../user/user.entity.js';
+import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds.js';
+import { GroupEntity } from '../group.entity.js';
 
 export function buildRemoveUserFromGroupResultDs(group: GroupEntity): RemoveUserFromGroupResultDs {
 	return {

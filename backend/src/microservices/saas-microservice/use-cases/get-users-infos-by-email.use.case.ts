@@ -3,8 +3,8 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
-import { ISaasGetUsersInfosByEmail } from './saas-use-cases.interface.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
+import { ISaasGetUsersInfosByEmail } from './saas-use-cases.interface.js';
 
 export class GetUsersInfosByEmailUseCase
 	extends AbstractUseCase<GetUsersInfosByEmailDS, Array<UserEntity>>

@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Inject, Injectable, Post, UseInterceptor
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
@@ -11,7 +12,6 @@ import { FoundApiKeyDto } from './application/dto/found-api-key.dto.js';
 import { ICreateApiKey, IDeleteApiKey, IGetApiKey, IGetApiKeys } from './use-cases/api-key-use-cases.interface.js';
 import { buildCreatedApiKeyDto } from './utils/build-created-api-key.dto.js';
 import { buildFoundApiKeyDto } from './utils/build-found-api-key.dto.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

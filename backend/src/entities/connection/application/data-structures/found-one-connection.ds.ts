@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum } from '../../../../enums/index.js';
 import { FoundConnectionPropertiesDs } from '../../../connection-properties/application/data-structures/found-connection-properties.ds.js';
 import {
@@ -5,7 +6,6 @@ import {
 	FoundDirectConnectionsDs,
 	FoundDirectConnectionsNonePermissionDs,
 } from './found-connections.ds.js';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class FoundOneConnectionDs {
 	@ApiProperty({ type: FoundDirectConnectionsDs })

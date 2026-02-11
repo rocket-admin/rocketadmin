@@ -1,13 +1,13 @@
-import { Injectable, Scope, Inject, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidateConnectionMasterPasswordDs } from '../application/data-structures/validate-connection-master-password.ds.js';
+import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { IValidateConnectionMasterPassword } from './use-cases.interfaces.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ValidateConnectionMasterPasswordUseCase

@@ -1,7 +1,7 @@
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateSecretDS } from '../application/data-structures/create-secret.ds.js';
 import { CreatedSecretDS } from '../application/data-structures/created-secret.ds.js';
-import { DeleteSecretDS, DeletedSecretDS } from '../application/data-structures/delete-secret.ds.js';
+import { DeletedSecretDS, DeleteSecretDS } from '../application/data-structures/delete-secret.ds.js';
 import { FoundSecretDS } from '../application/data-structures/found-secret.ds.js';
 import { AuditLogListDS, GetAuditLogDS } from '../application/data-structures/get-audit-log.ds.js';
 import { GetSecretDS } from '../application/data-structures/get-secret.ds.js';

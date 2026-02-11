@@ -15,6 +15,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
@@ -29,7 +30,6 @@ import {
 	IFindConnectionProperties,
 	IUpdateConnectionProperties,
 } from './use-cases/connection-properties-use.cases.interface.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

@@ -3,10 +3,10 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
+import { buildFoundGroupResponseDto } from '../../group/utils/biuld-found-group-response.dto.js';
 import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds.js';
 import { IDeleteGroupInConnection } from './use-cases.interfaces.js';
-import { buildFoundGroupResponseDto } from '../../group/utils/biuld-found-group-response.dto.js';
-import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteGroupFromConnectionUseCase

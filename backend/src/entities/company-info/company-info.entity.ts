@@ -1,12 +1,12 @@
 import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryColumn, Relation } from 'typeorm';
-import { UserEntity } from '../user/user.entity.js';
+import { CompanyFaviconEntity } from '../company-favicon/company-favicon.entity.js';
+import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
+import { CompanyTabTitleEntity } from '../company-tab-title/company-tab-title.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { UserSecretEntity } from '../user-secret/user-secret.entity.js';
 import { InvitationInCompanyEntity } from './invitation-in-company/invitation-in-company.entity.js';
 import { generateCompanyName } from './utils/get-company-name.js';
-import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
-import { CompanyFaviconEntity } from '../company-favicon/company-favicon.entity.js';
-import { CompanyTabTitleEntity } from '../company-tab-title/company-tab-title.entity.js';
-import { UserSecretEntity } from '../user-secret/user-secret.entity.js';
 
 @Entity('company_info')
 export class CompanyInfoEntity {

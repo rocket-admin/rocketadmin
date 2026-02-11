@@ -1,5 +1,5 @@
-import { SignInAuditEntity } from '../sign-in-audit.entity.js';
 import { FoundSignInAuditRecordDs } from '../dto/found-sign-in-audit-record.ds.js';
+import { SignInAuditEntity } from '../sign-in-audit.entity.js';
 
 export function buildFoundSignInAuditRecordDs(entity: SignInAuditEntity): FoundSignInAuditRecordDs {
 	return {

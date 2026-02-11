@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
-import { UserEntity } from '../user.entity.js';
 import { ApiProperty } from '@nestjs/swagger';
+import jwt from 'jsonwebtoken';
 import { JwtScopesEnum } from '../enums/jwt-scopes.enum.js';
+import { UserEntity } from '../user.entity.js';
 
 export function generateGwtToken(user: UserEntity, scope: Array<JwtScopesEnum>): IToken {
 	const today = new Date();

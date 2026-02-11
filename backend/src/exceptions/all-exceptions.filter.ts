@@ -1,9 +1,8 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
-
-import { processExceptionMessage } from './utils/process-exception-message.js';
 import Sentry from '@sentry/minimal';
-import { Messages } from './text/messages.js';
 import { WinstonLogger } from '../entities/logging/winston-logger.js';
+import { Messages } from './text/messages.js';
+import { processExceptionMessage } from './utils/process-exception-message.js';
 
 export type ExceptionType = 'no_master_key' | 'invalid_master_key' | 'query_timeout';
 @Catch()

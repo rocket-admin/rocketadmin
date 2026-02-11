@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IToken } from '../../utils/generate-gwt-token.js';
 import { ExternalRegistrationProviderEnum } from '../../enums/external-registration-provider.enum.js';
+import { IToken } from '../../utils/generate-gwt-token.js';
 
 export class RegisteredUserDs {
 	@ApiProperty()

@@ -1,7 +1,7 @@
-import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
-import { WidgetTypeEnum } from '../../../enums/index.js';
-import { stringify as uuidStringify } from 'uuid';
 import JSON5 from 'json5';
+import { stringify as uuidStringify } from 'uuid';
+import { WidgetTypeEnum } from '../../../enums/index.js';
+import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
 
 export function processUuidsInRowUtil(
 	row: Record<string, unknown>,

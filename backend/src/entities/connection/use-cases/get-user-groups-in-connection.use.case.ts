@@ -4,9 +4,9 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { GroupEntity } from '../../group/group.entity.js';
 import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
-import { IGetUserGroupsInConnection } from './use-cases.interfaces.js';
 import { FoundUserGroupsInConnectionDTO } from '../application/dto/found-user-groups-in-connection.dto.js';
 import { buildFoundUserGroupInConnectionDto } from '../utils/build-found-user-group-in-connection-dto.util.js';
+import { IGetUserGroupsInConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class GetUserGroupsInConnectionUseCase

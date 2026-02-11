@@ -1,19 +1,19 @@
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
-import { ActionRulesController } from './action-rules.controller.js';
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
-import { ActionRulesEntity } from './action-rules.entity.js';
-import { UserEntity } from '../../user/user.entity.js';
 import { LogOutEntity } from '../../log-out/log-out.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { ActionRulesController } from './action-rules.controller.js';
+import { ActionRulesEntity } from './action-rules.entity.js';
+import { ActivateActionsInEventUseCase } from './use-cases/activate-actions-in-rule.use.case.js';
 import { CreateActionRuleUseCase } from './use-cases/create-action-rule.use.case.js';
-import { FindActionRulesForTableUseCase } from './use-cases/find-action-rules-for-table.use.case.js';
 import { DeleteActionRuleWithActionsAndEventsUseCase } from './use-cases/delete-action-rule-with-actions-and-events.use.case.js';
 import { FindActionRuleWithActionsAndEventsUseCase } from './use-cases/find-action-rule-with-action-and-events-by-id.use.case.js';
-import { UpdateRuleUseCase } from './use-cases/update-action-rule-with-actions-and-events.use.case.js';
+import { FindActionRulesForTableUseCase } from './use-cases/find-action-rules-for-table.use.case.js';
 import { FindCustomEventsUseCase } from './use-cases/find-custom-events-use.case.js';
-import { ActivateActionsInEventUseCase } from './use-cases/activate-actions-in-rule.use.case.js';
+import { UpdateRuleUseCase } from './use-cases/update-action-rule-with-actions-and-events.use.case.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],

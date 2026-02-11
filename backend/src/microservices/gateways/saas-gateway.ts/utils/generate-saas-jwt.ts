@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { generateRequestId } from './generate-request-id.js';
 import { getRequiredEnvVariable } from '../../../../helpers/app/get-requeired-env-variable.js';
+import { generateRequestId } from './generate-request-id.js';
 
 export function generateSaaSJwt(): string {
 	const today = new Date();

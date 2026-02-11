@@ -1,12 +1,12 @@
-import { Injectable, CanActivate, Inject, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 import { BaseType } from '../common/data-injection.tokens.js';
-import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
-import { Observable } from 'rxjs';
-import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
-import { UserEntity } from '../entities/user/user.entity.js';
 import { UserRoleEnum } from '../entities/user/enums/user-role.enum.js';
+import { UserEntity } from '../entities/user/user.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
+import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class CompanyAdminGuard implements CanActivate {

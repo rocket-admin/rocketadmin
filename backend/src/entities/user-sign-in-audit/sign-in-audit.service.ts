@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SignInAuditEntity } from './sign-in-audit.entity.js';
-import { CreateSignInAuditRecordDs } from './dto/create-sign-in-audit-record.ds.js';
 import { UserEntity } from '../user/user.entity.js';
+import { CreateSignInAuditRecordDs } from './dto/create-sign-in-audit-record.ds.js';
 import { FoundSignInAuditRecordDs } from './dto/found-sign-in-audit-record.ds.js';
+import { SignInAuditEntity } from './sign-in-audit.entity.js';
 import { buildFoundSignInAuditRecordDs } from './utils/build-found-sign-in-audit-record-ds.js';
 
 @Injectable()

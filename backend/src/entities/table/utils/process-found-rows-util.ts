@@ -1,14 +1,14 @@
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
+import sjson from 'secure-json-parse';
 import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
-import { isBinary, binaryToHex } from '../../../helpers/binary-to-hex.js';
+import { binaryToHex, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { getPropertyValueByDescriptor } from '../../../helpers/get-property-value-by-descriptor.js';
 import { getValuesBetweenCurlies, replaceTextInCurlies } from '../../../helpers/operate-values-between-curlies.js';
+import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
-import sjson from 'secure-json-parse';
-import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 
 export function processRowsUtil(
 	rows: FoundRowsDS,

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
@@ -16,6 +16,7 @@ import { isObjectPropertyExists } from '../../../helpers/validators/is-object-pr
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
+import { WinstonLogger } from '../../logging/winston-logger.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { TableInfoEntity } from '../../table-info/table-info.entity.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
@@ -23,7 +24,6 @@ import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
 import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
 import { IFindTablesInConnection } from './table-use-cases.interface.js';
-import { WinstonLogger } from '../../logging/winston-logger.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase

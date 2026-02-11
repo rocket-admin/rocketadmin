@@ -5,8 +5,8 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 
 import { FindTableFiltersDs } from '../application/data-structures/find-table-filters.ds.js';
 import { CreatedTableFilterRO } from '../application/response-objects/created-table-filters.ro.js';
-import { IFindTableFilters } from './table-filters-use-cases.interface.js';
 import { buildCreatedTableFilterRO } from '../utils/build-created-table-filters-response-object.util.js';
+import { IFindTableFilters } from './table-filters-use-cases.interface.js';
 
 @Injectable()
 export class FindTableFiltersUseCase

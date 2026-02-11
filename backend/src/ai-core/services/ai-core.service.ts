@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
 import { BaseMessage } from '@langchain/core/messages';
 import { IterableReadableStream } from '@langchain/core/utils/stream';
-import { IAIService, AIProviderType } from '../interfaces/ai-service.interface.js';
+import { Injectable } from '@nestjs/common';
 import {
-	AIProviderConfig,
 	AICompletionResult,
+	AIProviderConfig,
 	AIStreamChunk,
 	AIToolDefinition,
 	AIToolResult,
 	IAIProvider,
 } from '../interfaces/ai-provider.interface.js';
-import { LangchainOpenAIProvider } from '../providers/langchain-openai.provider.js';
+import { AIProviderType, IAIService } from '../interfaces/ai-service.interface.js';
 import { LangchainBedrockProvider } from '../providers/langchain-bedrock.provider.js';
+import { LangchainOpenAIProvider } from '../providers/langchain-openai.provider.js';
 
 @Injectable()
 export class AICoreService implements IAIService {

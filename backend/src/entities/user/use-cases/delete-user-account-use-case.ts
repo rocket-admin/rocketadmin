@@ -3,10 +3,10 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { IDeleteUserAccount } from './user-use-cases.interfaces.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteUserAccountUseCase

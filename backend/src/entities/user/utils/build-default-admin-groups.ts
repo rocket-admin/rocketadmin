@@ -1,6 +1,6 @@
-import { UserEntity } from '../user.entity.js';
-import { GroupEntity } from '../../group/group.entity.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { UserEntity } from '../user.entity.js';
 
 export function buildDefaultAdminGroups(user: UserEntity, connections: Array<ConnectionEntity>): Array<GroupEntity> {
 	const createdGroups: Array<GroupEntity> = [];

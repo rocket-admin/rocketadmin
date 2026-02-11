@@ -1,12 +1,12 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { authenticator } from 'otplib';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IVerifyOTP } from './user-use-cases.interfaces.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { authenticator } from 'otplib';
 import { OtpValidationResultDS } from '../application/data-structures/otp-validation-result.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
+import { IVerifyOTP } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class VerifyOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpValidationResultDS> implements IVerifyOTP {

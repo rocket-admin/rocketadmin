@@ -8,12 +8,12 @@ import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/e
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { buildUserGitHubIdentifierEntity } from '../../../entities/user/utils/build-github-identifier-entity.js';
+import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
+import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
+import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
 import { ILoginUserWithGitHub } from './saas-use-cases.interface.js';
-import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
-import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
-import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
 
 @Injectable()
 export class LoginUserWithGithubUseCase

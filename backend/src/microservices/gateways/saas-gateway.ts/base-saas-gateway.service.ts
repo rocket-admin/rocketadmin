@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { generateSaaSJwt } from './utils/generate-saas-jwt.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { generateSaaSJwt } from './utils/generate-saas-jwt.js';
 
 export type SaaSRequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 export type SaaSResponse = {

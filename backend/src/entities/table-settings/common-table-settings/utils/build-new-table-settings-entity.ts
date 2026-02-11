@@ -1,7 +1,7 @@
+import { QueryOrderingEnum } from '../../../../enums/query-ordering.enum.js';
 import { ConnectionEntity } from '../../../connection/connection.entity.js';
 import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings.entity.js';
-import { QueryOrderingEnum } from '../../../../enums/query-ordering.enum.js';
 
 export function buildNewTableSettingsEntity(
 	settings: CreateTableSettingsDs,

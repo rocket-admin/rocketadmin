@@ -1,7 +1,7 @@
+import { BadRequestException } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { TableCategoryDS } from '../data-sctructures/create-or-update-table-categories.ds.js';
-import { BadRequestException } from '@nestjs/common';
 
 export async function validateTableCategories(
 	tableCategoriesData: Array<TableCategoryDS>,

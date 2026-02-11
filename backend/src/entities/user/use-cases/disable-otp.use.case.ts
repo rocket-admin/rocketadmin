@@ -1,10 +1,10 @@
 import {
-	Injectable,
-	Inject,
-	NotFoundException,
-	ForbiddenException,
 	BadRequestException,
+	ForbiddenException,
+	Inject,
+	Injectable,
 	InternalServerErrorException,
+	NotFoundException,
 } from '@nestjs/common';
 import { authenticator } from 'otplib';
 import AbstractUseCase from '../../../common/abstract-use.case.js';

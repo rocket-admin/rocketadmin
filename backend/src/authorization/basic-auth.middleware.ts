@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { Request, Response } from 'express';
 import auth from 'basic-auth';
+import { Request, Response } from 'express';
 import { Messages } from '../exceptions/text/messages.js';
 
 @Injectable()

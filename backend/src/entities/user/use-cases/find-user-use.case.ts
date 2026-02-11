@@ -2,13 +2,13 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { FindUserDs } from '../application/data-structures/find-user.ds.js';
 import { FoundUserDto } from '../dto/found-user.dto.js';
 import { UserHelperService } from '../user-helper.service.js';
 import { IFindUserUseCase } from './user-use-cases.interfaces.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable()
 export class FindUserUseCase

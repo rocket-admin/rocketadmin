@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MaxLength, MinLength, IsArray, IsObject, IsOptional, IsUUID } from 'class-validator';
-import { CreateTableActionDTO, CreateActionEventDTO } from './create-action-rules-with-actions-and-events-body.dto.js';
+import { IsArray, IsNotEmpty, IsObject, IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
+import { CreateActionEventDTO, CreateTableActionDTO } from './create-action-rules-with-actions-and-events-body.dto.js';
 
 export class UpdateTableActionDTO extends CreateTableActionDTO {
 	@ApiProperty({ type: String, required: false })

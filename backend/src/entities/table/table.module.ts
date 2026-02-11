@@ -1,11 +1,12 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { AgentModule } from '../agent/agent.module.js';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { ConnectionModule } from '../connection/connection.module.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
@@ -17,18 +18,17 @@ import { UserModule } from '../user/user.module.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { TableController } from './table.controller.js';
 import { AddRowInTableUseCase } from './use-cases/add-row-in-table.use.case.js';
+import { BulkUpdateRowsInTableUseCase } from './use-cases/bulk-update-rows-in-table.use.case.js';
 import { DeleteRowFromTableUseCase } from './use-cases/delete-row-from-table.use.case.js';
 import { DeleteRowsFromTableUseCase } from './use-cases/delete-rows-from-table.use.case.js';
+import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use.case.js';
 import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connection.use.case.js';
+import { FindTablesInConnectionV2UseCase } from './use-cases/find-tables-in-connection-v2.use.case.js';
 import { GetRowByPrimaryKeyUseCase } from './use-cases/get-row-by-primary-key.use.case.js';
 import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case.js';
 import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.case.js';
-import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case.js';
-import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use.case.js';
-import { BulkUpdateRowsInTableUseCase } from './use-cases/bulk-update-rows-in-table.use.case.js';
 import { ImportCSVInTableUseCase } from './use-cases/import-csv-in-table-user.case.js';
-import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
-import { FindTablesInConnectionV2UseCase } from './use-cases/find-tables-in-connection-v2.use.case.js';
+import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case.js';
 
 @Module({
 	imports: [

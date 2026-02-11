@@ -1,4 +1,5 @@
 import { Response } from 'express';
+
 class RequestInfoFromTableDS {
 	connectionId: string;
 	tableName: string;

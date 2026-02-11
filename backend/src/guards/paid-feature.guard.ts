@@ -1,14 +1,14 @@
 import { BadRequestException, CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
-import { BaseType } from '../common/data-injection.tokens.js';
-import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
-import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
-import { SaasCompanyGatewayService } from '../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { isSaaS } from '../helpers/app/is-saas.js';
+import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
+import { BaseType } from '../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../enums/subscription-level.enum.js';
-import { Messages } from '../exceptions/text/messages.js';
 import { NonAvailableInFreePlanException } from '../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { isSaaS } from '../helpers/app/is-saas.js';
+import { SaasCompanyGatewayService } from '../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class PaidFeatureGuard implements CanActivate {

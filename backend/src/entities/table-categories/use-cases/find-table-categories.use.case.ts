@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IFindTableCategories } from './table-categories-use-cases.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundTableCategoryRo } from '../dto/found-table-category.ro.js';
 import { buildFoundTableCategoryRo } from '../utils/build-found-table-category.ro.js';
+import { IFindTableCategories } from './table-categories-use-cases.interface.js';
 
 @Injectable()
 export class FindTableCategoriesUseCase

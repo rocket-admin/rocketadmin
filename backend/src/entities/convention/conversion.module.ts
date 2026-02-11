@@ -1,13 +1,13 @@
-import { BasicAuthMiddleware } from '../../authorization/index.js';
-import { ConnectionEntity } from '../connection/connection.entity.js';
-import { ConversionController } from './conversion.controller.js';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../user/user.entity.js';
-import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
-import { GetConversionsUseCase } from './use-cases/get-conversions.use.case.js';
+import { BasicAuthMiddleware } from '../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { ConversionController } from './conversion.controller.js';
+import { GetConversionsUseCase } from './use-cases/get-conversions.use.case.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([ConnectionEntity, UserEntity, TableLogsEntity])],

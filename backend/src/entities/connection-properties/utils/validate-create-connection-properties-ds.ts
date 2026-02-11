@@ -1,11 +1,11 @@
-import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
-import { toPrettyErrorsMsg } from '../../../helpers/index.js';
-import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 import { HttpStatus } from '@nestjs/common';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { validateTableCategories } from '../../table-categories/utils/validate-table-categories.util.js';
+import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 
 export async function validateCreateConnectionPropertiesDs(
 	createConnectionProperties: CreateConnectionPropertiesDs,

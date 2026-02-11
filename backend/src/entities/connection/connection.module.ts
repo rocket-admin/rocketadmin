@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
 import { AuthMiddleware } from '../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
@@ -30,12 +31,11 @@ import { GetUserPermissionsForGroupInConnectionUseCase } from './use-cases/get-u
 import { RefreshConnectionAgentTokenUseCase } from './use-cases/refresh-connection-agent-token.use.case.js';
 import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.case.js';
 import { TestConnectionUseCase } from './use-cases/test-connection.use.case.js';
-import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case.js';
-import { UpdateConnectionUseCase } from './use-cases/update-connection.use.case.js';
-import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case.js';
-import { ValidateConnectionMasterPasswordUseCase } from './use-cases/validate-connection-master-password.use.case.js';
-import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
 import { UnfreezeConnectionUseCase } from './use-cases/unfreeze-connection.use.case.js';
+import { UpdateConnectionUseCase } from './use-cases/update-connection.use.case.js';
+import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case.js';
+import { ValidateConnectionMasterPasswordUseCase } from './use-cases/validate-connection-master-password.use.case.js';
+import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case.js';
 
 @Module({
 	imports: [

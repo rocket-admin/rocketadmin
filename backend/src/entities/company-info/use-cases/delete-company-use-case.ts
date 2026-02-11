@@ -2,11 +2,11 @@ import { Inject, Injectable, InternalServerErrorException, NotFoundException, Sc
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { IDeleteCompany } from './company-info-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { IDeleteCompany } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteCompanyUseCase extends AbstractUseCase<string, SuccessResponse> implements IDeleteCompany {

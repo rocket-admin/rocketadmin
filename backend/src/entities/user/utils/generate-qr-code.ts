@@ -1,5 +1,5 @@
-import QRCode from 'qrcode';
 import { authenticator } from 'otplib';
+import QRCode from 'qrcode';
 
 export async function generateQRCode(userEmail: string, secretKey: string) {
 	const service = 'Rocketadmin';

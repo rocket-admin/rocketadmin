@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { UserEntity } from '../user/user.entity.js';
-import { SignInStatusEnum } from './enums/sign-in-status.enum.js';
 import { SignInMethodEnum } from './enums/sign-in-method.enum.js';
+import { SignInStatusEnum } from './enums/sign-in-status.enum.js';
 
 @Entity('signInAudit')
 export class SignInAuditEntity {

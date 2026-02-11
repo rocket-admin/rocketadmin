@@ -1,11 +1,11 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { DeleteSecretDS, DeletedSecretDS } from '../application/data-structures/delete-secret.ds.js';
-import { IDeleteSecret } from './user-secret-use-cases.interface.js';
-import { SecretActionEnum } from '../../secret-access-log/secret-access-log.entity.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { SecretActionEnum } from '../../secret-access-log/secret-access-log.entity.js';
+import { DeletedSecretDS, DeleteSecretDS } from '../application/data-structures/delete-secret.ds.js';
+import { IDeleteSecret } from './user-secret-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteSecretUseCase extends AbstractUseCase<DeleteSecretDS, DeletedSecretDS> implements IDeleteSecret {

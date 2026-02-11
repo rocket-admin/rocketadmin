@@ -1,5 +1,5 @@
-import { PasswordResetEntity } from '../password-reset.entity.js';
 import { UserEntity } from '../../user.entity.js';
+import { PasswordResetEntity } from '../password-reset.entity.js';
 
 export interface IPasswordResetRepository {
 	findPasswordResetWidthVerificationString(verificationString: string): Promise<PasswordResetEntity>;

@@ -1,12 +1,12 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { AddCompanyTabTitleDs } from '../application/data-structures/add-company-tab-title.ds.js';
-import { IAddCompanyTabTitle } from './company-info-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { CompanyTabTitleEntity } from '../../company-tab-title/company-tab-title.entity.js';
+import { AddCompanyTabTitleDs } from '../application/data-structures/add-company-tab-title.ds.js';
+import { IAddCompanyTabTitle } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AddCompanyTabTitleUseCase

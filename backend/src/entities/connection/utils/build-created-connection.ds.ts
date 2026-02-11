@@ -1,6 +1,6 @@
-import { ConnectionEntity } from '../connection.entity.js';
-import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
+import { ConnectionEntity } from '../connection.entity.js';
 
 export function buildCreatedConnectionDs(
 	connection: ConnectionEntity,

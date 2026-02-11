@@ -1,3 +1,4 @@
+import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import {
 	IsArray,
@@ -13,11 +14,10 @@ import {
 	MinLength,
 	ValidateNested,
 } from 'class-validator';
-import { TableActionTypeEnum } from '../../../../../enums/table-action-type.enum.js';
-import { TableActionMethodEnum } from '../../../../../enums/table-action-method-enum.js';
-import { TableActionEventEnum } from '../../../../../enums/table-action-event-enum.js';
-import { applyDecorators } from '@nestjs/common';
 import { IsURLOptions } from 'validator';
+import { TableActionEventEnum } from '../../../../../enums/table-action-event-enum.js';
+import { TableActionMethodEnum } from '../../../../../enums/table-action-method-enum.js';
+import { TableActionTypeEnum } from '../../../../../enums/table-action-type.enum.js';
 
 function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
 	return (object: NonNullable<unknown>, propertyName: string) => {

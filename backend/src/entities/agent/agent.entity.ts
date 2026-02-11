@@ -8,8 +8,8 @@ import {
 	PrimaryGeneratedColumn,
 	Relation,
 } from 'typeorm';
-import { ConnectionEntity } from '../connection/connection.entity.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 
 @Entity('agent')
 export class AgentEntity {

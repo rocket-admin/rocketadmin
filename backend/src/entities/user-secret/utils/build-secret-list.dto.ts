@@ -1,5 +1,5 @@
-import { SecretListResponseDto, SecretListItemDto } from '../application/dto/secret-list.dto.js';
-import { SecretsListDS, SecretListItemDS } from '../application/data-structures/get-secrets.ds.js';
+import { SecretListItemDS, SecretsListDS } from '../application/data-structures/get-secrets.ds.js';
+import { SecretListItemDto, SecretListResponseDto } from '../application/dto/secret-list.dto.js';
 
 export function buildSecretListItemDto(ds: SecretListItemDS): SecretListItemDto {
 	return {

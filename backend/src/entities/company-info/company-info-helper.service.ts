@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BaseType } from '../../common/data-injection.tokens.js';
-import { SaasCompanyGatewayService } from '../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
-import { isSaaS } from '../../helpers/app/is-saas.js';
+import { BaseType } from '../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
+import { isSaaS } from '../../helpers/app/is-saas.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { SaasCompanyGatewayService } from '../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
 @Injectable()
 export class CompanyInfoHelperService {

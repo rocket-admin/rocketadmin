@@ -1,5 +1,5 @@
-import { IAiResponsesToUserRepository } from './ai-responses-to-user-repository.interface.js';
 import { AiResponsesToUserEntity } from './ai-responses-to-user.entity.js';
+import { IAiResponsesToUserRepository } from './ai-responses-to-user-repository.interface.js';
 
 export const aiResponsesToUserRepositoryExtension: IAiResponsesToUserRepository = {
 	async findResponseByIdAndUserId(responseId: string, userId: string): Promise<AiResponsesToUserEntity> {

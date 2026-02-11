@@ -25,28 +25,35 @@ import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
 import { CompanyUserGuard } from '../../guards/company-user.guard.js';
+import { PaidFeatureGuard } from '../../guards/paid-feature.guard.js';
+import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { TurnstileService } from '../../shared/services/turnstile.service.js';
 import { SimpleFoundUserInCompanyInfoDs } from '../user/dto/found-user.dto.js';
 import { ITokenExp } from '../user/utils/generate-gwt-token.js';
 import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
+import { AddCompanyTabTitleDto } from './application/data-structures/add-company-tab-title.dto.js';
 import {
 	FoundUserCompanyInfoDs,
 	FoundUserEmailCompaniesInfoDs,
 	FoundUserFullCompanyInfoDs,
 } from './application/data-structures/found-company-info.ds.js';
 import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
+import { FoundCompanyTabTitleRO } from './application/data-structures/found-company-tab-title.ro.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
 import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
+import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-company-white-label-properties.ro.js';
 import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
@@ -81,13 +88,6 @@ import {
 	IUploadCompanyWhiteLabelImages,
 	IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
-import { AddCompanyTabTitleDto } from './application/data-structures/add-company-tab-title.dto.js';
-import { FoundCompanyTabTitleRO } from './application/data-structures/found-company-tab-title.ro.js';
-import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-company-white-label-properties.ro.js';
-import { PaidFeatureGuard } from '../../guards/paid-feature.guard.js';
-import { isTest } from '../../helpers/app/is-test.js';
-import { TurnstileService } from '../../shared/services/turnstile.service.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

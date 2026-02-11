@@ -3,6 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { UserEntity } from '../../entities/user/user.entity.js';
+import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
+import { SignInAuditService } from '../../entities/user-sign-in-audit/sign-in-audit.service.js';
 import { SaasController } from './saas.controller.js';
 import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
 import { GetFullCompanyInfoByUserIdUseCase } from './use-cases/get-full-company-info-by-user-id.use.case.js';
@@ -12,15 +15,12 @@ import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-emai
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
 import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
 import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-webhook.use.case.js';
-import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
-import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
-import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-saml-use.case.js';
+import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
+import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
-import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
-import { SignInAuditService } from '../../entities/user-sign-in-audit/sign-in-audit.service.js';
-import { UserEntity } from '../../entities/user/user.entity.js';
+import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([SignInAuditEntity, UserEntity])],

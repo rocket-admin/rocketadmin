@@ -3,15 +3,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { TableLogsController } from './table-logs.controller.js';
 import { TableLogsEntity } from './table-logs.entity.js';
 import { TableLogsService } from './table-logs.service.js';
-import { FindLogsUseCase } from './use-cases/find-logs.use.case.js';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { ExportLogsAsCsvUseCase } from './use-cases/export-logs-as-csv.use.case.js';
+import { FindLogsUseCase } from './use-cases/find-logs.use.case.js';
 
 @Global()
 @Module({

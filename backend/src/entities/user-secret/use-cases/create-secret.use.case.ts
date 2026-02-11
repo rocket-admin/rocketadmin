@@ -1,14 +1,14 @@
 import { ConflictException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { CreateSecretDS } from '../application/data-structures/create-secret.ds.js';
-import { CreatedSecretDS } from '../application/data-structures/created-secret.ds.js';
-import { ICreateSecret } from './user-secret-use-cases.interface.js';
-import { buildCreatedSecretDS } from '../utils/build-created-secret.ds.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { SecretActionEnum } from '../../secret-access-log/secret-access-log.entity.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { CreateSecretDS } from '../application/data-structures/create-secret.ds.js';
+import { CreatedSecretDS } from '../application/data-structures/created-secret.ds.js';
+import { buildCreatedSecretDS } from '../utils/build-created-secret.ds.js';
+import { ICreateSecret } from './user-secret-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateSecretUseCase extends AbstractUseCase<CreateSecretDS, CreatedSecretDS> implements ICreateSecret {

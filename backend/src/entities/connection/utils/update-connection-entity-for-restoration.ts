@@ -1,7 +1,7 @@
-import { ConnectionEntity } from '../connection.entity.js';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
-import { isConnectionEntityAgent } from '../../../helpers/index.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { isConnectionEntityAgent } from '../../../helpers/index.js';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { ConnectionEntity } from '../connection.entity.js';
 
 export async function updateConnectionEntityForRestoration(
 	toUpdate: ConnectionEntity,

@@ -1,6 +1,6 @@
-import { PermissionEntity } from '../../permission/permission.entity.js';
-import { GroupEntity } from '../../group/group.entity.js';
 import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { PermissionEntity } from '../../permission/permission.entity.js';
 
 export function buildDefaultAdminPermissions(groups: Array<GroupEntity>): Array<PermissionEntity> {
 	const permissions: Array<PermissionEntity> = [];

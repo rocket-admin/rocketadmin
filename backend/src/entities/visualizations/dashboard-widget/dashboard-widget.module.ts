@@ -1,14 +1,14 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
-import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
-import { UserEntity } from '../../user/user.entity.js';
 import { LogOutEntity } from '../../log-out/log-out.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 import { DashboardWidgetController } from './dashboard-widgets.controller.js';
 import { CreateDashboardWidgetUseCase } from './use-cases/create-dashboard-widget.use.case.js';
-import { UpdateDashboardWidgetUseCase } from './use-cases/update-dashboard-widget.use.case.js';
 import { DeleteDashboardWidgetUseCase } from './use-cases/delete-dashboard-widget.use.case.js';
+import { UpdateDashboardWidgetUseCase } from './use-cases/update-dashboard-widget.use.case.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],

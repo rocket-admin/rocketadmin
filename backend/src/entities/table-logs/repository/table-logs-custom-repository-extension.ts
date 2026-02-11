@@ -1,3 +1,4 @@
+import { ReadStream } from 'typeorm/platform/PlatformTools.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds.js';
 import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds.js';
@@ -6,7 +7,6 @@ import { TableLogsEntity } from '../table-logs.entity.js';
 import { buildCreatedLogRecord } from '../utils/build-created-log-record.js';
 import { buildTableLogsEntity } from '../utils/build-table-logs-entity.js';
 import { IFindLogsOptions, ITableLogsRepository } from './table-logs-repository.interface.js';
-import { ReadStream } from 'typeorm/platform/PlatformTools.js';
 
 export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
 	async createLogRecord(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {

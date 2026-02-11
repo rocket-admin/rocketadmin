@@ -5,7 +5,9 @@ import PQueue from 'p-queue';
 import { Repository } from 'typeorm';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums/index.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { isObjectPropertyExists } from '../../helpers/validators/is-object-property-exists-validator.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { CreateLogRecordDs } from './application/data-structures/create-log-record.ds.js';
@@ -13,8 +15,6 @@ import { CreatedLogRecordDs } from './application/data-structures/created-log-re
 import { TableLogsEntity } from './table-logs.entity.js';
 import { buildCreatedLogRecord } from './utils/build-created-log-record.js';
 import { buildTableLogsEntity } from './utils/build-table-logs-entity.js';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
-import { isObjectPropertyExists } from '../../helpers/validators/is-object-property-exists-validator.js';
 
 @Injectable()
 export class TableLogsService {

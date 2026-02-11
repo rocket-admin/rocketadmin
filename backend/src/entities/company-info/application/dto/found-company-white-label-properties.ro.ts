@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FoundCompanyImageInfo } from './found-company-logo.ro.js';
 import { SubscriptionLevelEnum } from '../../../../enums/subscription-level.enum.js';
+import { FoundCompanyImageInfo } from './found-company-logo.ro.js';
 
 export class FoundCompanyWhiteLabelPropertiesRO {
 	@ApiProperty({ type: FoundCompanyImageInfo, required: false })

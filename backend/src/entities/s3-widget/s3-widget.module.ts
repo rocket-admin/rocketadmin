@@ -5,8 +5,8 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserEntity } from '../user/user.entity.js';
-import { S3WidgetController } from './s3-widget.controller.js';
 import { S3HelperService } from './s3-helper.service.js';
+import { S3WidgetController } from './s3-widget.controller.js';
 import { GetS3FileUrlUseCase } from './use-cases/get-s3-file-url.use.case.js';
 import { GetS3UploadUrlUseCase } from './use-cases/get-s3-upload-url.use.case.js';
 

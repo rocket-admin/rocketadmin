@@ -1,8 +1,8 @@
 import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionEntityAgent } from '../../../helpers/index.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { CreateConnectionDto } from '../application/dto/create-connection.dto.js';
 
 export async function isHostAllowed(connectionData: CreateConnectionDto): Promise<boolean> {

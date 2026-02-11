@@ -1,8 +1,8 @@
 import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 import { isObjectPropertyExists } from '../helpers/validators/is-object-property-exists-validator.js';
+import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 export const QueryUuid = createParamDecorator((paramName: string, ctx: ExecutionContext): string => {
 	const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
