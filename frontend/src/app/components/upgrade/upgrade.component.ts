@@ -30,15 +30,13 @@ import plans from '../../consts/plans';
   styleUrls: ['./upgrade.component.css']
 })
 export class UpgradeComponent implements OnInit {
-  public testAlert = {
-    type: 'info' as const,
-    message: 'This is a demo alert for the upgrade page.'
-  };
   public currentPlan = {
     key: PlanKey.Free,
     price: 0,
+    name: 'Free',
   };
   public hasPaymentMethod = false;
+  public portalLink: string = null;
   public companyId: string;
   public submitting = false;
 
@@ -188,6 +186,7 @@ export class UpgradeComponent implements OnInit {
       this.currentPlan = this.getPlan(company.subscriptionLevel);
       this.companyId = company.id;
       this.hasPaymentMethod = company.is_payment_method_added;
+      this.portalLink = company.portal_link;
     })
   }
 
@@ -198,10 +197,12 @@ export class UpgradeComponent implements OnInit {
     }
 
     currentPlanKey = currentPlanKey.slice(0, -5).toLowerCase();
+    const planData = plans.find(plan => plan.key === currentPlanKey);
 
     return {
       key: currentPlanKey as PlanKey,
-      price: plans.find(plan => plan.key === currentPlanKey).price,
+      price: planData?.price || 0,
+      name: planData?.name || 'Free',
     };
   }
 

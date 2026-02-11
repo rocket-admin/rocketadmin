@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { SamlConfig, Company } from 'src/app/models/company';
+import { SubscriptionPlans } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
@@ -36,6 +37,7 @@ import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/pl
 })
 export class SsoComponent implements OnInit {
 	public company: Company = null;
+	public hasEnterprisePlan: boolean = false;
 
 	public samlConfigInitial: SamlConfig = {
 		name: '',
@@ -71,9 +73,14 @@ export class SsoComponent implements OnInit {
 
 		this._company.fetchCompany().subscribe(res => {
 			this.company = res;
-			this._company.fetchSamlConfiguration(res.id).subscribe((config) => {
-				if (config.length) this.samlConfig = config[0];
-			});
+			this.hasEnterprisePlan = res.subscriptionLevel === SubscriptionPlans.enterprise ||
+				res.subscriptionLevel === SubscriptionPlans.enterpriseAnnual;
+
+			if (this.hasEnterprisePlan) {
+				this._company.fetchSamlConfiguration(res.id).subscribe((config) => {
+					if (config.length) this.samlConfig = config[0];
+				});
+			}
 		});
 	}
 

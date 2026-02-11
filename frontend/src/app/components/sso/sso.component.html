@@ -6,7 +6,20 @@
 
         <app-placeholder-company *ngIf="!company"></app-placeholder-company>
 
-        <div *ngIf="company" class="sso-page">
+        <div *ngIf="company && !hasEnterprisePlan" class="sso-page">
+            <div class="upgrade-required">
+                <mat-icon class="upgrade-required__icon">lock</mat-icon>
+                <h2 class="mat-h2">SAML SSO is available on Enterprise plan</h2>
+                <p class="upgrade-required__description">
+                    Upgrade to enable SAML Single Sign-On for your organization.
+                </p>
+                <a mat-flat-button color="primary" routerLink="/upgrade">
+                    Upgrade to Enterprise
+                </a>
+            </div>
+        </div>
+
+        <div *ngIf="company && hasEnterprisePlan" class="sso-page">
             <h1 class="mat-h1">SAML SSO Configuration</h1>
             <p class="sso-description">Configure SAML Single Sign-On for your organization.</p>
 
