@@ -1,4 +1,4 @@
 export class AutocompleteFieldsDS {
-  fields: Array<string>;
-  value: unknown;
+	fields: Array<string>;
+	value: unknown;
 }

@@ -1,4 +1,4 @@
-import { HumanMessage, SystemMessage, AIMessage, ToolMessage, BaseMessage } from '@langchain/core/messages';
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage } from '@langchain/core/messages';
 import { AIToolCall } from '../interfaces/ai-provider.interface.js';
 
 export class MessageBuilder {

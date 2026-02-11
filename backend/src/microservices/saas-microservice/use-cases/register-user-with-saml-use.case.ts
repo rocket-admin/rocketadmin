@@ -11,46 +11,46 @@ import { SaasSAMLUserRegisterDS } from '../data-structures/saas-saml-user-regist
 
 @Injectable()
 export class SaaSRegisterUserWIthSamlUseCase extends AbstractUseCase<SaasSAMLUserRegisterDS, UserEntity> {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  public async implementation(inputData: SaasSAMLUserRegisterDS): Promise<UserEntity> {
-    const { email, name, samlNameId, companyId } = inputData;
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmail(
-      email,
-      ExternalRegistrationProviderEnum.SAML,
-      samlNameId,
-    );
-    if (foundUser) {
-      return foundUser;
-    }
+	public async implementation(inputData: SaasSAMLUserRegisterDS): Promise<UserEntity> {
+		const { email, name, samlNameId, companyId } = inputData;
+		const foundUser = await this._dbContext.userRepository.findOneUserByEmail(
+			email,
+			ExternalRegistrationProviderEnum.SAML,
+			samlNameId,
+		);
+		if (foundUser) {
+			return foundUser;
+		}
 
-    const userData: RegisterUserDs = {
-      email: email,
-      password: null,
-      isActive: true,
-      name: name ? name : null,
-      gclidValue: null,
-    };
+		const userData: RegisterUserDs = {
+			email: email,
+			password: null,
+			isActive: true,
+			name: name ? name : null,
+			gclidValue: null,
+		};
 
-    const savedUser = await this._dbContext.userRepository.saveRegisteringUser(
-      userData,
-      ExternalRegistrationProviderEnum.SAML,
-    );
+		const savedUser = await this._dbContext.userRepository.saveRegisteringUser(
+			userData,
+			ExternalRegistrationProviderEnum.SAML,
+		);
 
-    const foundCompanyInfo = await this._dbContext.companyInfoRepository.findOne({ where: { id: companyId } });
-    if (!foundCompanyInfo) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
+		const foundCompanyInfo = await this._dbContext.companyInfoRepository.findOne({ where: { id: companyId } });
+		if (!foundCompanyInfo) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 
-    savedUser.company = foundCompanyInfo;
-    savedUser.samlNameId = samlNameId;
-    savedUser.role = UserRoleEnum.USER;
+		savedUser.company = foundCompanyInfo;
+		savedUser.samlNameId = samlNameId;
+		savedUser.role = UserRoleEnum.USER;
 
-    return await this._dbContext.userRepository.saveUserEntity(savedUser);
-  }
+		return await this._dbContext.userRepository.saveUserEntity(savedUser);
+	}
 }

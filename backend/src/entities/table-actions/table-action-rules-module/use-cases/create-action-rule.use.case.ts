@@ -1,20 +1,20 @@
 import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
-import { ICreateActionRule } from './action-rules-use-cases.interface.js';
-import { CreateActionRuleDS, CreateTableActionData } from '../application/data-structures/create-action-rules.ds.js';
-import { FoundActionRulesWithActionsAndEventsDTO } from '../application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { buildEmptyActionRule } from '../utils/build-empty-action-rule.util.js';
-import { ValidationHelper } from '../../../../helpers/validators/validation-helper.js';
-import { buildTableActionWithRule } from '../../table-actions-module/utils/build-table-action-with-rule.util.js';
-import { buildActionEventWithRule } from '../../table-action-events-module/utils/build-action-event-with-rule.util.js';
-import { buildFoundActionRulesWithActionsAndEventsDTO } from '../utils/build-found-action-rules-with-actions-and-events-dto.util.js';
-import { validateStringWithEnum } from '../../../../helpers/validators/validate-string-with-enum.js';
 import { isActionUrlHostAllowed } from '../../../../helpers/validators/is-action-url-host-allowed.js';
+import { validateStringWithEnum } from '../../../../helpers/validators/validate-string-with-enum.js';
+import { ValidationHelper } from '../../../../helpers/validators/validation-helper.js';
+import { buildActionEventWithRule } from '../../table-action-events-module/utils/build-action-event-with-rule.util.js';
+import { buildTableActionWithRule } from '../../table-actions-module/utils/build-table-action-with-rule.util.js';
+import { CreateActionRuleDS, CreateTableActionData } from '../application/data-structures/create-action-rules.ds.js';
+import { FoundActionRulesWithActionsAndEventsDTO } from '../application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { buildEmptyActionRule } from '../utils/build-empty-action-rule.util.js';
+import { buildFoundActionRulesWithActionsAndEventsDTO } from '../utils/build-found-action-rules-with-actions-and-events-dto.util.js';
+import { ICreateActionRule } from './action-rules-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateActionRuleUseCase

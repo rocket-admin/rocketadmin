@@ -28,256 +28,256 @@ let _testUtils: TestUtils;
 const mockFactory = new MockFactory();
 
 test.before(async () => {
-  const moduleFixture = await Test.createTestingModule({
-    imports: [ApplicationModule, DatabaseModule],
-    providers: [DatabaseService, TestUtils],
-  }).compile();
-  app = moduleFixture.createNestApplication();
-  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
+	const moduleFixture = await Test.createTestingModule({
+		imports: [ApplicationModule, DatabaseModule],
+		providers: [DatabaseService, TestUtils],
+	}).compile();
+	app = moduleFixture.createNestApplication();
+	_testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
-  app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      exceptionFactory(validationErrors: ValidationError[] = []) {
-        return new ValidationException(validationErrors);
-      },
-    }),
-  );
-  await app.init();
-  app.getHttpServer().listen(0);
+	app.use(cookieParser());
+	app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
+	app.useGlobalPipes(
+		new ValidationPipe({
+			exceptionFactory(validationErrors: ValidationError[] = []) {
+				return new ValidationException(validationErrors);
+			},
+		}),
+	);
+	await app.init();
+	app.getHttpServer().listen(0);
 });
 
 test.after(async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After tests error ' + e);
-  }
+	try {
+		await Cacher.clearAllCache();
+		await app.close();
+	} catch (e) {
+		console.error('After tests error ' + e);
+	}
 });
 
 let currentTest = 'PUT permissions/:slug';
 test.serial(`${currentTest} should return created permissions`, async (t) => {
-  try {
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnectionInDocker)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	try {
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnectionInDocker)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
 
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${createConnectionRO.id}`)
-      .send(newGroup1)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createGroupRO = JSON.parse(createGroupResponse.text);
-    t.is(createGroupResponse.status, 201);
+		const createGroupResponse = await request(app.getHttpServer())
+			.post(`/connection/group/${createConnectionRO.id}`)
+			.send(newGroup1)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createGroupRO = JSON.parse(createGroupResponse.text);
+		t.is(createGroupResponse.status, 201);
 
-    let connectionAccessLevel = AccessLevelEnum.none;
-    let groupAccesssLevel = AccessLevelEnum.edit;
-    let permissionsDTO = mockFactory.generateInternalPermissions(
-      createConnectionRO.id,
-      createGroupRO.id,
-      connectionAccessLevel,
-      groupAccesssLevel,
-    );
-    let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
-      .send(permissionsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createPermissionsResponse.status, 200);
-    let createPermissionsRO = JSON.parse(createPermissionsResponse.text);
-    let { connection: connectionDTO, group: groupDTO, tables: tablesDTO } = permissionsDTO.permissions;
-    let { connection, group, tables } = createPermissionsRO;
-    t.is(connection.accessLevel, connectionDTO.accessLevel);
-    t.is(group.accessLevel, groupDTO.accessLevel);
-    t.is(connection.connectionId, connectionDTO.connectionId);
-    t.is(group.groupId, groupDTO.groupId);
-    for (const table of tables) {
-      const tableInDto = tablesDTO.find((t) => t.tableName === table.tableName);
-      for (const key in table.accessLevel) {
-        t.is(table.accessLevel[key], tableInDto.accessLevel[key]);
-      }
-    }
+		let connectionAccessLevel = AccessLevelEnum.none;
+		let groupAccesssLevel = AccessLevelEnum.edit;
+		let permissionsDTO = mockFactory.generateInternalPermissions(
+			createConnectionRO.id,
+			createGroupRO.id,
+			connectionAccessLevel,
+			groupAccesssLevel,
+		);
+		let createPermissionsResponse = await request(app.getHttpServer())
+			.put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
+			.send(permissionsDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createPermissionsResponse.status, 200);
+		let createPermissionsRO = JSON.parse(createPermissionsResponse.text);
+		let { connection: connectionDTO, group: groupDTO, tables: tablesDTO } = permissionsDTO.permissions;
+		let { connection, group, tables } = createPermissionsRO;
+		t.is(connection.accessLevel, connectionDTO.accessLevel);
+		t.is(group.accessLevel, groupDTO.accessLevel);
+		t.is(connection.connectionId, connectionDTO.connectionId);
+		t.is(group.groupId, groupDTO.groupId);
+		for (const table of tables) {
+			const tableInDto = tablesDTO.find((t) => t.tableName === table.tableName);
+			for (const key in table.accessLevel) {
+				t.is(table.accessLevel[key], tableInDto.accessLevel[key]);
+			}
+		}
 
-    connectionAccessLevel = AccessLevelEnum.readonly;
-    groupAccesssLevel = AccessLevelEnum.none;
-    permissionsDTO = mockFactory.generateInternalPermissions(
-      createConnectionRO.id,
-      createGroupRO.id,
-      connectionAccessLevel,
-      groupAccesssLevel,
-    );
+		connectionAccessLevel = AccessLevelEnum.readonly;
+		groupAccesssLevel = AccessLevelEnum.none;
+		permissionsDTO = mockFactory.generateInternalPermissions(
+			createConnectionRO.id,
+			createGroupRO.id,
+			connectionAccessLevel,
+			groupAccesssLevel,
+		);
 
-    createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
-      .send(permissionsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    createPermissionsRO = JSON.parse(createPermissionsResponse.text);
-    t.is(createPermissionsResponse.status, 200);
+		createPermissionsResponse = await request(app.getHttpServer())
+			.put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
+			.send(permissionsDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		createPermissionsRO = JSON.parse(createPermissionsResponse.text);
+		t.is(createPermissionsResponse.status, 200);
 
-    t.is(createPermissionsRO.connection.accessLevel, connectionAccessLevel);
+		t.is(createPermissionsRO.connection.accessLevel, connectionAccessLevel);
 
-    t.is(createPermissionsRO.group.accessLevel, groupAccesssLevel);
+		t.is(createPermissionsRO.group.accessLevel, groupAccesssLevel);
 
-    tables = createPermissionsRO.tables;
-    tablesDTO = permissionsDTO.permissions.tables;
-    for (const table of tables) {
-      const tableInDto = tablesDTO.find((t) => t.tableName === table.tableName);
-      for (const key in table.accessLevel) {
-        t.is(table.accessLevel[key], tableInDto.accessLevel[key]);
-      }
-    }
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+		tables = createPermissionsRO.tables;
+		tablesDTO = permissionsDTO.permissions.tables;
+		for (const table of tables) {
+			const tableInDto = tablesDTO.find((t) => t.tableName === table.tableName);
+			for (const key in table.accessLevel) {
+				t.is(table.accessLevel[key], tableInDto.accessLevel[key]);
+			}
+		}
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
 });
 
 test.serial(`${currentTest} should throw an exception when groupId not passed`, async (t) => {
-  try {
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnectionInDocker)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    let createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	try {
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnectionInDocker)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		let createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
 
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${createConnectionRO.id}`)
-      .send(newGroup1)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createGroupRO = JSON.parse(createGroupResponse.text);
-    t.is(createGroupResponse.status, 201);
+		const createGroupResponse = await request(app.getHttpServer())
+			.post(`/connection/group/${createConnectionRO.id}`)
+			.send(newGroup1)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createGroupRO = JSON.parse(createGroupResponse.text);
+		t.is(createGroupResponse.status, 201);
 
-    let connectionAccessLevel = AccessLevelEnum.none;
-    let groupAccesssLevel = AccessLevelEnum.edit;
-    let permissionsDTO = mockFactory.generateInternalPermissions(
-      createConnectionRO.id,
-      createGroupRO.id,
-      connectionAccessLevel,
-      groupAccesssLevel,
-    );
-    createGroupRO.id = '';
-    let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
-      .send(permissionsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createPermissionsResponse.status, 404);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+		let connectionAccessLevel = AccessLevelEnum.none;
+		let groupAccesssLevel = AccessLevelEnum.edit;
+		let permissionsDTO = mockFactory.generateInternalPermissions(
+			createConnectionRO.id,
+			createGroupRO.id,
+			connectionAccessLevel,
+			groupAccesssLevel,
+		);
+		createGroupRO.id = '';
+		let createPermissionsResponse = await request(app.getHttpServer())
+			.put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
+			.send(permissionsDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createPermissionsResponse.status, 404);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
 });
 
 test.serial(`${currentTest} should throw an exception when groupId passed in request is incorrect`, async (t) => {
-  try {
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnectionInDocker)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    let createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	try {
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnectionInDocker)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		let createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
 
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${createConnectionRO.id}`)
-      .send(newGroup1)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createGroupRO = JSON.parse(createGroupResponse.text);
-    t.is(createGroupResponse.status, 201);
+		const createGroupResponse = await request(app.getHttpServer())
+			.post(`/connection/group/${createConnectionRO.id}`)
+			.send(newGroup1)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createGroupRO = JSON.parse(createGroupResponse.text);
+		t.is(createGroupResponse.status, 201);
 
-    let connectionAccessLevel = AccessLevelEnum.none;
-    let groupAccesssLevel = AccessLevelEnum.edit;
-    let permissionsDTO = mockFactory.generateInternalPermissions(
-      createConnectionRO.id,
-      createGroupRO.id,
-      connectionAccessLevel,
-      groupAccesssLevel,
-    );
-    createGroupRO.id = faker.string.uuid();
-    let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
-      .send(permissionsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+		let connectionAccessLevel = AccessLevelEnum.none;
+		let groupAccesssLevel = AccessLevelEnum.edit;
+		let permissionsDTO = mockFactory.generateInternalPermissions(
+			createConnectionRO.id,
+			createGroupRO.id,
+			connectionAccessLevel,
+			groupAccesssLevel,
+		);
+		createGroupRO.id = faker.string.uuid();
+		let createPermissionsResponse = await request(app.getHttpServer())
+			.put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
+			.send(permissionsDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-    const createPermissionsRO = JSON.parse(createPermissionsResponse.text);
-    t.is(createPermissionsResponse.status, 400);
-    t.is(createPermissionsRO.message, Messages.GROUP_NOT_FROM_THIS_CONNECTION);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+		const createPermissionsRO = JSON.parse(createPermissionsResponse.text);
+		t.is(createPermissionsResponse.status, 400);
+		t.is(createPermissionsRO.message, Messages.GROUP_NOT_FROM_THIS_CONNECTION);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
 });
 
 test.serial(`${currentTest} should throw an exception when connectionId is incorrect`, async (t) => {
-  try {
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnectionInDocker)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    let createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	try {
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnectionInDocker)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		let createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
 
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${createConnectionRO.id}`)
-      .send(newGroup1)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createGroupRO = JSON.parse(createGroupResponse.text);
-    t.is(createGroupResponse.status, 201);
+		const createGroupResponse = await request(app.getHttpServer())
+			.post(`/connection/group/${createConnectionRO.id}`)
+			.send(newGroup1)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createGroupRO = JSON.parse(createGroupResponse.text);
+		t.is(createGroupResponse.status, 201);
 
-    let connectionAccessLevel = AccessLevelEnum.none;
-    let groupAccesssLevel = AccessLevelEnum.edit;
-    let permissionsDTO = mockFactory.generateInternalPermissions(
-      createConnectionRO.id,
-      createGroupRO.id,
-      connectionAccessLevel,
-      groupAccesssLevel,
-    );
-    permissionsDTO.permissions.connection.connectionId = faker.string.uuid();
-    let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
-      .send(permissionsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createPermissionsResponse.status, 400);
-    const { message } = JSON.parse(createPermissionsResponse.text);
-    t.is(message, Messages.GROUP_NOT_FROM_THIS_CONNECTION);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+		let connectionAccessLevel = AccessLevelEnum.none;
+		let groupAccesssLevel = AccessLevelEnum.edit;
+		let permissionsDTO = mockFactory.generateInternalPermissions(
+			createConnectionRO.id,
+			createGroupRO.id,
+			connectionAccessLevel,
+			groupAccesssLevel,
+		);
+		permissionsDTO.permissions.connection.connectionId = faker.string.uuid();
+		let createPermissionsResponse = await request(app.getHttpServer())
+			.put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
+			.send(permissionsDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createPermissionsResponse.status, 400);
+		const { message } = JSON.parse(createPermissionsResponse.text);
+		t.is(message, Messages.GROUP_NOT_FROM_THIS_CONNECTION);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
 });

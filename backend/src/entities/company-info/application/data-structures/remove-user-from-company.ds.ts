@@ -1,4 +1,4 @@
 export class RemoveUserFromCompanyDs {
-  userId: string;
-  companyId: string;
+	userId: string;
+	companyId: string;
 }

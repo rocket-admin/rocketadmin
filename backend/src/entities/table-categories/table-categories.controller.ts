@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } 
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
@@ -11,7 +12,6 @@ import { CreateOrUpdateTableCategoriesDS } from './data-sctructures/create-or-up
 import { CreateTableCategoryDto } from './dto/create-table-category.dto.js';
 import { FoundTableCategoryRo } from './dto/found-table-category.ro.js';
 import { ICreateTableCategories, IFindTableCategories } from './use-cases/table-categories-use-cases.interface.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

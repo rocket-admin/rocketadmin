@@ -4,66 +4,66 @@ import { ExternalRegistrationProviderEnum } from '../enums/external-registration
 import { UserEntity } from '../user.entity.js';
 
 export interface IUserRepository {
-  createUser(userData: CreateUserDs): Promise<UserEntity>;
+	createUser(userData: CreateUserDs): Promise<UserEntity>;
 
-  findOneUserById(userId: string): Promise<UserEntity>;
+	findOneUserById(userId: string): Promise<UserEntity>;
 
-  findOneUserWithUserAction(userId: string): Promise<UserEntity>;
+	findOneUserWithUserAction(userId: string): Promise<UserEntity>;
 
-  findOneUserByEmail(
-    email: string,
-    externalRegistrationProvider?: ExternalRegistrationProviderEnum,
-    samlNameId?: string,
-  ): Promise<UserEntity>;
+	findOneUserByEmail(
+		email: string,
+		externalRegistrationProvider?: ExternalRegistrationProviderEnum,
+		samlNameId?: string,
+	): Promise<UserEntity>;
 
-  findUserWithConnections(userId: string): Promise<UserEntity>;
+	findUserWithConnections(userId: string): Promise<UserEntity>;
 
-  findAllUsersInConnection(connectionId: string): Promise<Array<Omit<UserEntity, 'connections' | 'groups'>>>;
+	findAllUsersInConnection(connectionId: string): Promise<Array<Omit<UserEntity, 'connections' | 'groups'>>>;
 
-  saveRegisteringUser(
-    userData: RegisterUserDs,
-    externalRegistrationProvider?: ExternalRegistrationProviderEnum,
-  ): Promise<UserEntity>;
+	saveRegisteringUser(
+		userData: RegisterUserDs,
+		externalRegistrationProvider?: ExternalRegistrationProviderEnum,
+	): Promise<UserEntity>;
 
-  saveUserEntity(user: UserEntity): Promise<UserEntity>;
+	saveUserEntity(user: UserEntity): Promise<UserEntity>;
 
-  findOneUserWithEmailVerification(userId: string): Promise<UserEntity>;
+	findOneUserWithEmailVerification(userId: string): Promise<UserEntity>;
 
-  findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(email: string, companyId: string): Promise<UserEntity>;
+	findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(email: string, companyId: string): Promise<UserEntity>;
 
-  deleteUserEntity(user: UserEntity): Promise<UserEntity>;
+	deleteUserEntity(user: UserEntity): Promise<UserEntity>;
 
-  getUsersWithNotNullGCLIDsInTwoWeeks(): Promise<Array<UserEntity>>;
+	getUsersWithNotNullGCLIDsInTwoWeeks(): Promise<Array<UserEntity>>;
 
-  getUserEmailOrReturnNull(userId: string): Promise<string>;
+	getUserEmailOrReturnNull(userId: string): Promise<string>;
 
-  getTrue(): Promise<boolean>;
+	getTrue(): Promise<boolean>;
 
-  findUsersWithoutLogs(): Promise<Array<UserEntity>>;
+	findUsersWithoutLogs(): Promise<Array<UserEntity>>;
 
-  findOneUserByGitHubId(gitHubId: number): Promise<UserEntity>;
+	findOneUserByGitHubId(gitHubId: number): Promise<UserEntity>;
 
-  findOneUserByEmailAndCompanyId(email: string, companyId: string): Promise<UserEntity>;
+	findOneUserByEmailAndCompanyId(email: string, companyId: string): Promise<UserEntity>;
 
-  findOneUserByIdAndCompanyId(userId: string, companyId: string): Promise<UserEntity>;
+	findOneUserByIdAndCompanyId(userId: string, companyId: string): Promise<UserEntity>;
 
-  findOneUserByIdWithCompany(userId: string): Promise<UserEntity>;
+	findOneUserByIdWithCompany(userId: string): Promise<UserEntity>;
 
-  findAllUsersWithEmail(email: string, externalProvider?: ExternalRegistrationProviderEnum): Promise<Array<UserEntity>>;
+	findAllUsersWithEmail(email: string, externalProvider?: ExternalRegistrationProviderEnum): Promise<Array<UserEntity>>;
 
-  findUsersByEmailsAndCompanyId(emails: Array<string>, companyId: string): Promise<Array<UserEntity>>;
+	findUsersByEmailsAndCompanyId(emails: Array<string>, companyId: string): Promise<Array<UserEntity>>;
 
-  suspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
+	suspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
 
-  unSuspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
+	unSuspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
 
-  bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>>;
+	bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>>;
 
-  findOneUserByEmailAndGroupId(email: string, groupId: string): Promise<UserEntity>;
+	findOneUserByEmailAndGroupId(email: string, groupId: string): Promise<UserEntity>;
 
-  countUsersInCompany(companyId: string): Promise<number>;
+	countUsersInCompany(companyId: string): Promise<number>;
 
-  findUsersInCompany(companyId: string, orderByRole: boolean): Promise<Array<UserEntity>>;
+	findUsersInCompany(companyId: string, orderByRole: boolean): Promise<Array<UserEntity>>;
 
-  suspendNewestUsersInCompany(companyId: string, unsuspendedUsersLeft: number): Promise<Array<UserEntity>>;
+	suspendNewestUsersInCompany(companyId: string, unsuspendedUsersLeft: number): Promise<Array<UserEntity>>;
 }

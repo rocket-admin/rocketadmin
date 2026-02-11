@@ -1,5 +1,17 @@
-:host app-alert:not(:empty) {
-    --alert-margin: 24px;
+.profile-layout {
+    display: flex;
+    height: calc(100vh - 64px);
+}
+
+.profile-main {
+    flex: 1;
+    overflow-y: auto;
+}
+
+::ng-deep .profile-main > app-alert {
+    position: relative;
+    top: 0;
+    margin: 24px;
 }
 
 .page {
@@ -9,12 +21,13 @@
     max-width: 520px;
     min-width: 300px;
     width: 96%;
+    padding: 0 24px;
 }
 
 @media (width <= 600px) {
     .page {
-        padding: 0 9vw;
-        width: 100vw;
+        padding: 0 16px;
+        margin: 1.5em auto;
     }
 }
 

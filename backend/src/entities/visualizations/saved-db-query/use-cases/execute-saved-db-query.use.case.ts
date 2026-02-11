@@ -5,11 +5,11 @@ import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { ExecuteSavedDbQueryDs } from '../data-structures/execute-saved-db-query.ds.js';
 import { ExecuteSavedDbQueryResultDto } from '../dto/execute-saved-db-query-result.dto.js';
 import { validateQuerySafety } from '../utils/check-query-is-safe.util.js';
 import { IExecuteSavedDbQuery } from './saved-db-query-use-cases.interface.js';
-import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ExecuteSavedDbQueryUseCase

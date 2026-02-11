@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
 import { AuthMiddleware } from '../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
@@ -30,137 +31,136 @@ import { GetUserPermissionsForGroupInConnectionUseCase } from './use-cases/get-u
 import { RefreshConnectionAgentTokenUseCase } from './use-cases/refresh-connection-agent-token.use.case.js';
 import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.case.js';
 import { TestConnectionUseCase } from './use-cases/test-connection.use.case.js';
-import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case.js';
-import { UpdateConnectionUseCase } from './use-cases/update-connection.use.case.js';
-import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case.js';
-import { ValidateConnectionMasterPasswordUseCase } from './use-cases/validate-connection-master-password.use.case.js';
-import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
 import { UnfreezeConnectionUseCase } from './use-cases/unfreeze-connection.use.case.js';
+import { UpdateConnectionUseCase } from './use-cases/update-connection.use.case.js';
+import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case.js';
+import { ValidateConnectionMasterPasswordUseCase } from './use-cases/validate-connection-master-password.use.case.js';
+import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ConnectionEntity,
-      UserEntity,
-      GroupEntity,
-      PermissionEntity,
-      TableSettingsEntity,
-      TableLogsEntity,
-      CustomFieldsEntity,
-      TableWidgetEntity,
-      ConnectionPropertiesEntity,
-      LogOutEntity,
-    ]),
-    UserModule,
-    AgentModule,
-    AmplitudeModule,
-  ],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_CONNECTIONS,
-      useClass: FindAllConnectionsUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_CONNECTION,
-      useClass: FindOneConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_USERS_IN_CONNECTION,
-      useClass: FindAllUsersInConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.CREATE_CONNECTION,
-      useClass: CreateConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_CONNECTION,
-      useClass: UpdateConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_CONNECTION,
-      useClass: DeleteConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.DELETE_GROUP_FROM_CONNECTION,
-      useClass: DeleteGroupFromConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.CREATE_GROUP_IN_CONNECTION,
-      useClass: CreateGroupInConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.GET_USER_GROUPS_IN_CONNECTION,
-      useClass: GetUserGroupsInConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.GET_PERMISSIONS_FOR_GROUP_IN_CONNECTION,
-      useClass: GetPermissionsForGroupInConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.GET_USER_PERMISSIONS_FOR_GROUP_IN_CONNECTION,
-      useClass: GetUserPermissionsForGroupInConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.TEST_CONNECTION_USE_CASE,
-      useClass: TestConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.UPDATE_CONNECTION_MASTER_PASSWORD,
-      useClass: UpdateConnectionMasterPasswordUseCase,
-    },
-    {
-      provide: UseCaseType.RESTORE_CONNECTION,
-      useClass: RestoreConnectionUseCase,
-    },
-    {
-      provide: UseCaseType.VALIDATE_CONNECTION_TOKEN,
-      useClass: ValidateConnectionTokenUseCase,
-    },
-    {
-      provide: UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN,
-      useClass: RefreshConnectionAgentTokenUseCase,
-    },
-    {
-      provide: UseCaseType.VALIDATE_CONNECTION_MASTER_PASSWORD,
-      useClass: ValidateConnectionMasterPasswordUseCase,
-    },
-    {
-      provide: UseCaseType.UNFREEZE_CONNECTION,
-      useClass: UnfreezeConnectionUseCase,
-    },
-  ],
-  controllers: [ConnectionController],
+	imports: [
+		TypeOrmModule.forFeature([
+			ConnectionEntity,
+			UserEntity,
+			GroupEntity,
+			PermissionEntity,
+			TableSettingsEntity,
+			TableLogsEntity,
+			CustomFieldsEntity,
+			TableWidgetEntity,
+			ConnectionPropertiesEntity,
+			LogOutEntity,
+		]),
+		UserModule,
+		AgentModule,
+		AmplitudeModule,
+	],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_CONNECTIONS,
+			useClass: FindAllConnectionsUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_CONNECTION,
+			useClass: FindOneConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.FIND_USERS_IN_CONNECTION,
+			useClass: FindAllUsersInConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.CREATE_CONNECTION,
+			useClass: CreateConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_CONNECTION,
+			useClass: UpdateConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_CONNECTION,
+			useClass: DeleteConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_GROUP_FROM_CONNECTION,
+			useClass: DeleteGroupFromConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.CREATE_GROUP_IN_CONNECTION,
+			useClass: CreateGroupInConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.GET_USER_GROUPS_IN_CONNECTION,
+			useClass: GetUserGroupsInConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.GET_PERMISSIONS_FOR_GROUP_IN_CONNECTION,
+			useClass: GetPermissionsForGroupInConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.GET_USER_PERMISSIONS_FOR_GROUP_IN_CONNECTION,
+			useClass: GetUserPermissionsForGroupInConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.TEST_CONNECTION_USE_CASE,
+			useClass: TestConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_CONNECTION_MASTER_PASSWORD,
+			useClass: UpdateConnectionMasterPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.RESTORE_CONNECTION,
+			useClass: RestoreConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.VALIDATE_CONNECTION_TOKEN,
+			useClass: ValidateConnectionTokenUseCase,
+		},
+		{
+			provide: UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN,
+			useClass: RefreshConnectionAgentTokenUseCase,
+		},
+		{
+			provide: UseCaseType.VALIDATE_CONNECTION_MASTER_PASSWORD,
+			useClass: ValidateConnectionMasterPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.UNFREEZE_CONNECTION,
+			useClass: UnfreezeConnectionUseCase,
+		},
+	],
+	controllers: [ConnectionController],
 })
 export class ConnectionModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        // { path: 'connections', method: RequestMethod.GET },
-        { path: 'connections/author', method: RequestMethod.GET },
-        { path: 'connection/one/:connectionId', method: RequestMethod.GET },
-        { path: '/connection/users/:connectionId', method: RequestMethod.GET },
-        { path: 'connection', method: RequestMethod.POST },
-        { path: 'connection/:connectionId', method: RequestMethod.PUT },
-        { path: 'connection/delete/:connectionId', method: RequestMethod.PUT },
-        { path: 'connection/group/:connectionId', method: RequestMethod.PUT },
-        { path: '/connection/group/delete/:connectionId', method: RequestMethod.PUT },
-        { path: 'connection/group/:connectionId', method: RequestMethod.POST },
-        { path: 'connection/groups/:connectionId', method: RequestMethod.GET },
-        { path: '/connection/permissions/', method: RequestMethod.GET },
-        { path: '/connection/user/permissions', method: RequestMethod.GET },
-        { path: '/connection/test', method: RequestMethod.POST },
-        { path: '/connection/encryption/update/:connectionId', method: RequestMethod.PUT },
-        { path: '/connection/encryption/restore/:connectionId', method: RequestMethod.PUT },
-        { path: '/connection/token/refresh/:connectionId', method: RequestMethod.GET },
-        { path: '/connection/masterpwd/verify/:connectionId', method: RequestMethod.GET },
-        { path: '/connection/unfreeze/:connectionId', method: RequestMethod.PUT },
-      )
-      .apply(AuthWithApiMiddleware)
-      .forRoutes({ path: 'connections', method: RequestMethod.GET });
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(AuthMiddleware)
+			.forRoutes(
+				// { path: 'connections', method: RequestMethod.GET },
+				{ path: 'connections/author', method: RequestMethod.GET },
+				{ path: 'connection/one/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/users/:connectionId', method: RequestMethod.GET },
+				{ path: 'connection', method: RequestMethod.POST },
+				{ path: 'connection/:connectionId', method: RequestMethod.PUT },
+				{ path: 'connection/delete/:connectionId', method: RequestMethod.PUT },
+				{ path: 'connection/group/:connectionId', method: RequestMethod.PUT },
+				{ path: '/connection/group/delete/:connectionId', method: RequestMethod.PUT },
+				{ path: 'connection/group/:connectionId', method: RequestMethod.POST },
+				{ path: 'connection/groups/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/permissions/', method: RequestMethod.GET },
+				{ path: '/connection/user/permissions', method: RequestMethod.GET },
+				{ path: '/connection/test', method: RequestMethod.POST },
+				{ path: '/connection/encryption/update/:connectionId', method: RequestMethod.PUT },
+				{ path: '/connection/encryption/restore/:connectionId', method: RequestMethod.PUT },
+				{ path: '/connection/token/refresh/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/masterpwd/verify/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/unfreeze/:connectionId', method: RequestMethod.PUT },
+			)
+			.apply(AuthWithApiMiddleware)
+			.forRoutes({ path: 'connections', method: RequestMethod.GET });
+	}
 }

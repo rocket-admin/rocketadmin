@@ -1,16 +1,16 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
-import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
-import { UserEntity } from '../../user/user.entity.js';
 import { LogOutEntity } from '../../log-out/log-out.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 import { DashboardController } from './dashboards.controller.js';
 import { CreateDashboardUseCase } from './use-cases/create-dashboard.use.case.js';
-import { UpdateDashboardUseCase } from './use-cases/update-dashboard.use.case.js';
-import { FindDashboardUseCase } from './use-cases/find-dashboard.use.case.js';
-import { FindAllDashboardsUseCase } from './use-cases/find-all-dashboards.use.case.js';
 import { DeleteDashboardUseCase } from './use-cases/delete-dashboard.use.case.js';
+import { FindAllDashboardsUseCase } from './use-cases/find-all-dashboards.use.case.js';
+import { FindDashboardUseCase } from './use-cases/find-dashboard.use.case.js';
+import { UpdateDashboardUseCase } from './use-cases/update-dashboard.use.case.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],

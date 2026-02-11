@@ -1,50 +1,63 @@
-.samlConfigForm {
+.profile-layout {
     display: flex;
-    flex-direction: column;
-    margin: 3em auto;
-    max-width: 520px;
-    min-width: 300px;
-    width: 100%;
+    height: calc(100vh - 64px);
 }
 
-.samlConfigForm__checkbox {
-    margin-top: -8px;
-    margin-bottom: 20px;
+.profile-main {
+    flex: 1;
+    overflow-y: auto;
 }
 
-.ssoPageHeader {
-    margin-bottom: 24px !important;
+::ng-deep .profile-main > app-alert {
+    position: relative;
+    top: 0;
+    margin: 24px;
 }
 
-.actions {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    /* justify-content: space-between; */
-    background-color: var(--mat-sidenav-content-background-color);
-    box-shadow: var(--shadow);
-    height: 64px;
-    padding: 0 max(calc(50vw - 260px), 2%);
-    width: 100vw;
+.sso-page {
+    margin: var(--top-margin) auto;
+    padding: 0 clamp(40px, 5vw, 100px);
+    max-width: 800px;
+}
+
+@media (width <= 600px) {
+    .sso-page {
+        padding: 0 16px;
+        margin: 1.5em auto;
+    }
+}
+
+.sso-description {
+    color: rgba(0, 0, 0, 0.64);
+    margin-top: 8px;
+    margin-bottom: 32px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .actions {
-        --shadow: 0 3px 1px -2px rgba(0,0,0,.5),0 2px 2px 0 rgba(0,0,0,.64),0 1px 5px 0 rgba(0,0,0,0.85);
+    .sso-description {
+        color: rgba(255, 255, 255, 0.7);
     }
 }
 
-@media (prefers-color-scheme: light) {
-    .actions {
-        --shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
-    }
-}
-
-.actions-box {
+.saml-config-form {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    flex-direction: column;
+}
+
+.saml-config-form__checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.saml-config-form__checkbox {
+    margin: 0;
+}
+
+.saml-config-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-bottom: 32px;
 }

@@ -5,17 +5,17 @@ import { FindTableSettingsDs } from '../../application/data-structures/find-tabl
 import { FoundTableSettingsDs } from '../../application/data-structures/found-table-settings.ds.js';
 
 export interface IFindTableSettings {
-  execute(inputData: FindTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
+	execute(inputData: FindTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
 }
 
 export interface ICreateTableSettings {
-  execute(inputData: CreateTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
+	execute(inputData: CreateTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
 }
 
 export interface IUpdateTableSettings {
-  execute(inputData: CreateTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
+	execute(inputData: CreateTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
 }
 
 export interface IDeleteTableSettings {
-  execute(inputData: DeleteTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
+	execute(inputData: DeleteTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;
 }

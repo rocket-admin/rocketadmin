@@ -8,31 +8,31 @@ import { IFindCompanyFavicon } from './company-info-use-cases.interface.js';
 
 @Injectable()
 export class FindCompanyFaviconUseCase
-  extends AbstractUseCase<string, FoundCompanyFaviconRO>
-  implements IFindCompanyFavicon
+	extends AbstractUseCase<string, FoundCompanyFaviconRO>
+	implements IFindCompanyFavicon
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(companyId: string): Promise<FoundCompanyFaviconRO> {
-    const company = await this._dbContext.companyInfoRepository.findCompanyWithFavicon(companyId);
-    if (!company) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
-    if (!company.favicon) {
-      return {
-        favicon: null,
-      };
-    }
-    return {
-      favicon: {
-        image: company.favicon.image.toString('base64'),
-        mimeType: company.favicon.mimeType,
-      },
-    };
-  }
+	protected async implementation(companyId: string): Promise<FoundCompanyFaviconRO> {
+		const company = await this._dbContext.companyInfoRepository.findCompanyWithFavicon(companyId);
+		if (!company) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
+		if (!company.favicon) {
+			return {
+				favicon: null,
+			};
+		}
+		return {
+			favicon: {
+				image: company.favicon.image.toString('base64'),
+				mimeType: company.favicon.mimeType,
+			},
+		};
+	}
 }

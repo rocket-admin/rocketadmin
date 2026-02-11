@@ -16,14 +16,17 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
+import { TableReadGuard } from '../../guards/table-read.guard.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { CreateTableFilterDs } from './application/data-structures/create-table-filters.ds.js';
 import { FindTableFilterByIdDs, FindTableFiltersDs } from './application/data-structures/find-table-filters.ds.js';
+import { UpdateTableFilterDs } from './application/data-structures/update-table-filters.ds.js';
 import { CreateTableFilterDto } from './application/response-objects/create-table-filters.dto.js';
 import { CreatedTableFilterRO } from './application/response-objects/created-table-filters.ro.js';
 import {
@@ -34,9 +37,6 @@ import {
 	IFindTableFilters,
 	IUpdateTableFilterById,
 } from './use-cases/table-filters-use-cases.interface.js';
-import { UpdateTableFilterDs } from './application/data-structures/update-table-filters.ds.js';
-import { TableReadGuard } from '../../guards/table-read.guard.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

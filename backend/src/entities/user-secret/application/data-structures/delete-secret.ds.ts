@@ -1,9 +1,9 @@
 export class DeleteSecretDS {
-  userId: string;
-  slug: string;
+	userId: string;
+	slug: string;
 }
 
 export class DeletedSecretDS {
-  message: string;
-  deletedAt: Date;
+	message: string;
+	deletedAt: Date;
 }

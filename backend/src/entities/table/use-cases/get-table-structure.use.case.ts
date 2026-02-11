@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -22,160 +22,160 @@ import { IGetTableStructure } from './table-use-cases.interface.js';
 
 @Injectable()
 export class GetTableStructureUseCase
-  extends AbstractUseCase<GetTableStructureDs, TableStructureDs>
-  implements IGetTableStructure
+	extends AbstractUseCase<GetTableStructureDs, TableStructureDs>
+	implements IGetTableStructure
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: GetTableStructureDs): Promise<TableStructureDs> {
-    const { connectionId, masterPwd, tableName, userId } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connectionId,
-      masterPwd,
-    );
-    if (!foundConnection) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+	protected async implementation(inputData: GetTableStructureDs): Promise<TableStructureDs> {
+		const { connectionId, masterPwd, tableName, userId } = inputData;
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connectionId,
+			masterPwd,
+		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    if (foundConnection.is_frozen) {
-      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-    }
+		if (foundConnection.is_frozen) {
+			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
+		}
 
-    try {
-      const dao = getDataAccessObject(foundConnection);
-      const foundTalesInConnection = await dao.getTablesFromDB();
-      if (!foundTalesInConnection.find((el) => el.tableName === tableName)) {
-        throw new HttpException(
-          {
-            message: Messages.TABLE_NOT_FOUND,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      let userEmail: string;
-      if (isConnectionTypeAgent(foundConnection.type)) {
-        userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-      }
-      // eslint-disable-next-line prefer-const
-      let [tableSettings, personalTableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets] =
-        await Promise.all([
-          this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
-          this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
-          dao.getTablePrimaryColumns(tableName, userEmail),
-          dao.getTableForeignKeys(tableName, userEmail),
-          dao.getTableStructure(tableName, userEmail),
-          this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
-        ]);
-      const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
-        .filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
-        .map((widget) => {
-          if (widget.widget_params) {
-            try {
-              const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
-              return widgetParams;
-            } catch (_e) {
-              return null;
-            }
-          }
-        })
-        .filter((el) => el !== null);
+		try {
+			const dao = getDataAccessObject(foundConnection);
+			const foundTalesInConnection = await dao.getTablesFromDB();
+			if (!foundTalesInConnection.find((el) => el.tableName === tableName)) {
+				throw new HttpException(
+					{
+						message: Messages.TABLE_NOT_FOUND,
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+			let userEmail: string;
+			if (isConnectionTypeAgent(foundConnection.type)) {
+				userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			}
+			// eslint-disable-next-line prefer-const
+			let [tableSettings, personalTableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets] =
+				await Promise.all([
+					this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+					this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
+					dao.getTablePrimaryColumns(tableName, userEmail),
+					dao.getTableForeignKeys(tableName, userEmail),
+					dao.getTableStructure(tableName, userEmail),
+					this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
+				]);
+			const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
+				.filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
+				.map((widget) => {
+					if (widget.widget_params) {
+						try {
+							const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
+							return widgetParams;
+						} catch (_e) {
+							return null;
+						}
+					}
+				})
+				.filter((el) => el !== null);
 
-      tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
-      let transformedTableForeignKeys: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
-      const canUserReadForeignTables: Array<{
-        tableName: string;
-        canRead: boolean;
-      }> = await Promise.all(
-        tableForeignKeys.map(async (foreignKey) => {
-          const cenTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
-            userId,
-            connectionId,
-            foreignKey.referenced_table_name,
-            masterPwd,
-          );
-          return {
-            tableName: foreignKey.referenced_table_name,
-            canRead: cenTableRead,
-          };
-        }),
-      );
-      tableForeignKeys = tableForeignKeys.filter((foreignKey) => {
-        return canUserReadForeignTables.find((el) => {
-          return el.tableName === foreignKey.referenced_table_name && el.canRead;
-        });
-      });
+			tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
+			let transformedTableForeignKeys: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
+			const canUserReadForeignTables: Array<{
+				tableName: string;
+				canRead: boolean;
+			}> = await Promise.all(
+				tableForeignKeys.map(async (foreignKey) => {
+					const cenTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+						userId,
+						connectionId,
+						foreignKey.referenced_table_name,
+						masterPwd,
+					);
+					return {
+						tableName: foreignKey.referenced_table_name,
+						canRead: cenTableRead,
+					};
+				}),
+			);
+			tableForeignKeys = tableForeignKeys.filter((foreignKey) => {
+				return canUserReadForeignTables.find((el) => {
+					return el.tableName === foreignKey.referenced_table_name && el.canRead;
+				});
+			});
 
-      if (tableForeignKeys && tableForeignKeys.length > 0) {
-        transformedTableForeignKeys = await Promise.all(
-          tableForeignKeys.map((el) => {
-            try {
-              return this.attachForeignColumnNames(el, userId, connectionId, dao);
-            } catch (_e) {
-              return el as ForeignKeyWithAutocompleteColumnsDS;
-            }
-          }),
-        );
-      }
-      const readonly_fields = tableSettings?.readonly_fields?.length > 0 ? tableSettings.readonly_fields : [];
-      const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
-      return {
-        structure: formedTableStructure,
-        primaryColumns: tablePrimaryColumns,
-        foreignKeys: transformedTableForeignKeys,
-        readonly_fields: readonly_fields,
-        table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
-        list_fields: personalTableSettings?.list_fields ? personalTableSettings.list_fields : [],
-        display_name: tableSettings?.display_name ? tableSettings.display_name : null,
-        excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
-      };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      }
-      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
-    }
-  }
+			if (tableForeignKeys && tableForeignKeys.length > 0) {
+				transformedTableForeignKeys = await Promise.all(
+					tableForeignKeys.map((el) => {
+						try {
+							return this.attachForeignColumnNames(el, userId, connectionId, dao);
+						} catch (_e) {
+							return el as ForeignKeyWithAutocompleteColumnsDS;
+						}
+					}),
+				);
+			}
+			const readonly_fields = tableSettings?.readonly_fields?.length > 0 ? tableSettings.readonly_fields : [];
+			const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
+			return {
+				structure: formedTableStructure,
+				primaryColumns: tablePrimaryColumns,
+				foreignKeys: transformedTableForeignKeys,
+				readonly_fields: readonly_fields,
+				table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
+				list_fields: personalTableSettings?.list_fields ? personalTableSettings.list_fields : [],
+				display_name: tableSettings?.display_name ? tableSettings.display_name : null,
+				excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
+			};
+		} catch (e) {
+			if (e instanceof HttpException) {
+				throw e;
+			}
+			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
+		}
+	}
 
-  private async attachForeignColumnNames(
-    foreignKey: ForeignKeyDS,
-    userId: string,
-    connectionId: string,
-    dao: IDataAccessObject | IDataAccessObjectAgent,
-  ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
-    try {
-      const [foreignTableSettings, foreignTableStructure] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),
-        dao.getTableStructure(foreignKey.referenced_table_name, userId),
-      ]);
+	private async attachForeignColumnNames(
+		foreignKey: ForeignKeyDS,
+		userId: string,
+		connectionId: string,
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+	): Promise<ForeignKeyWithAutocompleteColumnsDS> {
+		try {
+			const [foreignTableSettings, foreignTableStructure] = await Promise.all([
+				this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),
+				dao.getTableStructure(foreignKey.referenced_table_name, userId),
+			]);
 
-      let columnNames = foreignTableStructure.map((el) => {
-        return el.column_name;
-      });
-      if (foreignTableSettings && foreignTableSettings.autocomplete_columns.length > 0) {
-        columnNames = columnNames.filter((el) => {
-          const index = foreignTableSettings.autocomplete_columns.indexOf(el);
-          return index >= 0;
-        });
-      }
-      return {
-        ...foreignKey,
-        autocomplete_columns: columnNames,
-      };
-    } catch (_e) {
-      return {
-        ...foreignKey,
-        autocomplete_columns: [],
-      };
-    }
-  }
+			let columnNames = foreignTableStructure.map((el) => {
+				return el.column_name;
+			});
+			if (foreignTableSettings && foreignTableSettings.autocomplete_columns.length > 0) {
+				columnNames = columnNames.filter((el) => {
+					const index = foreignTableSettings.autocomplete_columns.indexOf(el);
+					return index >= 0;
+				});
+			}
+			return {
+				...foreignKey,
+				autocomplete_columns: columnNames,
+			};
+		} catch (_e) {
+			return {
+				...foreignKey,
+				autocomplete_columns: [],
+			};
+		}
+	}
 }

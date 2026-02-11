@@ -10,29 +10,29 @@ import { IUpdateUsers2faStatusInCompany } from './company-info-use-cases.interfa
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateUses2faStatusInCompanyUseCase
-  extends AbstractUseCase<UpdateUsers2faStatusInCompanyDs, SuccessResponse>
-  implements IUpdateUsers2faStatusInCompany
+	extends AbstractUseCase<UpdateUsers2faStatusInCompanyDs, SuccessResponse>
+	implements IUpdateUsers2faStatusInCompany
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly emailService: EmailService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly emailService: EmailService,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: UpdateUsers2faStatusInCompanyDs): Promise<SuccessResponse> {
-    const { companyId, is2faEnabled } = inputData;
-    const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
-    if (!foundCompany) {
-      throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
-    }
-    foundCompany.is2faEnabled = is2faEnabled;
-    if (is2faEnabled) {
-      const usersEmails = foundCompany.users.map((user) => user.email.toLowerCase());
-      this.emailService.send2faEnabledInCompany(usersEmails, foundCompany.name);
-    }
-    await this._dbContext.companyInfoRepository.save(foundCompany);
-    return { success: true };
-  }
+	protected async implementation(inputData: UpdateUsers2faStatusInCompanyDs): Promise<SuccessResponse> {
+		const { companyId, is2faEnabled } = inputData;
+		const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
+		if (!foundCompany) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
+		foundCompany.is2faEnabled = is2faEnabled;
+		if (is2faEnabled) {
+			const usersEmails = foundCompany.users.map((user) => user.email.toLowerCase());
+			this.emailService.send2faEnabledInCompany(usersEmails, foundCompany.name);
+		}
+		await this._dbContext.companyInfoRepository.save(foundCompany);
+		return { success: true };
+	}
 }

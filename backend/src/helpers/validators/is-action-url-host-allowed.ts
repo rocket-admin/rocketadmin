@@ -1,7 +1,7 @@
 import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
-import { Constants } from '../constants/constants.js';
 import { isSaaS } from '../app/is-saas.js';
+import { Constants } from '../constants/constants.js';
 
 export async function isActionUrlHostAllowed(url: string): Promise<boolean> {
 	if (process.env.NODE_ENV === 'test') {

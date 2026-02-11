@@ -1,52 +1,52 @@
-import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
-import { TableLogsEntity } from '../../table-logs.entity.js';
 import { ApiProperty } from '@nestjs/swagger';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
+import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
+import { TableLogsEntity } from '../../table-logs.entity.js';
 
 export class FoundLogRecordDs {
-  @ApiProperty()
-  cognitoUserName: string;
+	@ApiProperty()
+	cognitoUserName: string;
 
-  @ApiProperty()
-  connection_id: string;
+	@ApiProperty()
+	connection_id: string;
 
-  @ApiProperty()
-  createdAt: Date;
+	@ApiProperty()
+	createdAt: Date;
 
-  @ApiProperty()
-  email: string;
+	@ApiProperty()
+	email: string;
 
-  @ApiProperty()
-  old_data: string;
+	@ApiProperty()
+	old_data: string;
 
-  @ApiProperty()
-  affected_primary_key: string;
+	@ApiProperty()
+	affected_primary_key: string;
 
-  @ApiProperty({ enum: OperationResultStatusEnum })
-  operationStatusResult: OperationResultStatusEnum;
+	@ApiProperty({ enum: OperationResultStatusEnum })
+	operationStatusResult: OperationResultStatusEnum;
 
-  @ApiProperty({ enum: LogOperationTypeEnum })
-  operationType: LogOperationTypeEnum;
+	@ApiProperty({ enum: LogOperationTypeEnum })
+	operationType: LogOperationTypeEnum;
 
-  @ApiProperty()
-  received_data: string;
+	@ApiProperty()
+	received_data: string;
 
-  @ApiProperty()
-  table_name: string;
+	@ApiProperty()
+	table_name: string;
 
-  @ApiProperty()
-  operation_custom_action_name: string | null;
+	@ApiProperty()
+	operation_custom_action_name: string | null;
 }
 
 export class FoundLogsDs {
-  @ApiProperty({ isArray: true, type: FoundLogRecordDs })
-  logs: Array<FoundLogRecordDs>;
+	@ApiProperty({ isArray: true, type: FoundLogRecordDs })
+	logs: Array<FoundLogRecordDs>;
 
-  @ApiProperty({ type: PaginationDs })
-  pagination: PaginationDs;
+	@ApiProperty({ type: PaginationDs })
+	pagination: PaginationDs;
 }
 
 export class FoundLogsEntities {
-  logs: Array<TableLogsEntity>;
-  pagination: PaginationDs;
+	logs: Array<TableLogsEntity>;
+	pagination: PaginationDs;
 }

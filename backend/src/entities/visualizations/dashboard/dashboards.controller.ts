@@ -17,11 +17,12 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } 
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
+import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { CreateDashboardDs } from './data-structures/create-dashboard.ds.js';
 import { FindAllDashboardsDs } from './data-structures/find-all-dashboards.ds.js';
@@ -37,7 +38,6 @@ import {
 	IFindDashboard,
 	IUpdateDashboard,
 } from './use-cases/dashboard-use-cases.interface.js';
-import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

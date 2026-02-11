@@ -35,7 +35,7 @@
       } @else if (previewUrl()) {
         <div class="s3-widget__file-icon">
           <mat-icon>insert_drive_file</mat-icon>
-          <span class="s3-widget__filename">{{(internalValue() || value()) | slice:-30}}</span>
+          <span class="s3-widget__filename">{{displayFilename()}}</span>
         </div>
       }
     </div>

@@ -23,163 +23,163 @@ import { IDeleteRowFromTable } from './table-use-cases.interface.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
-  extends AbstractUseCase<DeleteRowFromTableDs, DeletedRowFromTableDs>
-  implements IDeleteRowFromTable
+	extends AbstractUseCase<DeleteRowFromTableDs, DeletedRowFromTableDs>
+	implements IDeleteRowFromTable
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private amplitudeService: AmplitudeService,
-    private tableLogsService: TableLogsService,
-    private tableActionActivationService: TableActionActivationService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private amplitudeService: AmplitudeService,
+		private tableLogsService: TableLogsService,
+		private tableActionActivationService: TableActionActivationService,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs> {
-    // eslint-disable-next-line prefer-const
-    let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
+	protected async implementation(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs> {
+		// eslint-disable-next-line prefer-const
+		let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
 
-    let operationResult = OperationResultStatusEnum.unknown;
-    if (!primaryKey) {
-      throw new HttpException(
-        {
-          message: Messages.PRIMARY_KEY_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		let operationResult = OperationResultStatusEnum.unknown;
+		if (!primaryKey) {
+			throw new HttpException(
+				{
+					message: Messages.PRIMARY_KEY_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-    if (!connection) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+		if (!connection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    if (connection.is_frozen) {
-      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-    }
+		if (connection.is_frozen) {
+			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
+		}
 
-    const dao = getDataAccessObject(connection);
-    let userEmail: string;
+		const dao = getDataAccessObject(connection);
+		let userEmail: string;
 
-    if (isConnectionTypeAgent(connection.type)) {
-      userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-    }
+		if (isConnectionTypeAgent(connection.type)) {
+			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+		}
 
-    const isView = await dao.isView(tableName, userEmail);
-    if (isView) {
-      throw new HttpException(
-        {
-          message: Messages.CANT_UPDATE_TABLE_VIEW,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		const isView = await dao.isView(tableName, userEmail);
+		if (isView) {
+			throw new HttpException(
+				{
+					message: Messages.CANT_UPDATE_TABLE_VIEW,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    const [tableStructure, primaryColumns] = await Promise.all([
-      dao.getTableStructure(tableName, userEmail),
-      dao.getTablePrimaryColumns(tableName, userEmail),
-    ]);
+		const [tableStructure, primaryColumns] = await Promise.all([
+			dao.getTableStructure(tableName, userEmail),
+			dao.getTablePrimaryColumns(tableName, userEmail),
+		]);
 
-    primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
-    const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
+		primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
+		const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
 
-    Object.keys(primaryKey).forEach((key) => {
-      // eslint-disable-next-line security/detect-object-injection
-      if (!primaryKey[key] && primaryKey[key] !== '') {
-        // eslint-disable-next-line security/detect-object-injection
-        delete primaryKey[key];
-      }
-    });
+		Object.keys(primaryKey).forEach((key) => {
+			// eslint-disable-next-line security/detect-object-injection
+			if (!primaryKey[key] && primaryKey[key] !== '') {
+				// eslint-disable-next-line security/detect-object-injection
+				delete primaryKey[key];
+			}
+		});
 
-    const receivedPrimaryColumns = Object.keys(primaryKey);
-    if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
-      throw new HttpException(
-        {
-          message: Messages.PRIMARY_KEY_INVALID,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		const receivedPrimaryColumns = Object.keys(primaryKey);
+		if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
+			throw new HttpException(
+				{
+					message: Messages.PRIMARY_KEY_INVALID,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
-    if (tableSettings && !tableSettings?.can_delete) {
-      throw new HttpException(
-        {
-          message: Messages.CANT_DO_TABLE_OPERATION,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
-    const personalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
-      userId,
-      connectionId,
-      tableName,
-    );
+		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
+		if (tableSettings && !tableSettings?.can_delete) {
+			throw new HttpException(
+				{
+					message: Messages.CANT_DO_TABLE_OPERATION,
+				},
+				HttpStatus.FORBIDDEN,
+			);
+		}
+		const personalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
+			userId,
+			connectionId,
+			tableName,
+		);
 
-    const builtTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
 
-    let oldRowData: Record<string, unknown>;
-    try {
-      oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtTableSettings, userEmail);
-    } catch (e) {
-      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
-    }
+		let oldRowData: Record<string, unknown>;
+		try {
+			oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtTableSettings, userEmail);
+		} catch (e) {
+			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
+		}
 
-    if (!oldRowData) {
-      throw new HttpException(
-        {
-          message: Messages.ROW_PRIMARY_KEY_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+		if (!oldRowData) {
+			throw new HttpException(
+				{
+					message: Messages.ROW_PRIMARY_KEY_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    try {
-      await dao.deleteRowInTable(tableName, primaryKey, userEmail);
-      operationResult = OperationResultStatusEnum.successfully;
-      return {
-        row: oldRowData,
-      };
-    } catch (e) {
-      operationResult = OperationResultStatusEnum.unsuccessfully;
-      throw new DeleteRowException(e.message);
-    } finally {
-      const logRecord = {
-        table_name: tableName,
-        userId: userId,
-        connection: connection,
-        operationType: LogOperationTypeEnum.deleteRow,
-        operationStatusResult: operationResult,
-        row: primaryKey,
-        old_data: oldRowData,
-        table_primary_key: primaryKey,
-      };
-      await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
-      const isTest = isTestConnectionUtil(connection);
-      await this.amplitudeService.formAndSendLogRecord(
-        isTest ? AmplitudeEventTypeEnum.tableRowDeletedTest : AmplitudeEventTypeEnum.tableRowDeleted,
-        userId,
-      );
+		try {
+			await dao.deleteRowInTable(tableName, primaryKey, userEmail);
+			operationResult = OperationResultStatusEnum.successfully;
+			return {
+				row: oldRowData,
+			};
+		} catch (e) {
+			operationResult = OperationResultStatusEnum.unsuccessfully;
+			throw new DeleteRowException(e.message);
+		} finally {
+			const logRecord = {
+				table_name: tableName,
+				userId: userId,
+				connection: connection,
+				operationType: LogOperationTypeEnum.deleteRow,
+				operationStatusResult: operationResult,
+				row: primaryKey,
+				old_data: oldRowData,
+				table_primary_key: primaryKey,
+			};
+			await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
+			const isTest = isTestConnectionUtil(connection);
+			await this.amplitudeService.formAndSendLogRecord(
+				isTest ? AmplitudeEventTypeEnum.tableRowDeletedTest : AmplitudeEventTypeEnum.tableRowDeleted,
+				userId,
+			);
 
-      const foundAddTableActions = await this._dbContext.tableActionRepository.findTableActionsWithDeleteRowEvents(
-        connectionId,
-        tableName,
-      );
+			const foundAddTableActions = await this._dbContext.tableActionRepository.findTableActionsWithDeleteRowEvents(
+				connectionId,
+				tableName,
+			);
 
-      await this.tableActionActivationService.activateTableActions(
-        foundAddTableActions,
-        connection,
-        primaryKey,
-        userId,
-        tableName,
-        TableActionEventEnum.DELETE_ROW,
-      );
-    }
-  }
+			await this.tableActionActivationService.activateTableActions(
+				foundAddTableActions,
+				connection,
+				primaryKey,
+				userId,
+				tableName,
+				TableActionEventEnum.DELETE_ROW,
+			);
+		}
+	}
 }

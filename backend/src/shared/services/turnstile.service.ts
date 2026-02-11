@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { isTest } from '../../helpers/app/is-test.js';
 import { isSaaS } from '../../helpers/app/is-saas.js';
+import { isTest } from '../../helpers/app/is-test.js';
 
 interface TurnstileVerifyResponse {
 	success: boolean;

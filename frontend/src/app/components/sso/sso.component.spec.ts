@@ -1,6 +1,6 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { of } from 'rxjs';
 import { SamlConfig } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
@@ -10,14 +10,17 @@ describe('SsoComponent', () => {
 	let component: SsoComponent;
 	let fixture: ComponentFixture<SsoComponent>;
 	let companyServiceSpy: any;
-	let mockRouter: any;
 
-	const mockActivatedRoute = {
-		snapshot: {
-			paramMap: convertToParamMap({
-				'company-id': '123',
-			}),
-		},
+	const mockCompany = {
+		id: '123',
+		name: 'Test Company',
+		address: {},
+		portal_link: '',
+		subscriptionLevel: 'FREE_PLAN',
+		connections: [],
+		invitations: [],
+		is_payment_method_added: false,
+		show_test_connections: false,
 	};
 
 	const mockSamlConfig: SamlConfig = {
@@ -39,36 +42,18 @@ describe('SsoComponent', () => {
 	};
 
 	beforeEach(async () => {
-		mockRouter = {
-			routerState: {
-				snapshot: {
-					root: {
-						firstChild: {
-							params: {
-								'company-id': '123',
-							},
-						},
-					},
-				},
-			},
-			navigate: vi.fn(),
-			events: of(null),
-			url: '/company',
-			createUrlTree: vi.fn().mockReturnValue({}),
-			serializeUrl: vi.fn().mockReturnValue('company'),
-		};
-
 		companyServiceSpy = {
+			fetchCompany: vi.fn().mockReturnValue(of(mockCompany)),
 			fetchSamlConfiguration: vi.fn().mockReturnValue(of([])),
 			createSamlConfiguration: vi.fn().mockReturnValue(of({})),
 			updateSamlConfiguration: vi.fn().mockReturnValue(of({})),
+			getCurrentTabTitle: vi.fn().mockReturnValue(of('Rocketadmin')),
 		};
 
 		await TestBed.configureTestingModule({
-			imports: [SsoComponent, HttpClientTestingModule, RouterModule.forRoot([])],
+			imports: [SsoComponent, RouterModule.forRoot([])],
 			providers: [
-				{ provide: ActivatedRoute, useValue: mockActivatedRoute },
-				{ provide: Router, useValue: mockRouter },
+				provideHttpClient(),
 				{ provide: CompanyService, useValue: companyServiceSpy },
 			],
 		}).compileComponents();
@@ -82,8 +67,8 @@ describe('SsoComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should initialize company ID from router state', () => {
-		expect(component.companyId).toBe('123');
+	it('should set company from fetchCompany', () => {
+		expect(component.company).toEqual(mockCompany);
 	});
 
 	it('should fetch SAML configuration on init', () => {
@@ -114,33 +99,24 @@ describe('SsoComponent', () => {
 		expect(component.samlConfigInitial.assertionsSignedValidation).toBe(false);
 	});
 
-	it('should create SAML configuration and navigate to company', () => {
+	it('should create SAML configuration', () => {
 		component.samlConfig = mockSamlConfig;
 
 		component.createSamlConfiguration();
 
-		expect(component.submitting).toBe(false);
 		expect(companyServiceSpy.createSamlConfiguration).toHaveBeenCalledWith('123', mockSamlConfig);
-		expect(mockRouter.navigate).toHaveBeenCalledWith(['/company']);
-	});
-
-	it('should set submitting to true while creating configuration', () => {
-		companyServiceSpy.createSamlConfiguration.mockReturnValue(of({}));
-
-		component.createSamlConfiguration();
-
-		// After subscription completes, submitting should be false
 		expect(component.submitting).toBe(false);
+		expect(component.saved).toBe(true);
 	});
 
-	it('should update SAML configuration and navigate to company', () => {
+	it('should update SAML configuration', () => {
 		component.samlConfig = mockSamlConfig;
 
 		component.updateSamlConfiguration();
 
-		expect(component.submitting).toBe(false);
 		expect(companyServiceSpy.updateSamlConfiguration).toHaveBeenCalledWith(mockSamlConfig);
-		expect(mockRouter.navigate).toHaveBeenCalledWith(['/company']);
+		expect(component.submitting).toBe(false);
+		expect(component.saved).toBe(true);
 	});
 
 	it('should initialize with submitting as false', () => {

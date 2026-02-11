@@ -31,639 +31,636 @@ const testTables: Array<string> = [];
 let currentTest;
 
 test.before(async () => {
-  const moduleFixture = await Test.createTestingModule({
-    imports: [ApplicationModule, DatabaseModule],
-    providers: [DatabaseService, TestUtils],
-  }).compile();
-  _testUtils = moduleFixture.get<TestUtils>(TestUtils);
+	const moduleFixture = await Test.createTestingModule({
+		imports: [ApplicationModule, DatabaseModule],
+		providers: [DatabaseService, TestUtils],
+	}).compile();
+	_testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
-  app = moduleFixture.createNestApplication();
-  app.use(cookieParser());
-  app.useGlobalPipes(
-    new ValidationPipe({
-      exceptionFactory(validationErrors: ValidationError[] = []) {
-        return new ValidationException(validationErrors);
-      },
-    }),
-  );
-  await app.init();
-  app.getHttpServer().listen(0);
+	app = moduleFixture.createNestApplication();
+	app.use(cookieParser());
+	app.useGlobalPipes(
+		new ValidationPipe({
+			exceptionFactory(validationErrors: ValidationError[] = []) {
+				return new ValidationException(validationErrors);
+			},
+		}),
+	);
+	await app.init();
+	app.getHttpServer().listen(0);
 });
 
 async function resetPostgresTestDB(testTableName) {
-  const Knex = getTestKnex(mockFactory.generateConnectionToTestPostgresDBInDocker());
-  await Knex.schema.createTableIfNotExists(testTableName, (table) => {
-    table.increments();
-    table.string(testTableColumnName);
-    table.string(testTAbleSecondColumnName);
-    table.timestamps();
-  });
+	const Knex = getTestKnex(mockFactory.generateConnectionToTestPostgresDBInDocker());
+	await Knex.schema.createTableIfNotExists(testTableName, (table) => {
+		table.increments();
+		table.string(testTableColumnName);
+		table.string(testTAbleSecondColumnName);
+		table.timestamps();
+	});
 
-  for (let i = 0; i < testEntitiesSeedsCount; i++) {
-    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-      await Knex(testTableName).insert({
-        [testTableColumnName]: testSearchedUserName,
-        [testTAbleSecondColumnName]: faker.internet.email(),
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
-    } else {
-      await Knex(testTableName).insert({
-        [testTableColumnName]: faker.person.firstName(),
-        [testTAbleSecondColumnName]: faker.internet.email(),
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
-    }
-  }
+	for (let i = 0; i < testEntitiesSeedsCount; i++) {
+		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+			await Knex(testTableName).insert({
+				[testTableColumnName]: testSearchedUserName,
+				[testTAbleSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
+		} else {
+			await Knex(testTableName).insert({
+				[testTableColumnName]: faker.person.firstName(),
+				[testTAbleSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
+		}
+	}
 }
 
 test.beforeEach(async (_t) => {
-  testTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
-  testTables.push(testTableName);
-  newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(testTableName);
-  await resetPostgresTestDB(testTableName);
+	testTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
+	testTables.push(testTableName);
+	newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(testTableName);
+	await resetPostgresTestDB(testTableName);
 });
 
 test.after(async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
+	try {
+		await Cacher.clearAllCache();
+		await app.close();
+	} catch (e) {
+		console.error('After custom field error: ' + e);
+	}
 });
 
 type RegisterUserData = {
-  email: string;
-  password: string;
+	email: string;
+	password: string;
 };
 
 function getTestData() {
-  const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-  const newConnection2 = mockFactory.generateCreateConnectionDto2();
-  const newConnectionToTestDB = mockFactory.generateCreateConnectionDtoToTEstDB();
-  const updateConnection = mockFactory.generateUpdateConnectionDto();
-  const newGroup1 = mockFactory.generateCreateGroupDto1();
-  return {
-    newConnection,
-    newConnection2,
-    newConnectionToTestDB,
-    updateConnection,
-    newGroup1,
-  };
+	const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+	const newConnection2 = mockFactory.generateCreateConnectionDto2();
+	const newConnectionToTestDB = mockFactory.generateCreateConnectionDtoToTEstDB();
+	const updateConnection = mockFactory.generateUpdateConnectionDto();
+	const newGroup1 = mockFactory.generateCreateGroupDto1();
+	return {
+		newConnection,
+		newConnection2,
+		newConnectionToTestDB,
+		updateConnection,
+		newGroup1,
+	};
 }
 
 currentTest = 'POST /connection/properties/:slug';
 test.serial(`${currentTest} should return created connection properties`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(newConnectionProperties)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-    t.is(createConnectionPropertiesResponse.status, 201);
-    t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
-    t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(createConnectionPropertiesRO.allow_ai_requests, newConnectionProperties.allow_ai_requests);
-    t.is(createConnectionPropertiesRO.default_showing_table, newConnectionProperties.default_showing_table);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(newConnectionProperties)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+	t.is(createConnectionPropertiesResponse.status, 201);
+	t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+	t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+	t.is(createConnectionPropertiesRO.allow_ai_requests, newConnectionProperties.allow_ai_requests);
+	t.is(createConnectionPropertiesRO.default_showing_table, newConnectionProperties.default_showing_table);
 });
 
 test.serial(`${currentTest} should return created connection properties with table categories`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const connectionPropertiesWithCategories = {
-      hidden_tables: [],
-      logo_url: faker.internet.url(),
-      primary_color: faker.color.rgb(),
-      secondary_color: faker.color.rgb(),
-      hostname: faker.internet.url(),
-      company_name: faker.company.name(),
-      tables_audit: true,
-      human_readable_table_names: faker.datatype.boolean(),
-      allow_ai_requests: faker.datatype.boolean(),
-      default_showing_table: null,
-      table_categories: [
-        {
-          category_name: 'Category 1',
-          category_id: 'cat-001',
-          category_color: '#FF5733',
-          tables: [testTableName],
-        },
-      ],
-    };
+	const connectionPropertiesWithCategories = {
+		hidden_tables: [],
+		logo_url: faker.internet.url(),
+		primary_color: faker.color.rgb(),
+		secondary_color: faker.color.rgb(),
+		hostname: faker.internet.url(),
+		company_name: faker.company.name(),
+		tables_audit: true,
+		human_readable_table_names: faker.datatype.boolean(),
+		allow_ai_requests: faker.datatype.boolean(),
+		default_showing_table: null,
+		table_categories: [
+			{
+				category_name: 'Category 1',
+				category_id: 'cat-001',
+				category_color: '#FF5733',
+				tables: [testTableName],
+			},
+		],
+	};
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(connectionPropertiesWithCategories)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-    t.is(createConnectionPropertiesResponse.status, 201);
-    t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(createConnectionPropertiesRO.allow_ai_requests, connectionPropertiesWithCategories.allow_ai_requests);
-    t.is(createConnectionPropertiesRO.default_showing_table, connectionPropertiesWithCategories.default_showing_table);
-    t.is(createConnectionPropertiesRO.table_categories.length, 1);
-    t.is(createConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
-    t.is(createConnectionPropertiesRO.table_categories[0].tables.length, 1);
-    t.is(createConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(connectionPropertiesWithCategories)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+	t.is(createConnectionPropertiesResponse.status, 201);
+	t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+	t.is(createConnectionPropertiesRO.allow_ai_requests, connectionPropertiesWithCategories.allow_ai_requests);
+	t.is(createConnectionPropertiesRO.default_showing_table, connectionPropertiesWithCategories.default_showing_table);
+	t.is(createConnectionPropertiesRO.table_categories.length, 1);
+	t.is(createConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
+	t.is(createConnectionPropertiesRO.table_categories[0].tables.length, 1);
+	t.is(createConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
 
-    // should recreated categories on update
-    const updatedConnectionPropertiesWithCategories = {
-      hidden_tables: [],
-      logo_url: faker.internet.url(),
-      primary_color: faker.color.rgb(),
-      secondary_color: faker.color.rgb(),
-      hostname: faker.internet.url(),
-      company_name: faker.company.name(),
-      tables_audit: true,
-      human_readable_table_names: faker.datatype.boolean(),
-      allow_ai_requests: faker.datatype.boolean(),
-      default_showing_table: null,
-      table_categories: [
-        {
-          category_name: 'Updated Category',
-          tables: [testTableName],
-          category_color: '#33FF57',
-          category_id: 'cat-002',
-        },
-      ],
-    };
+	// should recreated categories on update
+	const updatedConnectionPropertiesWithCategories = {
+		hidden_tables: [],
+		logo_url: faker.internet.url(),
+		primary_color: faker.color.rgb(),
+		secondary_color: faker.color.rgb(),
+		hostname: faker.internet.url(),
+		company_name: faker.company.name(),
+		tables_audit: true,
+		human_readable_table_names: faker.datatype.boolean(),
+		allow_ai_requests: faker.datatype.boolean(),
+		default_showing_table: null,
+		table_categories: [
+			{
+				category_name: 'Updated Category',
+				tables: [testTableName],
+				category_color: '#33FF57',
+				category_id: 'cat-002',
+			},
+		],
+	};
 
-    const updateConnectionPropertiesResponse = await request(app.getHttpServer())
-      .put(`/connection/properties/${createConnectionRO.id}`)
-      .send(updatedConnectionPropertiesWithCategories)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+	const updateConnectionPropertiesResponse = await request(app.getHttpServer())
+		.put(`/connection/properties/${createConnectionRO.id}`)
+		.send(updatedConnectionPropertiesWithCategories)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-    const updateConnectionPropertiesRO = JSON.parse(updateConnectionPropertiesResponse.text);
-    t.is(updateConnectionPropertiesResponse.status, 200);
-    t.is(updateConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(updateConnectionPropertiesRO.allow_ai_requests, updatedConnectionPropertiesWithCategories.allow_ai_requests);
-    t.is(
-      updateConnectionPropertiesRO.default_showing_table,
-      updatedConnectionPropertiesWithCategories.default_showing_table,
-    );
-    t.is(updateConnectionPropertiesRO.table_categories.length, 1);
-    t.is(updateConnectionPropertiesRO.table_categories[0].category_name, 'Updated Category');
-    t.is(updateConnectionPropertiesRO.table_categories[0].tables.length, 1);
-    t.is(updateConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+	const updateConnectionPropertiesRO = JSON.parse(updateConnectionPropertiesResponse.text);
+	t.is(updateConnectionPropertiesResponse.status, 200);
+	t.is(updateConnectionPropertiesRO.connectionId, createConnectionRO.id);
+	t.is(updateConnectionPropertiesRO.allow_ai_requests, updatedConnectionPropertiesWithCategories.allow_ai_requests);
+	t.is(
+		updateConnectionPropertiesRO.default_showing_table,
+		updatedConnectionPropertiesWithCategories.default_showing_table,
+	);
+	t.is(updateConnectionPropertiesRO.table_categories.length, 1);
+	t.is(updateConnectionPropertiesRO.table_categories[0].category_name, 'Updated Category');
+	t.is(updateConnectionPropertiesRO.table_categories[0].tables.length, 1);
+	t.is(updateConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
 
-    // should delete categories on update with empty categories
+	// should delete categories on update with empty categories
 
-    const updatedConnectionPropertiesWithOutCategories = {
-      hidden_tables: [],
-      logo_url: faker.internet.url(),
-      primary_color: faker.color.rgb(),
-      secondary_color: faker.color.rgb(),
-      hostname: faker.internet.url(),
-      company_name: faker.company.name(),
-      tables_audit: true,
-      human_readable_table_names: faker.datatype.boolean(),
-      allow_ai_requests: faker.datatype.boolean(),
-      default_showing_table: null,
-    };
-    const updateConnectionPropertiesResponseWithoutCategories = await request(app.getHttpServer())
-      .put(`/connection/properties/${createConnectionRO.id}`)
-      .send(updatedConnectionPropertiesWithOutCategories)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+	const updatedConnectionPropertiesWithOutCategories = {
+		hidden_tables: [],
+		logo_url: faker.internet.url(),
+		primary_color: faker.color.rgb(),
+		secondary_color: faker.color.rgb(),
+		hostname: faker.internet.url(),
+		company_name: faker.company.name(),
+		tables_audit: true,
+		human_readable_table_names: faker.datatype.boolean(),
+		allow_ai_requests: faker.datatype.boolean(),
+		default_showing_table: null,
+	};
+	const updateConnectionPropertiesResponseWithoutCategories = await request(app.getHttpServer())
+		.put(`/connection/properties/${createConnectionRO.id}`)
+		.send(updatedConnectionPropertiesWithOutCategories)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-    const updateConnectionPropertiesROWithoutCategories = JSON.parse(
-      updateConnectionPropertiesResponseWithoutCategories.text,
-    );
-    t.is(updateConnectionPropertiesResponseWithoutCategories.status, 200);
-    t.is(updateConnectionPropertiesROWithoutCategories.connectionId, createConnectionRO.id);
-    t.is(
-      updateConnectionPropertiesROWithoutCategories.allow_ai_requests,
-      updatedConnectionPropertiesWithOutCategories.allow_ai_requests,
-    );
-    t.is(
-      updateConnectionPropertiesROWithoutCategories.default_showing_table,
-      updatedConnectionPropertiesWithOutCategories.default_showing_table,
-    );
-    t.is(updateConnectionPropertiesROWithoutCategories.table_categories.length, 1);
+	const updateConnectionPropertiesROWithoutCategories = JSON.parse(
+		updateConnectionPropertiesResponseWithoutCategories.text,
+	);
+	t.is(updateConnectionPropertiesResponseWithoutCategories.status, 200);
+	t.is(updateConnectionPropertiesROWithoutCategories.connectionId, createConnectionRO.id);
+	t.is(
+		updateConnectionPropertiesROWithoutCategories.allow_ai_requests,
+		updatedConnectionPropertiesWithOutCategories.allow_ai_requests,
+	);
+	t.is(
+		updateConnectionPropertiesROWithoutCategories.default_showing_table,
+		updatedConnectionPropertiesWithOutCategories.default_showing_table,
+	);
+	t.is(updateConnectionPropertiesROWithoutCategories.table_categories.length, 1);
 });
 
 test.serial(
-  `${currentTest} should return created connection properties with table categories and return created categories in get tables request`,
-  async (t) => {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-      const { token } = await registerUserAndReturnUserInfo(app);
+	`${currentTest} should return created connection properties with table categories and return created categories in get tables request`,
+	async (t) => {
+		const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+		const { token } = await registerUserAndReturnUserInfo(app);
 
-      const connectionPropertiesWithCategories = {
-        hidden_tables: [],
-        logo_url: faker.internet.url(),
-        primary_color: faker.color.rgb(),
-        secondary_color: faker.color.rgb(),
-        hostname: faker.internet.url(),
-        company_name: faker.company.name(),
-        tables_audit: true,
-        human_readable_table_names: faker.datatype.boolean(),
-        allow_ai_requests: faker.datatype.boolean(),
-        default_showing_table: null,
-        table_categories: [
-          { category_name: 'Category 1', tables: [testTableName], category_color: '#FF5733', category_id: 'cat-001' },
-        ],
-      };
+		const connectionPropertiesWithCategories = {
+			hidden_tables: [],
+			logo_url: faker.internet.url(),
+			primary_color: faker.color.rgb(),
+			secondary_color: faker.color.rgb(),
+			hostname: faker.internet.url(),
+			company_name: faker.company.name(),
+			tables_audit: true,
+			human_readable_table_names: faker.datatype.boolean(),
+			allow_ai_requests: faker.datatype.boolean(),
+			default_showing_table: null,
+			table_categories: [
+				{ category_name: 'Category 1', tables: [testTableName], category_color: '#FF5733', category_id: 'cat-001' },
+			],
+		};
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(newConnection)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
-      t.is(createConnectionResponse.status, 201);
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnection)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
 
-      const createConnectionPropertiesResponse = await request(app.getHttpServer())
-        .post(`/connection/properties/${createConnectionRO.id}`)
-        .send(connectionPropertiesWithCategories)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-      t.is(createConnectionPropertiesResponse.status, 201);
-      t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
-      t.is(createConnectionPropertiesRO.allow_ai_requests, connectionPropertiesWithCategories.allow_ai_requests);
-      t.is(
-        createConnectionPropertiesRO.default_showing_table,
-        connectionPropertiesWithCategories.default_showing_table,
-      );
-      t.is(createConnectionPropertiesRO.table_categories.length, 1);
-      t.is(createConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
-      t.is(createConnectionPropertiesRO.table_categories[0].tables.length, 1);
-      t.is(createConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+		const createConnectionPropertiesResponse = await request(app.getHttpServer())
+			.post(`/connection/properties/${createConnectionRO.id}`)
+			.send(connectionPropertiesWithCategories)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+		t.is(createConnectionPropertiesResponse.status, 201);
+		t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+		t.is(createConnectionPropertiesRO.allow_ai_requests, connectionPropertiesWithCategories.allow_ai_requests);
+		t.is(createConnectionPropertiesRO.default_showing_table, connectionPropertiesWithCategories.default_showing_table);
+		t.is(createConnectionPropertiesRO.table_categories.length, 1);
+		t.is(createConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
+		t.is(createConnectionPropertiesRO.table_categories[0].tables.length, 1);
+		t.is(createConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
 
-      const findTablesResponse = await request(app.getHttpServer())
-        .get(`/connection/tables/v2/${createConnectionRO.id}`)
-        .set('Content-Type', 'application/json')
-        .set('Cookie', token)
-        .set('Accept', 'application/json');
+		const findTablesResponse = await request(app.getHttpServer())
+			.get(`/connection/tables/v2/${createConnectionRO.id}`)
+			.set('Content-Type', 'application/json')
+			.set('Cookie', token)
+			.set('Accept', 'application/json');
 
-      const findTablesRO = JSON.parse(findTablesResponse.text);
-      t.is(findTablesResponse.status, 200);
-      t.is(findTablesRO.table_categories.length, 1);
-      t.is(findTablesRO.table_categories[0].category_name, 'Category 1');
-      t.is(findTablesRO.table_categories[0].tables.length, 1);
-      t.is(findTablesRO.table_categories[0].tables[0], testTableName);
-      t.is(findTablesRO.tables.length > 0, true);
+		const findTablesRO = JSON.parse(findTablesResponse.text);
+		t.is(findTablesResponse.status, 200);
+		t.is(findTablesRO.table_categories.length, 1);
+		t.is(findTablesRO.table_categories[0].category_name, 'Category 1');
+		t.is(findTablesRO.table_categories[0].tables.length, 1);
+		t.is(findTablesRO.table_categories[0].tables[0], testTableName);
+		t.is(findTablesRO.tables.length > 0, true);
 
-      const testTableIndex = findTablesRO.tables.findIndex((t) => t.table === testTableName);
+		const testTableIndex = findTablesRO.tables.findIndex((t) => t.table === testTableName);
 
-      t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'table'), true);
-      t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'permissions'), true);
-      t.is(typeof findTablesRO.tables[testTableIndex].permissions, 'object');
-      t.is(Object.keys(findTablesRO.tables[testTableIndex].permissions).length, 5);
-      t.is(findTablesRO.tables[testTableIndex].table, testTableName);
-      t.is(findTablesRO.tables[testTableIndex].permissions.visibility, true);
-      t.is(findTablesRO.tables[testTableIndex].permissions.readonly, false);
-      t.is(findTablesRO.tables[testTableIndex].permissions.add, true);
-      t.is(findTablesRO.tables[testTableIndex].permissions.delete, true);
-      t.is(findTablesRO.tables[testTableIndex].permissions.edit, true);
-  },
+		t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'table'), true);
+		t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'permissions'), true);
+		t.is(typeof findTablesRO.tables[testTableIndex].permissions, 'object');
+		t.is(Object.keys(findTablesRO.tables[testTableIndex].permissions).length, 5);
+		t.is(findTablesRO.tables[testTableIndex].table, testTableName);
+		t.is(findTablesRO.tables[testTableIndex].permissions.visibility, true);
+		t.is(findTablesRO.tables[testTableIndex].permissions.readonly, false);
+		t.is(findTablesRO.tables[testTableIndex].permissions.add, true);
+		t.is(findTablesRO.tables[testTableIndex].permissions.delete, true);
+		t.is(findTablesRO.tables[testTableIndex].permissions.edit, true);
+	},
 );
 
 test.serial(`${currentTest} should return connection without excluded tables`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(newConnectionProperties)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-    t.is(createConnectionPropertiesResponse.status, 201);
-    t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
-    t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(newConnectionProperties)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+	t.is(createConnectionPropertiesResponse.status, 201);
+	t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+	t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
 
-    const getConnectionTablesResponse = await request(app.getHttpServer())
-      .get(`/connection/tables/${createConnectionRO.id}`)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const getConnectionTablesRO = JSON.parse(getConnectionTablesResponse.text);
-    t.is(getConnectionTablesRO.length > 0, true);
-    const hiddenTable = getConnectionTablesRO.find((table) => table.name === newConnectionProperties.hidden_tables[0]);
-    t.is(hiddenTable, undefined);
+	const getConnectionTablesResponse = await request(app.getHttpServer())
+		.get(`/connection/tables/${createConnectionRO.id}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const getConnectionTablesRO = JSON.parse(getConnectionTablesResponse.text);
+	t.is(getConnectionTablesRO.length > 0, true);
+	const hiddenTable = getConnectionTablesRO.find((table) => table.name === newConnectionProperties.hidden_tables[0]);
+	t.is(hiddenTable, undefined);
 });
 
 test.serial(`${currentTest} should throw an exception when excluded table name is incorrect`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-    const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
-    copyNewConnectionResponse.hidden_tables[0] = `${faker.lorem.words(1)}_${faker.number.int({
-      min: 1,
-      max: 10000,
-    })}`;
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(copyNewConnectionResponse)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const _createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-    t.is(createConnectionPropertiesResponse.status, 400);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+	const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
+	copyNewConnectionResponse.hidden_tables[0] = `${faker.lorem.words(1)}_${faker.number.int({
+		min: 1,
+		max: 10000,
+	})}`;
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(copyNewConnectionResponse)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const _createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+	t.is(createConnectionPropertiesResponse.status, 400);
 });
 
 currentTest = 'GET /connection/properties/:slug';
 test.serial(`${currentTest} should return connection properties`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(newConnectionProperties)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createConnectionPropertiesResponse.status, 201);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(newConnectionProperties)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionPropertiesResponse.status, 201);
 
-    const getConnectionPropertiesResponse = await request(app.getHttpServer())
-      .get(`/connection/properties/${createConnectionRO.id}`)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+	const getConnectionPropertiesResponse = await request(app.getHttpServer())
+		.get(`/connection/properties/${createConnectionRO.id}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-    const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
-    t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
-    t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
+	const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
+	t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+	t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
 });
 
 test.serial(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(newConnectionProperties)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createConnectionPropertiesResponse.status, 201);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(newConnectionProperties)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionPropertiesResponse.status, 201);
 
-    const getConnectionPropertiesResponse = await request(app.getHttpServer())
-      .get(`/connection/properties/${faker.string.uuid()}`)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getConnectionPropertiesResponse.status, 403);
+	const getConnectionPropertiesResponse = await request(app.getHttpServer())
+		.get(`/connection/properties/${faker.string.uuid()}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(getConnectionPropertiesResponse.status, 403);
 });
 
 currentTest = 'DELETE /connection/properties/:slug';
 test.serial(`${currentTest} should return deleted connection properties`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(newConnectionProperties)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createConnectionPropertiesResponse.status, 201);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(newConnectionProperties)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionPropertiesResponse.status, 201);
 
-    const getConnectionPropertiesResponse = await request(app.getHttpServer())
-      .get(`/connection/properties/${createConnectionRO.id}`)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createConnectionPropertiesResponse.status, 201);
+	const getConnectionPropertiesResponse = await request(app.getHttpServer())
+		.get(`/connection/properties/${createConnectionRO.id}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionPropertiesResponse.status, 201);
 
-    const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
-    t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
-    t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
+	const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
+	t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+	t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
 
-    const deleteConnectionPropertiesResponse = await request(app.getHttpServer())
-      .delete(`/connection/properties/${createConnectionRO.id}`)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(deleteConnectionPropertiesResponse.status, 200);
-    const deleteConnectionPropertiesRO = JSON.parse(deleteConnectionPropertiesResponse.text);
+	const deleteConnectionPropertiesResponse = await request(app.getHttpServer())
+		.delete(`/connection/properties/${createConnectionRO.id}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(deleteConnectionPropertiesResponse.status, 200);
+	const deleteConnectionPropertiesRO = JSON.parse(deleteConnectionPropertiesResponse.text);
 
-    t.is(deleteConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+	t.is(deleteConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
 
-    const getConnectionPropertiesResponseAfterDeletion = await request(app.getHttpServer())
-      .get(`/connection/properties/${createConnectionRO.id}`)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createConnectionPropertiesResponse.status, 201);
-    const _getConnectionPropertiesAfterDeletionRO = getConnectionPropertiesResponseAfterDeletion.text;
+	const getConnectionPropertiesResponseAfterDeletion = await request(app.getHttpServer())
+		.get(`/connection/properties/${createConnectionRO.id}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionPropertiesResponse.status, 201);
+	const _getConnectionPropertiesAfterDeletionRO = getConnectionPropertiesResponseAfterDeletion.text;
 });
 
 test.serial(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(newConnectionProperties)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createConnectionPropertiesResponse.status, 201);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(newConnectionProperties)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionPropertiesResponse.status, 201);
 
-    const getConnectionPropertiesResponse = await request(app.getHttpServer())
-      .get(`/connection/properties/${faker.string.uuid()}`)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getConnectionPropertiesResponse.status, 403);
+	const getConnectionPropertiesResponse = await request(app.getHttpServer())
+		.get(`/connection/properties/${faker.string.uuid()}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(getConnectionPropertiesResponse.status, 403);
 });
 
 currentTest = 'PUT /connection/properties/:slug';
 test.serial(`${currentTest} should return updated connection properties`, async (t) => {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+	const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${createConnectionRO.id}`)
-      .send(newConnectionProperties)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-    t.is(createConnectionPropertiesResponse.status, 201);
-    t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
-    t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+	const createConnectionPropertiesResponse = await request(app.getHttpServer())
+		.post(`/connection/properties/${createConnectionRO.id}`)
+		.send(newConnectionProperties)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+	t.is(createConnectionPropertiesResponse.status, 201);
+	t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+	t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
 });
 
 test.serial(
-  `${currentTest} should keep created table categories if the exists return updated connection properties`,
-  async (t) => {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-      const { token } = await registerUserAndReturnUserInfo(app);
-      const secondHiddenTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
-      await resetPostgresTestDB(secondHiddenTableName);
+	`${currentTest} should keep created table categories if the exists return updated connection properties`,
+	async (t) => {
+		const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+		const { token } = await registerUserAndReturnUserInfo(app);
+		const secondHiddenTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
+		await resetPostgresTestDB(secondHiddenTableName);
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(newConnection)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
-      t.is(createConnectionResponse.status, 201);
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnection)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
 
-      const createConnectionPropertiesResponse = await request(app.getHttpServer())
-        .post(`/connection/properties/${createConnectionRO.id}`)
-        .send(newConnectionProperties)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-      t.is(createConnectionPropertiesResponse.status, 201);
-      t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
-      t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+		const createConnectionPropertiesResponse = await request(app.getHttpServer())
+			.post(`/connection/properties/${createConnectionRO.id}`)
+			.send(newConnectionProperties)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+		t.is(createConnectionPropertiesResponse.status, 201);
+		t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
+		t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
 
-      const categoriesDTO: Array<CreateTableCategoryDto> = [
-        {
-          category_name: 'Category 1',
-          category_color: '#FF5733',
-          tables: [testTableName],
-          category_id: 'cat-001',
-        },
-      ];
+		const categoriesDTO: Array<CreateTableCategoryDto> = [
+			{
+				category_name: 'Category 1',
+				category_color: '#FF5733',
+				tables: [testTableName],
+				category_id: 'cat-001',
+			},
+		];
 
-      const createTableCategoriesResponse = await request(app.getHttpServer())
-        .put(`/table-categories/${createConnectionRO.id}`)
-        .send(categoriesDTO)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+		const createTableCategoriesResponse = await request(app.getHttpServer())
+			.put(`/table-categories/${createConnectionRO.id}`)
+			.send(categoriesDTO)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-      const _createTableCategoriesRO = JSON.parse(createTableCategoriesResponse.text);
+		const _createTableCategoriesRO = JSON.parse(createTableCategoriesResponse.text);
 
-      t.is(createTableCategoriesResponse.status, 200);
+		t.is(createTableCategoriesResponse.status, 200);
 
-      const propertiesCopy = JSON.parse(JSON.stringify(newConnectionProperties));
-      propertiesCopy.hidden_tables = [testTableName, secondHiddenTableName];
+		const propertiesCopy = JSON.parse(JSON.stringify(newConnectionProperties));
+		propertiesCopy.hidden_tables = [testTableName, secondHiddenTableName];
 
-      const updateConnectionPropertiesResponse = await request(app.getHttpServer())
-        .put(`/connection/properties/${createConnectionRO.id}`)
-        .send(propertiesCopy)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+		const updateConnectionPropertiesResponse = await request(app.getHttpServer())
+			.put(`/connection/properties/${createConnectionRO.id}`)
+			.send(propertiesCopy)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-      t.is(updateConnectionPropertiesResponse.status, 200);
+		t.is(updateConnectionPropertiesResponse.status, 200);
 
-      const updateConnectionPropertiesRO = JSON.parse(updateConnectionPropertiesResponse.text);
-      t.is(updateConnectionPropertiesRO.hidden_tables.length, 2);
-      t.is(updateConnectionPropertiesRO.hidden_tables.includes(testTableName), true);
-      t.is(updateConnectionPropertiesRO.hidden_tables.includes(secondHiddenTableName), true);
-      t.is(updateConnectionPropertiesRO.connectionId, createConnectionRO.id);
-      t.is(updateConnectionPropertiesRO.table_categories.length, 1);
-      t.is(updateConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
-      t.is(updateConnectionPropertiesRO.table_categories[0].tables.length, 1);
-      t.is(updateConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
+		const updateConnectionPropertiesRO = JSON.parse(updateConnectionPropertiesResponse.text);
+		t.is(updateConnectionPropertiesRO.hidden_tables.length, 2);
+		t.is(updateConnectionPropertiesRO.hidden_tables.includes(testTableName), true);
+		t.is(updateConnectionPropertiesRO.hidden_tables.includes(secondHiddenTableName), true);
+		t.is(updateConnectionPropertiesRO.connectionId, createConnectionRO.id);
+		t.is(updateConnectionPropertiesRO.table_categories.length, 1);
+		t.is(updateConnectionPropertiesRO.table_categories[0].category_name, 'Category 1');
+		t.is(updateConnectionPropertiesRO.table_categories[0].tables.length, 1);
+		t.is(updateConnectionPropertiesRO.table_categories[0].tables[0], testTableName);
 
-      const findTableCategoriesResponse = await request(app.getHttpServer())
-        .get(`/table-categories/${createConnectionRO.id}`)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+		const findTableCategoriesResponse = await request(app.getHttpServer())
+			.get(`/table-categories/${createConnectionRO.id}`)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-      const findTableCategoriesRO = JSON.parse(findTableCategoriesResponse.text);
+		const findTableCategoriesRO = JSON.parse(findTableCategoriesResponse.text);
 
-      t.is(findTableCategoriesResponse.status, 200);
+		t.is(findTableCategoriesResponse.status, 200);
 
-      t.is(findTableCategoriesRO.length, 1);
-      t.is(findTableCategoriesRO[0].category_name, 'Category 1');
-      t.is(findTableCategoriesRO[0].tables.length, 1);
-      t.is(findTableCategoriesRO[0].tables[0], testTableName);
-  },
+		t.is(findTableCategoriesRO.length, 1);
+		t.is(findTableCategoriesRO[0].category_name, 'Category 1');
+		t.is(findTableCategoriesRO[0].tables.length, 1);
+		t.is(findTableCategoriesRO[0].tables[0], testTableName);
+	},
 );

@@ -16,53 +16,53 @@ import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-u
 import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
 
 export interface ICompanyRegistration {
-  execute(inputData: RegisterCompanyWebhookDS): Promise<RegisteredCompanyDS>;
+	execute(inputData: RegisterCompanyWebhookDS): Promise<RegisteredCompanyDS>;
 }
 
 export interface IGetUserInfo {
-  execute(userData: GetUserInfoByIdDS): Promise<UserEntity>;
+	execute(userData: GetUserInfoByIdDS): Promise<UserEntity>;
 }
 
 export interface ISaasGetUsersInfosByEmail {
-  execute(userData: GetUsersInfosByEmailDS): Promise<UserEntity[]>;
+	execute(userData: GetUsersInfosByEmailDS): Promise<UserEntity[]>;
 }
 
 export interface ISaasRegisterUser {
-  execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto>;
+	execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto>;
 }
 
 export interface ISaasDemoRegisterUser {
-  execute(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto>;
+	execute(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto>;
 }
 
 export interface ILoginUserWithGoogle {
-  execute(inputData: SaasRegisterUserWithGoogleDS, inTransaction: InTransactionEnum): Promise<UserEntity>;
+	execute(inputData: SaasRegisterUserWithGoogleDS, inTransaction: InTransactionEnum): Promise<UserEntity>;
 }
 
 export interface ILoginUserWithGitHub {
-  execute(userData: SaasRegisterUserWithGithub): Promise<UserEntity>;
+	execute(userData: SaasRegisterUserWithGithub): Promise<UserEntity>;
 }
 
 export interface ISuspendUsers {
-  execute(usersData: SuspendUsersDS): Promise<void>;
+	execute(usersData: SuspendUsersDS): Promise<void>;
 }
 
 export interface ISuspendUsersOverLimit {
-  execute(companyId: string): Promise<void>;
+	execute(companyId: string): Promise<void>;
 }
 
 export interface ISaaSGetCompanyInfoByUserId {
-  execute(userId: string): Promise<CompanyInfoEntity>;
+	execute(userId: string): Promise<CompanyInfoEntity>;
 }
 
 export interface ISaaSGetUsersCountInCompany {
-  execute(companyId: string): Promise<number>;
+	execute(companyId: string): Promise<number>;
 }
 
 export interface IFreezeConnectionsInCompany {
-  execute(inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse>;
+	execute(inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse>;
 }
 
 export interface ISaasSAMLRegisterUser {
-  execute(userData: SaasSAMLUserRegisterDS): Promise<UserEntity>;
+	execute(userData: SaasSAMLUserRegisterDS): Promise<UserEntity>;
 }

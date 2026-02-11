@@ -1,0 +1,104 @@
+<div class="profile-sidebar"
+    [class.profile-sidebar_collapsed]="collapsed()"
+    [class.profile-sidebar_initialized]="initialized()">
+    <button mat-button type="button"
+        *ngIf="!collapsed(); else collapsedToggle"
+        class="sidebar-toggle-button"
+        (click)="toggleCollapsed()">
+        Collapse
+        <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <ng-template #collapsedToggle>
+        <button mat-icon-button type="button"
+            class="sidebar-toggle-button sidebar-toggle-button_collapsed"
+            (click)="toggleCollapsed()">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </ng-template>
+
+    <mat-nav-list class="sidebar-nav">
+        <a mat-list-item
+            routerLink="/user-settings"
+            [class.active-link]="activeTab() === 'account'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Account' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>person</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Account</span>
+        </a>
+        <a mat-list-item
+            routerLink="/company"
+            [class.active-link]="activeTab() === 'company'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Company' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>apartment</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Company</span>
+        </a>
+        <a mat-list-item
+            *ngIf="isSaas"
+            routerLink="/upgrade"
+            [class.active-link]="activeTab() === 'pricing'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Pricing' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>payments</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Pricing</span>
+        </a>
+        <a mat-list-item
+            routerLink="/branding"
+            [class.active-link]="activeTab() === 'branding'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Branding' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>palette</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Branding</span>
+        </a>
+        <a mat-list-item
+            routerLink="/saml"
+            [class.active-link]="activeTab() === 'saml'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'SAML SSO' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>security</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>SAML SSO</span>
+        </a>
+        <a mat-list-item
+            routerLink="/api-keys"
+            [class.active-link]="activeTab() === 'api'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'API Keys' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>vpn_key</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>API Keys</span>
+        </a>
+        <a mat-list-item
+            routerLink="/secrets"
+            [class.active-link]="activeTab() === 'secrets'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Secrets' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>key</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Secrets</span>
+        </a>
+        <a mat-list-item
+            *ngIf="isSaas"
+            routerLink="/zapier"
+            [class.active-link]="activeTab() === 'zapier'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Zapier' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>electric_bolt</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Zapier</span>
+        </a>
+    </mat-nav-list>
+</div>

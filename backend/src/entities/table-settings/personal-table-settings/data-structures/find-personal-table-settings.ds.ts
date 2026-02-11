@@ -1,6 +1,6 @@
 export class FindPersonalTableSettingsDs {
-  connectionId: string;
-  userId: string;
-  tableName: string;
-  masterPassword: string;
+	connectionId: string;
+	userId: string;
+	tableName: string;
+	masterPassword: string;
 }

@@ -87,6 +87,20 @@ const routes: Routes = [
 		canActivate: [AuthGuard],
 	},
 	{
+		path: 'branding',
+		pathMatch: 'full',
+		loadComponent: () => import('./components/branding/branding.component').then((m) => m.BrandingComponent),
+		canActivate: [AuthGuard],
+		title: 'Branding | Rocketadmin',
+	},
+	{
+		path: 'api-keys',
+		pathMatch: 'full',
+		loadComponent: () => import('./components/api-keys/api-keys.component').then((m) => m.ApiKeysComponent),
+		canActivate: [AuthGuard],
+		title: 'API Keys | Rocketadmin',
+	},
+	{
 		path: 'secrets',
 		pathMatch: 'full',
 		loadComponent: () => import('./components/secrets/secrets.component').then((m) => m.SecretsComponent),
@@ -94,10 +108,11 @@ const routes: Routes = [
 		title: 'Secrets | Rocketadmin',
 	},
 	{
-		path: 'sso/:company-id',
+		path: 'saml',
 		pathMatch: 'full',
 		loadComponent: () => import('./components/sso/sso.component').then((m) => m.SsoComponent),
 		canActivate: [AuthGuard],
+		title: 'SAML SSO | Rocketadmin',
 	},
 	{
 		path: 'change-password',

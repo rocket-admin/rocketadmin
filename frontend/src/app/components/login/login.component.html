@@ -1,5 +1,13 @@
 <app-alert></app-alert>
 
+@if (isDemoMode) {
+    <div class="wrapper background-decoration">
+        <div class="login-page demo-loader">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p class="mat-body-1 demo-loader__text">Loading demo account...</p>
+        </div>
+    </div>
+} @else {
 <div class="wrapper background-decoration">
     <div class="login-page">
         <form
@@ -133,4 +141,5 @@
         </form>
     </div>
 </div>
+}
 

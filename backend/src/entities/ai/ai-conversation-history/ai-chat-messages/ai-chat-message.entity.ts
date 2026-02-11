@@ -8,8 +8,8 @@ import {
 	Relation,
 	UpdateDateColumn,
 } from 'typeorm';
-import { MessageRole } from './message-role.enum.js';
 import { UserAiChatEntity } from '../user-ai-chat/user-ai-chat.entity.js';
+import { MessageRole } from './message-role.enum.js';
 
 @Entity('ai_chat_message')
 export class AiChatMessageEntity {

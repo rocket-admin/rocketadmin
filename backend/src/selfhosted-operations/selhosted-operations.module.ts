@@ -1,13 +1,13 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../entities/user/user.entity.js';
-import { CompanyInfoEntity } from '../entities/company-info/company-info.entity.js';
-import { SelfHostedOperationsController } from './selfhosted-operations.controller.js';
 import { GlobalDatabaseContext } from '../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../common/data-injection.tokens.js';
-import { IsConfiguredUseCase } from './application/use-cases/is-configured.use.case.js';
-import { CreateInitialUserUseCase } from './application/use-cases/create-initial-user.use.case.js';
+import { CompanyInfoEntity } from '../entities/company-info/company-info.entity.js';
+import { UserEntity } from '../entities/user/user.entity.js';
 import { isSaaS } from '../helpers/app/is-saas.js';
+import { CreateInitialUserUseCase } from './application/use-cases/create-initial-user.use.case.js';
+import { IsConfiguredUseCase } from './application/use-cases/is-configured.use.case.js';
+import { SelfHostedOperationsController } from './selfhosted-operations.controller.js';
 
 @Module({})
 export class SelfHostedOperationsModule {

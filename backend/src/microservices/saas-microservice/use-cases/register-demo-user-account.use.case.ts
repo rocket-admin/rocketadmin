@@ -13,71 +13,71 @@ import { ISaasDemoRegisterUser } from './saas-use-cases.interface.js';
 
 @Injectable()
 export class SaasRegisterDemoUserAccountUseCase
-  extends AbstractUseCase<SaaSRegisterDemoUserAccountDS, FoundUserDto>
-  implements ISaasDemoRegisterUser
+	extends AbstractUseCase<SaaSRegisterDemoUserAccountDS, FoundUserDto>
+	implements ISaasDemoRegisterUser
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-    private readonly demoDataService: DemoDataService,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private readonly demoDataService: DemoDataService,
+	) {
+		super();
+	}
 
-  protected async implementation(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto> {
-    const savedUser = await this.createDemoUser(userData);
+	protected async implementation(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto> {
+		const savedUser = await this.createDemoUser(userData);
 
-    const createdTestConnections = await this.demoDataService.createDemoDataForUser(savedUser.id);
+		const createdTestConnections = await this.demoDataService.createDemoDataForUser(savedUser.id);
 
-    const savedCompanyInfo = await this.createCompanyInfo(userData, createdTestConnections);
+		const savedCompanyInfo = await this.createCompanyInfo(userData, createdTestConnections);
 
-    savedUser.company = savedCompanyInfo;
-    await this._dbContext.userRepository.saveUserEntity(savedUser);
+		savedUser.company = savedCompanyInfo;
+		await this._dbContext.userRepository.saveUserEntity(savedUser);
 
-    return this.buildFoundUserDto(savedUser);
-  }
+		return this.buildFoundUserDto(savedUser);
+	}
 
-  private async createDemoUser(userData: SaaSRegisterDemoUserAccountDS): Promise<UserEntity> {
-    const { email, gclidValue } = userData;
+	private async createDemoUser(userData: SaaSRegisterDemoUserAccountDS): Promise<UserEntity> {
+		const { email, gclidValue } = userData;
 
-    const demoUser = new UserEntity();
-    demoUser.email = email;
-    demoUser.isDemoAccount = true;
-    demoUser.gclid = gclidValue;
-    demoUser.name = 'Demo User';
-    demoUser.role = UserRoleEnum.ADMIN;
+		const demoUser = new UserEntity();
+		demoUser.email = email;
+		demoUser.isDemoAccount = true;
+		demoUser.gclid = gclidValue;
+		demoUser.name = 'Demo User';
+		demoUser.role = UserRoleEnum.ADMIN;
 
-    return await this._dbContext.userRepository.save(demoUser);
-  }
+		return await this._dbContext.userRepository.save(demoUser);
+	}
 
-  private async createCompanyInfo(
-    userData: SaaSRegisterDemoUserAccountDS,
-    createdTestConnections: ConnectionEntity[],
-  ): Promise<CompanyInfoEntity> {
-    const { companyId, companyName } = userData;
+	private async createCompanyInfo(
+		userData: SaaSRegisterDemoUserAccountDS,
+		createdTestConnections: ConnectionEntity[],
+	): Promise<CompanyInfoEntity> {
+		const { companyId, companyName } = userData;
 
-    const newCompanyInfo = new CompanyInfoEntity();
-    newCompanyInfo.id = companyId;
-    newCompanyInfo.name = companyName;
-    newCompanyInfo.show_test_connections = true;
-    newCompanyInfo.connections = [...createdTestConnections];
+		const newCompanyInfo = new CompanyInfoEntity();
+		newCompanyInfo.id = companyId;
+		newCompanyInfo.name = companyName;
+		newCompanyInfo.show_test_connections = true;
+		newCompanyInfo.connections = [...createdTestConnections];
 
-    return await this._dbContext.companyInfoRepository.save(newCompanyInfo);
-  }
+		return await this._dbContext.companyInfoRepository.save(newCompanyInfo);
+	}
 
-  private buildFoundUserDto(savedUser: UserEntity): FoundUserDto {
-    return {
-      id: savedUser.id,
-      createdAt: savedUser.createdAt,
-      isActive: savedUser.isActive,
-      email: savedUser.email,
-      intercom_hash: null,
-      name: savedUser.name,
-      role: savedUser.role,
-      is_2fa_enabled: false,
-      suspended: false,
-      externalRegistrationProvider: savedUser.externalRegistrationProvider,
-      show_test_connections: savedUser.showTestConnections,
-    };
-  }
+	private buildFoundUserDto(savedUser: UserEntity): FoundUserDto {
+		return {
+			id: savedUser.id,
+			createdAt: savedUser.createdAt,
+			isActive: savedUser.isActive,
+			email: savedUser.email,
+			intercom_hash: null,
+			name: savedUser.name,
+			role: savedUser.role,
+			is_2fa_enabled: false,
+			suspended: false,
+			externalRegistrationProvider: savedUser.externalRegistrationProvider,
+			show_test_connections: savedUser.showTestConnections,
+		};
+	}
 }

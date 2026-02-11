@@ -1,9 +1,9 @@
 :host app-alert:not(:empty) {
-    --alert-margin: 24px;
+	--alert-margin: 24px;
 
 	position: absolute;
-    top: var(--mat-toolbar-standard-height);
-    width: calc(100% - 48px);
+	top: var(--mat-toolbar-standard-height);
+	width: calc(100% - 48px);
 }
 
 .wrapper {
@@ -359,4 +359,17 @@
 	100% {
 		transform: translateX(100%);
 	}
+}
+
+.demo-loader {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 24px;
+}
+
+.demo-loader__text {
+	color: var(--mat-sidenav-content-text-color);
+	margin: 0;
 }

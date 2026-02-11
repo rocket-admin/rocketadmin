@@ -5,7 +5,6 @@ import { config, validateConfig } from './config.js';
 import { setupWebSocketServer } from './handlers/websocket.js';
 import { logger } from './utils/logger.js';
 
-// Validate configuration
 try {
 	validateConfig();
 } catch (error) {
@@ -16,7 +15,6 @@ try {
 
 const app = createApp();
 
-// Create HTTP server for Hono
 const httpServer = serve({
 	fetch: app.fetch,
 	port: config.httpPort,
@@ -36,11 +34,9 @@ wsHttpServer.listen(config.wsPort, () => {
 	logger.info({ port: config.wsPort }, 'WebSocket server started');
 });
 
-// Graceful shutdown
 const shutdown = (signal: string) => {
 	logger.info({ signal }, 'Shutdown signal received');
 
-	// Close WebSocket server
 	wss.close(() => {
 		logger.info('WebSocket server closed');
 	});
@@ -49,12 +45,10 @@ const shutdown = (signal: string) => {
 		logger.info('WebSocket HTTP server closed');
 	});
 
-	// Close HTTP server
 	httpServer.close(() => {
 		logger.info('HTTP server closed');
 	});
 
-	// Give connections time to close gracefully
 	setTimeout(() => {
 		logger.info('Forcing shutdown');
 		process.exit(0);
@@ -64,7 +58,6 @@ const shutdown = (signal: string) => {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-// Handle uncaught errors
 process.on('uncaughtException', (error) => {
 	logger.fatal({ error: error.message, stack: error.stack }, 'Uncaught exception');
 	process.exit(1);

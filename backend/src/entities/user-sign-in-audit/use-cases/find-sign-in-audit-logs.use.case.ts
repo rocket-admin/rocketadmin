@@ -15,108 +15,108 @@ import { IFindSignInAuditLogs } from './use-cases.interface.js';
 
 @Injectable()
 export class FindSignInAuditLogsUseCase
-  extends AbstractUseCase<FindSignInAuditLogsDs, FoundSignInAuditLogsDs>
-  implements IFindSignInAuditLogs
+	extends AbstractUseCase<FindSignInAuditLogsDs, FoundSignInAuditLogsDs>
+	implements IFindSignInAuditLogs
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: FindSignInAuditLogsDs): Promise<FoundSignInAuditLogsDs> {
-    const { userId, companyId, query } = inputData;
+	protected async implementation(inputData: FindSignInAuditLogsDs): Promise<FoundSignInAuditLogsDs> {
+		const { userId, companyId, query } = inputData;
 
-    const user = await this._dbContext.userRepository.findOne({
-      where: { id: userId },
-      relations: ['company'],
-    });
+		const user = await this._dbContext.userRepository.findOne({
+			where: { id: userId },
+			relations: ['company'],
+		});
 
-    if (!user || user.company?.id !== companyId) {
-      throw new HttpException(
-        {
-          message: Messages.COMPANY_NOT_FOUND,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
+		if (!user || user.company?.id !== companyId) {
+			throw new HttpException(
+				{
+					message: Messages.COMPANY_NOT_FOUND,
+				},
+				HttpStatus.FORBIDDEN,
+			);
+		}
 
-    let order = query.order as QueryOrderingEnum;
-    let page = query.page;
-    let perPage = query.perPage;
-    const dateFrom = query.dateFrom;
-    const dateTo = query.dateTo;
-    const searchedEmail = query.email?.toLowerCase();
-    const status = query.status;
-    const signInMethod = query.signInMethod;
+		let order = query.order as QueryOrderingEnum;
+		let page = query.page;
+		let perPage = query.perPage;
+		const dateFrom = query.dateFrom;
+		const dateTo = query.dateTo;
+		const searchedEmail = query.email?.toLowerCase();
+		const status = query.status;
+		const signInMethod = query.signInMethod;
 
-    if (status) {
-      const statusValidationResult = validateStringWithEnum(status, SignInStatusEnum);
-      if (!statusValidationResult) {
-        throw new HttpException(
-          {
-            message: Messages.INVALID_SIGN_IN_STATUS,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
+		if (status) {
+			const statusValidationResult = validateStringWithEnum(status, SignInStatusEnum);
+			if (!statusValidationResult) {
+				throw new HttpException(
+					{
+						message: Messages.INVALID_SIGN_IN_STATUS,
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
 
-    if (signInMethod) {
-      const methodValidationResult = validateStringWithEnum(signInMethod, SignInMethodEnum);
-      if (!methodValidationResult) {
-        throw new HttpException(
-          {
-            message: Messages.INVALID_SIGN_IN_METHOD,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
+		if (signInMethod) {
+			const methodValidationResult = validateStringWithEnum(signInMethod, SignInMethodEnum);
+			if (!methodValidationResult) {
+				throw new HttpException(
+					{
+						message: Messages.INVALID_SIGN_IN_METHOD,
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
 
-    if (!order || order !== QueryOrderingEnum.ASC) {
-      order = QueryOrderingEnum.DESC;
-    }
-    if (!page || page <= 0) {
-      page = 1;
-    }
-    if (!perPage || perPage <= 0) {
-      perPage = Constants.DEFAULT_LOG_ROWS_LIMIT;
-    }
+		if (!order || order !== QueryOrderingEnum.ASC) {
+			order = QueryOrderingEnum.DESC;
+		}
+		if (!page || page <= 0) {
+			page = 1;
+		}
+		if (!perPage || perPage <= 0) {
+			perPage = Constants.DEFAULT_LOG_ROWS_LIMIT;
+		}
 
-    let searchedDateFrom: Date = null;
-    let searchedDateTo: Date = null;
-    if (dateFrom && dateTo) {
-      let dateFromParsed = Date.parse(dateFrom);
-      let dateToParsed = Date.parse(dateTo);
-      const dateFromMs = new Date(dateFromParsed).getTime();
-      const dateToMs = new Date(dateToParsed).getTime();
-      if (dateFromMs > dateToMs) {
-        const tmpDate = dateFromParsed;
-        dateFromParsed = dateToParsed;
-        dateToParsed = tmpDate;
-      }
-      searchedDateFrom = new Date(dateFromParsed);
-      searchedDateTo = new Date(dateToParsed);
-    }
+		let searchedDateFrom: Date = null;
+		let searchedDateTo: Date = null;
+		if (dateFrom && dateTo) {
+			let dateFromParsed = Date.parse(dateFrom);
+			let dateToParsed = Date.parse(dateTo);
+			const dateFromMs = new Date(dateFromParsed).getTime();
+			const dateToMs = new Date(dateToParsed).getTime();
+			if (dateFromMs > dateToMs) {
+				const tmpDate = dateFromParsed;
+				dateFromParsed = dateToParsed;
+				dateToParsed = tmpDate;
+			}
+			searchedDateFrom = new Date(dateFromParsed);
+			searchedDateTo = new Date(dateToParsed);
+		}
 
-    const { logs, pagination } = await this._dbContext.signInAuditRepository.findSignInAuditLogs({
-      companyId,
-      order,
-      page,
-      perPage,
-      dateFrom: searchedDateFrom,
-      dateTo: searchedDateTo,
-      searchedEmail,
-      status,
-      signInMethod,
-      userId,
-    });
+		const { logs, pagination } = await this._dbContext.signInAuditRepository.findSignInAuditLogs({
+			companyId,
+			order,
+			page,
+			perPage,
+			dateFrom: searchedDateFrom,
+			dateTo: searchedDateTo,
+			searchedEmail,
+			status,
+			signInMethod,
+			userId,
+		});
 
-    return {
-      logs: logs.map((log) => buildFoundSignInAuditRecordDs(log)),
-      pagination,
-    };
-  }
+		return {
+			logs: logs.map((log) => buildFoundSignInAuditRecordDs(log)),
+			pagination,
+		};
+	}
 }
