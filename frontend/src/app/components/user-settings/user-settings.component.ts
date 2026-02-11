@@ -1,14 +1,12 @@
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
-import { ApiKey, User } from 'src/app/models/user';
+import { User } from 'src/app/models/user';
 import { Component, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { Angulartics2Module } from 'angulartics2';
-import { ApiKeyDeleteDialogComponent } from './api-key-delete-dialog/api-key-delete-dialog.component';
 import { AuthService } from 'src/app/services/auth.service';
-import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from 'src/app/services/company.service';
 import { EnableTwoFADialogComponent } from './enable-two-fa-dialog/enable-two-fa-dialog.component';
@@ -19,13 +17,12 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NotificationsService } from 'src/app/services/notifications.service';
 import { RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
+import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 
 @Component({
   selector: 'app-user-settings',
@@ -40,13 +37,12 @@ import { UserService } from 'src/app/services/user.service';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatListModule,
     MatSlideToggleModule,
     MatTooltipModule,
-    CdkCopyToClipboard,
     Angulartics2Module,
     AlertComponent,
-    Angulartics2OnModule
+    Angulartics2OnModule,
+    ProfileSidebarComponent
   ]
 })
 export class UserSettingsComponent implements OnInit {
@@ -77,10 +73,6 @@ export class UserSettingsComponent implements OnInit {
   public is2FAswitchingOffSettingsShown: boolean = false;
   public is2FAEnabledToggle: boolean;
 
-  public apiKeys: [];
-  public generatingAPIkeyTitle: string;
-  public generatedAPIkeyHash: string;
-
   public isDemoAccountWarning: Alert = {
     id: 10000000,
     type: AlertType.Warning,
@@ -90,7 +82,6 @@ export class UserSettingsComponent implements OnInit {
   constructor(
     private _userService: UserService,
     private _authService: AuthService,
-    private _notifications: NotificationsService,
     private _company: CompanyService,
     public dialog: MatDialog,
     private title: Title,
@@ -106,12 +97,11 @@ export class UserSettingsComponent implements OnInit {
     this.currentUser = null;
     this._userService.cast
       .subscribe(user => {
-        this.currentUser =user;
+        this.currentUser = user;
         this.userName = user.name;
         this.is2FAEnabledToggle = user.is_2fa_enabled;
         this.showTestConnections = user.show_test_connections;
       });
-    this.getAPIkeys();
   }
 
   requestEmailVerification() {
@@ -201,32 +191,5 @@ export class UserSettingsComponent implements OnInit {
         action: 'Company: show test connections is updated successfully',
       });
     });
-
-  }
-
-  getAPIkeys() {
-    this._userService.getAPIkeys().subscribe(res => this.apiKeys = res);
-  }
-
-  generateAPIkey() {
-    this._userService.generateAPIkey(this.generatingAPIkeyTitle).subscribe(res => {
-      this.generatedAPIkeyHash = res.hash;
-      this.getAPIkeys();
-    });
-  }
-
-  deleteAPIkey(apiKey: ApiKey) {
-    const deleteConfirmation = this.dialog.open(ApiKeyDeleteDialogComponent, {
-      width: '25em',
-      data: apiKey
-    });
-
-    deleteConfirmation.afterClosed().subscribe( action => {
-      if (action === 'delete') this.getAPIkeys();
-    });
-  }
-
-  showCopyNotification(message: string) {
-    this._notifications.showSuccessSnackbar(message);
   }
 }

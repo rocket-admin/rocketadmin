@@ -2,6 +2,7 @@ import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -38,6 +39,7 @@ import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 		MatFormFieldModule,
 		MatSelectModule,
 		MatButtonModule,
+		MatIconModule,
 		MatTableModule,
 		MatPaginatorModule,
 		FormsModule,
@@ -93,8 +95,8 @@ export class AuditComponent implements OnInit {
 			});
 		this.connectionID = this._connections.currentConnectionID;
 		this.accesLevel = this._connections.currentConnectionAccessLevel;
-		this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
-		this.dataColumns = ['Table', 'User', 'Action', 'Date', 'Status'];
+		this.columns = ['User', 'Table', 'Action', 'Status', 'Date', 'Changes'];
+		this.dataColumns = ['User', 'Table', 'Action', 'Status', 'Date'];
 		this.dataSource = new AuditDataSource(this._connections);
 		this.loadLogsPage();
 
@@ -138,5 +140,11 @@ export class AuditComponent implements OnInit {
 	openIntercome() {
 		// @ts-expect-error
 		Intercom('show');
+	}
+
+	getUserName(email: string): string | null {
+		if (!this.usersList) return null;
+		const user = this.usersList.find((u) => u.email === email);
+		return user?.name || null;
 	}
 }
