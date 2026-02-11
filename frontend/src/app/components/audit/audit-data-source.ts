@@ -67,7 +67,7 @@ export class AuditDataSource implements DataSource<Object> {
             updateRow: 'Edited',
             rowReceived: 'Viewed',
             rowsReceived: 'Viewed',
-            importRow: 'Imported',
+            importRows: 'Imported',
             exportRows: 'Exported'
           }
 
@@ -77,7 +77,7 @@ export class AuditDataSource implements DataSource<Object> {
             updateRow: 'edit',
             rowReceived: 'visibility',
             rowsReceived: 'visibility',
-            importRow: 'upload',
+            importRows: 'upload',
             exportRows: 'download'
           }
 
