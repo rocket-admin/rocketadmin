@@ -204,7 +204,7 @@
                         </defs>
                     </svg>
                 </div>
-                <div *ngIf="isSaas" class="white-label-how-to">
+                <div *ngIf="isSaas && currentPlan !== 'free'" class="white-label-how-to">
                     <h3>Configure DNS Records</h3>
                     <p>
                         These instructions will guide you in setting up domain to have your admin panel on it.
@@ -223,6 +223,16 @@
                     </ol>
                     <br/>
                     <p>Done! Now wait for the server's updates; it might take 1-2 hours.</p>
+                </div>
+                <div *ngIf="isSaas && currentPlan === 'free'" class="upgrade-required">
+                    <mat-icon class="upgrade-required__icon">lock</mat-icon>
+                    <h2 class="mat-h2">White-label is available on Team plan</h2>
+                    <p class="upgrade-required__description">
+                        Upgrade to enable white-label settings for your organization.
+                    </p>
+                    <a mat-flat-button color="primary" routerLink="/upgrade">
+                        Upgrade
+                    </a>
                 </div>
             </div>
         </div>

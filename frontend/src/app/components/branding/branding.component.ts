@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
@@ -27,6 +28,7 @@ import { PlaceholderCompanyComponent } from '../skeletons/placeholder-company/pl
   imports: [
     NgIf,
     FormsModule,
+    RouterModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
