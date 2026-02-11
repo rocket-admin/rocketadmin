@@ -259,7 +259,4 @@ export class ChartEditComponent implements OnInit {
 		}
 	}
 
-	cancel(): void {
-		this.router.navigate(['/charts', this.connectionId()]);
-	}
 }

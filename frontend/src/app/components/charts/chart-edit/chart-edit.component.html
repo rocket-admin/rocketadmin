@@ -9,9 +9,6 @@
 
         <div class="chart-edit-page">
     <div class="chart-edit-header">
-        <button mat-icon-button (click)="cancel()" matTooltip="Back to list">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
         <h1 class="mat-h1">{{ isEditMode() ? 'Edit widget' : 'Create widget' }}</h1>
     </div>
 
@@ -158,18 +155,17 @@
         </div>
     </div>
 
-    <div class="actions" *ngIf="!loading()">
-        <button mat-button (click)="cancel()" data-testid="cancel-button">
-            Cancel
-        </button>
-        <button mat-flat-button color="primary"
-            (click)="saveQuery()"
-            [disabled]="!canSave()"
-            data-testid="save-query-button">
-            <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
-            {{ saving() ? 'Saving...' : (isEditMode() ? 'Update query' : 'Save query') }}
-        </button>
-    </div>
+        </div>
+
+        <div class="actions" *ngIf="!loading()">
+            <a mat-stroked-button [routerLink]="['/charts', connectionId()]" data-testid="cancel-button">Back</a>
+            <button mat-flat-button color="primary"
+                (click)="saveQuery()"
+                [disabled]="!canSave()"
+                data-testid="save-query-button">
+                <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
+                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update query' : 'Save query') }}
+            </button>
         </div>
     </div>
 </div>

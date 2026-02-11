@@ -1,6 +1,15 @@
+:host {
+	display: block;
+	height: calc(100vh - 44px);
+	margin-bottom: -60px;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
 .charts-layout {
 	display: flex;
-	height: calc(100vh - 64px);
+	height: 100%;
 }
 
 .charts-main {
