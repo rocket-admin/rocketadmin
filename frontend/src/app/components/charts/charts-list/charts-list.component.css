@@ -79,6 +79,17 @@
 
 .widgets-table tr.mat-mdc-row {
 	height: 64px;
+	cursor: pointer;
+}
+
+.widgets-table tr.mat-mdc-row:hover {
+	background-color: rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+	.widgets-table tr.mat-mdc-row:hover {
+		background-color: rgba(255, 255, 255, 0.04);
+	}
 }
 
 .widgets-table th.mat-mdc-header-cell {
@@ -107,7 +118,6 @@
 	justify-content: center;
 	width: 56px;
 	height: 56px;
-	text-decoration: none;
 	overflow: hidden;
 }
 
@@ -116,15 +126,9 @@
 	height: 40px;
 }
 
-/* Name Link */
-.widget-name-link {
+/* Name Cell */
+.widget-name-cell {
 	font-weight: 500;
-	color: inherit;
-	text-decoration: none;
-}
-
-.widget-name-link:hover {
-	color: var(--color-accentedPalette-500);
 }
 
 /* Description Cell */
