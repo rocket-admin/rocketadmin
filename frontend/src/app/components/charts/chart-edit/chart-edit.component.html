@@ -491,21 +491,21 @@
             }
         </div>
     }
+        </div>
 
-    @if (!loading()) {
-        <div class="actions">
-            <a mat-stroked-button [routerLink]="['/charts', connectionId()]" data-testid="cancel-button">Back</a>
-            <button mat-flat-button color="primary"
-                (click)="saveQuery()"
-                [disabled]="!canSave()"
-                data-testid="save-query-button">
-                @if (saving()) {
-                    <mat-spinner diameter="18"></mat-spinner>
-                }
-                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update query' : 'Save query') }}
-            </button>
-        </div>
-    }
-        </div>
+        @if (!loading()) {
+            <div class="actions">
+                <a mat-stroked-button [routerLink]="['/charts', connectionId()]" data-testid="cancel-button">Back</a>
+                <button mat-flat-button color="primary"
+                    (click)="saveQuery()"
+                    [disabled]="!canSave()"
+                    data-testid="save-query-button">
+                    @if (saving()) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                    }
+                    {{ saving() ? 'Saving...' : (isEditMode() ? 'Update query' : 'Save query') }}
+                </button>
+            </div>
+        }
     </div>
 </div>
