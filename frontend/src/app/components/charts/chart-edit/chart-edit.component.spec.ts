@@ -9,7 +9,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
-import { ChartType, SavedQuery } from 'src/app/models/saved-query';
+import { ChartSeriesConfig, ChartType, SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
@@ -27,7 +27,7 @@ type ChartEditComponentTestable = ChartEditComponent & {
 	resultColumns: WritableSignal<string[]>;
 	executionTime: WritableSignal<number | null>;
 	labelColumn: WritableSignal<string>;
-	valueColumn: WritableSignal<string>;
+	seriesList: WritableSignal<ChartSeriesConfig[]>;
 	chartType: WritableSignal<ChartType>;
 	canSave: Signal<boolean>;
 	canTest: Signal<boolean>;
@@ -212,12 +212,12 @@ describe('ChartEditComponent', () => {
 			expect(testable.executionTime()).toBe(50);
 		});
 
-		it('should auto-select label and value columns', () => {
+		it('should auto-select label column and first series', () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
 			component.testQuery();
 			expect(testable.labelColumn()).toBe('name');
-			expect(testable.valueColumn()).toBe('count');
+			expect(testable.seriesList()).toEqual([{ value_column: 'count' }]);
 		});
 	});
 
@@ -234,7 +234,7 @@ describe('ChartEditComponent', () => {
 				query_text: 'SELECT 1',
 				widget_type: 'chart',
 				chart_type: 'bar',
-				widget_options: { label_type: 'values' },
+				widget_options: { label_column: '', label_type: 'values' },
 			});
 		});
 
@@ -269,19 +269,19 @@ describe('ChartEditComponent', () => {
 			expect(testable.hasChartData()).toBe(false);
 		});
 
-		it('should return false when no columns selected', () => {
+		it('should return false when no series configured', () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.testResults.set([{ name: 'John' }]);
-			testable.labelColumn.set('');
-			testable.valueColumn.set('');
+			testable.labelColumn.set('name');
+			testable.seriesList.set([]);
 			expect(testable.hasChartData()).toBe(false);
 		});
 
-		it('should return true when results and columns are set', () => {
+		it('should return true when results, label and series are set', () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.testResults.set([{ name: 'John', count: 10 }]);
 			testable.labelColumn.set('name');
-			testable.valueColumn.set('count');
+			testable.seriesList.set([{ value_column: 'count' }]);
 			expect(testable.hasChartData()).toBe(true);
 		});
 	});

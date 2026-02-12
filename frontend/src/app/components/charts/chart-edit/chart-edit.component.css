@@ -255,3 +255,142 @@
 	vertical-align: middle;
 	margin-right: 4px;
 }
+
+/* Series section */
+.series-section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 8px;
+}
+
+.series-section .section-header h4 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.add-series-button {
+	font-size: 13px;
+}
+
+.add-series-button mat-icon {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.series-card {
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 4px;
+	padding: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.series-card {
+		border-color: rgba(255, 255, 255, 0.12);
+	}
+}
+
+.series-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.series-number {
+	font-size: 12px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.series-number {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+.remove-series-button {
+	width: 28px !important;
+	height: 28px !important;
+	line-height: 28px !important;
+}
+
+.remove-series-button mat-icon {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.series-fields {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.series-field {
+	flex: 1;
+	min-width: 120px;
+}
+
+.series-field--color {
+	max-width: 200px;
+}
+
+.series-field--small {
+	max-width: 100px;
+	min-width: 80px;
+}
+
+.series-options {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
+/* Advanced options accordion */
+.advanced-options {
+	margin-top: 8px;
+}
+
+.option-group {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 4px 0;
+}
+
+.option-field {
+	min-width: 120px;
+}
+
+.inline-fields {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.inline-fields .option-field {
+	flex: 1;
+}
+
+.axis-label {
+	margin: 8px 0 0;
+	font-size: 13px;
+	font-weight: 500;
+	color: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+	.axis-label {
+		color: rgba(255, 255, 255, 0.6);
+	}
+}
+
+.palette-field {
+	width: 100%;
+}

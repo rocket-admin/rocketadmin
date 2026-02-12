@@ -3,7 +3,8 @@
         <canvas baseChart
             [data]="chartData()!"
             [type]="mappedChartType"
-            [options]="chartOptions()">
+            [options]="chartOptions()"
+            [plugins]="chartPlugins()">
         </canvas>
     </div>
 } @else {

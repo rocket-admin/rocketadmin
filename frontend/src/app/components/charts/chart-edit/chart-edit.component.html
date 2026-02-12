@@ -15,161 +15,452 @@
         <h1 class="mat-h1">{{ isEditMode() ? 'Edit Widget' : 'Create Widget' }}</h1>
     </div>
 
-    <div *ngIf="loading()" class="loading-container">
-        <mat-spinner diameter="40"></mat-spinner>
-    </div>
-
-    <div *ngIf="!loading()" class="chart-edit-content">
-        <div class="query-details">
-            <mat-form-field appearance="outline" class="name-field">
-                <mat-label>Query Name</mat-label>
-                <input matInput
-                    [ngModel]="queryName()"
-                    (ngModelChange)="queryName.set($event)"
-                    placeholder="Enter a name for this query"
-                    data-testid="query-name-input"
-                    required>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="description-field">
-                <mat-label>Description (optional)</mat-label>
-                <input matInput
-                    [ngModel]="queryDescription()"
-                    (ngModelChange)="queryDescription.set($event)"
-                    placeholder="Add a description"
-                    data-testid="query-description-input">
-            </mat-form-field>
+    @if (loading()) {
+        <div class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
         </div>
+    }
 
-        <div class="editor-preview-container">
-            <div class="editor-section">
-                <div class="section-header">
-                    <h3>SQL Query</h3>
-                    <button mat-stroked-button
-                        (click)="testQuery()"
-                        [disabled]="!canTest()"
-                        class="test-query-button"
-                        data-testid="test-query-button">
-                        <mat-icon *ngIf="!testing()">play_arrow</mat-icon>
-                        <mat-spinner *ngIf="testing()" diameter="18" class="button-spinner"></mat-spinner>
-                        {{ testing() ? 'Testing...' : 'Test Query' }}
-                    </button>
-                </div>
-                <div class="code-editor-box ph-no-capture">
-                    <ngs-code-editor
-                        [theme]="codeEditorTheme"
-                        [codeModel]="codeModel()"
-                        [options]="codeEditorOptions"
-                        (valueChanged)="onCodeChange($event)">
-                    </ngs-code-editor>
-                </div>
+    @if (!loading()) {
+        <div class="chart-edit-content">
+            <div class="query-details">
+                <mat-form-field appearance="outline" class="name-field">
+                    <mat-label>Query Name</mat-label>
+                    <input matInput
+                        [ngModel]="queryName()"
+                        (ngModelChange)="queryName.set($event)"
+                        placeholder="Enter a name for this query"
+                        data-testid="query-name-input"
+                        required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="description-field">
+                    <mat-label>Description (optional)</mat-label>
+                    <input matInput
+                        [ngModel]="queryDescription()"
+                        (ngModelChange)="queryDescription.set($event)"
+                        placeholder="Add a description"
+                        data-testid="query-description-input">
+                </mat-form-field>
             </div>
 
-            <div class="right-panel" *ngIf="showResults()">
-                <div class="config-section">
+            <div class="editor-preview-container">
+                <div class="editor-section">
                     <div class="section-header">
-                        <h3>Chart Configuration</h3>
-                        <span class="execution-time" *ngIf="executionTime() !== null">
-                            Executed in {{ executionTime() }}ms
-                        </span>
+                        <h3>SQL Query</h3>
+                        <button mat-stroked-button
+                            (click)="testQuery()"
+                            [disabled]="!canTest()"
+                            class="test-query-button"
+                            data-testid="test-query-button">
+                            @if (!testing()) {
+                                <mat-icon>play_arrow</mat-icon>
+                            }
+                            @if (testing()) {
+                                <mat-spinner diameter="18" class="button-spinner"></mat-spinner>
+                            }
+                            {{ testing() ? 'Testing...' : 'Test Query' }}
+                        </button>
                     </div>
-
-                    <div class="chart-config">
-                        <mat-form-field appearance="outline" class="chart-config-field">
-                            <mat-label>Chart Type</mat-label>
-                            <mat-select [ngModel]="chartType()" (ngModelChange)="chartType.set($event)" data-testid="chart-type-select">
-                                <mat-option *ngFor="let type of chartTypes" [value]="type.value">
-                                    {{ type.label }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="chart-config-field">
-                            <mat-label>Label Column</mat-label>
-                            <mat-select [ngModel]="labelColumn()" (ngModelChange)="labelColumn.set($event)" data-testid="label-column-select">
-                                <mat-option *ngFor="let col of resultColumns()" [value]="col">
-                                    {{ col }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="chart-config-field" *ngIf="showLabelTypeOption()">
-                            <mat-label>Label Type</mat-label>
-                            <mat-select [ngModel]="labelType()" (ngModelChange)="labelType.set($event)" data-testid="label-type-select">
-                                <mat-option *ngFor="let type of labelTypes" [value]="type.value">
-                                    {{ type.label }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="chart-config-field">
-                            <mat-label>Value Column</mat-label>
-                            <mat-select [ngModel]="valueColumn()" (ngModelChange)="valueColumn.set($event)" data-testid="value-column-select">
-                                <mat-option *ngFor="let col of resultColumns()" [value]="col">
-                                    {{ col }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                    <div class="code-editor-box ph-no-capture">
+                        <ngs-code-editor
+                            [theme]="codeEditorTheme"
+                            [codeModel]="codeModel()"
+                            [options]="codeEditorOptions"
+                            (valueChanged)="onCodeChange($event)">
+                        </ngs-code-editor>
                     </div>
                 </div>
 
-                <div class="preview-section">
+                @if (showResults()) {
+                    <div class="right-panel">
+                        <div class="config-section">
+                            <div class="section-header">
+                                <h3>Chart Configuration</h3>
+                                @if (executionTime() !== null) {
+                                    <span class="execution-time">
+                                        Executed in {{ executionTime() }}ms
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Basic chart config -->
+                            <div class="chart-config">
+                                <mat-form-field appearance="outline" class="chart-config-field">
+                                    <mat-label>Chart Type</mat-label>
+                                    <mat-select [ngModel]="chartType()" (ngModelChange)="chartType.set($event)" data-testid="chart-type-select">
+                                        @for (type of chartTypes; track type.value) {
+                                            <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="chart-config-field">
+                                    <mat-label>Label Column</mat-label>
+                                    <mat-select [ngModel]="labelColumn()" (ngModelChange)="labelColumn.set($event)" data-testid="label-column-select">
+                                        @for (col of resultColumns(); track col) {
+                                            <mat-option [value]="col">{{ col }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+
+                                @if (showLabelTypeOption()) {
+                                    <mat-form-field appearance="outline" class="chart-config-field">
+                                        <mat-label>Label Type</mat-label>
+                                        <mat-select [ngModel]="labelType()" (ngModelChange)="labelType.set($event)" data-testid="label-type-select">
+                                            @for (type of labelTypes; track type.value) {
+                                                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                }
+                            </div>
+
+                            <!-- Series config -->
+                            <div class="series-section">
+                                <div class="section-header">
+                                    <h4>Data Series</h4>
+                                    @if (!isPieType() || seriesList().length === 0) {
+                                        <button mat-stroked-button (click)="addSeries()" class="add-series-button" data-testid="add-series-button">
+                                            <mat-icon>add</mat-icon> Add Series
+                                        </button>
+                                    }
+                                </div>
+
+                                @for (series of seriesList(); track $index; let i = $index) {
+                                    <div class="series-card">
+                                        <div class="series-card-header">
+                                            <span class="series-number">Series {{ i + 1 }}</span>
+                                            @if (seriesList().length > 1) {
+                                                <button mat-icon-button (click)="removeSeries(i)" matTooltip="Remove series" class="remove-series-button">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>
+                                            }
+                                        </div>
+
+                                        <div class="series-fields">
+                                            <mat-form-field appearance="outline" class="series-field">
+                                                <mat-label>Value Column</mat-label>
+                                                <mat-select [ngModel]="series.value_column" (ngModelChange)="updateSeries(i, 'value_column', $event)">
+                                                    @for (col of resultColumns(); track col) {
+                                                        <mat-option [value]="col">{{ col }}</mat-option>
+                                                    }
+                                                </mat-select>
+                                            </mat-form-field>
+
+                                            <mat-form-field appearance="outline" class="series-field">
+                                                <mat-label>Label</mat-label>
+                                                <input matInput [ngModel]="series.label || ''" (ngModelChange)="updateSeries(i, 'label', $event || undefined)" placeholder="Auto">
+                                            </mat-form-field>
+
+                                            @if (!isPieType()) {
+                                                <mat-form-field appearance="outline" class="series-field series-field--color">
+                                                    <mat-label>Color</mat-label>
+                                                    <input matInput [ngModel]="series.color || ''" (ngModelChange)="updateSeries(i, 'color', $event || undefined)" placeholder="Auto">
+                                                </mat-form-field>
+                                            }
+
+                                            @if (!isPieType() && chartType() !== 'bar') {
+                                                <mat-form-field appearance="outline" class="series-field">
+                                                    <mat-label>Point Style</mat-label>
+                                                    <mat-select [ngModel]="series.point_style || 'circle'" (ngModelChange)="updateSeries(i, 'point_style', $event)">
+                                                        @for (ps of pointStyles; track ps.value) {
+                                                            <mat-option [value]="ps.value">{{ ps.label }}</mat-option>
+                                                        }
+                                                    </mat-select>
+                                                </mat-form-field>
+                                            }
+                                        </div>
+
+                                        @if (!isPieType()) {
+                                            <div class="series-options">
+                                                @if (chartType() === 'line' || series.type === 'line') {
+                                                    <mat-checkbox [ngModel]="series.fill || false" (ngModelChange)="updateSeries(i, 'fill', $event)">
+                                                        Fill area
+                                                    </mat-checkbox>
+                                                }
+
+                                                @if (chartType() === 'line' || series.type === 'line') {
+                                                    <mat-form-field appearance="outline" class="series-field series-field--small">
+                                                        <mat-label>Tension</mat-label>
+                                                        <input matInput type="number" min="0" max="1" step="0.1"
+                                                            [ngModel]="series.tension ?? 0"
+                                                            (ngModelChange)="updateSeries(i, 'tension', $event)">
+                                                    </mat-form-field>
+                                                }
+
+                                                @if (seriesList().length > 1) {
+                                                    <mat-form-field appearance="outline" class="series-field">
+                                                        <mat-label>Type Override</mat-label>
+                                                        <mat-select [ngModel]="series.type || ''" (ngModelChange)="updateSeries(i, 'type', $event || undefined)">
+                                                            <mat-option value="">Default</mat-option>
+                                                            <mat-option value="bar">Bar</mat-option>
+                                                            <mat-option value="line">Line</mat-option>
+                                                        </mat-select>
+                                                    </mat-form-field>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Advanced options -->
+                        <mat-accordion class="advanced-options">
+                            <!-- Display Options -->
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>Display Options</mat-panel-title>
+                                </mat-expansion-panel-header>
+
+                                <div class="option-group">
+                                    @if (!isPieType()) {
+                                        <mat-checkbox [ngModel]="stacked()" (ngModelChange)="stacked.set($event)">
+                                            Stacked
+                                        </mat-checkbox>
+                                    }
+
+                                    @if (chartType() === 'bar') {
+                                        <mat-checkbox [ngModel]="horizontal()" (ngModelChange)="horizontal.set($event)">
+                                            Horizontal
+                                        </mat-checkbox>
+                                    }
+
+                                    <mat-checkbox [ngModel]="showDataLabels()" (ngModelChange)="showDataLabels.set($event)">
+                                        Show data labels
+                                    </mat-checkbox>
+
+                                    <mat-checkbox [ngModel]="legendShow()" (ngModelChange)="legendShow.set($event)">
+                                        Show legend
+                                    </mat-checkbox>
+
+                                    @if (legendShow()) {
+                                        <mat-form-field appearance="outline" class="option-field">
+                                            <mat-label>Legend Position</mat-label>
+                                            <mat-select [ngModel]="legendPosition()" (ngModelChange)="legendPosition.set($event)">
+                                                @for (pos of legendPositions; track pos.value) {
+                                                    <mat-option [value]="pos.value">{{ pos.label }}</mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    }
+                                </div>
+                            </mat-expansion-panel>
+
+                            <!-- Units & Formatting -->
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>Units & Formatting</mat-panel-title>
+                                </mat-expansion-panel-header>
+
+                                <div class="option-group">
+                                    <div class="inline-fields">
+                                        <mat-form-field appearance="outline" class="option-field">
+                                            <mat-label>Unit Text</mat-label>
+                                            <input matInput [ngModel]="unitsText()" (ngModelChange)="unitsText.set($event)" placeholder="e.g. $, %, ms">
+                                        </mat-form-field>
+
+                                        <mat-form-field appearance="outline" class="option-field">
+                                            <mat-label>Unit Position</mat-label>
+                                            <mat-select [ngModel]="unitsPosition()" (ngModelChange)="unitsPosition.set($event)">
+                                                <mat-option value="prefix">Prefix ($100)</mat-option>
+                                                <mat-option value="suffix">Suffix (100ms)</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div class="inline-fields">
+                                        <mat-form-field appearance="outline" class="option-field">
+                                            <mat-label>Decimal Places</mat-label>
+                                            <input matInput type="number" min="0" max="10"
+                                                [ngModel]="decimalPlaces()"
+                                                (ngModelChange)="decimalPlaces.set($event !== '' && $event !== null ? +$event : null)">
+                                        </mat-form-field>
+                                    </div>
+
+                                    <mat-checkbox [ngModel]="thousandsSeparator()" (ngModelChange)="thousandsSeparator.set($event)">
+                                        Thousands separator
+                                    </mat-checkbox>
+
+                                    <mat-checkbox [ngModel]="compact()" (ngModelChange)="compact.set($event)">
+                                        Compact notation (1K, 1M, 1B)
+                                    </mat-checkbox>
+                                </div>
+                            </mat-expansion-panel>
+
+                            <!-- Axis Configuration -->
+                            @if (!isPieType()) {
+                                <mat-expansion-panel>
+                                    <mat-expansion-panel-header>
+                                        <mat-panel-title>Axis Configuration</mat-panel-title>
+                                    </mat-expansion-panel-header>
+
+                                    <div class="option-group">
+                                        <h4 class="axis-label">Y-Axis</h4>
+                                        <div class="inline-fields">
+                                            <mat-form-field appearance="outline" class="option-field">
+                                                <mat-label>Title</mat-label>
+                                                <input matInput [ngModel]="yAxisTitle()" (ngModelChange)="yAxisTitle.set($event)">
+                                            </mat-form-field>
+
+                                            <mat-form-field appearance="outline" class="option-field">
+                                                <mat-label>Scale Type</mat-label>
+                                                <mat-select [ngModel]="yAxisScaleType()" (ngModelChange)="yAxisScaleType.set($event)">
+                                                    @for (st of scaleTypes; track st.value) {
+                                                        <mat-option [value]="st.value">{{ st.label }}</mat-option>
+                                                    }
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+
+                                        <div class="inline-fields">
+                                            <mat-form-field appearance="outline" class="option-field">
+                                                <mat-label>Min</mat-label>
+                                                <input matInput type="number"
+                                                    [ngModel]="yAxisMin()"
+                                                    (ngModelChange)="yAxisMin.set($event !== '' && $event !== null ? +$event : null)">
+                                            </mat-form-field>
+
+                                            <mat-form-field appearance="outline" class="option-field">
+                                                <mat-label>Max</mat-label>
+                                                <input matInput type="number"
+                                                    [ngModel]="yAxisMax()"
+                                                    (ngModelChange)="yAxisMax.set($event !== '' && $event !== null ? +$event : null)">
+                                            </mat-form-field>
+                                        </div>
+
+                                        <mat-checkbox [ngModel]="yAxisBeginAtZero()" (ngModelChange)="yAxisBeginAtZero.set($event)">
+                                            Begin at zero
+                                        </mat-checkbox>
+
+                                        <h4 class="axis-label">X-Axis</h4>
+                                        <mat-form-field appearance="outline" class="option-field">
+                                            <mat-label>Title</mat-label>
+                                            <input matInput [ngModel]="xAxisTitle()" (ngModelChange)="xAxisTitle.set($event)">
+                                        </mat-form-field>
+                                    </div>
+                                </mat-expansion-panel>
+                            }
+
+                            <!-- Data Options -->
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>Data Options</mat-panel-title>
+                                </mat-expansion-panel-header>
+
+                                <div class="option-group">
+                                    <div class="inline-fields">
+                                        <mat-form-field appearance="outline" class="option-field">
+                                            <mat-label>Sort By</mat-label>
+                                            <mat-select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+                                                @for (opt of sortOptions; track opt.value) {
+                                                    <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+
+                                        <mat-form-field appearance="outline" class="option-field">
+                                            <mat-label>Limit</mat-label>
+                                            <input matInput type="number" min="1" max="10000"
+                                                [ngModel]="limit()"
+                                                (ngModelChange)="limit.set($event !== '' && $event !== null ? +$event : null)"
+                                                placeholder="No limit">
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+
+                            <!-- Custom Palette -->
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>Custom Color Palette</mat-panel-title>
+                                </mat-expansion-panel-header>
+
+                                <div class="option-group">
+                                    <mat-form-field appearance="outline" class="palette-field">
+                                        <mat-label>Colors (one per line)</mat-label>
+                                        <textarea matInput
+                                            [ngModel]="colorPaletteText()"
+                                            (ngModelChange)="colorPaletteText.set($event)"
+                                            rows="4"
+                                            placeholder="rgba(99, 102, 241, 0.8)&#10;rgba(168, 85, 247, 0.8)&#10;#22c55e"></textarea>
+                                    </mat-form-field>
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+
+                        <div class="preview-section">
+                            <div class="section-header">
+                                <h3>Chart Preview</h3>
+                            </div>
+
+                            @if (hasChartData()) {
+                                <div class="chart-container">
+                                    <app-chart-preview
+                                        [chartType]="chartType()"
+                                        [data]="testResults()"
+                                        [widgetOptions]="currentWidgetOptions()">
+                                    </app-chart-preview>
+                                </div>
+                            }
+
+                            @if (!hasChartData() && testResults().length > 0) {
+                                <div class="no-chart-data">
+                                    <p>Add at least one data series to display the chart</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (showResults() && testResults().length > 0) {
+                <div class="results-section">
                     <div class="section-header">
-                        <h3>Chart Preview</h3>
+                        <h3>Query Results ({{ testResults().length }} rows)</h3>
                     </div>
+                    <div class="results-table-container">
+                        <table mat-table [dataSource]="testResults()" class="results-table mat-elevation-z1">
+                            @for (column of resultColumns(); track column) {
+                                <ng-container [matColumnDef]="column">
+                                    <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+                                    <td mat-cell *matCellDef="let row">{{ row[column] }}</td>
+                                </ng-container>
+                            }
 
-                    <div class="chart-container" *ngIf="hasChartData()">
-                        <app-chart-preview
-                            [chartType]="chartType()"
-                            [data]="testResults()"
-                            [labelColumn]="labelColumn()"
-                            [valueColumn]="valueColumn()"
-                            [labelType]="labelType()">
-                        </app-chart-preview>
-                    </div>
-
-                    <div class="no-chart-data" *ngIf="!hasChartData() && testResults().length > 0">
-                        <p>Select label and value columns to display the chart</p>
+                            <tr mat-header-row *matHeaderRowDef="resultColumns()"></tr>
+                            <tr mat-row *matRowDef="let row; columns: resultColumns();"></tr>
+                        </table>
                     </div>
                 </div>
-            </div>
+            }
+
+            @if (showResults() && testResults().length === 0) {
+                <div class="no-results">
+                    <mat-icon>info</mat-icon>
+                    <p>Query executed successfully but returned no results.</p>
+                </div>
+            }
         </div>
+    }
 
-        <div class="results-section" *ngIf="showResults() && testResults().length > 0">
-            <div class="section-header">
-                <h3>Query Results ({{ testResults().length }} rows)</h3>
+    @if (!loading()) {
+            <div class="actions">
+                <button mat-button (click)="cancel()" data-testid="cancel-button">
+                    Cancel
+                </button>
+                <button mat-flat-button color="primary"
+                    (click)="saveQuery()"
+                    [disabled]="!canSave()"
+                    data-testid="save-query-button">
+                    @if (saving()) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                    }
+                    {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Query' : 'Save Query') }}
+                </button>
             </div>
-            <div class="results-table-container">
-                <table mat-table [dataSource]="testResults()" class="results-table mat-elevation-z1">
-                    <ng-container *ngFor="let column of resultColumns()" [matColumnDef]="column">
-                        <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-                        <td mat-cell *matCellDef="let row">{{ row[column] }}</td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="resultColumns()"></tr>
-                    <tr mat-row *matRowDef="let row; columns: resultColumns();"></tr>
-                </table>
-            </div>
-        </div>
-
-        <div class="no-results" *ngIf="showResults() && testResults().length === 0">
-            <mat-icon>info</mat-icon>
-            <p>Query executed successfully but returned no results.</p>
-        </div>
-    </div>
-
-    <div class="actions" *ngIf="!loading()">
-        <button mat-button (click)="cancel()" data-testid="cancel-button">
-            Cancel
-        </button>
-        <button mat-flat-button color="primary"
-            (click)="saveQuery()"
-            [disabled]="!canSave()"
-            data-testid="save-query-button">
-            <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
-            {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Query' : 'Save Query') }}
-        </button>
-    </div>
+        }
         </div>
     </div>
 </div>
