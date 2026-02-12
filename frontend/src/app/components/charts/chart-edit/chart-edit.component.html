@@ -255,37 +255,66 @@
                                 </mat-expansion-panel-header>
 
                                 <div class="option-group">
-                                    <div class="inline-fields">
-                                        <mat-form-field appearance="outline" class="option-field">
-                                            <mat-label>Unit Text</mat-label>
-                                            <input matInput [ngModel]="unitsText()" (ngModelChange)="unitsText.set($event)" placeholder="e.g. $, %, ms">
-                                        </mat-form-field>
+                                    <mat-form-field appearance="outline" class="option-field">
+                                        <mat-label>Unit Mode</mat-label>
+                                        <mat-select [ngModel]="unitMode()" (ngModelChange)="unitMode.set($event)">
+                                            @for (mode of unitModes; track mode.value) {
+                                                <mat-option [value]="mode.value">{{ mode.label }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
 
+                                    @if (unitMode() === 'custom') {
+                                        <div class="inline-fields">
+                                            <mat-form-field appearance="outline" class="option-field">
+                                                <mat-label>Unit Text</mat-label>
+                                                <input matInput [ngModel]="unitsText()" (ngModelChange)="unitsText.set($event)" placeholder="e.g. $, %, EUR">
+                                            </mat-form-field>
+
+                                            <mat-form-field appearance="outline" class="option-field">
+                                                <mat-label>Unit Position</mat-label>
+                                                <mat-select [ngModel]="unitsPosition()" (ngModelChange)="unitsPosition.set($event)">
+                                                    <mat-option value="prefix">Prefix ($100)</mat-option>
+                                                    <mat-option value="suffix">Suffix (100ms)</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                    }
+
+                                    @if (unitMode() === 'convert') {
                                         <mat-form-field appearance="outline" class="option-field">
-                                            <mat-label>Unit Position</mat-label>
-                                            <mat-select [ngModel]="unitsPosition()" (ngModelChange)="unitsPosition.set($event)">
-                                                <mat-option value="prefix">Prefix ($100)</mat-option>
-                                                <mat-option value="suffix">Suffix (100ms)</mat-option>
+                                            <mat-label>Source Unit</mat-label>
+                                            <mat-select [ngModel]="convertUnit()" (ngModelChange)="convertUnit.set($event)">
+                                                @for (group of convertUnitPresets; track group.group) {
+                                                    <mat-optgroup [label]="group.group">
+                                                        @for (unit of group.units; track unit.value) {
+                                                            <mat-option [value]="unit.value">{{ unit.label }}</mat-option>
+                                                        }
+                                                    </mat-optgroup>
+                                                }
                                             </mat-select>
+                                            <mat-hint>Values auto-convert to the best readable unit</mat-hint>
                                         </mat-form-field>
-                                    </div>
+                                    }
 
-                                    <div class="inline-fields">
-                                        <mat-form-field appearance="outline" class="option-field">
-                                            <mat-label>Decimal Places</mat-label>
-                                            <input matInput type="number" min="0" max="10"
-                                                [ngModel]="decimalPlaces()"
-                                                (ngModelChange)="decimalPlaces.set($event !== '' && $event !== null ? +$event : null)">
-                                        </mat-form-field>
-                                    </div>
+                                    @if (unitMode() !== 'convert') {
+                                        <div class="inline-fields">
+                                            <mat-form-field appearance="outline" class="option-field">
+                                                <mat-label>Decimal Places</mat-label>
+                                                <input matInput type="number" min="0" max="10"
+                                                    [ngModel]="decimalPlaces()"
+                                                    (ngModelChange)="decimalPlaces.set($event !== '' && $event !== null ? +$event : null)">
+                                            </mat-form-field>
+                                        </div>
 
-                                    <mat-checkbox [ngModel]="thousandsSeparator()" (ngModelChange)="thousandsSeparator.set($event)">
-                                        Thousands separator
-                                    </mat-checkbox>
+                                        <mat-checkbox [ngModel]="thousandsSeparator()" (ngModelChange)="thousandsSeparator.set($event)">
+                                            Thousands separator
+                                        </mat-checkbox>
 
-                                    <mat-checkbox [ngModel]="compact()" (ngModelChange)="compact.set($event)">
-                                        Compact notation (1K, 1M, 1B)
-                                    </mat-checkbox>
+                                        <mat-checkbox [ngModel]="compact()" (ngModelChange)="compact.set($event)">
+                                            Compact notation (1K, 1M, 1B)
+                                        </mat-checkbox>
+                                    }
                                 </div>
                             </mat-expansion-panel>
 

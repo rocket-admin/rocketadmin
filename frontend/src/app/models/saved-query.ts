@@ -3,8 +3,9 @@ export type DashboardWidgetType = 'table' | 'chart' | 'counter' | 'text';
 export type ChartType = 'bar' | 'line' | 'pie' | 'doughnut' | 'polarArea';
 
 export interface ChartUnitConfig {
-	text: string;
-	position: 'prefix' | 'suffix';
+	text?: string;
+	position?: 'prefix' | 'suffix';
+	convert_unit?: string;
 }
 
 export interface ChartNumberFormatConfig {

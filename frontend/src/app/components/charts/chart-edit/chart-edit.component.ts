@@ -93,8 +93,10 @@ export class ChartEditComponent implements OnInit {
 	protected legendPosition = signal<'top' | 'bottom' | 'left' | 'right'>('top');
 
 	// Units
+	protected unitMode = signal<'none' | 'custom' | 'convert'>('none');
 	protected unitsText = signal('');
 	protected unitsPosition = signal<'prefix' | 'suffix'>('suffix');
+	protected convertUnit = signal('');
 
 	// Number format
 	protected decimalPlaces = signal<number | null>(null);
@@ -159,6 +161,107 @@ export class ChartEditComponent implements OnInit {
 		{ value: 'none', label: 'None' },
 	];
 
+	public unitModes: { value: string; label: string }[] = [
+		{ value: 'none', label: 'None' },
+		{ value: 'custom', label: 'Custom text' },
+		{ value: 'convert', label: 'Auto-convert' },
+	];
+
+	public convertUnitPresets: { group: string; units: { value: string; label: string }[] }[] = [
+		{
+			group: 'Time',
+			units: [
+				{ value: 'ms', label: 'Milliseconds (ms)' },
+				{ value: 's', label: 'Seconds (s)' },
+				{ value: 'min', label: 'Minutes (min)' },
+				{ value: 'h', label: 'Hours (h)' },
+				{ value: 'd', label: 'Days (d)' },
+			],
+		},
+		{
+			group: 'Data',
+			units: [
+				{ value: 'B', label: 'Bytes (B)' },
+				{ value: 'KB', label: 'Kilobytes (KB)' },
+				{ value: 'MB', label: 'Megabytes (MB)' },
+				{ value: 'GB', label: 'Gigabytes (GB)' },
+				{ value: 'TB', label: 'Terabytes (TB)' },
+			],
+		},
+		{
+			group: 'Length',
+			units: [
+				{ value: 'mm', label: 'Millimeters (mm)' },
+				{ value: 'cm', label: 'Centimeters (cm)' },
+				{ value: 'm', label: 'Meters (m)' },
+				{ value: 'km', label: 'Kilometers (km)' },
+				{ value: 'in', label: 'Inches (in)' },
+				{ value: 'ft', label: 'Feet (ft)' },
+				{ value: 'mi', label: 'Miles (mi)' },
+			],
+		},
+		{
+			group: 'Mass',
+			units: [
+				{ value: 'mg', label: 'Milligrams (mg)' },
+				{ value: 'g', label: 'Grams (g)' },
+				{ value: 'kg', label: 'Kilograms (kg)' },
+				{ value: 'oz', label: 'Ounces (oz)' },
+				{ value: 'lb', label: 'Pounds (lb)' },
+			],
+		},
+		{
+			group: 'Temperature',
+			units: [
+				{ value: 'C', label: 'Celsius (C)' },
+				{ value: 'F', label: 'Fahrenheit (F)' },
+				{ value: 'K', label: 'Kelvin (K)' },
+			],
+		},
+		{
+			group: 'Frequency',
+			units: [
+				{ value: 'Hz', label: 'Hertz (Hz)' },
+				{ value: 'kHz', label: 'Kilohertz (kHz)' },
+				{ value: 'MHz', label: 'Megahertz (MHz)' },
+				{ value: 'GHz', label: 'Gigahertz (GHz)' },
+			],
+		},
+		{
+			group: 'Power',
+			units: [
+				{ value: 'W', label: 'Watts (W)' },
+				{ value: 'kW', label: 'Kilowatts (kW)' },
+				{ value: 'MW', label: 'Megawatts (MW)' },
+			],
+		},
+		{
+			group: 'Energy',
+			units: [
+				{ value: 'J', label: 'Joules (J)' },
+				{ value: 'Wh', label: 'Watt-hours (Wh)' },
+				{ value: 'kWh', label: 'Kilowatt-hours (kWh)' },
+			],
+		},
+		{
+			group: 'Pressure',
+			units: [
+				{ value: 'Pa', label: 'Pascals (Pa)' },
+				{ value: 'bar', label: 'Bar' },
+				{ value: 'psi', label: 'PSI' },
+				{ value: 'atm', label: 'Atmospheres (atm)' },
+			],
+		},
+		{
+			group: 'Volume',
+			units: [
+				{ value: 'mL', label: 'Milliliters (mL)' },
+				{ value: 'L', label: 'Liters (L)' },
+				{ value: 'gal', label: 'Gallons (gal)' },
+			],
+		},
+	];
+
 	protected showLabelTypeOption = computed(() => ['bar', 'line'].includes(this.chartType()));
 	protected isPieType = computed(() => ['pie', 'doughnut', 'polarArea'].includes(this.chartType()));
 
@@ -208,8 +311,10 @@ export class ChartEditComponent implements OnInit {
 			};
 		}
 
-		if (this.unitsText()) {
+		if (this.unitMode() === 'custom' && this.unitsText()) {
 			options.units = { text: this.unitsText(), position: this.unitsPosition() };
+		} else if (this.unitMode() === 'convert' && this.convertUnit()) {
+			options.units = { convert_unit: this.convertUnit() };
 		}
 
 		const numberFormat: ChartNumberFormatConfig = {};
@@ -319,8 +424,14 @@ export class ChartEditComponent implements OnInit {
 
 						// Units
 						if (opts.units) {
-							this.unitsText.set(opts.units.text);
-							this.unitsPosition.set(opts.units.position);
+							if (opts.units.convert_unit) {
+								this.unitMode.set('convert');
+								this.convertUnit.set(opts.units.convert_unit);
+							} else if (opts.units.text) {
+								this.unitMode.set('custom');
+								this.unitsText.set(opts.units.text);
+								if (opts.units.position) this.unitsPosition.set(opts.units.position);
+							}
 						}
 
 						// Number format

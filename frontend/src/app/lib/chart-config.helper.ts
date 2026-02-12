@@ -1,4 +1,5 @@
 import { ChartConfiguration, ChartData, ChartType as ChartJsType, Plugin } from 'chart.js';
+import convert from 'convert';
 import {
 	ChartAxisConfig,
 	ChartNumberFormatConfig,
@@ -26,6 +27,17 @@ export function formatChartValue(
 	units?: ChartUnitConfig,
 	numberFormat?: ChartNumberFormatConfig,
 ): string {
+	// Smart unit conversion using the `convert` package
+	if (units?.convert_unit) {
+		try {
+			const best = convert(value, units.convert_unit as Parameters<typeof convert>[1]).to('best');
+			const quantity = parseFloat(best.quantity.toFixed(2));
+			return `${quantity} ${best.unit}`;
+		} catch {
+			// Fall through to manual formatting if unit is invalid
+		}
+	}
+
 	let formatted: string;
 
 	if (numberFormat?.compact) {
@@ -38,7 +50,7 @@ export function formatChartValue(
 		}).format(value);
 	}
 
-	if (!units) return formatted;
+	if (!units?.text) return formatted;
 	return units.position === 'prefix' ? `${units.text}${formatted}` : `${formatted}${units.text}`;
 }
 
