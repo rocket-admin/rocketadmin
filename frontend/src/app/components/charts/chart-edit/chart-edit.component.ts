@@ -118,7 +118,7 @@ export class ChartEditComponent implements OnInit {
 	protected limit = signal<number | null>(null);
 
 	// Color palette
-	protected colorPaletteText = signal('');
+	protected colorPalette = signal<string[]>([]);
 
 	public chartTypes: { value: ChartType; label: string }[] = [
 		{ value: 'bar', label: 'Bar Chart' },
@@ -338,14 +338,8 @@ export class ChartEditComponent implements OnInit {
 		if (this.sortBy() !== 'none') options.sort_by = this.sortBy();
 		if (this.limit() !== null && this.limit()! > 0) options.limit = this.limit()!;
 
-		const paletteText = this.colorPaletteText().trim();
-		if (paletteText) {
-			const colors = paletteText
-				.split('\n')
-				.map((c) => c.trim())
-				.filter((c) => c);
-			if (colors.length > 0) options.color_palette = colors;
-		}
+		const palette = this.colorPalette();
+		if (palette.length > 0) options.color_palette = palette;
 
 		return options;
 	});
@@ -465,7 +459,7 @@ export class ChartEditComponent implements OnInit {
 
 						// Color palette
 						if (opts.color_palette?.length) {
-							this.colorPaletteText.set(opts.color_palette.join('\n'));
+							this.colorPalette.set([...opts.color_palette]);
 						}
 					}
 
@@ -526,6 +520,33 @@ export class ChartEditComponent implements OnInit {
 		this.seriesList.update((list) => {
 			const updated = [...list];
 			updated[index] = { ...updated[index], [field]: value };
+			return updated;
+		});
+	}
+
+	toHex(color: string | undefined): string {
+		if (!color) return '#6366f1';
+		if (color.startsWith('#')) return color.substring(0, 7);
+		const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+		if (!match) return '#000000';
+		const r = parseInt(match[1]).toString(16).padStart(2, '0');
+		const g = parseInt(match[2]).toString(16).padStart(2, '0');
+		const b = parseInt(match[3]).toString(16).padStart(2, '0');
+		return `#${r}${g}${b}`;
+	}
+
+	addPaletteColor(): void {
+		this.colorPalette.update((list) => [...list, '#6366f1']);
+	}
+
+	removePaletteColor(index: number): void {
+		this.colorPalette.update((list) => list.filter((_, i) => i !== index));
+	}
+
+	updatePaletteColor(index: number, value: string): void {
+		this.colorPalette.update((list) => {
+			const updated = [...list];
+			updated[index] = value;
 			return updated;
 		});
 	}

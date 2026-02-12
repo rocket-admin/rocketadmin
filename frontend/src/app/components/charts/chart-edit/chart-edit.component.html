@@ -154,10 +154,23 @@
                                             </mat-form-field>
 
                                             @if (!isPieType()) {
-                                                <mat-form-field appearance="outline" class="series-field series-field--color">
-                                                    <mat-label>Color</mat-label>
-                                                    <input matInput [ngModel]="series.color || ''" (ngModelChange)="updateSeries(i, 'color', $event || undefined)" placeholder="Auto">
-                                                </mat-form-field>
+                                                <div class="series-color-picker">
+                                                    <span class="color-picker-label">Color</span>
+                                                    <div class="color-picker-row">
+                                                        <input type="color"
+                                                            class="color-input"
+                                                            [value]="toHex(series.color)"
+                                                            (input)="updateSeries(i, 'color', $any($event.target).value)">
+                                                        @if (series.color) {
+                                                            <button mat-icon-button (click)="updateSeries(i, 'color', undefined)" matTooltip="Reset to auto" class="color-reset-button">
+                                                                <mat-icon>close</mat-icon>
+                                                            </button>
+                                                        }
+                                                        @if (!series.color) {
+                                                            <span class="color-auto-label">Auto</span>
+                                                        }
+                                                    </div>
+                                                </div>
                                             }
 
                                             @if (!isPieType() && chartType() !== 'bar') {
@@ -407,14 +420,22 @@
                                 </mat-expansion-panel-header>
 
                                 <div class="option-group">
-                                    <mat-form-field appearance="outline" class="palette-field">
-                                        <mat-label>Colors (one per line)</mat-label>
-                                        <textarea matInput
-                                            [ngModel]="colorPaletteText()"
-                                            (ngModelChange)="colorPaletteText.set($event)"
-                                            rows="4"
-                                            placeholder="rgba(99, 102, 241, 0.8)&#10;rgba(168, 85, 247, 0.8)&#10;#22c55e"></textarea>
-                                    </mat-form-field>
+                                    <div class="palette-colors">
+                                        @for (color of colorPalette(); track $index; let i = $index) {
+                                            <div class="palette-color-item">
+                                                <input type="color"
+                                                    class="color-input"
+                                                    [value]="toHex(color)"
+                                                    (input)="updatePaletteColor(i, $any($event.target).value)">
+                                                <button mat-icon-button (click)="removePaletteColor(i)" matTooltip="Remove color" class="color-remove-button">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                    <button mat-stroked-button (click)="addPaletteColor()" class="add-color-button">
+                                        <mat-icon>add</mat-icon> Add Color
+                                    </button>
                                 </div>
                             </mat-expansion-panel>
                         </mat-accordion>
