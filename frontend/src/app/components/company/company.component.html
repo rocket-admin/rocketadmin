@@ -31,36 +31,7 @@
                 {{submittingChangedName ? 'Saving' : 'Save'}}
             </button>
         </div>
-
     </form>
-
-    <div *ngIf="isSaas" class="company-plan">
-        <div>
-            <strong>Current plan: </strong>
-            <span class="company-plan-name" data-testid="company-plan-string">{{currentPlan}}</span>
-        </div>
-        <div class="company-plan__paymnent-buttons">
-            <a *ngIf="currentUser && currentUser.role === 'ADMIN' && company.portal_link"
-                mat-button color="accent" class="upgrade-button"
-                [href]="company.portal_link" target="_blank"
-                data-testid="company-payment-portal-link"
-                angulartics2On="click"
-                angularticsAction="Company: Payment settings is clicked"
-                (click)="posthog.capture('Company: Payment settings is clicked')">
-                <span class="upgrade-button__caption_desktop">Payment settings</span>
-                <span class="upgrade-button__caption_mobile">Stripe</span>
-            </a>
-            <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
-                mat-stroked-button color="accent" class="upgrade-button"
-                routerLink="/upgrade"
-                data-testid="company-payment-upgrade-link"
-                angulartics2On="click"
-                angularticsAction="Company: Upgrade is clicked"
-                (click)="posthog.capture('Company: Upgrade is clicked')">
-                {{ company.portal_link ? 'Change' : 'Upgrade'}}
-            </a>
-        </div>
-    </div>
 
     <div class="tableHeader">
         <h2 class="heading-2 tableHeader__heading">Members <span *ngIf="currentPlan === 'free' && isSaas" data-testid="company-members-max-string">(max 3)</span></h2>

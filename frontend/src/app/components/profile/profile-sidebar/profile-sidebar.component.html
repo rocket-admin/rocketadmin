@@ -41,13 +41,13 @@
         <a mat-list-item
             *ngIf="isSaas"
             routerLink="/upgrade"
-            [class.active-link]="activeTab() === 'pricing'"
+            [class.active-link]="activeTab() === 'subscription'"
             class="sidebar-nav-item"
             [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'Pricing' : ''"
+            [matTooltip]="collapsed() ? 'Subscription' : ''"
             matTooltipPosition="right">
             <mat-icon matListItemIcon>payments</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>Pricing</span>
+            <span *ngIf="!collapsed()" matListItemTitle>Subscription</span>
         </a>
         <a mat-list-item
             routerLink="/branding"
@@ -60,6 +60,7 @@
             <span *ngIf="!collapsed()" matListItemTitle>Branding</span>
         </a>
         <a mat-list-item
+            *ngIf="isSaas"
             routerLink="/saml"
             [class.active-link]="activeTab() === 'saml'"
             class="sidebar-nav-item"
