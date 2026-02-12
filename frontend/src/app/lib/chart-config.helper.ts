@@ -303,8 +303,8 @@ export function buildChartOptions(chartType: ChartType, options: ChartWidgetOpti
 		},
 	};
 
-	if (options.horizontal && !isPieType) {
-		(chartOptions as Record<string, unknown>)['indexAxis'] = 'y';
+	if (!isPieType) {
+		(chartOptions as Record<string, unknown>)['indexAxis'] = options.horizontal ? 'y' : 'x';
 	}
 
 	// Scales for non-pie types
