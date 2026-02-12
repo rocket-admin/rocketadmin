@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Injectable, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Injectable, Put, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
