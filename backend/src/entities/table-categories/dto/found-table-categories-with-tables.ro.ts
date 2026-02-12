@@ -11,6 +11,6 @@ export class FoundTableCategoriesWithTablesRo {
 	@ApiProperty({ type: String })
 	category_color: string;
 
-	@ApiProperty({ isArray: true, type: String })
+	@ApiProperty({ isArray: true, type: FoundTableDs })
 	tables: Array<FoundTableDs>;
 }
