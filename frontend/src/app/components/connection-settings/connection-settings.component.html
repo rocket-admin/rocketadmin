@@ -50,6 +50,7 @@
                     <input matInput name="logo-url" #username="ngModel"
                         angulartics2On="change"
                         angularticsAction="Connection settings: logo URL is edited"
+                        (change)="posthog.capture('Connection settings: logo URL is edited')"
                         [disabled]="submitting"
                         [(ngModel)]="connectionSettings.logo_url">
                     <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -61,6 +62,7 @@
                 <input matInput name="company-name" #username="ngModel"
                     angulartics2On="change"
                     angularticsAction="Connection settings: company name is edited"
+                    (change)="posthog.capture('Connection settings: company name is edited')"
                     [disabled]="submitting"
                     [(ngModel)]="connectionSettings.company_name">
                 <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -74,6 +76,7 @@
                         <input matInput name="primary-color" #username="ngModel"
                             angulartics2On="change"
                             angularticsAction="Connection settings: primary color is edited"
+                            (change)="posthog.capture('Connection settings: primary color is edited')"
                             [disabled]="submitting"
                             [(ngModel)]="connectionSettings.primary_color">
                         <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -87,6 +90,7 @@
                         <input matInput name="accented-color" #username="ngModel"
                             angulartics2On="change"
                             angularticsAction="Connection settings: accented color is edited"
+                            (change)="posthog.capture('Connection settings: accented color is edited')"
                             [disabled]="submitting"
                             [(ngModel)]="connectionSettings.secondary_color">
                         <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -102,6 +106,7 @@
                     [disabled]="submitting"
                     angulartics2On="click"
                     angularticsAction="Connection settings: hidden tables is selected"
+                    (click)="posthog.capture('Connection settings: hidden tables is selected')"
                     [(ngModel)]="connectionSettings.hidden_tables">
                     <mat-option *ngFor="let table of tablesList" [value]="table.table">
                         <div class="table-name">
@@ -119,6 +124,7 @@
                     [disabled]="submitting"
                     angulartics2On="click"
                     angularticsAction="Connection settings: default display table is selected"
+                    (click)="posthog.capture('Connection settings: default display table is selected')"
                     [(ngModel)]="connectionSettings.default_showing_table">
                     <mat-option [value]="null"></mat-option>
                     <mat-option *ngFor="let table of tablesList" [value]="table.table">
@@ -135,6 +141,7 @@
                 [disabled]="submitting"
                 angulartics2On="click"
                 angularticsAction="Connection settings: log recording is toggled"
+                (click)="posthog.capture('Connection settings: log recording is toggled')"
                 [angularticsProperties]="{'enable': connectionSettings.tables_audit}"
                 [(ngModel)]="connectionSettings.tables_audit">
                 Log changes in tables

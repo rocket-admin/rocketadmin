@@ -247,13 +247,6 @@ describe('ChartEditComponent', () => {
 		});
 	});
 
-	describe('cancel', () => {
-		it('should navigate to charts list', () => {
-			component.cancel();
-			expect(router.navigate).toHaveBeenCalledWith(['/charts', 'conn-1']);
-		});
-	});
-
 	describe('onCodeChange', () => {
 		it('should update queryText', () => {
 			const testable = component as ChartEditComponentTestable;

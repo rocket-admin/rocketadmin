@@ -20,6 +20,7 @@ import {
 	GridType,
 } from 'angular-gridster2';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
@@ -177,6 +178,7 @@ export class DashboardViewComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: `Dashboards: edit mode ${this.editMode() ? 'enabled' : 'disabled'}`,
 		});
+		posthog.capture(`Dashboards: edit mode ${this.editMode() ? 'enabled' : 'disabled'}`);
 	}
 
 	async openAddWidgetDialog(): Promise<void> {
@@ -191,6 +193,7 @@ export class DashboardViewComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Dashboards: add widget dialog opened',
 		});
+		posthog.capture('Dashboards: add widget dialog opened');
 
 		const result = await dialogRef.afterClosed().toPromise();
 		if (result) {
@@ -210,6 +213,7 @@ export class DashboardViewComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Dashboards: edit widget dialog opened',
 		});
+		posthog.capture('Dashboards: edit widget dialog opened');
 
 		const result = await dialogRef.afterClosed().toPromise();
 		if (result) {
@@ -229,6 +233,7 @@ export class DashboardViewComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Dashboards: delete widget dialog opened',
 		});
+		posthog.capture('Dashboards: delete widget dialog opened');
 
 		const result = await dialogRef.afterClosed().toPromise();
 		if (result) {

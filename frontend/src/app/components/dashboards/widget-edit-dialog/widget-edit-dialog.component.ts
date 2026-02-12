@@ -3,12 +3,13 @@ import { Component, computed, Inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
@@ -80,6 +81,7 @@ export class WidgetEditDialogComponent implements OnInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Dashboards: widget updated successfully',
 				});
+				posthog.capture('Dashboards: widget updated successfully');
 				this.dialogRef.close(true);
 			}
 		} else {
@@ -96,6 +98,7 @@ export class WidgetEditDialogComponent implements OnInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Dashboards: widget created successfully',
 				});
+				posthog.capture('Dashboards: widget created successfully');
 				this.dialogRef.close(true);
 			}
 		}

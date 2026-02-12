@@ -17,7 +17,7 @@
                     type="button"
                     angulartics2On="click"
                     angularticsAction="Widgets: add widget is clicked"
-                    (click)="addNewWidget()"
+                    (click)="addNewWidget(); posthog.capture('Widgets: add widget is clicked')"
                     [disabled]="fields.length === 0 || widgets.length === fieldsCount">
                     <mat-icon>add</mat-icon>
                     Add UI widget
@@ -84,7 +84,7 @@
                 <button mat-flat-button color="accent"
                     angulartics2On="click"
                     angularticsAction="Widgets: add first widget is clicked"
-                    (click)="addNewWidget()">
+                    (click)="addNewWidget(); posthog.capture('Widgets: add first widget is clicked')">
                     Create UI Widget
                 </button>
                 <a mat-stroked-button color="primary"

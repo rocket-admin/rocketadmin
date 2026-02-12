@@ -16,6 +16,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { finalize } from 'rxjs/operators';
 import {
 	ChartAxisConfig,
@@ -503,6 +504,7 @@ export class ChartEditComponent implements OnInit {
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: test query executed',
 		});
+		posthog.capture('Charts: test query executed');
 	}
 
 	addSeries(): void {
@@ -579,6 +581,7 @@ export class ChartEditComponent implements OnInit {
 			this.angulartics2.eventTrack.next({
 				action: 'Charts: saved query updated',
 			});
+			posthog.capture('Charts: saved query updated');
 		} else {
 			this._savedQueries
 				.createSavedQuery(this.connectionId(), payload)
@@ -589,10 +592,7 @@ export class ChartEditComponent implements OnInit {
 			this.angulartics2.eventTrack.next({
 				action: 'Charts: saved query created',
 			});
+			posthog.capture('Charts: saved query created');
 		}
-	}
-
-	cancel(): void {
-		this.router.navigate(['/charts', this.connectionId()]);
 	}
 }

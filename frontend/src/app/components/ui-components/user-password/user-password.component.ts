@@ -1,38 +1,37 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PasswordStrengthMeterComponent } from 'angular-password-strength-meter';
-import { PasswordValidationDirective } from 'src/app/directives/passwordValidator.directive';
 import { Angulartics2OnModule } from 'angulartics2';
+import posthog from 'posthog-js';
+import { PasswordValidationDirective } from 'src/app/directives/passwordValidator.directive';
 
 @Component({
-  selector: 'app-user-password',
-  templateUrl: './user-password.component.html',
-  styleUrls: ['./user-password.component.css'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    PasswordValidationDirective,
-    PasswordStrengthMeterComponent,
-    Angulartics2OnModule
-  ]
+	selector: 'app-user-password',
+	templateUrl: './user-password.component.html',
+	styleUrls: ['./user-password.component.css'],
+	imports: [
+		CommonModule,
+		FormsModule,
+		MatFormFieldModule,
+		MatInputModule,
+		MatIconModule,
+		PasswordValidationDirective,
+		PasswordStrengthMeterComponent,
+		Angulartics2OnModule,
+	],
 })
 export class UserPasswordComponent implements OnInit {
+	protected posthog = posthog;
 
-  @Input() value: string;
-  @Input() label: string;
-  @Output() onFieldChange = new EventEmitter();
+	@Input() value: string;
+	@Input() label: string;
+	@Output() onFieldChange = new EventEmitter();
 
-  public passwordHidden: boolean;
+	public passwordHidden: boolean;
 
-  ngOnInit(): void {
-  }
-
+	ngOnInit(): void {}
 }

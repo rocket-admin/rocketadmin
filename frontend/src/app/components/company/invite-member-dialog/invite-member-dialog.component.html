@@ -12,7 +12,8 @@
             <button mat-stroked-button type="button" [matMenuTriggerFor]="menu"
                 class="role-button"
                 angulartics2On="click"
-                angularticsAction="Company: role is clicked">
+                angularticsAction="Company: role is clicked"
+                (click)="posthog.capture('Company: role is clicked')">
                 {{ companyRolesName[companyMemberRole] }}
                 <mat-icon iconPositionEnd style="margin-left: auto">arrow_drop_down</mat-icon>
             </button>
