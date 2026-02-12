@@ -60,6 +60,7 @@
             <span *ngIf="!collapsed()" matListItemTitle>Branding</span>
         </a>
         <a mat-list-item
+            *ngIf="isSaas"
             routerLink="/saml"
             [class.active-link]="activeTab() === 'saml'"
             class="sidebar-nav-item"
