@@ -300,3 +300,91 @@ test.serial(`${currentTest} find table categories`, async (t) => {
 		t.fail();
 	}
 });
+
+currentTest = `GET /table-categories/v2/:connectionId`;
+test.serial(`${currentTest} find table categories with tables`, async (t) => {
+	try {
+		const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const { testTableName: firstTestTableName } = await createTestTable(connectionToTestDB);
+		const { testTableName: secondTestTableName } = await createTestTable(connectionToTestDB);
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(connectionToTestDB)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
+
+		const categoriesDTO: Array<CreateTableCategoryDto> = [
+			{
+				category_name: 'Category 1',
+				category_color: '#FF5733',
+				tables: [firstTestTableName],
+				category_id: 'cat-001',
+			},
+			{
+				category_name: 'Category 2',
+				category_color: '#33FF57',
+				tables: [secondTestTableName],
+				category_id: 'cat-002',
+			},
+		];
+
+		const createTableCategoriesResponse = await request(app.getHttpServer())
+			.put(`/table-categories/${createConnectionRO.id}`)
+			.send(categoriesDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createTableCategoriesResponse.status, 200);
+
+		const findTableCategoriesWithTablesResponse = await request(app.getHttpServer())
+			.get(`/table-categories/v2/${createConnectionRO.id}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		const findTableCategoriesWithTablesRO = JSON.parse(findTableCategoriesWithTablesResponse.text);
+
+		t.is(findTableCategoriesWithTablesResponse.status, 200);
+
+		t.is(findTableCategoriesWithTablesRO[0].category_name, 'All tables');
+		t.is(findTableCategoriesWithTablesRO[0].category_id, null);
+		t.is(findTableCategoriesWithTablesRO[0].category_color, null);
+		t.true(findTableCategoriesWithTablesRO[0].tables.length >= 2);
+
+		const allTablesCategory = findTableCategoriesWithTablesRO[0];
+		const firstTableInAll = allTablesCategory.tables.find((table) => table.table === firstTestTableName);
+		const secondTableInAll = allTablesCategory.tables.find((table) => table.table === secondTestTableName);
+
+		t.truthy(firstTableInAll);
+		t.truthy(secondTableInAll);
+		t.is(typeof firstTableInAll.isView, 'boolean');
+		t.truthy(firstTableInAll.permissions);
+		t.is(typeof firstTableInAll.permissions.visibility, 'boolean');
+		t.is(typeof firstTableInAll.permissions.readonly, 'boolean');
+		t.is(typeof firstTableInAll.permissions.add, 'boolean');
+		t.is(typeof firstTableInAll.permissions.delete, 'boolean');
+		t.is(typeof firstTableInAll.permissions.edit, 'boolean');
+
+		t.is(findTableCategoriesWithTablesRO.length, 3);
+
+		t.is(findTableCategoriesWithTablesRO[1].category_name, 'Category 1');
+		t.is(findTableCategoriesWithTablesRO[1].category_color, '#FF5733');
+		t.is(findTableCategoriesWithTablesRO[1].category_id, 'cat-001');
+		t.is(findTableCategoriesWithTablesRO[1].tables.length, 1);
+		t.is(findTableCategoriesWithTablesRO[1].tables[0].table, firstTestTableName);
+
+		t.is(findTableCategoriesWithTablesRO[2].category_name, 'Category 2');
+		t.is(findTableCategoriesWithTablesRO[2].category_color, '#33FF57');
+		t.is(findTableCategoriesWithTablesRO[2].category_id, 'cat-002');
+		t.is(findTableCategoriesWithTablesRO[2].tables.length, 1);
+		t.is(findTableCategoriesWithTablesRO[2].tables[0].table, secondTestTableName);
+	} catch (e) {
+		console.error(e);
+		t.fail();
+	}
+});
