@@ -640,7 +640,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 		}
 
 		const client = await this.getClickHouseClient();
-		const database = this.connection.database;
+		const database = this.escapeValue(this.connection.database || 'default');
 
 		try {
 			const query = `

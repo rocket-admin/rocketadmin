@@ -726,16 +726,16 @@ ORDER BY
 				COALESCE(column_checksum, 0) AS SCHEMA_HASH
 			FROM (
 				SELECT 
-					(SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA = '${schema}' AND TYPE = 'T') AS table_count,
-					(SELECT COUNT(*) FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '${schema}') AS column_count,
-					(SELECT COUNT(*) FROM SYSCAT.INDEXES WHERE TABSCHEMA = '${schema}') AS index_count,
+					(SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA = ? AND TYPE = 'T') AS table_count,
+					(SELECT COUNT(*) FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ?) AS column_count,
+					(SELECT COUNT(*) FROM SYSCAT.INDEXES WHERE TABSCHEMA = ?) AS index_count,
 					(SELECT COALESCE(SUM(COLNO + LENGTH(COLNAME) + LENGTH(TYPENAME)), 0) 
-					 FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '${schema}') AS column_checksum
+					 FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ?) AS column_checksum
 				FROM SYSIBM.SYSDUMMY1
 			)
 		`;
 
-		const result = await connectionToDb.query(query);
+		const result = await connectionToDb.query(query, [schema, schema, schema, schema]);
 		const hash = (result as Array<Record<string, unknown>>)?.[0]?.SCHEMA_HASH || '';
 
 		LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash as string);
