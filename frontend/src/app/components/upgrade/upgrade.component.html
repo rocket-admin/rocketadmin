@@ -1,16 +1,30 @@
 <div class="profile-layout">
-    <app-profile-sidebar activeTab="pricing"></app-profile-sidebar>
+    <app-profile-sidebar activeTab="subscription"></app-profile-sidebar>
 
     <div class="profile-main">
         <app-alert></app-alert>
 
         <div class="plans">
+            <div *ngIf="isAdmin" class="current-plan-banner">
+                <div class="current-plan-info">
+                    <span class="current-plan-label">Current plan</span>
+                    <span class="current-plan-name">{{ currentPlan.name }}</span>
+                </div>
+                <a *ngIf="portalLink"
+                    mat-stroked-button
+                    [href]="portalLink" target="_blank"
+                    class="payment-settings-button">
+                    <mat-icon>credit_card</mat-icon>
+                    Payment settings
+                </a>
+            </div>
+
             <div class="header">
                 <div></div>
                 <ng-container *ngFor="let plan of plans">
                     <div *ngIf="plan.key === 'title'; else planHeaderCard">
                         <h1 class="mat-h1">
-                            Manage plans
+                            Compare plans
                         </h1>
                     </div>
                     <ng-template #planHeaderCard>
@@ -32,33 +46,35 @@
                                 Current
                             </button>
                             <ng-template #activeButton>
-                                <button mat-flat-button color="accent" type="button"
-                                    *ngIf="plan.price > currentPlan.price && hasPaymentMethod"
-                                    [disabled]="submitting"
-                                    (click)="changePlan(plan.key)">
-                                    Upgrade
-                                </button>
-                                <button mat-button type="button"
-                                    *ngIf="plan.price < currentPlan.price && hasPaymentMethod"
-                                    [disabled]="submitting"
-                                    (click)="changePlan(plan.key)">
-                                    Downgrade
-                                </button>
+                                <ng-container *ngIf="isAdmin">
+                                    <button mat-flat-button color="accent" type="button"
+                                        *ngIf="plan.price > currentPlan.price && hasPaymentMethod"
+                                        [disabled]="submitting"
+                                        (click)="changePlan(plan.key)">
+                                        Upgrade
+                                    </button>
+                                    <button mat-button type="button"
+                                        *ngIf="plan.price < currentPlan.price && hasPaymentMethod"
+                                        [disabled]="submitting"
+                                        (click)="changePlan(plan.key)">
+                                        Downgrade
+                                    </button>
 
-                                <a mat-flat-button color="accent"
-                                    *ngIf="plan.price > currentPlan.price && !hasPaymentMethod"
-                                    [disabled]="submitting"
-                                    routerLink="/upgrade/payment"
-                                    [queryParams]="{plan: plan.key}">
-                                    Upgrade
-                                </a>
-                                <a mat-button
-                                    *ngIf="plan.price < currentPlan.price && !hasPaymentMethod"
-                                    [disabled]="submitting"
-                                    routerLink="/upgrade/payment"
-                                    [queryParams]="{plan: plan.key}">
-                                    Downgrade
-                                </a>
+                                    <a mat-flat-button color="accent"
+                                        *ngIf="plan.price > currentPlan.price && !hasPaymentMethod"
+                                        [disabled]="submitting"
+                                        routerLink="/upgrade/payment"
+                                        [queryParams]="{plan: plan.key}">
+                                        Upgrade
+                                    </a>
+                                    <a mat-button
+                                        *ngIf="plan.price < currentPlan.price && !hasPaymentMethod"
+                                        [disabled]="submitting"
+                                        routerLink="/upgrade/payment"
+                                        [queryParams]="{plan: plan.key}">
+                                        Downgrade
+                                    </a>
+                                </ng-container>
                             </ng-template>
                         </div>
                     </ng-template>

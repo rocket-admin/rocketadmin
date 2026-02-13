@@ -8,6 +8,7 @@ import { UserEntity } from '../user/user.entity.js';
 import { TableCategoriesController } from './table-categories.controller.js';
 import { CreateOrUpdateTableCategoriesUseCase } from './use-cases/create-or-update-table-categories.use.case.js';
 import { FindTableCategoriesUseCase } from './use-cases/find-table-categories.use.case.js';
+import { FindTableCategoriesWithTablesUseCase } from './use-cases/find-table-categories-with-tables.use.case.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -24,6 +25,10 @@ import { FindTableCategoriesUseCase } from './use-cases/find-table-categories.us
 			provide: UseCaseType.CREATE_UPDATE_TABLE_CATEGORIES,
 			useClass: CreateOrUpdateTableCategoriesUseCase,
 		},
+		{
+			provide: UseCaseType.FIND_TABLE_CATEGORIES_WITH_TABLES,
+			useClass: FindTableCategoriesWithTablesUseCase,
+		},
 	],
 	controllers: [TableCategoriesController],
 })
@@ -34,6 +39,7 @@ export class TableCategoriesModule {
 			.forRoutes(
 				{ path: '/table-categories/:connectionId/', method: RequestMethod.GET },
 				{ path: '/table-categories/:connectionId/', method: RequestMethod.PUT },
+				{ path: '/table-categories/v2/:connectionId/', method: RequestMethod.GET },
 			);
 	}
 }

@@ -171,3 +171,45 @@
         background-color: var(--color-accentedPalette-700);
     }
 }
+
+.upgrade-required {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 48px 24px;
+    border: 1px solid var(--color-primaryPalette-100);
+    height: fit-content;
+}
+
+@media (prefers-color-scheme: dark) {
+    .upgrade-required {
+        border-color: var(--color-primaryPalette-700);
+    }
+}
+
+.upgrade-required__icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.38);
+    margin-bottom: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .upgrade-required__icon {
+        color: rgba(255, 255, 255, 0.38);
+    }
+}
+
+.upgrade-required__description {
+    color: rgba(0, 0, 0, 0.64);
+    margin-bottom: 24px;
+    max-width: 400px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .upgrade-required__description {
+        color: rgba(255, 255, 255, 0.7);
+    }
+}
