@@ -18,6 +18,7 @@ import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
 import { finalize } from 'rxjs/operators';
+import { DEFAULT_COLOR_PALETTE } from 'src/app/lib/chart-config.helper';
 import {
 	ChartAxisConfig,
 	ChartLegendConfig,
@@ -82,7 +83,10 @@ export class ChartEditComponent implements OnInit {
 	protected labelType = signal<'values' | 'datetime'>('values');
 
 	// Series config
+	protected seriesMode = signal<'manual' | 'column'>('manual');
 	protected seriesList = signal<ChartSeriesConfig[]>([]);
+	protected seriesColumn = signal('');
+	protected seriesValueColumn = signal('');
 
 	// Display options
 	protected stacked = signal(false);
@@ -286,6 +290,9 @@ export class ChartEditComponent implements OnInit {
 
 	protected hasChartData = computed(() => {
 		const hasLabel = !!this.labelColumn();
+		if (this.seriesMode() === 'column') {
+			return this.testResults().length > 0 && hasLabel && !!this.seriesColumn() && !!this.seriesValueColumn();
+		}
 		const hasSeries = this.seriesList().length > 0 && this.seriesList().some((s) => !!s.value_column);
 		return this.testResults().length > 0 && hasLabel && hasSeries;
 	});
@@ -296,9 +303,14 @@ export class ChartEditComponent implements OnInit {
 			label_type: this.labelType(),
 		};
 
-		const series = this.seriesList();
-		if (series.length > 0) {
-			options.series = series;
+		if (this.seriesMode() === 'column' && this.seriesColumn()) {
+			options.series_column = this.seriesColumn();
+			options.value_column = this.seriesValueColumn();
+		} else {
+			const series = this.seriesList();
+			if (series.length > 0) {
+				options.series = series;
+			}
 		}
 
 		if (this.stacked()) options.stacked = true;
@@ -399,7 +411,11 @@ export class ChartEditComponent implements OnInit {
 						if (opts.label_type) this.labelType.set(opts.label_type);
 
 						// Load series
-						if (opts.series?.length) {
+						if (opts.series_column) {
+							this.seriesMode.set('column');
+							this.seriesColumn.set(opts.series_column);
+							if (opts.value_column) this.seriesValueColumn.set(opts.value_column);
+						} else if (opts.series?.length) {
 							this.seriesList.set([...opts.series]);
 						} else if (opts.value_column) {
 							// Legacy: convert single value_column to series
@@ -551,6 +567,10 @@ export class ChartEditComponent implements OnInit {
 			updated[index] = value;
 			return updated;
 		});
+	}
+
+	initializeDefaultPalette(): void {
+		this.colorPalette.set([...DEFAULT_COLOR_PALETTE]);
 	}
 
 	saveQuery(): void {

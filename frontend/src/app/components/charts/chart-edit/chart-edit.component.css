@@ -452,9 +452,26 @@
 	height: 14px;
 }
 
+.series-mode-field {
+	min-width: 160px;
+	font-size: 13px;
+}
+
+.series-column-config {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.palette-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
 .add-color-button {
 	font-size: 13px;
-	margin-top: 4px;
 }
 
 .add-color-button mat-icon {

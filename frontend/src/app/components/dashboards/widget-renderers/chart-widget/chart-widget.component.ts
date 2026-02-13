@@ -55,8 +55,7 @@ export class ChartWidgetComponent implements OnInit {
 		if (!query) return [];
 
 		const widgetOptions = (query.widget_options ?? {}) as unknown as ChartWidgetOptions;
-		const plugin = buildDataLabelsPlugin(widgetOptions);
-		return plugin ? [plugin] : [];
+		return [buildDataLabelsPlugin(widgetOptions)];
 	});
 
 	ngOnInit(): void {

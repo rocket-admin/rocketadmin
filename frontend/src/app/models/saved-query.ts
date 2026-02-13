@@ -45,6 +45,7 @@ export interface ChartWidgetOptions {
 	value_column?: string;
 	label_type?: 'values' | 'datetime';
 	series?: ChartSeriesConfig[];
+	series_column?: string;
 	units?: ChartUnitConfig;
 	number_format?: ChartNumberFormatConfig;
 	color_palette?: string[];

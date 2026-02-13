@@ -9,7 +9,7 @@ import {
 	ChartWidgetOptions,
 } from '../models/saved-query';
 
-const DEFAULT_COLOR_PALETTE = [
+export const DEFAULT_COLOR_PALETTE = [
 	'rgba(99, 102, 241, 0.8)',
 	'rgba(168, 85, 247, 0.8)',
 	'rgba(236, 72, 153, 0.8)',
@@ -108,6 +108,91 @@ function sortData(
 	return sorted;
 }
 
+function buildPivotedChartData(
+	rawData: Record<string, unknown>[],
+	options: ChartWidgetOptions,
+): ChartData<ChartJsType> | null {
+	const palette = options.color_palette ?? DEFAULT_COLOR_PALETTE;
+	const labelColumn = options.label_column;
+	const seriesColumn = options.series_column!;
+	const valueColumn = options.value_column!;
+	const labelType = options.label_type ?? 'values';
+	const useTimeScale = labelType === 'datetime';
+
+	// Pre-process data: sort and limit
+	let processedData = [...rawData];
+	if (options.sort_by && options.sort_by !== 'none') {
+		processedData = sortData(processedData, options.sort_by, labelColumn, valueColumn);
+	}
+	if (options.limit) {
+		processedData = processedData.slice(0, options.limit);
+	}
+
+	// Extract unique labels preserving first-appearance order
+	const labelSet = new Set<string>();
+	const seriesSet = new Set<string>();
+	for (const row of processedData) {
+		labelSet.add(String(row[labelColumn] ?? ''));
+		seriesSet.add(String(row[seriesColumn] ?? ''));
+	}
+	const labels = Array.from(labelSet);
+	const seriesValues = Array.from(seriesSet);
+
+	// Build lookup: label -> seriesValue -> sum
+	const lookup = new Map<string, Map<string, number>>();
+	for (const row of processedData) {
+		const label = String(row[labelColumn] ?? '');
+		const series = String(row[seriesColumn] ?? '');
+		const value = extractNumericValue(row[valueColumn]);
+		if (!lookup.has(label)) lookup.set(label, new Map());
+		const inner = lookup.get(label)!;
+		inner.set(series, (inner.get(series) ?? 0) + value);
+	}
+
+	if (useTimeScale) {
+		const datasets = seriesValues.map((sv, i) => {
+			const color = palette[i % palette.length];
+			const dataPoints = labels
+				.map((label) => {
+					const date = parseDate(label);
+					if (!date) return null;
+					return {
+						x: date.getTime(),
+						y: lookup.get(label)?.get(sv) ?? 0,
+					};
+				})
+				.filter((p): p is { x: number; y: number } => p !== null)
+				.sort((a, b) => a.x - b.x);
+
+			return {
+				label: sv,
+				data: dataPoints,
+				backgroundColor: color,
+				borderColor: solidColor(color),
+				borderWidth: 1,
+				fill: false,
+				tension: 0,
+			};
+		});
+		return { datasets };
+	}
+
+	// Categorical scale
+	const datasets = seriesValues.map((sv, i) => {
+		const color = palette[i % palette.length];
+		const values = labels.map((label) => lookup.get(label)?.get(sv) ?? 0);
+		return {
+			label: sv,
+			data: values,
+			backgroundColor: color,
+			borderColor: solidColor(color),
+			borderWidth: 1,
+		};
+	});
+
+	return { labels, datasets };
+}
+
 export function buildChartData(
 	rawData: Record<string, unknown>[],
 	chartType: ChartType,
@@ -115,8 +200,14 @@ export function buildChartData(
 ): ChartData<ChartJsType> | null {
 	if (!rawData.length) return null;
 
-	const palette = options.color_palette ?? DEFAULT_COLOR_PALETTE;
 	const isPieType = ['pie', 'doughnut', 'polarArea'].includes(chartType);
+
+	// Pivot mode: series_column is set with a value_column (not for pie types)
+	if (options.series_column && options.value_column && !isPieType) {
+		return buildPivotedChartData(rawData, options);
+	}
+
+	const palette = options.color_palette ?? DEFAULT_COLOR_PALETTE;
 	const labelType = options.label_type ?? 'values';
 	const useTimeScale = labelType === 'datetime' && !isPieType;
 	const labelColumn = options.label_column;
@@ -284,7 +375,7 @@ export function buildChartOptions(chartType: ChartType, options: ChartWidgetOpti
 				callbacks: {
 					label: (context) => {
 						const seriesIndex = context.datasetIndex ?? 0;
-						const seriesConfig = seriesConfigs[seriesIndex];
+						const seriesConfig = options.series_column ? undefined : seriesConfigs[seriesIndex];
 						const units = seriesConfig?.units ?? globalUnits;
 						const numFormat = seriesConfig?.number_format ?? globalFormat;
 						const raw = context.parsed?.y ?? context.parsed ?? context.raw;
@@ -358,9 +449,7 @@ export function buildChartOptions(chartType: ChartType, options: ChartWidgetOpti
 	return chartOptions;
 }
 
-export function buildDataLabelsPlugin(options: ChartWidgetOptions): Plugin | null {
-	if (!options.show_data_labels) return null;
-
+export function buildDataLabelsPlugin(options: ChartWidgetOptions): Plugin {
 	const globalUnits = options.units;
 	const globalFormat = options.number_format;
 
@@ -373,6 +462,8 @@ export function buildDataLabelsPlugin(options: ChartWidgetOptions): Plugin | nul
 	return {
 		id: 'customDataLabels',
 		afterDatasetsDraw(chart) {
+			if (!options.show_data_labels) return;
+
 			const { ctx } = chart;
 			ctx.save();
 			ctx.font = '11px sans-serif';
@@ -381,7 +472,7 @@ export function buildDataLabelsPlugin(options: ChartWidgetOptions): Plugin | nul
 
 			chart.data.datasets.forEach((dataset, datasetIndex) => {
 				const meta = chart.getDatasetMeta(datasetIndex);
-				const seriesConfig = seriesConfigs[datasetIndex];
+				const seriesConfig = options.series_column ? undefined : seriesConfigs[datasetIndex];
 				const units = seriesConfig?.units ?? globalUnits;
 				const numFormat = seriesConfig?.number_format ?? globalFormat;
 

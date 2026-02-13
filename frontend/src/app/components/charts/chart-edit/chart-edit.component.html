@@ -117,12 +117,47 @@
                             <div class="series-section">
                                 <div class="section-header">
                                     <h4>Data series</h4>
+                                    @if (!isPieType()) {
+                                        <mat-form-field appearance="outline" class="series-mode-field">
+                                            <mat-label>Series mode</mat-label>
+                                            <mat-select [ngModel]="seriesMode()" (ngModelChange)="seriesMode.set($event)">
+                                                <mat-option value="manual">Manual</mat-option>
+                                                <mat-option value="column">Series from column</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    }
+                                </div>
+
+                                @if (seriesMode() === 'column' && !isPieType()) {
+                                    <div class="series-column-config">
+                                        <mat-form-field appearance="outline" class="series-field">
+                                            <mat-label>Series column</mat-label>
+                                            <mat-select [ngModel]="seriesColumn()" (ngModelChange)="seriesColumn.set($event)">
+                                                @for (col of resultColumns(); track col) {
+                                                    <mat-option [value]="col">{{ col }}</mat-option>
+                                                }
+                                            </mat-select>
+                                            <mat-hint>Categorical column to split into datasets</mat-hint>
+                                        </mat-form-field>
+
+                                        <mat-form-field appearance="outline" class="series-field">
+                                            <mat-label>Value column</mat-label>
+                                            <mat-select [ngModel]="seriesValueColumn()" (ngModelChange)="seriesValueColumn.set($event)">
+                                                @for (col of resultColumns(); track col) {
+                                                    <mat-option [value]="col">{{ col }}</mat-option>
+                                                }
+                                            </mat-select>
+                                            <mat-hint>Numeric column to chart</mat-hint>
+                                        </mat-form-field>
+                                    </div>
+                                }
+
+                                @if (seriesMode() === 'manual' || isPieType()) {
                                     @if (!isPieType() || seriesList().length === 0) {
                                         <button mat-stroked-button (click)="addSeries()" class="add-series-button" data-testid="add-series-button">
                                             <mat-icon>add</mat-icon> Add series
                                         </button>
                                     }
-                                </div>
 
                                 @for (series of seriesList(); track $index; let i = $index) {
                                     <div class="series-card">
@@ -212,6 +247,7 @@
                                             </div>
                                         }
                                     </div>
+                                }
                                 }
                             </div>
                         </div>
@@ -430,9 +466,16 @@
                                             </div>
                                         }
                                     </div>
-                                    <button mat-stroked-button (click)="addPaletteColor()" class="add-color-button">
-                                        <mat-icon>add</mat-icon> Add color
-                                    </button>
+                                    <div class="palette-actions">
+                                        <button mat-stroked-button (click)="addPaletteColor()" class="add-color-button">
+                                            <mat-icon>add</mat-icon> Add color
+                                        </button>
+                                        @if (colorPalette().length === 0) {
+                                            <button mat-stroked-button (click)="initializeDefaultPalette()" class="add-color-button">
+                                                <mat-icon>palette</mat-icon> Load defaults
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                             </mat-expansion-panel>
                         </mat-accordion>

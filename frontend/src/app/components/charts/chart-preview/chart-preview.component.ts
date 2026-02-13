@@ -67,8 +67,7 @@ export class ChartPreviewComponent implements OnChanges {
 		this.chartData = buildChartData(this.data, this.chartType, options);
 		this.chartOptions = buildChartOptions(this.chartType, options);
 
-		const plugin = buildDataLabelsPlugin(options);
-		this.chartPlugins = plugin ? [plugin] : [];
+		this.chartPlugins = [buildDataLabelsPlugin(options)];
 	}
 
 	private _resolveOptions(): ChartWidgetOptions {
