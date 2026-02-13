@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
 import { Client } from 'cassandra-driver';
 import { Database } from 'ibm_db';
 import { Knex } from 'knex';
@@ -20,6 +21,7 @@ const tableStructureCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTU
 const tableForeignKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tablePrimaryKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const redisClientCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_REDIS_CLIENT_CACHE_OPTIONS);
+const schemaHashCache = new LRUCache<string, string>(CACHING_CONSTANTS.DEFAULT_SCHEMA_HASH_CACHE_OPTIONS);
 export class LRUStorage {
 	public static getRedisClientCache(connection: ConnectionParams): any | null {
 		const cachedClient = redisClientCache.get(LRUStorage.getConnectionIdentifier(connection));
@@ -224,5 +226,52 @@ export class LRUStorage {
 			return true;
 		}
 		return false;
+	}
+
+	public static getSchemaHashCache(connection: ConnectionParams | ConnectionAgentParams): string | null {
+		const connectionId = LRUStorage.getConnectionIdentifier(connection);
+		const cachedHash = schemaHashCache.get(connectionId);
+		return cachedHash ?? null;
+	}
+
+	public static setSchemaHashCache(connection: ConnectionParams | ConnectionAgentParams, hash: string): void {
+		const connectionId = LRUStorage.getConnectionIdentifier(connection);
+		schemaHashCache.set(connectionId, hash);
+	}
+
+	public static validateSchemaHashAndInvalidate(
+		connection: ConnectionParams | ConnectionAgentParams,
+		currentHash: string,
+	): boolean {
+		const cachedHash = LRUStorage.getSchemaHashCache(connection);
+		if (cachedHash && cachedHash !== currentHash) {
+			LRUStorage.invalidateConnectionTableMetadata(connection);
+			LRUStorage.setSchemaHashCache(connection, currentHash);
+			return false;
+		}
+		if (!cachedHash) {
+			LRUStorage.setSchemaHashCache(connection, currentHash);
+		}
+		return true;
+	}
+
+	public static invalidateConnectionTableMetadata(connection: ConnectionParams | ConnectionAgentParams): void {
+		const connectionCopy = { ...connection };
+		const connectionStr = JSON.stringify({ connectionCopy });
+		for (const key of tableStructureCache.keys()) {
+			if (typeof key === 'string' && key.includes(connectionStr.slice(0, -1))) {
+				tableStructureCache.delete(key);
+			}
+		}
+		for (const key of tableForeignKeysCache.keys()) {
+			if (typeof key === 'string' && key.includes(connectionStr.slice(0, -1))) {
+				tableForeignKeysCache.delete(key);
+			}
+		}
+		for (const key of tablePrimaryKeysCache.keys()) {
+			if (typeof key === 'string' && key.includes(connectionStr.slice(0, -1))) {
+				tablePrimaryKeysCache.delete(key);
+			}
+		}
 	}
 }
