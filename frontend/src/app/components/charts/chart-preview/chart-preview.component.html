@@ -1,11 +1,14 @@
-<div class="chart-preview" *ngIf="chartData">
-    <canvas baseChart
-        [type]="mappedChartType"
-        [data]="chartData"
-        [options]="chartOptions">
-    </canvas>
-</div>
-
-<div class="no-data" *ngIf="!chartData">
-    <p>No chart data available</p>
-</div>
+@if (chartData) {
+    <div class="chart-preview">
+        <canvas baseChart
+            [type]="mappedChartType"
+            [data]="chartData"
+            [options]="chartOptions"
+            [plugins]="chartPlugins">
+        </canvas>
+    </div>
+} @else {
+    <div class="no-data">
+        <p>No chart data available</p>
+    </div>
+}
