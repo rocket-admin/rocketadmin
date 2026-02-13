@@ -7,6 +7,7 @@ import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/
 import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { validateSchemaCache } from '@rocketadmin/shared-code/dist/src/caching/schema-cache-validator.js';
 import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -70,6 +71,9 @@ export class GetRowByPrimaryKeyUseCase
 		if (isConnectionTypeAgent(connection.type)) {
 			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
 		}
+
+		await validateSchemaCache(dao, userEmail);
+
 		let [
 			tableStructure,
 			tableWidgets,

@@ -709,6 +709,40 @@ ORDER BY
 		return result as Record<string, unknown>[];
 	}
 
+	public async getSchemaHash(): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const connectionToDb = await this.getConnectionToDatabase();
+		const schema = this.connection.schema?.toUpperCase() ?? this.connection.username.toUpperCase();
+
+		const query = `
+			SELECT 
+				COALESCE(table_count, 0) || '|' || 
+				COALESCE(column_count, 0) || '|' || 
+				COALESCE(index_count, 0) || '|' ||
+				COALESCE(column_checksum, 0) AS SCHEMA_HASH
+			FROM (
+				SELECT 
+					(SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA = ? AND TYPE = 'T') AS table_count,
+					(SELECT COUNT(*) FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ?) AS column_count,
+					(SELECT COUNT(*) FROM SYSCAT.INDEXES WHERE TABSCHEMA = ?) AS index_count,
+					(SELECT COALESCE(SUM(COLNO + LENGTH(COLNAME) + LENGTH(TYPENAME)), 0) 
+					 FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ?) AS column_checksum
+				FROM SYSIBM.SYSDUMMY1
+			)
+		`;
+
+		const result = await connectionToDb.query(query, [schema, schema, schema, schema]);
+		const hash = (result as Array<Record<string, unknown>>)?.[0]?.SCHEMA_HASH || '';
+
+		LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash as string);
+
+		return hash as string;
+	}
+
 	private getConnectionToDatabase(): Promise<Database> {
 		if (this.connection.ssh) {
 			return this.createTunneledConnection(this.connection);

@@ -8,6 +8,7 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/en
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
+import { validateSchemaCache } from '@rocketadmin/shared-code/dist/src/caching/schema-cache-validator.js';
 import Sentry from '@sentry/minimal';
 import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
@@ -87,6 +88,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			if (isConnectionTypeAgent(connection.type)) {
 				userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
 			}
+
+			await validateSchemaCache(dao, userEmail);
 
 			// eslint-disable-next-line prefer-const
 			let { tableSettings, tableCustomFields, tableWidgets } =
