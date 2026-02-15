@@ -1,21 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SaasSAMLUserRegisterDS {
-  @ApiProperty()
-  email: string;
+	@ApiProperty()
+	email: string;
 
-  @ApiProperty()
-  name: string;
+	@ApiProperty()
+	name: string;
 
-  @ApiProperty()
-  companyId: string;
+	@ApiProperty()
+	companyId: string;
 
-  @ApiProperty()
-  samlConfigId: string;
+	@ApiProperty()
+	samlConfigId: string;
 
-  @ApiProperty()
-  samlNameId: string;
+	@ApiProperty()
+	samlNameId: string;
 
-  @ApiProperty({ required: false })
-  samlAttributes?: Record<string, any>;
+	@ApiProperty({ required: false })
+	samlAttributes?: Record<string, any>;
 }

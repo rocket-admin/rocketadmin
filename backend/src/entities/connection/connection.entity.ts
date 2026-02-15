@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { nanoid } from 'nanoid';
 import {
 	AfterLoad,
 	BeforeInsert,
@@ -12,23 +13,22 @@ import {
 	PrimaryColumn,
 	Relation,
 } from 'typeorm';
-import { isConnectionTypeAgent } from '../../helpers/index.js';
+import { Constants } from '../../helpers/constants/constants.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { isConnectionTypeAgent } from '../../helpers/index.js';
 import { AgentEntity } from '../agent/agent.entity.js';
+import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
+import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';
+import { TableFiltersEntity } from '../table-filters/table-filters.entity.js';
 import { TableInfoEntity } from '../table-info/table-info.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
-import { UserEntity } from '../user/user.entity.js';
-import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
-import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';
-import { nanoid } from 'nanoid';
-import { Constants } from '../../helpers/constants/constants.js';
-import { TableFiltersEntity } from '../table-filters/table-filters.entity.js';
 import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
-import { SavedDbQueryEntity } from '../visualizations/saved-db-query/saved-db-query.entity.js';
+import { UserEntity } from '../user/user.entity.js';
 import { DashboardEntity } from '../visualizations/dashboard/dashboard.entity.js';
+import { SavedDbQueryEntity } from '../visualizations/saved-db-query/saved-db-query.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -272,6 +272,7 @@ export class ConnectionEntity {
 	@ManyToOne(
 		(_) => CompanyInfoEntity,
 		(company) => company.connections,
+		{ onDelete: 'CASCADE' },
 	)
 	@JoinTable()
 	company: Relation<CompanyInfoEntity>;

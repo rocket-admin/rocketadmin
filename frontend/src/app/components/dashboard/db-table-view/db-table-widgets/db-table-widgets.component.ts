@@ -10,6 +10,7 @@ import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { difference } from 'lodash-es';
+import posthog from 'posthog-js';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, Widget } from 'src/app/models/table';
@@ -23,7 +24,6 @@ import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcr
 import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
 import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
 import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
-import { MarkdownEditComponent } from '../../../ui-components/record-edit-fields/markdown/markdown.component';
 import { PasswordEditComponent } from '../../../ui-components/record-edit-fields/password/password.component';
 import { SelectEditComponent } from '../../../ui-components/record-edit-fields/select/select.component';
 import { TextEditComponent } from '../../../ui-components/record-edit-fields/text/text.component';
@@ -49,7 +49,6 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 		PasswordEditComponent,
 		ImageEditComponent,
 		CodeEditComponent,
-		MarkdownEditComponent,
 		WidgetComponent,
 		TextEditComponent,
 		LongTextEditComponent,
@@ -58,6 +57,7 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 	],
 })
 export class DbTableWidgetsComponent implements OnInit {
+	protected posthog = posthog;
 	public connectionID: string | null = null;
 	public tableName: string | null = null;
 	public dispalyTableName: string;
@@ -272,12 +272,11 @@ export class DbTableWidgetsComponent implements OnInit {
 // prefix: Optional path prefix for uploaded files
 // region: AWS region (default: us-east-1)
 // type: "file" (default) - accepts all file types, "image" - accepts only images
-// aws_access_key_id_secret_name: Slug of the secret containing AWS Access Key ID
-// aws_secret_access_key_secret_name: Slug of the secret containing AWS Secret Access Key
+// aws_access_key_id_secret_name: Unique identifier of the secret containing AWS Access Key ID
+// aws_secret_access_key_secret_name: Unique identifier of the secret containing AWS Secret Access Key
 //
 // ⚠️ IMPORTANT: DO NOT INCLUDE AWS SECRETS DIRECTLY IN WIDGET SETTINGS!
-// Store your AWS credentials as secrets in Settings -> Secrets first,
-// then reference them by their slug names in the settings below.
+// Store your AWS credentials as secrets in Rocketadmin and reference them here by their unique identifiers to ensure security and prevent exposure of sensitive information.
 
 {
   "bucket": "your-bucket-name",
@@ -430,6 +429,7 @@ export class DbTableWidgetsComponent implements OnInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Widgets: widgets are updated successfully',
 				});
+				posthog.capture('Widgets: widgets are updated successfully');
 				if (!afterDeleteAll) this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
 			},
 			undefined,

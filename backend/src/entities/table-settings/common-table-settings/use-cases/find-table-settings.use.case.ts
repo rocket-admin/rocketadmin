@@ -10,30 +10,30 @@ import { IFindTableSettings } from './use-cases.interface.js';
 
 @Injectable()
 export class FindTableSettingsUseCase
-  extends AbstractUseCase<FindTableSettingsDs, FoundTableSettingsDs>
-  implements IFindTableSettings
+	extends AbstractUseCase<FindTableSettingsDs, FoundTableSettingsDs>
+	implements IFindTableSettings
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
-  protected async implementation(inputData: FindTableSettingsDs): Promise<FoundTableSettingsDs> {
-    const { connectionId, tableName, masterPassword } = inputData;
-    const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
-    if (!tableSettings) {
-      return {} as FoundTableSettingsDs;
-    }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
+	protected async implementation(inputData: FindTableSettingsDs): Promise<FoundTableSettingsDs> {
+		const { connectionId, tableName, masterPassword } = inputData;
+		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
+		if (!tableSettings) {
+			return {} as FoundTableSettingsDs;
+		}
 
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connectionId,
-      masterPassword,
-    );
-    if (!foundConnection) {
-      throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
-    }
+		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+			connectionId,
+			masterPassword,
+		);
+		if (!foundConnection) {
+			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+		}
 
-    return buildFoundTableSettingsDs(tableSettings);
-  }
+		return buildFoundTableSettingsDs(tableSettings);
+	}
 }

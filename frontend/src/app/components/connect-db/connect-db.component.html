@@ -14,6 +14,7 @@
                 data-testid="connection-title-input"
                 angulartics2On="change"
                 angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: title is edited"
+                (change)="posthog.capture('Connection creds {{ db.id ? \'edit\' : \'add\' }}: title is edited')"
                 [required]="db.connectionType === 'agent'"
                 [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                 [disabled]="submitting"
@@ -26,6 +27,7 @@
                 data-testid="connection-dbtype-select"
                 angulartics2On="click"
                 angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: db type is selected"
+                (click)="posthog.capture('Connection creds {{ db.id ? \'edit\' : \'add\' }}: db type is selected')"
                 [angularticsProperties]="{'dbType': db.type}"
                 [disabled]="submitting"
                 [(ngModel)]="db.type"
@@ -60,7 +62,7 @@
             </div>
 
             <ng-template #warningAlert>
-                <app-alert [alert]="warning">
+                <app-alert [alert]="warning" class="connectForm__ipAlert">
                     <div class="mat-body-1" style="margin-bottom: 0">
                         Please make sure our servers are able to access your database. <br/> Rocketadmin uses the IP address
                         <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
@@ -232,7 +234,8 @@
                     href="https://hub.docker.com/r/rocketadmin/rocketadmin-agent" target="_blank"
                     data-testid="connection-agent-dockerhub-link"
                     angulartics2On="click"
-                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: open github agent page">
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: open github agent page"
+                    (click)="posthog.capture('Connection creds {{ db.id ? \'edit\' : \'add\' }}: open github agent page')">
                     <svg class="github-icon" xmlns="http://www.w3.org/2000/svg"
                         aria-label="Docker" role="img"
                         viewBox="0 0 512 512"><rect
@@ -252,7 +255,8 @@
                     target="_blank"
                     data-testid="connection-agent-instruction-link"
                     angulartics2On="click"
-                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: open agent connection instruction">
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: open agent connection instruction"
+                    (click)="posthog.capture('Connection creds {{ db.id ? \'edit\' : \'add\' }}: open agent connection instruction')">
                     Check out the complete guide
                 </a>
             </div>
@@ -292,7 +296,7 @@
                 angulartics2On="click"
                 angularticsAction="Connection creds test: delete db is clicked"
                 [disabled]="submitting"
-                (click)="confirmDeleteConnection(db, $event)">
+                (click)="confirmDeleteConnection(db, $event); posthog.capture('Connection creds test: delete db is clicked')">
                 Delete
             </button>
         </div>
@@ -308,7 +312,7 @@
                 data-testid="add-connection-actions-test-button"
                 angulartics2On="click"
                 angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: test db creds is clicked"
-                (click)="testConnection()"
+                (click)="testConnection(); posthog.capture('Connection creds {{ db.id ? \'edit\' : \'add\' }}: test db creds is clicked')"
                 [disabled]="submitting">
                 Test connection
             </button>
@@ -317,6 +321,7 @@
                 color="primary"
                 angulartics2On="click"
                 angularticsAction="Connection creds add: db add clicked"
+                (click)="posthog.capture('Connection creds add: db add clicked')"
                 [disabled]="submitting">
                 {{ submitting ? 'Checking' : 'Add'}}
             </button>
@@ -335,14 +340,14 @@
                 angulartics2On="click"
                 angularticsAction="Connection creds edit: delete db is clicked"
                 [disabled]="submitting"
-                (click)="confirmDeleteConnection(db, $event)">
+                (click)="confirmDeleteConnection(db, $event); posthog.capture('Connection creds edit: delete db is clicked')">
                 Delete
             </button>
             <button type="button" mat-button color="primary" class="test-button"
                 data-testid="edit-connection-actions-test-button"
                 angulartics2On="click"
                 angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: test db creads is clicked"
-                (click)="testConnection()"
+                (click)="testConnection(); posthog.capture('Connection creds {{ db.id ? \'edit\' : \'add\' }}: test db creads is clicked')"
                 [disabled]="submitting">
                 Test connection
             </button>
@@ -353,6 +358,7 @@
                 data-testid="edit-connection-actions-edit-button"
                 angulartics2On="click"
                 angularticsAction="Connection creds edit: db edit is clicked"
+                (click)="posthog.capture('Connection creds edit: db edit is clicked')"
                 [disabled]="submitting || db.isTestConnection">
                 {{ submitting ? 'Checking' : 'Edit'}}
             </button>

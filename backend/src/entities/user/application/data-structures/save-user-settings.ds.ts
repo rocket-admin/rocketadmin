@@ -1,4 +1,4 @@
 export class SaveUserSettingsDs {
-  userSettings: string;
-  userId: string;
+	userSettings: string;
+	userId: string;
 }

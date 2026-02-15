@@ -1,0 +1,75 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+}
+
+.loading-container,
+.error-container,
+.no-query-container,
+.no-data-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	text-align: center;
+}
+
+.error-message {
+	color: var(--color-warnPalette-500);
+	margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+	.error-message {
+		color: var(--color-warnDarkPalette-500);
+	}
+}
+
+.no-query-container p,
+.no-data-container p {
+	margin: 0;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.no-query-container p,
+	.no-data-container p {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+.hint {
+	font-size: 12px;
+	margin-top: 4px !important;
+}
+
+.table-container {
+	flex: 1;
+	overflow: auto;
+}
+
+.table-container table {
+	width: 100%;
+}
+
+.table-container th {
+	background: rgba(0, 0, 0, 0.04);
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+	.table-container th {
+		background: rgba(255, 255, 255, 0.04);
+	}
+}
+
+.table-container td {
+	white-space: nowrap;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

@@ -22,7 +22,7 @@ export class AlertComponent implements OnInit {
   public icons = {
     error: 'error_outline',
     warning: 'warning_amber',
-    info: 'info_outline',
+    info: 'info',
     success: 'task_alt'
   }
 

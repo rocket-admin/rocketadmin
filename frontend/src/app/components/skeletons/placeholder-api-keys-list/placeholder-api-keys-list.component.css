@@ -1,0 +1,33 @@
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 16px;
+    border-radius: 8px;
+    margin-bottom: 0;
+    min-height: 40px;
+}
+
+.list-item__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.list-item__icon {
+    height: 24px;
+    width: 24px;
+    border-radius: 4px;
+}
+
+.list-item__title {
+    height: 20px;
+    width: 160px;
+    border-radius: 4px;
+}
+
+.list-item__button {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+}

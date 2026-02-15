@@ -1,0 +1,120 @@
+<div class="charts-layout">
+    <app-dashboards-sidebar
+        [connectionId]="connectionId()"
+        activeTab="queries">
+    </app-dashboards-sidebar>
+
+    <div class="charts-main">
+        <app-alert></app-alert>
+
+        <div class="charts-page">
+            <div class="charts-header">
+                <h1 class="mat-h1">Widgets</h1>
+                <p class="charts-description">
+                    Create and manage widgets with chart visualizations for your dashboards.
+                </p>
+            </div>
+
+            <div class="charts-toolbar">
+                <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Search widgets</mat-label>
+                    <input matInput
+                        [ngModel]="searchQuery()"
+                        (ngModelChange)="searchQuery.set($event)"
+                        placeholder="Search by name or description..."
+                        data-testid="widgets-search-input">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+
+                <a *ngIf="filteredQueries().length > 0" mat-flat-button color="primary"
+                    [routerLink]="['/charts', connectionId(), 'new']"
+                    (click)="trackCreatePageOpened()"
+                    data-testid="create-widget-button">
+                    <mat-icon>add</mat-icon>
+                    Create widget
+                </a>
+            </div>
+
+            <app-placeholder-table-data *ngIf="loading()"></app-placeholder-table-data>
+
+            <div *ngIf="!loading() && filteredQueries().length === 0" class="no-widgets">
+                <mat-icon class="no-widgets-icon">widgets</mat-icon>
+                <h3>No widgets found</h3>
+                <p *ngIf="searchQuery()">No widgets match your search criteria.</p>
+                <p *ngIf="!searchQuery()">Create your first widget to visualize your data.</p>
+                <a mat-flat-button color="primary"
+                    [routerLink]="['/charts', connectionId(), 'new']"
+                    (click)="trackCreatePageOpened()">
+                    <mat-icon>add</mat-icon>
+                    Create widget
+                </a>
+            </div>
+
+            <table *ngIf="!loading() && filteredQueries().length > 0" mat-table [dataSource]="filteredQueries()" class="widgets-table">
+                <!-- Preview Column -->
+                <ng-container matColumnDef="preview">
+                    <th mat-header-cell *matHeaderCellDef>Type</th>
+                    <td mat-cell *matCellDef="let query" class="preview-cell">
+                        <div class="preview-link" [matTooltip]="getChartTypeName(query.chart_type)">
+                            <app-chart-mini-preview [chartType]="query.chart_type"></app-chart-mini-preview>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let query" class="widget-name-cell">
+                        {{query.name}}
+                    </td>
+                </ng-container>
+
+                <!-- Description Column -->
+                <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef>Description</th>
+                    <td mat-cell *matCellDef="let query" class="description-cell">
+                        {{query.description || '—'}}
+                    </td>
+                </ng-container>
+
+                <!-- Updated Column -->
+                <ng-container matColumnDef="updated">
+                    <th mat-header-cell *matHeaderCellDef>Updated</th>
+                    <td mat-cell *matCellDef="let query" class="updated-cell">
+                        {{formatUpdatedAt(query.updated_at)}}
+                    </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let query; let i = index" class="actions-cell">
+                        <button mat-icon-button [matMenuTriggerFor]="rowMenu"
+                            (click)="$event.stopPropagation()"
+                            attr.data-testid="widget-actions-{{i}}-button">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #rowMenu="matMenu">
+                            <a mat-menu-item
+                                [routerLink]="['/charts', connectionId(), query.id]"
+                                (click)="trackEditPageOpened()"
+                                attr.data-testid="widget-edit-{{i}}-menu-item">
+                                <mat-icon>edit</mat-icon>
+                                <span>Edit</span>
+                            </a>
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item (click)="openDeleteDialog(query)" class="delete-action"
+                                attr.data-testid="widget-delete-{{i}}-menu-item">
+                                <mat-icon color="warn">delete</mat-icon>
+                                <span>Delete</span>
+                            </button>
+                        </mat-menu>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row" (click)="openQuery(row)"></tr>
+            </table>
+        </div>
+    </div>
+</div>

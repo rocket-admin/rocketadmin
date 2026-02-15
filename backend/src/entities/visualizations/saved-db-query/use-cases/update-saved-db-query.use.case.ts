@@ -6,10 +6,10 @@ import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { UpdateSavedDbQueryDs } from '../data-structures/update-saved-db-query.ds.js';
 import { FoundSavedDbQueryDto } from '../dto/found-saved-db-query.dto.js';
+import { SavedDbQueryEntity } from '../saved-db-query.entity.js';
 import { buildFoundSavedDbQueryDto } from '../utils/build-found-saved-db-query-dto.util.js';
 import { validateQuerySafety } from '../utils/check-query-is-safe.util.js';
 import { IUpdateSavedDbQuery } from './saved-db-query-use-cases.interface.js';
-import { SavedDbQueryEntity } from '../saved-db-query.entity.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateSavedDbQueryUseCase
@@ -24,7 +24,17 @@ export class UpdateSavedDbQueryUseCase
 	}
 
 	public async implementation(inputData: UpdateSavedDbQueryDs): Promise<FoundSavedDbQueryDto> {
-		const { queryId, connectionId, masterPassword, name, description, query_text } = inputData;
+		const {
+			queryId,
+			connectionId,
+			masterPassword,
+			name,
+			description,
+			widget_type,
+			chart_type,
+			widget_options,
+			query_text,
+		} = inputData;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -46,6 +56,15 @@ export class UpdateSavedDbQueryUseCase
 		}
 		if (description !== undefined) {
 			foundQuery.description = description;
+		}
+		if (widget_type !== undefined) {
+			foundQuery.widget_type = widget_type;
+		}
+		if (chart_type !== undefined) {
+			foundQuery.chart_type = chart_type;
+		}
+		if (widget_options !== undefined) {
+			foundQuery.widget_options = widget_options ? (widget_options as unknown as string) : null;
 		}
 		if (query_text !== undefined) {
 			validateQuerySafety(query_text, foundConnection.type as ConnectionTypesEnum);

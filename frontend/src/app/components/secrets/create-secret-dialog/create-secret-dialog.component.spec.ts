@@ -192,17 +192,17 @@ describe('CreateSecretDialogComponent', () => {
 		it('should return correct slug error message for required', () => {
 			component.form.get('slug')?.setValue('');
 			component.form.get('slug')?.markAsTouched();
-			expect(component.slugError).toBe('Slug is required');
+			expect(component.slugError).toBe('Unique identifier is required');
 		});
 
 		it('should return correct slug error message for maxlength', () => {
 			component.form.get('slug')?.setValue('a'.repeat(256));
-			expect(component.slugError).toBe('Slug must be 255 characters or less');
+			expect(component.slugError).toBe('Unique identifier must be 255 characters or less');
 		});
 
 		it('should return correct slug error message for pattern', () => {
 			component.form.get('slug')?.setValue('invalid slug!');
-			expect(component.slugError).toBe('Only letters, numbers, hyphens, and underscores allowed');
+			expect(component.slugError).toBe('Only letters, numbers, hyphens, and underscores allowed (no spaces)');
 		});
 
 		it('should return correct value error message for required', () => {

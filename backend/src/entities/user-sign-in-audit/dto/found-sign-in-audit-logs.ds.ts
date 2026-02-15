@@ -3,9 +3,9 @@ import { PaginationDs } from '../../table/application/data-structures/pagination
 import { FoundSignInAuditRecordDs } from './found-sign-in-audit-record.ds.js';
 
 export class FoundSignInAuditLogsDs {
-  @ApiProperty({ isArray: true, type: FoundSignInAuditRecordDs })
-  logs: Array<FoundSignInAuditRecordDs>;
+	@ApiProperty({ isArray: true, type: FoundSignInAuditRecordDs })
+	logs: Array<FoundSignInAuditRecordDs>;
 
-  @ApiProperty({ type: PaginationDs })
-  pagination: PaginationDs;
+	@ApiProperty({ type: PaginationDs })
+	pagination: PaginationDs;
 }

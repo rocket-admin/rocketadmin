@@ -24,7 +24,8 @@ export class CreateSavedDbQueryUseCase
 	}
 
 	public async implementation(inputData: CreateSavedDbQueryDs): Promise<FoundSavedDbQueryDto> {
-		const { connectionId, masterPassword, name, description, query_text } = inputData;
+		const { connectionId, masterPassword, name, description, widget_type, chart_type, widget_options, query_text } =
+			inputData;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -40,6 +41,9 @@ export class CreateSavedDbQueryUseCase
 		const newQuery = new SavedDbQueryEntity();
 		newQuery.name = name;
 		newQuery.description = description || null;
+		newQuery.widget_type = widget_type;
+		newQuery.chart_type = chart_type || null;
+		newQuery.widget_options = widget_options ? (widget_options as unknown as string) : null;
 		newQuery.query_text = query_text;
 		newQuery.connection_id = foundConnection.id;
 

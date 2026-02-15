@@ -1,3 +1,7 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+}
+
 .wrapper {
     min-width: 300px;
     margin: 0 auto 16px;
@@ -7,7 +11,7 @@
 .header {
     display: flex;
     justify-content: space-between;
-    margin: 36px 70px 24px 0;
+    margin: 2.5em 70px 24px 0;
 }
 
 .header-actions-box {

@@ -15,6 +15,7 @@ export const COMMAND_TYPE = {
 	dataFromAgent: 'dataFromAgent',
 	isView: 'isView',
 	getRowsAsStream: 'getRowsAsStream',
+	executeRawQuery: 'executeRawQuery',
 } as const;
 
 export type CommandType = (typeof COMMAND_TYPE)[keyof typeof COMMAND_TYPE];

@@ -12,23 +12,23 @@ import { FindSignInAuditLogsUseCase } from './use-cases/find-sign-in-audit-logs.
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([SignInAuditEntity, UserEntity, LogOutEntity])],
-  providers: [
-    {
-      provide: BaseType.GLOBAL_DB_CONTEXT,
-      useClass: GlobalDatabaseContext,
-    },
-    {
-      provide: UseCaseType.FIND_SIGN_IN_AUDIT_LOGS,
-      useClass: FindSignInAuditLogsUseCase,
-    },
-    SignInAuditService,
-  ],
-  controllers: [SignInAuditController],
-  exports: [SignInAuditService],
+	imports: [TypeOrmModule.forFeature([SignInAuditEntity, UserEntity, LogOutEntity])],
+	providers: [
+		{
+			provide: BaseType.GLOBAL_DB_CONTEXT,
+			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.FIND_SIGN_IN_AUDIT_LOGS,
+			useClass: FindSignInAuditLogsUseCase,
+		},
+		SignInAuditService,
+	],
+	controllers: [SignInAuditController],
+	exports: [SignInAuditService],
 })
 export class SignInAuditModule {
-  public configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/sign-in-audit/logs', method: RequestMethod.GET });
-  }
+	public configure(consumer: MiddlewareConsumer): any {
+		consumer.apply(AuthMiddleware).forRoutes({ path: '/sign-in-audit/logs', method: RequestMethod.GET });
+	}
 }

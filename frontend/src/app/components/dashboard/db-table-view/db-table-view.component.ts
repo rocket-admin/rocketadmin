@@ -35,6 +35,7 @@ import { Angulartics2OnModule } from 'angulartics2';
 import JSON5 from 'json5';
 import { DynamicModule } from 'ng-dynamic-component';
 import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
+import posthog from 'posthog-js';
 import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
@@ -110,6 +111,7 @@ export interface Folder {
 	],
 })
 export class DbTableViewComponent implements OnInit, OnChanges {
+	protected posthog = posthog;
 	@Input() name: string;
 	@Input() displayName: string;
 	@Input() permissions: TablePermissions;
@@ -202,15 +204,15 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 			);
 
 			if (!loading && this.tableData.defaultSort !== undefined) {
-				// Update defaultSort reference whenever data loads
-				this.defaultSort = this.tableData.defaultSort;
-
 				console.log('DbTableViewComponent tableData loaded:', this.tableData);
 				console.log('DbTableViewComponent tableData.defaultSort loaded:', this.tableData.defaultSort);
 
-				// Only initialize sort on first load (or after table switch when sortInitialized was reset)
+				// Only initialize sort and defaultSort on first load (or after table switch when sortInitialized was reset)
 				if (!this.sortInitialized) {
 					this.sortInitialized = true;
+
+					// Only sync defaultSort from server on initial load, not on subsequent sort/pagination changes
+					this.defaultSort = this.tableData.defaultSort;
 
 					// Initialize sort based on priority: URL params > default sort
 					if (urlSortActive && urlSortDirection) {
@@ -265,6 +267,9 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 			// Reset sort to empty state - it will be initialized with default sort when data loads
 			this.sort.active = '';
 			this.sort.direction = '' as any;
+
+			// Reset defaultSort so the previous table's default doesn't show on the new table
+			this.defaultSort = null;
 
 			// Reset the sortInitialized flag so the sort gets re-initialized with new table's default sort
 			this.sortInitialized = false;

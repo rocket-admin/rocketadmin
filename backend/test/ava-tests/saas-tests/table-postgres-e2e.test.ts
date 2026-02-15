@@ -13,6 +13,7 @@ import path, { join } from 'path';
 import request from 'supertest';
 import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
@@ -23,12 +24,11 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { createTestTable } from '../../utils/create-test-table.js';
+import { getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
 import { getTestData } from '../../utils/get-test-data.js';
+import { getTestKnex } from '../../utils/get-test-knex.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { getTestKnex } from '../../utils/get-test-knex.js';
-import { getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -789,9 +789,9 @@ should return all found rows with sorting ids by DESC`,
 			t.is(getTableRowsResponse.status, 200);
 
 			t.is(typeof getTableRowsRO, 'object');
-			t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-			t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-			t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+			t.is(Object.hasOwn(getTableRowsRO, 'rows'), true);
+			t.is(Object.hasOwn(getTableRowsRO, 'primaryColumns'), true);
+			t.is(Object.hasOwn(getTableRowsRO, 'pagination'), true);
 			t.is(getTableRowsRO.rows.length, 20);
 			t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 			t.is(getTableRowsRO.rows[0].id, 42);
@@ -799,8 +799,8 @@ should return all found rows with sorting ids by DESC`,
 			t.is(getTableRowsRO.rows[19].id, 23);
 
 			t.is(typeof getTableRowsRO.primaryColumns, 'object');
-			t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-			t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+			t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'column_name'), true);
+			t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'data_type'), true);
 		} catch (e) {
 			console.error(e);
 			throw e;

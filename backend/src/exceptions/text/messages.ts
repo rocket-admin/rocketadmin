@@ -13,8 +13,10 @@ import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 export const Messages = {
+	API_KEY_SUSPENDED: 'API key is suspended',
 	AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',
 	AI_THREAD_NOT_FOUND: 'Thread with specified parameters not found',
+	AI_CHAT_NOT_FOUND: 'AI chat with specified parameters not found',
 	ACCOUNT_SUSPENDED:
 		'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
 	ACCESS_LEVEL_INVALID: 'Access level is invalid',
@@ -246,6 +248,7 @@ export const Messages = {
 	SAAS_RECOUNT_USERS_IN_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to recount users in company. Please contact our support team.`,
 	SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
 	SLACK_URL_MISSING: 'Slack url is missing',
+	ACTION_URL_HOST_NOT_ALLOWED: 'Action URL cannot target this host',
 	SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
 	SOMETHING_WENT_WRONG_AI_THREAD: 'Something went wrong on AI thread creation, check inserted parameters and try again',
 	SOMETHING_WENT_WRONG_AI_THREAD_MESSAGE:
@@ -380,4 +383,6 @@ export const Messages = {
 	SECRET_DELETED_SUCCESSFULLY: 'Secret deleted successfully',
 	USER_NOT_FOUND_OR_NOT_IN_COMPANY: 'User not found or not associated with a company',
 	PERSONAL_TABLE_SETTINGS_NOT_FOUND: 'Personal table settings with this parameters not found',
+	SELF_HOSTED_ALREADY_CONFIGURED: 'Instance is already configured',
+	ENDPOINT_NOT_AVAILABLE_IN_THIS_MODE: 'This endpoint is not available in the current mode',
 };

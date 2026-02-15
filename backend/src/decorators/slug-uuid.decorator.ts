@@ -4,42 +4,44 @@ import { Messages } from '../exceptions/text/messages.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 export type SlugUuidParameter =
-  | 'slug'
-  | 'connectionId'
-  | 'groupId'
-  | 'userId'
-  | 'actionId'
-  | 'ruleId'
-  | 'eventId'
-  | 'apiKeyId'
-  | 'companyId'
-  | 'threadId'
-  | 'filterId';
+	| 'slug'
+	| 'connectionId'
+	| 'groupId'
+	| 'userId'
+	| 'actionId'
+	| 'ruleId'
+	| 'eventId'
+	| 'apiKeyId'
+	| 'companyId'
+	| 'threadId'
+	| 'filterId'
+	| 'chatId';
 export const SlugUuid = createParamDecorator(
-  (parameterName: SlugUuidParameter = 'slug', ctx: ExecutionContext): string => {
-    const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
-    const availableSlagParameters: Array<SlugUuidParameter> = [
-      'slug',
-      'connectionId',
-      'groupId',
-      'userId',
-      'apiKeyId',
-      'actionId',
-      'ruleId',
-      'eventId',
-      'companyId',
-      'threadId',
-      'filterId'
-    ];
-    if (!availableSlagParameters.includes(parameterName)) {
-      throw new BadRequestException(Messages.UUID_INVALID);
-    }
-    // eslint-disable-next-line security/detect-object-injection
-    const uuId: string = request.params?.[parameterName];
+	(parameterName: SlugUuidParameter = 'slug', ctx: ExecutionContext): string => {
+		const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
+		const availableSlagParameters: Array<SlugUuidParameter> = [
+			'slug',
+			'connectionId',
+			'groupId',
+			'userId',
+			'apiKeyId',
+			'actionId',
+			'ruleId',
+			'eventId',
+			'companyId',
+			'threadId',
+			'filterId',
+			'chatId',
+		];
+		if (!availableSlagParameters.includes(parameterName)) {
+			throw new BadRequestException(Messages.UUID_INVALID);
+		}
+		// eslint-disable-next-line security/detect-object-injection
+		const uuId: string = request.params?.[parameterName];
 
-    if (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId)) {
-      return uuId;
-    }
-    throw new BadRequestException(Messages.UUID_INVALID);
-  },
+		if (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId)) {
+			return uuId;
+		}
+		throw new BadRequestException(Messages.UUID_INVALID);
+	},
 );

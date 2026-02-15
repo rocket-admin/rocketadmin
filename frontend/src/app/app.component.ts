@@ -15,6 +15,7 @@ import { User } from '@sentry/angular';
 import amplitude from 'amplitude-js';
 import { Angulartics2, Angulartics2Amplitude, Angulartics2OnModule } from 'angulartics2';
 import { differenceInMilliseconds } from 'date-fns';
+import posthog from 'posthog-js';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { environment } from '../environments/environment';
@@ -23,6 +24,7 @@ import { Connection } from './models/connection';
 import { AuthService } from './services/auth.service';
 import { CompanyService } from './services/company.service';
 import { ConnectionsService } from './services/connections.service';
+import { PosthogService } from './services/posthog.service';
 import { TablesService } from './services/tables.service';
 import { UiSettingsService } from './services/ui-settings.service';
 import { UserService } from './services/user.service';
@@ -53,6 +55,7 @@ amplitude.getInstance().init('9afd282be91f94da735c11418d5ff4f5');
 	],
 })
 export class AppComponent {
+	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public appVersion = version;
 	userActivity;
@@ -95,6 +98,7 @@ export class AppComponent {
 		private angulartics2: Angulartics2,
 		private domSanitizer: DomSanitizer,
 		private matIconRegistry: MatIconRegistry,
+		_posthog: PosthogService,
 	) {
 		this.matIconRegistry.addSvgIcon(
 			'mysql',
@@ -167,6 +171,7 @@ export class AppComponent {
 					this.angulartics2.eventTrack.next({
 						action: 'Demo account is logged in',
 					});
+					posthog.capture('Demo account is logged in');
 				});
 			}
 		});
@@ -193,6 +198,9 @@ export class AppComponent {
 			},
 			permissions: {
 				caption: 'Permissions',
+			},
+			dashboards: {
+				caption: 'Dashboards',
 			},
 			'connection-settings': {
 				caption: 'Connection settings',

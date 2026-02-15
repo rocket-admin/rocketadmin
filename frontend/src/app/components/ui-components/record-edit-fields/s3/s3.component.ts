@@ -69,6 +69,13 @@ export class S3EditComponent implements OnInit {
 		}
 	});
 
+	readonly displayFilename = computed(() => {
+		const val = this.internalValue() || this.value();
+		if (!val) return '';
+		const name = val.split('/').pop() || val;
+		return name.length > 40 ? '...' + name.slice(-37) : name;
+	});
+
 	readonly isImage = computed(() => {
 		const p = this.params();
 		const val = this.internalValue() || this.value();

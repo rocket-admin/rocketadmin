@@ -1,0 +1,79 @@
+.chart-mini-preview {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.chart-svg {
+	width: 100%;
+	height: 100%;
+	max-width: 120px;
+	max-height: 80px;
+}
+
+/* Bar Chart */
+.bar {
+	fill: rgba(99, 102, 241, 0.7);
+}
+
+.bar-1 { fill: rgba(99, 102, 241, 0.8); }
+.bar-2 { fill: rgba(168, 85, 247, 0.8); }
+.bar-3 { fill: rgba(236, 72, 153, 0.8); }
+.bar-4 { fill: rgba(59, 130, 246, 0.8); }
+.bar-5 { fill: rgba(34, 197, 94, 0.8); }
+
+/* Line Chart */
+.line-path {
+	stroke: rgba(99, 102, 241, 1);
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.line-area {
+	fill: rgba(99, 102, 241, 0.15);
+}
+
+.line-dot {
+	fill: rgba(99, 102, 241, 1);
+}
+
+.gradient-start {
+	stop-color: rgba(99, 102, 241, 0.3);
+}
+
+.gradient-end {
+	stop-color: rgba(99, 102, 241, 0);
+}
+
+/* Pie Chart */
+.pie-slice {
+	stroke: var(--mat-sidenav-content-background-color);
+	stroke-width: 1;
+}
+
+.slice-1 { fill: rgba(99, 102, 241, 0.85); }
+.slice-2 { fill: rgba(168, 85, 247, 0.85); }
+.slice-3 { fill: rgba(236, 72, 153, 0.85); }
+.slice-4 { fill: rgba(251, 146, 60, 0.85); }
+.slice-5 { fill: rgba(34, 197, 94, 0.85); }
+
+/* Doughnut Chart */
+.doughnut-slice {
+	stroke: var(--mat-sidenav-content-background-color);
+	stroke-width: 1;
+}
+
+/* Polar Area Chart */
+.polar-slice {
+	stroke: var(--mat-sidenav-content-background-color);
+	stroke-width: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+	.line-area {
+		fill: rgba(99, 102, 241, 0.25);
+	}
+}

@@ -1,6 +1,7 @@
 .wrapper {
-    margin: 3em auto;
-    padding: 0 clamp(200px, 20vw, 300px);
+    margin: var(--top-margin) auto;
+    padding: 0 clamp(40px, 5vw, 100px);
+    max-width: 1200px;
     width: 100%;
 }
 

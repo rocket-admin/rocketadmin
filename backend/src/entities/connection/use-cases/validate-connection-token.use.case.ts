@@ -6,23 +6,23 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { IValidateConnectionToken } from './use-cases.interfaces.js';
 
 export type TokenValidationResult = {
-  isValid: boolean;
+	isValid: boolean;
 };
 @Injectable()
 export class ValidateConnectionTokenUseCase
-  extends AbstractUseCase<string, TokenValidationResult>
-  implements IValidateConnectionToken
+	extends AbstractUseCase<string, TokenValidationResult>
+	implements IValidateConnectionToken
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(connectionToken: string): Promise<TokenValidationResult> {
-    connectionToken = Encryptor.hashDataHMAC(connectionToken);
-    const foundConnection = await this._dbContext.connectionRepository.findOneAgentConnectionByToken(connectionToken);
-    return { isValid: !!foundConnection };
-  }
+	protected async implementation(connectionToken: string): Promise<TokenValidationResult> {
+		connectionToken = Encryptor.hashDataHMAC(connectionToken);
+		const foundConnection = await this._dbContext.connectionRepository.findOneAgentConnectionByToken(connectionToken);
+		return { isValid: !!foundConnection };
+	}
 }

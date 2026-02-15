@@ -10,27 +10,27 @@ import { IFindTableFilterById } from './table-filters-use-cases.interface.js';
 
 @Injectable()
 export class FindTableFilterByIdUseCase
-  extends AbstractUseCase<FindTableFilterByIdDs, CreatedTableFilterRO>
-  implements IFindTableFilterById
+	extends AbstractUseCase<FindTableFilterByIdDs, CreatedTableFilterRO>
+	implements IFindTableFilterById
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: FindTableFilterByIdDs): Promise<CreatedTableFilterRO> {
-    const { filter_id, connection_id } = inputData;
-    const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersByIdAndConnectionId(
-      filter_id,
-      connection_id,
-    );
+	protected async implementation(inputData: FindTableFilterByIdDs): Promise<CreatedTableFilterRO> {
+		const { filter_id, connection_id } = inputData;
+		const foundTableFilters = await this._dbContext.tableFiltersRepository.findTableFiltersByIdAndConnectionId(
+			filter_id,
+			connection_id,
+		);
 
-    if (!foundTableFilters) {
-      throw new NotFoundException(Messages.TABLE_FILTERS_NOT_FOUND);
-    }
+		if (!foundTableFilters) {
+			throw new NotFoundException(Messages.TABLE_FILTERS_NOT_FOUND);
+		}
 
-    return buildCreatedTableFilterRO(foundTableFilters);
-  }
+		return buildCreatedTableFilterRO(foundTableFilters);
+	}
 }

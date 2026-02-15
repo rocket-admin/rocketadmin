@@ -1,0 +1,28 @@
+.warning-container {
+	display: flex;
+	gap: 16px;
+	align-items: flex-start;
+}
+
+.warning-icon {
+	color: var(--color-warnPalette-300);
+	font-size: 48px;
+	width: 48px;
+	height: 48px;
+	flex-shrink: 0;
+}
+
+.warning-content p {
+	margin: 0 0 8px 0;
+}
+
+.warning-details {
+	color: rgba(0, 0, 0, 0.6);
+	font-size: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.warning-details {
+		color: rgba(255, 255, 255, 0.6);
+	}
+}

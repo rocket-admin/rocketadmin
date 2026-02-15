@@ -1,0 +1,171 @@
+<div class="chart-edit-layout">
+    <app-dashboards-sidebar
+        [connectionId]="connectionId()"
+        activeTab="queries">
+    </app-dashboards-sidebar>
+
+    <div class="chart-edit-main">
+        <app-alert></app-alert>
+
+        <div class="chart-edit-page">
+    <div class="chart-edit-header">
+        <h1 class="mat-h1">{{ isEditMode() ? 'Edit widget' : 'Create widget' }}</h1>
+    </div>
+
+    <div *ngIf="loading()" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading()" class="chart-edit-content">
+        <div class="query-details">
+            <mat-form-field appearance="outline" class="name-field">
+                <mat-label>Query name</mat-label>
+                <input matInput
+                    [ngModel]="queryName()"
+                    (ngModelChange)="queryName.set($event)"
+                    placeholder="Enter a name for this query"
+                    data-testid="query-name-input"
+                    required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="description-field">
+                <mat-label>Description (optional)</mat-label>
+                <input matInput
+                    [ngModel]="queryDescription()"
+                    (ngModelChange)="queryDescription.set($event)"
+                    placeholder="Add a description"
+                    data-testid="query-description-input">
+            </mat-form-field>
+        </div>
+
+        <div class="editor-preview-container">
+            <div class="editor-section">
+                <div class="section-header">
+                    <h3>SQL query</h3>
+                    <button mat-stroked-button
+                        (click)="testQuery()"
+                        [disabled]="!canTest()"
+                        class="test-query-button"
+                        data-testid="test-query-button">
+                        <mat-icon *ngIf="!testing()">play_arrow</mat-icon>
+                        <mat-spinner *ngIf="testing()" diameter="18" class="button-spinner"></mat-spinner>
+                        {{ testing() ? 'Testing...' : 'Test query' }}
+                    </button>
+                </div>
+                <div class="code-editor-box ph-no-capture">
+                    <ngs-code-editor
+                        [theme]="codeEditorTheme"
+                        [codeModel]="codeModel()"
+                        [options]="codeEditorOptions"
+                        (valueChanged)="onCodeChange($event)">
+                    </ngs-code-editor>
+                </div>
+            </div>
+
+            <div class="right-panel" *ngIf="showResults()">
+                <div class="config-section">
+                    <div class="section-header">
+                        <h3>Chart configuration</h3>
+                        <span class="execution-time" *ngIf="executionTime() !== null">
+                            Executed in {{ executionTime() }}ms
+                        </span>
+                    </div>
+
+                    <div class="chart-config">
+                        <mat-form-field appearance="outline" class="chart-config-field">
+                            <mat-label>Chart type</mat-label>
+                            <mat-select [ngModel]="chartType()" (ngModelChange)="chartType.set($event)" data-testid="chart-type-select">
+                                <mat-option *ngFor="let type of chartTypes" [value]="type.value">
+                                    {{ type.label }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="chart-config-field">
+                            <mat-label>Label column</mat-label>
+                            <mat-select [ngModel]="labelColumn()" (ngModelChange)="labelColumn.set($event)" data-testid="label-column-select">
+                                <mat-option *ngFor="let col of resultColumns()" [value]="col">
+                                    {{ col }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="chart-config-field" *ngIf="showLabelTypeOption()">
+                            <mat-label>Label type</mat-label>
+                            <mat-select [ngModel]="labelType()" (ngModelChange)="labelType.set($event)" data-testid="label-type-select">
+                                <mat-option *ngFor="let type of labelTypes" [value]="type.value">
+                                    {{ type.label }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="chart-config-field">
+                            <mat-label>Value column</mat-label>
+                            <mat-select [ngModel]="valueColumn()" (ngModelChange)="valueColumn.set($event)" data-testid="value-column-select">
+                                <mat-option *ngFor="let col of resultColumns()" [value]="col">
+                                    {{ col }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="section-header">
+                        <h3>Chart preview</h3>
+                    </div>
+
+                    <div class="chart-container" *ngIf="hasChartData()">
+                        <app-chart-preview
+                            [chartType]="chartType()"
+                            [data]="testResults()"
+                            [labelColumn]="labelColumn()"
+                            [valueColumn]="valueColumn()"
+                            [labelType]="labelType()">
+                        </app-chart-preview>
+                    </div>
+
+                    <div class="no-chart-data" *ngIf="!hasChartData() && testResults().length > 0">
+                        <p>Select label and value columns to display the chart</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" *ngIf="showResults() && testResults().length > 0">
+            <div class="section-header">
+                <h3>Query results ({{ testResults().length }} rows)</h3>
+            </div>
+            <div class="results-table-container">
+                <table mat-table [dataSource]="testResults()" class="results-table mat-elevation-z1">
+                    <ng-container *ngFor="let column of resultColumns()" [matColumnDef]="column">
+                        <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+                        <td mat-cell *matCellDef="let row">{{ row[column] }}</td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="resultColumns()"></tr>
+                    <tr mat-row *matRowDef="let row; columns: resultColumns();"></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="no-results" *ngIf="showResults() && testResults().length === 0">
+            <mat-icon>info</mat-icon>
+            <p>Query executed successfully but returned no results.</p>
+        </div>
+    </div>
+
+        </div>
+
+        <div class="actions" *ngIf="!loading()">
+            <a mat-stroked-button [routerLink]="['/charts', connectionId()]" data-testid="cancel-button">Back</a>
+            <button mat-flat-button color="primary"
+                (click)="saveQuery()"
+                [disabled]="!canSave()"
+                data-testid="save-query-button">
+                <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
+                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update query' : 'Save query') }}
+            </button>
+        </div>
+    </div>
+</div>

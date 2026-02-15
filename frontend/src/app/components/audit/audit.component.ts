@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
@@ -11,6 +12,7 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { User } from '@sentry/angular';
 import { Angulartics2OnModule } from 'angulartics2';
+import posthog from 'posthog-js';
 import { merge } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { normalizeTableName } from 'src/app/lib/normalize';
@@ -38,6 +40,7 @@ import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 		MatFormFieldModule,
 		MatSelectModule,
 		MatButtonModule,
+		MatIconModule,
 		MatTableModule,
 		MatPaginatorModule,
 		FormsModule,
@@ -50,6 +53,7 @@ import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 	styleUrls: ['./audit.component.css'],
 })
 export class AuditComponent implements OnInit {
+	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public connectionID: string;
 	public accesLevel: string;
@@ -93,8 +97,8 @@ export class AuditComponent implements OnInit {
 			});
 		this.connectionID = this._connections.currentConnectionID;
 		this.accesLevel = this._connections.currentConnectionAccessLevel;
-		this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
-		this.dataColumns = ['Table', 'User', 'Action', 'Date', 'Status'];
+		this.columns = ['User', 'Table', 'Action', 'Status', 'Date', 'Changes'];
+		this.dataColumns = ['User', 'Table', 'Action', 'Status', 'Date'];
 		this.dataSource = new AuditDataSource(this._connections);
 		this.loadLogsPage();
 
@@ -138,5 +142,11 @@ export class AuditComponent implements OnInit {
 	openIntercome() {
 		// @ts-expect-error
 		Intercom('show');
+	}
+
+	getUserName(email: string): string | null {
+		if (!this.usersList) return null;
+		const user = this.usersList.find((u) => u.email === email);
+		return user?.name || null;
 	}
 }

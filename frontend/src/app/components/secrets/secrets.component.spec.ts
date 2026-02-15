@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
 import { BehaviorSubject, of } from 'rxjs';
 import { Secret } from 'src/app/models/secret';
@@ -55,7 +56,7 @@ describe('SecretsComponent', () => {
 		} as any;
 
 		await TestBed.configureTestingModule({
-			imports: [SecretsComponent, BrowserAnimationsModule, MatSnackBarModule, Angulartics2Module.forRoot()],
+			imports: [SecretsComponent, BrowserAnimationsModule, MatSnackBarModule, Angulartics2Module.forRoot(), RouterModule.forRoot([])],
 			providers: [
 				provideHttpClient(),
 				provideHttpClientTesting(),

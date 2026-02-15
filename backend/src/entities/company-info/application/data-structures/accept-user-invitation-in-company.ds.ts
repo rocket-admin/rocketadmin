@@ -1,5 +1,5 @@
 export class AcceptUserValidationInCompany {
-  userName: string;
-  verificationString: string;
-  userPassword: string;
+	userName: string;
+	verificationString: string;
+	userPassword: string;
 }

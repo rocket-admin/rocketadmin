@@ -40,6 +40,11 @@ import plans from '../../consts/plans';
 })
 export class PaymentFormComponent implements OnInit {
 
+  public testAlert = {
+    type: 'info' as const,
+    message: 'This is a demo alert for the payment form.'
+  };
+
   @ViewChild(StripePaymentElementComponent)
   paymentElement: StripePaymentElementComponent;
 

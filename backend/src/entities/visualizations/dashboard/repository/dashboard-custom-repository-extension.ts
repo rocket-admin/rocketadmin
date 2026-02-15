@@ -1,6 +1,7 @@
 import { DashboardEntity } from '../dashboard.entity.js';
+import { IDashboardRepository } from './dashboard.repository.interface.js';
 
-export const dashboardCustomRepositoryExtension = {
+export const dashboardCustomRepositoryExtension: IDashboardRepository = {
 	async findDashboardById(dashboardId: string): Promise<DashboardEntity | null> {
 		return await this.findOne({ where: { id: dashboardId } });
 	},
@@ -19,10 +20,19 @@ export const dashboardCustomRepositoryExtension = {
 	},
 
 	async findAllDashboardsByConnectionId(connectionId: string): Promise<DashboardEntity[]> {
-		return await this.find({
-			where: { connection_id: connectionId },
-			order: { created_at: 'DESC' },
-		});
+		const qb = this.createQueryBuilder('dashboard')
+			.leftJoinAndSelect('dashboard.widgets', 'widgets')
+			.where('dashboard.connection_id = :connectionId', { connectionId })
+			.orderBy('dashboard.created_at', 'DESC');
+		return await qb.getMany();
+	},
+
+	async findAllDashboardsWithWidgetsByConnectionId(connectionId: string): Promise<DashboardEntity[]> {
+		const qb = this.createQueryBuilder('dashboard')
+			.leftJoinAndSelect('dashboard.widgets', 'widgets')
+			.where('dashboard.connection_id = :connectionId', { connectionId })
+			.orderBy('dashboard.created_at', 'DESC');
+		return await qb.getMany();
 	},
 
 	async saveDashboard(dashboard: DashboardEntity): Promise<DashboardEntity> {

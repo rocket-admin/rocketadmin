@@ -1,0 +1,271 @@
+:host {
+	display: block;
+	height: calc(100vh - 44px);
+	margin-bottom: -60px;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
+.chart-edit-layout {
+	display: flex;
+	height: 100%;
+}
+
+.chart-edit-main {
+	flex: 1;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.chart-edit-page {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	padding: 0 clamp(40px, 5vw, 100px);
+	max-width: 1400px;
+	margin: 3em auto;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+@media (width <= 600px) {
+	.chart-edit-page {
+		padding: 0 16px;
+		margin: 1.5em auto;
+	}
+}
+
+.chart-edit-header {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 32px;
+	flex-shrink: 0;
+}
+
+.chart-edit-header h1 {
+	margin: 0;
+}
+
+.loading-container {
+	display: flex;
+	justify-content: center;
+	padding: 64px;
+}
+
+.chart-edit-content {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	flex: 1;
+	padding-bottom: 24px;
+}
+
+.query-details {
+	display: flex;
+	gap: 16px;
+	margin-top: 8px;
+}
+
+@media (width <= 600px) {
+	.query-details {
+		flex-direction: column;
+	}
+}
+
+.name-field {
+	flex: 1;
+	max-width: 300px;
+}
+
+@media (width <= 600px) {
+	.name-field {
+		max-width: 100%;
+	}
+}
+
+.description-field {
+	flex: 2;
+}
+
+.editor-preview-container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+}
+
+@media (width <= 900px) {
+	.editor-preview-container {
+		grid-template-columns: 1fr;
+	}
+}
+
+.editor-section,
+.right-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.config-section,
+.preview-section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.section-header h3 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 500;
+}
+
+.execution-time {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.execution-time {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+.code-editor-box {
+	height: 300px;
+	border: 1px solid var(--mat-sidenav-container-divider-color);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.code-editor-box ngs-code-editor {
+	height: 100%;
+}
+
+.chart-config {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.chart-config-field {
+	flex: 1;
+	min-width: 150px;
+}
+
+.chart-container {
+	min-height: 250px;
+	padding: 16px;
+	background-color: rgba(0, 0, 0, 0.02);
+	border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.chart-container {
+		background-color: rgba(255, 255, 255, 0.05);
+	}
+}
+
+.no-chart-data {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 200px;
+	color: rgba(0, 0, 0, 0.54);
+	text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+	.no-chart-data {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+.results-section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.results-table-container {
+	max-height: 300px;
+	overflow: auto;
+	border-radius: 4px;
+}
+
+.results-table {
+	width: 100%;
+}
+
+.results-table th {
+	font-weight: 500;
+}
+
+.no-results {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 24px;
+	color: rgba(0, 0, 0, 0.54);
+	background-color: rgba(0, 0, 0, 0.02);
+	border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.no-results {
+		color: rgba(255, 255, 255, 0.54);
+		background-color: rgba(255, 255, 255, 0.05);
+	}
+}
+
+.no-results mat-icon {
+	color: var(--color-accentedPalette-500);
+}
+
+.actions {
+	position: sticky;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 0 clamp(40px, 5vw, 100px);
+	background-color: var(--mat-sidenav-content-background-color);
+	box-shadow: var(--shadow);
+	height: 64px;
+	flex-shrink: 0;
+	z-index: 10;
+	--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+	.actions {
+		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.5), 0 2px 2px 0 rgba(0, 0, 0, 0.64), 0 1px 5px 0 rgba(0, 0, 0, 0.85);
+	}
+}
+
+@media (width <= 600px) {
+	.actions {
+		padding: 0 16px;
+	}
+}
+
+.actions button mat-spinner {
+	display: inline-block;
+	margin-right: 8px;
+}
+
+.test-query-button .button-spinner {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 4px;
+}

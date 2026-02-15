@@ -1,4 +1,4 @@
 export class ResetUsualUserPasswordDs {
-  verificationString: string;
-  newUserPassword: string;
+	verificationString: string;
+	newUserPassword: string;
 }

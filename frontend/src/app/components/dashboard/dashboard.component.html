@@ -34,7 +34,7 @@
 
     <!-- toggle button for mobile version -->
     <div class="sidenav-content__toggle-button" [ngClass]="{'sidenav-content__toggle-button_shown-mobile': !shownTableTitles}">
-        <button mat-button type="button" class="toggle-button" (click)="toggleSideBar()"
+        <button mat-button type="button" class="toggle-button" (click)="toggleSideBar(); posthog.capture('Dashboard: toggle sidebar')"
             angulartics2On="click"
             angularticsAction="Dashboard: toggle sidebar"
             [angularticsProperties]="{'collapsed': !shownTableTitles}">
@@ -49,7 +49,7 @@
             [ngClass]="{'side-bar_collapsed': !shownTableTitles}">
             <button mat-button type="button" *ngIf="shownTableTitles; else collapsedButton"
                 class="toggle-button"
-                (click)="toggleSideBar()"
+                (click)="toggleSideBar(); posthog.capture('Dashboard: toggle sidebar')"
                 angulartics2On="click"
                 angularticsAction="Dashboard: toggle sidebar"
                 [angularticsProperties]="{'collapsed': !shownTableTitles}">
@@ -60,7 +60,7 @@
             <ng-template #collapsedButton>
                 <button mat-icon-button type="button"
                     class="toggle-button"
-                    (click)="toggleSideBar()"
+                    (click)="toggleSideBar(); posthog.capture('Dashboard: toggle sidebar')"
                     angulartics2On="click"
                     angularticsAction="Dashboard: toggle sidebar"
                     [angularticsProperties]="{'collapsed': !shownTableTitles}">
@@ -80,8 +80,8 @@
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
             <div class="table-preview-content">
-                <app-alert class="server-alert"></app-alert>
                 <div class="alerts">
+                    <app-alert></app-alert>
                     <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
                     <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
                     <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
@@ -113,6 +113,8 @@
             ></app-db-table-row-view>
             <app-db-table-ai-panel *ngIf="isAIpanelOpened"
                 [displayName]="selectedTableDisplayName"
+                [tableColumns]="dataSource?.dataColumns || []"
+                [sidebarExpanded]="shownTableTitles"
             ></app-db-table-ai-panel>
         </mat-sidenav-content>
     </mat-sidenav-container>

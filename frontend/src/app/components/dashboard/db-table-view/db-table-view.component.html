@@ -52,6 +52,7 @@
             <form #searchForm="ngForm"
                 angulartics2On="submit"
                 angularticsAction="Dashboard: search is applied"
+                (submit)="posthog.capture('Dashboard: search is applied')"
                 (ngSubmit)="handleSearch()">
                 <mat-form-field appearance="fill" class="search-input">
                     <input matInput name="search"
@@ -69,7 +70,7 @@
                     matTooltip="AI assistant"
                     angulartics2On="click"
                     angularticsAction="Dashboard: AI is clicked"
-                    (click)="handleViewAIpanel()">
+                    (click)="handleViewAIpanel(); posthog.capture('Dashboard: AI is clicked')">
                     <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
                     AI insights
                 </button>
@@ -79,7 +80,7 @@
                     data-testid="table-add-record-link"
                     angulartics2On="click"
                     angularticsAction="Dashboard: add row is clicked"
-                    (click)="stashUrlParams()">
+                    (click)="stashUrlParams(); posthog.capture('Dashboard: add row is clicked')">
                     <mat-icon>add</mat-icon>
                     Add row
                 </a>
@@ -88,15 +89,16 @@
                     [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
                     angularticsAction="Dashboard: filters is clicked"
-                    (click)="handleOpenFilters()">
+                    (click)="handleOpenFilters(); posthog.capture('Dashboard: filters is clicked')">
                     <mat-icon>filter_list</mat-icon>
                     Filter
                 </button>
                 <div *ngIf="tableData" class="db-table-manage-columns-button">
                     <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
                         angulartics2On="click"
-                        angularticsAction="Dashboard: columns multiselect is clicked">
-                        <mat-icon fontSet="material-icons-outlined">view_week</mat-icon>
+                        angularticsAction="Dashboard: columns multiselect is clicked"
+                        (click)="posthog.capture('Dashboard: columns multiselect is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">view_week</mat-icon>
                         Columns
                             <span class="db-table-manage-columns-button__count">
                                 ({{ tableData.displayedDataColumns.length   }}
@@ -129,20 +131,21 @@
                     matTooltip="Import / Export"
                     [matMenuTriggerFor]="transferDataMenu"
                     angulartics2On="click"
-                    angularticsAction="Dashboard: settings dropdown is clicked">
+                    angularticsAction="Dashboard: settings dropdown is clicked"
+                    (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
                     <mat-icon>swap_vert</mat-icon>
                 </button>
                 <mat-menu #transferDataMenu="matMenu">
                     <button mat-menu-item *ngIf="tableData && tableData.isImportAllowed" type="button"
                         angulartics2On="click"
                         angularticsAction="Dashboard: import is clicked"
-                        (click)="handleOpenImportDialog()">
+                        (click)="handleOpenImportDialog(); posthog.capture('Dashboard: import is clicked')">
                         Import
                     </button>
                     <button mat-menu-item *ngIf="tableData && tableData.isExportAllowed" type="button"
                         angulartics2On="click"
                         angularticsAction="Dashboard: export is clicked"
-                        (click)="handleOpenExportDialog()">
+                        (click)="handleOpenExportDialog(); posthog.capture('Dashboard: export is clicked')">
                         Export
                     </button>
                 </mat-menu>
@@ -150,7 +153,8 @@
                     *ngIf="accessLevel === 'edit'"
                     [matMenuTriggerFor]="settingsMenu"
                     angulartics2On="click"
-                    angularticsAction="Dashboard: settings dropdown is clicked">
+                    angularticsAction="Dashboard: settings dropdown is clicked"
+                    (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #settingsMenu="matMenu">
@@ -158,14 +162,16 @@
                         routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
                         [ngClass]="{'action_active': tableData.widgetsCount}"
                         angulartics2On="click"
-                        angularticsAction="Dashboard: widgets is clicked">
+                        angularticsAction="Dashboard: widgets is clicked"
+                        (click)="posthog.capture('Dashboard: widgets is clicked')">
                         UI Widgets
                     </a>
                     <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
                         [disabled]="!tableData.keyAttributes?.length"
                         angulartics2On="click"
-                        angularticsAction="Dashboard: actions is clicked">
+                        angularticsAction="Dashboard: actions is clicked"
+                        (click)="posthog.capture('Dashboard: actions is clicked')">
                         Automations
                         <br />
                         <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
@@ -175,7 +181,8 @@
                     <a mat-menu-item *ngIf="accessLevel === 'edit'"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
                         angulartics2On="click"
-                        angularticsAction="Dashboard: settings is clicked">
+                        angularticsAction="Dashboard: settings is clicked"
+                        (click)="posthog.capture('Dashboard: settings is clicked')">
                         Settings
                     </a>
                 </mat-menu>
@@ -185,8 +192,8 @@
 </div>
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
-    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue" data-hj-suppress
-        class="db-table-active-filter-chip"    
+    <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
+        class="db-table-active-filter-chip ph-no-capture"
         (removed)="removeFilter.emit(activeFilter.key)"
         (click)="handleActiveFilterClick(activeFilter.key)">
         {{ getFilter(activeFilter) }}
@@ -282,7 +289,7 @@
                         </button>
                     </mat-menu>
                 </mat-header-cell>
-                <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell" data-hj-suppress>
+                <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell ph-no-capture">
                     <div class="table-cell-content">
                         <ng-container *ngIf="isForeignKey(column); else contentCell">
                             <app-display-foreign-key
@@ -334,7 +341,7 @@
                             class="db-table-cell-action-button"
                             [matTooltip]="action.title"
                             (click)="handleAction($event, action, element)">
-                            <mat-icon fontSet="material-icons-outlined">
+                            <mat-icon fontSet="material-symbols-outlined">
                                 {{action.icon}}
                             </mat-icon>
                         </button>
@@ -349,8 +356,8 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: edit row is clicked"
                         matTooltip="Edit row"
-                        (click)="stashUrlParams()">
-                        <mat-icon fontSet="material-icons-outlined">create</mat-icon>
+                        (click)="stashUrlParams(); posthog.capture('Dashboard: edit row is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">create</mat-icon>
                     </a>
                     <a mat-icon-button *ngIf="tableData.permissions.add"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
@@ -362,8 +369,8 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: duplicate row is clicked"
                         matTooltip="Duplicate row"
-                        (click)="stashUrlParams()">
-                        <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
+                        (click)="stashUrlParams(); posthog.capture('Dashboard: duplicate row is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">difference</mat-icon>
                     </a>
                     <button type="button" mat-icon-button *ngIf="tableData.permissions.delete && tableData.canDelete"
                         class="db-table-cell-action-button"
@@ -371,8 +378,8 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: delete row is clicked"
                         matTooltip="Delete row"
-                        (click)="handleDeleteRow($event, element)">
-                        <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+                        (click)="handleDeleteRow($event, element); posthog.capture('Dashboard: delete row is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
                     </button>
                 </mat-cell>
             </ng-container>
@@ -403,6 +410,7 @@
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"
             angularticsAction="Dashboard: add row is clicked"
+            (click)="posthog.capture('Dashboard: add row is clicked')"
             data-testid="table-add-record-in-empty-table-link">
             <mat-icon>add</mat-icon>
             Add row

@@ -1,3 +1,3 @@
 export interface IUnknownDataStructure {
-  [key: string]: any;
+	[key: string]: any;
 }

@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { User } from '@sentry/angular';
+import posthog from 'posthog-js';
 import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 import { ConnectionItem } from 'src/app/models/connection';
 import { UiSettings } from 'src/app/models/ui-settings';
@@ -16,7 +17,9 @@ import { UiSettingsService } from 'src/app/services/ui-settings.service';
 	templateUrl: './own-connections.component.html',
 	styleUrl: './own-connections.component.css',
 })
+
 export class OwnConnectionsComponent implements OnInit, OnChanges {
+	protected posthog = posthog;
 	@Input() currentUser: User;
 	@Input() connections: ConnectionItem[] = null;
 	@Input() isDemo: boolean = false;

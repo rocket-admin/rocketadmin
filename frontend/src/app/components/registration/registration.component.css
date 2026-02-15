@@ -1,3 +1,11 @@
+.register-form-box > app-alert {
+    display: block;
+    position: sticky;
+    top: calc(var(--mat-toolbar-standard-height) + 24px);
+    margin: 0 0 24px;
+    z-index: 2;
+}
+
 .wrapper {
 	display: grid;
 	grid-template-columns: auto 62.5%;

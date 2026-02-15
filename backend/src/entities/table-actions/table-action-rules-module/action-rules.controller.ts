@@ -16,6 +16,7 @@ import { UseCaseType } from '../../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
 import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
+import { Timeout } from '../../../decorators/timeout.decorator.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
@@ -47,7 +48,6 @@ import {
 	IFindCustomEvents,
 	IUpdateActionRule,
 } from './use-cases/action-rules-use-cases.interface.js';
-import { Timeout } from '../../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

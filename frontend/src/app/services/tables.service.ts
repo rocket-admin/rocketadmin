@@ -1,11 +1,12 @@
-import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
-import { PersonalTableViewSettings, Rule, TableSettings, Widget } from '../models/table';
-import { HttpClient, } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 import { AlertActionType, AlertType } from '../models/alert';
+import { PersonalTableViewSettings, Rule, TableSettings, Widget } from '../models/table';
 import { NotificationsService } from './notifications.service';
 
 export enum SortOrdering {
@@ -207,6 +208,7 @@ export class TablesService {
 					this.angulartics2.eventTrack.next({
 						action: 'Dashboard: db export failed',
 					});
+					posthog.capture('Dashboard: db export failed');
 					return EMPTY;
 				}),
 			);
@@ -234,6 +236,7 @@ export class TablesService {
 					this.angulartics2.eventTrack.next({
 						action: 'Dashboard: db import failed',
 					});
+					posthog.capture('Dashboard: db import failed');
 					return EMPTY;
 				}),
 			);
@@ -533,7 +536,7 @@ export class TablesService {
 	createAIthread(connectionID, tableName, message) {
 		return this._http
 			.post<any>(
-				`/ai/v2/request/${connectionID}`,
+				`/ai/v4/request/${connectionID}`,
 				{ user_message: message },
 				{
 					responseType: 'text' as 'json',
@@ -549,6 +552,7 @@ export class TablesService {
 					this.angulartics2.eventTrack.next({
 						action: 'AI: thread created',
 					});
+					posthog.capture('AI: thread created');
 					const responseMessage = res.body as string;
 					return { threadId, responseMessage };
 				}),
@@ -563,7 +567,7 @@ export class TablesService {
 		console.log('threadId', threadId);
 		return this._http
 			.post<any>(
-				`/ai/v2/request/${connectionID}`,
+				`/ai/v4/request/${connectionID}`,
 				{ user_message: message },
 				{
 					responseType: 'text' as 'json',
@@ -574,111 +578,117 @@ export class TablesService {
 					},
 				},
 			)
+			.pipe(map((res) => res.body as string));
+	}
+
+	updatePersonalTableViewSettings(connectionID: string, tableName: string, settings: PersonalTableViewSettings) {
+		return this._http
+			.put<any>(`/settings/personal/${connectionID}`, settings, {
+				params: {
+					tableName,
+				},
+			})
 			.pipe(
-				map((res) => res.body as string)
-			)
-		;
-  }
-  
-  updatePersonalTableViewSettings(connectionID: string, tableName: string, settings: PersonalTableViewSettings) {
-    return this._http.put<any>(`/settings/personal/${connectionID}`, settings, {
-      params: {
-        tableName
-      }
-    })
-      .pipe(
-        map(() => {
-          this.tables.next('settings');
-          // this._notifications.showSuccessSnackbar('Table settings has been updated.')
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
-          return EMPTY;
-        })
-      );
-  }
+				map(() => {
+					this.tables.next('settings');
+					// this._notifications.showSuccessSnackbar('Table settings has been updated.')
+				}),
+				catchError((err) => {
+					console.log(err);
+					this._notifications.showAlert(
+						AlertType.Error,
+						{ abstract: err.error.message, details: err.error.originalMessage },
+						[
+							{
+								type: AlertActionType.Button,
+								caption: 'Dismiss',
+								action: (id: number) => this._notifications.dismissAlert(),
+							},
+						],
+					);
+					return EMPTY;
+				}),
+			);
+	}
 
-  getSavedFilters(connectionID: string, tableName: string) {
-    return this._http.get<any>(`/table-filters/${connectionID}/all`, {
-      params: {
-        tableName
-      }
-    })
-      .pipe(
-        map((res) => {
-          return res
-        }),
-        catchError((err) => {
-          console.log(err);
-          return throwError(() => new Error(err.error.message));
-        })
-      );
-  }
+	getSavedFilters(connectionID: string, tableName: string) {
+		return this._http
+			.get<any>(`/table-filters/${connectionID}/all`, {
+				params: {
+					tableName,
+				},
+			})
+			.pipe(
+				map((res) => {
+					return res;
+				}),
+				catchError((err) => {
+					console.log(err);
+					return throwError(() => new Error(err.error.message));
+				}),
+			);
+	}
 
-  createSavedFilter(connectionID: string, tableName: string, filters: object) {
-    return this._http.post<any>(`/table-filters/${connectionID}`, filters, {
-      params: {
-        tableName
-      }
-    })
-      .pipe(
-        map(res => {
-          this.tables.next('filters set saved');
-          this._notifications.showSuccessSnackbar('Saved filters have been updated.')
-          return res
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message);
-          return EMPTY;
-        })
-      )
-  }
+	createSavedFilter(connectionID: string, tableName: string, filters: object) {
+		return this._http
+			.post<any>(`/table-filters/${connectionID}`, filters, {
+				params: {
+					tableName,
+				},
+			})
+			.pipe(
+				map((res) => {
+					this.tables.next('filters set saved');
+					this._notifications.showSuccessSnackbar('Saved filters have been updated.');
+					return res;
+				}),
+				catchError((err) => {
+					console.log(err);
+					this._notifications.showErrorSnackbar(err.error.message);
+					return EMPTY;
+				}),
+			);
+	}
 
-  updateSavedFilter(connectionID: string, tableName: string, filtersId: string, filters: object) {
-    return this._http.put<any>(`/table-filters/${connectionID}/${filtersId}`, filters, {
-      params: {
-        tableName
-      }
-    })
-      .pipe(
-        map(res => {
-          this.tables.next('filters set updated');
-          this._notifications.showSuccessSnackbar('Saved filter has been updated.')
-          return res
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message);
-          return EMPTY;
-        })
-      );
-  }
+	updateSavedFilter(connectionID: string, tableName: string, filtersId: string, filters: object) {
+		return this._http
+			.put<any>(`/table-filters/${connectionID}/${filtersId}`, filters, {
+				params: {
+					tableName,
+				},
+			})
+			.pipe(
+				map((res) => {
+					this.tables.next('filters set updated');
+					this._notifications.showSuccessSnackbar('Saved filter has been updated.');
+					return res;
+				}),
+				catchError((err) => {
+					console.log(err);
+					this._notifications.showErrorSnackbar(err.error.message);
+					return EMPTY;
+				}),
+			);
+	}
 
-  deleteSavedFilter(connectionID: string, tableName: string, filterId: string) {
-    return this._http.delete<any>(`/table-filters/${connectionID}/${filterId}`, {
-      params: {
-        tableName
-      }
-    })
-      .pipe(
-        map(res => {
-          this.tables.next('delete saved filters');
-          this._notifications.showSuccessSnackbar('Saved filter has been deleted.')
-          return res
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message);
-          return EMPTY;
-        })
-      )
-  }
+	deleteSavedFilter(connectionID: string, tableName: string, filterId: string) {
+		return this._http
+			.delete<any>(`/table-filters/${connectionID}/${filterId}`, {
+				params: {
+					tableName,
+				},
+			})
+			.pipe(
+				map((res) => {
+					this.tables.next('delete saved filters');
+					this._notifications.showSuccessSnackbar('Saved filter has been deleted.');
+					return res;
+				}),
+				catchError((err) => {
+					console.log(err);
+					this._notifications.showErrorSnackbar(err.error.message);
+					return EMPTY;
+				}),
+			);
+	}
 }

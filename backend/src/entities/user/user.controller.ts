@@ -14,15 +14,20 @@ import {
 	Res,
 	UseInterceptors,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { Request, Response } from 'express';
 import isEmail from 'validator/lib/isEmail.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators/index.js';
+import { Timeout } from '../../decorators/timeout.decorator.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { slackPostMessage } from '../../helpers/index.js';
+import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { slackPostMessage } from '../../helpers/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
 import {
@@ -30,11 +35,21 @@ import {
 	ChangeUsualUserPasswordDto,
 } from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
-import { FoundUserDto } from './dto/found-user.dto.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
+import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
+import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
+import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
+import { EmailDto } from './dto/email.dto.js';
+import { FoundUserDto } from './dto/found-user.dto.js';
+import { LoginUserDto } from './dto/login-user.dto.js';
+import { OtpTokenDto } from './dto/otp-token.dto.js';
+import { PasswordDto } from './dto/password.dto.js';
+import { RequestRestUserPasswordDto } from './dto/request-rest-user-password.dto.js';
+import { UserNameDto } from './dto/user-name.dto.js';
+import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
 import {
 	IChangeUserName,
 	IDeleteUserAccount,
@@ -57,20 +72,7 @@ import {
 	IVerifyPasswordReset,
 } from './use-cases/user-use-cases.interfaces.js';
 import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
-import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
-import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PasswordDto } from './dto/password.dto.js';
-import { EmailDto } from './dto/email.dto.js';
-import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
-import { LoginUserDto } from './dto/login-user.dto.js';
-import { UserNameDto } from './dto/user-name.dto.js';
-import { OtpTokenDto } from './dto/otp-token.dto.js';
-import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
-import { RequestRestUserPasswordDto } from './dto/request-rest-user-password.dto.js';
-import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()
@@ -143,6 +145,7 @@ export class UserController {
 		description: 'Login successful.',
 		type: TokenExpDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Post('user/login/')
 	async usualLogin(
 		@Res({ passthrough: true }) response: Response,
@@ -249,6 +252,7 @@ export class UserController {
 		description: 'Email verification requested.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/verify/request')
 	async requestEmailVerification(@UserId() userId: string): Promise<OperationResultMessageDs> {
 		return await this.requestEmailVerificationUseCase.execute(userId, InTransactionEnum.ON);
@@ -260,6 +264,7 @@ export class UserController {
 		description: 'Email verified.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/verify/:verificationString')
 	async verifyEmail(
 		@VerificationString('verificationString') verificationString: string,
@@ -267,7 +272,6 @@ export class UserController {
 		return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
 	}
 
-	//todo: make admin endpoint
 	@ApiOperation({ summary: 'Verify user password reset' })
 	@ApiBody({ type: PasswordDto })
 	@ApiResponse({
@@ -275,6 +279,7 @@ export class UserController {
 		description: 'Password reset verified.',
 		type: RegisteredUserDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/password/reset/verify/:verificationString')
 	async resetUserPassword(
 		@Body() passwordData: PasswordDto,
@@ -294,6 +299,7 @@ export class UserController {
 		description: 'Password reset requested.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/password/reset/request/')
 	async askResetUserPassword(@Body() emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
 		return await this.requestResetUserPasswordUseCase.execute(emailData, InTransactionEnum.ON);
@@ -305,6 +311,7 @@ export class UserController {
 		description: 'Email change requested.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/change/request/')
 	async askChangeUserEmail(@UserId() userId: string): Promise<OperationResultMessageDs> {
 		return await this.requestChangeUserEmailUseCase.execute(userId, InTransactionEnum.ON);
@@ -317,6 +324,7 @@ export class UserController {
 		description: 'Email change verified.',
 		type: OperationResultMessageDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/email/change/verify/:verificationString')
 	async verifyChangeUserEmail(
 		@BodyEmail('email') email: string,
@@ -403,6 +411,7 @@ export class UserController {
 		description: 'Token verified.',
 		type: OtpValidationResultDS,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Post('user/otp/verify/')
 	async verifyOtp(@UserId() userId: string, @Body() otpTokenData: OtpTokenDto): Promise<OtpValidationResultDS> {
 		const { otpToken } = otpTokenData;
@@ -429,6 +438,7 @@ export class UserController {
 		description: 'Two-factor authentication token validated.',
 		type: TokenExpDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Post('user/otp/login/')
 	async validateOtp(
 		@Req() request: Request,

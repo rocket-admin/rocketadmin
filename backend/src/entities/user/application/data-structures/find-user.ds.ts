@@ -1,4 +1,4 @@
 export class FindUserDs {
-  id: string;
-  gclidValue?: string;
+	id: string;
+	gclidValue?: string;
 }

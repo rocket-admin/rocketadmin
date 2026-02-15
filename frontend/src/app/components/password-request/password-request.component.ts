@@ -29,7 +29,6 @@ import { UserService } from 'src/app/services/user.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PasswordRequestComponent implements OnInit {
-
   public userEmail: string;
   public companyId: string;
   public submitting: boolean;

@@ -1,0 +1,42 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2 mat-dialog-title>{{ isEdit ? 'Edit dashboard' : 'Create dashboard' }}</h2>
+
+    <mat-dialog-content>
+        <div class="dashboard-form">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Name</mat-label>
+                <input matInput
+                    formControlName="name"
+                    placeholder="Enter dashboard name"
+                    data-testid="dashboard-name-input">
+                @if (form.get('name')?.hasError('required')) {
+                    <mat-error>Name is required</mat-error>
+                }
+                @if (form.get('name')?.hasError('maxlength')) {
+                    <mat-error>Name must be less than 255 characters</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <textarea matInput
+                    formControlName="description"
+                    placeholder="Enter dashboard description (optional)"
+                    rows="3"
+                    data-testid="dashboard-description-input"></textarea>
+                @if (form.get('description')?.hasError('maxlength')) {
+                    <mat-error>Description must be less than 1000 characters</mat-error>
+                }
+            </mat-form-field>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button type="button" mat-button mat-dialog-close [disabled]="submitting()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary"
+            [disabled]="submitting() || form.invalid"
+            data-testid="dashboard-save-button">
+            {{ submitting() ? 'Saving...' : (isEdit ? 'Update' : 'Create') }}
+        </button>
+    </mat-dialog-actions>
+</form>

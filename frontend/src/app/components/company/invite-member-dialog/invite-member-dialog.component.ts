@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { Angulartics2 } from 'angulartics2';
+import posthog from 'posthog-js';
 import { EmailValidationDirective } from 'src/app/directives/emailValidator.directive';
 import { CompanyMemberRole } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
@@ -36,6 +37,7 @@ import { TurnstileComponent } from '../../ui-components/turnstile/turnstile.comp
 	],
 })
 export class InviteMemberDialogComponent {
+	protected posthog = posthog;
 	@ViewChild(TurnstileComponent) turnstileWidget: TurnstileComponent;
 
 	CompanyMemberRole = CompanyMemberRole;
@@ -83,6 +85,7 @@ export class InviteMemberDialogComponent {
 					this.angulartics2.eventTrack.next({
 						action: 'Company: member is invited successfully',
 					});
+					posthog.capture('Company: member is invited successfully');
 
 					this.submitting = false;
 					this.dialogRef.close();

@@ -5,7 +5,7 @@
                 color="primary" class="add-group-button"
                 angulartics2On="click"
                 angularticsAction="Users access: add group is clicked"
-                (click)="openCreateUsersGroupDialog($event)">
+                (click)="openCreateUsersGroupDialog($event); posthog.capture('Users access: add group is clicked')">
                 New group
             </button>
     </header>
@@ -23,8 +23,8 @@
                         angulartics2On="click"
                         angularticsAction="Users access: edit group name is clicked"
                         matTooltip="Edit group name"
-                        (click)="openEditGroupNameDialog($event, groupItem.group)">
-                        <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+                        (click)="openEditGroupNameDialog($event, groupItem.group); posthog.capture('Users access: edit group name is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
                     </button>
                 </mat-panel-title>
                 <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
@@ -32,22 +32,22 @@
                         angulartics2On="click"
                         angularticsAction="Users access: permissions is clicked"
                         matTooltip="Configure permissions"
-                        (click)="openPermissionsDialog(groupItem.group)">
-                        <mat-icon fontSet="material-icons-outlined">vpn_key_outline</mat-icon>
+                        (click)="openPermissionsDialog(groupItem.group); posthog.capture('Users access: permissions is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">vpn_key</mat-icon>
                     </button>
                     <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
                         angulartics2On="click"
                         angularticsAction="Users access: delete group is clicked"
                         matTooltip="Delete group"
-                        (click)="openDeleteGroupDialog(groupItem.group)">
-                        <mat-icon>delete_outline</mat-icon>
+                        (click)="openDeleteGroupDialog(groupItem.group); posthog.capture('Users access: delete group is clicked')">
+                        <mat-icon>delete</mat-icon>
                     </button>
                     <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel)"
                         angulartics2On="click"
                         angularticsAction="Users access: add user is clicked"
                         matTooltip="Add user"
-                        (click)="openAddUserDialog(groupItem.group)">
-                        <mat-icon fontSet="material-icons-outlined">person_add</mat-icon>
+                        (click)="openAddUserDialog(groupItem.group); posthog.capture('Users access: add user is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">person_add</mat-icon>
                     </button>
                 </mat-panel-description>
             </mat-expansion-panel-header>
@@ -65,7 +65,7 @@
                             angulartics2On="click"
                             angularticsAction="Users access: delete user is clicked"
                             matTooltip="Delete user"
-                            (click)="openDeleteUserDialog(user, groupItem.group)">
+                            (click)="openDeleteUserDialog(user, groupItem.group); posthog.capture('Users access: delete user is clicked')">
                             <mat-icon>person_remove</mat-icon>
                         </button>
                     </div>

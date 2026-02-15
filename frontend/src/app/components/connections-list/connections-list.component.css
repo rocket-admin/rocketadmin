@@ -1,3 +1,7 @@
+:host app-alert:not(:empty) {
+    --alert-margin: 24px;
+}
+
 .wrapper {
     display: flex;
     flex-direction: column;

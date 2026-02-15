@@ -1,3 +1,10 @@
+:host app-alert:not(:empty) {
+	--alert-margin: 0;
+
+	top: 0;
+	margin-bottom: 16px;
+}
+
 .drawer {
 	height: 100%;
 }

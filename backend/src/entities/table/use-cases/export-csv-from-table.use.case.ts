@@ -1,141 +1,158 @@
 import { HttpException, HttpStatus, Inject, Injectable, StreamableFile } from '@nestjs/common';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
+import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
+import * as csv from 'csv';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
-import { IExportCSVFromTable } from './table-use-cases.interface.js';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
+import { slackPostMessage } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
+import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
+import { FilteringFieldsDs } from '../table-datastructures.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
-import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { isHexString } from '../utils/is-hex-string.js';
-import * as csv from 'csv';
-import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
-import { FilteringFieldsDs } from '../table-datastructures.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
-import { slackPostMessage } from '../../../helpers/index.js';
-import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
+import { IExportCSVFromTable } from './table-use-cases.interface.js';
 
 @Injectable()
 export class ExportCSVFromTableUseCase
-  extends AbstractUseCase<GetTableRowsDs, StreamableFile>
-  implements IExportCSVFromTable
+	extends AbstractUseCase<GetTableRowsDs, StreamableFile>
+	implements IExportCSVFromTable
 {
-  constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
-  ) {
-    super();
-  }
+	constructor(
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		protected _dbContext: IGlobalDatabaseContext,
+		private tableLogsService: TableLogsService,
+	) {
+		super();
+	}
 
-  protected async implementation(inputData: GetTableRowsDs): Promise<StreamableFile> {
-    // eslint-disable-next-line prefer-const
-    let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId, filters } = inputData;
-    const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-    if (!connection) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+	protected async implementation(inputData: GetTableRowsDs): Promise<StreamableFile> {
+		// eslint-disable-next-line prefer-const
+		let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId, filters } = inputData;
+		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+		if (!connection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 
-    if (connection.is_frozen) {
-      throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-    }
+		if (connection.is_frozen) {
+			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
+		}
 
-    try {
-      const dao = getDataAccessObject(connection);
+		let operationResult = OperationResultStatusEnum.unknown;
 
-      let userEmail: string;
-      if (isConnectionTypeAgent(connection.type)) {
-        userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-      }
+		try {
+			const dao = getDataAccessObject(connection);
 
-      // eslint-disable-next-line prefer-const
-      let [tableSettings, tableStructure, personalTableSettings] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
-        dao.getTableStructure(tableName, userEmail),
-        this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
-      ]);
-      if (!tableSettings) {
-        tableSettings = {} as any;
-      }
+			let userEmail: string;
+			if (isConnectionTypeAgent(connection.type)) {
+				userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			}
 
-      if (tableSettings.allow_csv_export === false) {
-        throw new HttpException(
-          {
-            message: Messages.CSV_EXPORT_DISABLED,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+			// eslint-disable-next-line prefer-const
+			let [tableSettings, tableStructure, personalTableSettings] = await Promise.all([
+				this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+				dao.getTableStructure(tableName, userEmail),
+				this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
+			]);
+			if (!tableSettings) {
+				tableSettings = {} as any;
+			}
 
-      const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
-        ? findFilteringFieldsUtil(query, tableStructure)
-        : parseFilteringFieldsFromBodyData(filters, tableStructure);
+			if (tableSettings.allow_csv_export === false) {
+				throw new HttpException(
+					{
+						message: Messages.CSV_EXPORT_DISABLED,
+					},
+					HttpStatus.BAD_REQUEST,
+				);
+			}
 
-      const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
+			const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
+				? findFilteringFieldsUtil(query, tableStructure)
+				: parseFilteringFieldsFromBodyData(filters, tableStructure);
 
-      const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+			const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
-      if (orderingField) {
-        builtDAOsTableSettings.ordering_field = orderingField.field;
-        builtDAOsTableSettings.ordering = orderingField.value;
-      }
+			const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
 
-      if (isHexString(searchingFieldValue)) {
-        searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-        tableSettings.search_fields = tableStructure
-          .filter((field) => isBinary(field.data_type))
-          .map((field) => field.column_name);
-      }
+			if (orderingField) {
+				builtDAOsTableSettings.ordering_field = orderingField.field;
+				builtDAOsTableSettings.ordering = orderingField.value;
+			}
 
-      const rowsStream = await dao.getTableRowsStream(
-        tableName,
-        builtDAOsTableSettings,
-        page,
-        perPage,
-        searchingFieldValue,
-        filteringFields,
-      );
+			if (isHexString(searchingFieldValue)) {
+				searchingFieldValue = hexToBinary(searchingFieldValue) as any;
+				tableSettings.search_fields = tableStructure
+					.filter((field) => isBinary(field.data_type))
+					.map((field) => field.column_name);
+			}
 
-      //todo: rework as streams when node oracle driver will support it correctly
-      //todo: agent return data as array of table rows, not as stream, because we cant
-      //todo: transfer data as a stream from clint to server
-      if (
-        connection.type === 'oracledb' ||
-        connection.type === 'ibmdb2' ||
-        connection.type === 'mongodb' ||
-        connection.type === 'dynamodb' ||
-        connection.type === 'elasticsearch' ||
-        connection.type === 'redis' ||
-        isConnectionTypeAgent(connection.type)
-      ) {
-        return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
-      }
-      return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      // todo: temporary debug log
-      await slackPostMessage(`
+			const rowsStream = await dao.getTableRowsStream(
+				tableName,
+				builtDAOsTableSettings,
+				page,
+				perPage,
+				searchingFieldValue,
+				filteringFields,
+			);
+
+			operationResult = OperationResultStatusEnum.successfully;
+
+			//todo: rework as streams when node oracle driver will support it correctly
+			//todo: agent return data as array of table rows, not as stream, because we cant
+			//todo: transfer data as a stream from clint to server
+			if (
+				connection.type === 'oracledb' ||
+				connection.type === 'ibmdb2' ||
+				connection.type === 'mongodb' ||
+				connection.type === 'dynamodb' ||
+				connection.type === 'elasticsearch' ||
+				connection.type === 'redis' ||
+				isConnectionTypeAgent(connection.type)
+			) {
+				return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
+			}
+			return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
+		} catch (error) {
+			operationResult = OperationResultStatusEnum.unsuccessfully;
+			if (error instanceof HttpException) {
+				throw error;
+			}
+			// todo: temporary debug log
+			await slackPostMessage(`
         CSV Export Failed with error: ${error.message}\n
         Connection type: ${connection.type}\n
         SSH Option: ${connection.ssh}\n
         SSL Option: ${connection.ssl}\n
         `);
-      throw new HttpException(
-        {
-          message: Messages.CSV_EXPORT_FAILED,
-          originalMessage: error.message,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+			throw new HttpException(
+				{
+					message: Messages.CSV_EXPORT_FAILED,
+					originalMessage: error.message,
+				},
+				HttpStatus.INTERNAL_SERVER_ERROR,
+			);
+		} finally {
+			const logRecord = {
+				table_name: tableName,
+				userId: userId,
+				connection: connection,
+				operationType: LogOperationTypeEnum.exportRows,
+				operationStatusResult: operationResult,
+			};
+			await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
+		}
+	}
 }

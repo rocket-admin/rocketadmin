@@ -13,8 +13,7 @@ export function signToken(connectionToken: string): Promise<string> {
 			if (err) {
 				return reject(err);
 			}
-			if (!token) { 
-        
+			if (!token) {
 				return reject(new Error('Failed to sign token'));
 			}
 			return resolve(token);
