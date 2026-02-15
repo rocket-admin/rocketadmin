@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { MarkdownModule, MarkdownService } from 'ngx-markdown';
+import { MarkdownModule } from 'ngx-markdown';
 import posthog from 'posthog-js';
 import { AiService } from 'src/app/services/ai.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -74,7 +74,6 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 		private _connections: ConnectionsService,
 		private _tables: TablesService,
 		private _tableState: TableStateService,
-		private markdownService: MarkdownService,
 		private angulartics2: Angulartics2,
 	) {}
 
@@ -282,10 +281,8 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 	}
 
 	private async _consumeStream(stream: AsyncGenerator<string>, message: { type: string; text: string }) {
-		let raw = '';
 		for await (const chunk of stream) {
-			raw += chunk;
-			message.text = this.markdownService.parse(raw) as string;
+			message.text += chunk;
 		}
 	}
 

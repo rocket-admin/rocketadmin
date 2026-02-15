@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Angulartics2Module } from 'angulartics2';
-import { MarkdownService } from 'ngx-markdown';
 import { of } from 'rxjs';
 import { AiService } from 'src/app/services/ai.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -21,10 +20,6 @@ describe('DbTableAiPanelComponent', () => {
 	let component: DbTableAiPanelComponent;
 	let fixture: ComponentFixture<DbTableAiPanelComponent>;
 	let tableStateService: TableStateService;
-
-	const mockMarkdownService = {
-		parse: vi.fn().mockReturnValue('parsed markdown'),
-	};
 
 	const mockConnectionsService = {
 		currentConnectionID: '12345678',
@@ -50,7 +45,6 @@ describe('DbTableAiPanelComponent', () => {
 			imports: [Angulartics2Module.forRoot(), DbTableAiPanelComponent, BrowserAnimationsModule, MatIconTestingModule],
 			providers: [
 				provideHttpClient(),
-				{ provide: MarkdownService, useValue: mockMarkdownService },
 				{ provide: ConnectionsService, useValue: mockConnectionsService },
 				{ provide: TablesService, useValue: mockTablesService },
 				{ provide: AiService, useValue: mockAiService },
@@ -152,7 +146,7 @@ describe('DbTableAiPanelComponent', () => {
 		expect(component.threadID).toBe('thread-123');
 		expect(component.messagesChain[1]).toEqual({
 			type: 'ai',
-			text: 'parsed markdown',
+			text: 'AI response',
 		});
 	});
 
