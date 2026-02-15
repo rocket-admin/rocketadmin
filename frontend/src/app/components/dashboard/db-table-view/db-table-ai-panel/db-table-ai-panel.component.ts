@@ -1,5 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, Input, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+	AfterViewInit,
+	Component,
+	ElementRef,
+	HostListener,
+	Input,
+	inject,
+	OnDestroy,
+	OnInit,
+	ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,7 +38,7 @@ import { TablesService } from 'src/app/services/tables.service';
 		Angulartics2Module,
 	],
 })
-export class DbTableAiPanelComponent implements OnInit, OnDestroy {
+export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy {
 	@Input() public displayName: string;
 	@Input() public tableColumns: string[] = [];
 	@Input() public sidebarExpanded: boolean = true;
