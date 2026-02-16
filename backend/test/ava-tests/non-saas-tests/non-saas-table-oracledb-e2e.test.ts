@@ -4,11 +4,14 @@ import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { Constants } from '../../../src/helpers/constants/constants.js';
@@ -19,14 +22,11 @@ import { createTestOracleTable } from '../../utils/create-test-table.js';
 import { dropTestTables } from '../../utils/drop-test-tables.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import {
-	registerUserAndReturnUserInfo,
 	createInitialTestUser,
+	registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
-import { TestUtils } from '../../utils/test.utils.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

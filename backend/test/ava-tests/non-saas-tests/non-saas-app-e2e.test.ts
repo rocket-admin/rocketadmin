@@ -1,14 +1,13 @@
-import test from 'ava';
-import { Test } from '@nestjs/testing';
-
 import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import test from 'ava';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { DatabaseModule } from '../../../src/shared/database/database.module.js';
-import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
+import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 
 let app: INestApplication;
 

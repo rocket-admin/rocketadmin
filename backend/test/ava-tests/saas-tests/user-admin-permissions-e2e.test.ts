@@ -3124,7 +3124,7 @@ test.serial(`${currentTest} should return table settings when it was created`, a
 			.set('Accept', 'application/json');
 		const getTableSettingsRO = JSON.parse(getTableSettings.text);
 		t.is(getTableSettings.status, 200);
-		t.is(getTableSettingsRO.hasOwnProperty('id'), true);
+		t.is(Object.hasOwn(getTableSettingsRO, 'id'), true);
 		t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
 		t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
 		t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
@@ -3212,7 +3212,7 @@ test.serial(`${currentTest} should return created table settings`, async (t) => 
 		t.is(createTableSettingsResponse.status, 201);
 
 		const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-		t.is(createTableSettingsRO.hasOwnProperty('id'), true);
+		t.is(Object.hasOwn(createTableSettingsRO, 'id'), true);
 		t.is(createTableSettingsRO.table_name, createTableSettingsDTO.table_name);
 		t.is(createTableSettingsRO.display_name, createTableSettingsDTO.display_name);
 		t.is(JSON.stringify(createTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
@@ -3312,7 +3312,7 @@ test.serial(`${currentTest} should return updated table settings`, async (t) => 
 		const updateTableSettingsRO = JSON.parse(updateTableSettingsResponse.text);
 		t.is(updateTableSettingsResponse.status, 200);
 
-		t.is(updateTableSettingsRO.hasOwnProperty('id'), true);
+		t.is(Object.hasOwn(updateTableSettingsRO, 'id'), true);
 		t.is(updateTableSettingsRO.table_name, updateTableSettingsDTO.table_name);
 		t.is(updateTableSettingsRO.display_name, updateTableSettingsDTO.display_name);
 		t.is(JSON.stringify(updateTableSettingsRO.search_fields), JSON.stringify(updateTableSettingsDTO.search_fields));

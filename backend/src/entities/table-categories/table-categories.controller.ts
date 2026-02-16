@@ -4,21 +4,21 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { FindTablesDs } from '../table/application/data-structures/find-tables.ds.js';
 import { CreateOrUpdateTableCategoriesDS } from './data-sctructures/create-or-update-table-categories.ds.js';
 import { CreateTableCategoryDto } from './dto/create-table-category.dto.js';
+import { FoundTableCategoriesWithTablesRo } from './dto/found-table-categories-with-tables.ro.js';
 import { FoundTableCategoryRo } from './dto/found-table-category.ro.js';
 import {
 	ICreateTableCategories,
 	IFindTableCategories,
 	IFindTableCategoriesWithTables,
 } from './use-cases/table-categories-use-cases.interface.js';
-import { FoundTableCategoriesWithTablesRo } from './dto/found-table-categories-with-tables.ro.js';
-import { UserId } from '../../decorators/user-id.decorator.js';
-import { FindTablesDs } from '../table/application/data-structures/find-tables.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

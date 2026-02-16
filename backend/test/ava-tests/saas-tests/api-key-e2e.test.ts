@@ -1,24 +1,25 @@
 /* eslint-disable security/detect-object-injection */
-import test from 'ava';
-import { Test } from '@nestjs/testing';
-import request from 'supertest';
-import cookieParser from 'cookie-parser';
-import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+
+import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import test from 'ava';
 import { ValidationError } from 'class-validator';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { TestUtils } from '../../utils/test.utils.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
-import { faker } from '@faker-js/faker';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { MockFactory } from '../../mock.factory.js';
 import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
-import { MockFactory } from '../../mock.factory.js';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 let app: INestApplication;
 let currentTest: string;

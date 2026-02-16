@@ -1,12 +1,11 @@
-import test from 'ava';
-import { Test } from '@nestjs/testing';
-
 import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import test from 'ava';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
 
 let app: INestApplication;
 
