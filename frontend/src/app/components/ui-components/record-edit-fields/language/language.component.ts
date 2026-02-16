@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, input, OnInit, output, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, input, OnInit, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
 import { TableField, TableForeignKey, WidgetStructure } from 'src/app/models/table';
 import { getLanguageFlag, LANGUAGES } from '../../../../consts/languages';
 import { normalizeFieldName } from '../../../../lib/normalize';
@@ -35,7 +34,7 @@ export class LanguageEditComponent implements OnInit {
 	readonly relations = input<TableForeignKey>();
 	readonly value = input<string>();
 
-	readonly onFieldChange = output<any>();
+	readonly onFieldChange = output<string | null>();
 
 	readonly normalizedLabel = computed(() => normalizeFieldName(this.label() || ''));
 
@@ -52,8 +51,20 @@ export class LanguageEditComponent implements OnInit {
 
 	public languages: LanguageOption[] = [];
 	public languageControl = new FormControl<LanguageOption | string>('');
-	public filteredLanguages: Observable<LanguageOption[]>;
-	public selectedLanguageFlag = signal('');
+	public selectedLanguageFlag = computed(() => {
+		const value = this._controlValue();
+		if (typeof value === 'object' && value !== null) {
+			return value.flag;
+		}
+		return '';
+	});
+
+	private _controlValue = toSignal(this.languageControl.valueChanges, { initialValue: '' as LanguageOption | string });
+
+	public filteredLanguages = computed(() => {
+		const value = this._controlValue();
+		return this._filter(typeof value === 'string' ? value : value?.label || '');
+	});
 
 	originalOrder = () => {
 		return 0;
@@ -61,32 +72,16 @@ export class LanguageEditComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.loadLanguages();
-		this.setupAutocomplete();
 		this.setInitialValue();
 	}
 
-	displayFn(language: any): string {
+	displayFn(language: LanguageOption | string): string {
 		if (!language) return '';
 		return typeof language === 'string' ? language : language.label;
 	}
 
 	onLanguageSelected(selectedLanguage: LanguageOption): void {
-		this.selectedLanguageFlag.set(selectedLanguage.flag);
 		this.onFieldChange.emit(selectedLanguage.value);
-	}
-
-	private setupAutocomplete(): void {
-		this.filteredLanguages = this.languageControl.valueChanges.pipe(
-			startWith(''),
-			map((value) => {
-				if (typeof value === 'object' && value !== null) {
-					this.selectedLanguageFlag.set(value.flag);
-				} else if (typeof value === 'string') {
-					this.selectedLanguageFlag.set('');
-				}
-				return this._filter(typeof value === 'string' ? value : value?.label || '');
-			}),
-		);
 	}
 
 	private setInitialValue(): void {
@@ -95,7 +90,6 @@ export class LanguageEditComponent implements OnInit {
 			const language = this.languages.find((l) => l.value && l.value.toLowerCase() === val.toLowerCase());
 			if (language) {
 				this.languageControl.setValue(language);
-				this.selectedLanguageFlag.set(language.flag);
 			}
 		}
 	}

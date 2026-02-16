@@ -1,7 +1,9 @@
 <mat-form-field class="country-form-field" appearance="outline">
     <mat-label>{{normalizedLabel}}</mat-label>
     <div class="country-input-container">
-        <span *ngIf="selectedCountryFlag && showFlag" class="country-flag-prefix">{{selectedCountryFlag}}</span>
+        @if (selectedCountryFlag() && showFlag()) {
+            <span class="country-flag-prefix">{{selectedCountryFlag()}}</span>
+        }
         <input type="text" matInput
             [required]="required" [disabled]="disabled" [readonly]="readonly"
             attr.data-testid="record-{{label}}-country"
@@ -10,12 +12,18 @@
             class="country-input">
     </div>
     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-        <mat-option *ngFor="let country of filteredCountries | async"
-            [value]="country"
-            (onSelectionChange)="country && onCountrySelected(country)">
-            <span *ngIf="country.flag && showFlag" class="country-flag">{{country.flag}}</span>
-            <span class="country-name">{{country.label}}</span>
-            <span *ngIf="country.value" class="country-code">({{country.value}})</span>
-        </mat-option>
+        @for (country of filteredCountries(); track country.value) {
+            <mat-option
+                [value]="country"
+                (onSelectionChange)="country && onCountrySelected(country)">
+                @if (country.flag && showFlag()) {
+                    <span class="country-flag">{{country.flag}}</span>
+                }
+                <span class="country-name">{{country.label}}</span>
+                @if (country.value) {
+                    <span class="country-code">({{country.value}})</span>
+                }
+            </mat-option>
+        }
     </mat-autocomplete>
 </mat-form-field>
