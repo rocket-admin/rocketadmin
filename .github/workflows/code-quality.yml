@@ -14,9 +14,16 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
         with:
-          version: latest
+          version: 2.4.0
       - name: Run Biome
         run: biome ci --formatter-enabled=false --assist-enabled=false .
