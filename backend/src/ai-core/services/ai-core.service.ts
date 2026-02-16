@@ -35,7 +35,7 @@ export class AICoreService implements IAIService {
 	}
 
 	public async complete(prompt: string, config?: AIProviderConfig): Promise<string> {
-		return this.getProvider().generateCompletion(prompt, config);
+		return await this.getProvider().generateCompletion(prompt, config);
 	}
 
 	public async completeWithProvider(
@@ -43,11 +43,11 @@ export class AICoreService implements IAIService {
 		prompt: string,
 		config?: AIProviderConfig,
 	): Promise<string> {
-		return this.getProvider(provider).generateCompletion(prompt, config);
+		return await this.getProvider(provider).generateCompletion(prompt, config);
 	}
 
 	public async chat(messages: BaseMessage[], config?: AIProviderConfig): Promise<AICompletionResult> {
-		return this.getProvider().generateChatCompletion(messages, config);
+		return await this.getProvider().generateChatCompletion(messages, config);
 	}
 
 	public async chatWithProvider(
@@ -55,14 +55,14 @@ export class AICoreService implements IAIService {
 		messages: BaseMessage[],
 		config?: AIProviderConfig,
 	): Promise<AICompletionResult> {
-		return this.getProvider(provider).generateChatCompletion(messages, config);
+		return await this.getProvider(provider).generateChatCompletion(messages, config);
 	}
 
 	public async streamChat(
 		messages: BaseMessage[],
 		config?: AIProviderConfig,
 	): Promise<IterableReadableStream<AIStreamChunk>> {
-		return this.getProvider().generateStreamingCompletion(messages, config);
+		return await this.getProvider().generateStreamingCompletion(messages, config);
 	}
 
 	public async streamChatWithProvider(
@@ -70,7 +70,7 @@ export class AICoreService implements IAIService {
 		messages: BaseMessage[],
 		config?: AIProviderConfig,
 	): Promise<IterableReadableStream<AIStreamChunk>> {
-		return this.getProvider(provider).generateStreamingCompletion(messages, config);
+		return await this.getProvider(provider).generateStreamingCompletion(messages, config);
 	}
 
 	public async chatWithTools(
@@ -78,7 +78,7 @@ export class AICoreService implements IAIService {
 		tools: AIToolDefinition[],
 		config?: AIProviderConfig,
 	): Promise<AICompletionResult> {
-		return this.getProvider().generateWithTools(messages, tools, config);
+		return await this.getProvider().generateWithTools(messages, tools, config);
 	}
 
 	public async chatWithToolsAndProvider(
@@ -87,7 +87,7 @@ export class AICoreService implements IAIService {
 		tools: AIToolDefinition[],
 		config?: AIProviderConfig,
 	): Promise<AICompletionResult> {
-		return this.getProvider(provider).generateWithTools(messages, tools, config);
+		return await this.getProvider(provider).generateWithTools(messages, tools, config);
 	}
 
 	public async streamChatWithTools(
@@ -95,7 +95,7 @@ export class AICoreService implements IAIService {
 		tools: AIToolDefinition[],
 		config?: AIProviderConfig,
 	): Promise<IterableReadableStream<AIStreamChunk>> {
-		return this.getProvider().generateStreamingWithTools(messages, tools, config);
+		return await this.getProvider().generateStreamingWithTools(messages, tools, config);
 	}
 
 	public async streamChatWithToolsAndProvider(
@@ -104,7 +104,7 @@ export class AICoreService implements IAIService {
 		tools: AIToolDefinition[],
 		config?: AIProviderConfig,
 	): Promise<IterableReadableStream<AIStreamChunk>> {
-		return this.getProvider(provider).generateStreamingWithTools(messages, tools, config);
+		return await this.getProvider(provider).generateStreamingWithTools(messages, tools, config);
 	}
 
 	public async continueAfterToolCall(
@@ -113,7 +113,7 @@ export class AICoreService implements IAIService {
 		tools: AIToolDefinition[],
 		config?: AIProviderConfig,
 	): Promise<AICompletionResult> {
-		return this.getProvider().continueWithToolResults(messages, toolResults, tools, config);
+		return await this.getProvider().continueWithToolResults(messages, toolResults, tools, config);
 	}
 
 	public async continueStreamingAfterToolCall(
@@ -122,7 +122,7 @@ export class AICoreService implements IAIService {
 		tools: AIToolDefinition[],
 		config?: AIProviderConfig,
 	): Promise<IterableReadableStream<AIStreamChunk>> {
-		return this.getProvider().continueStreamingWithToolResults(messages, toolResults, tools, config);
+		return await this.getProvider().continueStreamingWithToolResults(messages, toolResults, tools, config);
 	}
 
 	public getDefaultProvider(): AIProviderType {
