@@ -3,17 +3,17 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
+import { BaseType } from '../../src/common/data-injection.tokens.js';
+import { InvitedUserInCompanyAndConnectionGroupDs } from '../../src/entities/company-info/application/data-structures/invited-user-in-company-and-connection-group.ds.js';
+import { CompanyInfoEntity } from '../../src/entities/company-info/company-info.entity.js';
+import { RegisterUserDs } from '../../src/entities/user/application/data-structures/register-user-ds.js';
+import { UserRoleEnum } from '../../src/entities/user/enums/user-role.enum.js';
+import { UserEntity } from '../../src/entities/user/user.entity.js';
+import { buildRegisteringUser } from '../../src/entities/user/utils/build-registering-user.util.js';
+import { generateGwtToken } from '../../src/entities/user/utils/generate-gwt-token.js';
+import { isSaaS } from '../../src/helpers/app/is-saas.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { TestUtils } from './test.utils.js';
-import { isSaaS } from '../../src/helpers/app/is-saas.js';
-import { InvitedUserInCompanyAndConnectionGroupDs } from '../../src/entities/company-info/application/data-structures/invited-user-in-company-and-connection-group.ds.js';
-import { BaseType } from '../../src/common/data-injection.tokens.js';
-import { UserEntity } from '../../src/entities/user/user.entity.js';
-import { CompanyInfoEntity } from '../../src/entities/company-info/company-info.entity.js';
-import { generateGwtToken } from '../../src/entities/user/utils/generate-gwt-token.js';
-import { UserRoleEnum } from '../../src/entities/user/enums/user-role.enum.js';
-import { buildRegisteringUser } from '../../src/entities/user/utils/build-registering-user.util.js';
-import { RegisterUserDs } from '../../src/entities/user/application/data-structures/register-user-ds.js';
 
 export async function createInitialTestUser(
 	app: INestApplication,

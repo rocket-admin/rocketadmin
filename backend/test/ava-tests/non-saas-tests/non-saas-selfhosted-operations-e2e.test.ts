@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import test from 'ava';
+
+import { faker } from '@faker-js/faker';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import test from 'ava';
+import { ValidationError } from 'class-validator';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
+import { DataSource } from 'typeorm';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { BaseType } from '../../../src/common/data-injection.tokens.js';
+import { CompanyInfoEntity } from '../../../src/entities/company-info/company-info.entity.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { UserEntity } from '../../../src/entities/user/user.entity.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
-import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
-import cookieParser from 'cookie-parser';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { Messages } from '../../../src/exceptions/text/messages.js';
-import { faker } from '@faker-js/faker';
-import { DataSource } from 'typeorm';
-import { BaseType } from '../../../src/common/data-injection.tokens.js';
-import { UserEntity } from '../../../src/entities/user/user.entity.js';
-import { CompanyInfoEntity } from '../../../src/entities/company-info/company-info.entity.js';
 
 let app: INestApplication;
 let currentTest: string;

@@ -2,35 +2,35 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import knex from 'knex';
+import nock from 'nock';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { ActivatedTableActionsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/activated-table-actions.dto.js';
+import { CreateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/create-action-rules-with-actions-and-events-body.dto.js';
+import {
+	FoundActionEventDTO,
+	FoundActionRulesWithActionsAndEventsDTO,
+} from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { FoundTableActionRulesRoDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-table-action-rules.ro.dto.js';
+import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/update-action-rule-with-actions-and-events.dto.js';
+import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
+import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
+import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { CreateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/create-action-rules-with-actions-and-events-body.dto.js';
-import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
-import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
-import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
-import {
-	FoundActionEventDTO,
-	FoundActionRulesWithActionsAndEventsDTO,
-} from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
-import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/update-action-rule-with-actions-and-events.dto.js';
-import { ActivatedTableActionsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/activated-table-actions.dto.js';
-import nock from 'nock';
-import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
-import { FoundTableActionRulesRoDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-table-action-rules.ro.dto.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

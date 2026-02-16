@@ -2379,7 +2379,7 @@ test.serial(`${currentTest} 'should return table settings when it was created`, 
 			.set('Accept', 'application/json');
 		const getTableSettingsRO = JSON.parse(getTableSettings.text);
 		t.is(getTableSettings.status, 200);
-		t.is(getTableSettingsRO.hasOwnProperty('id'), true);
+		t.is(Object.hasOwn(getTableSettingsRO, 'id'), true);
 		t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
 		t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
 		t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));

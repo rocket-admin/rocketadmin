@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { DashboardWidgetTypeEnum } from '../../../src/enums/dashboard-widget-type.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
@@ -17,7 +18,6 @@ import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { DashboardWidgetTypeEnum } from '../../../src/enums/dashboard-widget-type.enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

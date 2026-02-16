@@ -13,9 +13,9 @@ import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-age
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
-import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FindTablesDs } from '../../table/application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../../table/application/data-structures/found-table.ds.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FoundTableCategoriesWithTablesRo } from '../dto/found-table-categories-with-tables.ro.js';
 import { IFindTableCategoriesWithTables } from './table-categories-use-cases.interface.js';
 

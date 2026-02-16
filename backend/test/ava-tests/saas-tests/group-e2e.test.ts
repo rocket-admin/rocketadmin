@@ -1,27 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { TestUtils } from '../../utils/test.utils.js';
-import { MockFactory } from '../../mock.factory.js';
-import test from 'ava';
 import { Test } from '@nestjs/testing';
+import test from 'ava';
+import { ValidationError } from 'class-validator';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { AccessLevelEnum } from '../../../src/enums/index.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import cookieParser from 'cookie-parser';
-import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { MockFactory } from '../../mock.factory.js';
+import { getTestData } from '../../utils/get-test-data.js';
 import {
 	inviteUserInCompanyAndAcceptInvitation,
 	registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
-import { getTestData } from '../../utils/get-test-data.js';
-import request from 'supertest';
-import { AccessLevelEnum } from '../../../src/enums/index.js';
-import { faker } from '@faker-js/faker';
-import { Messages } from '../../../src/exceptions/text/messages.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 let app: INestApplication;
 let _testUtils: TestUtils;

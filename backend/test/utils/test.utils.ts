@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
-import jwt from 'jsonwebtoken';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import jwt from 'jsonwebtoken';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
 
 @Injectable()
 export class TestUtils {

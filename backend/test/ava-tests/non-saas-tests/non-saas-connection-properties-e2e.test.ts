@@ -3,22 +3,22 @@ import { faker } from '@faker-js/faker';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { getTestKnex } from '../../utils/get-test-knex.js';
-import { TestUtils } from '../../utils/test.utils.js';
 import {
-	registerUserAndReturnUserInfo,
 	createInitialTestUser,
+	registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

@@ -3,8 +3,8 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/en
 import json5 from 'json5';
 import jwt from 'jsonwebtoken';
 import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
-import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
 import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
+import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
 import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionEntity } from '../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
@@ -17,6 +17,7 @@ class CreateGroupDto {
 	isMain?: boolean;
 	users?: Array<any>;
 }
+
 import { CreatePersonalTableSettingsDto } from '../src/entities/table-settings/personal-table-settings/dto/create-personal-table-settings.dto.js';
 export class MockFactory {
 	generateCognitoUserName() {

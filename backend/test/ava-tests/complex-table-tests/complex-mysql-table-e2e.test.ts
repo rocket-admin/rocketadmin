@@ -16,11 +16,11 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../../utils/test.utils.js';
 import {
 	createTestMySQLTablesWithComplexPFKeys,
 	createTestMySQLTablesWithSimplePFKeys,
 } from '../../utils/test-utilities/create-test-mysql-tables.js';
-import { TestUtils } from '../../utils/test.utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
