@@ -29,15 +29,21 @@ export class TurnstileService {
 		formData.append('secret', secretKey);
 		formData.append('response', token);
 
-		const response = await axios.post<TurnstileVerifyResponse>(this.verifyUrl, formData.toString(), {
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-		});
+		try {
+			const response = await axios.post<TurnstileVerifyResponse>(this.verifyUrl, formData.toString(), {
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+			});
 
-		if (!response.data.success) {
-			const errorCodes = response.data['error-codes']?.join(', ') || 'Unknown error';
-			throw new BadRequestException(`Turnstile verification failed: ${errorCodes}`);
+			if (!response.data.success) {
+				const errorCodes = response.data['error-codes']?.join(', ') || 'Unknown error';
+				throw new BadRequestException(`Turnstile verification failed: ${errorCodes}`);
+			}
+		} catch (error) {
+			if (error instanceof BadRequestException) throw error;
+			console.error('Turnstile verification error:', error?.response?.data || error?.message || error);
+			throw new BadRequestException('Turnstile verification failed. Please try again.');
 		}
 
 		return true;
