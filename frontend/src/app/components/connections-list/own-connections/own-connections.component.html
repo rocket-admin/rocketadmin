@@ -1,8 +1,8 @@
-<h1 *ngIf="isDemo" class="mat-display-1">Create you own test connection</h1>
+<h1 *ngIf="isDemo" class="mat-display-1">Create your own test connection</h1>
 
 <div *ngIf="!connections?.length && connections !== null" class="empty-state">
     <h1 *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !isDemo" class="mat-display-1">
-        Create your first connection
+        Create first connection
     </h1>
     <ul class="supportedDatabases">
         <li *ngFor="let supportedDatabase of supportedOrderedDatabases">
@@ -13,7 +13,10 @@
                 <div class="addConnectionLink__iconBox">
                     <mat-icon [svgIcon]="supportedDatabase" class="addConnectionLink__icon"></mat-icon>
                 </div>
-                <span class="addConnectionLink__label">{{ supportedDatabasesTitles[supportedDatabase] }}</span>
+                <span class="addConnectionLink__label">
+                    {{ getMainTitle(supportedDatabase) }}
+                    <span *ngIf="getSubTitle(supportedDatabase)" class="addConnectionLink__subLabel">{{ getSubTitle(supportedDatabase) }}</span>
+                </span>
             </a>
         </li>
     </ul>
@@ -80,7 +83,7 @@
     Add database
 </a>-->
 
-<div *ngIf="!connections?.length && connections !== null && !isDemo" class="empty-state_bottom">
+<div *ngIf="!connections?.length && connections !== null && !isDemo && hasMultipleMembers" class="empty-state_bottom">
     <p class="mat-body-1 empty-state__text">
         Invited to a company but don't see your admin panel?
     </p>

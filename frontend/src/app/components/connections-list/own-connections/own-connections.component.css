@@ -1,8 +1,9 @@
 :host {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
 .empty-state {
@@ -53,24 +54,23 @@
 }
 
 .addConnectionLink {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 6px;
-	border-radius: 4px;
-	box-shadow:
-		0px 1px 3px 0px rgba(0, 0, 0, 0.2),
-		0px 2px 2px 0px rgba(0, 0, 0, 0.12),
-		0px 0px 2px 0px rgba(0, 0, 0, 0.14);
-	color: inherit;
-	font-weight: 600;
-	padding: 12px;
-	text-decoration: none;
-	height: 100%;
-	transition:
-		box-shadow 200ms,
-		background 200ms,
-		border 200ms;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 4px;
+    box-shadow:
+        0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+        0px 2px 2px 0px rgba(0, 0, 0, 0.12),
+        0px 0px 2px 0px rgba(0, 0, 0, 0.14);
+    color: inherit;
+    font-weight: 600;
+    padding: 8px;
+    text-decoration: none;
+    height: 100%;
+    min-height: 90px;
+    transition: box-shadow 200ms, background 200ms, border 200ms;
 }
 
 .addConnectionLink:hover {
@@ -81,10 +81,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	.addConnectionLink {
-		background: #404040;
-		border: 1px solid #404040;
-	}
+    .addConnectionLink {
+        background: #2a2a2a;
+        border: 1px solid #2a2a2a;
+    }
 
 	.addConnectionLink:hover {
 		background: #212121;
@@ -97,24 +97,39 @@
 }
 
 .addConnectionLink__iconBox {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #fff;
-	border-radius: 4px;
-	height: 40px;
-	width: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
 }
 
 .addConnectionLink__icon {
-	flex-shrink: 0;
-	height: 30px;
-	width: 30px;
+    flex-shrink: 0;
+    height: 28px;
+    width: 28px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .addConnectionLink__icon[data-mat-icon-name="mongodb"],
+    .addConnectionLink__icon[data-mat-icon-name="mysql"],
+    .addConnectionLink__icon[data-mat-icon-name="dynamodb"],
+    .addConnectionLink__icon[data-mat-icon-name="mssql"] {
+        filter: brightness(2);
+    }
 }
 
 .addConnectionLink__label {
 	text-align: center;
+}
+
+.addConnectionLink__subLabel {
+    display: block;
+    font-weight: 400;
+    opacity: 0.6;
+    font-size: 12px;
+    margin-top: -2px;
 }
 
 .showAllButton {
