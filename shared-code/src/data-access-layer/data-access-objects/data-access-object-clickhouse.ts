@@ -633,6 +633,69 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 		}
 	}
 
+	public async getSchemaHash(): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const client = await this.getClickHouseClient();
+		const database = this.escapeValue(this.connection.database || 'default');
+
+		try {
+			const query = `
+				SELECT lower(hex(MD5(
+					arrayStringConcat(
+						arraySort(
+							groupArray(concat(table_name, '=', table_hash))
+						),
+						'|'
+					)
+				))) AS schema_hash
+				FROM (
+					SELECT
+						t.name AS table_name,
+						lower(hex(MD5(concat(
+							'TABLE|', t.name, '|',
+							'ENGINE=', t.engine, '|',
+							'COLUMNS=', ifNull((
+								SELECT arrayStringConcat(
+									arraySort(
+										groupArray(concat(
+											toString(c.position), '#',
+											c.name, '#',
+											c.type, '#',
+											toString(c.default_kind)
+										))
+									),
+									'|'
+								)
+								FROM system.columns c
+								WHERE c.database = '${database}' AND c.table = t.name
+							), '')
+						)))) AS table_hash
+					FROM system.tables t
+					WHERE t.database = '${database}'
+						AND t.engine NOT IN ('View', 'MaterializedView')
+				)
+			`;
+
+			const result = await client.query({
+				query,
+				format: 'JSONEachRow',
+			});
+
+			const rows = await result.json<{ schema_hash: string }>();
+			const hash = rows?.[0]?.schema_hash || '';
+
+			LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash);
+
+			return hash;
+		} finally {
+			await client.close();
+		}
+	}
+
 	private escapeIdentifier(identifier: string): string {
 		this.validateIdentifier(identifier);
 		return `\`${identifier.replace(/`/g, '``')}\``;

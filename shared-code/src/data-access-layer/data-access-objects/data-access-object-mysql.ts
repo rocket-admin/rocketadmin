@@ -691,6 +691,89 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 		return await knex.raw(query);
 	}
 
+	public async getSchemaHash(): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const knex = await this.configureKnex();
+		const { database } = this.connection;
+
+		await knex.raw('SET SESSION group_concat_max_len = 1000000');
+
+		const query = `
+			WITH per_table AS (
+				SELECT
+					t.table_name,
+					MD5(
+						CONCAT(
+							'TABLE|', t.table_name, '|',
+							'ENGINE=', COALESCE(t.engine,''), '|',
+							'COLLATION=', COALESCE(t.table_collation,''), '|',
+							'COLUMNS=', COALESCE(c.columns_sig,''), '|',
+							'INDEXES=', COALESCE(s.indexes_sig,'')
+						)
+					) AS table_md5
+				FROM information_schema.tables t
+				LEFT JOIN (
+					SELECT
+						table_name,
+						GROUP_CONCAT(
+							CONCAT_WS('#',
+								ordinal_position,
+								column_name,
+								column_type,
+								is_nullable,
+								COALESCE(column_default,'<NULL>'),
+								extra,
+								COALESCE(character_set_name,''),
+								COALESCE(collation_name,'')
+							)
+							ORDER BY ordinal_position
+							SEPARATOR '|'
+						) AS columns_sig
+					FROM information_schema.columns
+					WHERE table_schema = ?
+					GROUP BY table_name
+				) c ON c.table_name = t.table_name
+				LEFT JOIN (
+					SELECT
+						table_name,
+						GROUP_CONCAT(
+							CONCAT(index_name, ':', non_unique, ':', index_type, ':', cols)
+							ORDER BY index_name
+							SEPARATOR '|'
+						) AS indexes_sig
+					FROM (
+						SELECT
+							table_name,
+							index_name,
+							non_unique,
+							index_type,
+							GROUP_CONCAT(column_name ORDER BY seq_in_index SEPARATOR ',') AS cols
+						FROM information_schema.statistics
+						WHERE table_schema = ?
+						GROUP BY table_name, index_name, non_unique, index_type
+					) idx_cols
+					GROUP BY table_name
+				) s ON s.table_name = t.table_name
+				WHERE t.table_schema = ?
+					AND t.table_type = 'BASE TABLE'
+			)
+			SELECT
+				MD5(GROUP_CONCAT(CONCAT(table_name, '=', table_md5) ORDER BY table_name SEPARATOR '|')) AS schema_hash
+			FROM per_table
+		`;
+
+		const result = await knex.raw(query, [database, database, database]);
+		const hash = result[0]?.[0]?.schema_hash || '';
+
+		LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash);
+
+		return hash;
+	}
+
 	private async getRowsCount(
 		knex: Knex<any, any[]>,
 		countRowsQB: Knex.QueryBuilder<any, any[]> | null,

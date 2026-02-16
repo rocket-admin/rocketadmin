@@ -16,7 +16,7 @@ describe('SsoComponent', () => {
 		name: 'Test Company',
 		address: {},
 		portal_link: '',
-		subscriptionLevel: 'FREE_PLAN',
+		subscriptionLevel: 'ENTERPRISE_PLAN',
 		connections: [],
 		invitations: [],
 		is_payment_method_added: false,

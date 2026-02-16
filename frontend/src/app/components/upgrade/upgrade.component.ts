@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { CommonModule } from '@angular/common';
+import { CompanyMemberRole } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -11,6 +12,7 @@ import { PaymentService } from 'src/app/services/payment.service';
 import { PlanKey } from 'src/app/models/plans';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { RouterModule } from '@angular/router';
+import { UserService } from 'src/app/services/user.service';
 import plans from '../../consts/plans';
 
 @Component({
@@ -30,17 +32,16 @@ import plans from '../../consts/plans';
   styleUrls: ['./upgrade.component.css']
 })
 export class UpgradeComponent implements OnInit {
-  public testAlert = {
-    type: 'info' as const,
-    message: 'This is a demo alert for the upgrade page.'
-  };
   public currentPlan = {
     key: PlanKey.Free,
     price: 0,
+    name: 'Free',
   };
   public hasPaymentMethod = false;
+  public portalLink: string = null;
   public companyId: string;
   public submitting = false;
+  public isAdmin = false;
 
   databases = [
     {
@@ -177,10 +178,14 @@ export class UpgradeComponent implements OnInit {
   constructor(
     private _paymentService: PaymentService,
     private _company: CompanyService,
+    private _userService: UserService,
   ) { }
 
   ngOnInit(): void {
     this.getCompanyPaln();
+    this._userService.cast.subscribe((user) => {
+      this.isAdmin = user.role === CompanyMemberRole.CAO;
+    });
   }
 
   getCompanyPaln() {
@@ -188,6 +193,7 @@ export class UpgradeComponent implements OnInit {
       this.currentPlan = this.getPlan(company.subscriptionLevel);
       this.companyId = company.id;
       this.hasPaymentMethod = company.is_payment_method_added;
+      this.portalLink = company.portal_link;
     })
   }
 
@@ -198,10 +204,12 @@ export class UpgradeComponent implements OnInit {
     }
 
     currentPlanKey = currentPlanKey.slice(0, -5).toLowerCase();
+    const planData = plans.find(plan => plan.key === currentPlanKey);
 
     return {
       key: currentPlanKey as PlanKey,
-      price: plans.find(plan => plan.key === currentPlanKey).price,
+      price: planData?.price || 0,
+      name: planData?.name || 'Free',
     };
   }
 

@@ -37,7 +37,7 @@
 		"tunnel-ssh": "5.2.0"
 	},
 	"optionalDependencies": {
-		"ibm_db": "3.3.0"
+		"ibm_db": "3.3.4"
 	},
 	"devDependencies": {
 		"@types/oracledb": "^6.10.1",

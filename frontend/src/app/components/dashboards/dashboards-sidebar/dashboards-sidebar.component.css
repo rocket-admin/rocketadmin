@@ -10,7 +10,9 @@
 }
 
 .dashboards-sidebar_initialized {
-	transition: width 0.2s ease-in-out, min-width 0.2s ease-in-out;
+	transition:
+		width 0.2s ease-in-out,
+		min-width 0.2s ease-in-out;
 }
 
 @media (prefers-color-scheme: dark) {
