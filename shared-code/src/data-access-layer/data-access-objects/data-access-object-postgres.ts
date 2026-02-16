@@ -712,6 +712,68 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 		return knex.raw(query);
 	}
 
+	public async getSchemaHash(): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const knex = await this.configureKnex();
+		const schema = this.connection.schema ?? 'public';
+
+		const query = `
+			WITH per_table AS (
+				SELECT
+					c.relname AS table_name,
+					MD5(
+						CONCAT(
+							'TABLE|', c.relname, '|',
+							'COLUMNS=', COALESCE(cols.columns_sig, ''), '|',
+							'INDEXES=', COALESCE(idx.indexes_sig, '')
+						)
+					) AS table_md5
+				FROM pg_class c
+				JOIN pg_namespace n ON n.oid = c.relnamespace
+				LEFT JOIN LATERAL (
+					SELECT STRING_AGG(
+						CONCAT_WS('#',
+							a.attnum::text,
+							a.attname,
+							pg_catalog.format_type(a.atttypid, a.atttypmod),
+							a.attnotnull::text,
+							COALESCE(pg_get_expr(d.adbin, d.adrelid), '<NULL>')
+						),
+						'|' ORDER BY a.attnum
+					) AS columns_sig
+					FROM pg_attribute a
+					LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum
+					WHERE a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
+				) cols ON true
+				LEFT JOIN LATERAL (
+					SELECT STRING_AGG(
+						CONCAT(ic.relname, ':', i.indisunique::text, ':', am.amname),
+						'|' ORDER BY ic.relname
+					) AS indexes_sig
+					FROM pg_index i
+					JOIN pg_class ic ON ic.oid = i.indexrelid
+					JOIN pg_am am ON am.oid = ic.relam
+					WHERE i.indrelid = c.oid
+				) idx ON true
+				WHERE n.nspname = ?
+					AND c.relkind = 'r'
+			)
+			SELECT MD5(STRING_AGG(CONCAT(table_name, '=', table_md5), '|' ORDER BY table_name)) AS schema_hash
+			FROM per_table
+		`;
+
+		const result = await knex.raw(query, [schema]);
+		const hash = result.rows?.[0]?.schema_hash || '';
+
+		LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash);
+
+		return hash;
+	}
+
 	private async getRowsCount(
 		knex: Knex<any, any[]>,
 		countRowsQB: Knex.QueryBuilder<any, any[]> | null,

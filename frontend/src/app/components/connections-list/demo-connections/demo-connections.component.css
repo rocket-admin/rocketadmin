@@ -58,8 +58,8 @@
 
 @media (prefers-color-scheme: dark) {
     .testConnectionLink {
-        background: #404040;
-        border: 1px solid #404040;
+        background: #2a2a2a;
+        border: 1px solid #2a2a2a;
     }
 
     .testConnectionLink:hover {

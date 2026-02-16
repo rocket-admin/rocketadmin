@@ -12,16 +12,16 @@
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.19.9",
-		"hono": "^4.11.7",
+		"hono": "^4.11.9",
 		"jsonwebtoken": "^9.0.3",
-		"lru-cache": "^11.2.5",
+		"lru-cache": "^11.2.6",
 		"nanoid": "^5.1.6",
-		"pino": "^10.3.0",
+		"pino": "^10.3.1",
 		"ws": "^8.19.0",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.13",
+		"@biomejs/biome": "2.3.14",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^22.10.2",
 		"@types/ws": "^8.18.1",

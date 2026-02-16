@@ -10,6 +10,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
+import posthog from 'posthog-js';
 import { take } from 'rxjs';
 import { ServerError } from 'src/app/models/alert';
 import { ConnectionSettings } from 'src/app/models/connection';
@@ -45,6 +46,7 @@ import { BannerComponent } from '../ui-components/banner/banner.component';
 	],
 })
 export class ConnectionSettingsComponent implements OnInit {
+	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public connectionID: string | null = null;
 	public tablesList: TableProperties[] = null;
@@ -159,6 +161,7 @@ export class ConnectionSettingsComponent implements OnInit {
 					action: 'Connection settings: settings is created successfully',
 					properties: updatedSettings,
 				});
+				posthog.capture('Connection settings: settings is created successfully');
 			},
 			() => (this.submitting = false),
 			() => (this.submitting = false),
@@ -186,6 +189,7 @@ export class ConnectionSettingsComponent implements OnInit {
 					action: 'Connection settings: settings is updated successfully',
 					properties: updatedSettings,
 				});
+				posthog.capture('Connection settings: settings is updated successfully');
 			},
 			() => (this.submitting = false),
 			() => (this.submitting = false),
@@ -201,6 +205,7 @@ export class ConnectionSettingsComponent implements OnInit {
 				this.angulartics2.eventTrack.next({
 					action: 'Connection settings: settings is reset successfully',
 				});
+				posthog.capture('Connection settings: settings is reset successfully');
 			},
 			() => (this.submitting = false),
 			() => (this.submitting = false),

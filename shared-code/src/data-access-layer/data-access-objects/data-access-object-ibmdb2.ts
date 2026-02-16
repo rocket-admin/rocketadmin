@@ -1,13 +1,15 @@
+import { Readable, Stream } from 'node:stream';
 import * as csv from 'csv';
 import getPort from 'get-port';
-import { Database, Pool } from 'ibm_db';
+import { Database, Pool, SQLParam } from 'ibm_db';
 import { nanoid } from 'nanoid';
-import { Readable, Stream } from 'node:stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -15,14 +17,28 @@ import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { RowsPaginationDS } from '../shared/data-structures/rows-pagination.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+
+interface IbmDb2Row {
+	COLUMN_NAME: string;
+	DATA_TYPE: string;
+	CONSTRAINT_NAME?: string;
+	REFERENCED_TABLE_NAME?: string;
+	REFERENCED_COLUMN_NAME?: string;
+	IS_NULLABLE?: string;
+	COLUMN_DEFAULT?: string;
+	CHARACTER_MAXIMUM_LENGTH?: number;
+	TABLE_NAME?: string;
+	TABLE_TYPE?: string;
+	REFERENCING_TABLE_NAME?: string;
+	REFERENCING_COLUMN_NAME?: string;
+}
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
 	public async addRowInTable(
@@ -51,7 +67,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 		const placeholders = Object.keys(row)
 			.map(() => '?')
 			.join(', ');
-		const values = Object.values(row);
+		const values = Object.values(row) as SQLParam[];
 		const query = `
     INSERT INTO ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()} (${columns})
     VALUES (${placeholders})
@@ -67,8 +83,8 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 				.map((key) => `${key} = ?`)
 				.join(' AND ')}
     `;
-			const result = await connectionToDb.query(selectQuery, Object.values(row));
-			return result[0];
+			const result = await connectionToDb.query(selectQuery, Object.values(row) as SQLParam[]);
+			return result[0] as Record<string, unknown>;
 		}
 		return row;
 	}
@@ -86,7 +102,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     DELETE FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
     WHERE ${whereClause}
   `;
-		const params = Object.values(primaryKey);
+		const params = Object.values(primaryKey) as SQLParam[];
 		await connectionToDb.query(query, params);
 		return primaryKey;
 	}
@@ -111,8 +127,8 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
       FROM ${schemaName}.${tableName.toUpperCase()}
       WHERE ${referencedFieldName} IN (${placeholders})
     `;
-		const result = connectionToDb.query(query, [...fieldValues]);
-		return result;
+		const result = await connectionToDb.query(query, [...fieldValues] as SQLParam[]);
+		return result as Record<string, unknown>[];
 	}
 
 	public async getRowByPrimaryKey(
@@ -136,9 +152,9 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
     WHERE ${whereClause}
   `;
-		const params = Object.values(primaryKey);
+		const params = Object.values(primaryKey) as SQLParam[];
 		const result = await connectionToDb.query(query, params);
-		return result[0];
+		return result[0] as Record<string, unknown>;
 	}
 
 	public async bulkGetRowsFromTableByPrimaryKeys(
@@ -168,7 +184,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 			})
 			.join(' OR ');
 
-		const flatPrimaryKeysValues = primaryKeys.flatMap(Object.values);
+		const flatPrimaryKeysValues = primaryKeys.flatMap(Object.values) as SQLParam[];
 
 		const query = `
       SELECT ${selectFields}
@@ -177,7 +193,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     `;
 
 		const results = await connectionToDb.query(query, flatPrimaryKeysValues);
-		return results;
+		return results as Record<string, unknown>[];
 	}
 
 	public async getRowsFromTable(
@@ -214,7 +230,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 		const lastPage = Math.ceil(rowsCount / perPage);
 		let rowsRO: FoundRowsDS;
 
-		const queryParams: unknown[] = [];
+		const queryParams: SQLParam[] = [];
 
 		if (autocompleteFields?.value && autocompleteFields.fields.length > 0) {
 			const validatedAutocompleteFields = autocompleteFields.fields.filter((field) => availableFields.includes(field));
@@ -229,8 +245,8 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 			const rows = await connectionToDb.query(autocompleteQuery, autocompleteParams);
 
 			rowsRO = {
-				data: rows,
-				pagination: {} as any,
+				data: rows as Record<string, unknown>[],
+				pagination: {} as RowsPaginationDS,
 				large_dataset: large_dataset,
 			};
 			return rowsRO;
@@ -272,7 +288,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 				.map((filterObject) => {
 					switch (filterObject.criteria) {
 						case FilterCriteriaEnum.eq:
-							queryParams.push(filterObject.value);
+							queryParams.push(filterObject.value as SQLParam);
 							return `${filterObject.field} = ?`;
 						case FilterCriteriaEnum.startswith:
 							queryParams.push(`${filterObject.value}%`);
@@ -281,16 +297,16 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 							queryParams.push(`%${filterObject.value}`);
 							return `${filterObject.field} LIKE ?`;
 						case FilterCriteriaEnum.gt:
-							queryParams.push(filterObject.value);
+							queryParams.push(filterObject.value as SQLParam);
 							return `${filterObject.field} > ?`;
 						case FilterCriteriaEnum.lt:
-							queryParams.push(filterObject.value);
+							queryParams.push(filterObject.value as SQLParam);
 							return `${filterObject.field} < ?`;
 						case FilterCriteriaEnum.lte:
-							queryParams.push(filterObject.value);
+							queryParams.push(filterObject.value as SQLParam);
 							return `${filterObject.field} <= ?`;
 						case FilterCriteriaEnum.gte:
-							queryParams.push(filterObject.value);
+							queryParams.push(filterObject.value as SQLParam);
 							return `${filterObject.field} >= ?`;
 						case FilterCriteriaEnum.contains:
 							queryParams.push(`%${filterObject.value}%`);
@@ -324,13 +340,13 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 		const rows = await connectionToDb.query(rowsQuery, queryParams);
 
 		rowsRO = {
-			data: rows,
+			data: rows as Record<string, unknown>[],
 			pagination: {
 				total: rowsCount,
 				lastPage: lastPage,
 				perPage: perPage,
 				currentPage: page,
-			} as any,
+			},
 			large_dataset: large_dataset,
 		};
 		return rowsRO;
@@ -372,7 +388,7 @@ ORDER BY
 			this.connection.schema.toUpperCase(),
 		]);
 
-		const resultKeys = foreignKeys.map((foreignKey: any) => {
+		const resultKeys = (foreignKeys as unknown as IbmDb2Row[]).map((foreignKey) => {
 			return {
 				column_name: foreignKey.COLUMN_NAME,
 				constraint_name: foreignKey.CONSTRAINT_NAME,
@@ -402,7 +418,7 @@ ORDER BY
 			this.connection.schema.toUpperCase(),
 		]);
 
-		const resultKeys = primaryKeys.map((primaryKey: any) => {
+		const resultKeys = (primaryKeys as unknown as IbmDb2Row[]).map((primaryKey) => {
 			return {
 				column_name: primaryKey.COLUMN_NAME,
 				data_type: primaryKey.DATA_TYPE as string,
@@ -422,7 +438,7 @@ ORDER BY
   `;
 		const tables = await connectionToDb.query(query, [this.connection.schema.toUpperCase()]);
 
-		return tables.map((table: any) => {
+		return (tables as unknown as IbmDb2Row[]).map((table) => {
 			return {
 				tableName: table.TABLE_NAME,
 				isView: table.TABLE_TYPE === 'V',
@@ -449,7 +465,7 @@ ORDER BY
 			this.connection.schema.toUpperCase(),
 		]);
 
-		return tableStructure.map((column: any) => {
+		return (tableStructure as unknown as IbmDb2Row[]).map((column) => {
 			return {
 				allow_null: column.IS_NULLABLE === 'Y',
 				column_default: column.COLUMN_DEFAULT,
@@ -518,7 +534,7 @@ ORDER BY
       SET ${setClause}
       WHERE ${whereClause}
     `;
-		const params = [...Object.values(row), ...Object.values(primaryKey)];
+		const params = [...Object.values(row), ...Object.values(primaryKey)] as SQLParam[];
 		await connectionToDb.query(query, params);
 
 		const selectQuery = `
@@ -526,8 +542,8 @@ ORDER BY
       FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
       WHERE ${whereClause}
     `;
-		const result = await connectionToDb.query(selectQuery, Object.values(primaryKey));
-		return result[0];
+		const result = await connectionToDb.query(selectQuery, Object.values(primaryKey) as SQLParam[]);
+		return result[0] as Record<string, unknown>;
 	}
 
 	public async bulkUpdateRowsInTable(
@@ -588,7 +604,7 @@ ORDER BY
 			]);
 			results.push({
 				referenced_on_column_name: primaryColumn.column_name,
-				referenced_by: foreignKeys.map((foreignKey: any) => {
+				referenced_by: (foreignKeys as unknown as IbmDb2Row[]).map((foreignKey) => {
 					return {
 						table_name: foreignKey.REFERENCING_TABLE_NAME,
 						column_name: foreignKey.REFERENCING_COLUMN_NAME,
@@ -610,7 +626,7 @@ ORDER BY
 			this.connection.schema.toUpperCase(),
 			tableName.toUpperCase(),
 		]);
-		return tableData[0].TABLE_TYPE === 'V';
+		return (tableData[0] as unknown as IbmDb2Row).TABLE_TYPE === 'V';
 	}
 
 	public async getTableRowsStream(
@@ -620,12 +636,12 @@ ORDER BY
 		perPage: number,
 		searchedFieldValue: string,
 		filteringFields: FilteringFieldsDS[],
-	): Promise<Stream & AsyncIterable<any>> {
+	): Promise<Stream & AsyncIterable<Record<string, unknown>>> {
 		const { large_dataset } = await this.getRowsCount(tableName, this.connection.schema);
 		if (large_dataset) {
 			throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
 		}
-		const rowsResult = (await this.getRowsFromTable(
+		const rowsResult = await this.getRowsFromTable(
 			tableName,
 			settings,
 			page,
@@ -634,8 +650,8 @@ ORDER BY
 			filteringFields,
 			null,
 			null,
-		)) as any;
-		return rowsResult.data;
+		);
+		return rowsResult.data as unknown as Stream & AsyncIterable<Record<string, unknown>>;
 	}
 
 	public async getRowsCount(
@@ -666,7 +682,7 @@ ORDER BY
   `;
 		const fastCountParams = [tableName, tableSchema];
 		const fastCountQueryResult = await connectionToDb.query(fastCountQuery, fastCountParams);
-		const fastCount = fastCountQueryResult[0].CARD;
+		const fastCount = (fastCountQueryResult[0] as Record<string, number>).CARD;
 		return fastCount;
 	}
 
@@ -676,9 +692,9 @@ ORDER BY
 		stream.push(null);
 
 		const parser = stream.pipe(csv.parse({ columns: true }));
-		const results: any[] = [];
+		const results: Record<string, unknown>[] = [];
 		for await (const record of parser) {
-			results.push(record);
+			results.push(record as Record<string, unknown>);
 		}
 		await Promise.allSettled(
 			results.map(async (row) => {
@@ -690,10 +706,44 @@ ORDER BY
 	public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
 		const connectionToDb = await this.getConnectionToDatabase();
 		const result = await connectionToDb.query(query);
-		return result;
+		return result as Record<string, unknown>[];
 	}
 
-	private async getConnectionToDatabase(): Promise<Database> {
+	public async getSchemaHash(): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const connectionToDb = await this.getConnectionToDatabase();
+		const schema = this.connection.schema?.toUpperCase() ?? this.connection.username.toUpperCase();
+
+		const query = `
+			SELECT 
+				COALESCE(table_count, 0) || '|' || 
+				COALESCE(column_count, 0) || '|' || 
+				COALESCE(index_count, 0) || '|' ||
+				COALESCE(column_checksum, 0) AS SCHEMA_HASH
+			FROM (
+				SELECT 
+					(SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA = ? AND TYPE = 'T') AS table_count,
+					(SELECT COUNT(*) FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ?) AS column_count,
+					(SELECT COUNT(*) FROM SYSCAT.INDEXES WHERE TABSCHEMA = ?) AS index_count,
+					(SELECT COALESCE(SUM(COLNO + LENGTH(COLNAME) + LENGTH(TYPENAME)), 0) 
+					 FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ?) AS column_checksum
+				FROM SYSIBM.SYSDUMMY1
+			)
+		`;
+
+		const result = await connectionToDb.query(query, [schema, schema, schema, schema]);
+		const hash = (result as Array<Record<string, unknown>>)?.[0]?.SCHEMA_HASH || '';
+
+		LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash as string);
+
+		return hash as string;
+	}
+
+	private getConnectionToDatabase(): Promise<Database> {
 		if (this.connection.ssh) {
 			return this.createTunneledConnection(this.connection);
 		}
@@ -718,9 +768,9 @@ ORDER BY
 		return databaseConnection;
 	}
 
-	private async createTunneledConnection(connection: ConnectionParams): Promise<Database> {
+	private createTunneledConnection(connection: ConnectionParams): Promise<Database> {
 		const connectionCopy = { ...connection };
-		return new Promise<Database>(async (resolve, reject): Promise<Database> => {
+		return new Promise<Database>(async (resolve, reject) => {
 			const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
 			if (cachedTnl?.database && cachedTnl.server && cachedTnl.client && cachedTnl.database.connected) {
 				resolve(cachedTnl.database);

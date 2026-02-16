@@ -1,4 +1,4 @@
-<h1 *ngIf="!isDemo" class="mat-display-1">Explore demo admin panels</h1>
+<h1 *ngIf="!isDemo" class="mat-display-1">Explore demo panels</h1>
 <h1 *ngIf="isDemo" class="mat-display-1">Try out a demo admin panel</h1>
 
 <ul class="testConnections">
@@ -7,6 +7,7 @@
             attr.data-testid="{{testConnectionItem.connection.id}}-test-connection-list-item"
             angulartics2On="click"
             angularticsAction="Connections: open test db is clicked"
+            (click)="posthog.capture('Connections: open test db is clicked')"
             [angularticsProperties]="{'dbType': testConnectionItem.connection.type}">
             <img [src]="testDatabasesIcons[testConnectionItem.connection.type]"
                 class="testConnectionLink__icon"

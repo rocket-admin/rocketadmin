@@ -23,7 +23,7 @@
             <div class="ai-message-chain">
                 <div *ngFor="let message of messagesChain" class="{{message.type}}-message">
                     <span style="white-space: pre-wrap" *ngIf="message.type == 'user'">{{message.text}}</span>
-                    <markdown *ngIf="message.type == 'ai'" mermaid>{{message.text}}</markdown>
+                    <markdown *ngIf="message.type == 'ai'" mermaid [data]="message.text"></markdown>
                 </div>
             </div>
         </div>

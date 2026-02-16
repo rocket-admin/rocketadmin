@@ -109,4 +109,6 @@ export interface IDataAccessObjectAgent {
 	importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void>;
 
 	executeRawQuery(query: string, tableName: string, userEmail: string): Promise<Array<Record<string, unknown>>>;
+
+	getSchemaHash(userEmail: string): Promise<string>;
 }

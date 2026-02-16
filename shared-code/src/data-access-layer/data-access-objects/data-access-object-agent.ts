@@ -771,6 +771,45 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 		});
 	}
 
+	public async getSchemaHash(userEmail: string): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
+
+		return this.executeWithRetry(async () => {
+			try {
+				const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+					operationType: DataAccessObjectCommandsEnum.getSchemaHash,
+					email: userEmail,
+				});
+
+				if (commandResult instanceof Error) {
+					throw new Error(commandResult.message);
+				}
+
+				if (!commandResult) {
+					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+				}
+
+				const hash = commandResult;
+
+				LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash);
+
+				return hash;
+			} catch (e) {
+				if (axios.isAxiosError(e)) {
+					this.checkIsErrorLocalAndThrowException(e);
+					throw new Error(this.extractAxiosErrorMessage(e));
+				}
+				throw e;
+			}
+		});
+	}
+
 	private generateJWT(connectionToken: string): string {
 		const exp = new Date();
 		exp.setDate(exp.getDate() + 60);

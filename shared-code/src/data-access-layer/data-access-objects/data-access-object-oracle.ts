@@ -852,6 +852,41 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 		return await knex.raw(query);
 	}
 
+	public async getSchemaHash(): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const knex = await this.configureKnex();
+		const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+
+		const query = `
+			SELECT 
+				STANDARD_HASH(
+					table_count || '|' || column_count || '|' || index_count || '|' || table_hash_sum || '|' || column_hash_sum,
+					'MD5'
+				) AS schema_hash
+			FROM (
+				SELECT 
+					(SELECT COUNT(*) FROM all_tables WHERE owner = :schema) AS table_count,
+					(SELECT COUNT(*) FROM all_tab_columns WHERE owner = :schema) AS column_count,
+					(SELECT COUNT(*) FROM all_indexes WHERE owner = :schema) AS index_count,
+					(SELECT NVL(SUM(ORA_HASH(table_name)), 0) FROM all_tables WHERE owner = :schema) AS table_hash_sum,
+					(SELECT NVL(SUM(ORA_HASH(table_name || column_name || data_type || nullable || data_length)), 0) 
+					 FROM all_tab_columns WHERE owner = :schema) AS column_hash_sum
+				FROM DUAL
+			)
+		`;
+
+		const result = await knex.raw(query, { schema });
+		const hash = result?.[0]?.SCHEMA_HASH || '';
+
+		LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash);
+
+		return hash;
+	}
+
 	private setupPagination(page: number, perPage: number, settings: TableSettingsDS) {
 		if (!page || page <= 0) {
 			page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;

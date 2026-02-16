@@ -18,4 +18,5 @@ export enum DataAccessObjectCommandsEnum {
 	isView = 'isView',
 	getRowsAsStream = 'getRowsAsStream',
 	executeRawQuery = 'executeRawQuery',
+	getSchemaHash = 'getSchemaHash',
 }

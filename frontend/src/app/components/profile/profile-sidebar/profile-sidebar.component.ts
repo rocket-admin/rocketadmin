@@ -22,7 +22,7 @@ import { environment } from 'src/environments/environment';
 	],
 })
 export class ProfileSidebarComponent implements OnInit, AfterViewInit {
-	activeTab = input<'account' | 'company' | 'pricing' | 'branding' | 'saml' | 'api' | 'secrets' | 'zapier'>('account');
+	activeTab = input<'account' | 'company' | 'subscription' | 'branding' | 'saml' | 'api' | 'secrets' | 'zapier'>('account');
 
 	collapsed = signal(false);
 	initialized = signal(false);

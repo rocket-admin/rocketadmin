@@ -48,39 +48,6 @@
     gap: 4px;
 }
 
-.company-plan {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 32px;
-}
-
-.company-plan-name {
-    text-transform: capitalize;
-}
-
-.company-plan__paymnent-buttons {
-    display: flex;
-    gap: 12px;
-    margin-left: auto;
-}
-
-@media (width <= 600px) {
-    .upgrade-button__caption_desktop {
-        display: none;
-    }
-}
-
-.upgrade-button__caption_mobile {
-    display: none;
-}
-
-@media (width <= 600px) {
-    .upgrade-button__caption_mobile {
-        display: initial;
-    }
-}
-
 .tableHeader {
     display: flex;
     align-items: center;

@@ -147,14 +147,16 @@
         </button>
         <button mat-flat-button mat-dialog-close
             angulartics2On="click"
-            angularticsAction="Filters: cancel is clicked">
+            angularticsAction="Filters: cancel is clicked"
+            (click)="posthog.capture('Filters: cancel is clicked')">
             Cancel
         </button>
         <button mat-flat-button mat-dialog-close="filter"
             color="primary" type="submit"
             [disabled]="tableFiltersCount === 0"
             angulartics2On="click"
-            angularticsAction="Filters: filter is clicked">
+            angularticsAction="Filters: filter is clicked"
+            (click)="posthog.capture('Filters: filter is clicked')">
             Filter
         </button>
     </mat-dialog-actions>

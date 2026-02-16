@@ -1,16 +1,16 @@
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install
 
 COPY tsconfig.json ./
 COPY src ./src
 
 RUN yarn build
 
-FROM node:22-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ RUN addgroup -g 1001 -S nodejs && \
   adduser -S nodejs -u 1001
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production && yarn cache clean
+RUN yarn install --production && yarn cache clean
 
 COPY --from=builder /app/dist ./dist
 

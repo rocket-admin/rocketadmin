@@ -76,6 +76,11 @@ export const CACHING_CONSTANTS = {
 	},
 	DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS: {
 		max: 150,
-		ttl: 1000 * 60,
+		ttl: 1000 * 60 * 15,
+	},
+
+	DEFAULT_SCHEMA_HASH_CACHE_OPTIONS: {
+		max: 200,
+		ttl: 1000 * 30,
 	},
 };

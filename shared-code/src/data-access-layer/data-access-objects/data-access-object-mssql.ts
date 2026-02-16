@@ -639,6 +639,62 @@ WHERE TABLE_TYPE = 'VIEW'
 		return await knex.raw(query);
 	}
 
+	public async getSchemaHash(): Promise<string> {
+		const cachedHash = LRUStorage.getSchemaHashCache(this.connection);
+		if (cachedHash) {
+			return cachedHash;
+		}
+
+		const knex = await this.configureKnex();
+		const schema = this.connection.schema ?? 'dbo';
+
+		const query = `
+			WITH per_table AS (
+				SELECT
+					t.name COLLATE DATABASE_DEFAULT AS table_name,
+					CONVERT(VARCHAR(32), HASHBYTES('MD5',
+						CONCAT(
+							'TABLE|', t.name COLLATE DATABASE_DEFAULT, '|',
+							'COLUMNS=', ISNULL(cols.columns_sig, ''), '|',
+							'INDEXES=', ISNULL(idx.indexes_sig, '')
+						)
+					), 2) AS table_hash
+				FROM sys.tables t
+				OUTER APPLY (
+					SELECT STRING_AGG(
+						CAST(CONCAT(c.column_id, '#', c.name COLLATE DATABASE_DEFAULT, '#', tp.name COLLATE DATABASE_DEFAULT, '#', c.is_nullable, '#', ISNULL(CAST(dc.definition AS NVARCHAR(MAX)), '<NULL>')) AS NVARCHAR(MAX)),
+						'|'
+					) WITHIN GROUP (ORDER BY c.column_id) AS columns_sig
+					FROM sys.columns c
+					JOIN sys.types tp ON tp.user_type_id = c.user_type_id
+					LEFT JOIN sys.default_constraints dc ON dc.object_id = c.default_object_id
+					WHERE c.object_id = t.object_id
+				) cols
+				OUTER APPLY (
+					SELECT STRING_AGG(
+						CAST(CONCAT(i.name COLLATE DATABASE_DEFAULT, ':', i.is_unique, ':', i.type_desc COLLATE DATABASE_DEFAULT) AS NVARCHAR(MAX)),
+						'|'
+					) WITHIN GROUP (ORDER BY i.name) AS indexes_sig
+					FROM sys.indexes i
+					WHERE i.object_id = t.object_id AND i.name IS NOT NULL
+				) idx
+				WHERE t.schema_id = SCHEMA_ID(?)
+			)
+			SELECT CONVERT(VARCHAR(32), HASHBYTES('MD5',
+				STRING_AGG(CAST(CONCAT(table_name, '=', table_hash) AS NVARCHAR(MAX)), '|')
+				WITHIN GROUP (ORDER BY table_name)
+			), 2) AS schema_hash
+			FROM per_table
+		`;
+
+		const result = await knex.raw(query, [schema]);
+		const hash = result?.[0]?.schema_hash || '';
+
+		LRUStorage.validateSchemaHashAndInvalidate(this.connection, hash);
+
+		return hash;
+	}
+
 	private async getSchemaName(tableName: string): Promise<string> {
 		if (this.connection.schema) {
 			return `[${this.connection.schema}]`;

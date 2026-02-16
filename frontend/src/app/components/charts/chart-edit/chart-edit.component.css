@@ -1,20 +1,33 @@
+:host {
+	display: block;
+	height: calc(100vh - 44px);
+	margin-bottom: -60px;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
 .chart-edit-layout {
 	display: flex;
-	height: calc(100vh - 64px);
+	height: 100%;
 }
 
 .chart-edit-main {
 	flex: 1;
 	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
 }
 
 .chart-edit-page {
 	display: flex;
 	flex-direction: column;
-	min-height: 100%;
+	flex: 1;
 	padding: 0 clamp(40px, 5vw, 100px);
 	max-width: 1400px;
 	margin: 3em auto;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 @media (width <= 600px) {
@@ -47,7 +60,6 @@
 	flex-direction: column;
 	gap: 24px;
 	flex: 1;
-	overflow-y: auto;
 	padding-bottom: 24px;
 }
 
@@ -130,15 +142,9 @@
 
 .code-editor-box {
 	height: 300px;
-	border: 1px solid rgba(0, 0, 0, 0.12);
+	border: 1px solid var(--mat-sidenav-container-divider-color);
 	border-radius: 4px;
 	overflow: hidden;
-}
-
-@media (prefers-color-scheme: dark) {
-	.code-editor-box {
-		border-color: rgba(255, 255, 255, 0.12);
-	}
 }
 
 .code-editor-box ngs-code-editor {
@@ -222,26 +228,34 @@
 }
 
 .no-results mat-icon {
-	color: #1976d2;
+	color: var(--color-accentedPalette-500);
 }
 
 .actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 16px;
-	padding: 16px 0;
-	border-top: 1px solid rgba(0, 0, 0, 0.12);
-	background-color: #fff;
-	flex-shrink: 0;
 	position: sticky;
 	bottom: 0;
-	margin-top: auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 0 clamp(40px, 5vw, 100px);
+	background-color: var(--mat-sidenav-content-background-color);
+	box-shadow: var(--shadow);
+	height: 64px;
+	flex-shrink: 0;
+	z-index: 10;
+	--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
 	.actions {
-		border-top-color: rgba(255, 255, 255, 0.12);
-		background-color: #1e1e1e;
+		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.5), 0 2px 2px 0 rgba(0, 0, 0, 0.64), 0 1px 5px 0 rgba(0, 0, 0, 0.85);
+	}
+}
+
+@media (width <= 600px) {
+	.actions {
+		padding: 0 16px;
 	}
 }
 
@@ -254,4 +268,266 @@
 	display: inline-block;
 	vertical-align: middle;
 	margin-right: 4px;
+}
+
+/* Series section */
+.series-section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 8px;
+}
+
+.series-section .section-header h4 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.add-series-button {
+	font-size: 13px;
+}
+
+.add-series-button mat-icon {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.series-card {
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 4px;
+	padding: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.series-card {
+		border-color: rgba(255, 255, 255, 0.12);
+	}
+}
+
+.series-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.series-number {
+	font-size: 12px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.series-number {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+.remove-series-button {
+	width: 28px !important;
+	height: 28px !important;
+	line-height: 28px !important;
+}
+
+.remove-series-button mat-icon {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.series-fields {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.series-field {
+	flex: 1;
+	min-width: 120px;
+}
+
+/* Color picker */
+.series-color-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 80px;
+}
+
+.color-picker-label {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+	.color-picker-label {
+		color: rgba(255, 255, 255, 0.6);
+	}
+}
+
+.color-picker-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.color-input {
+	width: 36px;
+	height: 36px;
+	padding: 2px;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 4px;
+	cursor: pointer;
+	background: none;
+}
+
+@media (prefers-color-scheme: dark) {
+	.color-input {
+		border-color: rgba(255, 255, 255, 0.12);
+	}
+}
+
+.color-input::-webkit-color-swatch-wrapper {
+	padding: 2px;
+}
+
+.color-input::-webkit-color-swatch {
+	border: none;
+	border-radius: 2px;
+}
+
+.color-input::-moz-color-swatch {
+	border: none;
+	border-radius: 2px;
+}
+
+.color-reset-button {
+	width: 24px !important;
+	height: 24px !important;
+	line-height: 24px !important;
+}
+
+.color-reset-button mat-icon {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.color-auto-label {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.38);
+}
+
+@media (prefers-color-scheme: dark) {
+	.color-auto-label {
+		color: rgba(255, 255, 255, 0.38);
+	}
+}
+
+/* Palette colors */
+.palette-colors {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.palette-color-item {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.color-remove-button {
+	width: 24px !important;
+	height: 24px !important;
+	line-height: 24px !important;
+}
+
+.color-remove-button mat-icon {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.series-mode-field {
+	min-width: 160px;
+	font-size: 13px;
+}
+
+.series-column-config {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.palette-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
+.add-color-button {
+	font-size: 13px;
+}
+
+.add-color-button mat-icon {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.series-field--small {
+	max-width: 100px;
+	min-width: 80px;
+}
+
+.series-options {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
+/* Advanced options accordion */
+.advanced-options {
+	margin-top: 8px;
+}
+
+.option-group {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 4px 0;
+}
+
+.option-field {
+	min-width: 120px;
+}
+
+.inline-fields {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.inline-fields .option-field {
+	flex: 1;
+}
+
+.axis-label {
+	margin: 8px 0 0;
+	font-size: 13px;
+	font-weight: 500;
+	color: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+	.axis-label {
+		color: rgba(255, 255, 255, 0.6);
+	}
 }
