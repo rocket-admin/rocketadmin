@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, Input, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, Input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +9,6 @@ import { MatSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 import { TableForeignKey } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -57,20 +55,13 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 	public primaeyKeys: { data_type: string; column_name: string }[];
 
 	public fkRelations: TableForeignKey = null;
-	searchTerm = signal('');
-
-	private _debouncedTerm = toSignal(toObservable(this.searchTerm).pipe(debounceTime(500)), { initialValue: '' });
+	private _debounceTimer: ReturnType<typeof setTimeout>;
 
 	constructor(
 		private _tables: TablesService,
 		private _connections: ConnectionsService,
 	) {
 		super();
-		effect(() => {
-			const _term = this._debouncedTerm();
-			if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
-			this.fetchSuggestions();
-		});
 	}
 
 	async ngOnInit(): Promise<void> {
@@ -160,14 +151,20 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 		}
 	}
 
+	onSearchInput(): void {
+		clearTimeout(this._debounceTimer);
+		this._debounceTimer = setTimeout(() => {
+			if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
+			this.fetchSuggestions();
+		}, 500);
+	}
+
 	async fetchSuggestions(): Promise<void> {
 		const currentRow = this.suggestions()?.find(
 			(suggestion) => suggestion.displayString === this.currentDisplayedString,
 		);
 		if (currentRow !== undefined) {
 			this.currentFieldValue = currentRow.fieldValue;
-			console.log(this.label + 'this.currentFieldValue');
-			console.log(this.currentFieldValue);
 			this.onFieldChange.emit(this.currentFieldValue);
 		} else {
 			this.fetching.set(true);

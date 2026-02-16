@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, Input, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, Input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +9,6 @@ import { MatSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
@@ -55,20 +53,13 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 	public identityColumn: string;
 	public primaeyKeys: { data_type: string; column_name: string }[];
 
-	searchTerm = signal('');
-
-	private _debouncedTerm = toSignal(toObservable(this.searchTerm).pipe(debounceTime(500)), { initialValue: '' });
+	private _debounceTimer: ReturnType<typeof setTimeout>;
 
 	constructor(
 		private _tables: TablesService,
 		private _connections: ConnectionsService,
 	) {
 		super();
-		effect(() => {
-			const _term = this._debouncedTerm();
-			if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
-			this.fetchSuggestions();
-		});
 	}
 
 	async ngOnInit(): Promise<void> {
@@ -150,6 +141,14 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 				this.fetching.set(false);
 			}
 		}
+	}
+
+	onSearchInput(): void {
+		clearTimeout(this._debounceTimer);
+		this._debounceTimer = setTimeout(() => {
+			if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
+			this.fetchSuggestions();
+		}, 500);
 	}
 
 	async fetchSuggestions(): Promise<void> {

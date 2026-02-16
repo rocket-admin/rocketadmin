@@ -11,7 +11,7 @@
             [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="currentDisplayedString"
             [matAutocomplete]="auto"
-            (ngModelChange)="searchTerm.set($event)">
+            (ngModelChange)="onSearchInput()">
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="updateRelatedLink($event)">
             @for (suggestion of suggestions(); track suggestion.fieldValue) {
                 <mat-option
