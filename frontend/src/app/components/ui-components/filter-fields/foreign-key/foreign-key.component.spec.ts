@@ -152,7 +152,7 @@ describe('ForeignKeyFilterComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should fill initial dropdown values when identity_column is set', () => {
+	it('should fill initial dropdown values when identity_column is set', async () => {
 		const usersTableNetworkWithIdentityColumn = { ...usersTableNetwork, identity_column: 'lastname' };
 
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetworkWithIdentityColumn));
@@ -160,13 +160,14 @@ describe('ForeignKeyFilterComponent', () => {
 		component.connectionID = '12345678';
 		component.value = '33'; // Must be truthy to trigger currentDisplayedString setting
 
-		fixture.detectChanges(); // This triggers ngOnInit
+		await component.ngOnInit();
+		fixture.detectChanges();
 
 		expect(component.identityColumn).toEqual('lastname');
 		expect(component.currentDisplayedString).toEqual('Taylor (Alex | new-user-5@email.com)');
 		expect(component.currentFieldValue).toEqual(33);
 
-		expect(component.suggestions).toEqual([
+		expect(component.suggestions()).toEqual([
 			{
 				displayString: 'Taylor (Alex | new-user-5@email.com)',
 				primaryKeys: { id: 33 },
@@ -185,20 +186,21 @@ describe('ForeignKeyFilterComponent', () => {
 		]);
 	});
 
-	it('should fill initial dropdown values when identity_column is not set', () => {
+	it('should fill initial dropdown values when identity_column is not set', async () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
 		component.connectionID = '12345678';
 
 		component.value = '33'; // Must be truthy to trigger currentDisplayedString setting
 
-		fixture.detectChanges(); // This triggers ngOnInit
+		await component.ngOnInit();
+		fixture.detectChanges();
 
 		expect(component.identityColumn).toBeUndefined;
 		expect(component.currentDisplayedString).toEqual('Alex | Taylor | new-user-5@email.com');
 		expect(component.currentFieldValue).toEqual(33);
 
-		expect(component.suggestions).toEqual([
+		expect(component.suggestions()).toEqual([
 			{
 				displayString: 'Alex | Taylor | new-user-5@email.com',
 				primaryKeys: { id: 33 },
@@ -217,7 +219,7 @@ describe('ForeignKeyFilterComponent', () => {
 		]);
 	});
 
-	it('should fill initial dropdown values when autocomplete_columns is not set', () => {
+	it('should fill initial dropdown values when autocomplete_columns is not set', async () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
 		component.connectionID = '12345678';
@@ -231,13 +233,14 @@ describe('ForeignKeyFilterComponent', () => {
 		};
 		component.value = '33'; // Must be truthy to trigger currentDisplayedString setting
 
-		fixture.detectChanges(); // This triggers ngOnInit
+		await component.ngOnInit();
+		fixture.detectChanges();
 
 		expect(component.identityColumn).toBeUndefined;
 		expect(component.currentDisplayedString).toEqual('33 | Alex | Taylor | new-user-5@email.com | 24');
 		expect(component.currentFieldValue).toEqual(33);
 
-		expect(component.suggestions).toEqual([
+		expect(component.suggestions()).toEqual([
 			{
 				displayString: '33 | Alex | Taylor | new-user-5@email.com | 24',
 				primaryKeys: { id: 33 },
@@ -256,10 +259,10 @@ describe('ForeignKeyFilterComponent', () => {
 		]);
 	});
 
-	it('should set current value if necessary row is in suggestions list', () => {
+	it('should set current value if necessary row is in suggestions list', async () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 		fixture.detectChanges();
-		component.suggestions = [
+		component.suggestions.set([
 			{
 				displayString: 'Alex | Taylor | new-user-5@email.com',
 				primaryKeys: { id: 33 },
@@ -275,17 +278,18 @@ describe('ForeignKeyFilterComponent', () => {
 				primaryKeys: { id: 35 },
 				fieldValue: 35,
 			},
-		];
+		]);
 		component.currentDisplayedString = 'Alex | Johnson | new-user-4@email.com';
 
-		component.fetchSuggestions();
+		await component.fetchSuggestions();
 
 		expect(component.currentFieldValue).toEqual(34);
 	});
 
-	it('should fetch suggestions list if user types search query and identity column is set', () => {
+	it('should fetch suggestions list if user types search query and identity column is set', async () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 		fixture.detectChanges();
+
 		const searchSuggestionsNetwork = {
 			rows: [
 				{
@@ -311,7 +315,7 @@ describe('ForeignKeyFilterComponent', () => {
 
 		component.relations = fakeRelations;
 
-		component.suggestions = [
+		component.suggestions.set([
 			{
 				displayString: 'Alex | Taylor | new-user-5@email.com',
 				fieldValue: 33,
@@ -324,12 +328,12 @@ describe('ForeignKeyFilterComponent', () => {
 				displayString: 'Alex | Smith | some-new@email.com',
 				fieldValue: 35,
 			},
-		];
+		]);
 
 		component.currentDisplayedString = 'John';
-		component.fetchSuggestions();
+		await component.fetchSuggestions();
 
-		expect(component.suggestions).toEqual([
+		expect(component.suggestions()).toEqual([
 			{
 				displayString: 'Taylor (John | new-user-0@email.com)',
 				primaryKeys: { id: 23 },
@@ -343,14 +347,14 @@ describe('ForeignKeyFilterComponent', () => {
 		]);
 	});
 
-	it('should fetch suggestions list if user types search query and show No matches message if the list is empty', () => {
+	it('should fetch suggestions list if user types search query and show No matches message if the list is empty', async () => {
 		const searchSuggestionsNetwork = {
 			rows: [],
 		};
 
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 
-		component.suggestions = [
+		component.suggestions.set([
 			{
 				displayString: 'Alex | Taylor | new-user-5@email.com',
 				primaryKeys: { id: 33 },
@@ -366,19 +370,19 @@ describe('ForeignKeyFilterComponent', () => {
 				primaryKeys: { id: 35 },
 				fieldValue: 35,
 			},
-		];
+		]);
 
 		component.currentDisplayedString = 'skjfhskjdf';
-		component.fetchSuggestions();
+		await component.fetchSuggestions();
 
-		expect(component.suggestions).toEqual([
+		expect(component.suggestions()).toEqual([
 			{
 				displayString: 'No field starts with "skjfhskjdf" in foreign entity.',
 			},
 		]);
 	});
 
-	it('should fetch suggestions list if user types search query and identity column is not set', () => {
+	it('should fetch suggestions list if user types search query and identity column is not set', async () => {
 		const searchSuggestionsNetwork = {
 			rows: [
 				{
@@ -403,7 +407,7 @@ describe('ForeignKeyFilterComponent', () => {
 		component.connectionID = '12345678';
 		component.relations = fakeRelations;
 
-		component.suggestions = [
+		component.suggestions.set([
 			{
 				displayString: 'Alex | Taylor | new-user-5@email.com',
 				fieldValue: 33,
@@ -416,10 +420,10 @@ describe('ForeignKeyFilterComponent', () => {
 				displayString: 'Alex | Smith | some-new@email.com',
 				fieldValue: 35,
 			},
-		];
+		]);
 
 		component.currentDisplayedString = 'Alex';
-		component.fetchSuggestions();
+		await component.fetchSuggestions();
 
 		fixture.detectChanges();
 
@@ -433,7 +437,7 @@ describe('ForeignKeyFilterComponent', () => {
 			referencedColumn: component.relations.referenced_column_name,
 		});
 
-		expect(component.suggestions).toEqual([
+		expect(component.suggestions()).toEqual([
 			{
 				displayString: 'John | Taylor | new-user-0@email.com',
 				primaryKeys: { id: 23 },
