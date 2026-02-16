@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, input, OnInit, output, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, input, OnInit, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -51,7 +51,13 @@ export class LanguageEditComponent implements OnInit {
 
 	public languages: LanguageOption[] = [];
 	public languageControl = new FormControl<LanguageOption | string>('');
-	public selectedLanguageFlag = signal('');
+	public selectedLanguageFlag = computed(() => {
+		const value = this._controlValue();
+		if (typeof value === 'object' && value !== null) {
+			return value.flag;
+		}
+		return '';
+	});
 
 	private _controlValue = toSignal(this.languageControl.valueChanges, { initialValue: '' as LanguageOption | string });
 
@@ -64,17 +70,6 @@ export class LanguageEditComponent implements OnInit {
 		return 0;
 	};
 
-	constructor() {
-		effect(() => {
-			const value = this._controlValue();
-			if (typeof value === 'object' && value !== null) {
-				this.selectedLanguageFlag.set(value.flag);
-			} else if (typeof value === 'string') {
-				this.selectedLanguageFlag.set('');
-			}
-		});
-	}
-
 	ngOnInit(): void {
 		this.loadLanguages();
 		this.setInitialValue();
@@ -86,7 +81,6 @@ export class LanguageEditComponent implements OnInit {
 	}
 
 	onLanguageSelected(selectedLanguage: LanguageOption): void {
-		this.selectedLanguageFlag.set(selectedLanguage.flag);
 		this.onFieldChange.emit(selectedLanguage.value);
 	}
 
@@ -96,7 +90,6 @@ export class LanguageEditComponent implements OnInit {
 			const language = this.languages.find((l) => l.value && l.value.toLowerCase() === val.toLowerCase());
 			if (language) {
 				this.languageControl.setValue(language);
-				this.selectedLanguageFlag.set(language.flag);
 			}
 		}
 	}

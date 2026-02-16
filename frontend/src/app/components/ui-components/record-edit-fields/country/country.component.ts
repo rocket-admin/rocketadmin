@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, Input, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, Input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -26,7 +26,13 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 
 	public countries: CountryOption[] = [];
 	public countryControl = new FormControl<CountryOption | string>('');
-	public selectedCountryFlag = signal('');
+	public selectedCountryFlag = computed(() => {
+		const value = this._controlValue();
+		if (typeof value === 'object' && value !== null) {
+			return value.flag;
+		}
+		return '';
+	});
 
 	public showFlag = computed(() => {
 		if (this.widgetStructure?.widget_params) {
@@ -59,18 +65,6 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 
 	getCountryFlag = getCountryFlag;
 
-	constructor() {
-		super();
-		effect(() => {
-			const value = this._controlValue();
-			if (typeof value === 'object' && value !== null) {
-				this.selectedCountryFlag.set(value.flag);
-			} else if (typeof value === 'string') {
-				this.selectedCountryFlag.set('');
-			}
-		});
-	}
-
 	ngOnInit(): void {
 		super.ngOnInit();
 		this.loadCountries();
@@ -79,7 +73,6 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 
 	onCountrySelected(selectedCountry: CountryOption): void {
 		this.value = selectedCountry.value;
-		this.selectedCountryFlag.set(selectedCountry.flag);
 		this.onFieldChange.emit(this.value);
 	}
 
@@ -93,7 +86,6 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 			const country = this.countries.find((c) => c.value === this.value);
 			if (country) {
 				this.countryControl.setValue(country);
-				this.selectedCountryFlag.set(country.flag);
 			}
 		}
 	}
