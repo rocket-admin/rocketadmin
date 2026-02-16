@@ -1,14 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+	AfterViewInit,
+	Component,
+	ElementRef,
+	HostListener,
+	Input,
+	inject,
+	OnDestroy,
+	OnInit,
+	ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { MarkdownModule, MarkdownService } from 'ngx-markdown';
+import { MarkdownModule } from 'ngx-markdown';
 import posthog from 'posthog-js';
-import { Subscription } from 'rxjs';
+import { AiService } from 'src/app/services/ai.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -28,7 +38,7 @@ import { TablesService } from 'src/app/services/tables.service';
 		Angulartics2Module,
 	],
 })
-export class DbTableAiPanelComponent implements OnInit, OnDestroy {
+export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy {
 	@Input() public displayName: string;
 	@Input() public tableColumns: string[] = [];
 	@Input() public sidebarExpanded: boolean = true;
@@ -57,7 +67,8 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 	public textareaRows: number = 4;
 	public currentLoadingStep: string = '';
 
-	private _currentRequest: Subscription = null;
+	private _aiService = inject(AiService);
+	private _abortController: AbortController | null = null;
 	private _loadingStepsInterval: any = null;
 	private _loadingSteps: string[] = [
 		'Connecting to database',
@@ -73,7 +84,6 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 		private _connections: ConnectionsService,
 		private _tables: TablesService,
 		private _tableState: TableStateService,
-		private markdownService: MarkdownService,
 		private angulartics2: Angulartics2,
 	) {}
 
@@ -118,9 +128,9 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 	}
 
 	cancelRequest(): void {
-		if (this._currentRequest) {
-			this._currentRequest.unsubscribe();
-			this._currentRequest = null;
+		if (this._abortController) {
+			this._abortController.abort();
+			this._abortController = null;
 			this.submitting = false;
 			this.stopLoadingSteps();
 
@@ -175,7 +185,7 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	createThread(suggestedMessage?: string) {
+	async createThread(suggestedMessage?: string) {
 		if (suggestedMessage) {
 			this.message = suggestedMessage;
 		}
@@ -188,44 +198,46 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 		const messageCopy = this.message;
 		this.message = '';
 
-		this._currentRequest = this._tables.createAIthread(this.connectionID, this.tableName, messageCopy).subscribe(
-			(response) => {
-				this.threadID = response.threadId;
+		this._abortController = new AbortController();
 
-				this.messagesChain.push({
-					type: 'ai',
-					text: this.markdownService.parse(response.responseMessage) as string,
-				});
-				this.submitting = false;
+		try {
+			const response = await this._aiService.createThread(
+				this.connectionID,
+				this.tableName,
+				messageCopy,
+				this._abortController.signal,
+			);
+
+			if (response) {
+				this.threadID = response.threadId;
+				const aiMessage = { type: 'ai', text: '' };
+				this.messagesChain.push(aiMessage);
 				this.stopLoadingSteps();
-				this._currentRequest = null;
+
+				await this._consumeStream(response.stream, aiMessage);
 
 				this.angulartics2.eventTrack.next({
 					action: 'AI panel: thread created successfully',
 				});
 				posthog.capture('AI panel: thread created successfully');
-			},
-			(error_message) => {
-				this.messagesChain.push({
-					type: 'ai-error',
-					text: error_message,
-				});
-				this.angulartics2.eventTrack.next({
-					action: 'AI panel: thread creation returned an error',
-				});
-				posthog.capture('AI panel: thread creation returned an error');
-				this.stopLoadingSteps();
-				this._currentRequest = null;
-			},
-			() => {
-				this.submitting = false;
-				this.stopLoadingSteps();
-				this._currentRequest = null;
-			},
-		);
+			}
+		} catch (error_message) {
+			this.messagesChain.push({
+				type: 'ai-error',
+				text: String(error_message),
+			});
+			this.angulartics2.eventTrack.next({
+				action: 'AI panel: thread creation returned an error',
+			});
+			posthog.capture('AI panel: thread creation returned an error');
+		} finally {
+			this.submitting = false;
+			this.stopLoadingSteps();
+			this._abortController = null;
+		}
 	}
 
-	sendMessage(suggestedMessage?: string): void {
+	async sendMessage(suggestedMessage?: string) {
 		if (suggestedMessage) {
 			this.message = suggestedMessage;
 		}
@@ -238,42 +250,50 @@ export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 		const messageCopy = this.message;
 		this.message = '';
 		this.charactrsNumber = 0;
-		this._currentRequest = this._tables
-			.requestAImessage(this.connectionID, this.tableName, this.threadID, messageCopy)
-			.subscribe(
-				(response_message) => {
-					this.messagesChain.push({
-						type: 'ai',
-						text: this.markdownService.parse(response_message) as string,
-					});
-					this.submitting = false;
-					this.stopLoadingSteps();
-					this._currentRequest = null;
 
-					this.angulartics2.eventTrack.next({
-						action: 'AI panel: message sent successfully',
-					});
-					posthog.capture('AI panel: message sent successfully');
-				},
-				(error_message) => {
-					this.messagesChain.push({
-						type: 'ai-error',
-						text: error_message,
-					});
-					this.submitting = false;
-					this.stopLoadingSteps();
-					this._currentRequest = null;
-					this.angulartics2.eventTrack.next({
-						action: 'AI panel: message sent and returned an error',
-					});
-					posthog.capture('AI panel: message sent and returned an error');
-				},
-				() => {
-					this.submitting = false;
-					this.stopLoadingSteps();
-					this._currentRequest = null;
-				},
+		this._abortController = new AbortController();
+
+		try {
+			const stream = await this._aiService.sendMessage(
+				this.connectionID,
+				this.tableName,
+				this.threadID,
+				messageCopy,
+				this._abortController.signal,
 			);
+
+			if (stream) {
+				const aiMessage = { type: 'ai', text: '' };
+				this.messagesChain.push(aiMessage);
+				this.stopLoadingSteps();
+
+				await this._consumeStream(stream, aiMessage);
+
+				this.angulartics2.eventTrack.next({
+					action: 'AI panel: message sent successfully',
+				});
+				posthog.capture('AI panel: message sent successfully');
+			}
+		} catch (error_message) {
+			this.messagesChain.push({
+				type: 'ai-error',
+				text: String(error_message),
+			});
+			this.angulartics2.eventTrack.next({
+				action: 'AI panel: message sent and returned an error',
+			});
+			posthog.capture('AI panel: message sent and returned an error');
+		} finally {
+			this.submitting = false;
+			this.stopLoadingSteps();
+			this._abortController = null;
+		}
+	}
+
+	private async _consumeStream(stream: AsyncGenerator<string>, message: { type: string; text: string }) {
+		for await (const chunk of stream) {
+			message.text += chunk;
+		}
 	}
 
 	scrollToBottom(): void {
