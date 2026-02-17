@@ -5,12 +5,12 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 
 @Component({
-	selector: 'app-counter-widget',
-	templateUrl: './counter-widget.component.html',
-	styleUrls: ['./counter-widget.component.css'],
+	selector: 'app-counter-panel',
+	templateUrl: './counter-panel.component.html',
+	styleUrls: ['./counter-panel.component.css'],
 	imports: [CommonModule, MatProgressSpinnerModule],
 })
-export class CounterWidgetComponent implements OnInit {
+export class CounterPanelComponent implements OnInit {
 	@Input({ required: true }) widget!: DashboardWidget;
 	@Input({ required: true }) connectionId!: string;
 	@Input() preloadedQuery: SavedQuery | null = null;

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MarkdownModule } from 'ngx-markdown';
-import { TextWidgetComponent } from './text-widget.component';
+import { TextPanelComponent } from './text-panel.component';
 
-describe('TextWidgetComponent', () => {
-	let component: TextWidgetComponent;
-	let fixture: ComponentFixture<TextWidgetComponent>;
+describe('TextPanelComponent', () => {
+	let component: TextPanelComponent;
+	let fixture: ComponentFixture<TextPanelComponent>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [TextWidgetComponent, BrowserAnimationsModule, MarkdownModule.forRoot()],
+			imports: [TextPanelComponent, BrowserAnimationsModule, MarkdownModule.forRoot()],
 		}).compileComponents();
 
-		fixture = TestBed.createComponent(TextWidgetComponent);
+		fixture = TestBed.createComponent(TextPanelComponent);
 		component = fixture.componentInstance;
 		component.widget = {
 			id: 'test-id',

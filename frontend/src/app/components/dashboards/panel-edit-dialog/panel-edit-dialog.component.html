@@ -1,13 +1,13 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <h2 mat-dialog-title>{{ isEdit ? 'Edit widget' : 'Add chart' }}</h2>
+    <h2 mat-dialog-title>{{ isEdit ? 'Edit panel' : 'Add chart' }}</h2>
 
     <mat-dialog-content>
         @if (savedQueries().length > 0) {
-            <div class="widget-form">
+            <div class="panel-form">
                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Saved query</mat-label>
                     <mat-select formControlName="query_id"
-                        data-testid="widget-query-select">
+                        data-testid="panel-query-select">
                         @for (query of savedQueries(); track query.id) {
                             <mat-option [value]="query.id">{{ query.name }}</mat-option>
                         }
@@ -17,7 +17,7 @@
                             Create new query
                         </mat-option>
                     </mat-select>
-                    <mat-hint>Select a saved query to display in this widget</mat-hint>
+                    <mat-hint>Select a saved query to display in this panel</mat-hint>
                     @if (form.get('query_id')?.hasError('required')) {
                         <mat-error>Please select a saved query</mat-error>
                     }
@@ -29,7 +29,7 @@
                 <h3>No saved queries yet</h3>
                 <p>Create a saved query first to add it as a chart on this dashboard.</p>
                 <a mat-stroked-button color="primary"
-                    [routerLink]="['/charts', data.connectionId, 'new']"
+                    [routerLink]="['/panels', data.connectionId, 'new']"
                     (click)="dialogRef.close()">
                     <mat-icon>add</mat-icon>
                     Create query
@@ -43,7 +43,7 @@
         @if (savedQueries().length > 0) {
             <button type="submit" mat-flat-button color="primary"
                 [disabled]="submitting() || form.invalid"
-                data-testid="widget-save-button">
+                data-testid="panel-save-button">
                 {{ submitting() ? 'Saving...' : (isEdit ? 'Update' : 'Add') }}
             </button>
         }
