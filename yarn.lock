@@ -5231,6 +5231,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@toon-format/toon@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@toon-format/toon@npm:2.1.0"
+  checksum: 79d3595d4806cf16ce7a4961fdcbb8a9afe4583ecd6297e0d4cbcd07c5ef2a7ee60665a5d82ce07cbe3dd36c22ee54fa515968b12afa04c74df449baee28fb6a
+  languageName: node
+  linkType: hard
+
 "@tsconfig/node10@npm:^1.0.7":
   version: 1.0.12
   resolution: "@tsconfig/node10@npm:1.0.12"
@@ -6382,6 +6389,7 @@ __metadata:
     "@rocketadmin/shared-code": "workspace:*"
     "@sentry/minimal": ^6.19.7
     "@sentry/node": 10.39.0
+    "@toon-format/toon": ^2.1.0
     "@types/bcrypt": ^6.0.0
     "@types/body-parser": ^1.19.6
     "@types/cookie-parser": ^1.4.10
