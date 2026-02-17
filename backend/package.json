@@ -46,6 +46,7 @@
 		"@rocketadmin/shared-code": "workspace:*",
 		"@sentry/minimal": "^6.19.7",
 		"@sentry/node": "10.39.0",
+		"@toon-format/toon": "^2.1.0",
 		"@types/crypto-js": "^4.2.2",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/multer": "^2.0.0",
