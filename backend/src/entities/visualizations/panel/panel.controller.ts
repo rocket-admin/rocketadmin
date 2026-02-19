@@ -305,4 +305,206 @@ export class SavedDbQueryController {
 		};
 		return await this.testDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
+
+	@ApiOperation({ summary: 'Get all panels for a connection' })
+	@ApiResponse({
+		status: 200,
+		description: 'Panels found.',
+		type: FoundPanelDto,
+		isArray: true,
+	})
+	@ApiParam({ name: 'connectionId', required: true })
+	@UseGuards(ConnectionReadGuard)
+	@Get('/connection/:connectionId/panels')
+	async findAllPanels(
+		@SlugUuid('connectionId') connectionId: string,
+		@MasterPassword() masterPwd: string,
+	): Promise<FoundPanelDto[]> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: FindAllPanelsDs = {
+			connectionId,
+			masterPassword: masterPwd,
+		};
+		return await this.findAllSavedDbQueriesUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Get a panel by id' })
+	@ApiResponse({
+		status: 200,
+		description: 'Panel found.',
+		type: FoundPanelDto,
+	})
+	@ApiParam({ name: 'connectionId', required: true })
+	@ApiParam({ name: 'panelId', required: true })
+	@UseGuards(ConnectionReadGuard)
+	@Get('/connection/:connectionId/panel/:panelId')
+	async findOnePanel(
+		@SlugUuid('connectionId') connectionId: string,
+		@Param('panelId') panelId: string,
+		@MasterPassword() masterPwd: string,
+	): Promise<FoundPanelDto> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: FindSavedDbQueryDs = {
+			queryId: panelId,
+			connectionId,
+			masterPassword: masterPwd,
+		};
+		return await this.findSavedDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Create a new panel' })
+	@ApiResponse({
+		status: 201,
+		description: 'Panel created.',
+		type: FoundPanelDto,
+	})
+	@ApiBody({ type: CreateSavedDbQueryDto })
+	@ApiParam({ name: 'connectionId', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Post('/connection/:connectionId/panel')
+	async createPanel(
+		@SlugUuid('connectionId') connectionId: string,
+		@MasterPassword() masterPwd: string,
+		@Body() createDto: CreateSavedDbQueryDto,
+	): Promise<FoundPanelDto> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: CreatePanelDs = {
+			connectionId,
+			masterPassword: masterPwd,
+			name: createDto.name,
+			description: createDto.description,
+			widget_type: createDto.widget_type,
+			chart_type: createDto.chart_type,
+			widget_options: createDto.widget_options,
+			query_text: createDto.query_text,
+		};
+		return await this.createSavedDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Update a panel' })
+	@ApiResponse({
+		status: 200,
+		description: 'Panel updated.',
+		type: FoundPanelDto,
+	})
+	@ApiBody({ type: UpdateSavedDbQueryDto })
+	@ApiParam({ name: 'connectionId', required: true })
+	@ApiParam({ name: 'panelId', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Put('/connection/:connectionId/panel/:panelId')
+	async updatePanel(
+		@SlugUuid('connectionId') connectionId: string,
+		@Param('panelId') panelId: string,
+		@MasterPassword() masterPwd: string,
+		@Body() updateDto: UpdateSavedDbQueryDto,
+	): Promise<FoundPanelDto> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: UpdatePanelDs = {
+			queryId: panelId,
+			connectionId,
+			masterPassword: masterPwd,
+			name: updateDto.name,
+			description: updateDto.description,
+			widget_type: updateDto.widget_type,
+			chart_type: updateDto.chart_type,
+			widget_options: updateDto.widget_options,
+			query_text: updateDto.query_text,
+		};
+		return await this.updateSavedDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Delete a panel' })
+	@ApiResponse({
+		status: 200,
+		description: 'Panel deleted.',
+		type: FoundPanelDto,
+	})
+	@ApiParam({ name: 'connectionId', required: true })
+	@ApiParam({ name: 'panelId', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Delete('/connection/:connectionId/panel/:panelId')
+	async deletePanel(
+		@SlugUuid('connectionId') connectionId: string,
+		@Param('panelId') panelId: string,
+		@MasterPassword() masterPwd: string,
+	): Promise<FoundPanelDto> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: FindSavedDbQueryDs = {
+			queryId: panelId,
+			connectionId,
+			masterPassword: masterPwd,
+		};
+		return await this.deleteSavedDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Execute a panel query' })
+	@ApiResponse({
+		status: 200,
+		description: 'Query executed successfully.',
+		type: ExecuteSavedDbQueryResultDto,
+	})
+	@ApiParam({ name: 'connectionId', required: true })
+	@ApiParam({ name: 'panelId', required: true })
+	@UseGuards(ConnectionReadGuard)
+	@Post('/connection/:connectionId/panel/:panelId/execute')
+	async executePanel(
+		@SlugUuid('connectionId') connectionId: string,
+		@Param('panelId') panelId: string,
+		@Query('tableName') tableName: string,
+		@MasterPassword() masterPwd: string,
+		@UserId() userId: string,
+	): Promise<ExecuteSavedDbQueryResultDto> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: ExecuteSavedDbQueryDs = {
+			queryId: panelId,
+			connectionId,
+			masterPassword: masterPwd,
+			tableName,
+			userId,
+		};
+		return await this.executeSavedDbQueryUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
 }

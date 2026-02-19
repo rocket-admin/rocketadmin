@@ -48,6 +48,10 @@ export class PanelPositionModule {
 				{ path: '/dashboard/:dashboardId/widget/generate/:connectionId', method: RequestMethod.POST },
 				{ path: '/dashboard/:dashboardId/widget/:widgetId/:connectionId', method: RequestMethod.PUT },
 				{ path: '/dashboard/:dashboardId/widget/:widgetId/:connectionId', method: RequestMethod.DELETE },
+				{ path: '/dashboard/:dashboardId/panel-position/:connectionId', method: RequestMethod.POST },
+				{ path: '/dashboard/:dashboardId/panel-position/generate/:connectionId', method: RequestMethod.POST },
+				{ path: '/dashboard/:dashboardId/panel-position/:panelPositionId/:connectionId', method: RequestMethod.PUT },
+				{ path: '/dashboard/:dashboardId/panel-position/:panelPositionId/:connectionId', method: RequestMethod.DELETE },
 			);
 	}
 }

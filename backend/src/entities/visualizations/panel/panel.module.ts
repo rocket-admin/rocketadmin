@@ -65,6 +65,13 @@ export class PanelModule {
 				{ path: '/connection/:connectionId/saved-query/:queryId', method: RequestMethod.DELETE },
 				{ path: '/connection/:connectionId/saved-query/:queryId/execute', method: RequestMethod.POST },
 				{ path: '/connection/:connectionId/query/test', method: RequestMethod.POST },
+				// New panel routes
+				{ path: '/connection/:connectionId/panels', method: RequestMethod.GET },
+				{ path: '/connection/:connectionId/panel/:panelId', method: RequestMethod.GET },
+				{ path: '/connection/:connectionId/panel', method: RequestMethod.POST },
+				{ path: '/connection/:connectionId/panel/:panelId', method: RequestMethod.PUT },
+				{ path: '/connection/:connectionId/panel/:panelId', method: RequestMethod.DELETE },
+				{ path: '/connection/:connectionId/panel/:panelId/execute', method: RequestMethod.POST },
 			);
 	}
 }
