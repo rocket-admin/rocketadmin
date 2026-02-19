@@ -14,6 +14,8 @@ import {
 	AIToolDefinition,
 	createDatabaseQuerySystemPrompt,
 	createDatabaseTools,
+	encodeError,
+	encodeToToon,
 	isValidMongoDbCommand,
 	isValidSQLQuery,
 	MessageBuilder,
@@ -243,7 +245,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 							userEmail,
 							foundConnection,
 						);
-						result = JSON.stringify(structureInfo);
+						result = encodeToToon(structureInfo);
 						break;
 					}
 
@@ -259,7 +261,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 						}
 						const wrappedQuery = wrapQueryWithLimit(query, foundConnection.type as ConnectionTypesEnum);
 						const queryResult = await dataAccessObject.executeRawQuery(wrappedQuery, inputTableName, userEmail);
-						result = JSON.stringify(queryResult);
+						result = encodeToToon(queryResult);
 						break;
 					}
 
@@ -274,15 +276,15 @@ export class RequestInfoFromTableWithAIUseCaseV7
 							);
 						}
 						const pipelineResult = await dataAccessObject.executeRawQuery(pipeline, inputTableName, userEmail);
-						result = JSON.stringify(pipelineResult);
+						result = encodeToToon(pipelineResult);
 						break;
 					}
 
 					default:
-						result = JSON.stringify({ error: `Unknown tool: ${toolCall.name}` });
+						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
 				}
 			} catch (error) {
-				result = JSON.stringify({ error: error.message });
+				result = encodeError({ error: error.message });
 			}
 
 			results.push({ toolCallId: toolCall.id, result });

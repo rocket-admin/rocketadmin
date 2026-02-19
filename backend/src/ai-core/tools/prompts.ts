@@ -14,6 +14,8 @@ Table name: "${tableName}".
 ${schema ? `Schema: "${schema}".` : ''}
 Current date and time: ${currentDatetime}
 
+Tool responses are encoded in TOON (Token-Oriented Object Notation) format - a compact, human-readable format similar to YAML with CSV-style tabular arrays. Parse it naturally.
+
 Please follow these steps EXACTLY:
 1. First, always use the getTableStructure tool to analyze the table schema and understand available columns
 2. If the question requires data from related tables, note their relationships

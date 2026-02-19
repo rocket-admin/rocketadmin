@@ -1,0 +1,27 @@
+{
+	"root": false,
+	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"extends": ["../../biome.json"],
+	"linter": {
+		"rules": {
+			"suspicious": {
+				"noExplicitAny": "off",
+				"noConfusingVoidType": "off",
+				"noDoubleEquals": "off",
+				"useAwait": "off"
+			},
+			"correctness": {
+				"noUnusedVariables": "off",
+				"noUnusedFunctionParameters": "off",
+				"noUnusedImports": "off"
+			},
+			"complexity": {
+				"noUselessConstructor": "off",
+				"noUselessTernary": "off",
+				"useOptionalChain": "off",
+				"useLiteralKeys": "off",
+				"useArrowFunction": "off"
+			}
+		}
+	}
+}
