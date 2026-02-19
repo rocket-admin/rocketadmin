@@ -4,6 +4,7 @@ import { DeletePanelPositionDs } from '../data-structures/delete-panel-position.
 import { GeneratePanelPositionWithAiDs } from '../data-structures/generate-panel-position-with-ai.ds.js';
 import { UpdatePanelPositionDs } from '../data-structures/update-panel-position.ds.js';
 import { FoundPanelPositionDto } from '../dto/found-panel-position.dto.js';
+import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
 
 export interface ICreatePanelPositionWidget {
 	execute(inputData: CreatePanelPositionDs, inTransaction: InTransactionEnum): Promise<FoundPanelPositionDto>;
@@ -18,5 +19,5 @@ export interface IDeletePanelPosition {
 }
 
 export interface IGeneratePanelPositionWithAi {
-	execute(inputData: GeneratePanelPositionWithAiDs, inTransaction: InTransactionEnum): Promise<FoundPanelPositionDto>;
+	execute(inputData: GeneratePanelPositionWithAiDs, inTransaction: InTransactionEnum): Promise<GeneratedPanelWithPositionDto>;
 }

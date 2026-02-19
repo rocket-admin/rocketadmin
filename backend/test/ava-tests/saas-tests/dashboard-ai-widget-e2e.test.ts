@@ -162,11 +162,23 @@ test.serial(`${currentTest} should generate a widget with AI for chart type`, as
 
 	const generateWidgetRO = JSON.parse(generateWidget.text);
 	t.is(generateWidget.status, 201);
-	t.truthy(generateWidgetRO.id);
-	t.truthy(generateWidgetRO.query_id);
-	t.is(generateWidgetRO.dashboard_id, dashboardId);
-	t.is(generateWidgetRO.width, 6);
-	t.is(generateWidgetRO.height, 4);
+
+	t.is(generateWidgetRO.name, 'Sales by Category');
+	t.is(generateWidgetRO.description, 'Bar chart showing total sales grouped by category');
+	t.is(generateWidgetRO.widget_type, DashboardWidgetTypeEnum.Chart);
+	t.is(generateWidgetRO.chart_type, 'bar');
+	t.is(generateWidgetRO.query_text, 'SELECT category, SUM(amount) as total FROM orders GROUP BY category');
+	t.is(generateWidgetRO.connection_id, connectionId);
+	t.truthy(generateWidgetRO.widget_options);
+	t.is(generateWidgetRO.widget_options.label_column, 'category');
+	t.is(generateWidgetRO.widget_options.value_column, 'total');
+
+	t.truthy(generateWidgetRO.panel_position);
+	t.is(generateWidgetRO.panel_position.position_x, 0);
+	t.is(generateWidgetRO.panel_position.position_y, 0);
+	t.is(generateWidgetRO.panel_position.width, 6);
+	t.is(generateWidgetRO.panel_position.height, 4);
+	t.is(generateWidgetRO.panel_position.dashboard_id, dashboardId);
 
 	const getSavedQueries = await request(app.getHttpServer())
 		.get(`/connection/${connectionId}/saved-queries`)
@@ -177,13 +189,7 @@ test.serial(`${currentTest} should generate a widget with AI for chart type`, as
 
 	const queries = JSON.parse(getSavedQueries.text);
 	t.is(getSavedQueries.status, 200);
-	t.true(queries.length >= 1);
-
-	const createdQuery = queries.find((q: { id: string }) => q.id === generateWidgetRO.query_id);
-	t.truthy(createdQuery);
-	t.is(createdQuery.name, 'Sales by Category');
-	t.is(createdQuery.widget_type, DashboardWidgetTypeEnum.Chart);
-	t.is(createdQuery.chart_type, 'bar');
+	t.is(queries.length, 0);
 });
 
 test.serial(`${currentTest} should generate a counter widget with AI`, async (t) => {
@@ -224,20 +230,15 @@ test.serial(`${currentTest} should generate a counter widget with AI`, async (t)
 
 	const generateWidgetRO = JSON.parse(generateWidget.text);
 	t.is(generateWidget.status, 201);
-	t.truthy(generateWidgetRO.id);
-	t.truthy(generateWidgetRO.query_id);
 
-	const getQuery = await request(app.getHttpServer())
-		.get(`/connection/${connectionId}/saved-query/${generateWidgetRO.query_id}`)
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
+	t.is(generateWidgetRO.name, 'Total Orders');
+	t.is(generateWidgetRO.description, 'Counter showing total number of orders');
+	t.is(generateWidgetRO.widget_type, DashboardWidgetTypeEnum.Counter);
+	t.is(generateWidgetRO.query_text, 'SELECT COUNT(*) as total FROM orders');
+	t.is(generateWidgetRO.connection_id, connectionId);
 
-	const query = JSON.parse(getQuery.text);
-	t.is(getQuery.status, 200);
-	t.is(query.name, 'Total Orders');
-	t.is(query.widget_type, DashboardWidgetTypeEnum.Counter);
+	t.truthy(generateWidgetRO.panel_position);
+	t.is(generateWidgetRO.panel_position.dashboard_id, dashboardId);
 });
 
 test.serial(`${currentTest} should reject AI-generated unsafe query`, async (t) => {
@@ -320,16 +321,7 @@ test.serial(`${currentTest} should generate widget with custom name`, async (t) 
 
 	const generateWidgetRO = JSON.parse(generateWidget.text);
 	t.is(generateWidget.status, 201);
-
-	const getQuery = await request(app.getHttpServer())
-		.get(`/connection/${connectionId}/saved-query/${generateWidgetRO.query_id}`)
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const query = JSON.parse(getQuery.text);
-	t.is(query.name, customName);
+	t.is(generateWidgetRO.name, customName);
 });
 
 test.serial(`${currentTest} should fail without tableName query parameter`, async (t) => {

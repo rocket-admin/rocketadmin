@@ -7,12 +7,9 @@ import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../../../ai-core/index.js';
-import { PanelPositionEntity } from '../panel-position.entity.js';
 import { GeneratePanelPositionWithAiDs } from '../data-structures/generate-panel-position-with-ai.ds.js';
-import { FoundPanelPositionDto } from '../dto/found-panel-position.dto.js';
-import { buildFoundPanelPositionDto } from '../utils/build-found-dashboard-widget-dto.util.js';
+import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
 import { IGeneratePanelPositionWithAi } from './panel-position-use-cases.interface.js';
-import { PanelEntity } from '../../panel/panel.entity.js';
 import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
 
 interface AIGeneratedWidgetResponse {
@@ -41,7 +38,7 @@ interface AIGeneratedWidgetResponse {
 
 @Injectable({ scope: Scope.REQUEST })
 export class GeneratePanelPositionWithAiUseCase
-	extends AbstractUseCase<GeneratePanelPositionWithAiDs, FoundPanelPositionDto>
+	extends AbstractUseCase<GeneratePanelPositionWithAiDs, GeneratedPanelWithPositionDto>
 	implements IGeneratePanelPositionWithAi
 {
 	constructor(
@@ -52,7 +49,7 @@ export class GeneratePanelPositionWithAiUseCase
 		super();
 	}
 
-	public async implementation(inputData: GeneratePanelPositionWithAiDs): Promise<FoundPanelPositionDto> {
+	public async implementation(inputData: GeneratePanelPositionWithAiDs): Promise<GeneratedPanelWithPositionDto> {
 		const {
 			dashboardId,
 			connectionId,
@@ -119,29 +116,24 @@ export class GeneratePanelPositionWithAiUseCase
 
 		validateQuerySafety(generatedWidget.query_text, foundConnection.type as ConnectionTypesEnum);
 
-		const newPanel = new PanelEntity();
-		newPanel.name = name || generatedWidget.name;
-		newPanel.description = generatedWidget.description || null;
-		newPanel.panel_type = this.mapWidgetType(generatedWidget.widget_type);
-		newPanel.chart_type = generatedWidget.chart_type || null;
-		newPanel.panel_options = generatedWidget.widget_options
-			? (generatedWidget.widget_options as unknown as string)
-			: null;
-		newPanel.query_text = generatedWidget.query_text;
-		newPanel.connection_id = foundConnection.id;
-
-		const savedQuery = await this._dbContext.panelRepository.save(newPanel);
-
-		const newPanelPosition = new PanelPositionEntity();
-		newPanelPosition.position_x = position_x ?? 0;
-		newPanelPosition.position_y = position_y ?? 0;
-		newPanelPosition.width = width ?? 6;
-		newPanelPosition.height = height ?? 4;
-		newPanelPosition.dashboard_id = dashboardId;
-		newPanelPosition.query_id = savedQuery.id;
-
-		const savedWidget = await this._dbContext.panelPositionRepository.savePanelPosition(newPanelPosition);
-		return buildFoundPanelPositionDto(savedWidget);
+		return {
+			name: name || generatedWidget.name,
+			description: generatedWidget.description || null,
+			widget_type: this.mapWidgetType(generatedWidget.widget_type),
+			chart_type: generatedWidget.chart_type || null,
+			widget_options: generatedWidget.widget_options
+				? (generatedWidget.widget_options as unknown as Record<string, unknown>)
+				: null,
+			query_text: generatedWidget.query_text,
+			connection_id: connectionId,
+			panel_position: {
+				position_x: position_x ?? 0,
+				position_y: position_y ?? 0,
+				width: width ?? 6,
+				height: height ?? 4,
+				dashboard_id: dashboardId,
+			},
+		};
 	}
 
 	private buildPrompt(
