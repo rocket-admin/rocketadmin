@@ -557,6 +557,21 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     return Date.now().toString();
   }
 
+  private getDropIndex(event: DragEvent, folder: Folder): number {
+    const folderEl = (event.currentTarget as HTMLElement);
+    const tableItems = folderEl.querySelectorAll('.selected-table-item');
+    const y = event.clientY;
+
+    for (let i = 0; i < tableItems.length; i++) {
+      const rect = tableItems[i].getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      if (y < midY) {
+        return i;
+      }
+    }
+    return folder.tableIds.length;
+  }
+
   // private loadFolders() {
   //   this._connectionsService.getTablesFolders(this.connectionID).subscribe({
   //     next: (categories: TableCategory[]) => {
@@ -682,13 +697,13 @@ export class DbTablesListComponent implements OnInit, OnChanges {
         // Table already exists in this folder, do nothing (no notification)
         return;
       } else {
-        // Simply add table to the target folder (don't remove from other folders)
-        folder.tableIds.push(this.draggedTable.table);
+        // Determine insertion index based on drop position
+        const insertIndex = this.getDropIndex(event, folder);
+        folder.tableIds.splice(insertIndex, 0, this.draggedTable.table);
         // Remove empty flag when adding tables via drag and drop
         if (folder.isEmpty) {
           folder.isEmpty = false;
         }
-        console.log('onFolderDrop');
         this.saveFolders();
       }
     }
