@@ -28,7 +28,7 @@ import { TableSettingsEntity } from '../table-settings/common-table-settings/tab
 import { PersonalTableSettingsEntity } from '../table-settings/personal-table-settings/personal-table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { DashboardEntity } from '../visualizations/dashboard/dashboard.entity.js';
-import { SavedDbQueryEntity } from '../visualizations/saved-db-query/saved-db-query.entity.js';
+import { PanelEntity } from '../visualizations/panel/panel.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -284,10 +284,10 @@ export class ConnectionEntity {
 	table_filters: Relation<TableFiltersEntity>[];
 
 	@OneToMany(
-		() => SavedDbQueryEntity,
-		(saved_db_query) => saved_db_query.connection,
+		() => PanelEntity,
+		(panel) => panel.connection,
 	)
-	saved_db_queries: Relation<SavedDbQueryEntity>[];
+	panels: Relation<PanelEntity>[];
 
 	@OneToMany(
 		() => DashboardEntity,

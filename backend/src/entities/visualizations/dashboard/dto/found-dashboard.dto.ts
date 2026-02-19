@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { FoundDashboardWidgetDto } from '../../dashboard-widget/dto/found-dashboard-widget.dto.js';
+import { FoundPanelPositionDto } from '../../panel-position/dto/found-panel-position.dto.js';
 
 export class FoundDashboardDto {
 	@ApiProperty({ description: 'Dashboard ID' })
@@ -20,6 +20,6 @@ export class FoundDashboardDto {
 	@ApiProperty({ description: 'Last update timestamp' })
 	updated_at: Date;
 
-	@ApiPropertyOptional({ description: 'Dashboard widgets', type: FoundDashboardWidgetDto, isArray: true })
-	widgets?: FoundDashboardWidgetDto[];
+	@ApiPropertyOptional({ description: 'Dashboard widgets', type: FoundPanelPositionDto, isArray: true })
+	widgets?: FoundPanelPositionDto[];
 }

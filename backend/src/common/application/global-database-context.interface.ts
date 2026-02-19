@@ -59,10 +59,10 @@ import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/reposi
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
 import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
-import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
-import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
-import { ISavedDbQueryRepository } from '../../entities/visualizations/saved-db-query/repository/saved-db-query.repository.interface.js';
-import { SavedDbQueryEntity } from '../../entities/visualizations/saved-db-query/saved-db-query.entity.js';
+import { PanelPositionEntity } from '../../entities/visualizations/panel-position/panel-position.entity.js';
+import { IPanelPositionRepository } from '../../entities/visualizations/panel-position/repository/panel-position.repository.interface.js';
+import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
+import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { IDatabaseContext } from '../database-context.interface.js';
@@ -105,9 +105,9 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
 	signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 	personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
-	savedDbQueryRepository: Repository<SavedDbQueryEntity> & ISavedDbQueryRepository;
+	panelRepository: Repository<PanelEntity> & IPanelRepository;
 	dashboardRepository: Repository<DashboardEntity> & IDashboardRepository;
-	dashboardWidgetRepository: Repository<DashboardWidgetEntity> & IDashboardWidgetRepository;
+	panelPositionRepository: Repository<PanelPositionEntity> & IPanelPositionRepository;
 	userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
 	aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
 }

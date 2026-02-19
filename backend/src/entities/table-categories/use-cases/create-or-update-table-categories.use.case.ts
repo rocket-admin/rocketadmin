@@ -22,12 +22,16 @@ export class CreateOrUpdateTableCategoriesUseCase
 
 	protected async implementation(inputData: CreateOrUpdateTableCategoriesDS): Promise<Array<FoundTableCategoryRo>> {
 		const { connectionId, master_password, table_categories } = inputData;
+
+		const allTablesCategory = table_categories.find((category) => category.category_id === null);
+		const filteredCategories = table_categories.filter((category) => category.category_id !== null);
+
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
 			master_password,
 		);
 
-		await validateTableCategories(table_categories, foundConnection);
+		await validateTableCategories(filteredCategories, foundConnection);
 
 		const foundTableCategories =
 			await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
@@ -45,7 +49,7 @@ export class CreateOrUpdateTableCategoriesUseCase
 			connectionProperties = await this._dbContext.connectionPropertiesRepository.save(newConnectionProperties);
 		}
 
-		const createdCategories = table_categories.map((category) => {
+		const createdCategories = filteredCategories.map((category) => {
 			const newCategory = this._dbContext.tableCategoriesRepository.create({
 				category_name: category.category_name,
 				tables: category.tables,
@@ -56,6 +60,17 @@ export class CreateOrUpdateTableCategoriesUseCase
 			return newCategory;
 		});
 		const savedCategories = await this._dbContext.tableCategoriesRepository.save(createdCategories);
-		return savedCategories.map((category) => buildFoundTableCategoryRo(category));
+		const result = savedCategories.map((category) => buildFoundTableCategoryRo(category));
+
+		if (allTablesCategory) {
+			result.unshift({
+				category_id: null,
+				category_name: allTablesCategory.category_name,
+				category_color: allTablesCategory.category_color,
+				tables: allTablesCategory.tables,
+			});
+		}
+
+		return result;
 	}
 }

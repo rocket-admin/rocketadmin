@@ -52,6 +52,7 @@ export class TableCategoriesController {
 		@MasterPassword() masterPwd: string,
 		@Body() requestBody: CreateTableCategoryDto[],
 	): Promise<Array<FoundTableCategoryRo>> {
+		
 		const inputData: CreateOrUpdateTableCategoriesDS = {
 			connectionId,
 			master_password: masterPwd,
