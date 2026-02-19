@@ -323,35 +323,8 @@ export class AppComponent {
 				this.whiteLabelSettingsLoaded = true;
 
 				if (whiteLabelSettings.favicon) {
-					const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-					if (link) {
-						link.href = whiteLabelSettings.favicon;
-					} else {
-						const newLink = document.createElement('link');
-						newLink.rel = 'icon';
-						newLink.href = whiteLabelSettings.favicon;
-						document.head.appendChild(newLink);
-					}
-				} else {
-					const faviconIco = document.createElement('link');
-					faviconIco.rel = 'icon';
-					faviconIco.type = 'image/x-icon';
-					faviconIco.href = 'assets/favicon.ico';
-
-					const favicon16 = document.createElement('link');
-					favicon16.rel = 'icon';
-					favicon16.type = 'image/png';
-					favicon16.setAttribute('sizes', '16x16');
-					favicon16.href = 'assets/favicon-16x16.png';
-
-					const favicon32 = document.createElement('link');
-					favicon32.rel = 'icon';
-					favicon32.type = 'image/png';
-					favicon32.setAttribute('sizes', '32x32');
-					favicon32.href = 'assets/favicon-32x32.png';
-
-					document.head.appendChild(favicon16);
-					document.head.appendChild(favicon32);
+					const links: NodeListOf<HTMLLinkElement> = document.querySelectorAll("link[rel*='icon']");
+					links.forEach((link) => (link.href = whiteLabelSettings.favicon));
 				}
 			});
 			this._uiSettings.getUiSettings().subscribe((settings) => {
