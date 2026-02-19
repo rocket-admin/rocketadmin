@@ -93,6 +93,9 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   private preservedFolderStates: { [key: string]: boolean } = {};
   private preservedActiveFolder: string | null = null;
 
+  // Search state preservation
+  private preSearchFolderStates: { [key: string]: boolean } | null = null;
+
   // Folder icon colors
   public folderIconColors = [
     { name: 'Default', value: '#212121' },
@@ -171,11 +174,24 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   searchSubstring() {
     if (!this.substringToSearch || this.substringToSearch.trim() === '') {
       this.foundTables = this.allTables;
-      // Collapse all folders when search is cleared
-      this.folders.forEach(folder => {
-        folder.expanded = false;
-      });
+      // Restore folder expanded states from before the search
+      if (this.preSearchFolderStates) {
+        this.folders.forEach(folder => {
+          if (Object.hasOwn(this.preSearchFolderStates, folder.id)) {
+            folder.expanded = this.preSearchFolderStates[folder.id];
+          }
+        });
+        this.preSearchFolderStates = null;
+      }
       return;
+    }
+
+    // Save folder states before the first search modification
+    if (!this.preSearchFolderStates) {
+      this.preSearchFolderStates = {};
+      this.folders.forEach(folder => {
+        this.preSearchFolderStates[folder.id] = folder.expanded;
+      });
     }
 
     const searchTerm = this.substringToSearch.toLowerCase();
