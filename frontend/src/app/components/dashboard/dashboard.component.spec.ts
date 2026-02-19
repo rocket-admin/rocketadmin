@@ -75,6 +75,7 @@ describe('DashboardComponent', () => {
 
 		fakeTablesService = {
 			fetchTables: vi.fn().mockReturnValue(of(fakeTables)),
+			fetchTablesFolders: vi.fn().mockReturnValue(of([{ category_id: null, tables: fakeTables }])),
 		};
 
 		await TestBed.configureTestingModule({
@@ -121,9 +122,10 @@ describe('DashboardComponent', () => {
 		expect(component.currentConnectionAccessLevel).toEqual('readonly');
 	});
 
-	it('should call getTables', async () => {
-		fakeTablesService.fetchTables.mockReturnValue(of(fakeTables));
-		const tables = await component.getTables();
-		expect(tables).toEqual(fakeTables);
+	it('should call getData and populate tables', () => {
+		fakeTablesService.fetchTablesFolders.mockReturnValue(of([{ category_id: null, tables: fakeTables }]));
+		component.getData();
+		expect(component.allTables.length).toEqual(fakeTables.length);
+		expect(component.allTables.map(t => t.table)).toEqual(fakeTables.map(t => t.table));
 	});
 });
