@@ -23,8 +23,8 @@
                     Edit mode
                 </mat-slide-toggle>
                 <button mat-flat-button color="primary"
-                    (click)="openAddWidgetDialog()"
-                    data-testid="add-widget-button">
+                    (click)="openAddPanelDialog()"
+                    data-testid="add-panel-button">
                     <mat-icon>add</mat-icon>
                     Add chart
                 </button>
@@ -39,11 +39,11 @@
     }
 
     @if (!loading() && gridsterItems().length === 0) {
-        <div class="no-widgets">
-            <mat-icon class="no-widgets-icon">bar_chart</mat-icon>
+        <div class="no-panels">
+            <mat-icon class="no-panels-icon">bar_chart</mat-icon>
             <h3>No charts yet</h3>
             <p>Add charts to visualize your data from saved queries.</p>
-            <button mat-flat-button color="primary" (click)="openAddWidgetDialog()">
+            <button mat-flat-button color="primary" (click)="openAddPanelDialog()">
                 <mat-icon>add</mat-icon>
                 Add chart
             </button>
@@ -53,32 +53,32 @@
     @if (!loading() && gridsterItems().length > 0) {
         <gridster [options]="gridsterOptions" class="dashboard-grid">
             @for (item of gridsterItems(); track item.widget.id) {
-                <gridster-item [item]="item" class="widget-item" [class.edit-mode]="editMode()">
-                    <div class="widget-header">
-                        <span class="widget-title">{{ widgetRef.savedQuery()?.name || 'Loading...' }}</span>
-                        <button mat-icon-button [matMenuTriggerFor]="widgetMenu" class="widget-menu-button">
+                <gridster-item [item]="item" class="panel-item" [class.edit-mode]="editMode()">
+                    <div class="panel-header">
+                        <span class="panel-title">{{ panelRef.savedQuery()?.name || 'Loading...' }}</span>
+                        <button mat-icon-button [matMenuTriggerFor]="panelMenu" class="panel-menu-button">
                             <mat-icon>more_vert</mat-icon>
                         </button>
-                        <mat-menu #widgetMenu="matMenu">
-                            <a mat-menu-item [routerLink]="['/charts', connectionId(), item.widget.query_id]">
+                        <mat-menu #panelMenu="matMenu">
+                            <a mat-menu-item [routerLink]="['/panels', connectionId(), item.widget.query_id]">
                                 <mat-icon>tune</mat-icon>
                                 <span>Configure chart</span>
                             </a>
-                            <button mat-menu-item (click)="openEditWidgetDialog(item.widget)">
+                            <button mat-menu-item (click)="openEditPanelDialog(item.widget)">
                                 <mat-icon>swap_horiz</mat-icon>
                                 <span>Change query</span>
                             </button>
-                            <button mat-menu-item (click)="openDeleteWidgetDialog(item.widget)" class="delete-action">
+                            <button mat-menu-item (click)="openDeletePanelDialog(item.widget)" class="delete-action">
                                 <mat-icon color="warn">delete</mat-icon>
                                 <span>Delete</span>
                             </button>
                         </mat-menu>
                     </div>
-                    <div class="widget-content">
-                        <app-dashboard-widget #widgetRef
+                    <div class="panel-content">
+                        <app-dashboard-panel #panelRef
                             [widget]="item.widget"
                             [connectionId]="connectionId()">
-                        </app-dashboard-widget>
+                        </app-dashboard-panel>
                     </div>
                 </gridster-item>
             }

@@ -1,0 +1,23 @@
+:host {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.panel-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+
+.panel-error {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: var(--color-warnDarkPalette-500);
+	font-size: 14px;
+	text-align: center;
+	padding: 16px;
+}
