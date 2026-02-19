@@ -106,12 +106,12 @@ import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-aud
 import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
 import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
 import { dashboardCustomRepositoryExtension } from '../../entities/visualizations/dashboard/repository/dashboard-custom-repository-extension.js';
-import { DashboardWidgetEntity } from '../../entities/visualizations/dashboard-widget/dashboard-widget.entity.js';
-import { IDashboardWidgetRepository } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget.repository.interface.js';
-import { dashboardWidgetCustomRepositoryExtension } from '../../entities/visualizations/dashboard-widget/repository/dashboard-widget-custom-repository-extension.js';
-import { ISavedDbQueryRepository } from '../../entities/visualizations/saved-db-query/repository/saved-db-query.repository.interface.js';
-import { savedDbQueryCustomRepositoryExtension } from '../../entities/visualizations/saved-db-query/repository/saved-db-query-custom-repository-extension.js';
-import { SavedDbQueryEntity } from '../../entities/visualizations/saved-db-query/saved-db-query.entity.js';
+import { PanelPositionEntity } from '../../entities/visualizations/panel-position/panel-position.entity.js';
+import { IPanelPositionRepository } from '../../entities/visualizations/panel-position/repository/panel-position.repository.interface.js';
+import { panelPositionCustomRepositoryExtension } from '../../entities/visualizations/panel-position/repository/panel-position-custom-repository-extension.js';
+import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
+import { panelCustomRepositoryExtension } from '../../entities/visualizations/panel/repository/saved-db-query-custom-repository-extension.js';
+import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
 import { tableWidgetsCustomRepositoryExtension } from '../../entities/widget/repository/table-widgets-custom-repsitory-extension.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
@@ -159,9 +159,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
 	private _signInAuditRepository: Repository<SignInAuditEntity> & ISignInAuditRepository;
 	private _personalTableSettingsRepository: Repository<PersonalTableSettingsEntity> & IPersonalTableSettingsRepository;
-	private _savedDbQueryRepository: Repository<SavedDbQueryEntity> & ISavedDbQueryRepository;
+	private _panelRepository: Repository<PanelEntity> & IPanelRepository;
 	private _dashboardRepository: Repository<DashboardEntity> & IDashboardRepository;
-	private _dashboardWidgetRepository: Repository<DashboardWidgetEntity> & IDashboardWidgetRepository;
+	private _panelPositionRepository: Repository<PanelPositionEntity> & IPanelPositionRepository;
 	private _userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
 	private _aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
 
@@ -264,15 +264,13 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._personalTableSettingsRepository = this.appDataSource
 			.getRepository(PersonalTableSettingsEntity)
 			.extend(personalTableSettingsCustomRepositoryExtension);
-		this._savedDbQueryRepository = this.appDataSource
-			.getRepository(SavedDbQueryEntity)
-			.extend(savedDbQueryCustomRepositoryExtension);
+		this._panelRepository = this.appDataSource.getRepository(PanelEntity).extend(panelCustomRepositoryExtension);
 		this._dashboardRepository = this.appDataSource
 			.getRepository(DashboardEntity)
 			.extend(dashboardCustomRepositoryExtension);
-		this._dashboardWidgetRepository = this.appDataSource
-			.getRepository(DashboardWidgetEntity)
-			.extend(dashboardWidgetCustomRepositoryExtension);
+		this._panelPositionRepository = this.appDataSource
+			.getRepository(PanelPositionEntity)
+			.extend(panelPositionCustomRepositoryExtension);
 		this._userAiChatRepository = this.appDataSource
 			.getRepository(UserAiChatEntity)
 			.extend(userAiChatRepositoryExtension);
@@ -431,16 +429,16 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		return this._personalTableSettingsRepository;
 	}
 
-	public get savedDbQueryRepository(): Repository<SavedDbQueryEntity> & ISavedDbQueryRepository {
-		return this._savedDbQueryRepository;
+	public get panelRepository(): Repository<PanelEntity> & IPanelRepository {
+		return this._panelRepository;
 	}
 
 	public get dashboardRepository(): Repository<DashboardEntity> & IDashboardRepository {
 		return this._dashboardRepository;
 	}
 
-	public get dashboardWidgetRepository(): Repository<DashboardWidgetEntity> & IDashboardWidgetRepository {
-		return this._dashboardWidgetRepository;
+	public get panelPositionRepository(): Repository<PanelPositionEntity> & IPanelPositionRepository {
+		return this._panelPositionRepository;
 	}
 
 	public get userAiChatRepository(): Repository<UserAiChatEntity> & IUserAiChatRepository {

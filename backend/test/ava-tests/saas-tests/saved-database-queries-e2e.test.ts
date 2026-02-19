@@ -8,12 +8,12 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { CreateSavedDbQueryDto } from '../../../src/entities/visualizations/saved-db-query/dto/create-saved-db-query.dto.js';
-import { ExecuteSavedDbQueryResultDto } from '../../../src/entities/visualizations/saved-db-query/dto/execute-saved-db-query-result.dto.js';
-import { FoundSavedDbQueryDto } from '../../../src/entities/visualizations/saved-db-query/dto/found-saved-db-query.dto.js';
-import { TestDbQueryDto } from '../../../src/entities/visualizations/saved-db-query/dto/test-db-query.dto.js';
-import { TestDbQueryResultDto } from '../../../src/entities/visualizations/saved-db-query/dto/test-db-query-result.dto.js';
-import { UpdateSavedDbQueryDto } from '../../../src/entities/visualizations/saved-db-query/dto/update-saved-db-query.dto.js';
+import { CreateSavedDbQueryDto } from '../../../src/entities/visualizations/panel/dto/create-saved-db-query.dto.js';
+import { ExecuteSavedDbQueryResultDto } from '../../../src/entities/visualizations/panel/dto/execute-saved-db-query-result.dto.js';
+import { FoundPanelDto } from '../../../src/entities/visualizations/panel/dto/found-saved-db-query.dto.js';
+import { TestDbQueryDto } from '../../../src/entities/visualizations/panel/dto/test-db-query.dto.js';
+import { TestDbQueryResultDto } from '../../../src/entities/visualizations/panel/dto/test-db-query-result.dto.js';
+import { UpdateSavedDbQueryDto } from '../../../src/entities/visualizations/panel/dto/update-saved-db-query.dto.js';
 import { DashboardWidgetTypeEnum } from '../../../src/enums/dashboard-widget-type.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
@@ -92,7 +92,7 @@ test.serial(`${currentTest} should create a new saved query`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	const createSavedQueryRO: FoundPanelDto = JSON.parse(createSavedQueryResponse.text);
 	t.is(createSavedQueryResponse.status, 201);
 	t.truthy(createSavedQueryRO.id);
 	t.is(createSavedQueryRO.name, createSavedQueryDTO.name);
@@ -213,7 +213,7 @@ test.serial(`${currentTest} should return all saved queries for a connection`, a
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const getAllSavedQueriesRO: FoundSavedDbQueryDto[] = JSON.parse(getAllSavedQueriesResponse.text);
+	const getAllSavedQueriesRO: FoundPanelDto[] = JSON.parse(getAllSavedQueriesResponse.text);
 	t.is(getAllSavedQueriesResponse.status, 200);
 	t.true(Array.isArray(getAllSavedQueriesRO));
 	t.is(getAllSavedQueriesRO.length, 2);
@@ -240,7 +240,7 @@ test.serial(`${currentTest} should return empty array when no saved queries exis
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const getAllSavedQueriesRO: FoundSavedDbQueryDto[] = JSON.parse(getAllSavedQueriesResponse.text);
+	const getAllSavedQueriesRO: FoundPanelDto[] = JSON.parse(getAllSavedQueriesResponse.text);
 	t.is(getAllSavedQueriesResponse.status, 200);
 	t.true(Array.isArray(getAllSavedQueriesRO));
 	t.is(getAllSavedQueriesRO.length, 0);
@@ -276,7 +276,7 @@ test.serial(`${currentTest} should return a saved query by id`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	const createSavedQueryRO: FoundPanelDto = JSON.parse(createSavedQueryResponse.text);
 	t.is(createSavedQueryResponse.status, 201);
 
 	// Get saved query by id
@@ -286,7 +286,7 @@ test.serial(`${currentTest} should return a saved query by id`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const getSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(getSavedQueryResponse.text);
+	const getSavedQueryRO: FoundPanelDto = JSON.parse(getSavedQueryResponse.text);
 	t.is(getSavedQueryResponse.status, 200);
 	t.is(getSavedQueryRO.id, createSavedQueryRO.id);
 	t.is(getSavedQueryRO.name, createSavedQueryDTO.name);
@@ -347,7 +347,7 @@ test.serial(`${currentTest} should update a saved query`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	const createSavedQueryRO: FoundPanelDto = JSON.parse(createSavedQueryResponse.text);
 	t.is(createSavedQueryResponse.status, 201);
 
 	// Update saved query
@@ -364,7 +364,7 @@ test.serial(`${currentTest} should update a saved query`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const updateSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(updateSavedQueryResponse.text);
+	const updateSavedQueryRO: FoundPanelDto = JSON.parse(updateSavedQueryResponse.text);
 	t.is(updateSavedQueryResponse.status, 200);
 	t.is(updateSavedQueryRO.id, createSavedQueryRO.id);
 	t.is(updateSavedQueryRO.name, updateSavedQueryDTO.name);
@@ -400,7 +400,7 @@ test.serial(`${currentTest} should update only provided fields`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	const createSavedQueryRO: FoundPanelDto = JSON.parse(createSavedQueryResponse.text);
 	t.is(createSavedQueryResponse.status, 201);
 
 	const updateSavedQueryDTO: UpdateSavedDbQueryDto = {
@@ -414,7 +414,7 @@ test.serial(`${currentTest} should update only provided fields`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const updateSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(updateSavedQueryResponse.text);
+	const updateSavedQueryRO: FoundPanelDto = JSON.parse(updateSavedQueryResponse.text);
 	t.is(updateSavedQueryResponse.status, 200);
 	t.is(updateSavedQueryRO.name, updateSavedQueryDTO.name);
 	t.is(updateSavedQueryRO.description, createSavedQueryDTO.description);
@@ -479,7 +479,7 @@ test.serial(`${currentTest} should delete a saved query`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	const createSavedQueryRO: FoundPanelDto = JSON.parse(createSavedQueryResponse.text);
 	t.is(createSavedQueryResponse.status, 201);
 
 	// Delete saved query
@@ -489,7 +489,7 @@ test.serial(`${currentTest} should delete a saved query`, async (t) => {
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const deleteSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(deleteSavedQueryResponse.text);
+	const deleteSavedQueryRO: FoundPanelDto = JSON.parse(deleteSavedQueryResponse.text);
 	t.is(deleteSavedQueryResponse.status, 200);
 	t.is(deleteSavedQueryRO.id, createSavedQueryRO.id);
 
@@ -557,7 +557,7 @@ test.serial(`${currentTest} should execute a saved query and return results`, as
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	const createSavedQueryRO: FoundPanelDto = JSON.parse(createSavedQueryResponse.text);
 	t.is(createSavedQueryResponse.status, 201);
 
 	// Execute saved query
@@ -647,7 +647,7 @@ test.serial(`${currentTest} should not return queries from other connections`, a
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const getQueriesFromConnection2RO: FoundSavedDbQueryDto[] = JSON.parse(getQueriesFromConnection2Response.text);
+	const getQueriesFromConnection2RO: FoundPanelDto[] = JSON.parse(getQueriesFromConnection2Response.text);
 	t.is(getQueriesFromConnection2Response.status, 200);
 	t.is(getQueriesFromConnection2RO.length, 0);
 
@@ -658,7 +658,7 @@ test.serial(`${currentTest} should not return queries from other connections`, a
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const getQueriesFromConnection1RO: FoundSavedDbQueryDto[] = JSON.parse(getQueriesFromConnection1Response.text);
+	const getQueriesFromConnection1RO: FoundPanelDto[] = JSON.parse(getQueriesFromConnection1Response.text);
 	t.is(getQueriesFromConnection1Response.status, 200);
 	t.is(getQueriesFromConnection1RO.length, 1);
 	t.is(getQueriesFromConnection1RO[0].name, 'Query in Connection 1');
@@ -959,7 +959,7 @@ test.serial(`${currentTest} should reject unsafe query when updating saved query
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const createSavedQueryRO: FoundSavedDbQueryDto = JSON.parse(createSavedQueryResponse.text);
+	const createSavedQueryRO: FoundPanelDto = JSON.parse(createSavedQueryResponse.text);
 	t.is(createSavedQueryResponse.status, 201);
 
 	const updateSavedQueryDTO: UpdateSavedDbQueryDto = {
