@@ -37,8 +37,8 @@ import { UserActionModule } from './entities/user-actions/user-action.module.js'
 import { UserSecretModule } from './entities/user-secret/user-secret.module.js';
 import { SignInAuditModule } from './entities/user-sign-in-audit/sign-in-audit.module.js';
 import { DashboardModule } from './entities/visualizations/dashboard/dashboards.module.js';
-import { DashboardWidgetModule } from './entities/visualizations/dashboard-widget/dashboard-widget.module.js';
-import { SavedDbQueryModule } from './entities/visualizations/saved-db-query/saved-db-query.module.js';
+import { PanelPositionModule } from './entities/visualizations/panel-position/panel-position.module.js';
+import { PanelModule } from './entities/visualizations/panel/panel.module.js';
 import { TableWidgetModule } from './entities/widget/table-widget.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
@@ -95,9 +95,9 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 		SignInAuditModule,
 		PersonalTableSettingsModule,
 		S3WidgetModule,
-		SavedDbQueryModule,
+		PanelModule,
 		DashboardModule,
-		DashboardWidgetModule,
+		PanelPositionModule,
 		SelfHostedOperationsModule.register(),
 	],
 	controllers: [AppController],

@@ -90,22 +90,22 @@ export class FindTableCategoriesWithTablesUseCase
 		const foundTableCategories =
 			await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
 
-		const sortedTables = tablesRO.sort((tableRO1, tableRO2) => {
-			const name1 = tableRO1.display_name || tableRO1.table;
-			const name2 = tableRO2.display_name || tableRO2.table;
-			return name1.localeCompare(name2);
-		});
+		// const sortedTables = tablesRO.sort((tableRO1, tableRO2) => {
+		// 	const name1 = tableRO1.display_name || tableRO1.table;
+		// 	const name2 = tableRO2.display_name || tableRO2.table;
+		// 	return name1.localeCompare(name2);
+		// });
 
 		const allTableCategory: FoundTableCategoriesWithTablesRo = {
 			category_id: null,
 			category_color: null,
 			category_name: 'All tables',
-			tables: sortedTables,
+			tables: tablesRO,
 		};
 		const foundTableCategoriesRO = foundTableCategories.map((category) => {
-			const tablesInCategory = sortedTables.filter((tableRO) => {
-				return category.tables.includes(tableRO.table);
-			});
+			const tablesInCategory = category.tables
+				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
+				.filter(Boolean);
 			return {
 				category_id: category.category_id,
 				category_color: category.category_color,
