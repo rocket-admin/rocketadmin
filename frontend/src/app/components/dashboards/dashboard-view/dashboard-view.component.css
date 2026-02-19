@@ -57,7 +57,7 @@ app-dashboard-view .loading-container {
 	flex: 1;
 }
 
-app-dashboard-view .no-widgets {
+app-dashboard-view .no-panels {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -70,12 +70,12 @@ app-dashboard-view .no-widgets {
 }
 
 @media (prefers-color-scheme: dark) {
-	app-dashboard-view .no-widgets {
+	app-dashboard-view .no-panels {
 		background-color: rgba(255, 255, 255, 0.05);
 	}
 }
 
-app-dashboard-view .no-widgets-icon {
+app-dashboard-view .no-panels-icon {
 	font-size: 64px;
 	width: 64px;
 	height: 64px;
@@ -84,29 +84,29 @@ app-dashboard-view .no-widgets-icon {
 }
 
 @media (prefers-color-scheme: dark) {
-	app-dashboard-view .no-widgets-icon {
+	app-dashboard-view .no-panels-icon {
 		color: rgba(255, 255, 255, 0.3);
 	}
 }
 
-app-dashboard-view .no-widgets h3 {
+app-dashboard-view .no-panels h3 {
 	margin: 0 0 8px 0;
 	color: rgba(0, 0, 0, 0.87);
 }
 
 @media (prefers-color-scheme: dark) {
-	app-dashboard-view .no-widgets h3 {
+	app-dashboard-view .no-panels h3 {
 		color: rgba(255, 255, 255, 0.87);
 	}
 }
 
-app-dashboard-view .no-widgets p {
+app-dashboard-view .no-panels p {
 	margin: 0 0 16px 0;
 	color: rgba(0, 0, 0, 0.54);
 }
 
 @media (prefers-color-scheme: dark) {
-	app-dashboard-view .no-widgets p {
+	app-dashboard-view .no-panels p {
 		color: rgba(255, 255, 255, 0.54);
 	}
 }
@@ -123,7 +123,7 @@ app-dashboard-view .dashboard-grid {
 	}
 }
 
-app-dashboard-view .widget-item {
+app-dashboard-view .panel-item {
 	background: var(--mat-sidenav-content-background-color);
 	border-radius: 8px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -133,16 +133,16 @@ app-dashboard-view .widget-item {
 }
 
 @media (prefers-color-scheme: dark) {
-	app-dashboard-view .widget-item {
+	app-dashboard-view .panel-item {
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 	}
 }
 
-app-dashboard-view .widget-item.edit-mode {
+app-dashboard-view .panel-item.edit-mode {
 	border: 2px dashed var(--color-accentedPalette-500);
 }
 
-app-dashboard-view .widget-item.edit-mode .widget-header {
+app-dashboard-view .panel-item.edit-mode .panel-header {
 	cursor: move;
 }
 
@@ -224,7 +224,7 @@ app-dashboard-view gridster-item .gridster-item-resizable-handler.handle-nw {
 	border-radius: 6px 0 2px 0;
 }
 
-app-dashboard-view .widget-header {
+app-dashboard-view .panel-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -233,7 +233,7 @@ app-dashboard-view .widget-header {
 	flex-shrink: 0;
 }
 
-app-dashboard-view .widget-title {
+app-dashboard-view .panel-title {
 	font-weight: 500;
 	font-size: 14px;
 	overflow: hidden;
@@ -241,11 +241,11 @@ app-dashboard-view .widget-title {
 	white-space: nowrap;
 }
 
-app-dashboard-view .widget-menu-button {
+app-dashboard-view .panel-menu-button {
 	flex-shrink: 0;
 }
 
-app-dashboard-view .widget-content {
+app-dashboard-view .panel-content {
 	flex: 1;
 	padding: 16px;
 	overflow: auto;

@@ -5,25 +5,25 @@ import { firstValueFrom } from 'rxjs';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
-import { ChartWidgetComponent } from '../chart-widget/chart-widget.component';
-import { CounterWidgetComponent } from '../counter-widget/counter-widget.component';
-import { TableWidgetComponent } from '../table-widget/table-widget.component';
-import { TextWidgetComponent } from '../text-widget/text-widget.component';
+import { ChartPanelComponent } from '../chart-panel/chart-panel.component';
+import { CounterPanelComponent } from '../counter-panel/counter-panel.component';
+import { TablePanelComponent } from '../table-panel/table-panel.component';
+import { TextPanelComponent } from '../text-panel/text-panel.component';
 
 @Component({
-	selector: 'app-dashboard-widget',
-	templateUrl: './dashboard-widget.component.html',
-	styleUrls: ['./dashboard-widget.component.css'],
+	selector: 'app-dashboard-panel',
+	templateUrl: './dashboard-panel.component.html',
+	styleUrls: ['./dashboard-panel.component.css'],
 	imports: [
 		CommonModule,
 		MatProgressSpinnerModule,
-		ChartWidgetComponent,
-		CounterWidgetComponent,
-		TableWidgetComponent,
-		TextWidgetComponent,
+		ChartPanelComponent,
+		CounterPanelComponent,
+		TablePanelComponent,
+		TextPanelComponent,
 	],
 })
-export class DashboardWidgetComponent {
+export class DashboardPanelComponent {
 	@Input({ required: true }) widget!: DashboardWidget;
 	@Input({ required: true }) connectionId!: string;
 
@@ -42,7 +42,7 @@ export class DashboardWidgetComponent {
 				this._loadData();
 			} else {
 				this.loading.set(false);
-				this.error.set('No query linked to this widget');
+				this.error.set('No query linked to this panel');
 			}
 		});
 	}
@@ -50,7 +50,7 @@ export class DashboardWidgetComponent {
 	private async _loadData(): Promise<void> {
 		if (!this.widget.query_id) {
 			this.loading.set(false);
-			this.error.set('No query linked to this widget');
+			this.error.set('No query linked to this panel');
 			return;
 		}
 

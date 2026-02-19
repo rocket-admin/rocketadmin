@@ -5,11 +5,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Angulartics2Module } from 'angulartics2';
 import { DashboardsService } from 'src/app/services/dashboards.service';
-import { WidgetDeleteDialogComponent } from './widget-delete-dialog.component';
+import { PanelDeleteDialogComponent } from './panel-delete-dialog.component';
 
-describe('WidgetDeleteDialogComponent', () => {
-	let component: WidgetDeleteDialogComponent;
-	let fixture: ComponentFixture<WidgetDeleteDialogComponent>;
+describe('PanelDeleteDialogComponent', () => {
+	let component: PanelDeleteDialogComponent;
+	let fixture: ComponentFixture<PanelDeleteDialogComponent>;
 	let mockDashboardsService: Partial<DashboardsService>;
 
 	beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('WidgetDeleteDialogComponent', () => {
 		} as Partial<DashboardsService>;
 
 		await TestBed.configureTestingModule({
-			imports: [WidgetDeleteDialogComponent, BrowserAnimationsModule, Angulartics2Module.forRoot()],
+			imports: [PanelDeleteDialogComponent, BrowserAnimationsModule, Angulartics2Module.forRoot()],
 			providers: [
 				provideHttpClient(),
 				provideHttpClientTesting(),
@@ -35,7 +35,7 @@ describe('WidgetDeleteDialogComponent', () => {
 			],
 		}).compileComponents();
 
-		fixture = TestBed.createComponent(WidgetDeleteDialogComponent);
+		fixture = TestBed.createComponent(PanelDeleteDialogComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

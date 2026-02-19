@@ -1,46 +1,46 @@
 @if (loading()) {
-    <div class="widget-loading">
+    <div class="panel-loading">
         <mat-spinner diameter="32"></mat-spinner>
     </div>
 } @else if (error()) {
-    <div class="widget-error">
+    <div class="panel-error">
         <span>{{ error() }}</span>
     </div>
 } @else if (savedQuery()) {
     @switch (savedQuery()!.widget_type) {
             @case ('chart') {
-                <app-chart-widget
+                <app-chart-panel
                     [widget]="widget"
                     [connectionId]="connectionId"
                     [preloadedQuery]="savedQuery()!"
                     [preloadedData]="queryData()">
-                </app-chart-widget>
+                </app-chart-panel>
             }
             @case ('table') {
-                <app-table-widget
+                <app-table-panel
                     [widget]="widget"
                     [connectionId]="connectionId"
                     [preloadedQuery]="savedQuery()!"
                     [preloadedData]="queryData()">
-                </app-table-widget>
+                </app-table-panel>
             }
             @case ('counter') {
-                <app-counter-widget
+                <app-counter-panel
                     [widget]="widget"
                     [connectionId]="connectionId"
                     [preloadedQuery]="savedQuery()!"
                     [preloadedData]="queryData()">
-                </app-counter-widget>
+                </app-counter-panel>
             }
             @case ('text') {
-                <app-text-widget
+                <app-text-panel
                     [widget]="widget"
                     [preloadedQuery]="savedQuery()!">
-                </app-text-widget>
+                </app-text-panel>
             }
             @default {
-                <div class="widget-error">
-                    <span>Unknown widget type: {{ savedQuery()!.widget_type }}</span>
+                <div class="panel-error">
+                    <span>Unknown panel type: {{ savedQuery()!.widget_type }}</span>
                 </div>
             }
         }

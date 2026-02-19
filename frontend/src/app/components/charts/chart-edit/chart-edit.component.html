@@ -9,7 +9,7 @@
 
         <div class="chart-edit-page">
     <div class="chart-edit-header">
-        <h1 class="mat-h1">{{ isEditMode() ? 'Edit widget' : 'Create widget' }}</h1>
+        <h1 class="mat-h1">{{ isEditMode() ? 'Edit panel' : 'Create panel' }}</h1>
     </div>
 
     @if (loading()) {
@@ -538,7 +538,7 @@
 
         @if (!loading()) {
             <div class="actions">
-                <a mat-stroked-button [routerLink]="['/charts', connectionId()]" data-testid="cancel-button">Back</a>
+                <a mat-stroked-button [routerLink]="['/panels', connectionId()]" data-testid="cancel-button">Back</a>
                 <button mat-flat-button color="primary"
                     (click)="saveQuery()"
                     [disabled]="!canSave()"

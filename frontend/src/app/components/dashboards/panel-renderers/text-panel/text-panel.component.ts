@@ -5,12 +5,12 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 
 @Component({
-	selector: 'app-text-widget',
-	templateUrl: './text-widget.component.html',
-	styleUrls: ['./text-widget.component.css'],
+	selector: 'app-text-panel',
+	templateUrl: './text-panel.component.html',
+	styleUrls: ['./text-panel.component.css'],
 	imports: [CommonModule, MarkdownModule],
 })
-export class TextWidgetComponent {
+export class TextPanelComponent {
 	@Input({ required: true }) widget!: DashboardWidget;
 	@Input() preloadedQuery: SavedQuery | null = null;
 
