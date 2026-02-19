@@ -3,19 +3,19 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import { ChartWidgetComponent } from './chart-widget.component';
+import { ChartPanelComponent } from './chart-panel.component';
 
-describe('ChartWidgetComponent', () => {
-	let component: ChartWidgetComponent;
-	let fixture: ComponentFixture<ChartWidgetComponent>;
+describe('ChartPanelComponent', () => {
+	let component: ChartPanelComponent;
+	let fixture: ComponentFixture<ChartPanelComponent>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [ChartWidgetComponent, BrowserAnimationsModule],
+			imports: [ChartPanelComponent, BrowserAnimationsModule],
 			providers: [provideHttpClient(), provideHttpClientTesting(), provideCharts(withDefaultRegisterables())],
 		}).compileComponents();
 
-		fixture = TestBed.createComponent(ChartWidgetComponent);
+		fixture = TestBed.createComponent(ChartPanelComponent);
 		component = fixture.componentInstance;
 		component.widget = {
 			id: 'test-id',

@@ -596,14 +596,14 @@ export class ChartEditComponent implements OnInit {
 		try {
 			if (this.isEditMode()) {
 				const result = await this._savedQueries.updateSavedQuery(this.connectionId(), this.queryId(), payload);
-				if (result) this.router.navigate(['/charts', this.connectionId()]);
+				if (result) this.router.navigate(['/panels', this.connectionId()]);
 				this.angulartics2.eventTrack.next({
 					action: 'Charts: saved query updated',
 				});
 				posthog.capture('Charts: saved query updated');
 			} else {
 				const result = await this._savedQueries.createSavedQuery(this.connectionId(), payload);
-				if (result) this.router.navigate(['/charts', this.connectionId()]);
+				if (result) this.router.navigate(['/panels', this.connectionId()]);
 				this.angulartics2.eventTrack.next({
 					action: 'Charts: saved query created',
 				});
