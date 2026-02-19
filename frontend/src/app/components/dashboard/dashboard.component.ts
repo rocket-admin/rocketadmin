@@ -36,7 +36,7 @@ import { BbBulkActionConfirmationDialogComponent } from './db-table-view/db-bulk
 import { DbTableAiPanelComponent } from './db-table-view/db-table-ai-panel/db-table-ai-panel.component';
 import { DbTableFiltersDialogComponent } from './db-table-view/db-table-filters-dialog/db-table-filters-dialog.component';
 import { DbTableRowViewComponent } from './db-table-view/db-table-row-view/db-table-row-view.component';
-import { DbTableViewComponent, Folder } from './db-table-view/db-table-view.component';
+import { DbTableViewComponent } from './db-table-view/db-table-view.component';
 import { TablesDataSource } from './db-tables-data-source';
 import { DbTablesListComponent } from './db-tables-list/db-tables-list.component';
 
@@ -72,7 +72,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public user: User = null;
-	public tablesList: TableProperties[] = null;
+	get allTables(): TableProperties[] {
+		return this.tableFolders?.find((cat: any) => cat.category_id === null)?.tables || [];
+	}
 	public selectedTableName: string;
 	public selectedTableDisplayName: string;
 	public currentPage: number = 1;
@@ -99,7 +101,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	public uiSettings: ConnectionSettingsUI;
 	public tableFolders: any[] = [];
-	public tableFoldersForView: Folder[] = [];
 
 	constructor(
 		private _connections: ConnectionsService,
@@ -159,20 +160,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	getData() {
 		console.log('getData');
-		// let tables;
-		// try {
-		// 	tables = await this.getTables();
-		// } catch (err) {
-		// 	this.loading = false;
-		// 	this.isServerError = true;
-		// 	this.title.setTitle(`Dashboard | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-
-		// 	if (err instanceof HttpErrorResponse) {
-		// 		this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
-		// 	} else {
-		// 		throw err;
-		// 	}
-		// }
 
 		this._tables.fetchTablesFolders(this.connectionID).subscribe((res) => {
 			console.log('getTables folders')
@@ -181,20 +168,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			const tables = res.find((item) => item.category_id === null)?.tables || [];
 
 			this.tableFolders = res;
-			this.tableFoldersForView = res
-				.filter((item) => item.category_id !== null)
-				.map((item) => ({
-					id: item.category_id,
-					name: item.category_name,
-					tableIds: item.tables || [],
-				}));
 
 			if (tables && tables.length === 0) {
 				this.noTablesError = true;
 				this.loading = false;
 				this.title.setTitle(`No tables | ${this._company.companyTabTitle || 'Rocketadmin'}`);
 			} else if (tables) {
-				this.formatTableNames(tables);
+				this.formatTableNames();
 				this.route.paramMap
 					.pipe(
 						map((params: ParamMap) => {
@@ -211,7 +191,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 								if (this.defaultTableToOpen) {
 									tableName = this.defaultTableToOpen;
 								} else {
-									tableName = this.tablesList[0].table;
+									tableName = this.allTables[0]?.table;
 								}
 								this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], { replaceUrl: true });
 								this.selectedTableName = tableName;
@@ -240,29 +220,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	// getTables() {
-	// 	console.log('getTables');
-	// 	return this._tables.fetchTables(this.connectionID).toPromise();
-	// }
+	formatTableNames() {
+		// Format table names inside tableFolders so all components receive formatted tables
+		this.tableFolders = this.tableFolders.map(category => ({
+			...category,
+			tables: category.tables.map((tableItem: TableProperties) => this.formatTable(tableItem)),
+		}));
+	}
 
-	formatTableNames(tables: TableProperties[]) {
-		this.tablesList = tables.map((tableItem: TableProperties) => {
-			let normalizedTableName;
-			if (tableItem.display_name) {
-				normalizedTableName = tableItem.display_name;
-			} else {
-				normalizedTableName = normalizeTableName(tableItem.table);
+	private formatTable(tableItem: TableProperties): TableProperties {
+		let normalizedTableName;
+		if (tableItem.display_name) {
+			normalizedTableName = tableItem.display_name;
+		} else {
+			normalizedTableName = normalizeTableName(tableItem.table);
+		}
+		const words = normalizedTableName.split(' ');
+		const initials = words.reduce((result, word) => {
+			if (word.length > 0) {
+				return result + word[0].toUpperCase();
 			}
-			const words = normalizedTableName.split(' ');
-			const initials = words.reduce((result, word) => {
-				if (word.length > 0) {
-					return result + word[0].toUpperCase();
-				}
-				return result;
-			}, '');
+			return result;
+		}, '');
 
-			return { ...tableItem, normalizedTableName, initials: initials.slice(0, 2) };
-		});
+		return { ...tableItem, normalizedTableName, initials: initials.slice(0, 2) };
 	}
 
 	setTable(tableName: string) {
@@ -279,7 +260,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		this.getRows(search);
 		console.log('getRows from setTable');
 
-		const selectedTableProperties = this.tablesList.find((table: any) => table.table === this.selectedTableName);
+		const selectedTableProperties = this.allTables.find((table: any) => table.table === this.selectedTableName);
 		if (selectedTableProperties) {
 			this.selectedTableDisplayName =
 				selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
@@ -454,24 +435,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		this.shownTableTitles = !this.shownTableTitles;
 		this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
 	}
-
-	// private loadTableFolders() {
-	// 	this._connections.getTablesFolders(this.connectionID).subscribe({
-	// 		next: (categories: TableCategory[]) => {
-	// 			if (categories && categories.length > 0) {
-	// 				this.tableFolders = categories.map((cat) => ({
-	// 					id: cat.category_id,
-	// 					name: cat.category_name,
-	// 					tableIds: cat.tables,
-	// 				}));
-	// 			} else {
-	// 				this.tableFolders = [];
-	// 			}
-	// 		},
-	// 		error: (error) => {
-	// 			console.error('Error fetching table folders:', error);
-	// 			this.tableFolders = [];
-	// 		},
-	// 	});
-	// }
 }
