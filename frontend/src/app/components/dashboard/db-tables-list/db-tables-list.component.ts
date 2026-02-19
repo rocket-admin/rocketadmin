@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { DbFolderDeleteDialogComponent, DbFolderDeleteDialogData } from './db-folder-delete-dialog/db-folder-delete-dialog.component';
 import { DbFolderEditDialogComponent, DbFolderEditDialogData } from './db-folder-edit-dialog/db-folder-edit-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -47,6 +48,7 @@ interface Category {
   imports: [
     CommonModule,
     FormsModule,
+    DragDropModule,
     MatButtonModule,
     MatCheckboxModule,
     MatIconModule,
@@ -121,13 +123,28 @@ export class DbTablesListComponent implements OnInit, OnChanges {
           permissions: table.permissions
         };
       });
-    this.folders = this.tableFolders.map(category => ({
-      id: category.category_id,
-      name: category.category_name,
-      expanded: category.category_id === null ? true : false,
-      tableIds: category.tables.map((table: TableProperties) => table.table),
-      iconColor: category.category_color
-    }));
+    this.folders = this.tableFolders.map(category => {
+      let tableIds = category.tables.map((table: TableProperties) => table.table);
+      // Restore saved order for "All Tables" folder from UI settings
+      if (category.category_id === null) {
+        const savedOrder: string[] = this.uiSettings?.allTablesOrder;
+        if (savedOrder?.length) {
+          const savedSet = new Set(savedOrder);
+          const currentSet = new Set(tableIds);
+          // Reorder: saved tables first (in saved order), then any new tables not in saved order
+          const ordered = savedOrder.filter(id => currentSet.has(id));
+          const newTables = tableIds.filter(id => !savedSet.has(id));
+          tableIds = [...ordered, ...newTables];
+        }
+      }
+      return {
+        id: category.category_id,
+        name: category.category_name,
+        expanded: category.category_id === null ? true : false,
+        tableIds,
+        iconColor: category.category_color
+      };
+    });
 
     const expandedFolders = this.uiSettings?.tableFoldersExpanded || ['0'];
     if (expandedFolders && expandedFolders.length > 0) {
@@ -309,7 +326,11 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   getFolderTables(folder: Folder): TableProperties[] {
-    const folderTables = this.allTables.filter(table => folder.tableIds.includes(table.table));
+    // Preserve folder.tableIds order by mapping through tableIds
+    const allTablesMap = new Map(this.allTables.map(t => [t.table, t]));
+    const folderTables = folder.tableIds
+      .map(tableId => allTablesMap.get(tableId))
+      .filter((table): table is TableProperties => !!table);
 
     // If there's a search term, filter the collection tables too
     if (this.substringToSearch && this.substringToSearch.trim() !== '') {
@@ -596,6 +617,26 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       });
     } catch (e) {
       console.error('Error saving folders:', e);
+    }
+  }
+
+  // Table reordering within folders
+  isReorderingEnabled(folder: Folder): boolean {
+    return this.accessLevel === 'edit'
+      && !this.collapsed
+      && (!this.substringToSearch || this.substringToSearch.trim() === '');
+  }
+
+  onTableReorder(event: CdkDragDrop<TableProperties[]>, folder: Folder) {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    moveItemInArray(folder.tableIds, event.previousIndex, event.currentIndex);
+    if (folder.id === null) {
+      // "All Tables" is dynamically generated, persist order in UI settings
+      this._uiSettingsService.updateConnectionSetting(this.connectionID, 'allTablesOrder', folder.tableIds);
+    } else {
+      this.saveFolders();
     }
   }
 

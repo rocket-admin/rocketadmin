@@ -141,16 +141,24 @@
                             </div>
                             <div *ngIf="folder.expanded" class="folder-tables">
                                 <div *ngIf="getFolderTables(folder).length > 0; else noTablesInCollection"
-                                    class="selected-tables-list">
+                                    class="selected-tables-list"
+                                    cdkDropList
+                                    [cdkDropListDisabled]="!isReorderingEnabled(folder)"
+                                    (cdkDropListDropped)="onTableReorder($event, folder)">
                                     <div *ngFor="let table of getFolderTables(folder)"
                                         class="selected-table-item"
-                                        [draggable]="true"
-                                        (dragstart)="onTableDragStart($event, table)"
-                                        (dragend)="onTableDragEnd($event)">
+                                        cdkDrag
+                                        [cdkDragDisabled]="!isReorderingEnabled(folder)">
+                                        <mat-icon *ngIf="isReorderingEnabled(folder)"
+                                            class="table-drag-handle"
+                                            cdkDragHandle>drag_indicator</mat-icon>
                                         <a class="table-link"
                                             routerLink="/dashboard/{{connectionID}}/{{table.table}}"
                                             [queryParams]="{page_index: 0, page_size: 30}"
                                             [ngClass]="{'table-link_active': selectedTable === table.table}"
+                                            [draggable]="true"
+                                            (dragstart)="onTableDragStart($event, table)"
+                                            (dragend)="onTableDragEnd($event)"
                                             (click)="closeSidebar()">
                                             <span class="table-name">{{getTableName(table)}}</span>
                                         </a>
