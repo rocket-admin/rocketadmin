@@ -90,19 +90,34 @@ export class FindTableCategoriesWithTablesUseCase
 		const foundTableCategories =
 			await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
 
-		// const sortedTables = tablesRO.sort((tableRO1, tableRO2) => {
-		// 	const name1 = tableRO1.display_name || tableRO1.table;
-		// 	const name2 = tableRO2.display_name || tableRO2.table;
-		// 	return name1.localeCompare(name2);
-		// });
+		const storedAllTablesCategory = foundTableCategories.find((category) => category.category_id === 'all-tables-kitten');
+		const otherCategories = foundTableCategories.filter((category) => category.category_id !== 'all-tables-kitten');
+
+		let allTablesOrdered: Array<FoundTableDs>;
+		if (storedAllTablesCategory) {
+			allTablesOrdered = storedAllTablesCategory.tables
+				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
+				.filter(Boolean);
+
+			const storedTableNames = new Set(storedAllTablesCategory.tables);
+			const newTables = tablesRO.filter((tableRO) => !storedTableNames.has(tableRO.table));
+
+			if (newTables.length > 0) {
+				allTablesOrdered = [...allTablesOrdered, ...newTables];
+				storedAllTablesCategory.tables = allTablesOrdered.map((t) => t.table);
+				await this._dbContext.tableCategoriesRepository.save(storedAllTablesCategory);
+			}
+		} else {
+			allTablesOrdered = tablesRO;
+		}
 
 		const allTableCategory: FoundTableCategoriesWithTablesRo = {
-			category_id: null,
-			category_color: null,
+			category_id: 'all-tables-kitten',
+			category_color: storedAllTablesCategory?.category_color ?? null,
 			category_name: 'All tables',
-			tables: tablesRO,
+			tables: allTablesOrdered,
 		};
-		const foundTableCategoriesRO = foundTableCategories.map((category) => {
+		const foundTableCategoriesRO = otherCategories.map((category) => {
 			const tablesInCategory = category.tables
 				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
 				.filter(Boolean);

@@ -105,8 +105,10 @@ html {
   margin-left: -3px;
 }
 
+$app-font-family: 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
 $button-custom-level: mat.m2-define-typography-level(
-  $font-family: 'Noto Sans',
+  $font-family: $app-font-family,
   $font-weight: 500,
   $font-size: 14px,
   $line-height: 34px,
@@ -114,7 +116,7 @@ $button-custom-level: mat.m2-define-typography-level(
 );
 
 $body-1-custom-level: mat.m2-define-typography-level(
-  $font-family: 'Noto Sans',
+  $font-family: $app-font-family,
   $font-weight: 400,
   $font-size: 14px,
   $line-height: 20px,
@@ -122,7 +124,7 @@ $body-1-custom-level: mat.m2-define-typography-level(
 );
 
 $caption-custom-level: mat.m2-define-typography-level(
-  $font-family: 'Noto Sans',
+  $font-family: $app-font-family,
   $font-weight: 400,
   $font-size: 12px,
   $line-height: 16px,
@@ -130,7 +132,7 @@ $caption-custom-level: mat.m2-define-typography-level(
 );
 
 $custom-typography-config: mat.m2-define-typography-config(
-    $font-family: 'Noto Sans',
+    $font-family: $app-font-family,
     $button: $button-custom-level,
     $body-1: $body-1-custom-level,
     $caption: $caption-custom-level,
