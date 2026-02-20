@@ -140,7 +140,6 @@ export class ConnectionModule implements NestModule {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(
-				// { path: 'connections', method: RequestMethod.GET },
 				{ path: 'connections/author', method: RequestMethod.GET },
 				{ path: 'connection/one/:connectionId', method: RequestMethod.GET },
 				{ path: '/connection/users/:connectionId', method: RequestMethod.GET },

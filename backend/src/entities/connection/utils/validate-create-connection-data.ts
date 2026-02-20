@@ -1,17 +1,16 @@
 import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { isRedisConnectionUrl } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import {
 	ConnectionTypesEnum,
 	ConnectionTypeTestEnum,
 } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import dns from 'dns';
-import ipRangeCheck from 'ip-range-check';
+import validator from 'validator';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { isHostAllowed } from './is-host-allowed.js';
 
 export async function validateCreateConnectionData(
 	createConnectionData: CreateConnectionDs | UpdateConnectionDs,
@@ -26,17 +25,17 @@ export async function validateCreateConnectionData(
 		if (!host) {
 			errors.push(Messages.HOST_MISSING);
 		}
-		// if (ssh) {
-		//   if (!validator.isFQDN(host) && !validator.isIP(host) && !host.includes('localhost') && !host.includes('127.0.0.1')) {
-		//     errors.push(Messages.HOST_NAME_INVALID);
-		//     throw new HttpException(
-		//       {
-		//         message: toPrettyErrorsMsg(errors),
-		//       },
-		//       HttpStatus.BAD_REQUEST,
-		//     );
-		//   }
-		// }
+
+		if (host && isRedisConnectionUrl(host)) {
+			if (errors.length > 0) {
+				throw new HttpException(
+					{ message: toPrettyErrorsMsg(errors) },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+			return true;
+		}
+
 		if (!username && type !== ConnectionTypesEnum.redis) errors.push(Messages.USERNAME_MISSING);
 
 		if (
@@ -45,6 +44,15 @@ export async function validateCreateConnectionData(
 			type !== ConnectionTypesEnum.redis
 		) {
 			if (!database) errors.push(Messages.DATABASE_MISSING);
+
+			if (process.env.NODE_ENV !== 'test' && !ssh && host) {
+				if (!host.startsWith('mongodb+srv')) {
+					if (!validator.isFQDN(host) && !validator.isIP(host)) {
+						errors.push(Messages.HOST_NAME_INVALID);
+					}
+				}
+			}
+
 			if (port < 0 || port > 65535 || !port) errors.push(Messages.PORT_MISSING);
 			if (typeof port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
 			if (typeof ssh !== 'boolean') errors.push(Messages.SSH_FORMAT_INCORRECT);
@@ -69,7 +77,7 @@ export async function validateCreateConnectionData(
 			HttpStatus.BAD_REQUEST,
 		);
 	} else {
-		const checkingResult = await checkIsHostAllowed(createConnectionData);
+		const checkingResult = await isHostAllowed(createConnectionData.connection_parameters);
 		if (!checkingResult) {
 			throw new HttpException(
 				{
@@ -87,48 +95,4 @@ function validateConnectionType(type: string): string {
 		return Object.keys(ConnectionTypeTestEnum).find((key) => key === type);
 	}
 	return Object.keys(ConnectionTypesEnum).find((key) => key === type);
-}
-
-async function checkIsHostAllowed(createConnectionData: CreateConnectionDs | UpdateConnectionDs): Promise<boolean> {
-	if (isConnectionTypeAgent(createConnectionData.connection_parameters.type) || process.env.NODE_ENV === 'test') {
-		return true;
-	}
-	if (process.env.NODE_ENV !== 'test' && !isSaaS()) {
-		return true;
-	}
-	return new Promise<boolean>((resolve, reject) => {
-		const testHosts = Constants.getTestConnectionsHostNamesArr();
-		if (!createConnectionData.connection_parameters.ssh) {
-			dns.lookup(createConnectionData.connection_parameters.host, (err, address) => {
-				if (
-					ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) &&
-					!testHosts.includes(createConnectionData.connection_parameters.host)
-				) {
-					resolve(false);
-				} else {
-					resolve(true);
-				}
-				if (err) {
-					reject(err);
-				}
-			});
-		} else if (createConnectionData.connection_parameters.ssh && createConnectionData.connection_parameters.sshHost) {
-			dns.lookup(createConnectionData.connection_parameters.sshHost, (err, address) => {
-				if (
-					ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) &&
-					!testHosts.includes(createConnectionData.connection_parameters.host)
-				) {
-					resolve(false);
-				} else {
-					resolve(true);
-				}
-				if (err) {
-					reject(err);
-				}
-			});
-		}
-	}).catch((e) => {
-		console.error('DNS lookup error message', e.message);
-		return false;
-	});
 }

@@ -190,7 +190,6 @@ export class ConnectionEntity {
 				this.authSource = foundTestConnectionByType.authSource;
 				this.sid = foundTestConnectionByType.sid;
 				this.schema = foundTestConnectionByType.schema;
-				this.cert = foundTestConnectionByType.cert;
 				this.azure_encryption = foundTestConnectionByType.azure_encryption;
 			}
 		} else {

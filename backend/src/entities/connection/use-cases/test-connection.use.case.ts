@@ -108,12 +108,13 @@ export class TestConnectionUseCase
 					};
 				}
 
-				let updated: any = Object.assign(toUpdate, connectionData);
+				const updated = Object.assign(toUpdate, connectionData);
 				const dataForProcessing: CreateConnectionDs = {
 					connection_parameters: updated,
 					creation_info: null,
 				};
-				updated = (await processAWSConnection(dataForProcessing)).connection_parameters;
+				const processed = (await processAWSConnection(dataForProcessing)).connection_parameters;
+				Object.assign(updated, processed);
 				const dao = getDataAccessObject(updated);
 
 				return await this.testConnection(
@@ -125,7 +126,7 @@ export class TestConnectionUseCase
 			} catch (e) {
 				return {
 					result: false,
-					message: `${Messages.CONNECTION_TEST_FILED}${e ? e : ''}`,
+					message: `${Messages.CONNECTION_TEST_FAILED}${e ? e : ''}`,
 				};
 			}
 		} else {
@@ -157,8 +158,8 @@ export class TestConnectionUseCase
 	}
 
 	private async testConnection(
-		dao: any,
-		connectionData: any,
+		dao: { testConnect: () => Promise<TestConnectionResultDs> },
+		connectionData: UpdateConnectionDs['connection_parameters'],
 		authorId: string,
 		connectionType: ConnectionTypesEnum,
 	): Promise<TestConnectionResultDs> {
