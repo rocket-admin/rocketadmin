@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
@@ -11,6 +12,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { Secret } from 'src/app/models/secret';
 import { CompanyService } from 'src/app/services/company.service';
 import { SecretsService } from 'src/app/services/secrets.service';
+import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { AuditLogDialogComponent } from './audit-log-dialog/audit-log-dialog.component';
 import { CreateSecretDialogComponent } from './create-secret-dialog/create-secret-dialog.component';
 import { DeleteSecretDialogComponent } from './delete-secret-dialog/delete-secret-dialog.component';
@@ -64,7 +66,12 @@ describe('SecretsComponent', () => {
 				{ provide: CompanyService, useValue: mockCompanyService },
 				{ provide: MatDialog, useValue: mockDialog },
 			],
-		}).compileComponents();
+		})
+			.overrideComponent(SecretsComponent, {
+				remove: { imports: [ProfileSidebarComponent] },
+				add: { schemas: [NO_ERRORS_SCHEMA] },
+			})
+			.compileComponents();
 
 		fixture = TestBed.createComponent(SecretsComponent);
 		component = fixture.componentInstance;

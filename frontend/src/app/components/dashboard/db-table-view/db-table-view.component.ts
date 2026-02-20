@@ -69,10 +69,11 @@ interface Column {
 	selected: boolean;
 }
 
-export interface Folder {
-	id: string;
-	name: string;
-	tableIds: string[];
+interface TableCategory {
+	category_id: string;
+	category_name: string;
+	category_color?: string;
+	tables: TableProperties[];
 }
 
 @Component({
@@ -121,8 +122,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	@Input() activeFilters: object;
 	@Input() filterComparators: object;
 	@Input() selection: SelectionModel<any>;
-	@Input() tables: TableProperties[];
-	@Input() folders: Folder[] = [];
+	@Input() tableFolders: TableCategory[] = [];
 
 	@Output() openFilters = new EventEmitter();
 	@Output() openPage = new EventEmitter();
@@ -139,7 +139,6 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 
 	// public tablesSwitchControl = new FormControl('');
 	public tableData: any;
-	public filteredTables: TableProperties[];
 	// public selection: any;
 	public columns: Column[];
 	public displayedColumns: string[] = [];
@@ -293,18 +292,23 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		});
 	}
 
-	onInput(searchValue: string) {
-		this.filteredTables = this.filterTables(searchValue);
+	get allTables(): TableProperties[] {
+		return this.tableFolders?.find((cat) => cat.category_id === null)?.tables || [];
 	}
 
-	onInputFocus() {
-		this.filteredTables = this.tables;
+	get tableFoldersForSelect(): TableCategory[] {
+		if (!this.tableFolders) return [];
+		return this.tableFolders.filter((cat) => cat.category_id !== null);
 	}
 
-	private filterTables(searchValue: string): any[] {
-		const filterValue = searchValue.toLowerCase();
-		return this.tables.filter((table) => table.normalizedTableName.toLowerCase().includes(filterValue));
+	get uncategorizedTables(): TableProperties[] {
+		const tablesInFolders = new Set<string>();
+		this.tableFoldersForSelect.forEach((folder) => {
+			(folder.tables || []).forEach((t) => tablesInFolders.add(t.table));
+		});
+		return this.allTables.filter((t) => !tablesInFolders.has(t.table));
 	}
+
 
 	loadRowsPage() {
 		this.tableRelatedRecords = null;
@@ -320,13 +324,6 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 			isTablePageSwitched: true,
 		});
 	}
-
-	// ngOnChanges(changes: SimpleChanges) {
-	// 	if (changes.name?.currentValue && this.paginator) {
-	// 		this.paginator.pageIndex = 0;
-	// 		this.searchString = '';
-	// 	}
-	// }
 
 	isSortable(column: string) {
 		return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
@@ -692,17 +689,10 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		}
 	}
 
-	getFolderTables(folder: Folder): TableProperties[] {
-		return this.tables.filter((table) => folder.tableIds.includes(table.table));
+	getFolderTables(folder: TableCategory): TableProperties[] {
+		return folder.tables || [];
 	}
 
-	getUncategorizedTables(): TableProperties[] {
-		const categorizedTableIds = new Set<string>();
-		this.folders.forEach((folder) => {
-			folder.tableIds.forEach((id) => categorizedTableIds.add(id));
-		});
-		return this.tables.filter((table) => !categorizedTableIds.has(table.table));
-	}
 
 	onFilterSelected($event) {
 		console.log('table view fiers filterSelected:', $event);

@@ -5,23 +5,18 @@
         <mat-form-field appearance="outline" class="table-switcher">
             <mat-label>Table</mat-label>
             <mat-select [value]="name" (selectionChange)="switchTable($event.value)">
-                <ng-container *ngIf="folders && folders.length > 0; else flatList">
-                    <mat-optgroup *ngFor="let folder of folders" [label]="folder.name">
+                <ng-container *ngFor="let folder of tableFoldersForSelect">
+                    <mat-optgroup [label]="folder.category_name">
                         <mat-option *ngFor="let table of getFolderTables(folder)" [value]="table.table">
-                            {{table.normalizedTableName}}
-                        </mat-option>
-                    </mat-optgroup>
-                    <mat-optgroup *ngIf="getUncategorizedTables().length > 0" label="Other">
-                        <mat-option *ngFor="let table of getUncategorizedTables()" [value]="table.table">
-                            {{table.normalizedTableName}}
+                            {{table.normalizedTableName || table.display_name || table.table}}
                         </mat-option>
                     </mat-optgroup>
                 </ng-container>
-                <ng-template #flatList>
-                    <mat-option *ngFor="let table of tables" [value]="table.table">
-                        {{table.normalizedTableName}}
+                <mat-optgroup *ngIf="uncategorizedTables.length" label="Others">
+                    <mat-option *ngFor="let table of uncategorizedTables" [value]="table.table">
+                        {{table.normalizedTableName || table.display_name || table.table}}
                     </mat-option>
-                </ng-template>
+                </mat-optgroup>
             </mat-select>
         </mat-form-field>
 

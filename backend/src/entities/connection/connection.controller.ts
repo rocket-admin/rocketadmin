@@ -4,7 +4,6 @@ import {
 	Controller,
 	Get,
 	Inject,
-	Injectable,
 	Post,
 	Put,
 	Query,
@@ -15,8 +14,6 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } 
 import { SkipThrottle } from '@nestjs/throttler';
 import { isRedisConnectionUrl } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import validator from 'validator';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
@@ -26,7 +23,6 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
 import {
-	isConnectionEntityAgent,
 	isConnectionTypeAgent,
 	slackPostMessage,
 	toPrettyErrorsMsg,
@@ -61,7 +57,7 @@ import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-gro
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
 import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
-import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
+import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-response.dto.js';
 import { ValidationResultRo } from './application/dto/validation-result.ro.js';
 import {
 	ICreateConnection,
@@ -84,13 +80,13 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
+import { validateCreateConnectionData } from './utils/validate-create-connection-data.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Connection')
-@Injectable()
 export class ConnectionController {
 	constructor(
 		@Inject(UseCaseType.FIND_CONNECTIONS)
@@ -141,7 +137,6 @@ export class ConnectionController {
 	})
 	@Get('/connections')
 	async findAll(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundConnectionsDs> {
-		console.log(`findAll triggered in connection.controller ->: ${new Date().toISOString()}`);
 		const userData: FindUserDs = {
 			id: userId,
 			gclidValue: glidCookieValue,
@@ -544,11 +539,12 @@ export class ConnectionController {
 				masterPwd: masterPwd,
 			},
 		};
-		const errors = this.validateParameters(inputData.connection_parameters);
-		if (errors.length > 0) {
+		try {
+			await validateCreateConnectionData(inputData);
+		} catch (e) {
 			return {
 				result: false,
-				message: toPrettyErrorsMsg(errors),
+				message: e?.response?.message || e?.message || Messages.CONNECTION_TYPE_INVALID,
 			};
 		}
 		const result = await this.testConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -633,17 +629,15 @@ export class ConnectionController {
 			},
 		};
 
-		const errors = this.validateParameters(connectionData.connection_parameters);
-
-		if (!connectionId) errors.push(Messages.ID_MISSING);
+		if (!connectionId) {
+			throw new BadRequestException(Messages.ID_MISSING);
+		}
 
 		if (connectionData.connection_parameters.masterEncryption && !masterPwd) {
-			errors.push(Messages.MASTER_PASSWORD_REQUIRED);
+			throw new BadRequestException(Messages.MASTER_PASSWORD_REQUIRED);
 		}
 
-		if (errors.length > 0) {
-			throw new BadRequestException(toPrettyErrorsMsg(errors));
-		}
+		await validateCreateConnectionData(connectionData);
 		return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
 	}
 
@@ -696,64 +690,4 @@ export class ConnectionController {
 		return await this.unfreezeConnectionUseCase.execute({ connectionId, userId }, InTransactionEnum.ON);
 	}
 
-	private validateParameters = (connectionData: CreateConnectionDto): Array<string> => {
-		const errors = [];
-
-		function validateConnectionType(type: string): string {
-			return Object.keys(ConnectionTypesEnum).find((key) => key === type);
-		}
-
-		if (!connectionData.type) errors.push(Messages.TYPE_MISSING);
-		if (!validateConnectionType(connectionData.type)) errors.push(Messages.CONNECTION_TYPE_INVALID);
-		if (!isConnectionEntityAgent(connectionData)) {
-			if (!connectionData.host) {
-				errors.push(Messages.HOST_MISSING);
-				return errors;
-			}
-
-			if (isRedisConnectionUrl(connectionData.host)) {
-				return errors;
-			}
-
-			if (!connectionData.username && connectionData.type !== ConnectionTypesEnum.redis)
-				errors.push(Messages.USERNAME_MISSING);
-
-			if (
-				connectionData.type === ConnectionTypesEnum.dynamodb ||
-				connectionData.type === ConnectionTypesEnum.elasticsearch
-			) {
-				return errors;
-			}
-
-			if (!connectionData.database && connectionData.type !== ConnectionTypesEnum.redis)
-				errors.push(Messages.DATABASE_MISSING);
-			if (process.env.NODE_ENV !== 'test' && !connectionData.ssh) {
-				if (!this.isMongoHost(connectionData.host)) {
-					if (!validator.isFQDN(connectionData.host) && !validator.isIP(connectionData.host))
-						errors.push(Messages.HOST_NAME_INVALID);
-				}
-			}
-
-			if (typeof connectionData.port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
-			if (connectionData.port < 0 || connectionData.port > 65535 || !connectionData.port)
-				errors.push(Messages.PORT_MISSING);
-			if (typeof connectionData.ssh !== 'boolean') errors.push(Messages.SSH_FORMAT_INCORRECT);
-			if (connectionData.ssh) {
-				if (typeof connectionData.sshPort !== 'number') {
-					errors.push(Messages.SSH_PORT_FORMAT_INCORRECT);
-				}
-				if (!connectionData.sshPort) errors.push(Messages.SSH_PORT_MISSING);
-				if (!connectionData.sshUsername) errors.push(Messages.SSH_USERNAME_MISSING);
-				if (!connectionData.sshHost) errors.push(Messages.SSH_HOST_MISSING);
-			}
-		} else {
-			if (!connectionData.title) errors.push('Connection title missing');
-		}
-
-		return errors;
-	};
-
-	private isMongoHost(host: string): boolean {
-		return host.startsWith('mongodb+srv');
-	}
 }
