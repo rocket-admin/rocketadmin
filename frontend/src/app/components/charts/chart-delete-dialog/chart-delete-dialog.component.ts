@@ -24,20 +24,17 @@ export class ChartDeleteDialogComponent {
 		private angulartics2: Angulartics2,
 	) {}
 
-	onDelete(): void {
+	async onDelete(): Promise<void> {
 		this.submitting.set(true);
-		this._savedQueries.deleteSavedQuery(this.data.connectionId, this.data.query.id).subscribe({
-			next: () => {
-				this.angulartics2.eventTrack.next({
-					action: 'Charts: saved query deleted successfully',
-				});
-				posthog.capture('Charts: saved query deleted successfully');
-				this.submitting.set(false);
-				this.dialogRef.close(true);
-			},
-			error: () => {
-				this.submitting.set(false);
-			},
-		});
+		const result = await this._savedQueries.deleteSavedQuery(this.data.connectionId, this.data.query.id);
+		this.submitting.set(false);
+
+		if (result) {
+			this.angulartics2.eventTrack.next({
+				action: 'Charts: saved query deleted successfully',
+			});
+			posthog.capture('Charts: saved query deleted successfully');
+			this.dialogRef.close(true);
+		}
 	}
 }

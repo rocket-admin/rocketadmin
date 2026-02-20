@@ -17,7 +17,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
-import { finalize } from 'rxjs/operators';
 import { DEFAULT_COLOR_PALETTE } from 'src/app/lib/chart-config.helper';
 import {
 	ChartAxisConfig,
@@ -389,133 +388,136 @@ export class ChartEditComponent implements OnInit {
 		}
 	}
 
-	loadSavedQuery(): void {
+	async loadSavedQuery(): Promise<void> {
 		this.loading.set(true);
-		this._savedQueries
-			.fetchSavedQuery(this.connectionId(), this.queryId())
-			.pipe(finalize(() => this.loading.set(false)))
-			.subscribe((query) => {
-				if (query) {
-					this.queryName.set(query.name);
-					this.queryDescription.set(query.description || '');
-					this.queryText.set(query.query_text);
+		try {
+			const query = await this._savedQueries.fetchSavedQuery(this.connectionId(), this.queryId());
 
-					if (query.chart_type) {
-						this.chartType.set(query.chart_type);
-					}
+			if (query) {
+				this.queryName.set(query.name);
+				this.queryDescription.set(query.description || '');
+				this.queryText.set(query.query_text);
 
-					if (query.widget_options) {
-						const opts = query.widget_options as Partial<ChartWidgetOptions>;
-
-						if (opts.label_column) this.labelColumn.set(opts.label_column);
-						if (opts.label_type) this.labelType.set(opts.label_type);
-
-						// Load series
-						if (opts.series_column) {
-							this.seriesMode.set('column');
-							this.seriesColumn.set(opts.series_column);
-							if (opts.value_column) this.seriesValueColumn.set(opts.value_column);
-						} else if (opts.series?.length) {
-							this.seriesList.set([...opts.series]);
-						} else if (opts.value_column) {
-							// Legacy: convert single value_column to series
-							this.seriesList.set([{ value_column: opts.value_column }]);
-						}
-
-						// Display options
-						if (opts.stacked) this.stacked.set(true);
-						if (opts.horizontal) this.horizontal.set(true);
-						if (opts.show_data_labels) this.showDataLabels.set(true);
-
-						// Legend
-						if (opts.legend) {
-							if (opts.legend.show !== undefined) this.legendShow.set(opts.legend.show);
-							if (opts.legend.position) this.legendPosition.set(opts.legend.position);
-						}
-
-						// Units
-						if (opts.units) {
-							if (opts.units.convert_unit) {
-								this.unitMode.set('convert');
-								this.convertUnit.set(opts.units.convert_unit);
-							} else if (opts.units.text) {
-								this.unitMode.set('custom');
-								this.unitsText.set(opts.units.text);
-								if (opts.units.position) this.unitsPosition.set(opts.units.position);
-							}
-						}
-
-						// Number format
-						if (opts.number_format) {
-							if (opts.number_format.decimal_places !== undefined) {
-								this.decimalPlaces.set(opts.number_format.decimal_places);
-							}
-							if (opts.number_format.thousands_separator !== undefined) {
-								this.thousandsSeparator.set(opts.number_format.thousands_separator);
-							}
-							if (opts.number_format.compact) this.compact.set(true);
-						}
-
-						// Y-axis
-						if (opts.y_axis) {
-							if (opts.y_axis.title) this.yAxisTitle.set(opts.y_axis.title);
-							if (opts.y_axis.min !== undefined) this.yAxisMin.set(opts.y_axis.min);
-							if (opts.y_axis.max !== undefined) this.yAxisMax.set(opts.y_axis.max);
-							if (opts.y_axis.begin_at_zero !== undefined) this.yAxisBeginAtZero.set(opts.y_axis.begin_at_zero);
-							if (opts.y_axis.scale_type) this.yAxisScaleType.set(opts.y_axis.scale_type);
-						}
-
-						// X-axis
-						if (opts.x_axis) {
-							if (opts.x_axis.title) this.xAxisTitle.set(opts.x_axis.title);
-						}
-
-						// Sort & limit
-						if (opts.sort_by) this.sortBy.set(opts.sort_by);
-						if (opts.limit) this.limit.set(opts.limit);
-
-						// Color palette
-						if (opts.color_palette?.length) {
-							this.colorPalette.set([...opts.color_palette]);
-						}
-					}
-
-					this.codeModel.set({ language: 'sql', uri: 'query.sql', value: query.query_text });
-					this.testQuery();
+				if (query.chart_type) {
+					this.chartType.set(query.chart_type);
 				}
-			});
+
+				if (query.widget_options) {
+					const opts = query.widget_options as Partial<ChartWidgetOptions>;
+
+					if (opts.label_column) this.labelColumn.set(opts.label_column);
+					if (opts.label_type) this.labelType.set(opts.label_type);
+
+					// Load series
+					if (opts.series_column) {
+						this.seriesMode.set('column');
+						this.seriesColumn.set(opts.series_column);
+						if (opts.value_column) this.seriesValueColumn.set(opts.value_column);
+					} else if (opts.series?.length) {
+						this.seriesList.set([...opts.series]);
+					} else if (opts.value_column) {
+						// Legacy: convert single value_column to series
+						this.seriesList.set([{ value_column: opts.value_column }]);
+					}
+
+					// Display options
+					if (opts.stacked) this.stacked.set(true);
+					if (opts.horizontal) this.horizontal.set(true);
+					if (opts.show_data_labels) this.showDataLabels.set(true);
+
+					// Legend
+					if (opts.legend) {
+						if (opts.legend.show !== undefined) this.legendShow.set(opts.legend.show);
+						if (opts.legend.position) this.legendPosition.set(opts.legend.position);
+					}
+
+					// Units
+					if (opts.units) {
+						if (opts.units.convert_unit) {
+							this.unitMode.set('convert');
+							this.convertUnit.set(opts.units.convert_unit);
+						} else if (opts.units.text) {
+							this.unitMode.set('custom');
+							this.unitsText.set(opts.units.text);
+							if (opts.units.position) this.unitsPosition.set(opts.units.position);
+						}
+					}
+
+					// Number format
+					if (opts.number_format) {
+						if (opts.number_format.decimal_places !== undefined) {
+							this.decimalPlaces.set(opts.number_format.decimal_places);
+						}
+						if (opts.number_format.thousands_separator !== undefined) {
+							this.thousandsSeparator.set(opts.number_format.thousands_separator);
+						}
+						if (opts.number_format.compact) this.compact.set(true);
+					}
+
+					// Y-axis
+					if (opts.y_axis) {
+						if (opts.y_axis.title) this.yAxisTitle.set(opts.y_axis.title);
+						if (opts.y_axis.min !== undefined) this.yAxisMin.set(opts.y_axis.min);
+						if (opts.y_axis.max !== undefined) this.yAxisMax.set(opts.y_axis.max);
+						if (opts.y_axis.begin_at_zero !== undefined) this.yAxisBeginAtZero.set(opts.y_axis.begin_at_zero);
+						if (opts.y_axis.scale_type) this.yAxisScaleType.set(opts.y_axis.scale_type);
+					}
+
+					// X-axis
+					if (opts.x_axis) {
+						if (opts.x_axis.title) this.xAxisTitle.set(opts.x_axis.title);
+					}
+
+					// Sort & limit
+					if (opts.sort_by) this.sortBy.set(opts.sort_by);
+					if (opts.limit) this.limit.set(opts.limit);
+
+					// Color palette
+					if (opts.color_palette?.length) {
+						this.colorPalette.set([...opts.color_palette]);
+					}
+				}
+
+				this.codeModel.set({ language: 'sql', uri: 'query.sql', value: query.query_text });
+				this.testQuery();
+			}
+		} finally {
+			this.loading.set(false);
+		}
 	}
 
 	onCodeChange(value: string): void {
 		this.queryText.set(value);
 	}
 
-	testQuery(): void {
+	async testQuery(): Promise<void> {
 		if (!this.queryText().trim()) {
 			return;
 		}
 
 		this.testing.set(true);
 		this.showResults.set(false);
-		this._savedQueries
-			.testQuery(this.connectionId(), { query_text: this.queryText() })
-			.pipe(finalize(() => this.testing.set(false)))
-			.subscribe((result: TestQueryResult) => {
-				if (result) {
-					this.testResults.set(result.data);
-					this.executionTime.set(result.execution_time_ms);
-					this.resultColumns.set(result.data.length > 0 ? Object.keys(result.data[0]) : []);
-					this.showResults.set(true);
 
-					if (this.resultColumns().length > 0 && !this.labelColumn()) {
-						this.labelColumn.set(this.resultColumns()[0]);
-					}
-					// Auto-add first series if none exist
-					if (this.seriesList().length === 0 && this.resultColumns().length > 1) {
-						this.seriesList.set([{ value_column: this.resultColumns()[1] }]);
-					}
+		try {
+			const result = await this._savedQueries.testQuery(this.connectionId(), { query_text: this.queryText() });
+
+			if (result) {
+				this.testResults.set(result.data);
+				this.executionTime.set(result.execution_time_ms);
+				this.resultColumns.set(result.data.length > 0 ? Object.keys(result.data[0]) : []);
+				this.showResults.set(true);
+
+				if (this.resultColumns().length > 0 && !this.labelColumn()) {
+					this.labelColumn.set(this.resultColumns()[0]);
 				}
-			});
+				// Auto-add first series if none exist
+				if (this.seriesList().length === 0 && this.resultColumns().length > 1) {
+					this.seriesList.set([{ value_column: this.resultColumns()[1] }]);
+				}
+			}
+		} finally {
+			this.testing.set(false);
+		}
 
 		this.angulartics2.eventTrack.next({
 			action: 'Charts: test query executed',
@@ -573,7 +575,7 @@ export class ChartEditComponent implements OnInit {
 		this.colorPalette.set([...DEFAULT_COLOR_PALETTE]);
 	}
 
-	saveQuery(): void {
+	async saveQuery(): Promise<void> {
 		if (!this.queryName().trim() || !this.queryText().trim()) {
 			return;
 		}
@@ -591,28 +593,24 @@ export class ChartEditComponent implements OnInit {
 			widget_options: widgetOptions as unknown as Record<string, unknown>,
 		};
 
-		if (this.isEditMode()) {
-			this._savedQueries
-				.updateSavedQuery(this.connectionId(), this.queryId(), payload)
-				.pipe(finalize(() => this.saving.set(false)))
-				.subscribe(() => {
-					this.router.navigate(['/panels', this.connectionId()]);
+		try {
+			if (this.isEditMode()) {
+				const result = await this._savedQueries.updateSavedQuery(this.connectionId(), this.queryId(), payload);
+				if (result) this.router.navigate(['/panels', this.connectionId()]);
+				this.angulartics2.eventTrack.next({
+					action: 'Charts: saved query updated',
 				});
-			this.angulartics2.eventTrack.next({
-				action: 'Charts: saved query updated',
-			});
-			posthog.capture('Charts: saved query updated');
-		} else {
-			this._savedQueries
-				.createSavedQuery(this.connectionId(), payload)
-				.pipe(finalize(() => this.saving.set(false)))
-				.subscribe(() => {
-					this.router.navigate(['/panels', this.connectionId()]);
+				posthog.capture('Charts: saved query updated');
+			} else {
+				const result = await this._savedQueries.createSavedQuery(this.connectionId(), payload);
+				if (result) this.router.navigate(['/panels', this.connectionId()]);
+				this.angulartics2.eventTrack.next({
+					action: 'Charts: saved query created',
 				});
-			this.angulartics2.eventTrack.next({
-				action: 'Charts: saved query created',
-			});
-			posthog.capture('Charts: saved query created');
+				posthog.capture('Charts: saved query created');
+			}
+		} finally {
+			this.saving.set(false);
 		}
 	}
 }

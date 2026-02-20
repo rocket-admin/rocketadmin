@@ -57,15 +57,13 @@ describe('ChartEditComponent', () => {
 
 	beforeEach(async () => {
 		mockSavedQueriesService = {
-			fetchSavedQuery: vi.fn().mockReturnValue(of(mockSavedQuery)),
-			createSavedQuery: vi.fn().mockReturnValue(of(mockSavedQuery)),
-			updateSavedQuery: vi.fn().mockReturnValue(of(mockSavedQuery)),
-			testQuery: vi.fn().mockReturnValue(
-				of({
-					data: [{ name: 'John', count: 10 }],
-					execution_time_ms: 50,
-				}),
-			),
+			fetchSavedQuery: vi.fn().mockResolvedValue(mockSavedQuery),
+			createSavedQuery: vi.fn().mockResolvedValue(mockSavedQuery),
+			updateSavedQuery: vi.fn().mockResolvedValue(mockSavedQuery),
+			testQuery: vi.fn().mockResolvedValue({
+				data: [{ name: 'John', count: 10 }],
+				execution_time_ms: 50,
+			}),
 		};
 
 		mockConnectionsService = {
@@ -194,40 +192,40 @@ describe('ChartEditComponent', () => {
 	});
 
 	describe('testQuery', () => {
-		it('should call testQuery service method', () => {
+		it('should call testQuery service method', async () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
-			component.testQuery();
+			await component.testQuery();
 			expect(mockSavedQueriesService.testQuery).toHaveBeenCalledWith('conn-1', {
 				query_text: 'SELECT * FROM users',
 			});
 		});
 
-		it('should set results and columns after successful test', () => {
+		it('should set results and columns after successful test', async () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
-			component.testQuery();
+			await component.testQuery();
 			expect(testable.testResults()).toEqual([{ name: 'John', count: 10 }]);
 			expect(testable.resultColumns()).toEqual(['name', 'count']);
 			expect(testable.executionTime()).toBe(50);
 		});
 
-		it('should auto-select label column and first series', () => {
+		it('should auto-select label column and first series', async () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
-			component.testQuery();
+			await component.testQuery();
 			expect(testable.labelColumn()).toBe('name');
 			expect(testable.seriesList()).toEqual([{ value_column: 'count' }]);
 		});
 	});
 
 	describe('saveQuery', () => {
-		it('should call createSavedQuery in create mode', () => {
+		it('should call createSavedQuery in create mode', async () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.isEditMode.set(false);
 			testable.queryName.set('New Query');
 			testable.queryText.set('SELECT 1');
-			component.saveQuery();
+			await component.saveQuery();
 			expect(mockSavedQueriesService.createSavedQuery).toHaveBeenCalledWith('conn-1', {
 				name: 'New Query',
 				description: undefined,
@@ -238,11 +236,11 @@ describe('ChartEditComponent', () => {
 			});
 		});
 
-		it('should navigate to charts list after save', () => {
+		it('should navigate to charts list after save', async () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.queryName.set('New Query');
 			testable.queryText.set('SELECT 1');
-			component.saveQuery();
+			await component.saveQuery();
 			expect(router.navigate).toHaveBeenCalledWith(['/panels', 'conn-1']);
 		});
 	});

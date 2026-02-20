@@ -1,6 +1,5 @@
-import { HttpClient } from '@angular/common/http';
-import { computed, Injectable, inject, ResourceRef, resource, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { HttpResourceRef } from '@angular/common/http';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import {
 	CreateDashboardPayload,
 	CreateWidgetPayload,
@@ -9,7 +8,7 @@ import {
 	UpdateDashboardPayload,
 	UpdateWidgetPayload,
 } from '../models/dashboard';
-import { NotificationsService } from './notifications.service';
+import { ApiService } from './api.service';
 
 export type DashboardUpdateEvent = 'created' | 'updated' | 'deleted' | '';
 
@@ -17,8 +16,7 @@ export type DashboardUpdateEvent = 'created' | 'updated' | 'deleted' | '';
 	providedIn: 'root',
 })
 export class DashboardsService {
-	private _http = inject(HttpClient);
-	private _notifications = inject(NotificationsService);
+	private _api = inject(ApiService);
 
 	private _dashboardsUpdated = signal<DashboardUpdateEvent>('');
 	public readonly dashboardsUpdated = this._dashboardsUpdated.asReadonly();
@@ -29,39 +27,26 @@ export class DashboardsService {
 	// Active dashboard for reactive fetching of single dashboard
 	private _activeDashboardId = signal<string | null>(null);
 
-	// Resource for dashboards list (using pure signal-based resource with HttpClient)
-	private _dashboardsResource: ResourceRef<Dashboard[]> = resource({
-		params: () => this._activeConnectionId(),
-		loader: async ({ params: connectionId }) => {
-			if (!connectionId) return [];
-			try {
-				return await firstValueFrom(this._http.get<Dashboard[]>(`/dashboards/${connectionId}`));
-			} catch (err) {
-				console.log(err);
-				const error = err as { error?: { message?: string } };
-				this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to fetch dashboards');
-				return [];
-			}
+	// Resource for dashboards list
+	private _dashboardsResource: HttpResourceRef<Dashboard[] | undefined> = this._api.resource<Dashboard[]>(
+		() => {
+			const connectionId = this._activeConnectionId();
+			if (!connectionId) return undefined;
+			return `/dashboards/${connectionId}`;
 		},
-	});
+		{ errorMessage: 'Failed to fetch dashboards' },
+	);
 
 	// Resource for single dashboard with widgets
-	private _dashboardResource: ResourceRef<Dashboard | null> = resource({
-		params: () => ({ connectionId: this._activeConnectionId(), dashboardId: this._activeDashboardId() }),
-		loader: async ({ params }) => {
-			if (!params.connectionId || !params.dashboardId) return null;
-			try {
-				return await firstValueFrom(
-					this._http.get<Dashboard>(`/dashboard/${params.dashboardId}/${params.connectionId}`),
-				);
-			} catch (err) {
-				console.log(err);
-				const error = err as { error?: { message?: string } };
-				this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to fetch dashboard');
-				return null;
-			}
+	private _dashboardResource: HttpResourceRef<Dashboard | undefined> = this._api.resource<Dashboard>(
+		() => {
+			const connectionId = this._activeConnectionId();
+			const dashboardId = this._activeDashboardId();
+			if (!connectionId || !dashboardId) return undefined;
+			return `/dashboard/${dashboardId}/${connectionId}`;
 		},
-	});
+		{ errorMessage: 'Failed to fetch dashboard' },
+	);
 
 	// Computed signals for convenient access
 	public readonly dashboards = computed(() => this._dashboardsResource.value() ?? []);
@@ -93,19 +78,13 @@ export class DashboardsService {
 		this._dashboardResource.reload();
 	}
 
-	// Dashboard CRUD operations (Promise-based)
+	// Dashboard CRUD operations
 	async createDashboard(connectionId: string, payload: CreateDashboardPayload): Promise<Dashboard | null> {
-		try {
-			const dashboard = await firstValueFrom(this._http.post<Dashboard>(`/dashboards/${connectionId}`, payload));
-			this._notifications.showSuccessSnackbar('Dashboard created successfully');
-			this._dashboardsUpdated.set('created');
-			return dashboard;
-		} catch (err: unknown) {
-			const error = err as { error?: { message?: string } };
-			console.log(err);
-			this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to create dashboard');
-			return null;
-		}
+		const dashboard = await this._api.post<Dashboard>(`/dashboards/${connectionId}`, payload, {
+			successMessage: 'Dashboard created successfully',
+		});
+		if (dashboard) this._dashboardsUpdated.set('created');
+		return dashboard;
 	}
 
 	async updateDashboard(
@@ -113,54 +92,32 @@ export class DashboardsService {
 		dashboardId: string,
 		payload: UpdateDashboardPayload,
 	): Promise<Dashboard | null> {
-		try {
-			const dashboard = await firstValueFrom(
-				this._http.put<Dashboard>(`/dashboard/${dashboardId}/${connectionId}`, payload),
-			);
-			this._notifications.showSuccessSnackbar('Dashboard updated successfully');
-			this._dashboardsUpdated.set('updated');
-			return dashboard;
-		} catch (err: unknown) {
-			const error = err as { error?: { message?: string } };
-			console.log(err);
-			this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to update dashboard');
-			return null;
-		}
+		const dashboard = await this._api.put<Dashboard>(`/dashboard/${dashboardId}/${connectionId}`, payload, {
+			successMessage: 'Dashboard updated successfully',
+		});
+		if (dashboard) this._dashboardsUpdated.set('updated');
+		return dashboard;
 	}
 
 	async deleteDashboard(connectionId: string, dashboardId: string): Promise<Dashboard | null> {
-		try {
-			const dashboard = await firstValueFrom(this._http.delete<Dashboard>(`/dashboard/${dashboardId}/${connectionId}`));
-			this._notifications.showSuccessSnackbar('Dashboard deleted successfully');
-			this._dashboardsUpdated.set('deleted');
-			return dashboard;
-		} catch (err: unknown) {
-			const error = err as { error?: { message?: string } };
-			console.log(err);
-			this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to delete dashboard');
-			return null;
-		}
+		const dashboard = await this._api.delete<Dashboard>(`/dashboard/${dashboardId}/${connectionId}`, {
+			successMessage: 'Dashboard deleted successfully',
+		});
+		if (dashboard) this._dashboardsUpdated.set('deleted');
+		return dashboard;
 	}
 
-	// Widget CRUD operations (Promise-based)
+	// Widget CRUD operations
 	async createWidget(
 		connectionId: string,
 		dashboardId: string,
 		payload: CreateWidgetPayload,
 	): Promise<DashboardWidget | null> {
-		try {
-			const widget = await firstValueFrom(
-				this._http.post<DashboardWidget>(`/dashboard/${dashboardId}/widget/${connectionId}`, payload),
-			);
-			this._notifications.showSuccessSnackbar('Widget created successfully');
-			this._dashboardsUpdated.set('updated');
-			return widget;
-		} catch (err: unknown) {
-			const error = err as { error?: { message?: string } };
-			console.log(err);
-			this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to create widget');
-			return null;
-		}
+		const widget = await this._api.post<DashboardWidget>(`/dashboard/${dashboardId}/widget/${connectionId}`, payload, {
+			successMessage: 'Widget created successfully',
+		});
+		if (widget) this._dashboardsUpdated.set('updated');
+		return widget;
 	}
 
 	async updateWidget(
@@ -169,17 +126,7 @@ export class DashboardsService {
 		widgetId: string,
 		payload: UpdateWidgetPayload,
 	): Promise<DashboardWidget | null> {
-		try {
-			const widget = await firstValueFrom(
-				this._http.put<DashboardWidget>(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`, payload),
-			);
-			return widget;
-		} catch (err: unknown) {
-			const error = err as { error?: { message?: string } };
-			console.log(err);
-			this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to update widget');
-			return null;
-		}
+		return this._api.put<DashboardWidget>(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`, payload);
 	}
 
 	async updateWidgetPosition(
@@ -188,32 +135,17 @@ export class DashboardsService {
 		widgetId: string,
 		payload: Pick<UpdateWidgetPayload, 'position_x' | 'position_y' | 'width' | 'height'>,
 	): Promise<DashboardWidget | null> {
-		try {
-			const widget = await firstValueFrom(
-				this._http.put<DashboardWidget>(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`, payload),
-			);
-			return widget;
-		} catch (err: unknown) {
-			const error = err as { error?: { message?: string } };
-			console.log(err);
-			this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to update widget position');
-			return null;
-		}
+		return this._api.put<DashboardWidget>(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`, payload);
 	}
 
 	async deleteWidget(connectionId: string, dashboardId: string, widgetId: string): Promise<DashboardWidget | null> {
-		try {
-			const widget = await firstValueFrom(
-				this._http.delete<DashboardWidget>(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`),
-			);
-			this._notifications.showSuccessSnackbar('Widget deleted successfully');
-			this._dashboardsUpdated.set('updated');
-			return widget;
-		} catch (err: unknown) {
-			const error = err as { error?: { message?: string } };
-			console.log(err);
-			this._notifications.showErrorSnackbar(error?.error?.message || 'Failed to delete widget');
-			return null;
-		}
+		const widget = await this._api.delete<DashboardWidget>(
+			`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`,
+			{
+				successMessage: 'Widget deleted successfully',
+			},
+		);
+		if (widget) this._dashboardsUpdated.set('updated');
+		return widget;
 	}
 }

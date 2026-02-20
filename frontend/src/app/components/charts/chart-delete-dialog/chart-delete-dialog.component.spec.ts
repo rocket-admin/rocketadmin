@@ -6,7 +6,6 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Angulartics2Module } from 'angulartics2';
-import { of, throwError } from 'rxjs';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { ChartDeleteDialogComponent } from './chart-delete-dialog.component';
@@ -36,7 +35,7 @@ describe('ChartDeleteDialogComponent', () => {
 
 	beforeEach(async () => {
 		mockSavedQueriesService = {
-			deleteSavedQuery: vi.fn().mockReturnValue(of(mockSavedQuery)),
+			deleteSavedQuery: vi.fn().mockResolvedValue(mockSavedQuery),
 		};
 
 		mockDialogRef = {
@@ -78,43 +77,39 @@ describe('ChartDeleteDialogComponent', () => {
 	});
 
 	describe('onDelete', () => {
-		it('should call deleteSavedQuery service method', () => {
-			component.onDelete();
+		it('should call deleteSavedQuery service method', async () => {
+			await component.onDelete();
 			expect(mockSavedQueriesService.deleteSavedQuery).toHaveBeenCalledWith('conn-1', '1');
 		});
 
 		it('should set submitting to true during delete', () => {
 			component.onDelete();
-			// The deleteSavedQuery returns synchronously in the mock, so submitting would be false after
-			// In real usage, submitting would be true while the request is in flight
-			expect(mockSavedQueriesService.deleteSavedQuery).toHaveBeenCalled();
+			// The deleteSavedQuery returns asynchronously, so submitting should be true while in flight
+			const testable = component as ChartDeleteDialogComponentTestable;
+			expect(testable.submitting()).toBe(true);
 		});
 
-		it('should close dialog with true on success', () => {
-			component.onDelete();
+		it('should close dialog with true on success', async () => {
+			await component.onDelete();
 			expect(mockDialogRef.close).toHaveBeenCalledWith(true);
 		});
 
-		it('should set submitting to false after successful delete', () => {
+		it('should set submitting to false after successful delete', async () => {
 			const testable = component as ChartDeleteDialogComponentTestable;
-			component.onDelete();
+			await component.onDelete();
 			expect(testable.submitting()).toBe(false);
 		});
 
-		it('should set submitting to false on error', () => {
+		it('should set submitting to false on error', async () => {
 			const testable = component as ChartDeleteDialogComponentTestable;
-			vi.mocked(mockSavedQueriesService.deleteSavedQuery!).mockReturnValue(
-				throwError(() => new Error('Delete failed')),
-			);
-			component.onDelete();
+			vi.mocked(mockSavedQueriesService.deleteSavedQuery!).mockResolvedValue(null);
+			await component.onDelete();
 			expect(testable.submitting()).toBe(false);
 		});
 
-		it('should not close dialog on error', () => {
-			vi.mocked(mockSavedQueriesService.deleteSavedQuery!).mockReturnValue(
-				throwError(() => new Error('Delete failed')),
-			);
-			component.onDelete();
+		it('should not close dialog on error', async () => {
+			vi.mocked(mockSavedQueriesService.deleteSavedQuery!).mockResolvedValue(null);
+			await component.onDelete();
 			expect(mockDialogRef.close).not.toHaveBeenCalled();
 		});
 	});

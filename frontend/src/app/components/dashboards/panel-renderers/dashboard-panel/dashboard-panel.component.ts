@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, Input, inject, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { firstValueFrom } from 'rxjs';
 import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
@@ -59,12 +58,14 @@ export class DashboardPanelComponent {
 
 		try {
 			const [query, result] = await Promise.all([
-				firstValueFrom(this._savedQueries.fetchSavedQuery(this.connectionId, this.widget.query_id)),
-				firstValueFrom(this._savedQueries.executeSavedQuery(this.connectionId, this.widget.query_id)),
+				this._savedQueries.fetchSavedQuery(this.connectionId, this.widget.query_id),
+				this._savedQueries.executeSavedQuery(this.connectionId, this.widget.query_id),
 			]);
 
 			this.savedQuery.set(query);
-			this.queryData.set(result.data);
+			if (result) {
+				this.queryData.set(result.data);
+			}
 			this.loading.set(false);
 		} catch (err: unknown) {
 			const error = err as { error?: { message?: string } };
