@@ -3,6 +3,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
@@ -36,15 +37,24 @@ export class GetPermissionsForGroupInConnectionUseCase
 		const dao = getDataAccessObject(connection);
 		const tables: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
 
-		const tablesWithAccessLevels: Array<TablePermissionDs> = await Promise.all(
-			tables.map(async (table: string) => {
-				return await this._dbContext.permissionRepository.getGroupPermissionsForTable(
-					inputData.connectionId,
-					inputData.groupId,
-					table,
-				);
-			}),
+		const allTablePermissions = await this._dbContext.permissionRepository.getGroupPermissionsForAllTables(
+			inputData.connectionId,
+			inputData.groupId,
 		);
+
+		const tablesWithAccessLevels: Array<TablePermissionDs> = tables.map((tableName) => {
+			const tablePermissions = allTablePermissions.filter((p) => p.tableName === tableName);
+			return {
+				tableName,
+				accessLevel: {
+					add: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.add),
+					delete: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.delete),
+					edit: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.edit),
+					readonly: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.readonly),
+					visibility: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.visibility),
+				},
+			};
+		});
 		const allTableSettingsInConnection = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(
 			inputData.connectionId,
 		);

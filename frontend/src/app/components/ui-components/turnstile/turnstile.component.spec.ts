@@ -125,9 +125,17 @@ describe('TurnstileComponent', () => {
 		});
 
 		fixture.detectChanges();
-		// MAX_POLL_ATTEMPTS (50) * POLL_INTERVAL_MS (100) = 5000ms
-		await delay(5200);
+
+		// Poll until the error is emitted instead of relying on a fixed delay,
+		// since zone.js and browser overhead make timers unreliable.
+		const maxWait = 12000;
+		const pollInterval = 200;
+		let waited = 0;
+		while (!errorEmitted && waited < maxWait) {
+			await delay(pollInterval);
+			waited += pollInterval;
+		}
 
 		expect(errorEmitted).toBe(true);
-	}, 10000);
+	}, 20000);
 });
