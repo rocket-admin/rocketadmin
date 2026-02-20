@@ -9,18 +9,18 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
-import { WidgetEditDialogComponent } from './widget-edit-dialog.component';
+import { PanelEditDialogComponent } from './panel-edit-dialog.component';
 
-type WidgetEditDialogTestable = WidgetEditDialogComponent & {
+type PanelEditDialogTestable = PanelEditDialogComponent & {
 	form: ReturnType<typeof import('@angular/forms').FormBuilder.prototype.group>;
 	isEdit: boolean;
 	onSubmit(): void;
 };
 
-describe('WidgetEditDialogComponent', () => {
-	let component: WidgetEditDialogComponent;
-	let testable: WidgetEditDialogTestable;
-	let fixture: ComponentFixture<WidgetEditDialogComponent>;
+describe('PanelEditDialogComponent', () => {
+	let component: PanelEditDialogComponent;
+	let testable: PanelEditDialogTestable;
+	let fixture: ComponentFixture<PanelEditDialogComponent>;
 	let mockDashboardsService: Partial<DashboardsService>;
 	let mockSavedQueriesService: Partial<SavedQueriesService>;
 	let savedQueriesSignal: WritableSignal<SavedQuery[]>;
@@ -68,7 +68,7 @@ describe('WidgetEditDialogComponent', () => {
 		};
 
 		return TestBed.configureTestingModule({
-			imports: [WidgetEditDialogComponent, BrowserAnimationsModule, Angulartics2Module.forRoot()],
+			imports: [PanelEditDialogComponent, BrowserAnimationsModule, Angulartics2Module.forRoot()],
 			providers: [
 				provideHttpClient(),
 				provideHttpClientTesting(),
@@ -86,9 +86,9 @@ describe('WidgetEditDialogComponent', () => {
 	describe('Add widget mode', () => {
 		beforeEach(async () => {
 			await setupTestBed(null);
-			fixture = TestBed.createComponent(WidgetEditDialogComponent);
+			fixture = TestBed.createComponent(PanelEditDialogComponent);
 			component = fixture.componentInstance;
-			testable = component as WidgetEditDialogTestable;
+			testable = component as PanelEditDialogTestable;
 			fixture.detectChanges();
 		});
 
@@ -144,9 +144,9 @@ describe('WidgetEditDialogComponent', () => {
 
 		beforeEach(async () => {
 			await setupTestBed(existingWidget);
-			fixture = TestBed.createComponent(WidgetEditDialogComponent);
+			fixture = TestBed.createComponent(PanelEditDialogComponent);
 			component = fixture.componentInstance;
-			testable = component as WidgetEditDialogTestable;
+			testable = component as PanelEditDialogTestable;
 			fixture.detectChanges();
 		});
 
@@ -189,9 +189,9 @@ describe('WidgetEditDialogComponent', () => {
 
 		beforeEach(async () => {
 			await setupTestBed(widgetWithoutQuery);
-			fixture = TestBed.createComponent(WidgetEditDialogComponent);
+			fixture = TestBed.createComponent(PanelEditDialogComponent);
 			component = fixture.componentInstance;
-			testable = component as WidgetEditDialogTestable;
+			testable = component as PanelEditDialogTestable;
 			fixture.detectChanges();
 		});
 

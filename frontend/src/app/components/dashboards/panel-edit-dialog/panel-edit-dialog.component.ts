@@ -15,9 +15,9 @@ import { DashboardsService } from 'src/app/services/dashboards.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 
 @Component({
-	selector: 'app-widget-edit-dialog',
-	templateUrl: './widget-edit-dialog.component.html',
-	styleUrls: ['./widget-edit-dialog.component.css'],
+	selector: 'app-panel-edit-dialog',
+	templateUrl: './panel-edit-dialog.component.html',
+	styleUrls: ['./panel-edit-dialog.component.css'],
 	imports: [
 		CommonModule,
 		ReactiveFormsModule,
@@ -30,7 +30,7 @@ import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 		MatSelectModule,
 	],
 })
-export class WidgetEditDialogComponent implements OnInit {
+export class PanelEditDialogComponent implements OnInit {
 	protected submitting = signal(false);
 	protected form!: FormGroup;
 	protected isEdit: boolean;
@@ -40,7 +40,7 @@ export class WidgetEditDialogComponent implements OnInit {
 	constructor(
 		@Inject(MAT_DIALOG_DATA)
 		public data: { connectionId: string; dashboardId: string; widget: DashboardWidget | null },
-		public dialogRef: MatDialogRef<WidgetEditDialogComponent>,
+		public dialogRef: MatDialogRef<PanelEditDialogComponent>,
 		private _dashboards: DashboardsService,
 		private _savedQueries: SavedQueriesService,
 		private _router: Router,
@@ -107,6 +107,6 @@ export class WidgetEditDialogComponent implements OnInit {
 
 	navigateToCreateQuery(): void {
 		this.dialogRef.close();
-		this._router.navigate(['/charts', this.data.connectionId, 'new']);
+		this._router.navigate(['/panels', this.data.connectionId, 'new']);
 	}
 }

@@ -2,43 +2,46 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CounterWidgetComponent } from './counter-widget.component';
+import { TablePanelComponent } from './table-panel.component';
 
-describe('CounterWidgetComponent', () => {
-	let component: CounterWidgetComponent;
-	let fixture: ComponentFixture<CounterWidgetComponent>;
+describe('TablePanelComponent', () => {
+	let component: TablePanelComponent;
+	let fixture: ComponentFixture<TablePanelComponent>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [CounterWidgetComponent, BrowserAnimationsModule],
+			imports: [TablePanelComponent, BrowserAnimationsModule],
 			providers: [provideHttpClient(), provideHttpClientTesting()],
 		}).compileComponents();
 
-		fixture = TestBed.createComponent(CounterWidgetComponent);
+		fixture = TestBed.createComponent(TablePanelComponent);
 		component = fixture.componentInstance;
 		component.widget = {
 			id: 'test-id',
 			position_x: 0,
 			position_y: 0,
-			width: 2,
-			height: 2,
+			width: 4,
+			height: 4,
 			query_id: 'test-query',
 			dashboard_id: 'test-dashboard',
 		};
 		component.connectionId = 'test-conn';
 		component.preloadedQuery = {
 			id: 'test-query',
-			name: 'Test Counter',
+			name: 'Test Table',
 			description: null,
-			widget_type: 'counter',
+			widget_type: 'table',
 			chart_type: null,
-			widget_options: { value_column: 'total' },
-			query_text: 'SELECT COUNT(*) as total FROM users',
+			widget_options: null,
+			query_text: 'SELECT * FROM users',
 			connection_id: 'test-conn',
 			created_at: new Date().toISOString(),
 			updated_at: new Date().toISOString(),
 		};
-		component.preloadedData = [{ total: 42 }];
+		component.preloadedData = [
+			{ id: 1, name: 'John', email: 'john@example.com' },
+			{ id: 2, name: 'Jane', email: 'jane@example.com' },
+		];
 		fixture.detectChanges();
 	});
 
@@ -46,9 +49,14 @@ describe('CounterWidgetComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should display counter value from preloaded data', () => {
+	it('should display table with preloaded data', () => {
 		const compiled = fixture.nativeElement;
-		expect(compiled.querySelector('.counter-container')).toBeTruthy();
-		expect(compiled.querySelector('.counter-value').textContent).toContain('42');
+		expect(compiled.querySelector('.table-container')).toBeTruthy();
+		expect(compiled.querySelector('table')).toBeTruthy();
+	});
+
+	it('should compute columns from data', () => {
+		const columns = component['columns']();
+		expect(columns).toEqual(['id', 'name', 'email']);
 	});
 });

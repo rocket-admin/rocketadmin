@@ -6,12 +6,12 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 import { SavedQuery } from 'src/app/models/saved-query';
 
 @Component({
-	selector: 'app-table-widget',
-	templateUrl: './table-widget.component.html',
-	styleUrls: ['./table-widget.component.css'],
+	selector: 'app-table-panel',
+	templateUrl: './table-panel.component.html',
+	styleUrls: ['./table-panel.component.css'],
 	imports: [CommonModule, MatTableModule, MatProgressSpinnerModule],
 })
-export class TableWidgetComponent implements OnInit {
+export class TablePanelComponent implements OnInit {
 	@Input({ required: true }) widget!: DashboardWidget;
 	@Input({ required: true }) connectionId!: string;
 	@Input() preloadedQuery: SavedQuery | null = null;

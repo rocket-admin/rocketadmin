@@ -14,12 +14,12 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 import { ChartWidgetOptions, SavedQuery } from 'src/app/models/saved-query';
 
 @Component({
-	selector: 'app-chart-widget',
-	templateUrl: './chart-widget.component.html',
-	styleUrls: ['./chart-widget.component.css'],
+	selector: 'app-chart-panel',
+	templateUrl: './chart-panel.component.html',
+	styleUrls: ['./chart-panel.component.css'],
 	imports: [CommonModule, BaseChartDirective, MatProgressSpinnerModule],
 })
-export class ChartWidgetComponent implements OnInit {
+export class ChartPanelComponent implements OnInit {
 	@Input({ required: true }) widget!: DashboardWidget;
 	@Input({ required: true }) connectionId!: string;
 	@Input() preloadedQuery: SavedQuery | null = null;
