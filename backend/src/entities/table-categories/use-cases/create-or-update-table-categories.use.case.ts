@@ -23,8 +23,8 @@ export class CreateOrUpdateTableCategoriesUseCase
 	protected async implementation(inputData: CreateOrUpdateTableCategoriesDS): Promise<Array<FoundTableCategoryRo>> {
 		const { connectionId, master_password, table_categories } = inputData;
 
-		const allTablesCategory = table_categories.find((category) => category.category_id === null);
-		const filteredCategories = table_categories.filter((category) => category.category_id !== null);
+		const allTablesCategory = table_categories.find((category) => category.category_id === 'all-tables-kitten');
+		const filteredCategories = table_categories.filter((category) => category.category_id !== 'all-tables-kitten');
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -49,7 +49,12 @@ export class CreateOrUpdateTableCategoriesUseCase
 			connectionProperties = await this._dbContext.connectionPropertiesRepository.save(newConnectionProperties);
 		}
 
-		const createdCategories = filteredCategories.map((category) => {
+		const categoriesToSave = [...filteredCategories];
+		if (allTablesCategory) {
+			categoriesToSave.unshift(allTablesCategory);
+		}
+
+		const createdCategories = categoriesToSave.map((category) => {
 			const newCategory = this._dbContext.tableCategoriesRepository.create({
 				category_name: category.category_name,
 				tables: category.tables,
@@ -60,17 +65,6 @@ export class CreateOrUpdateTableCategoriesUseCase
 			return newCategory;
 		});
 		const savedCategories = await this._dbContext.tableCategoriesRepository.save(createdCategories);
-		const result = savedCategories.map((category) => buildFoundTableCategoryRo(category));
-
-		if (allTablesCategory) {
-			result.unshift({
-				category_id: null,
-				category_name: allTablesCategory.category_name,
-				category_color: allTablesCategory.category_color,
-				tables: allTablesCategory.tables,
-			});
-		}
-
-		return result;
+		return savedCategories.map((category) => buildFoundTableCategoryRo(category));
 	}
 }
