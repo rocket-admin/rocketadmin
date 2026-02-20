@@ -1,8 +1,8 @@
 
-<app-content-loader *ngIf="tables === null; else tablesList"></app-content-loader>
+<app-content-loader *ngIf="tableFolders === null; else tablesList"></app-content-loader>
 
 <ng-template #tablesList>
-    <div *ngIf="tables && tables.length; else noTables" class="tables-list">
+    <div *ngIf="allTables && allTables.length; else noTables" class="tables-list">
 
         <!-- Collapsed content when sidebar is collapsed -->
         <div *ngIf="collapsed" class="collapsed-content">
@@ -24,9 +24,9 @@
                         [matTooltip]="folder.name"
                         matTooltipPosition="right"
                         (click)="onCollapsedFolderClick(folder)">
-                    <span *ngIf="folder.name === 'All Tables'"
+                    <span *ngIf="folder.id === 'all-tables-kitten'"
                         class="material-symbols-outlined collapsed-folder-icon">dehaze</span>
-                        <span *ngIf="folder.name !== 'All Tables'"
+                        <span *ngIf="folder.id !== 'all-tables-kitten'"
                             class="material-symbols-outlined collapsed-folder-icon"
                             [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
                     </div>
@@ -95,7 +95,7 @@
                         <div *ngIf="shouldShowFolder(folder)"
                             class="folder-item"
                             [class.expanded]="folder.expanded"
-                            [class.drag-over]="dragOverFolder === folder.id"
+                            [class.drag-over]="dragOverFolder !== 'all-tables-kitten' && dragOverFolder === folder.id"
                             (dragover)="onFolderDragOver($event, folder.id)"
                             (dragleave)="onFolderDragLeave($event, folder.id)"
                             (drop)="onFolderDrop($event, folder)">
@@ -103,10 +103,10 @@
                                 [class.expanded]="folder.expanded"
                                 (click)="toggleFolder(folder.id)">
                                 <!-- Folder icon on the left -->
-                                <span *ngIf="folder.name === 'All Tables'"
+                                <span *ngIf="folder.id === 'all-tables-kitten'"
                                     class="material-symbols-outlined folder-icon"
                                     [style.color]="getFolderIconColor(folder)">dehaze</span>
-                                <span *ngIf="folder.name !== 'All Tables'"
+                                <span *ngIf="folder.id !== 'all-tables-kitten'"
                                     class="material-symbols-outlined folder-icon"
                                     [style.color]="getFolderIconColor(folder)">folder</span>
 
@@ -115,7 +115,7 @@
                                 </div>
 
                                 <div class="folder-actions">
-                                    <button *ngIf="folder.name !== 'All Tables' && accessLevel === 'edit'"
+                                    <button *ngIf="folder.id !== 'all-tables-kitten' && accessLevel === 'edit'"
                                         mat-icon-button class="more-folder-button"
                                         [matMenuTriggerFor]="folderMenu"
                                         (click)="$event.stopPropagation()"
@@ -141,16 +141,24 @@
                             </div>
                             <div *ngIf="folder.expanded" class="folder-tables">
                                 <div *ngIf="getFolderTables(folder).length > 0; else noTablesInCollection"
-                                    class="selected-tables-list">
+                                    class="selected-tables-list"
+                                    cdkDropList
+                                    [cdkDropListDisabled]="!isReorderingEnabled(folder)"
+                                    (cdkDropListDropped)="onTableReorder($event, folder)">
                                     <div *ngFor="let table of getFolderTables(folder)"
                                         class="selected-table-item"
-                                        [draggable]="true"
-                                        (dragstart)="onTableDragStart($event, table)"
-                                        (dragend)="onTableDragEnd($event)">
+                                        cdkDrag
+                                        [cdkDragDisabled]="!isReorderingEnabled(folder)">
+                                        <mat-icon *ngIf="isReorderingEnabled(folder)"
+                                            class="table-drag-handle"
+                                            cdkDragHandle>drag_indicator</mat-icon>
                                         <a class="table-link"
                                             routerLink="/dashboard/{{connectionID}}/{{table.table}}"
                                             [queryParams]="{page_index: 0, page_size: 30}"
                                             [ngClass]="{'table-link_active': selectedTable === table.table}"
+                                            [draggable]="true"
+                                            (dragstart)="onTableDragStart($event, table)"
+                                            (dragend)="onTableDragEnd($event)"
                                             (click)="closeSidebar()">
                                             <span class="table-name">{{getTableName(table)}}</span>
                                         </a>

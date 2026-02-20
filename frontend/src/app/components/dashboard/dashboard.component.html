@@ -70,7 +70,7 @@
             <app-db-tables-list
                 [collapsed]="!shownTableTitles"
                 [connectionTitle]="connectionTitle"
-                [tables]="tablesList"
+                [tableFolders]="tableFolders"
                 [connectionID]="connectionID"
                 [selectedTable]="selectedTableName"
                 [uiSettings]="uiSettings"
@@ -98,8 +98,7 @@
                     [connectionID]="connectionID"
                     [isTestConnection]="currentConnectionIsTest"
                     [accessLevel]="currentConnectionAccessLevel"
-                    [tables]="tablesList"
-                    [folders]="tableFolders"
+                    [tableFolders]="tableFolders"
                     (openFilters)="openTableFilters($event)"
                     (removeFilter)="removeFilter($event)"
                     (resetAllFilters)="clearAllFilters()"

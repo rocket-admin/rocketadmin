@@ -21,6 +21,13 @@ describe('DbTablesListComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DbTablesListComponent);
     component = fixture.componentInstance;
+    component.tableFolders = [
+      {
+        category_id: 'all-tables-kitten',
+        category_name: 'All Tables',
+        tables: [],
+      },
+    ];
     fixture.detectChanges();
   });
 

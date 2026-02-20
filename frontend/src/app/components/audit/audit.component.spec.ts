@@ -90,6 +90,9 @@ describe('AuditComponent', () => {
 		usersService = TestBed.inject(UsersService);
 		dialog = TestBed.inject(MatDialog);
 
+		vi.spyOn(tablesService, 'fetchTables').mockReturnValue(of(mockTablesListResponse));
+		vi.spyOn(usersService, 'fetchConnectionUsers').mockReturnValue(of(mockUsersList));
+
 		fixture.autoDetectChanges();
 	});
 
@@ -97,14 +100,7 @@ describe('AuditComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should fill users and tables lists', async () => {
-		vi.spyOn(tablesService, 'fetchTables').mockReturnValue(of(mockTablesListResponse));
-		vi.spyOn(usersService, 'fetchConnectionUsers').mockReturnValue(of(mockUsersList));
-
-		component.ngOnInit();
-		fixture.detectChanges();
-		await fixture.whenStable();
-
+	it('should fill users and tables lists', () => {
 		expect(component.tablesList).toEqual([
 			{
 				table: 'customers',

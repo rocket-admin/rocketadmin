@@ -10,6 +10,8 @@ export interface TableProperties {
     table: string,
     display_name?: string,
     normalizedTableName?: string,
+    initials?: string,
+    icon?: string,
     permissions: TablePermissions,
 }
 

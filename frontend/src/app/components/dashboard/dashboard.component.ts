@@ -1,6 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -12,10 +11,9 @@ import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { omitBy } from 'lodash-es';
 import posthog from 'posthog-js';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { ServerError } from 'src/app/models/alert';
-import { TableCategory } from 'src/app/models/connection';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { User } from 'src/app/models/user';
@@ -36,7 +34,7 @@ import { BbBulkActionConfirmationDialogComponent } from './db-table-view/db-bulk
 import { DbTableAiPanelComponent } from './db-table-view/db-table-ai-panel/db-table-ai-panel.component';
 import { DbTableFiltersDialogComponent } from './db-table-view/db-table-filters-dialog/db-table-filters-dialog.component';
 import { DbTableRowViewComponent } from './db-table-view/db-table-row-view/db-table-row-view.component';
-import { DbTableViewComponent, Folder } from './db-table-view/db-table-view.component';
+import { DbTableViewComponent } from './db-table-view/db-table-view.component';
 import { TablesDataSource } from './db-tables-data-source';
 import { DbTablesListComponent } from './db-tables-list/db-tables-list.component';
 
@@ -72,7 +70,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public user: User = null;
-	public tablesList: TableProperties[] = null;
+	get allTables(): TableProperties[] {
+		return this.tableFolders?.find((cat: any) => cat.category_id === 'all-tables-kitten')?.tables || [];
+	}
 	public selectedTableName: string;
 	public selectedTableDisplayName: string;
 	public currentPage: number = 1;
@@ -98,7 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public isAIpanelOpened: boolean = false;
 
 	public uiSettings: ConnectionSettingsUI;
-	public tableFolders: Folder[] = [];
+	public tableFolders: any[] = [];
 
 	constructor(
 		private _connections: ConnectionsService,
@@ -149,103 +149,99 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			console.log('getData from ngOnInit');
 		});
 
-		this.loadTableFolders();
+		// this.loadTableFolders();
 	}
 
 	ngOnDestroy() {
 		this._tableState.clearSelection();
 	}
 
-	async getData() {
+	getData() {
 		console.log('getData');
-		let tables;
-		try {
-			tables = await this.getTables();
-		} catch (err) {
-			this.loading = false;
-			this.isServerError = true;
-			this.title.setTitle(`Dashboard | ${this._company.companyTabTitle || 'Rocketadmin'}`);
 
-			if (err instanceof HttpErrorResponse) {
-				this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
-			} else {
-				throw err;
-			}
-		}
+		this._tables.fetchTablesFolders(this.connectionID).subscribe((res) => {
+			console.log('getTables folders')
+			console.log(res);
 
-		if (tables && tables.length === 0) {
-			this.noTablesError = true;
-			this.loading = false;
-			this.title.setTitle(`No tables | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-		} else if (tables) {
-			this.formatTableNames(tables);
-			this.route.paramMap
-				.pipe(
-					map((params: ParamMap) => {
-						let tableName = params.get('table-name');
-						if (tableName) {
-							this.selectedTableName = tableName;
-							this.setTable(tableName);
-							console.log('setTable from getData paramMap');
-							this.title.setTitle(
-								`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`,
-							);
-							this.selection.clear();
-						} else {
-							if (this.defaultTableToOpen) {
-								tableName = this.defaultTableToOpen;
+			const tables = res.find((item) => item.category_id === 'all-tables-kitten')?.tables || [];
+
+			this.tableFolders = res;
+
+			if (tables && tables.length === 0) {
+				this.noTablesError = true;
+				this.loading = false;
+				this.title.setTitle(`No tables | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+			} else if (tables) {
+				this.formatTableNames();
+				this.route.paramMap
+					.pipe(
+						map((params: ParamMap) => {
+							let tableName = params.get('table-name');
+							if (tableName) {
+								this.selectedTableName = tableName;
+								this.setTable(tableName);
+								console.log('setTable from getData paramMap');
+								this.title.setTitle(
+									`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`,
+								);
+								this.selection.clear();
 							} else {
-								tableName = this.tablesList[0].table;
+								if (this.defaultTableToOpen) {
+									tableName = this.defaultTableToOpen;
+								} else {
+									tableName = this.allTables[0]?.table;
+								}
+								this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], { replaceUrl: true });
+								this.selectedTableName = tableName;
 							}
-							this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], { replaceUrl: true });
-							this.selectedTableName = tableName;
-						}
-					}),
-				)
-				.subscribe();
-			this._tableRow.cast.subscribe((arg) => {
-				if (arg === 'delete row' && this.selectedTableName) {
-					this.setTable(this.selectedTableName);
-					console.log('setTable from getData _tableRow cast');
-					this.selection.clear();
-				}
-			});
-			this._tables.cast.subscribe((arg) => {
-				if ((arg === 'delete rows' || arg === 'import') && this.selectedTableName) {
-					this.setTable(this.selectedTableName);
-					console.log('setTable from getData _tables cast');
-					this.selection.clear();
-				}
-				if (arg === 'activate actions') {
-					this.selection.clear();
-				}
-			});
-		}
-	}
-
-	getTables() {
-		console.log('getTables');
-		return this._tables.fetchTables(this.connectionID).toPromise();
-	}
-
-	formatTableNames(tables: TableProperties[]) {
-		this.tablesList = tables.map((tableItem: TableProperties) => {
-			let normalizedTableName;
-			if (tableItem.display_name) {
-				normalizedTableName = tableItem.display_name;
-			} else {
-				normalizedTableName = normalizeTableName(tableItem.table);
+						}),
+					)
+					.subscribe();
+				this._tableRow.cast.subscribe((arg) => {
+					if (arg === 'delete row' && this.selectedTableName) {
+						this.setTable(this.selectedTableName);
+						console.log('setTable from getData _tableRow cast');
+						this.selection.clear();
+					}
+				});
+				this._tables.cast.subscribe((arg) => {
+					if ((arg === 'delete rows' || arg === 'import') && this.selectedTableName) {
+						this.setTable(this.selectedTableName);
+						console.log('setTable from getData _tables cast');
+						this.selection.clear();
+					}
+					if (arg === 'activate actions') {
+						this.selection.clear();
+					}
+				});
 			}
-			const words = normalizedTableName.split(' ');
-			const initials = words.reduce((result, word) => {
-				if (word.length > 0) {
-					return result + word[0].toUpperCase();
-				}
-				return result;
-			}, '');
-
-			return { ...tableItem, normalizedTableName, initials: initials.slice(0, 2) };
 		});
+	}
+
+	formatTableNames() {
+		// Format table names inside tableFolders so all components receive formatted tables
+		this.tableFolders = this.tableFolders.map(category => ({
+			...category,
+			tables: category.tables.map((tableItem: TableProperties) => this.formatTable(tableItem)),
+		}));
+	}
+
+	private formatTable(tableItem: TableProperties): TableProperties {
+		let normalizedTableName;
+		if (tableItem.display_name) {
+			normalizedTableName = tableItem.display_name;
+		} else {
+			normalizedTableName = normalizeTableName(tableItem.table);
+		}
+		const words = normalizedTableName.split(' ');
+		const initials = words.reduce((result, word) => {
+			if (word.length > 0) {
+				return result + word[0].toUpperCase();
+			}
+			return result;
+		}, '');
+
+		return { ...tableItem, normalizedTableName, initials: initials.slice(0, 2) };
 	}
 
 	setTable(tableName: string) {
@@ -262,7 +258,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		this.getRows(search);
 		console.log('getRows from setTable');
 
-		const selectedTableProperties = this.tablesList.find((table: any) => table.table === this.selectedTableName);
+		const selectedTableProperties = this.allTables.find((table: any) => table.table === this.selectedTableName);
 		if (selectedTableProperties) {
 			this.selectedTableDisplayName =
 				selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
@@ -436,25 +432,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	toggleSideBar() {
 		this.shownTableTitles = !this.shownTableTitles;
 		this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
-	}
-
-	private loadTableFolders() {
-		this._connections.getTablesFolders(this.connectionID).subscribe({
-			next: (categories: TableCategory[]) => {
-				if (categories && categories.length > 0) {
-					this.tableFolders = categories.map((cat) => ({
-						id: cat.category_id,
-						name: cat.category_name,
-						tableIds: cat.tables,
-					}));
-				} else {
-					this.tableFolders = [];
-				}
-			},
-			error: (error) => {
-				console.error('Error fetching table folders:', error);
-				this.tableFolders = [];
-			},
-		});
 	}
 }

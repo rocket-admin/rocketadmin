@@ -79,6 +79,36 @@ export class TablesService {
 			);
 	}
 
+	fetchTablesFolders(connectionID: string, hidden?: boolean) {
+		console.log('fetchTablesFolders service')
+		return this._http
+			.get<any>(`/table-categories/v2/${connectionID}`, {
+				params: {
+					...(hidden ? { hidden } : {}),
+				},
+			})
+			.pipe(
+				map((res) => {
+					return res;
+				}),
+			);
+	}
+
+	updateTablesFolders(connectionID: string, tablesFolders: any) {
+		return this._http.put(`/table-categories/${connectionID}`, tablesFolders).pipe(
+			map((res) => {
+				// this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
+
 	fetchTable({
 		connectionID,
 		tableName,
