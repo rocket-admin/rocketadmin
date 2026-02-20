@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public isSaas = (environment as any).saas;
 	public user: User = null;
 	get allTables(): TableProperties[] {
-		return this.tableFolders?.find((cat: any) => cat.category_id === null)?.tables || [];
+		return this.tableFolders?.find((cat: any) => cat.category_id === 'all-tables-kitten')?.tables || [];
 	}
 	public selectedTableName: string;
 	public selectedTableDisplayName: string;
@@ -165,7 +165,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 			console.log('getTables folders')
 			console.log(res);
 
-			const tables = res.find((item) => item.category_id === null)?.tables || [];
+			const tables = res.find((item) => item.category_id === 'all-tables-kitten')?.tables || [];
 
 			this.tableFolders = res;
 

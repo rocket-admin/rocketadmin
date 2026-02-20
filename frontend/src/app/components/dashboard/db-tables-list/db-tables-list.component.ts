@@ -117,7 +117,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.foundTables = this.tableFolders
-      .find((folder: any) => folder.category_id === null)?.tables
+      .find((folder: any) => folder.category_id === 'all-tables-kitten')?.tables
       .map((table: TableProperties) => {
         return {
           table: table.table,
@@ -131,7 +131,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       return {
         id: category.category_id,
         name: category.category_name,
-        expanded: category.category_id === null ? true : false,
+        expanded: category.category_id === 'all-tables-kitten' ? true : false,
         tableIds,
         iconColor: category.category_color
       };
@@ -416,7 +416,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 
   get allTables(): TableProperties[] {
     return this.tableFolders
-      ?.find((folder: any) => folder.category_id === null)?.tables || [];
+      ?.find((folder: any) => folder.category_id === 'all-tables-kitten')?.tables || [];
   }
 
   isTableInFolder(table: TableProperties): boolean {
