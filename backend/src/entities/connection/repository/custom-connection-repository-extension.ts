@@ -50,12 +50,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
 	},
 
 	async findAllUserNonTestsConnections(userId: string): Promise<Array<ConnectionEntity>> {
-		const connectionQb = this.createQueryBuilder('connection')
-			.leftJoinAndSelect('connection.groups', 'group')
-			.leftJoinAndSelect('group.users', 'user')
-			.andWhere('user.id = :userId', { userId: userId })
-			.andWhere('connection.isTestConnection = :isTest', { isTest: false });
-		return await connectionQb.getMany();
+		return await this.findAllUserConnections(userId, false);
 	},
 
 	async findAllUsersInConnection(connectionId: string): Promise<Array<UserEntity>> {

@@ -85,7 +85,7 @@ export const Messages = {
 	CONNECTION_NOT_ENCRYPTED: 'Connection is not encrypted',
 	CONNECTION_MASTER_PASSWORD_NOT_SET:
 		'Connection master password is not set (or connection created before this feature)',
-	CONNECTION_TEST_FILED: 'Connection test failed. ',
+	CONNECTION_TEST_FAILED: 'Connection test failed. ',
 	CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
 	CONNECTION_PROPERTIES_INVALID: 'Connection properties are invalid',
 	CONNECTION_PROPERTIES_CANT_BE_EMPTY: `Connection properties cannot be empty`,
