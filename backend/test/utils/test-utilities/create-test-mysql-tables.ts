@@ -1,5 +1,5 @@
-import { getTestKnex } from '../get-test-knex.js';
 import { faker } from '@faker-js/faker';
+import { getTestKnex } from '../get-test-knex.js';
 
 export const createTestMySQLTablesWithComplexPFKeys = async (connectionParams: any) => {
 	const connectionParamsCopy = {

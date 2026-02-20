@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { DashboardWidgetEntity } from '../dashboard-widget/dashboard-widget.entity.js';
+import { PanelPositionEntity } from '../panel-position/panel-position.entity.js';
 
 @Entity('dashboard')
 export class DashboardEntity {
@@ -27,8 +27,8 @@ export class DashboardEntity {
 	connection: Relation<ConnectionEntity>;
 
 	@OneToMany(
-		() => DashboardWidgetEntity,
+		() => PanelPositionEntity,
 		(widget) => widget.dashboard,
 	)
-	widgets: Relation<DashboardWidgetEntity>[];
+	widgets: Relation<PanelPositionEntity>[];
 }

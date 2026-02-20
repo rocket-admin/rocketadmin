@@ -1,0 +1,47 @@
+@if (loading()) {
+    <div class="panel-loading">
+        <mat-spinner diameter="32"></mat-spinner>
+    </div>
+} @else if (error()) {
+    <div class="panel-error">
+        <span>{{ error() }}</span>
+    </div>
+} @else if (savedQuery()) {
+    @switch (savedQuery()!.widget_type) {
+            @case ('chart') {
+                <app-chart-panel
+                    [widget]="widget"
+                    [connectionId]="connectionId"
+                    [preloadedQuery]="savedQuery()!"
+                    [preloadedData]="queryData()">
+                </app-chart-panel>
+            }
+            @case ('table') {
+                <app-table-panel
+                    [widget]="widget"
+                    [connectionId]="connectionId"
+                    [preloadedQuery]="savedQuery()!"
+                    [preloadedData]="queryData()">
+                </app-table-panel>
+            }
+            @case ('counter') {
+                <app-counter-panel
+                    [widget]="widget"
+                    [connectionId]="connectionId"
+                    [preloadedQuery]="savedQuery()!"
+                    [preloadedData]="queryData()">
+                </app-counter-panel>
+            }
+            @case ('text') {
+                <app-text-panel
+                    [widget]="widget"
+                    [preloadedQuery]="savedQuery()!">
+                </app-text-panel>
+            }
+            @default {
+                <div class="panel-error">
+                    <span>Unknown panel type: {{ savedQuery()!.widget_type }}</span>
+                </div>
+            }
+        }
+}

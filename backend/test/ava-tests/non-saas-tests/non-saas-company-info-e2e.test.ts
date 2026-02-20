@@ -19,10 +19,10 @@ import { Constants } from '../../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
+import { createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
-import { createInitialTestUser } from '../../utils/register-user-and-return-user-info.js';
 
 const _mockFactory = new MockFactory();
 let app: INestApplication;

@@ -20,8 +20,8 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { compareTableWidgetsArrays } from '../../utils/compare-table-widgets-arrays.js';
 import {
-	inviteUserInCompanyAndAcceptInvitation,
 	createInitialTestUser,
+	inviteUserInCompanyAndAcceptInvitation,
 } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
@@ -2366,7 +2366,7 @@ test.serial(`${currentTest} 'should return table settings when it was created`, 
 			.set('Accept', 'application/json');
 		const getTableSettingsRO = JSON.parse(getTableSettings.text);
 		t.is(getTableSettings.status, 200);
-		t.is(getTableSettingsRO.hasOwnProperty('id'), true);
+		t.is(Object.hasOwn(getTableSettingsRO, 'id'), true);
 		t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
 		t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
 		t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));

@@ -20,8 +20,8 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { compareTableWidgetsArrays } from '../../utils/compare-table-widgets-arrays.js';
 import {
-	inviteUserInCompanyAndAcceptInvitation,
 	createInitialTestUser,
+	inviteUserInCompanyAndAcceptInvitation,
 } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';

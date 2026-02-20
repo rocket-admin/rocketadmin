@@ -1,29 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { faker } from '@faker-js/faker';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import test from 'ava';
+import { ValidationError } from 'class-validator';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { Encryptor } from '../../../src/helpers/encryption/encryptor.js';
+import { replaceTextInCurlies } from '../../../src/helpers/index.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { TestUtils } from '../../utils/test.utils.js';
-import cookieParser from 'cookie-parser';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { MockFactory } from '../../mock.factory.js';
-import { Encryptor } from '../../../src/helpers/encryption/encryptor.js';
-import test from 'ava';
-import {
-	registerUserAndReturnUserInfo,
-	createInitialTestUser,
-} from '../../utils/register-user-and-return-user-info.js';
 import { getTestData } from '../../utils/get-test-data.js';
-import request from 'supertest';
-import { replaceTextInCurlies } from '../../../src/helpers/index.js';
-import { faker } from '@faker-js/faker';
-import { Messages } from '../../../src/exceptions/text/messages.js';
-import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import {
+	createInitialTestUser,
+	registerUserAndReturnUserInfo,
+} from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { Cacher } from '../../../src/helpers/cache/cacher.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 let app: INestApplication;
 let _testUtils: TestUtils;

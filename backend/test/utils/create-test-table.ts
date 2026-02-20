@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { faker } from '@faker-js/faker';
-import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
-import { getTestKnex } from './get-test-knex.js';
-import ibmdb from 'ibm_db';
-import { MongoClient } from 'mongodb';
+
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { Client } from '@elastic/elasticsearch';
-import * as cassandra from 'cassandra-driver';
-import { v4 as uuidv4 } from 'uuid';
-import { createClient } from 'redis';
 import { createClient as createClickHouseClient } from '@clickhouse/client';
+import { Client } from '@elastic/elasticsearch';
+import { faker } from '@faker-js/faker';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import * as cassandra from 'cassandra-driver';
+import ibmdb from 'ibm_db';
+import { MongoClient } from 'mongodb';
+import { createClient } from 'redis';
+import { v4 as uuidv4 } from 'uuid';
+import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
+import { getTestKnex } from './get-test-knex.js';
 
 export async function createTestTable(
 	connectionParams: any,

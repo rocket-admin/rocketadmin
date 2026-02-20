@@ -21,7 +21,7 @@
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.14",
+		"@biomejs/biome": "2.4.0",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^22.10.2",
 		"@types/ws": "^8.18.1",

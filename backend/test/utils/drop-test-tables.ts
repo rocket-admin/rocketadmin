@@ -1,4 +1,4 @@
-import { getTestKnex } from './get-test-knex.js';
+// import { getTestKnex } from './get-test-knex.js';
 
 export async function dropTestTables(tableNames: Array<string>, connectionParams): Promise<void> {
 	return;

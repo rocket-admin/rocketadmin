@@ -25,11 +25,11 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
-import { WidgetDeleteDialogComponent } from '../widget-delete-dialog/widget-delete-dialog.component';
-import { WidgetEditDialogComponent } from '../widget-edit-dialog/widget-edit-dialog.component';
-import { DashboardWidgetComponent } from '../widget-renderers/dashboard-widget/dashboard-widget.component';
+import { PanelDeleteDialogComponent } from '../panel-delete-dialog/panel-delete-dialog.component';
+import { PanelEditDialogComponent } from '../panel-edit-dialog/panel-edit-dialog.component';
+import { DashboardPanelComponent } from '../panel-renderers/dashboard-panel/dashboard-panel.component';
 
-interface GridsterWidgetItem extends GridsterItem {
+interface GridsterPanelItem extends GridsterItem {
 	widget: DashboardWidget;
 }
 
@@ -50,7 +50,7 @@ interface GridsterWidgetItem extends GridsterItem {
 		GridsterComponent,
 		GridsterItemComponent,
 		AlertComponent,
-		DashboardWidgetComponent,
+		DashboardPanelComponent,
 	],
 })
 export class DashboardViewComponent implements OnInit {
@@ -72,7 +72,7 @@ export class DashboardViewComponent implements OnInit {
 	protected loading = computed(() => this._dashboards.dashboardLoading());
 
 	// Writable signal for gridster items (gridster needs mutable items)
-	protected gridsterItems = signal<GridsterWidgetItem[]>([]);
+	protected gridsterItems = signal<GridsterPanelItem[]>([]);
 
 	// Connection title signal (bridging from legacy Observable-based service)
 	private connectionTitle = signal('');
@@ -84,9 +84,9 @@ export class DashboardViewComponent implements OnInit {
 		pushItems: true,
 		draggable: {
 			enabled: false,
-			ignoreContentClass: 'widget-content',
+			ignoreContentClass: 'panel-content',
 			ignoreContent: true,
-			dragHandleClass: 'widget-header',
+			dragHandleClass: 'panel-header',
 		},
 		resizable: {
 			enabled: false,
@@ -111,7 +111,7 @@ export class DashboardViewComponent implements OnInit {
 		minItemRows: 2,
 		maxItemCols: 12,
 		maxItemRows: 12,
-		itemChangeCallback: (item: GridsterItem) => this._onItemChange(item as GridsterWidgetItem),
+		itemChangeCallback: (item: GridsterItem) => this._onItemChange(item as GridsterPanelItem),
 	};
 
 	constructor() {
@@ -181,8 +181,8 @@ export class DashboardViewComponent implements OnInit {
 		posthog.capture(`Dashboards: edit mode ${this.editMode() ? 'enabled' : 'disabled'}`);
 	}
 
-	async openAddWidgetDialog(): Promise<void> {
-		const dialogRef = this.dialog.open(WidgetEditDialogComponent, {
+	async openAddPanelDialog(): Promise<void> {
+		const dialogRef = this.dialog.open(PanelEditDialogComponent, {
 			width: '600px',
 			data: {
 				connectionId: this.connectionId(),
@@ -201,8 +201,8 @@ export class DashboardViewComponent implements OnInit {
 		}
 	}
 
-	async openEditWidgetDialog(widget: DashboardWidget): Promise<void> {
-		const dialogRef = this.dialog.open(WidgetEditDialogComponent, {
+	async openEditPanelDialog(widget: DashboardWidget): Promise<void> {
+		const dialogRef = this.dialog.open(PanelEditDialogComponent, {
 			width: '600px',
 			data: {
 				connectionId: this.connectionId(),
@@ -221,8 +221,8 @@ export class DashboardViewComponent implements OnInit {
 		}
 	}
 
-	async openDeleteWidgetDialog(widget: DashboardWidget): Promise<void> {
-		const dialogRef = this.dialog.open(WidgetDeleteDialogComponent, {
+	async openDeletePanelDialog(widget: DashboardWidget): Promise<void> {
+		const dialogRef = this.dialog.open(PanelDeleteDialogComponent, {
 			width: '400px',
 			data: {
 				connectionId: this.connectionId(),
@@ -245,7 +245,7 @@ export class DashboardViewComponent implements OnInit {
 		this.router.navigate(['/dashboards', this.connectionId()]);
 	}
 
-	private async _onItemChange(item: GridsterWidgetItem): Promise<void> {
+	private async _onItemChange(item: GridsterPanelItem): Promise<void> {
 		const widget = item.widget;
 		if (
 			widget.position_x !== item.x ||

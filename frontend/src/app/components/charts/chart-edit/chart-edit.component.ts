@@ -596,7 +596,7 @@ export class ChartEditComponent implements OnInit {
 				.updateSavedQuery(this.connectionId(), this.queryId(), payload)
 				.pipe(finalize(() => this.saving.set(false)))
 				.subscribe(() => {
-					this.router.navigate(['/charts', this.connectionId()]);
+					this.router.navigate(['/panels', this.connectionId()]);
 				});
 			this.angulartics2.eventTrack.next({
 				action: 'Charts: saved query updated',
@@ -607,7 +607,7 @@ export class ChartEditComponent implements OnInit {
 				.createSavedQuery(this.connectionId(), payload)
 				.pipe(finalize(() => this.saving.set(false)))
 				.subscribe(() => {
-					this.router.navigate(['/charts', this.connectionId()]);
+					this.router.navigate(['/panels', this.connectionId()]);
 				});
 			this.angulartics2.eventTrack.next({
 				action: 'Charts: saved query created',

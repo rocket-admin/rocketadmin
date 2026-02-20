@@ -9,48 +9,48 @@
 
         <div class="charts-page">
             <div class="charts-header">
-                <h1 class="mat-h1">Widgets</h1>
+                <h1 class="mat-h1">Panels</h1>
                 <p class="charts-description">
-                    Create and manage widgets with chart visualizations for your dashboards.
+                    Create and manage panels with chart visualizations for your dashboards.
                 </p>
             </div>
 
             <div class="charts-toolbar">
                 <mat-form-field appearance="outline" class="search-field">
-                    <mat-label>Search widgets</mat-label>
+                    <mat-label>Search panels</mat-label>
                     <input matInput
                         [ngModel]="searchQuery()"
                         (ngModelChange)="searchQuery.set($event)"
                         placeholder="Search by name or description..."
-                        data-testid="widgets-search-input">
+                        data-testid="panels-search-input">
                     <mat-icon matSuffix>search</mat-icon>
                 </mat-form-field>
 
                 <a *ngIf="filteredQueries().length > 0" mat-flat-button color="primary"
-                    [routerLink]="['/charts', connectionId(), 'new']"
+                    [routerLink]="['/panels', connectionId(), 'new']"
                     (click)="trackCreatePageOpened()"
-                    data-testid="create-widget-button">
+                    data-testid="create-panel-button">
                     <mat-icon>add</mat-icon>
-                    Create widget
+                    Create panel
                 </a>
             </div>
 
             <app-placeholder-table-data *ngIf="loading()"></app-placeholder-table-data>
 
-            <div *ngIf="!loading() && filteredQueries().length === 0" class="no-widgets">
-                <mat-icon class="no-widgets-icon">widgets</mat-icon>
-                <h3>No widgets found</h3>
-                <p *ngIf="searchQuery()">No widgets match your search criteria.</p>
-                <p *ngIf="!searchQuery()">Create your first widget to visualize your data.</p>
+            <div *ngIf="!loading() && filteredQueries().length === 0" class="no-panels">
+                <mat-icon class="no-panels-icon">widgets</mat-icon>
+                <h3>No panels found</h3>
+                <p *ngIf="searchQuery()">No panels match your search criteria.</p>
+                <p *ngIf="!searchQuery()">Create your first panel to visualize your data.</p>
                 <a mat-flat-button color="primary"
-                    [routerLink]="['/charts', connectionId(), 'new']"
+                    [routerLink]="['/panels', connectionId(), 'new']"
                     (click)="trackCreatePageOpened()">
                     <mat-icon>add</mat-icon>
-                    Create widget
+                    Create panel
                 </a>
             </div>
 
-            <table *ngIf="!loading() && filteredQueries().length > 0" mat-table [dataSource]="filteredQueries()" class="widgets-table">
+            <table *ngIf="!loading() && filteredQueries().length > 0" mat-table [dataSource]="filteredQueries()" class="panels-table">
                 <!-- Preview Column -->
                 <ng-container matColumnDef="preview">
                     <th mat-header-cell *matHeaderCellDef>Type</th>
@@ -64,7 +64,7 @@
                 <!-- Name Column -->
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef>Name</th>
-                    <td mat-cell *matCellDef="let query" class="widget-name-cell">
+                    <td mat-cell *matCellDef="let query" class="panel-name-cell">
                         {{query.name}}
                     </td>
                 </ng-container>
@@ -91,20 +91,20 @@
                     <td mat-cell *matCellDef="let query; let i = index" class="actions-cell">
                         <button mat-icon-button [matMenuTriggerFor]="rowMenu"
                             (click)="$event.stopPropagation()"
-                            attr.data-testid="widget-actions-{{i}}-button">
+                            attr.data-testid="panel-actions-{{i}}-button">
                             <mat-icon>more_vert</mat-icon>
                         </button>
                         <mat-menu #rowMenu="matMenu">
                             <a mat-menu-item
-                                [routerLink]="['/charts', connectionId(), query.id]"
+                                [routerLink]="['/panels', connectionId(), query.id]"
                                 (click)="trackEditPageOpened()"
-                                attr.data-testid="widget-edit-{{i}}-menu-item">
+                                attr.data-testid="panel-edit-{{i}}-menu-item">
                                 <mat-icon>edit</mat-icon>
                                 <span>Edit</span>
                             </a>
                             <mat-divider></mat-divider>
                             <button mat-menu-item (click)="openDeleteDialog(query)" class="delete-action"
-                                attr.data-testid="widget-delete-{{i}}-menu-item">
+                                attr.data-testid="panel-delete-{{i}}-menu-item">
                                 <mat-icon color="warn">delete</mat-icon>
                                 <span>Delete</span>
                             </button>

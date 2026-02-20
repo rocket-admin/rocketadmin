@@ -18,8 +18,8 @@ import { MockFactory } from '../../mock.factory.js';
 import { compareTableWidgetsArrays } from '../../utils/compare-table-widgets-arrays.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import {
-	registerUserAndReturnUserInfo,
 	createInitialTestUser,
+	registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';

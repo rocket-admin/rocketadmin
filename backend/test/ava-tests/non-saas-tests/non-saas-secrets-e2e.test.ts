@@ -2,23 +2,23 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
+import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
 import {
-	registerUserAndReturnUserInfo,
 	createInitialTestUser,
+	registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
-import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { ValidationError } from 'class-validator';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

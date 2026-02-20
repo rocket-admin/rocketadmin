@@ -13,9 +13,9 @@ import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-age
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
-import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FindTablesDs } from '../../table/application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../../table/application/data-structures/found-table.ds.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FoundTableCategoriesWithTablesRo } from '../dto/found-table-categories-with-tables.ro.js';
 import { IFindTableCategoriesWithTables } from './table-categories-use-cases.interface.js';
 
@@ -90,22 +90,22 @@ export class FindTableCategoriesWithTablesUseCase
 		const foundTableCategories =
 			await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
 
-		const sortedTables = tablesRO.sort((tableRO1, tableRO2) => {
-			const name1 = tableRO1.display_name || tableRO1.table;
-			const name2 = tableRO2.display_name || tableRO2.table;
-			return name1.localeCompare(name2);
-		});
+		// const sortedTables = tablesRO.sort((tableRO1, tableRO2) => {
+		// 	const name1 = tableRO1.display_name || tableRO1.table;
+		// 	const name2 = tableRO2.display_name || tableRO2.table;
+		// 	return name1.localeCompare(name2);
+		// });
 
 		const allTableCategory: FoundTableCategoriesWithTablesRo = {
 			category_id: null,
 			category_color: null,
 			category_name: 'All tables',
-			tables: sortedTables,
+			tables: tablesRO,
 		};
 		const foundTableCategoriesRO = foundTableCategories.map((category) => {
-			const tablesInCategory = sortedTables.filter((tableRO) => {
-				return category.tables.includes(tableRO.table);
-			});
+			const tablesInCategory = category.tables
+				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
+				.filter(Boolean);
 			return {
 				category_id: category.category_id,
 				category_color: category.category_color,

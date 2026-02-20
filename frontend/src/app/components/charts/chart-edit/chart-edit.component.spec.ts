@@ -243,7 +243,7 @@ describe('ChartEditComponent', () => {
 			testable.queryName.set('New Query');
 			testable.queryText.set('SELECT 1');
 			component.saveQuery();
-			expect(router.navigate).toHaveBeenCalledWith(['/charts', 'conn-1']);
+			expect(router.navigate).toHaveBeenCalledWith(['/panels', 'conn-1']);
 		});
 	});
 

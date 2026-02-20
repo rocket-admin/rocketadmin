@@ -140,13 +140,13 @@
 
 @media (prefers-color-scheme: light) {
 	.register-image-box {
-		--image-box-bg: #e8f1ea;
+		--image-box-bg: rgba(229, 237, 254, 1);
 	}
 }
 
 @media (prefers-color-scheme: dark) {
 	.register-image-box {
-		--image-box-bg: #636363;
+		--image-box-bg: rgba(36, 41, 51, 1);
 	}
 }
 
@@ -161,8 +161,9 @@
 }
 
 .register-image {
-	height: 85vh;
-	margin-bottom: -5px;
+	height: 104vh;
+	margin-bottom: -13vh;
+	margin-right: -38vh;
 }
 
 .register-form .agreement {

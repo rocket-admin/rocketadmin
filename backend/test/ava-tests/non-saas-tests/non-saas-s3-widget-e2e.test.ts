@@ -19,8 +19,8 @@ import { getRandomTestTableName } from '../../utils/get-random-test-table-name.j
 import { getTestData } from '../../utils/get-test-data.js';
 import { getTestKnex } from '../../utils/get-test-knex.js';
 import {
-	registerUserAndReturnUserInfo,
 	createInitialTestUser,
+	registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 
