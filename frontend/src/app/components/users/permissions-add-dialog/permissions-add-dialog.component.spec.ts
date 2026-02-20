@@ -118,6 +118,7 @@ describe('PermissionsAddDialogComponent', () => {
 		fixture = TestBed.createComponent(PermissionsAddDialogComponent);
 		component = fixture.componentInstance;
 		usersService = TestBed.inject(UsersService);
+		vi.spyOn(usersService, 'fetchPermission').mockReturnValue(of(fakePermissionsResponse));
 		fixture.detectChanges();
 	});
 

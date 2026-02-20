@@ -4,9 +4,10 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { DashboardComponent } from './dashboard.component';
 
@@ -75,7 +76,8 @@ describe('DashboardComponent', () => {
 
 		fakeTablesService = {
 			fetchTables: vi.fn().mockReturnValue(of(fakeTables)),
-			fetchTablesFolders: vi.fn().mockReturnValue(of([{ category_id: null, tables: fakeTables }])),
+			fetchTablesFolders: vi.fn().mockReturnValue(of([{ category_id: 'all-tables-kitten', category_name: 'All Tables', tables: fakeTables }])),
+			cast: new BehaviorSubject(''),
 		};
 
 		await TestBed.configureTestingModule({
@@ -90,6 +92,10 @@ describe('DashboardComponent', () => {
 				{
 					provide: TablesService,
 					useValue: fakeTablesService,
+				},
+				{
+					provide: TableRowService,
+					useValue: { cast: new BehaviorSubject('') },
 				},
 				{
 					provide: ActivatedRoute,
@@ -123,7 +129,7 @@ describe('DashboardComponent', () => {
 	});
 
 	it('should call getData and populate tables', () => {
-		fakeTablesService.fetchTablesFolders.mockReturnValue(of([{ category_id: null, tables: fakeTables }]));
+		fakeTablesService.fetchTablesFolders.mockReturnValue(of([{ category_id: 'all-tables-kitten', category_name: 'All Tables', tables: fakeTables }]));
 		component.getData();
 		expect(component.allTables.length).toEqual(fakeTables.length);
 		expect(component.allTables.map(t => t.table)).toEqual(fakeTables.map(t => t.table));

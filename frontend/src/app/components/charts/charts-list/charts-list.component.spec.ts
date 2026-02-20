@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Signal, signal, WritableSignal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, Signal, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 import { SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { QueryUpdateEvent, SavedQueriesService } from 'src/app/services/saved-queries.service';
+import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/dashboards-sidebar.component';
 import { ChartDeleteDialogComponent } from '../chart-delete-dialog/chart-delete-dialog.component';
 import { ChartsListComponent } from './charts-list.component';
 
@@ -91,7 +92,12 @@ describe('ChartsListComponent', () => {
 					},
 				},
 			],
-		}).compileComponents();
+		})
+			.overrideComponent(ChartsListComponent, {
+				remove: { imports: [DashboardsSidebarComponent] },
+				add: { schemas: [NO_ERRORS_SCHEMA] },
+			})
+			.compileComponents();
 
 		fixture = TestBed.createComponent(ChartsListComponent);
 		component = fixture.componentInstance;
