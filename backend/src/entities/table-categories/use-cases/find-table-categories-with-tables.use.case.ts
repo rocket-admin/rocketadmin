@@ -103,9 +103,9 @@ export class FindTableCategoriesWithTablesUseCase
 			tables: tablesRO,
 		};
 		const foundTableCategoriesRO = foundTableCategories.map((category) => {
-			const tablesInCategory = tablesRO.filter((tableRO) => {
-				return category.tables.includes(tableRO.table);
-			});
+			const tablesInCategory = category.tables
+				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
+				.filter(Boolean);
 			return {
 				category_id: category.category_id,
 				category_color: category.category_color,

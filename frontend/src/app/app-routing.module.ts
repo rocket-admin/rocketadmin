@@ -211,21 +211,21 @@ const routes: Routes = [
 		canActivate: [AuthGuard],
 	},
 	{
-		path: 'charts/:connection-id',
+		path: 'panels/:connection-id',
 		loadComponent: () =>
 			import('./components/charts/charts-list/charts-list.component').then((m) => m.ChartsListComponent),
 		canActivate: [AuthGuard],
 		title: 'Saved Queries | Rocketadmin',
 	},
 	{
-		path: 'charts/:connection-id/new',
+		path: 'panels/:connection-id/new',
 		loadComponent: () =>
 			import('./components/charts/chart-edit/chart-edit.component').then((m) => m.ChartEditComponent),
 		canActivate: [AuthGuard],
 		title: 'Create Query | Rocketadmin',
 	},
 	{
-		path: 'charts/:connection-id/:query-id',
+		path: 'panels/:connection-id/:query-id',
 		loadComponent: () =>
 			import('./components/charts/chart-edit/chart-edit.component').then((m) => m.ChartEditComponent),
 		canActivate: [AuthGuard],

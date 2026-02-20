@@ -29,14 +29,14 @@
             <span *ngIf="!collapsed()" matListItemTitle>Dashboards</span>
         </a>
         <a mat-list-item
-            [routerLink]="['/charts', connectionId()]"
+            [routerLink]="['/panels', connectionId()]"
             [class.active-link]="activeTab() === 'queries'"
             class="sidebar-nav-item"
             [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'Widgets' : ''"
+            [matTooltip]="collapsed() ? 'Panels' : ''"
             matTooltipPosition="right">
             <mat-icon matListItemIcon>widgets</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>Widgets</span>
+            <span *ngIf="!collapsed()" matListItemTitle>Panels</span>
         </a>
     </mat-nav-list>
 </div>

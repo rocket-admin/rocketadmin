@@ -136,7 +136,7 @@ export class ChartsListComponent implements OnInit {
 
 	openQuery(query: SavedQuery): void {
 		this.trackEditPageOpened();
-		this.router.navigate(['/charts', this.connectionId(), query.id]);
+		this.router.navigate(['/panels', this.connectionId(), query.id]);
 	}
 
 	openDeleteDialog(query: SavedQuery): void {

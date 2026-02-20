@@ -9,18 +9,18 @@ import { DashboardWidget } from 'src/app/models/dashboard';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 
 @Component({
-	selector: 'app-widget-delete-dialog',
-	templateUrl: './widget-delete-dialog.component.html',
-	styleUrls: ['./widget-delete-dialog.component.css'],
+	selector: 'app-panel-delete-dialog',
+	templateUrl: './panel-delete-dialog.component.html',
+	styleUrls: ['./panel-delete-dialog.component.css'],
 	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
 })
-export class WidgetDeleteDialogComponent {
+export class PanelDeleteDialogComponent {
 	protected submitting = signal(false);
 
 	constructor(
 		@Inject(MAT_DIALOG_DATA)
 		public data: { connectionId: string; dashboardId: string; widget: DashboardWidget },
-		private dialogRef: MatDialogRef<WidgetDeleteDialogComponent>,
+		private dialogRef: MatDialogRef<PanelDeleteDialogComponent>,
 		private _dashboards: DashboardsService,
 		private angulartics2: Angulartics2,
 	) {}
