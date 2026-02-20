@@ -127,19 +127,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
         };
       });
     this.folders = this.tableFolders.map(category => {
-      let tableIds = category.tables.map((table: TableProperties) => table.table);
-      // Restore saved order for "All Tables" folder from UI settings
-      if (category.category_id === null) {
-        const savedOrder: string[] = this.uiSettings?.allTablesOrder;
-        if (savedOrder?.length) {
-          const savedSet = new Set(savedOrder);
-          const currentSet = new Set(tableIds);
-          // Reorder: saved tables first (in saved order), then any new tables not in saved order
-          const ordered = savedOrder.filter(id => currentSet.has(id));
-          const newTables = tableIds.filter(id => !savedSet.has(id));
-          tableIds = [...ordered, ...newTables];
-        }
-      }
+      const tableIds = category.tables.map((table: TableProperties) => table.table);
       return {
         id: category.category_id,
         name: category.category_name,
@@ -631,7 +619,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   private saveFolders() {
     try {
       this.tableCategories = this.folders
-        .filter(folder => folder.name !== 'All Tables') // Exclude "All Tables" from saving
         .map(folder => ({
           category_id: folder.id,
           category_name: folder.name,
@@ -663,12 +650,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       return;
     }
     moveItemInArray(folder.tableIds, event.previousIndex, event.currentIndex);
-    if (folder.id === null) {
-      // "All Tables" is dynamically generated, persist order in UI settings
-      this._uiSettingsService.updateConnectionSetting(this.connectionID, 'allTablesOrder', folder.tableIds);
-    } else {
-      this.saveFolders();
-    }
+    this.saveFolders();
   }
 
   // Drag and drop methods

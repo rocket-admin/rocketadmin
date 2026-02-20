@@ -17,7 +17,6 @@ export interface ConnectionSettingsUI {
     tables: { [tableName: string]: TableSettingsUI };
     tableFoldersExpanded?: string[];
     dashboardsSidebarCollapsed?: boolean;
-    allTablesOrder?: string[];
 }
 
 export interface UiSettings {
