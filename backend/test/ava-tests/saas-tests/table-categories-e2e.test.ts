@@ -388,3 +388,152 @@ test.serial(`${currentTest} find table categories with tables`, async (t) => {
 		t.fail();
 	}
 });
+
+test.serial(`${currentTest} should preserve table order from database in category response`, async (t) => {
+	try {
+		const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const { testTableName: firstTestTableName } = await createTestTable(connectionToTestDB);
+		const { testTableName: secondTestTableName } = await createTestTable(connectionToTestDB);
+		const { testTableName: thirdTestTableName } = await createTestTable(connectionToTestDB);
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(connectionToTestDB)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
+
+		// intentionally order tables as: third, first, second
+		const categoriesDTO: Array<CreateTableCategoryDto> = [
+			{
+				category_name: 'Ordered Category',
+				category_color: '#AABBCC',
+				tables: [thirdTestTableName, firstTestTableName, secondTestTableName],
+				category_id: 'cat-order-001',
+			},
+		];
+
+		const createTableCategoriesResponse = await request(app.getHttpServer())
+			.put(`/table-categories/${createConnectionRO.id}`)
+			.send(categoriesDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createTableCategoriesResponse.status, 200);
+
+		const findTableCategoriesWithTablesResponse = await request(app.getHttpServer())
+			.get(`/table-categories/v2/${createConnectionRO.id}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		const findTableCategoriesWithTablesRO = JSON.parse(findTableCategoriesWithTablesResponse.text);
+		t.is(findTableCategoriesWithTablesResponse.status, 200);
+
+		// index 0 is "All tables", index 1 is our category
+		t.is(findTableCategoriesWithTablesRO[1].category_name, 'Ordered Category');
+		t.is(findTableCategoriesWithTablesRO[1].tables.length, 3);
+
+		// verify the order matches what was stored in the database: third, first, second
+		t.is(findTableCategoriesWithTablesRO[1].tables[0].table, thirdTestTableName);
+		t.is(findTableCategoriesWithTablesRO[1].tables[1].table, firstTestTableName);
+		t.is(findTableCategoriesWithTablesRO[1].tables[2].table, secondTestTableName);
+	} catch (e) {
+		console.error(e);
+		t.fail();
+	}
+});
+
+test.serial(`${currentTest} should preserve table order after creating and updating categories`, async (t) => {
+	try {
+		const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const { testTableName: firstTestTableName } = await createTestTable(connectionToTestDB);
+		const { testTableName: secondTestTableName } = await createTestTable(connectionToTestDB);
+		const { testTableName: thirdTestTableName } = await createTestTable(connectionToTestDB);
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(connectionToTestDB)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+		t.is(createConnectionResponse.status, 201);
+
+		// create category with initial order: third, first, second
+		const initialCategoriesDTO: Array<CreateTableCategoryDto> = [
+			{
+				category_name: 'Ordered Category',
+				category_color: '#AABBCC',
+				tables: [thirdTestTableName, firstTestTableName, secondTestTableName],
+				category_id: 'cat-order-001',
+			},
+		];
+
+		const createResponse = await request(app.getHttpServer())
+			.put(`/table-categories/${createConnectionRO.id}`)
+			.send(initialCategoriesDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const createRO = JSON.parse(createResponse.text);
+		t.is(createResponse.status, 200);
+
+		// verify order in creation response
+		t.deepEqual(createRO[0].tables, [thirdTestTableName, firstTestTableName, secondTestTableName]);
+
+		// verify order in v2 GET after creation
+		const getAfterCreateResponse = await request(app.getHttpServer())
+			.get(`/table-categories/v2/${createConnectionRO.id}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const getAfterCreateRO = JSON.parse(getAfterCreateResponse.text);
+		t.is(getAfterCreateResponse.status, 200);
+		t.is(getAfterCreateRO[1].tables[0].table, thirdTestTableName);
+		t.is(getAfterCreateRO[1].tables[1].table, firstTestTableName);
+		t.is(getAfterCreateRO[1].tables[2].table, secondTestTableName);
+
+		// update category with new order: second, third, first
+		const updatedCategoriesDTO: Array<CreateTableCategoryDto> = [
+			{
+				category_name: 'Ordered Category',
+				category_color: '#AABBCC',
+				tables: [secondTestTableName, thirdTestTableName, firstTestTableName],
+				category_id: 'cat-order-001',
+			},
+		];
+
+		const updateResponse = await request(app.getHttpServer())
+			.put(`/table-categories/${createConnectionRO.id}`)
+			.send(updatedCategoriesDTO)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const updateRO = JSON.parse(updateResponse.text);
+		t.is(updateResponse.status, 200);
+
+		// verify order in update response
+		t.deepEqual(updateRO[0].tables, [secondTestTableName, thirdTestTableName, firstTestTableName]);
+
+		// verify order in v2 GET after update
+		const getAfterUpdateResponse = await request(app.getHttpServer())
+			.get(`/table-categories/v2/${createConnectionRO.id}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const getAfterUpdateRO = JSON.parse(getAfterUpdateResponse.text);
+		t.is(getAfterUpdateResponse.status, 200);
+		t.is(getAfterUpdateRO[1].tables.length, 3);
+		t.is(getAfterUpdateRO[1].tables[0].table, secondTestTableName);
+		t.is(getAfterUpdateRO[1].tables[1].table, thirdTestTableName);
+		t.is(getAfterUpdateRO[1].tables[2].table, firstTestTableName);
+	} catch (e) {
+		console.error(e);
+		t.fail();
+	}
+});
