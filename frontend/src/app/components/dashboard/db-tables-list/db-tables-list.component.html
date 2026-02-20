@@ -24,9 +24,9 @@
                         [matTooltip]="folder.name"
                         matTooltipPosition="right"
                         (click)="onCollapsedFolderClick(folder)">
-                    <span *ngIf="folder.id === null"
+                    <span *ngIf="folder.id === 'all-tables-kitten'"
                         class="material-symbols-outlined collapsed-folder-icon">dehaze</span>
-                        <span *ngIf="folder.id !== null"
+                        <span *ngIf="folder.id !== 'all-tables-kitten'"
                             class="material-symbols-outlined collapsed-folder-icon"
                             [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
                     </div>
@@ -95,7 +95,7 @@
                         <div *ngIf="shouldShowFolder(folder)"
                             class="folder-item"
                             [class.expanded]="folder.expanded"
-                            [class.drag-over]="dragOverFolder !== null && dragOverFolder === folder.id"
+                            [class.drag-over]="dragOverFolder !== 'all-tables-kitten' && dragOverFolder === folder.id"
                             (dragover)="onFolderDragOver($event, folder.id)"
                             (dragleave)="onFolderDragLeave($event, folder.id)"
                             (drop)="onFolderDrop($event, folder)">
@@ -103,10 +103,10 @@
                                 [class.expanded]="folder.expanded"
                                 (click)="toggleFolder(folder.id)">
                                 <!-- Folder icon on the left -->
-                                <span *ngIf="folder.id === null"
+                                <span *ngIf="folder.id === 'all-tables-kitten'"
                                     class="material-symbols-outlined folder-icon"
                                     [style.color]="getFolderIconColor(folder)">dehaze</span>
-                                <span *ngIf="folder.id !== null"
+                                <span *ngIf="folder.id !== 'all-tables-kitten'"
                                     class="material-symbols-outlined folder-icon"
                                     [style.color]="getFolderIconColor(folder)">folder</span>
 
@@ -115,7 +115,7 @@
                                 </div>
 
                                 <div class="folder-actions">
-                                    <button *ngIf="folder.id !== null && accessLevel === 'edit'"
+                                    <button *ngIf="folder.id !== 'all-tables-kitten' && accessLevel === 'edit'"
                                         mat-icon-button class="more-folder-button"
                                         [matMenuTriggerFor]="folderMenu"
                                         (click)="$event.stopPropagation()"

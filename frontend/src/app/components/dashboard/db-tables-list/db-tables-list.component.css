@@ -689,26 +689,13 @@
 }
 
 .more-folder-button {
-	width: 16px;
-	height: 16px;
-	line-height: 16px;
-	border: none;
-	border-radius: 0;
-	background-color: transparent !important;
-	color: #bdbdbd !important;
-	margin-left: 4px;
-}
-
-.more-folder-button:hover {
-	border: none !important;
-	background-color: rgba(0, 0, 0, 0.02) !important;
-	color: #9e9e9e !important;
+	line-height: 18px;
 }
 
 .more-folder-button mat-icon {
-	font-size: 12px;
-	width: 12px;
-	height: 12px;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
 }
 
 .folder-name {

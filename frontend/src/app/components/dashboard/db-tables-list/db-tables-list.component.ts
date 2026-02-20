@@ -7,7 +7,6 @@ import { TableProperties, } from 'src/app/models/table';
 
 import { AccessLevel } from 'src/app/models/user';
 import { CommonModule } from '@angular/common';
-import { ConnectionsService } from 'src/app/services/connections.service';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -210,20 +209,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     return table.display_name || table.normalizedTableName || table.table
   }
 
-  // saveCollapsedMenuState() {
-  //   const state = {
-  //     showCollapsedTableList: this.showCollapsedTableList,
-  //     currentCollapsedFolderId: this.currentCollapsedFolder?.id || null
-  //   };
-  //   const key = `collapsedMenuState_${this.connectionID}`;
-  //   localStorage.setItem(key, JSON.stringify(state));
-  //   console.log('Collapsed menu state saved:', state);
-  // }
-
-  // loadAndSetExpandedFolders() {
-
-  // }
-
   getTableNameLength(tableName: string) {
     return tableName.length;
   }
@@ -267,12 +252,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       this.showCollapsedTableList = true;
       this.currentCollapsedFolder = folder;
     }
-
-    // Save the collapsed menu state
-    // this.saveCollapsedMenuState();
-
-    console.log('showCollapsedTableList is now:', this.showCollapsedTableList);
-    console.log('currentCollapsedFolder is now:', this.currentCollapsedFolder?.name);
   }
 
   getCollapsedTableList(): TableProperties[] {
@@ -489,10 +468,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       const activeFolder = this.findActiveFolder();
       this.preservedActiveFolder = activeFolder ? activeFolder.id : null;
     }
-
-    console.log('Preserved folder states:', this.preservedFolderStates);
-    console.log('Preserved active folder:', this.preservedActiveFolder);
-    console.log('Expanded folders count:', Object.values(this.preservedFolderStates).filter(expanded => expanded).length);
   }
 
   private restoreFolderStates() {
@@ -506,9 +481,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
         allTablesFolder.expanded = true;
         this.currentCollapsedFolder = allTablesFolder;
         this.showCollapsedTableList = true;
-        console.log('No custom folders - keeping All Tables expanded');
-        // Save the collapsed menu state after restoration
-        // this.saveCollapsedMenuState();
         return;
       }
     }
@@ -540,13 +512,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
         this.showCollapsedTableList = true;
       }
     }
-
-    console.log('Restored folder states:', this.preservedFolderStates);
-    console.log('Restored active folder:', this.preservedActiveFolder);
-    console.log('Has expanded folders:', hasExpandedFolders);
-
-    // Save the collapsed menu state after restoration
-    // this.saveCollapsedMenuState();
   }
 
   private findActiveFolder(): Folder | null {
@@ -575,46 +540,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
     }
     return folder.tableIds.length;
   }
-
-  // private loadFolders() {
-  //   this._connectionsService.getTablesFolders(this.connectionID).subscribe({
-  //     next: (categories: TableCategory[]) => {
-  //       if (categories && categories.length > 0) {
-  //         this.tableCategories = categories;
-  //         this.folders = categories.map(cat => ({
-  //           id: cat.category_id,
-  //           name: cat.category_name,
-  //           expanded: false,
-  //           tableIds: cat.tables,
-  //           iconColor: cat.category_color
-  //         }));
-  //         console.log('Folders loaded from connection settings:', this.folders.map(c => ({ name: c.name, expanded: c.expanded })));
-  //       } else {
-  //         console.log('No folders found in connection settings.');
-  //         this.folders = [];
-  //       }
-
-  //       const expandedFolders = this.uiSettings?.tableFoldersExpanded || ['0'];
-  //       if (expandedFolders && expandedFolders.length > 0) {
-  //         this.folders.forEach(folder => {
-  //           folder.expanded = expandedFolders.includes(folder.id);
-  //         });
-  //       }
-
-  //       const allTablesFolder: Folder = {
-  //         id: '0',
-  //         name: 'All Tables',
-  //         expanded: expandedFolders && expandedFolders.length === 0 ? false : expandedFolders.includes('0'),
-  //         tableIds: this.tables.map(table => table.table)
-  //       };
-  //       this.folders.unshift(allTablesFolder);
-  //     },
-  //     error: (error) => {
-  //       console.error('Error fetching folders from connection settings:', error);
-  //       this.folders = [];
-  //     }
-  //   });
-  // }
 
   private saveFolders() {
     try {

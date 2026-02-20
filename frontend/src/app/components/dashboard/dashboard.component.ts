@@ -1,6 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -12,10 +11,9 @@ import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { omitBy } from 'lodash-es';
 import posthog from 'posthog-js';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { ServerError } from 'src/app/models/alert';
-import { TableCategory } from 'src/app/models/connection';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { User } from 'src/app/models/user';
