@@ -8,7 +8,6 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
-// import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
@@ -27,7 +26,6 @@ export class UpdateConnectionUseCase
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
 		private readonly amplitudeService: AmplitudeService,
-		// private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 	) {
 		super();
 	}
@@ -40,18 +38,6 @@ export class UpdateConnectionUseCase
 		} = updateConnectionData;
 		let { connection_parameters } = updateConnectionData;
 		await validateCreateConnectionData(updateConnectionData);
-
-		// if (isSaaS()) {
-		//   const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(authorId);
-		//   const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
-		//   if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
-		//     if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(updateConnectionData.connection_parameters.type)) {
-		//       throw new NonAvailableInFreePlanException(
-		//         Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(updateConnectionData.connection_parameters.type),
-		//       );
-		//     }
-		//   }
-		// }
 
 		const foundConnectionToUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -94,6 +80,15 @@ export class UpdateConnectionUseCase
 			updatedConnection = this.clearNonRequiredConnectionAgentProperties(updatedConnection);
 		}
 		if (updatedConnection.masterEncryption && masterPwd) {
+			if (updatedConnection.master_hash) {
+				const isMasterPwdValid = await Encryptor.verifyUserPassword(masterPwd, updatedConnection.master_hash);
+				if (!isMasterPwdValid) {
+					throw new HttpException(
+						{ message: Messages.MASTER_PASSWORD_INCORRECT },
+						HttpStatus.BAD_REQUEST,
+					);
+				}
+			}
 			updatedConnection = Encryptor.encryptConnectionCredentials(updatedConnection, masterPwd);
 			updatedConnection.master_hash = await Encryptor.hashUserPassword(masterPwd);
 		}

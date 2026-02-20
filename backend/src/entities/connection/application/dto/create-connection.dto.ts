@@ -3,7 +3,7 @@ import {
 	ConnectionTypesEnum,
 	ConnectionTypeTestEnum,
 } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateIf } from 'class-validator';
 import { isTest } from '../../../../helpers/app/is-test.js';
 
 export class CreateConnectionDto {
@@ -63,24 +63,28 @@ export class CreateConnectionDto {
 	@ApiProperty({ required: false })
 	ssh?: boolean;
 
-	@IsOptional()
+	@ValidateIf((o) => o.ssh === true)
+	@IsNotEmpty({ message: 'SSH private key is required when SSH is enabled' })
 	@IsString()
 	@ApiProperty({ required: false })
 	privateSSHKey?: string;
 
-	@IsOptional()
+	@ValidateIf((o) => o.ssh === true)
+	@IsNotEmpty({ message: 'SSH host is required when SSH is enabled' })
 	@IsString()
 	@ApiProperty({ required: false })
 	sshHost?: string;
 
-	@IsOptional()
+	@ValidateIf((o) => o.ssh === true)
+	@IsNotEmpty({ message: 'SSH port is required when SSH is enabled' })
 	@IsNumber({ maxDecimalPlaces: 0 })
 	@Max(65535)
 	@Min(0)
 	@ApiProperty({ required: false })
 	sshPort?: number;
 
-	@IsOptional()
+	@ValidateIf((o) => o.ssh === true)
+	@IsNotEmpty({ message: 'SSH username is required when SSH is enabled' })
 	@IsString()
 	@ApiProperty({ required: false })
 	sshUsername?: string;

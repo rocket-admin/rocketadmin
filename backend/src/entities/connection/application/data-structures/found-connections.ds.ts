@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { AccessLevelEnum } from '../../../../enums/index.js';
+import { ConnectionPropertiesEntity } from '../../../connection-properties/connection-properties.entity.js';
 import { FoundGroupDataWithUsersDs } from '../../../group/application/data-sctructures/found-user-groups.ds.js';
 import { SimpleFoundUserInfoDs } from '../../../user/dto/found-user.dto.js';
 import { UserEntity } from '../../../user/user.entity.js';
@@ -79,7 +80,7 @@ export class FoundDirectConnectionsDs {
 	isTestConnection: boolean;
 
 	@ApiProperty({ required: false })
-	connection_properties?: any;
+	connection_properties?: ConnectionPropertiesEntity;
 
 	@ApiProperty()
 	isFrozen: boolean;
@@ -102,7 +103,7 @@ export class FoundDirectConnectionsNonePermissionDs {
 	isTestConnection: boolean;
 
 	@ApiProperty()
-	connection_properties: any;
+	connection_properties: ConnectionPropertiesEntity;
 
 	@ApiProperty()
 	isFrozen: boolean;
@@ -131,7 +132,7 @@ export class FoundAgentConnectionsDs {
 	isTestConnection: boolean;
 
 	@ApiProperty({ required: false })
-	connection_properties: any;
+	connection_properties: ConnectionPropertiesEntity;
 }
 
 export class FoundSipleConnectionInfoDS {
