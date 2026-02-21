@@ -106,3 +106,20 @@ export interface TestQueryResult {
 	data: Record<string, unknown>[];
 	execution_time_ms: number;
 }
+
+export interface GeneratedPanelWithPosition {
+	name: string;
+	description: string | null;
+	widget_type: DashboardWidgetType;
+	chart_type: string | null;
+	widget_options: Record<string, unknown> | null;
+	query_text: string;
+	connection_id: string;
+	panel_position: {
+		position_x: number;
+		position_y: number;
+		width: number;
+		height: number;
+		dashboard_id: string;
+	};
+}
