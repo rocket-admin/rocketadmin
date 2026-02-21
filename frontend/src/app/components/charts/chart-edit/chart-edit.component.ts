@@ -17,6 +17,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
+import { firstValueFrom } from 'rxjs';
 import { DEFAULT_COLOR_PALETTE } from 'src/app/lib/chart-config.helper';
 import {
 	ChartAxisConfig,
@@ -26,10 +27,14 @@ import {
 	ChartType,
 	ChartUnitConfig,
 	ChartWidgetOptions,
+	GeneratedPanelWithPosition,
 	TestQueryResult,
 } from 'src/app/models/saved-query';
+import { TableProperties } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DashboardsService } from 'src/app/services/dashboards.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
+import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/dashboards-sidebar.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
@@ -123,6 +128,16 @@ export class ChartEditComponent implements OnInit {
 
 	// Color palette
 	protected colorPalette = signal<string[]>([]);
+
+	// AI generation
+	protected aiDescription = signal('');
+	protected aiTableName = signal('');
+	protected aiGenerating = signal(false);
+	protected aiTables = signal<TableProperties[]>([]);
+	protected aiDashboardId = signal<string | null>(null);
+	protected aiExpanded = signal(true);
+	protected manualExpanded = signal(false);
+	protected canGenerate = computed(() => !!this.aiDescription().trim() && !!this.aiTableName() && !this.aiGenerating());
 
 	public chartTypes: { value: ChartType; label: string }[] = [
 		{ value: 'bar', label: 'Bar Chart' },
@@ -358,6 +373,8 @@ export class ChartEditComponent implements OnInit {
 
 	private _savedQueries = inject(SavedQueriesService);
 	private _connections = inject(ConnectionsService);
+	private _dashboards = inject(DashboardsService);
+	private _tables = inject(TablesService);
 	private _uiSettings = inject(UiSettingsService);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
@@ -372,6 +389,14 @@ export class ChartEditComponent implements OnInit {
 			const pageTitle = this.isEditMode() ? 'Edit Query' : 'Create Query';
 			this.title.setTitle(`${pageTitle} | ${title || 'Rocketadmin'}`);
 		});
+
+		// Watch for dashboards to become available for AI feature
+		effect(() => {
+			const dashboards = this._dashboards.dashboards();
+			if (dashboards.length > 0 && !this.aiDashboardId()) {
+				this.aiDashboardId.set(dashboards[0].id);
+			}
+		});
 	}
 
 	ngOnInit(): void {
@@ -382,10 +407,14 @@ export class ChartEditComponent implements OnInit {
 		this.codeEditorTheme = this._uiSettings.editorTheme;
 
 		if (this.isEditMode()) {
+			this.manualExpanded.set(true);
+			this.aiExpanded.set(false);
 			this.loadSavedQuery();
 		} else {
 			this.loading.set(false);
 		}
+
+		this._loadAiPrerequisites();
 	}
 
 	async loadSavedQuery(): Promise<void> {
@@ -612,5 +641,101 @@ export class ChartEditComponent implements OnInit {
 		} finally {
 			this.saving.set(false);
 		}
+	}
+
+	async generateWithAi(): Promise<void> {
+		const dashboardId = this.aiDashboardId();
+		if (!dashboardId || !this.aiTableName() || !this.aiDescription().trim()) return;
+
+		this.aiGenerating.set(true);
+
+		try {
+			const result = await this._dashboards.generateWidgetWithAi(dashboardId, this.connectionId(), this.aiTableName(), {
+				chart_description: this.aiDescription(),
+			});
+
+			if (result) {
+				this._applyAiResponse(result);
+				this.aiExpanded.set(false);
+				this.manualExpanded.set(true);
+				await this.testQuery();
+			}
+		} finally {
+			this.aiGenerating.set(false);
+		}
+
+		this.angulartics2.eventTrack.next({
+			action: 'Charts: AI generation used',
+		});
+		posthog.capture('Charts: AI generation used');
+	}
+
+	private _applyAiResponse(result: GeneratedPanelWithPosition): void {
+		if (result.name) this.queryName.set(result.name);
+		if (result.description) this.queryDescription.set(result.description);
+		if (result.query_text) {
+			this.queryText.set(result.query_text);
+			this.codeModel.set({ language: 'sql', uri: 'query.sql', value: result.query_text });
+		}
+
+		if (result.chart_type) {
+			const validTypes: ChartType[] = ['bar', 'line', 'pie', 'doughnut', 'polarArea'];
+			if (validTypes.includes(result.chart_type as ChartType)) {
+				this.chartType.set(result.chart_type as ChartType);
+			}
+		}
+
+		if (result.widget_options) {
+			const opts = result.widget_options as Partial<ChartWidgetOptions>;
+
+			if (opts.label_column) this.labelColumn.set(opts.label_column);
+			if (opts.label_type) this.labelType.set(opts.label_type);
+
+			// Series
+			if (opts.series_column) {
+				this.seriesMode.set('column');
+				this.seriesColumn.set(opts.series_column);
+				if (opts.value_column) this.seriesValueColumn.set(opts.value_column);
+			} else if (opts.series?.length) {
+				this.seriesMode.set('manual');
+				this.seriesList.set([...opts.series]);
+			} else if (opts.value_column) {
+				this.seriesMode.set('manual');
+				this.seriesList.set([{ value_column: opts.value_column }]);
+			}
+
+			// Display options
+			if (opts.stacked) this.stacked.set(true);
+			if (opts.horizontal) this.horizontal.set(true);
+			if (opts.show_data_labels) this.showDataLabels.set(true);
+
+			// Legend
+			if (opts.legend) {
+				if (opts.legend.show !== undefined) this.legendShow.set(opts.legend.show);
+				if (opts.legend.position) this.legendPosition.set(opts.legend.position);
+			}
+
+			// Color palette
+			if (opts.color_palette?.length) {
+				this.colorPalette.set([...opts.color_palette]);
+			}
+		}
+	}
+
+	private async _loadAiPrerequisites(): Promise<void> {
+		const connectionId = this.connectionId();
+		if (!connectionId) return;
+
+		try {
+			const tables = await firstValueFrom(this._tables.fetchTables(connectionId));
+			if (tables?.length) {
+				this.aiTables.set(tables);
+			}
+		} catch {
+			// Tables loading failed - AI feature will be unavailable
+		}
+
+		// Trigger dashboards loading; the effect in constructor picks up the result
+		this._dashboards.setActiveConnection(connectionId);
 	}
 }
