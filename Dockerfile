@@ -26,7 +26,7 @@ RUN ls /app/frontend/dist/rocketadmin/browser
 
 FROM node:24-slim
 
-RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+RUN groupadd -r -g 1001 appuser && useradd -r -u 1001 -g appuser -d /app -s /sbin/nologin appuser
 
 RUN apt-get update && apt-get install -y \
     tini nginx \
@@ -50,7 +50,7 @@ RUN chown -R appuser:appuser  /var/lib/nginx
 RUN chown -R appuser:appuser  /var/log/nginx
 RUN chown -R appuser:appuser  /run
 
-USER appuser
+USER 1001
 
 WORKDIR /app/backend
 ENTRYPOINT ["/app/backend/entrypoint.sh"]

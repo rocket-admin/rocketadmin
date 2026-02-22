@@ -22,7 +22,7 @@ RUN yarn install --production && yarn cache clean
 
 COPY --from=builder /app/dist ./dist
 
-USER nodejs
+USER 1001
 
 EXPOSE 8008 8009
 
