@@ -1,6 +1,6 @@
 FROM node:24-slim
 
-RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+RUN groupadd -r -g 1001 appuser && useradd -r -u 1001 -g appuser -d /app -s /sbin/nologin appuser
 
 WORKDIR /app
 RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3 libxml2
@@ -15,7 +15,7 @@ RUN cd rocketadmin-agent && yarn run build
 
 RUN chown -R appuser:appuser /app
 
-USER appuser
+USER 1001
 
 WORKDIR /app/rocketadmin-agent
 CMD ["node", "dist/main.js"]
