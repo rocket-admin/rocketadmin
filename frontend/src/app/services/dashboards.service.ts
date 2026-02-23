@@ -8,6 +8,7 @@ import {
 	UpdateDashboardPayload,
 	UpdateWidgetPayload,
 } from '../models/dashboard';
+import { GeneratedPanelWithPosition } from '../models/saved-query';
 import { ApiService } from './api.service';
 
 export type DashboardUpdateEvent = 'created' | 'updated' | 'deleted' | '';
@@ -136,6 +137,19 @@ export class DashboardsService {
 		payload: Pick<UpdateWidgetPayload, 'position_x' | 'position_y' | 'width' | 'height'>,
 	): Promise<DashboardWidget | null> {
 		return this._api.put<DashboardWidget>(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`, payload);
+	}
+
+	async generateWidgetWithAi(
+		dashboardId: string,
+		connectionId: string,
+		tableName: string,
+		payload: { chart_description: string; name?: string },
+	): Promise<GeneratedPanelWithPosition | null> {
+		return this._api.post<GeneratedPanelWithPosition>(
+			`/dashboard/${dashboardId}/widget/generate/${connectionId}`,
+			payload,
+			{ params: { tableName } },
+		);
 	}
 
 	async deleteWidget(connectionId: string, dashboardId: string, widgetId: string): Promise<DashboardWidget | null> {
