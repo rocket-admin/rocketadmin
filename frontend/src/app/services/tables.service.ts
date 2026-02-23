@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 import { AlertActionType, AlertType } from '../models/alert';
-import { PersonalTableViewSettings, Rule, TableSettings, Widget } from '../models/table';
+import { PersonalTableViewSettings, Rule, TableProperties, TableSettings, Widget } from '../models/table';
+import { ApiService } from './api.service';
 import { NotificationsService } from './notifications.service';
 
 export enum SortOrdering {
@@ -37,6 +38,24 @@ export class TablesService {
 
 	private tables = new BehaviorSubject<string>('');
 	public cast = this.tables.asObservable();
+
+	// Signal-based tables fetching
+	private _api = inject(ApiService);
+	private _activeConnectionId = signal<string | null>(null);
+	private _tablesResource = this._api.resource<TableProperties[]>(
+		() => {
+			const connectionId = this._activeConnectionId();
+			if (!connectionId) return undefined;
+			return `/connection/tables/${connectionId}`;
+		},
+		{ errorMessage: 'Failed to fetch tables' },
+	);
+	public readonly tablesSignal = computed(() => this._tablesResource.value() ?? []);
+	public readonly tablesLoading = computed(() => this._tablesResource.isLoading());
+
+	setActiveConnectionForTables(connectionId: string): void {
+		this._activeConnectionId.set(connectionId);
+	}
 
 	constructor(
 		private _http: HttpClient,
@@ -80,7 +99,7 @@ export class TablesService {
 	}
 
 	fetchTablesFolders(connectionID: string, hidden?: boolean) {
-		console.log('fetchTablesFolders service')
+		console.log('fetchTablesFolders service');
 		return this._http
 			.get<any>(`/table-categories/v2/${connectionID}`, {
 				params: {

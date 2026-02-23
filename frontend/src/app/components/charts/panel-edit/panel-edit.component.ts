@@ -17,7 +17,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
-import { firstValueFrom } from 'rxjs';
 import { DEFAULT_COLOR_PALETTE } from 'src/app/lib/chart-config.helper';
 import {
 	ChartAxisConfig,
@@ -30,7 +29,6 @@ import {
 	GeneratedPanelWithPosition,
 	TestQueryResult,
 } from 'src/app/models/saved-query';
-import { TableProperties } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
@@ -41,9 +39,9 @@ import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { ChartPreviewComponent } from '../chart-preview/chart-preview.component';
 
 @Component({
-	selector: 'app-chart-edit',
-	templateUrl: './chart-edit.component.html',
-	styleUrls: ['./chart-edit.component.css'],
+	selector: 'app-panel-edit',
+	templateUrl: './panel-edit.component.html',
+	styleUrls: ['./panel-edit.component.css'],
 	imports: [
 		CommonModule,
 		FormsModule,
@@ -64,7 +62,7 @@ import { ChartPreviewComponent } from '../chart-preview/chart-preview.component'
 		DashboardsSidebarComponent,
 	],
 })
-export class ChartEditComponent implements OnInit {
+export class PanelEditComponent implements OnInit {
 	protected connectionId = signal('');
 	protected queryId = signal('');
 	protected isEditMode = signal(false);
@@ -130,10 +128,11 @@ export class ChartEditComponent implements OnInit {
 	protected colorPalette = signal<string[]>([]);
 
 	// AI generation
+	private _tables = inject(TablesService);
 	protected aiDescription = signal('');
 	protected aiTableName = signal('');
 	protected aiGenerating = signal(false);
-	protected aiTables = signal<TableProperties[]>([]);
+	protected aiTables = this._tables.tablesSignal;
 	protected aiDashboardId = signal<string | null>(null);
 	protected aiExpanded = signal(true);
 	protected manualExpanded = signal(false);
@@ -374,7 +373,6 @@ export class ChartEditComponent implements OnInit {
 	private _savedQueries = inject(SavedQueriesService);
 	private _connections = inject(ConnectionsService);
 	private _dashboards = inject(DashboardsService);
-	private _tables = inject(TablesService);
 	private _uiSettings = inject(UiSettingsService);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
@@ -722,20 +720,11 @@ export class ChartEditComponent implements OnInit {
 		}
 	}
 
-	private async _loadAiPrerequisites(): Promise<void> {
+	private _loadAiPrerequisites(): void {
 		const connectionId = this.connectionId();
 		if (!connectionId) return;
 
-		try {
-			const tables = await firstValueFrom(this._tables.fetchTables(connectionId));
-			if (tables?.length) {
-				this.aiTables.set(tables);
-			}
-		} catch {
-			// Tables loading failed - AI feature will be unavailable
-		}
-
-		// Trigger dashboards loading; the effect in constructor picks up the result
+		this._tables.setActiveConnectionForTables(connectionId);
 		this._dashboards.setActiveConnection(connectionId);
 	}
 }

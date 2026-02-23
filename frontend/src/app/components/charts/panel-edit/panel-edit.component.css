@@ -7,19 +7,19 @@
 	z-index: 1;
 }
 
-.chart-edit-layout {
+.panel-edit-layout {
 	display: flex;
 	height: 100%;
 }
 
-.chart-edit-main {
+.panel-edit-main {
 	flex: 1;
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
 }
 
-.chart-edit-page {
+.panel-edit-page {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
@@ -31,13 +31,13 @@
 }
 
 @media (width <= 600px) {
-	.chart-edit-page {
+	.panel-edit-page {
 		padding: 0 16px;
 		margin: 1.5em auto;
 	}
 }
 
-.chart-edit-header {
+.panel-edit-header {
 	display: flex;
 	align-items: center;
 	gap: 16px;
@@ -45,7 +45,7 @@
 	flex-shrink: 0;
 }
 
-.chart-edit-header h1 {
+.panel-edit-header h1 {
 	margin: 0;
 }
 
@@ -55,7 +55,7 @@
 	padding: 64px;
 }
 
-.chart-edit-content {
+.panel-edit-content {
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
