@@ -345,16 +345,11 @@ IMPORTANT:
 	}
 
 	private cleanQueryResponse(aiResponse: string): string {
-		let cleaned = aiResponse.trim();
-		if (cleaned.startsWith('```sql')) {
-			cleaned = cleaned.slice(6);
-		} else if (cleaned.startsWith('```')) {
-			cleaned = cleaned.slice(3);
-		}
-		if (cleaned.endsWith('```')) {
-			cleaned = cleaned.slice(0, -3);
-		}
-		return cleaned.trim();
+		return aiResponse
+			.trim()
+			.replace(/^```[a-zA-Z]*\n?/, '')
+			.replace(/```\s*$/, '')
+			.trim();
 	}
 
 	private normalizeWhitespace(query: string): string {
