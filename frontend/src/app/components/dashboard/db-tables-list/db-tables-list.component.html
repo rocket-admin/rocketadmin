@@ -95,10 +95,10 @@
                         <div *ngIf="shouldShowFolder(folder)"
                             class="folder-item"
                             [class.expanded]="folder.expanded"
-                            [class.drag-over]="dragOverFolder !== 'all-tables-kitten' && dragOverFolder === folder.id"
-                            (dragover)="onFolderDragOver($event, folder.id)"
-                            (dragleave)="onFolderDragLeave($event, folder.id)"
-                            (drop)="onFolderDrop($event, folder)">
+                            [class.drag-over]="accessLevel === 'edit' && dragOverFolder !== 'all-tables-kitten' && dragOverFolder === folder.id"
+                            (dragover)="accessLevel === 'edit' && onFolderDragOver($event, folder.id)"
+                            (dragleave)="accessLevel === 'edit' && onFolderDragLeave($event, folder.id)"
+                            (drop)="accessLevel === 'edit' && onFolderDrop($event, folder)">
                             <div class="folder-header"
                                 [class.expanded]="folder.expanded"
                                 (click)="toggleFolder(folder.id)">
@@ -156,9 +156,9 @@
                                             routerLink="/dashboard/{{connectionID}}/{{table.table}}"
                                             [queryParams]="{page_index: 0, page_size: 30}"
                                             [ngClass]="{'table-link_active': selectedTable === table.table}"
-                                            [draggable]="true"
-                                            (dragstart)="onTableDragStart($event, table)"
-                                            (dragend)="onTableDragEnd($event)"
+                                            [draggable]="accessLevel === 'edit'"
+                                            (dragstart)="accessLevel === 'edit' && onTableDragStart($event, table)"
+                                            (dragend)="accessLevel === 'edit' && onTableDragEnd($event)"
                                             (click)="closeSidebar()">
                                             <span class="table-name">{{getTableName(table)}}</span>
                                         </a>
