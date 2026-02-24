@@ -1,6 +1,8 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
@@ -36,11 +38,29 @@ interface AIGeneratedWidgetResponse {
 	};
 }
 
+const MAX_FEEDBACK_ITERATIONS = 3;
+
+const EXPLAIN_SUPPORTED_TYPES: ReadonlySet<ConnectionTypesEnum> = new Set([
+	ConnectionTypesEnum.postgres,
+	ConnectionTypesEnum.agent_postgres,
+	ConnectionTypesEnum.mysql,
+	ConnectionTypesEnum.agent_mysql,
+	ConnectionTypesEnum.clickhouse,
+	ConnectionTypesEnum.agent_clickhouse,
+]);
+
+interface TableInfo {
+	table_name: string;
+	columns: Array<{ name: string; type: string; nullable: boolean }>;
+}
+
 @Injectable({ scope: Scope.REQUEST })
 export class GeneratePanelPositionWithAiUseCase
 	extends AbstractUseCase<GeneratePanelPositionWithAiDs, GeneratedPanelWithPositionDto>
 	implements IGeneratePanelPositionWithAi
 {
+	private readonly logger = new Logger(GeneratePanelPositionWithAiUseCase.name);
+
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
@@ -83,10 +103,7 @@ export class GeneratePanelPositionWithAiUseCase
 
 		const dao = getDataAccessObject(foundConnection);
 
-		let tableInfo: {
-			table_name: string;
-			columns: Array<{ name: string; type: string; nullable: boolean }>;
-		};
+		let tableInfo: TableInfo;
 
 		try {
 			const structure = await dao.getTableStructure(table_name, null);
@@ -116,15 +133,23 @@ export class GeneratePanelPositionWithAiUseCase
 
 		validateQuerySafety(generatedWidget.query_text, foundConnection.type as ConnectionTypesEnum);
 
+		const refinedWidget = await this.validateAndRefineQueryWithExplain(
+			dao,
+			generatedWidget,
+			tableInfo,
+			foundConnection.type as ConnectionTypesEnum,
+			chart_description,
+		);
+
 		return {
-			name: name || generatedWidget.name,
-			description: generatedWidget.description || null,
-			widget_type: this.mapWidgetType(generatedWidget.widget_type),
-			chart_type: generatedWidget.chart_type || null,
-			widget_options: generatedWidget.widget_options
-				? (generatedWidget.widget_options as unknown as Record<string, unknown>)
+			name: name || refinedWidget.name,
+			description: refinedWidget.description || null,
+			widget_type: this.mapWidgetType(refinedWidget.widget_type),
+			chart_type: refinedWidget.chart_type || null,
+			widget_options: refinedWidget.widget_options
+				? (refinedWidget.widget_options as unknown as Record<string, unknown>)
 				: null,
-			query_text: generatedWidget.query_text,
+			query_text: refinedWidget.query_text,
 			connection_id: connectionId,
 			panel_position: {
 				position_x: position_x ?? 0,
@@ -217,6 +242,118 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 				'Failed to generate widget configuration from AI. Please try again with a different description.',
 			);
 		}
+	}
+
+	private async validateAndRefineQueryWithExplain(
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		generatedWidget: AIGeneratedWidgetResponse,
+		tableInfo: TableInfo,
+		connectionType: ConnectionTypesEnum,
+		chartDescription: string,
+	): Promise<AIGeneratedWidgetResponse> {
+		if (!EXPLAIN_SUPPORTED_TYPES.has(connectionType)) {
+			return generatedWidget;
+		}
+
+		let currentQuery = generatedWidget.query_text;
+
+		for (let iteration = 0; iteration < MAX_FEEDBACK_ITERATIONS; iteration++) {
+			const explainResult = await this.runExplainQuery(dao, currentQuery, tableInfo.table_name);
+
+			const correctionPrompt = this.buildQueryCorrectionPrompt(
+				currentQuery,
+				explainResult.success ? explainResult.result : explainResult.error,
+				!explainResult.success,
+				tableInfo,
+				connectionType,
+				chartDescription,
+			);
+
+			const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, correctionPrompt, {
+				temperature: 0.2,
+			});
+
+			const correctedQuery = this.cleanQueryResponse(aiResponse);
+
+			validateQuerySafety(correctedQuery, connectionType);
+
+			if (this.normalizeWhitespace(correctedQuery) === this.normalizeWhitespace(currentQuery)) {
+				this.logger.log(`Query accepted by AI without changes after EXPLAIN (iteration ${iteration + 1})`);
+				break;
+			}
+
+			this.logger.log(`Query corrected by AI after EXPLAIN (iteration ${iteration + 1})`);
+			currentQuery = correctedQuery;
+
+			if (explainResult.success) {
+				break;
+			}
+		}
+
+		return { ...generatedWidget, query_text: currentQuery };
+	}
+
+	private async runExplainQuery(
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		query: string,
+		tableName: string,
+	): Promise<{ success: boolean; result?: string; error?: string }> {
+		try {
+			const explainQuery = `EXPLAIN ${query.replace(/;\s*$/, '')}`;
+			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, tableName);
+			return { success: true, result: JSON.stringify(result, null, 2) };
+		} catch (error) {
+			return { success: false, error: error.message };
+		}
+	}
+
+	private buildQueryCorrectionPrompt(
+		currentQuery: string,
+		explainResultOrError: string,
+		isError: boolean,
+		tableInfo: TableInfo,
+		connectionType: ConnectionTypesEnum,
+		chartDescription: string,
+	): string {
+		const schemaDescription = `Table: ${tableInfo.table_name}\n  Columns:\n${tableInfo.columns
+			.map((col) => `    - ${col.name}: ${col.type}${col.nullable ? ' (nullable)' : ''}`)
+			.join('\n')}`;
+
+		const feedbackSection = isError
+			? `The query FAILED with the following error:\n${explainResultOrError}\n\nPlease fix the query to resolve this error.`
+			: `The EXPLAIN output for the query is:\n${explainResultOrError}\n\nReview the execution plan. If the query has performance issues (full table scans on large datasets, inefficient joins, etc.), optimize it. If the query is already acceptable, return it unchanged.`;
+
+		return `You are a database query optimization assistant. A SQL query was generated and needs validation.
+
+DATABASE TYPE: ${connectionType}
+
+DATABASE SCHEMA:
+${schemaDescription}
+
+ORIGINAL USER REQUEST:
+"${chartDescription}"
+
+CURRENT QUERY:
+${currentQuery}
+
+${feedbackSection}
+
+IMPORTANT:
+- Preserve the same column aliases used in the original query.
+- Write valid ${connectionType} SQL syntax.
+- Return ONLY the SQL query, no explanations, no markdown, no JSON wrapping.`;
+	}
+
+	private cleanQueryResponse(aiResponse: string): string {
+		return aiResponse
+			.trim()
+			.replace(/^```[a-zA-Z]*\n?/, '')
+			.replace(/```\s*$/, '')
+			.trim();
+	}
+
+	private normalizeWhitespace(query: string): string {
+		return query.replace(/\s+/g, ' ').trim();
 	}
 
 	private mapWidgetType(type: string): DashboardWidgetTypeEnum {
