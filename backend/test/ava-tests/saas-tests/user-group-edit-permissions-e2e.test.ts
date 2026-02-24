@@ -983,8 +983,8 @@ test.serial(`${currentTest} should throw exception, when group id passed in requ
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text);
-		t.is(addUserInGroupResponse.status, 400);
-		t.is(addUserInGroupRO.message, Messages.CONNECTION_NOT_FOUND);
+		t.is(addUserInGroupResponse.status, 403);
+		t.is(addUserInGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 	}
@@ -1117,7 +1117,7 @@ test.serial(`${currentTest} should throw an exception when group id passed in re
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		const deleteGroupRO = JSON.parse(deleteGroupResponse.text);
-		t.is(deleteGroupRO.message, Messages.CONNECTION_NOT_FOUND);
+		t.is(deleteGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 	}
@@ -1310,7 +1310,7 @@ test.serial(`${currentTest} should throw exception, when group id passed in requ
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-		t.is(deleteUserInGroupRO.message, Messages.CONNECTION_NOT_FOUND);
+		t.is(deleteUserInGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 	}

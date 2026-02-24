@@ -2347,6 +2347,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cedar-policy/cedar-wasm@npm:^4.9.0":
+  version: 4.9.0
+  resolution: "@cedar-policy/cedar-wasm@npm:4.9.0"
+  checksum: 431046ae3f1802fc7163c11cb0c42856f876f2c89a200f43570f25249c2c647658ef024d33292b4c0331c4fee8855ac9d9f3e91afe9dd78d69a86fcf65956afc
+  languageName: node
+  linkType: hard
+
 "@cfworker/json-schema@npm:^4.0.2":
   version: 4.1.1
   resolution: "@cfworker/json-schema@npm:4.1.1"
@@ -6369,6 +6376,7 @@ __metadata:
     "@aws-sdk/client-s3": ^3.990.0
     "@aws-sdk/lib-dynamodb": ^3.990.0
     "@aws-sdk/s3-request-presigner": ^3.990.0
+    "@cedar-policy/cedar-wasm": ^4.9.0
     "@electric-sql/pglite": ^0.3.15
     "@faker-js/faker": ^10.3.0
     "@langchain/aws": ^1.2.3

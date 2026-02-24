@@ -128,6 +128,11 @@ export const Constants = {
 		ttl: 1000 * 10,
 	},
 
+	DEFAULT_CEDAR_POLICY_CACHE_OPTIONS: {
+		max: 500,
+		ttl: 1000 * 60 * 5,
+	},
+
 	DEFAULT_FORWARD_IN_HOST: '127.0.0.1',
 	AUTOCOMPLETE_ROW_LIMIT: 20,
 

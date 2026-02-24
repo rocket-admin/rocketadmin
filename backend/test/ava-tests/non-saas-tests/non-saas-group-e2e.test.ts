@@ -218,9 +218,9 @@ test.serial(`${currentTest} should throw an error when group id is not real`, as
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
-		t.is(findAllUsersInGroup.status, 400);
+		t.is(findAllUsersInGroup.status, 403);
 		const { message } = JSON.parse(findAllUsersInGroup.text);
-		t.is(message, Messages.CONNECTION_NOT_FOUND);
+		t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 		throw e;
@@ -497,9 +497,9 @@ test.serial(`${currentTest} should throw an error when groupId is incorrect`, as
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
-		t.is(addUserInGroup.status, 400);
+		t.is(addUserInGroup.status, 403);
 		const { message } = JSON.parse(addUserInGroup.text);
-		t.is(message, Messages.CONNECTION_NOT_FOUND);
+		t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 		throw e;
@@ -692,9 +692,9 @@ test.serial(`${currentTest} should return throw an exception when groupId is inc
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
-		t.is(deleteResult.status, 400);
+		t.is(deleteResult.status, 403);
 		const { message } = JSON.parse(deleteResult.text);
-		t.is(message, Messages.CONNECTION_NOT_FOUND);
+		t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 		throw e;
@@ -1128,8 +1128,8 @@ test.serial(`${currentTest} should throw an error, when group id is incorrect`, 
 			.set('Accept', 'application/json');
 
 		const { message } = JSON.parse(removeUserFromGroup.text);
-		t.is(removeUserFromGroup.status, 400);
-		t.is(message, Messages.CONNECTION_NOT_FOUND);
+		t.is(removeUserFromGroup.status, 403);
+		t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 		throw e;

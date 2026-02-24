@@ -29,6 +29,7 @@
 		"@aws-sdk/client-s3": "^3.990.0",
 		"@aws-sdk/lib-dynamodb": "^3.990.0",
 		"@aws-sdk/s3-request-presigner": "^3.990.0",
+		"@cedar-policy/cedar-wasm": "^4.9.0",
 		"@electric-sql/pglite": "^0.3.15",
 		"@faker-js/faker": "^10.3.0",
 		"@langchain/aws": "^1.2.3",

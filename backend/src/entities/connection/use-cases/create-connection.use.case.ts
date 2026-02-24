@@ -13,6 +13,8 @@ import { UserEntity } from '../../user/user.entity.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { ConnectionEntity } from '../connection.entity.js';
+import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
+import { AccessLevelEnum } from '../../../enums/index.js';
 import { buildConnectionEntity } from '../utils/build-connection-entity.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
@@ -98,6 +100,17 @@ export class CreateConnectionUseCase
 				connectionAuthor,
 			);
 			await this._dbContext.permissionRepository.createdDefaultAdminPermissionsInGroup(createdAdminGroup);
+			createdAdminGroup.cedarPolicy = generateCedarPolicyForGroup(
+				createdAdminGroup.id,
+				savedConnection.id,
+				true,
+				{
+					connection: { connectionId: savedConnection.id, accessLevel: AccessLevelEnum.edit },
+					group: { groupId: createdAdminGroup.id, accessLevel: AccessLevelEnum.edit },
+					tables: [],
+				},
+			);
+			await this._dbContext.groupRepository.saveNewOrUpdatedGroup(createdAdminGroup);
 			delete createdAdminGroup.connection;
 			await this._dbContext.userRepository.saveUserEntity(connectionAuthor);
 			createdConnection.groups = [createdAdminGroup];
