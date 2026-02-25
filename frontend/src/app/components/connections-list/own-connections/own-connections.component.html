@@ -2,7 +2,7 @@
 
 <div *ngIf="!connections?.length && connections !== null" class="empty-state">
     <h1 *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !isDemo" class="mat-display-1">
-        Create first connection
+        Create your first connection
     </h1>
     <ul class="supportedDatabases">
         <li *ngFor="let supportedDatabase of supportedOrderedDatabases">
