@@ -34,6 +34,6 @@ export class JsonEditorRecordViewComponent extends BaseRecordViewFieldComponent 
       value: this.value
     }
 
-    this.codeEditorTheme = this._uiSettings.editorTheme;
+    this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
   }
 }
