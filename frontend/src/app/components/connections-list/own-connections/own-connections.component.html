@@ -11,7 +11,7 @@
                 class="addConnectionLink"
                 attr.data-testid="{{supportedDatabase}}-test-connection-list-item">
                 <div class="addConnectionLink__iconBox">
-                    <mat-icon [svgIcon]="supportedDatabase" class="addConnectionLink__icon"></mat-icon>
+                    <mat-icon [svgIcon]="supportedDatabase === 'cassandra' && isDarkMode ? 'cassandra-dark' : supportedDatabase" class="addConnectionLink__icon"></mat-icon>
                 </div>
                 <span class="addConnectionLink__label">
                     {{ getMainTitle(supportedDatabase) }}
