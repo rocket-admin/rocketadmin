@@ -10,6 +10,7 @@ import { DashboardWidgetController } from './panel-position.controller.js';
 import { CreatePanelPositionUseCase } from './use-cases/create-panel-position.use.case.js';
 import { DeletePanelPositionUseCase } from './use-cases/delete-panel-position.use.case.js';
 import { GeneratePanelPositionWithAiUseCase } from './use-cases/generate-panel-position-with-ai.use.case.js';
+import { GenerateTableDashboardWithAiUseCase } from './use-cases/generate-table-dashboard-with-ai.use.case.js';
 import { UpdateDashboardWidgetUseCase } from './use-cases/update-panel-position.use.case.js';
 
 @Module({
@@ -35,6 +36,10 @@ import { UpdateDashboardWidgetUseCase } from './use-cases/update-panel-position.
 			provide: UseCaseType.GENERATE_WIDGET_WITH_AI,
 			useClass: GeneratePanelPositionWithAiUseCase,
 		},
+		{
+			provide: UseCaseType.GENERATE_TABLE_DASHBOARD_WITH_AI,
+			useClass: GenerateTableDashboardWithAiUseCase,
+		},
 	],
 	controllers: [DashboardWidgetController],
 	exports: [],
@@ -46,6 +51,7 @@ export class PanelPositionModule {
 			.forRoutes(
 				{ path: '/dashboard/:dashboardId/widget/:connectionId', method: RequestMethod.POST },
 				{ path: '/dashboard/:dashboardId/widget/generate/:connectionId', method: RequestMethod.POST },
+				{ path: '/dashboard/generate-table-dashboard/:connectionId', method: RequestMethod.POST },
 				{ path: '/dashboard/:dashboardId/widget/:widgetId/:connectionId', method: RequestMethod.PUT },
 				{ path: '/dashboard/:dashboardId/widget/:widgetId/:connectionId', method: RequestMethod.DELETE },
 			);
