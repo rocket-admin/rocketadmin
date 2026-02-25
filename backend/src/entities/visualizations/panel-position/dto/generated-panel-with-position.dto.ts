@@ -8,14 +8,14 @@ export class GeneratedPanelPositionDto {
 	@ApiProperty({ description: 'Position Y in grid' })
 	position_y: number;
 
-	@ApiProperty({ description: 'Widget width in grid units' })
+	@ApiProperty({ description: 'Panel width in grid units' })
 	width: number;
 
-	@ApiProperty({ description: 'Widget height in grid units' })
+	@ApiProperty({ description: 'Panel height in grid units' })
 	height: number;
 
-	@ApiProperty({ description: 'Dashboard ID' })
-	dashboard_id: string;
+	@ApiProperty({ description: 'Dashboard ID', nullable: true })
+	dashboard_id: string | null;
 }
 
 export class GeneratedPanelWithPositionDto {
@@ -25,14 +25,14 @@ export class GeneratedPanelWithPositionDto {
 	@ApiPropertyOptional({ description: 'Panel description' })
 	description: string | null;
 
-	@ApiProperty({ description: 'Widget type', enum: DashboardWidgetTypeEnum })
-	widget_type: DashboardWidgetTypeEnum;
+	@ApiProperty({ description: 'Panel type', enum: DashboardWidgetTypeEnum })
+	panel_type: DashboardWidgetTypeEnum;
 
-	@ApiPropertyOptional({ description: 'Chart type for chart widgets' })
+	@ApiPropertyOptional({ description: 'Chart type for chart panels' })
 	chart_type: string | null;
 
 	@ApiPropertyOptional({ description: 'Visualization options' })
-	widget_options: Record<string, unknown> | null;
+	panel_options: Record<string, unknown> | null;
 
 	@ApiProperty({ description: 'AI-generated SQL query text' })
 	query_text: string;

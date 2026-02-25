@@ -3,15 +3,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { JsonEditorEditComponent } from './json-editor.component';
 
 describe('JsonEditorEditComponent', () => {
 	let component: JsonEditorEditComponent;
 	let fixture: ComponentFixture<JsonEditorEditComponent>;
 
+	const mockUiSettingsService = {
+		isDarkMode: true,
+	};
+
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [JsonEditorEditComponent, BrowserAnimationsModule],
+			providers: [{ provide: UiSettingsService, useValue: mockUiSettingsService }],
 		})
 			.overrideComponent(JsonEditorEditComponent, {
 				remove: { imports: [CodeEditorModule] },
