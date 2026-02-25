@@ -220,7 +220,7 @@ export class ConnectDBComponent implements OnInit {
 						this.connectionToken = res.token;
 						this.connectionID = res.id;
 					} else {
-						this.router.navigate([`/dashboard/${createdConnectionID}`]);
+						this.router.navigate([`/auto-configure/${createdConnectionID}`]);
 					}
 					this.angulartics2.eventTrack.next({
 						action: 'Connect DB: connection is added successfully',
