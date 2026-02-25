@@ -3,11 +3,6 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
-import AbstractUseCase from '../../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../../../common/data-injection.tokens.js';
-import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
-import { Messages } from '../../../../exceptions/text/messages.js';
 import {
 	AICoreService,
 	AIProviderType,
@@ -15,18 +10,23 @@ import {
 	AIToolDefinition,
 	cleanAIJsonResponse,
 	createDashboardGenerationTools,
-	encodeToToon,
 	encodeError,
+	encodeToToon,
 	MessageBuilder,
 } from '../../../../ai-core/index.js';
-import { GenerateTableDashboardWithAiDs } from '../data-structures/generate-table-dashboard-with-ai.ds.js';
-import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
-import { IGenerateTableDashboardWithAi } from './panel-position-use-cases.interface.js';
-import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { DashboardEntity } from '../../dashboard/dashboard.entity.js';
 import { PanelEntity } from '../../panel/panel.entity.js';
+import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
+import { GenerateTableDashboardWithAiDs } from '../data-structures/generate-table-dashboard-with-ai.ds.js';
+import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
 import { PanelPositionEntity } from '../panel-position.entity.js';
-import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
+import { IGenerateTableDashboardWithAi } from './panel-position-use-cases.interface.js';
 
 interface AIGeneratedPanelResponse {
 	name: string;
@@ -472,7 +472,7 @@ IMPORTANT GUIDELINES:
 	): string {
 		const feedbackSection = isError
 			? `The query FAILED with the following error:\n${explainResultOrError}\n\nPlease fix the query to resolve this error.`
-			: `The EXPLAIN output for the query is:\n${explainResultOrError}\n\nReview the execution plan. If the query has performance issues (full table scans on large datasets, inefficient joins, etc.), optimize it. If the query is already acceptable, return it unchanged.`;
+			: `The EXPLAIN output for the query is:\n${explainResultOrError}\n\nReview the execution plan. If the query has performance issues (full table scans on large datasets, inefficient joins, etc.), optimize it if possible. If the query is already acceptable, return it unchanged.`;
 
 		return `You are a database query optimization assistant. A SQL query was generated and needs validation.
 
@@ -485,10 +485,7 @@ ${currentQuery}
 
 ${feedbackSection}
 
-IMPORTANT:
-- Preserve the same column aliases used in the original query.
-- Write valid ${connectionType} SQL syntax.
-- Return ONLY the SQL query, no explanations, no markdown, no JSON wrapping.`;
+Respond with SQL only. Preserve column aliases. Valid ${connectionType} syntax.`;
 	}
 
 	private cleanQueryResponse(aiResponse: string): string {
