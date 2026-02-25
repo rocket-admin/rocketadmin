@@ -2,7 +2,7 @@
 
 <div class="code-editor-box ph-no-capture">
     <ngs-code-editor
-        theme="vs"
+        [theme]="codeEditorTheme"
         [codeModel]="mutableCodeModel"
         [options]="codeEditorOptions"
         [readOnly]="readonly"

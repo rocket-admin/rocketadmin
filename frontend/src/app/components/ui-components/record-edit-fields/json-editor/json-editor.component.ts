@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { CommonModule } from '@angular/common';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 @Component({
   selector: 'app-edit-json-editor',
@@ -20,6 +21,13 @@ export class JsonEditorEditComponent extends BaseEditFieldComponent {
     scrollBeyondLastLine: false,
     wordWrap: 'on',
   };
+  public codeEditorTheme = 'vs-dark';
+
+  constructor(
+    private _uiSettings: UiSettingsService,
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -28,5 +36,7 @@ export class JsonEditorEditComponent extends BaseEditFieldComponent {
       uri: `${this.label}.json`,
       value: JSON.stringify(this.value, undefined, 4) || '{}'
     }
+
+    this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
   }
 }

@@ -404,7 +404,7 @@ export class ChartEditComponent implements OnInit {
 		this.queryId.set(this.route.snapshot.paramMap.get('query-id') || '');
 		this.isEditMode.set(!!this.queryId());
 
-		this.codeEditorTheme = this._uiSettings.editorTheme;
+		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
 
 		if (this.isEditMode()) {
 			this.manualExpanded.set(true);
