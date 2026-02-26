@@ -17,7 +17,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
-import { firstValueFrom } from 'rxjs';
 import { DEFAULT_COLOR_PALETTE } from 'src/app/lib/chart-config.helper';
 import {
 	ChartAxisConfig,
@@ -30,11 +29,9 @@ import {
 	GeneratedPanelWithPosition,
 	TestQueryResult,
 } from 'src/app/models/saved-query';
-import { TableProperties } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
-import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { DashboardsSidebarComponent } from '../../dashboards/dashboards-sidebar/dashboards-sidebar.component';
 import { AlertComponent } from '../../ui-components/alert/alert.component';
@@ -131,13 +128,11 @@ export class ChartEditComponent implements OnInit {
 
 	// AI generation
 	protected aiDescription = signal('');
-	protected aiTableName = signal('');
 	protected aiGenerating = signal(false);
-	protected aiTables = signal<TableProperties[]>([]);
 	protected aiDashboardId = signal<string | null>(null);
 	protected aiExpanded = signal(true);
 	protected manualExpanded = signal(false);
-	protected canGenerate = computed(() => !!this.aiDescription().trim() && !!this.aiTableName() && !this.aiGenerating());
+	protected canGenerate = computed(() => !!this.aiDescription().trim() && !this.aiGenerating());
 
 	public chartTypes: { value: ChartType; label: string }[] = [
 		{ value: 'bar', label: 'Bar Chart' },
@@ -374,7 +369,6 @@ export class ChartEditComponent implements OnInit {
 	private _savedQueries = inject(SavedQueriesService);
 	private _connections = inject(ConnectionsService);
 	private _dashboards = inject(DashboardsService);
-	private _tables = inject(TablesService);
 	private _uiSettings = inject(UiSettingsService);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
@@ -645,12 +639,12 @@ export class ChartEditComponent implements OnInit {
 
 	async generateWithAi(): Promise<void> {
 		const dashboardId = this.aiDashboardId();
-		if (!dashboardId || !this.aiTableName() || !this.aiDescription().trim()) return;
+		if (!dashboardId || !this.aiDescription().trim()) return;
 
 		this.aiGenerating.set(true);
 
 		try {
-			const result = await this._dashboards.generateWidgetWithAi(dashboardId, this.connectionId(), this.aiTableName(), {
+			const result = await this._dashboards.generateWidgetWithAi(dashboardId, this.connectionId(), {
 				chart_description: this.aiDescription(),
 			});
 
@@ -722,18 +716,9 @@ export class ChartEditComponent implements OnInit {
 		}
 	}
 
-	private async _loadAiPrerequisites(): Promise<void> {
+	private _loadAiPrerequisites(): void {
 		const connectionId = this.connectionId();
 		if (!connectionId) return;
-
-		try {
-			const tables = await firstValueFrom(this._tables.fetchTables(connectionId));
-			if (tables?.length) {
-				this.aiTables.set(tables);
-			}
-		} catch {
-			// Tables loading failed - AI feature will be unavailable
-		}
 
 		// Trigger dashboards loading; the effect in constructor picks up the result
 		this._dashboards.setActiveConnection(connectionId);

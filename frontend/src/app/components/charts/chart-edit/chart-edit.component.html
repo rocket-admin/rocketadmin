@@ -20,7 +20,7 @@
 
     @if (!loading()) {
         <div class="chart-edit-content">
-            @if (aiTables().length > 0 && aiDashboardId()) {
+            @if (aiDashboardId()) {
                 <div class="ai-section" [class.ai-section--collapsed]="!aiExpanded()">
                     <div class="ai-section-header" (click)="aiExpanded.set(!aiExpanded())">
                         <div class="ai-section-title">
@@ -33,19 +33,6 @@
                     @if (aiExpanded()) {
                         <div class="ai-section-body">
                             <div class="ai-fields">
-                                <mat-form-field appearance="outline" class="ai-table-field">
-                                    <mat-label>Table</mat-label>
-                                    <mat-select
-                                        [ngModel]="aiTableName()"
-                                        (ngModelChange)="aiTableName.set($event)"
-                                        data-testid="ai-table-select">
-                                        @for (table of aiTables(); track table.table) {
-                                            <mat-option [value]="table.table">{{ table.display_name || table.table }}</mat-option>
-                                        }
-                                    </mat-select>
-                                    <mat-hint>Select the table to generate a chart for</mat-hint>
-                                </mat-form-field>
-
                                 <mat-form-field appearance="outline" class="ai-description-field">
                                     <mat-label>Chart description</mat-label>
                                     <textarea matInput
