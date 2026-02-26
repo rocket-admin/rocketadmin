@@ -7,7 +7,13 @@ import { GroupEntity } from '../group/group.entity.js';
 import { groupCustomRepositoryExtension } from '../group/repository/group-custom-repository-extension.js';
 import { IGroupRepository } from '../group/repository/group.repository.interface.js';
 import { UserEntity } from '../user/user.entity.js';
-import { CedarAction, CedarResourceType, CEDAR_ACTION_TYPE, CEDAR_USER_TYPE } from './cedar-action-map.js';
+import {
+	CedarAction,
+	CedarResourceType,
+	CedarValidationRequest,
+	CEDAR_ACTION_TYPE,
+	CEDAR_USER_TYPE,
+} from './cedar-action-map.js';
 import { ICedarAuthorizationService } from './cedar-authorization.service.interface.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
@@ -36,68 +42,34 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		return process.env.CEDAR_AUTHORIZATION_ENABLED === 'true';
 	}
 
-	async checkConnectionRead(userId: string, connectionId: string): Promise<boolean> {
-		return this.evaluate(userId, connectionId, CedarAction.ConnectionRead, CedarResourceType.Connection, connectionId);
-	}
+	async validate(request: CedarValidationRequest): Promise<boolean> {
+		const { userId, action, groupId, tableName } = request;
+		let { connectionId } = request;
 
-	async checkConnectionEdit(userId: string, connectionId: string): Promise<boolean> {
-		return this.evaluate(userId, connectionId, CedarAction.ConnectionEdit, CedarResourceType.Connection, connectionId);
-	}
+		const actionPrefix = action.split(':')[0];
+		let resourceType: CedarResourceType;
+		let resourceId: string;
 
-	async checkGroupRead(userId: string, groupId: string): Promise<boolean> {
-		const connectionId = await this.getConnectionIdForGroup(groupId);
-		if (!connectionId) return false;
-		return this.evaluate(userId, connectionId, CedarAction.GroupRead, CedarResourceType.Group, groupId);
-	}
+		switch (actionPrefix) {
+			case 'connection':
+				resourceType = CedarResourceType.Connection;
+				resourceId = connectionId;
+				break;
+			case 'group':
+				resourceType = CedarResourceType.Group;
+				connectionId = await this.getConnectionIdForGroup(groupId);
+				if (!connectionId) return false;
+				resourceId = groupId;
+				break;
+			case 'table':
+				resourceType = CedarResourceType.Table;
+				resourceId = `${connectionId}/${tableName}`;
+				break;
+			default:
+				return false;
+		}
 
-	async checkGroupEdit(userId: string, groupId: string): Promise<boolean> {
-		const connectionId = await this.getConnectionIdForGroup(groupId);
-		if (!connectionId) return false;
-		return this.evaluate(userId, connectionId, CedarAction.GroupEdit, CedarResourceType.Group, groupId);
-	}
-
-	async checkTableRead(userId: string, connectionId: string, tableName: string): Promise<boolean> {
-		return this.evaluate(
-			userId,
-			connectionId,
-			CedarAction.TableRead,
-			CedarResourceType.Table,
-			`${connectionId}/${tableName}`,
-			tableName,
-		);
-	}
-
-	async checkTableAdd(userId: string, connectionId: string, tableName: string): Promise<boolean> {
-		return this.evaluate(
-			userId,
-			connectionId,
-			CedarAction.TableAdd,
-			CedarResourceType.Table,
-			`${connectionId}/${tableName}`,
-			tableName,
-		);
-	}
-
-	async checkTableEdit(userId: string, connectionId: string, tableName: string): Promise<boolean> {
-		return this.evaluate(
-			userId,
-			connectionId,
-			CedarAction.TableEdit,
-			CedarResourceType.Table,
-			`${connectionId}/${tableName}`,
-			tableName,
-		);
-	}
-
-	async checkTableDelete(userId: string, connectionId: string, tableName: string): Promise<boolean> {
-		return this.evaluate(
-			userId,
-			connectionId,
-			CedarAction.TableDelete,
-			CedarResourceType.Table,
-			`${connectionId}/${tableName}`,
-			tableName,
-		);
+		return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName);
 	}
 
 	invalidatePolicyCacheForConnection(connectionId: string): void {

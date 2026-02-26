@@ -18,3 +18,11 @@ export enum CedarResourceType {
 export const CEDAR_ACTION_TYPE = 'RocketAdmin::Action';
 export const CEDAR_USER_TYPE = 'RocketAdmin::User';
 export const CEDAR_GROUP_TYPE = 'RocketAdmin::Group';
+
+export interface CedarValidationRequest {
+	userId: string;
+	action: CedarAction;
+	connectionId?: string;
+	groupId?: string;
+	tableName?: string;
+}

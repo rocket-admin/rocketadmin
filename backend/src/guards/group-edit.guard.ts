@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 import { BaseType } from '../common/data-injection.tokens.js';
+import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';
 import { CedarAuthorizationService } from '../entities/cedar-authorization/cedar-authorization.service.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
@@ -41,7 +42,11 @@ export class GroupEditGuard implements CanActivate {
 			// Cedar-first authorization
 			if (this.cedarAuthService.isFeatureEnabled()) {
 				try {
-					const allowed = await this.cedarAuthService.checkGroupEdit(cognitoUserName, groupId);
+					const allowed = await this.cedarAuthService.validate({
+						userId: cognitoUserName,
+						action: CedarAction.GroupEdit,
+						groupId,
+					});
 					if (allowed) {
 						resolve(true);
 						return;
