@@ -1,5 +1,4 @@
 export class GeneratePanelPositionWithAiDs {
-	dashboardId: string;
 	connectionId: string;
 	masterPassword: string;
 	userId: string;

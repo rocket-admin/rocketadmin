@@ -13,9 +13,6 @@ export class GeneratedPanelPositionDto {
 
 	@ApiProperty({ description: 'Panel height in grid units' })
 	height: number;
-
-	@ApiProperty({ description: 'Dashboard ID', nullable: true })
-	dashboard_id: string | null;
 }
 
 export class GeneratedPanelWithPositionDto {

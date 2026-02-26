@@ -164,7 +164,7 @@ test.after(async () => {
 	}
 });
 
-currentTest = 'POST /dashboard/:dashboardId/widget/generate/:connectionId';
+currentTest = 'POST /widget/generate/:connectionId';
 
 test.serial(`${currentTest} should generate a widget with AI for chart type`, async (t) => {
 	mockResponse = MOCK_AI_RESPONSE_CHART;
@@ -183,19 +183,8 @@ test.serial(`${currentTest} should generate a widget with AI for chart type`, as
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
 	t.is(createConnectionResponse.status, 201);
 
-	const createDashboard = await request(app.getHttpServer())
-		.post(`/dashboards/${connectionId}`)
-		.send({ name: 'AI Generated Dashboard' })
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const dashboardId = JSON.parse(createDashboard.text).id;
-	t.is(createDashboard.status, 201);
-
 	const generateWidget = await request(app.getHttpServer())
-		.post(`/dashboard/${dashboardId}/widget/generate/${connectionId}`)
+		.post(`/widget/generate/${connectionId}`)
 		.send({
 			chart_description: 'Show total sales by category as a bar chart',
 		})
@@ -222,7 +211,6 @@ test.serial(`${currentTest} should generate a widget with AI for chart type`, as
 	t.is(generateWidgetRO.panel_position.position_y, 0);
 	t.is(generateWidgetRO.panel_position.width, 6);
 	t.is(generateWidgetRO.panel_position.height, 4);
-	t.is(generateWidgetRO.panel_position.dashboard_id, dashboardId);
 
 	const getSavedQueries = await request(app.getHttpServer())
 		.get(`/connection/${connectionId}/saved-queries`)
@@ -253,18 +241,8 @@ test.serial(`${currentTest} should generate a counter widget with AI`, async (t)
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
 	t.is(createConnectionResponse.status, 201);
 
-	const createDashboard = await request(app.getHttpServer())
-		.post(`/dashboards/${connectionId}`)
-		.send({ name: 'Counter Dashboard' })
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const dashboardId = JSON.parse(createDashboard.text).id;
-
 	const generateWidget = await request(app.getHttpServer())
-		.post(`/dashboard/${dashboardId}/widget/generate/${connectionId}`)
+		.post(`/widget/generate/${connectionId}`)
 		.send({
 			chart_description: 'Show total count of orders',
 		})
@@ -283,7 +261,6 @@ test.serial(`${currentTest} should generate a counter widget with AI`, async (t)
 	t.is(generateWidgetRO.connection_id, connectionId);
 
 	t.truthy(generateWidgetRO.panel_position);
-	t.is(generateWidgetRO.panel_position.dashboard_id, dashboardId);
 });
 
 test.serial(`${currentTest} should reject AI-generated unsafe query`, async (t) => {
@@ -302,18 +279,8 @@ test.serial(`${currentTest} should reject AI-generated unsafe query`, async (t) 
 		.set('Accept', 'application/json');
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
 
-	const createDashboard = await request(app.getHttpServer())
-		.post(`/dashboards/${connectionId}`)
-		.send({ name: 'Unsafe Query Dashboard' })
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const dashboardId = JSON.parse(createDashboard.text).id;
-
 	const generateWidget = await request(app.getHttpServer())
-		.post(`/dashboard/${dashboardId}/widget/generate/${connectionId}`)
+		.post(`/widget/generate/${connectionId}`)
 		.send({
 			chart_description: 'Delete all data',
 		})
@@ -344,19 +311,9 @@ test.serial(`${currentTest} should generate widget with custom name`, async (t) 
 		.set('Accept', 'application/json');
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
 
-	const createDashboard = await request(app.getHttpServer())
-		.post(`/dashboards/${connectionId}`)
-		.send({ name: 'Custom Name Dashboard' })
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const dashboardId = JSON.parse(createDashboard.text).id;
-
 	const customName = 'My Custom Widget Name';
 	const generateWidget = await request(app.getHttpServer())
-		.post(`/dashboard/${dashboardId}/widget/generate/${connectionId}`)
+		.post(`/widget/generate/${connectionId}`)
 		.send({
 			chart_description: 'Show sales data',
 			name: customName,
@@ -387,18 +344,8 @@ test.serial(`${currentTest} should fail without chart_description`, async (t) =>
 		.set('Accept', 'application/json');
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
 
-	const createDashboard = await request(app.getHttpServer())
-		.post(`/dashboards/${connectionId}`)
-		.send({ name: 'No Description Dashboard' })
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const dashboardId = JSON.parse(createDashboard.text).id;
-
 	const generateWidget = await request(app.getHttpServer())
-		.post(`/dashboard/${dashboardId}/widget/generate/${connectionId}`)
+		.post(`/widget/generate/${connectionId}`)
 		.send({})
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
@@ -408,33 +355,3 @@ test.serial(`${currentTest} should fail without chart_description`, async (t) =>
 	t.is(generateWidget.status, 400);
 });
 
-test.serial(`${currentTest} should fail for non-existent dashboard`, async (t) => {
-	mockResponse = MOCK_AI_RESPONSE_CHART;
-	toolCallCounter = 0;
-
-	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-	const { token } = await registerUserAndReturnUserInfo(app);
-	const { testTableName } = await createTestTable(connectionToTestDB);
-
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', token)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const connectionId = JSON.parse(createConnectionResponse.text).id;
-
-	const fakeDashboardId = faker.string.uuid();
-
-	const generateWidget = await request(app.getHttpServer())
-		.post(`/dashboard/${fakeDashboardId}/widget/generate/${connectionId}`)
-		.send({
-			chart_description: 'Show some data',
-		})
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	t.is(generateWidget.status, 404);
-});
