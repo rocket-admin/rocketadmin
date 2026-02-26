@@ -4,7 +4,6 @@ export class GeneratePanelPositionWithAiDs {
 	masterPassword: string;
 	userId: string;
 	chart_description: string;
-	table_name: string;
 	name?: string;
 	position_x?: number;
 	position_y?: number;

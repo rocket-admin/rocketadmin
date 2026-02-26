@@ -3,12 +3,23 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
-import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../../../ai-core/index.js';
+import {
+	AICoreService,
+	AIProviderType,
+	AIToolCall,
+	AIToolDefinition,
+	cleanAIJsonResponse,
+	createDashboardGenerationTools,
+	encodeError,
+	encodeToToon,
+	MessageBuilder,
+} from '../../../../ai-core/index.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
 import { GeneratePanelPositionWithAiDs } from '../data-structures/generate-panel-position-with-ai.ds.js';
 import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
@@ -38,6 +49,7 @@ interface AIGeneratedPanelResponse {
 	};
 }
 
+const MAX_TOOL_ITERATIONS = 10;
 const MAX_FEEDBACK_ITERATIONS = 3;
 
 const EXPLAIN_SUPPORTED_TYPES: ReadonlySet<ConnectionTypesEnum> = new Set([
@@ -48,11 +60,6 @@ const EXPLAIN_SUPPORTED_TYPES: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.clickhouse,
 	ConnectionTypesEnum.agent_clickhouse,
 ]);
-
-interface TableInfo {
-	table_name: string;
-	columns: Array<{ name: string; type: string; nullable: boolean }>;
-}
 
 @Injectable({ scope: Scope.REQUEST })
 export class GeneratePanelPositionWithAiUseCase
@@ -74,8 +81,8 @@ export class GeneratePanelPositionWithAiUseCase
 			dashboardId,
 			connectionId,
 			masterPassword,
+			userId,
 			chart_description,
-			table_name,
 			name,
 			position_x,
 			position_y,
@@ -103,31 +110,25 @@ export class GeneratePanelPositionWithAiUseCase
 
 		const dao = getDataAccessObject(foundConnection);
 
-		let tableInfo: TableInfo;
-
-		try {
-			const structure = await dao.getTableStructure(table_name, null);
-			tableInfo = {
-				table_name: table_name,
-				columns: structure.map((col) => ({
-					name: col.column_name,
-					type: col.data_type,
-					nullable: col.allow_null,
-				})),
-			};
-		} catch (error) {
-			throw new BadRequestException(`Failed to get table structure for "${table_name}": ${error.message}`);
+		let userEmail: string;
+		if (isConnectionTypeAgent(foundConnection.type)) {
+			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
 		}
 
-		if (tableInfo.columns.length === 0) {
-			throw new BadRequestException(`The specified table "${table_name}" does not have any columns or does not exist.`);
-		}
+		const tools = createDashboardGenerationTools();
 
-		const prompt = this.buildPrompt(chart_description, tableInfo, foundConnection.type);
+		const systemPrompt = this.buildSystemPrompt(foundConnection.type as ConnectionTypesEnum);
 
-		const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, prompt, {
-			temperature: 0.3,
-		});
+		const messages = new MessageBuilder()
+			.system(systemPrompt)
+			.human(
+				`Generate a single panel based on this description: "${chart_description}". ` +
+					`Start by listing the available tables, then inspect the ones that are relevant to this request. ` +
+					`Generate the panel configuration.`,
+			)
+			.build();
+
+		const aiResponse = await this.runToolLoop(messages, tools, dao, userEmail);
 
 		const generatedPanel = this.parseAIResponse(aiResponse);
 
@@ -136,9 +137,7 @@ export class GeneratePanelPositionWithAiUseCase
 		const refinedPanel = await this.validateAndRefineQueryWithExplain(
 			dao,
 			generatedPanel,
-			tableInfo,
 			foundConnection.type as ConnectionTypesEnum,
-			chart_description,
 		);
 
 		return {
@@ -161,33 +160,26 @@ export class GeneratePanelPositionWithAiUseCase
 		};
 	}
 
-	private buildPrompt(
-		chartDescription: string,
-		tableInfo: { table_name: string; columns: Array<{ name: string; type: string; nullable: boolean }> },
-		databaseType: string,
-	): string {
-		const schemaDescription = `Table: ${tableInfo.table_name}\n  Columns:\n${tableInfo.columns.map((col) => `    - ${col.name}: ${col.type}${col.nullable ? ' (nullable)' : ''}`).join('\n')}`;
-
-		return `You are a database analytics assistant. Based on the user's chart description and the database schema, generate the SQL query and chart configuration.
+	private buildSystemPrompt(databaseType: ConnectionTypesEnum): string {
+		return `You are a database analytics assistant that generates a single panel. You have access to two tools: getTablesList and getTableStructure. You do NOT have the ability to execute queries.
 
 DATABASE TYPE: ${databaseType}
 
-DATABASE SCHEMA:
-${schemaDescription}
+YOUR WORKFLOW:
+1. Call getTablesList to see all available tables
+2. Call getTableStructure for tables that are relevant to the user's request
+3. Based on the table schemas, generate a single panel configuration
 
-USER'S CHART DESCRIPTION:
-"${chartDescription}"
-
-Generate a JSON response with the following structure:
+CRITICAL: Your final response MUST be a raw JSON object only — no explanations, no markdown, no code fences, no text before or after. Just the JSON object in this format:
 {
-  "name": "Short descriptive name for the chart (max 50 chars)",
-  "description": "Brief description of what the chart shows",
-  "query_text": "SELECT query that returns data for the chart. The query should return columns that can be used for labels and values. Use appropriate aggregations (COUNT, SUM, AVG, etc.) and GROUP BY clauses as needed. Always use the table name '${tableInfo.table_name}'.",
+  "name": "Short descriptive name for the panel (max 50 chars)",
+  "description": "Brief description of what the panel shows",
+  "query_text": "SELECT query that returns data for the visualization",
   "panel_type": "chart" | "table" | "counter" | "text",
   "chart_type": "bar" | "line" | "pie" | "doughnut" | "polarArea",
   "panel_options": {
     "label_column": "column name for labels/categories (x-axis)",
-    "value_column": "column name for values (y-axis) - use this for single series",
+    "value_column": "column name for values (y-axis) - use for single series",
     "series": [
       {
         "value_column": "column name",
@@ -221,13 +213,115 @@ IMPORTANT GUIDELINES:
 6. Set panel_options.label_column to the column that should be used for labels
 7. For single value series, use value_column directly
 8. For multiple series, use the series array
+9. You may use multiple tables in queries (JOINs) if they are related
+10. Your final response must start with { and end with } — no text, no markdown, no explanation`;
+	}
 
-Respond ONLY with the JSON object, no additional text or explanation.`;
+	private async runToolLoop(
+		messages: ReturnType<MessageBuilder['build']>,
+		tools: AIToolDefinition[],
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		userEmail: string,
+	): Promise<string> {
+		let currentMessages = [...messages];
+		let depth = 0;
+
+		while (depth < MAX_TOOL_ITERATIONS) {
+			const stream = await this.aiCoreService.streamChatWithToolsAndProvider(
+				AIProviderType.BEDROCK,
+				currentMessages,
+				tools,
+				{ temperature: 0.3 },
+			);
+
+			let accumulatedContent = '';
+			const pendingToolCalls: AIToolCall[] = [];
+
+			for await (const chunk of stream) {
+				if (chunk.type === 'text' && chunk.content) {
+					accumulatedContent += chunk.content;
+				}
+				if (chunk.type === 'tool_call' && chunk.toolCall) {
+					pendingToolCalls.push(chunk.toolCall);
+				}
+			}
+
+			this.logger.log(
+				`Tool loop iteration ${depth + 1}: toolCalls=${pendingToolCalls.map((tc) => tc.name).join(', ') || 'none'}, ` +
+					`contentLength=${accumulatedContent.length}`,
+			);
+
+			if (pendingToolCalls.length === 0) {
+				return accumulatedContent;
+			}
+
+			const toolResults = await this.executeToolCalls(pendingToolCalls, dao, userEmail);
+
+			const continuationBuilder = MessageBuilder.fromMessages(currentMessages);
+			continuationBuilder.ai(accumulatedContent, pendingToolCalls);
+			for (const tr of toolResults) {
+				continuationBuilder.toolResult(tr.toolCallId, tr.result);
+			}
+			currentMessages = continuationBuilder.build();
+
+			depth++;
+		}
+
+		throw new BadRequestException('AI tool loop exceeded maximum iterations. Please try again.');
+	}
+
+	private async executeToolCalls(
+		toolCalls: AIToolCall[],
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		userEmail: string,
+	): Promise<Array<{ toolCallId: string; result: string }>> {
+		const results: Array<{ toolCallId: string; result: string }> = [];
+
+		for (const toolCall of toolCalls) {
+			let result: string;
+
+			try {
+				switch (toolCall.name) {
+					case 'getTablesList': {
+						const tables = await dao.getTablesFromDB(userEmail);
+						result = encodeToToon(tables);
+						break;
+					}
+
+					case 'getTableStructure': {
+						const tableName = toolCall.arguments.tableName as string;
+						if (!tableName) {
+							throw new Error('Missing required argument "tableName"');
+						}
+						const structure = await dao.getTableStructure(tableName, userEmail);
+						result = encodeToToon({
+							tableName,
+							columns: structure.map((col) => ({
+								name: col.column_name,
+								type: col.data_type,
+								nullable: col.allow_null,
+							})),
+						});
+						break;
+					}
+
+					default:
+						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
+				}
+			} catch (error) {
+				result = encodeError({ error: error.message });
+			}
+
+			results.push({ toolCallId: toolCall.id, result });
+		}
+
+		return results;
 	}
 
 	private parseAIResponse(aiResponse: string): AIGeneratedPanelResponse {
 		try {
-			const cleanedResponse = cleanAIJsonResponse(aiResponse);
+			const extracted = this.extractJsonFromResponse(aiResponse);
+			const cleanedResponse = cleanAIJsonResponse(extracted);
 			const parsed = JSON.parse(cleanedResponse) as AIGeneratedPanelResponse;
 
 			if (!parsed.name || !parsed.query_text || !parsed.panel_type) {
@@ -236,20 +330,31 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 
 			return parsed;
 		} catch (error) {
-			console.error('Error parsing AI response:', error.message);
-			console.error('AI Response:', aiResponse);
+			this.logger.error('Error parsing AI response:', error.message);
 			throw new BadRequestException(
 				'Failed to generate panel configuration from AI. Please try again with a different description.',
 			);
 		}
 	}
 
+	private extractJsonFromResponse(response: string): string {
+		const jsonBlockMatch = response.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+		if (jsonBlockMatch) {
+			return jsonBlockMatch[1].trim();
+		}
+
+		const firstBrace = response.indexOf('{');
+		if (firstBrace !== -1) {
+			return response.slice(firstBrace);
+		}
+
+		return response;
+	}
+
 	private async validateAndRefineQueryWithExplain(
 		dao: IDataAccessObject | IDataAccessObjectAgent,
 		generatedPanel: AIGeneratedPanelResponse,
-		tableInfo: TableInfo,
 		connectionType: ConnectionTypesEnum,
-		chartDescription: string,
 	): Promise<AIGeneratedPanelResponse> {
 		if (!EXPLAIN_SUPPORTED_TYPES.has(connectionType)) {
 			return generatedPanel;
@@ -258,15 +363,14 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 		let currentQuery = generatedPanel.query_text;
 
 		for (let iteration = 0; iteration < MAX_FEEDBACK_ITERATIONS; iteration++) {
-			const explainResult = await this.runExplainQuery(dao, currentQuery, tableInfo.table_name);
+			const explainResult = await this.runExplainQuery(dao, currentQuery);
 
 			const correctionPrompt = this.buildQueryCorrectionPrompt(
 				currentQuery,
 				explainResult.success ? explainResult.result : explainResult.error,
 				!explainResult.success,
-				tableInfo,
 				connectionType,
-				chartDescription,
+				generatedPanel.name,
 			);
 
 			const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, correctionPrompt, {
@@ -296,11 +400,10 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 	private async runExplainQuery(
 		dao: IDataAccessObject | IDataAccessObjectAgent,
 		query: string,
-		tableName: string,
 	): Promise<{ success: boolean; result?: string; error?: string }> {
 		try {
 			const explainQuery = `EXPLAIN ${query.replace(/;\s*$/, '')}`;
-			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, tableName);
+			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, '');
 			return { success: true, result: JSON.stringify(result, null, 2) };
 		} catch (error) {
 			return { success: false, error: error.message };
@@ -311,14 +414,9 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 		currentQuery: string,
 		explainResultOrError: string,
 		isError: boolean,
-		tableInfo: TableInfo,
 		connectionType: ConnectionTypesEnum,
-		chartDescription: string,
+		panelName: string,
 	): string {
-		const schemaDescription = `Table: ${tableInfo.table_name}\n  Columns:\n${tableInfo.columns
-			.map((col) => `    - ${col.name}: ${col.type}${col.nullable ? ' (nullable)' : ''}`)
-			.join('\n')}`;
-
 		const feedbackSection = isError
 			? `The query FAILED with the following error:\n${explainResultOrError}\n\nPlease fix the query to resolve this error.`
 			: `The EXPLAIN output for the query is:\n${explainResultOrError}\n\nReview the execution plan. If the query has performance issues (full table scans on large datasets, inefficient joins, etc.), optimize it if possible. If the query is already acceptable, return it unchanged.`;
@@ -327,11 +425,7 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 
 DATABASE TYPE: ${connectionType}
 
-DATABASE SCHEMA:
-${schemaDescription}
-
-ORIGINAL USER REQUEST:
-"${chartDescription}"
+PANEL NAME: "${panelName}"
 
 CURRENT QUERY:
 ${currentQuery}
