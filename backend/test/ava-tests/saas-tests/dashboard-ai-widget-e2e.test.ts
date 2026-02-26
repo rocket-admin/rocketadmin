@@ -30,9 +30,9 @@ const MOCK_AI_RESPONSE_CHART = JSON.stringify({
 	name: 'Sales by Category',
 	description: 'Bar chart showing total sales grouped by category',
 	query_text: 'SELECT category, SUM(amount) as total FROM orders GROUP BY category',
-	widget_type: 'chart',
+	panel_type: 'chart',
 	chart_type: 'bar',
-	widget_options: {
+	panel_options: {
 		label_column: 'category',
 		value_column: 'total',
 		show_data_labels: true,
@@ -47,8 +47,8 @@ const MOCK_AI_RESPONSE_COUNTER = JSON.stringify({
 	name: 'Total Orders',
 	description: 'Counter showing total number of orders',
 	query_text: 'SELECT COUNT(*) as total FROM orders',
-	widget_type: 'counter',
-	widget_options: {
+	panel_type: 'counter',
+	panel_options: {
 		value_column: 'total',
 	},
 });
@@ -57,7 +57,7 @@ const MOCK_AI_RESPONSE_UNSAFE_QUERY = JSON.stringify({
 	name: 'Delete All',
 	description: 'Unsafe query',
 	query_text: 'DELETE FROM orders',
-	widget_type: 'table',
+	panel_type: 'table',
 });
 
 let mockResponse = MOCK_AI_RESPONSE_CHART;
@@ -165,13 +165,13 @@ test.serial(`${currentTest} should generate a widget with AI for chart type`, as
 
 	t.is(generateWidgetRO.name, 'Sales by Category');
 	t.is(generateWidgetRO.description, 'Bar chart showing total sales grouped by category');
-	t.is(generateWidgetRO.widget_type, DashboardWidgetTypeEnum.Chart);
+	t.is(generateWidgetRO.panel_type, DashboardWidgetTypeEnum.Chart);
 	t.is(generateWidgetRO.chart_type, 'bar');
 	t.is(generateWidgetRO.query_text, 'SELECT category, SUM(amount) as total FROM orders GROUP BY category');
 	t.is(generateWidgetRO.connection_id, connectionId);
-	t.truthy(generateWidgetRO.widget_options);
-	t.is(generateWidgetRO.widget_options.label_column, 'category');
-	t.is(generateWidgetRO.widget_options.value_column, 'total');
+	t.truthy(generateWidgetRO.panel_options);
+	t.is(generateWidgetRO.panel_options.label_column, 'category');
+	t.is(generateWidgetRO.panel_options.value_column, 'total');
 
 	t.truthy(generateWidgetRO.panel_position);
 	t.is(generateWidgetRO.panel_position.position_x, 0);
@@ -233,7 +233,7 @@ test.serial(`${currentTest} should generate a counter widget with AI`, async (t)
 
 	t.is(generateWidgetRO.name, 'Total Orders');
 	t.is(generateWidgetRO.description, 'Counter showing total number of orders');
-	t.is(generateWidgetRO.widget_type, DashboardWidgetTypeEnum.Counter);
+	t.is(generateWidgetRO.panel_type, DashboardWidgetTypeEnum.Counter);
 	t.is(generateWidgetRO.query_text, 'SELECT COUNT(*) as total FROM orders');
 	t.is(generateWidgetRO.connection_id, connectionId);
 

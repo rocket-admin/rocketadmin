@@ -1,24 +1,26 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../../../ai-core/index.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../../../ai-core/index.js';
+import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
 import { GeneratePanelPositionWithAiDs } from '../data-structures/generate-panel-position-with-ai.ds.js';
 import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
 import { IGeneratePanelPositionWithAi } from './panel-position-use-cases.interface.js';
-import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
 
-interface AIGeneratedWidgetResponse {
+interface AIGeneratedPanelResponse {
 	name: string;
 	description: string;
 	query_text: string;
-	widget_type: 'chart' | 'table' | 'counter' | 'text';
+	panel_type: 'chart' | 'table' | 'counter' | 'text';
 	chart_type?: 'bar' | 'line' | 'pie' | 'doughnut' | 'polarArea';
-	widget_options?: {
+	panel_options?: {
 		label_column?: string;
 		value_column?: string;
 		series?: Array<{
@@ -36,11 +38,29 @@ interface AIGeneratedWidgetResponse {
 	};
 }
 
+const MAX_FEEDBACK_ITERATIONS = 3;
+
+const EXPLAIN_SUPPORTED_TYPES: ReadonlySet<ConnectionTypesEnum> = new Set([
+	ConnectionTypesEnum.postgres,
+	ConnectionTypesEnum.agent_postgres,
+	ConnectionTypesEnum.mysql,
+	ConnectionTypesEnum.agent_mysql,
+	ConnectionTypesEnum.clickhouse,
+	ConnectionTypesEnum.agent_clickhouse,
+]);
+
+interface TableInfo {
+	table_name: string;
+	columns: Array<{ name: string; type: string; nullable: boolean }>;
+}
+
 @Injectable({ scope: Scope.REQUEST })
 export class GeneratePanelPositionWithAiUseCase
 	extends AbstractUseCase<GeneratePanelPositionWithAiDs, GeneratedPanelWithPositionDto>
 	implements IGeneratePanelPositionWithAi
 {
+	private readonly logger = new Logger(GeneratePanelPositionWithAiUseCase.name);
+
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
@@ -83,10 +103,7 @@ export class GeneratePanelPositionWithAiUseCase
 
 		const dao = getDataAccessObject(foundConnection);
 
-		let tableInfo: {
-			table_name: string;
-			columns: Array<{ name: string; type: string; nullable: boolean }>;
-		};
+		let tableInfo: TableInfo;
 
 		try {
 			const structure = await dao.getTableStructure(table_name, null);
@@ -112,19 +129,27 @@ export class GeneratePanelPositionWithAiUseCase
 			temperature: 0.3,
 		});
 
-		const generatedWidget = this.parseAIResponse(aiResponse);
+		const generatedPanel = this.parseAIResponse(aiResponse);
 
-		validateQuerySafety(generatedWidget.query_text, foundConnection.type as ConnectionTypesEnum);
+		validateQuerySafety(generatedPanel.query_text, foundConnection.type as ConnectionTypesEnum);
+
+		const refinedPanel = await this.validateAndRefineQueryWithExplain(
+			dao,
+			generatedPanel,
+			tableInfo,
+			foundConnection.type as ConnectionTypesEnum,
+			chart_description,
+		);
 
 		return {
-			name: name || generatedWidget.name,
-			description: generatedWidget.description || null,
-			widget_type: this.mapWidgetType(generatedWidget.widget_type),
-			chart_type: generatedWidget.chart_type || null,
-			widget_options: generatedWidget.widget_options
-				? (generatedWidget.widget_options as unknown as Record<string, unknown>)
+			name: name || refinedPanel.name,
+			description: refinedPanel.description || null,
+			panel_type: this.mapPanelType(refinedPanel.panel_type),
+			chart_type: refinedPanel.chart_type || null,
+			panel_options: refinedPanel.panel_options
+				? (refinedPanel.panel_options as unknown as Record<string, unknown>)
 				: null,
-			query_text: generatedWidget.query_text,
+			query_text: refinedPanel.query_text,
 			connection_id: connectionId,
 			panel_position: {
 				position_x: position_x ?? 0,
@@ -158,9 +183,9 @@ Generate a JSON response with the following structure:
   "name": "Short descriptive name for the chart (max 50 chars)",
   "description": "Brief description of what the chart shows",
   "query_text": "SELECT query that returns data for the chart. The query should return columns that can be used for labels and values. Use appropriate aggregations (COUNT, SUM, AVG, etc.) and GROUP BY clauses as needed. Always use the table name '${tableInfo.table_name}'.",
-  "widget_type": "chart" | "table" | "counter" | "text",
+  "panel_type": "chart" | "table" | "counter" | "text",
   "chart_type": "bar" | "line" | "pie" | "doughnut" | "polarArea",
-  "widget_options": {
+  "panel_options": {
     "label_column": "column name for labels/categories (x-axis)",
     "value_column": "column name for values (y-axis) - use this for single series",
     "series": [
@@ -193,19 +218,19 @@ IMPORTANT GUIDELINES:
    - pie/doughnut: parts of a whole (percentages)
    - polarArea: similar to pie but with equal angles
 5. Use meaningful colors from this palette: #3366CC, #DC3912, #FF9900, #109618, #990099, #0099C6, #DD4477, #66AA00
-6. Set widget_options.label_column to the column that should be used for labels
+6. Set panel_options.label_column to the column that should be used for labels
 7. For single value series, use value_column directly
 8. For multiple series, use the series array
 
 Respond ONLY with the JSON object, no additional text or explanation.`;
 	}
 
-	private parseAIResponse(aiResponse: string): AIGeneratedWidgetResponse {
+	private parseAIResponse(aiResponse: string): AIGeneratedPanelResponse {
 		try {
 			const cleanedResponse = cleanAIJsonResponse(aiResponse);
-			const parsed = JSON.parse(cleanedResponse) as AIGeneratedWidgetResponse;
+			const parsed = JSON.parse(cleanedResponse) as AIGeneratedPanelResponse;
 
-			if (!parsed.name || !parsed.query_text || !parsed.widget_type) {
+			if (!parsed.name || !parsed.query_text || !parsed.panel_type) {
 				throw new Error('Missing required fields in AI response');
 			}
 
@@ -214,12 +239,134 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 			console.error('Error parsing AI response:', error.message);
 			console.error('AI Response:', aiResponse);
 			throw new BadRequestException(
-				'Failed to generate widget configuration from AI. Please try again with a different description.',
+				'Failed to generate panel configuration from AI. Please try again with a different description.',
 			);
 		}
 	}
 
-	private mapWidgetType(type: string): DashboardWidgetTypeEnum {
+	private async validateAndRefineQueryWithExplain(
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		generatedPanel: AIGeneratedPanelResponse,
+		tableInfo: TableInfo,
+		connectionType: ConnectionTypesEnum,
+		chartDescription: string,
+	): Promise<AIGeneratedPanelResponse> {
+		if (!EXPLAIN_SUPPORTED_TYPES.has(connectionType)) {
+			return generatedPanel;
+		}
+
+		let currentQuery = generatedPanel.query_text;
+
+		for (let iteration = 0; iteration < MAX_FEEDBACK_ITERATIONS; iteration++) {
+			const explainResult = await this.runExplainQuery(dao, currentQuery, tableInfo.table_name);
+
+			const correctionPrompt = this.buildQueryCorrectionPrompt(
+				currentQuery,
+				explainResult.success ? explainResult.result : explainResult.error,
+				!explainResult.success,
+				tableInfo,
+				connectionType,
+				chartDescription,
+			);
+
+			const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, correctionPrompt, {
+				temperature: 0.2,
+			});
+
+			const correctedQuery = this.cleanQueryResponse(aiResponse);
+
+			validateQuerySafety(correctedQuery, connectionType);
+
+			if (this.normalizeWhitespace(correctedQuery) === this.normalizeWhitespace(currentQuery)) {
+				this.logger.log(`Query accepted by AI without changes after EXPLAIN (iteration ${iteration + 1})`);
+				break;
+			}
+
+			this.logger.log(`Query corrected by AI after EXPLAIN (iteration ${iteration + 1})`);
+			currentQuery = correctedQuery;
+
+			if (explainResult.success) {
+				break;
+			}
+		}
+
+		return { ...generatedPanel, query_text: currentQuery };
+	}
+
+	private async runExplainQuery(
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		query: string,
+		tableName: string,
+	): Promise<{ success: boolean; result?: string; error?: string }> {
+		try {
+			const explainQuery = `EXPLAIN ${query.replace(/;\s*$/, '')}`;
+			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, tableName);
+			return { success: true, result: JSON.stringify(result, null, 2) };
+		} catch (error) {
+			return { success: false, error: error.message };
+		}
+	}
+
+	private buildQueryCorrectionPrompt(
+		currentQuery: string,
+		explainResultOrError: string,
+		isError: boolean,
+		tableInfo: TableInfo,
+		connectionType: ConnectionTypesEnum,
+		chartDescription: string,
+	): string {
+		const schemaDescription = `Table: ${tableInfo.table_name}\n  Columns:\n${tableInfo.columns
+			.map((col) => `    - ${col.name}: ${col.type}${col.nullable ? ' (nullable)' : ''}`)
+			.join('\n')}`;
+
+		const feedbackSection = isError
+			? `The query FAILED with the following error:\n${explainResultOrError}\n\nPlease fix the query to resolve this error.`
+			: `The EXPLAIN output for the query is:\n${explainResultOrError}\n\nReview the execution plan. If the query has performance issues (full table scans on large datasets, inefficient joins, etc.), optimize it if possible. If the query is already acceptable, return it unchanged.`;
+
+		return `You are a database query optimization assistant. A SQL query was generated and needs validation.
+
+DATABASE TYPE: ${connectionType}
+
+DATABASE SCHEMA:
+${schemaDescription}
+
+ORIGINAL USER REQUEST:
+"${chartDescription}"
+
+CURRENT QUERY:
+${currentQuery}
+
+${feedbackSection}
+
+Respond with SQL only. Preserve column aliases. Valid ${connectionType} syntax.`;
+	}
+
+	private cleanQueryResponse(aiResponse: string): string {
+		const cleaned = aiResponse
+			.trim()
+			.replace(/^```[a-zA-Z]*\n?/, '')
+			.replace(/```\s*$/, '')
+			.trim();
+
+		if (cleaned.startsWith('{')) {
+			try {
+				const parsed = JSON.parse(cleaned);
+				if (parsed.query_text) {
+					return parsed.query_text;
+				}
+			} catch {
+				// Not valid JSON, return as-is
+			}
+		}
+
+		return cleaned;
+	}
+
+	private normalizeWhitespace(query: string): string {
+		return query.replace(/\s+/g, ' ').trim();
+	}
+
+	private mapPanelType(type: string): DashboardWidgetTypeEnum {
 		switch (type) {
 			case 'chart':
 				return DashboardWidgetTypeEnum.Chart;

@@ -138,6 +138,13 @@ const routes: Routes = [
 		title: 'Upgraded successfully | Rocketadmin',
 	},
 	{
+		path: 'auto-configure/:connection-id',
+		loadComponent: () =>
+			import('./components/auto-configure/auto-configure.component').then((m) => m.AutoConfigureComponent),
+		canActivate: [AuthGuard],
+		title: 'Auto-configure | Rocketadmin',
+	},
+	{
 		path: 'edit-db/:connection-id',
 		loadComponent: () => import('./components/connect-db/connect-db.component').then((m) => m.ConnectDBComponent),
 		canActivate: [AuthGuard],

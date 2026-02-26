@@ -71,7 +71,7 @@ describe('PanelEditComponent', () => {
 		};
 
 		mockUiSettingsService = {
-			editorTheme: 'vs-dark',
+			isDarkMode: true,
 			getUiSettings: vi.fn().mockReturnValue(of({})),
 		};
 
