@@ -14,9 +14,9 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
-import { ChartEditComponent } from './chart-edit.component';
+import { PanelEditComponent } from './panel-edit.component';
 
-type ChartEditComponentTestable = ChartEditComponent & {
+type PanelEditComponentTestable = PanelEditComponent & {
 	isEditMode: WritableSignal<boolean>;
 	queryName: WritableSignal<string>;
 	queryText: WritableSignal<string>;
@@ -34,9 +34,9 @@ type ChartEditComponentTestable = ChartEditComponent & {
 	hasChartData: Signal<boolean>;
 };
 
-describe('ChartEditComponent', () => {
-	let component: ChartEditComponent;
-	let fixture: ComponentFixture<ChartEditComponent>;
+describe('PanelEditComponent', () => {
+	let component: PanelEditComponent;
+	let fixture: ComponentFixture<PanelEditComponent>;
 	let mockSavedQueriesService: Partial<SavedQueriesService>;
 	let mockConnectionsService: Partial<ConnectionsService>;
 	let mockUiSettingsService: Partial<UiSettingsService>;
@@ -77,7 +77,7 @@ describe('ChartEditComponent', () => {
 
 		await TestBed.configureTestingModule({
 			imports: [
-				ChartEditComponent,
+				PanelEditComponent,
 				BrowserAnimationsModule,
 				MatSnackBarModule,
 				RouterTestingModule,
@@ -105,7 +105,7 @@ describe('ChartEditComponent', () => {
 				},
 			],
 		})
-			.overrideComponent(ChartEditComponent, {
+			.overrideComponent(PanelEditComponent, {
 				remove: { imports: [CodeEditorModule] },
 				add: { imports: [MockCodeEditorComponent], schemas: [NO_ERRORS_SCHEMA] },
 			})
@@ -114,7 +114,7 @@ describe('ChartEditComponent', () => {
 		router = TestBed.inject(Router);
 		vi.spyOn(router, 'navigate');
 
-		fixture = TestBed.createComponent(ChartEditComponent);
+		fixture = TestBed.createComponent(PanelEditComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -124,7 +124,7 @@ describe('ChartEditComponent', () => {
 	});
 
 	it('should initialize in create mode when no query-id', () => {
-		const testable = component as ChartEditComponentTestable;
+		const testable = component as PanelEditComponentTestable;
 		expect(testable.isEditMode()).toBe(false);
 	});
 
@@ -133,27 +133,27 @@ describe('ChartEditComponent', () => {
 	});
 
 	it('should have correct default chart type', () => {
-		const testable = component as ChartEditComponentTestable;
+		const testable = component as PanelEditComponentTestable;
 		expect(testable.chartType()).toBe('bar');
 	});
 
 	describe('canSave computed', () => {
 		it('should return false when name is empty', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryName.set('');
 			testable.queryText.set('SELECT 1');
 			expect(testable.canSave()).toBe(false);
 		});
 
 		it('should return false when query is empty', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryName.set('Test');
 			testable.queryText.set('');
 			expect(testable.canSave()).toBe(false);
 		});
 
 		it('should return true when name and query are provided', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryName.set('Test');
 			testable.queryText.set('SELECT 1');
 			testable.saving.set(false);
@@ -161,7 +161,7 @@ describe('ChartEditComponent', () => {
 		});
 
 		it('should return false when saving', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryName.set('Test');
 			testable.queryText.set('SELECT 1');
 			testable.saving.set(true);
@@ -171,20 +171,20 @@ describe('ChartEditComponent', () => {
 
 	describe('canTest computed', () => {
 		it('should return false when query is empty', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryText.set('');
 			expect(testable.canTest()).toBe(false);
 		});
 
 		it('should return true when query is provided', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryText.set('SELECT 1');
 			testable.testing.set(false);
 			expect(testable.canTest()).toBe(true);
 		});
 
 		it('should return false when testing', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryText.set('SELECT 1');
 			testable.testing.set(true);
 			expect(testable.canTest()).toBe(false);
@@ -193,7 +193,7 @@ describe('ChartEditComponent', () => {
 
 	describe('testQuery', () => {
 		it('should call testQuery service method', async () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
 			await component.testQuery();
 			expect(mockSavedQueriesService.testQuery).toHaveBeenCalledWith('conn-1', {
@@ -202,7 +202,7 @@ describe('ChartEditComponent', () => {
 		});
 
 		it('should set results and columns after successful test', async () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
 			await component.testQuery();
 			expect(testable.testResults()).toEqual([{ name: 'John', count: 10 }]);
@@ -211,7 +211,7 @@ describe('ChartEditComponent', () => {
 		});
 
 		it('should auto-select label column and first series', async () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
 			await component.testQuery();
 			expect(testable.labelColumn()).toBe('name');
@@ -221,7 +221,7 @@ describe('ChartEditComponent', () => {
 
 	describe('saveQuery', () => {
 		it('should call createSavedQuery in create mode', async () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.isEditMode.set(false);
 			testable.queryName.set('New Query');
 			testable.queryText.set('SELECT 1');
@@ -237,7 +237,7 @@ describe('ChartEditComponent', () => {
 		});
 
 		it('should navigate to charts list after save', async () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.queryName.set('New Query');
 			testable.queryText.set('SELECT 1');
 			await component.saveQuery();
@@ -247,7 +247,7 @@ describe('ChartEditComponent', () => {
 
 	describe('onCodeChange', () => {
 		it('should update queryText', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			component.onCodeChange('SELECT * FROM table');
 			expect(testable.queryText()).toBe('SELECT * FROM table');
 		});
@@ -255,13 +255,13 @@ describe('ChartEditComponent', () => {
 
 	describe('hasChartData computed', () => {
 		it('should return false when no results', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.testResults.set([]);
 			expect(testable.hasChartData()).toBe(false);
 		});
 
 		it('should return false when no series configured', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.testResults.set([{ name: 'John' }]);
 			testable.labelColumn.set('name');
 			testable.seriesList.set([]);
@@ -269,7 +269,7 @@ describe('ChartEditComponent', () => {
 		});
 
 		it('should return true when results, label and series are set', () => {
-			const testable = component as ChartEditComponentTestable;
+			const testable = component as PanelEditComponentTestable;
 			testable.testResults.set([{ name: 'John', count: 10 }]);
 			testable.labelColumn.set('name');
 			testable.seriesList.set([{ value_column: 'count' }]);

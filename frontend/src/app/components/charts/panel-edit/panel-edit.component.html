@@ -1,14 +1,14 @@
-<div class="chart-edit-layout">
+<div class="panel-edit-layout">
     <app-dashboards-sidebar
         [connectionId]="connectionId()"
         activeTab="queries">
     </app-dashboards-sidebar>
 
-    <div class="chart-edit-main">
+    <div class="panel-edit-main">
         <app-alert></app-alert>
 
-        <div class="chart-edit-page">
-    <div class="chart-edit-header">
+        <div class="panel-edit-page">
+    <div class="panel-edit-header">
         <h1 class="mat-h1">{{ isEditMode() ? 'Edit panel' : 'Create panel' }}</h1>
     </div>
 
@@ -19,7 +19,7 @@
     }
 
     @if (!loading()) {
-        <div class="chart-edit-content">
+        <div class="panel-edit-content">
             @if (aiTables().length > 0 && aiDashboardId()) {
                 <div class="ai-section" [class.ai-section--collapsed]="!aiExpanded()">
                     <div class="ai-section-header" (click)="aiExpanded.set(!aiExpanded())">

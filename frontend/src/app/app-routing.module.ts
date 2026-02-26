@@ -227,14 +227,14 @@ const routes: Routes = [
 	{
 		path: 'panels/:connection-id/new',
 		loadComponent: () =>
-			import('./components/charts/chart-edit/chart-edit.component').then((m) => m.ChartEditComponent),
+			import('./components/charts/panel-edit/panel-edit.component').then((m) => m.PanelEditComponent),
 		canActivate: [AuthGuard],
 		title: 'Create Query | Rocketadmin',
 	},
 	{
 		path: 'panels/:connection-id/:query-id',
 		loadComponent: () =>
-			import('./components/charts/chart-edit/chart-edit.component').then((m) => m.ChartEditComponent),
+			import('./components/charts/panel-edit/panel-edit.component').then((m) => m.PanelEditComponent),
 		canActivate: [AuthGuard],
 		title: 'Edit Query | Rocketadmin',
 	},
