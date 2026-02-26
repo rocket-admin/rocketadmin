@@ -82,7 +82,16 @@
             <div class="table-preview-content">
                 <div class="alerts">
                     <app-alert></app-alert>
-                    <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
+                    <div *ngIf="dataSource.alert_settingsInfo" class="ai-config-alert">
+                        <mat-icon class="ai-config-alert__icon">auto_awesome</mat-icon>
+                        <div class="ai-config-alert__message mat-body-1">
+                            <strong class="ai-config-alert__title">New: AI Configuration</strong>
+                            <p class="ai-config-alert__text">Automatically configure all your tables with AI. You can adjust changes in Settings and UI widgets.</p>
+                        </div>
+                        <div class="ai-config-alert__actions">
+                            <a mat-button [routerLink]="'/auto-configure/' + connectionID">Configure all</a>
+                        </div>
+                    </div>
                     <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
                     <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
                 </div>
