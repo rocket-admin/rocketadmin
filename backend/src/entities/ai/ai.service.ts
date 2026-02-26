@@ -131,7 +131,7 @@ For each table, provide:
 1. display_name: A human-readable name for the table
 2. search_fields: Columns that should be searchable (text fields like name, email, title)
 3. readonly_fields: Columns that should not be editable (like auto_increment, timestamps)
-4. columns_view: All columns in preferred display order
+4. columns_view: Up to six most important columns in preferred display order
 5. ordering: Default sort order - either "ASC" or "DESC" (use "DESC" for tables with timestamps to show newest first)
 6. ordering_field: Column name to sort by default (prefer created_at, updated_at, or primary key)
 7. widgets: For each column, suggest the best widget type from: ${widgetTypes}
