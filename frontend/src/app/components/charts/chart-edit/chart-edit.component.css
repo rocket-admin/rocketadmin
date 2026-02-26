@@ -19,6 +19,12 @@
 	flex-direction: column;
 }
 
+@media (prefers-color-scheme: dark) {
+	.chart-edit-main {
+		background-color: #191919;
+	}
+}
+
 .chart-edit-page {
 	display: flex;
 	flex-direction: column;

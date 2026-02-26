@@ -17,7 +17,7 @@
 
 @media (prefers-color-scheme: dark) {
 	.dashboards-sidebar {
-		background-color: var(--color-primaryPalette-900);
+		background-color: #212121;
 	}
 }
 
@@ -81,13 +81,8 @@
 }
 
 /* Mobile styles */
-@media (width <= 768px) {
+@media (width <= 600px) {
 	.dashboards-sidebar {
-		width: 56px;
-		min-width: 56px;
-	}
-
-	.sidebar-toggle-button:not(.sidebar-toggle-button_collapsed) {
 		display: none;
 	}
 }

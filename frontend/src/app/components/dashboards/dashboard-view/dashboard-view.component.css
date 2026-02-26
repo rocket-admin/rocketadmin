@@ -7,6 +7,12 @@ app-dashboard-view .dashboard-view-page {
 	flex-direction: column;
 }
 
+@media (prefers-color-scheme: dark) {
+	app-dashboard-view .dashboard-view-page {
+		background-color: #191919;
+	}
+}
+
 app-dashboard-view .dashboard-header {
 	display: flex;
 	align-items: center;
