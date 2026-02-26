@@ -193,7 +193,7 @@ export class DashboardWidgetController {
 	@ApiOperation({
 		summary: 'Generate a full table dashboard using AI',
 		description:
-			'Analyzes a table structure and auto-generates multiple panel configurations for a dashboard using AI',
+			'AI autonomously discovers database tables, analyzes their structure, and auto-generates multiple panel configurations for a dashboard',
 	})
 	@ApiResponse({
 		status: 201,
@@ -201,13 +201,11 @@ export class DashboardWidgetController {
 	})
 	@ApiBody({ type: GenerateTableDashboardWithAiDto })
 	@ApiParam({ name: 'connectionId', required: true })
-	@ApiQuery({ name: 'tableName', required: true, description: 'The table name to generate the dashboard for' })
 	@UseGuards(ConnectionEditGuard)
 	@Timeout(TimeoutDefaults.AI)
 	@Post('/dashboard/generate-table-dashboard/:connectionId')
 	async generateTableDashboardWithAi(
 		@SlugUuid('connectionId') connectionId: string,
-		@Query('tableName') tableName: string,
 		@MasterPassword() masterPwd: string,
 		@UserId() userId: string,
 		@Body() generateDto: GenerateTableDashboardWithAiDto,
@@ -216,10 +214,9 @@ export class DashboardWidgetController {
 			connectionId,
 			masterPassword: masterPwd,
 			userId,
-			table_name: tableName,
 			max_panels: generateDto.max_panels,
 			dashboard_name: generateDto.dashboard_name,
 		};
-		return await this.generateTableDashboardWithAiUseCase.execute(inputData, InTransactionEnum.ON);
+		return await this.generateTableDashboardWithAiUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 }

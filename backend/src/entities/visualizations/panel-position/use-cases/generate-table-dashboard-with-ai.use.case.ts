@@ -3,19 +3,30 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
+import {
+	AICoreService,
+	AIProviderType,
+	AIToolCall,
+	AIToolDefinition,
+	cleanAIJsonResponse,
+	createDashboardGenerationTools,
+	encodeError,
+	encodeToToon,
+	MessageBuilder,
+} from '../../../../ai-core/index.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../../../ai-core/index.js';
-import { GenerateTableDashboardWithAiDs } from '../data-structures/generate-table-dashboard-with-ai.ds.js';
-import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
-import { IGenerateTableDashboardWithAi } from './panel-position-use-cases.interface.js';
-import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
+import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { DashboardEntity } from '../../dashboard/dashboard.entity.js';
 import { PanelEntity } from '../../panel/panel.entity.js';
+import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
+import { GenerateTableDashboardWithAiDs } from '../data-structures/generate-table-dashboard-with-ai.ds.js';
+import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
 import { PanelPositionEntity } from '../panel-position.entity.js';
+import { IGenerateTableDashboardWithAi } from './panel-position-use-cases.interface.js';
 
 interface AIGeneratedPanelResponse {
 	name: string;
@@ -41,19 +52,13 @@ interface AIGeneratedPanelResponse {
 	};
 }
 
-interface AISuggestedChart {
-	chart_description: string;
-	suggested_panel_type: string;
-	suggested_chart_type?: string;
-}
-
-interface AIDashboardSuggestion {
+interface AIDashboardResponse {
 	dashboard_name: string;
 	dashboard_description: string;
-	charts: AISuggestedChart[];
+	panels: AIGeneratedPanelResponse[];
 }
 
-const MAX_FEEDBACK_ITERATIONS = 3;
+const MAX_TOOL_ITERATIONS = 10;
 const DEFAULT_MAX_PANELS = 6;
 const PANEL_WIDTH = 6;
 const PANEL_HEIGHT = 4;
@@ -68,10 +73,7 @@ const EXPLAIN_SUPPORTED_TYPES: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.agent_clickhouse,
 ]);
 
-interface TableInfo {
-	table_name: string;
-	columns: Array<{ name: string; type: string; nullable: boolean }>;
-}
+const MAX_FEEDBACK_ITERATIONS = 3;
 
 @Injectable({ scope: Scope.REQUEST })
 export class GenerateTableDashboardWithAiUseCase
@@ -89,7 +91,7 @@ export class GenerateTableDashboardWithAiUseCase
 	}
 
 	public async implementation(inputData: GenerateTableDashboardWithAiDs): Promise<{ success: boolean }> {
-		const { connectionId, masterPassword, table_name, max_panels, dashboard_name } = inputData;
+		const { connectionId, masterPassword, userId, max_panels, dashboard_name } = inputData;
 
 		const maxPanels = max_panels ?? DEFAULT_MAX_PANELS;
 
@@ -104,64 +106,81 @@ export class GenerateTableDashboardWithAiUseCase
 
 		const dao = getDataAccessObject(foundConnection);
 
-		let tableInfo: TableInfo;
-
-		try {
-			const structure = await dao.getTableStructure(table_name, null);
-			tableInfo = {
-				table_name: table_name,
-				columns: structure.map((col) => ({
-					name: col.column_name,
-					type: col.data_type,
-					nullable: col.allow_null,
-				})),
-			};
-		} catch (error) {
-			throw new BadRequestException(`Failed to get table structure for "${table_name}": ${error.message}`);
+		let userEmail: string;
+		if (isConnectionTypeAgent(foundConnection.type)) {
+			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
 		}
 
-		if (tableInfo.columns.length === 0) {
-			throw new BadRequestException(`The specified table "${table_name}" does not have any columns or does not exist.`);
-		}
+		const tools = createDashboardGenerationTools();
 
-		const suggestionPrompt = this.buildDashboardSuggestionPrompt(tableInfo, foundConnection.type, maxPanels);
+		const systemPrompt = this.buildDashboardSystemPrompt(foundConnection.type as ConnectionTypesEnum, maxPanels);
 
-		const suggestionResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, suggestionPrompt, {
-			temperature: 0.4,
-		});
+		const messages = new MessageBuilder()
+			.system(systemPrompt)
+			.human(
+				`Analyze the database and generate a dashboard with up to ${maxPanels} panels. ` +
+					`Start by listing the available tables, then inspect the ones that look most interesting for analytics. ` +
+					`Generate diverse and meaningful visualizations.`,
+			)
+			.build();
 
-		const dashboardSuggestion = this.parseDashboardSuggestion(suggestionResponse);
+		const dashboardResponse = await this.runToolLoop(messages, tools, dao, userEmail);
 
-		const effectiveDashboardName =
-			dashboard_name || dashboardSuggestion.dashboard_name || `${table_name} Dashboard`;
+		const parsedDashboard = this.parseDashboardResponse(dashboardResponse);
 
-		const panelPromises = dashboardSuggestion.charts.slice(0, maxPanels).map((chart, index) =>
-			this.generateSinglePanel(chart, tableInfo, dao, foundConnection.type as ConnectionTypesEnum, connectionId, index),
-		);
+		const effectiveDashboardName = dashboard_name || parsedDashboard.dashboard_name || 'AI Generated Dashboard';
 
-		const results = await Promise.allSettled(panelPromises);
+		const validPanels: GeneratedPanelWithPositionDto[] = [];
 
-		const panels: GeneratedPanelWithPositionDto[] = [];
+		for (let i = 0; i < parsedDashboard.panels.length && validPanels.length < maxPanels; i++) {
+			const panel = parsedDashboard.panels[i];
+			try {
+				validateQuerySafety(panel.query_text, foundConnection.type as ConnectionTypesEnum);
 
-		for (const result of results) {
-			if (result.status === 'fulfilled') {
-				panels.push(result.value);
-			} else {
-				this.logger.warn(`Panel generation failed: ${result.reason?.message || result.reason}`);
+				const refinedPanel = await this.validateAndRefineQueryWithExplain(
+					dao,
+					panel,
+					foundConnection.type as ConnectionTypesEnum,
+				);
+
+				const index = validPanels.length;
+				const row = Math.floor(index / PANELS_PER_ROW);
+				const col = index % PANELS_PER_ROW;
+
+				validPanels.push({
+					name: refinedPanel.name,
+					description: refinedPanel.description || null,
+					panel_type: this.mapPanelType(refinedPanel.panel_type),
+					chart_type: refinedPanel.chart_type || null,
+					panel_options: refinedPanel.panel_options
+						? (refinedPanel.panel_options as unknown as Record<string, unknown>)
+						: null,
+					query_text: refinedPanel.query_text,
+					connection_id: connectionId,
+					panel_position: {
+						position_x: col * PANEL_WIDTH,
+						position_y: row * PANEL_HEIGHT,
+						width: PANEL_WIDTH,
+						height: PANEL_HEIGHT,
+						dashboard_id: null,
+					},
+				});
+			} catch (error) {
+				this.logger.warn(`Panel "${panel.name}" skipped: ${error.message}`);
 			}
 		}
 
-		if (panels.length === 0) {
-			throw new BadRequestException('Failed to generate any panels for the table. Please try again.');
+		if (validPanels.length === 0) {
+			throw new BadRequestException('Failed to generate any valid panels. Please try again.');
 		}
 
 		const dashboardEntity = new DashboardEntity();
 		dashboardEntity.name = effectiveDashboardName;
-		dashboardEntity.description = dashboardSuggestion.dashboard_description || null;
+		dashboardEntity.description = parsedDashboard.dashboard_description || null;
 		dashboardEntity.connection_id = connectionId;
 		const savedDashboard = await this._dbContext.dashboardRepository.saveDashboard(dashboardEntity);
 
-		for (const panel of panels) {
+		for (const panel of validPanels) {
 			const panelEntity = new PanelEntity();
 			panelEntity.name = panel.name;
 			panelEntity.description = panel.description || null;
@@ -185,156 +204,47 @@ export class GenerateTableDashboardWithAiUseCase
 		return { success: true };
 	}
 
-	private buildDashboardSuggestionPrompt(tableInfo: TableInfo, databaseType: string, maxPanels: number): string {
-		const schemaDescription = `Table: ${tableInfo.table_name}\n  Columns:\n${tableInfo.columns.map((col) => `    - ${col.name}: ${col.type}${col.nullable ? ' (nullable)' : ''}`).join('\n')}`;
-
-		return `You are a database analytics assistant. Analyze the following table schema and suggest ${maxPanels} useful chart/panel visualizations that would provide meaningful insights.
+	private buildDashboardSystemPrompt(databaseType: ConnectionTypesEnum, maxPanels: number): string {
+		return `You are a database analytics assistant that generates dashboards. You have access to two tools: getTablesList and getTableStructure. You do NOT have the ability to execute queries.
 
 DATABASE TYPE: ${databaseType}
 
-DATABASE SCHEMA:
-${schemaDescription}
+YOUR WORKFLOW:
+1. Call getTablesList to see all available tables
+2. Call getTableStructure for tables that look most interesting for analytics
+3. Based on the table schemas, generate a complete dashboard with up to ${maxPanels} panels
 
-Suggest diverse visualizations based on the column types:
-- Numeric columns: counters (totals, averages), bar/line charts for distributions
-- Date/timestamp columns: line charts for trends over time
-- String/categorical columns: pie/doughnut charts for category distributions, bar charts for top N
-- Boolean columns: pie charts for true/false distributions
-- Combinations: group numeric data by categories or time periods
-
-Generate a JSON response with the following structure:
+CRITICAL: Your final response MUST be a raw JSON object only — no explanations, no markdown, no code fences, no text before or after. Just the JSON object in this format:
 {
   "dashboard_name": "Descriptive name for the dashboard (max 100 chars)",
   "dashboard_description": "Brief description of what this dashboard shows",
-  "charts": [
+  "panels": [
     {
-      "chart_description": "Detailed natural language description of what the chart should show, including specific columns, aggregations, and groupings to use",
-      "suggested_panel_type": "chart" | "counter" | "table",
-      "suggested_chart_type": "bar" | "line" | "pie" | "doughnut" | "polarArea"
+      "name": "Short descriptive name for the panel (max 50 chars)",
+      "description": "Brief description of what the panel shows",
+      "query_text": "SELECT query that returns data for the visualization",
+      "panel_type": "chart" | "table" | "counter" | "text",
+      "chart_type": "bar" | "line" | "pie" | "doughnut" | "polarArea",
+      "panel_options": {
+        "label_column": "column name for labels/categories (x-axis)",
+        "value_column": "column name for values (y-axis) - use for single series",
+        "series": [
+          {
+            "value_column": "column name",
+            "label": "Series label",
+            "color": "#hex_color"
+          }
+        ],
+        "stacked": false,
+        "horizontal": false,
+        "show_data_labels": true,
+        "legend": {
+          "show": true,
+          "position": "top"
+        }
+      }
     }
   ]
-}
-
-IMPORTANT GUIDELINES:
-1. Suggest exactly ${maxPanels} charts
-2. Each chart_description should be specific enough to generate a SQL query
-3. Include a mix of panel types (counters, charts, tables) for variety
-4. Reference actual column names from the schema
-5. Consider which visualizations are most meaningful for the data types present
-6. Avoid duplicate or overly similar visualizations
-
-Respond ONLY with the JSON object, no additional text or explanation.`;
-	}
-
-	private parseDashboardSuggestion(aiResponse: string): AIDashboardSuggestion {
-		try {
-			const cleanedResponse = cleanAIJsonResponse(aiResponse);
-			const parsed = JSON.parse(cleanedResponse) as AIDashboardSuggestion;
-
-			if (!parsed.charts || !Array.isArray(parsed.charts) || parsed.charts.length === 0) {
-				throw new Error('Missing or empty charts array in AI response');
-			}
-
-			return parsed;
-		} catch (error) {
-			this.logger.error('Error parsing dashboard suggestion AI response:', error.message);
-			throw new BadRequestException(
-				'Failed to generate dashboard suggestions from AI. Please try again.',
-			);
-		}
-	}
-
-	private async generateSinglePanel(
-		chart: AISuggestedChart,
-		tableInfo: TableInfo,
-		dao: IDataAccessObject | IDataAccessObjectAgent,
-		connectionType: ConnectionTypesEnum,
-		connectionId: string,
-		index: number,
-	): Promise<GeneratedPanelWithPositionDto> {
-		const prompt = this.buildPanelPrompt(chart.chart_description, tableInfo, connectionType);
-
-		const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, prompt, {
-			temperature: 0.3,
-		});
-
-		const generatedPanel = this.parseAIResponse(aiResponse);
-
-		validateQuerySafety(generatedPanel.query_text, connectionType);
-
-		const refinedPanel = await this.validateAndRefineQueryWithExplain(
-			dao,
-			generatedPanel,
-			tableInfo,
-			connectionType,
-			chart.chart_description,
-		);
-
-		const row = Math.floor(index / PANELS_PER_ROW);
-		const col = index % PANELS_PER_ROW;
-
-		return {
-			name: refinedPanel.name,
-			description: refinedPanel.description || null,
-			panel_type: this.mapPanelType(refinedPanel.panel_type),
-			chart_type: refinedPanel.chart_type || null,
-			panel_options: refinedPanel.panel_options
-				? (refinedPanel.panel_options as unknown as Record<string, unknown>)
-				: null,
-			query_text: refinedPanel.query_text,
-			connection_id: connectionId,
-			panel_position: {
-				position_x: col * PANEL_WIDTH,
-				position_y: row * PANEL_HEIGHT,
-				width: PANEL_WIDTH,
-				height: PANEL_HEIGHT,
-				dashboard_id: null,
-			},
-		};
-	}
-
-	private buildPanelPrompt(
-		chartDescription: string,
-		tableInfo: TableInfo,
-		databaseType: string | ConnectionTypesEnum,
-	): string {
-		const schemaDescription = `Table: ${tableInfo.table_name}\n  Columns:\n${tableInfo.columns.map((col) => `    - ${col.name}: ${col.type}${col.nullable ? ' (nullable)' : ''}`).join('\n')}`;
-
-		return `You are a database analytics assistant. Based on the user's chart description and the database schema, generate the SQL query and chart configuration.
-
-DATABASE TYPE: ${databaseType}
-
-DATABASE SCHEMA:
-${schemaDescription}
-
-USER'S CHART DESCRIPTION:
-"${chartDescription}"
-
-Generate a JSON response with the following structure:
-{
-  "name": "Short descriptive name for the chart (max 50 chars)",
-  "description": "Brief description of what the chart shows",
-  "query_text": "SELECT query that returns data for the chart. The query should return columns that can be used for labels and values. Use appropriate aggregations (COUNT, SUM, AVG, etc.) and GROUP BY clauses as needed. Always use the table name '${tableInfo.table_name}'.",
-  "panel_type": "chart" | "table" | "counter" | "text",
-  "chart_type": "bar" | "line" | "pie" | "doughnut" | "polarArea",
-  "panel_options": {
-    "label_column": "column name for labels/categories (x-axis)",
-    "value_column": "column name for values (y-axis) - use this for single series",
-    "series": [
-      {
-        "value_column": "column name",
-        "label": "Series label",
-        "color": "#hex_color"
-      }
-    ],
-    "stacked": false,
-    "horizontal": false,
-    "show_data_labels": true,
-    "legend": {
-      "show": true,
-      "position": "top"
-    }
-  }
 }
 
 IMPORTANT GUIDELINES:
@@ -350,37 +260,154 @@ IMPORTANT GUIDELINES:
    - pie/doughnut: parts of a whole (percentages)
    - polarArea: similar to pie but with equal angles
 5. Use meaningful colors from this palette: #3366CC, #DC3912, #FF9900, #109618, #990099, #0099C6, #DD4477, #66AA00
-6. Set panel_options.label_column to the column that should be used for labels
-7. For single value series, use value_column directly
-8. For multiple series, use the series array
-
-Respond ONLY with the JSON object, no additional text or explanation.`;
+6. Include a mix of panel types (counters, charts, tables) for variety
+7. Generate exactly ${maxPanels} panels
+8. You may use multiple tables in queries (JOINs) if they are related
+9. Your final response must start with { and end with } — no text, no markdown, no explanation`;
 	}
 
-	private parseAIResponse(aiResponse: string): AIGeneratedPanelResponse {
-		try {
-			const cleanedResponse = cleanAIJsonResponse(aiResponse);
-			const parsed = JSON.parse(cleanedResponse) as AIGeneratedPanelResponse;
+	private async runToolLoop(
+		messages: ReturnType<MessageBuilder['build']>,
+		tools: AIToolDefinition[],
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		userEmail: string,
+	): Promise<string> {
+		let currentMessages = [...messages];
+		let depth = 0;
 
-			if (!parsed.name || !parsed.query_text || !parsed.panel_type) {
-				throw new Error('Missing required fields in AI response');
+		while (depth < MAX_TOOL_ITERATIONS) {
+			const stream = await this.aiCoreService.streamChatWithToolsAndProvider(
+				AIProviderType.BEDROCK,
+				currentMessages,
+				tools,
+				{ temperature: 0.4 },
+			);
+
+			let accumulatedContent = '';
+			const pendingToolCalls: AIToolCall[] = [];
+
+			for await (const chunk of stream) {
+				if (chunk.type === 'text' && chunk.content) {
+					accumulatedContent += chunk.content;
+				}
+				if (chunk.type === 'tool_call' && chunk.toolCall) {
+					pendingToolCalls.push(chunk.toolCall);
+				}
+			}
+
+			this.logger.log(
+				`Tool loop iteration ${depth + 1}: toolCalls=${pendingToolCalls.map((tc) => tc.name).join(', ') || 'none'}, ` +
+					`contentLength=${accumulatedContent.length}`,
+			);
+
+			if (pendingToolCalls.length === 0) {
+				return accumulatedContent;
+			}
+
+			const toolResults = await this.executeToolCalls(pendingToolCalls, dao, userEmail);
+
+			const continuationBuilder = MessageBuilder.fromMessages(currentMessages);
+			continuationBuilder.ai(accumulatedContent, pendingToolCalls);
+			for (const tr of toolResults) {
+				continuationBuilder.toolResult(tr.toolCallId, tr.result);
+			}
+			currentMessages = continuationBuilder.build();
+
+			depth++;
+		}
+
+		throw new BadRequestException('AI tool loop exceeded maximum iterations. Please try again.');
+	}
+
+	private async executeToolCalls(
+		toolCalls: AIToolCall[],
+		dao: IDataAccessObject | IDataAccessObjectAgent,
+		userEmail: string,
+	): Promise<Array<{ toolCallId: string; result: string }>> {
+		const results: Array<{ toolCallId: string; result: string }> = [];
+
+		for (const toolCall of toolCalls) {
+			let result: string;
+
+			try {
+				switch (toolCall.name) {
+					case 'getTablesList': {
+						const tables = await dao.getTablesFromDB(userEmail);
+						result = encodeToToon(tables);
+						break;
+					}
+
+					case 'getTableStructure': {
+						const tableName = toolCall.arguments.tableName as string;
+						if (!tableName) {
+							throw new Error('Missing required argument "tableName"');
+						}
+						const structure = await dao.getTableStructure(tableName, userEmail);
+						result = encodeToToon({
+							tableName,
+							columns: structure.map((col) => ({
+								name: col.column_name,
+								type: col.data_type,
+								nullable: col.allow_null,
+							})),
+						});
+						break;
+					}
+
+					default:
+						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
+				}
+			} catch (error) {
+				result = encodeError({ error: error.message });
+			}
+
+			results.push({ toolCallId: toolCall.id, result });
+		}
+
+		return results;
+	}
+
+	private extractJsonFromResponse(response: string): string {
+		const jsonBlockMatch = response.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+		if (jsonBlockMatch) {
+			return jsonBlockMatch[1].trim();
+		}
+
+		const firstBrace = response.indexOf('{');
+		if (firstBrace !== -1) {
+			return response.slice(firstBrace);
+		}
+
+		return response;
+	}
+
+	private parseDashboardResponse(aiResponse: string): AIDashboardResponse {
+		try {
+			const extracted = this.extractJsonFromResponse(aiResponse);
+			const cleanedResponse = cleanAIJsonResponse(extracted);
+			const parsed = JSON.parse(cleanedResponse) as AIDashboardResponse;
+
+			if (!parsed.panels || !Array.isArray(parsed.panels) || parsed.panels.length === 0) {
+				throw new Error('Missing or empty panels array in AI response');
+			}
+
+			for (const panel of parsed.panels) {
+				if (!panel.name || !panel.query_text || !panel.panel_type) {
+					throw new Error('Panel missing required fields (name, query_text, panel_type)');
+				}
 			}
 
 			return parsed;
 		} catch (error) {
-			this.logger.error('Error parsing AI response:', error.message);
-			throw new BadRequestException(
-				'Failed to generate panel configuration from AI. Please try again with a different description.',
-			);
+			this.logger.error('Error parsing dashboard AI response:', error.message);
+			throw new BadRequestException('Failed to generate dashboard from AI. Please try again.');
 		}
 	}
 
 	private async validateAndRefineQueryWithExplain(
 		dao: IDataAccessObject | IDataAccessObjectAgent,
 		generatedPanel: AIGeneratedPanelResponse,
-		tableInfo: TableInfo,
 		connectionType: ConnectionTypesEnum,
-		chartDescription: string,
 	): Promise<AIGeneratedPanelResponse> {
 		if (!EXPLAIN_SUPPORTED_TYPES.has(connectionType)) {
 			return generatedPanel;
@@ -389,15 +416,14 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 		let currentQuery = generatedPanel.query_text;
 
 		for (let iteration = 0; iteration < MAX_FEEDBACK_ITERATIONS; iteration++) {
-			const explainResult = await this.runExplainQuery(dao, currentQuery, tableInfo.table_name);
+			const explainResult = await this.runExplainQuery(dao, currentQuery);
 
 			const correctionPrompt = this.buildQueryCorrectionPrompt(
 				currentQuery,
 				explainResult.success ? explainResult.result : explainResult.error,
 				!explainResult.success,
-				tableInfo,
 				connectionType,
-				chartDescription,
+				generatedPanel.name,
 			);
 
 			const aiResponse = await this.aiCoreService.completeWithProvider(AIProviderType.BEDROCK, correctionPrompt, {
@@ -427,11 +453,10 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 	private async runExplainQuery(
 		dao: IDataAccessObject | IDataAccessObjectAgent,
 		query: string,
-		tableName: string,
 	): Promise<{ success: boolean; result?: string; error?: string }> {
 		try {
 			const explainQuery = `EXPLAIN ${query.replace(/;\s*$/, '')}`;
-			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, tableName);
+			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, '');
 			return { success: true, result: JSON.stringify(result, null, 2) };
 		} catch (error) {
 			return { success: false, error: error.message };
@@ -442,37 +467,25 @@ Respond ONLY with the JSON object, no additional text or explanation.`;
 		currentQuery: string,
 		explainResultOrError: string,
 		isError: boolean,
-		tableInfo: TableInfo,
 		connectionType: ConnectionTypesEnum,
-		chartDescription: string,
+		panelName: string,
 	): string {
-		const schemaDescription = `Table: ${tableInfo.table_name}\n  Columns:\n${tableInfo.columns
-			.map((col) => `    - ${col.name}: ${col.type}${col.nullable ? ' (nullable)' : ''}`)
-			.join('\n')}`;
-
 		const feedbackSection = isError
 			? `The query FAILED with the following error:\n${explainResultOrError}\n\nPlease fix the query to resolve this error.`
-			: `The EXPLAIN output for the query is:\n${explainResultOrError}\n\nReview the execution plan. If the query has performance issues (full table scans on large datasets, inefficient joins, etc.), optimize it. If the query is already acceptable, return it unchanged.`;
+			: `The EXPLAIN output for the query is:\n${explainResultOrError}\n\nReview the execution plan. If the query has performance issues (full table scans on large datasets, inefficient joins, etc.), optimize it if possible. If the query is already acceptable, return it unchanged.`;
 
 		return `You are a database query optimization assistant. A SQL query was generated and needs validation.
 
 DATABASE TYPE: ${connectionType}
 
-DATABASE SCHEMA:
-${schemaDescription}
-
-ORIGINAL USER REQUEST:
-"${chartDescription}"
+PANEL NAME: "${panelName}"
 
 CURRENT QUERY:
 ${currentQuery}
 
 ${feedbackSection}
 
-IMPORTANT:
-- Preserve the same column aliases used in the original query.
-- Write valid ${connectionType} SQL syntax.
-- Return ONLY the SQL query, no explanations, no markdown, no JSON wrapping.`;
+Respond with SQL only. Preserve column aliases. Valid ${connectionType} syntax.`;
 	}
 
 	private cleanQueryResponse(aiResponse: string): string {
