@@ -130,11 +130,11 @@ export class AppComponent {
 		);
 		this.matIconRegistry.addSvgIcon(
 			'cassandra',
-			this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/db-logos/сassandra_logo.svg'),
+			this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/db-logos/cassandra_logo.svg'),
 		);
 		this.matIconRegistry.addSvgIcon(
 			'cassandra-dark',
-			this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/db-logos/сassandra_logo_dark.svg'),
+			this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/db-logos/cassandra_logo_dark.svg'),
 		);
 		this.matIconRegistry.addSvgIcon(
 			'redis',
