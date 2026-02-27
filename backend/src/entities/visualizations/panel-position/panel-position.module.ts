@@ -50,7 +50,7 @@ export class PanelPositionModule {
 			.apply(AuthMiddleware)
 			.forRoutes(
 				{ path: '/dashboard/:dashboardId/widget/:connectionId', method: RequestMethod.POST },
-				{ path: '/dashboard/:dashboardId/widget/generate/:connectionId', method: RequestMethod.POST },
+				{ path: '/widget/generate/:connectionId', method: RequestMethod.POST },
 				{ path: '/dashboard/generate-table-dashboard/:connectionId', method: RequestMethod.POST },
 				{ path: '/dashboard/:dashboardId/widget/:widgetId/:connectionId', method: RequestMethod.PUT },
 				{ path: '/dashboard/:dashboardId/widget/:widgetId/:connectionId', method: RequestMethod.DELETE },

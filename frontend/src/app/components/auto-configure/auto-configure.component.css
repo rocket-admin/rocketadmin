@@ -21,6 +21,19 @@
 	text-align: center;
 }
 
+.auto-configure__open-btn {
+	margin-top: 8px;
+	font-size: 16px;
+	padding: 0 32px;
+}
+
+.auto-configure__hint {
+	color: var(--mat-sidenav-content-text-color);
+	opacity: 0.5;
+	margin: 0;
+	font-size: 13px;
+}
+
 .auto-configure__notice {
 	color: var(--mat-sidenav-content-text-color);
 	opacity: 0.7;
