@@ -129,7 +129,6 @@ export class ChartEditComponent implements OnInit {
 	// AI generation
 	protected aiDescription = signal('');
 	protected aiGenerating = signal(false);
-	protected aiDashboardId = signal<string | null>(null);
 	protected aiExpanded = signal(true);
 	protected manualExpanded = signal(false);
 	protected canGenerate = computed(() => !!this.aiDescription().trim() && !this.aiGenerating());
@@ -383,14 +382,6 @@ export class ChartEditComponent implements OnInit {
 			const pageTitle = this.isEditMode() ? 'Edit Query' : 'Create Query';
 			this.title.setTitle(`${pageTitle} | ${title || 'Rocketadmin'}`);
 		});
-
-		// Watch for dashboards to become available for AI feature
-		effect(() => {
-			const dashboards = this._dashboards.dashboards();
-			if (dashboards.length > 0 && !this.aiDashboardId()) {
-				this.aiDashboardId.set(dashboards[0].id);
-			}
-		});
 	}
 
 	ngOnInit(): void {
@@ -638,13 +629,12 @@ export class ChartEditComponent implements OnInit {
 	}
 
 	async generateWithAi(): Promise<void> {
-		const dashboardId = this.aiDashboardId();
-		if (!dashboardId || !this.aiDescription().trim()) return;
+		if (!this.aiDescription().trim()) return;
 
 		this.aiGenerating.set(true);
 
 		try {
-			const result = await this._dashboards.generateWidgetWithAi(dashboardId, this.connectionId(), {
+			const result = await this._dashboards.generateWidgetWithAi(this.connectionId(), {
 				chart_description: this.aiDescription(),
 			});
 

@@ -20,7 +20,6 @@
 
     @if (!loading()) {
         <div class="chart-edit-content">
-            @if (aiDashboardId()) {
                 <div class="ai-section" [class.ai-section--collapsed]="!aiExpanded()">
                     <div class="ai-section-header" (click)="aiExpanded.set(!aiExpanded())">
                         <div class="ai-section-title">
@@ -62,7 +61,6 @@
                         </div>
                     }
                 </div>
-            }
 
             <!-- Chart preview (always visible when data exists) -->
             @if (showResults()) {
