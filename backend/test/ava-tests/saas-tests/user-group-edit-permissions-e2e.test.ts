@@ -713,7 +713,7 @@ test.serial(
 			t.is(typeof result.tables, 'object');
 
 			const { tables } = result;
-			const foundTableIndex = tables.findIndex((table) => table.tableName === firstTableInfo.testTableName);
+			const foundTableIndex = tables.findIndex((table) => table.tableName === secondTableInfo.testTableName);
 			t.is(tables.length > 0, true);
 			t.is(typeof tables[0], 'object');
 			t.is(Object.hasOwn(tables[foundTableIndex], 'accessLevel'), true);
@@ -2470,7 +2470,7 @@ test.serial(`${currentTest} should throw an exception do not have permission`, a
 		);
 
 		const createTableSettingsResponse = await request(app.getHttpServer())
-			.post(`/settings?connectionId=${connections.firstId}&tableName=${firstTableInfo.testTableName}}`)
+			.post(`/settings?connectionId=${connections.firstId}&tableName=${firstTableInfo.testTableName}`)
 			.send(createTableSettingsDTO)
 			.set('Cookie', simpleUserToken)
 			.set('Content-Type', 'application/json')
@@ -2509,7 +2509,7 @@ test.serial(
 			);
 
 			const createTableSettingsResponse = await request(app.getHttpServer())
-				.post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}}`)
+				.post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
 				.send(createTableSettingsDTO)
 				.set('Cookie', simpleUserToken)
 				.set('Content-Type', 'application/json')
@@ -2570,7 +2570,7 @@ test.serial(`${currentTest} should throw an exception do not have permission`, a
 		);
 
 		const updateTableSettingsResponse = await request(app.getHttpServer())
-			.put(`/settings?connectionId=${connections.firstId}&tableName=${firstTableInfo.testTableName}}`)
+			.put(`/settings?connectionId=${connections.firstId}&tableName=${firstTableInfo.testTableName}`)
 			.send(updateTableSettingsDTO)
 			.set('Cookie', simpleUserToken)
 			.set('Content-Type', 'application/json')
@@ -2616,9 +2616,9 @@ test.serial(
 			t.is(createTableSettingsResponse.status, 201);
 
 			const updateTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				firstTableInfo.testTableName,
-				[firstTableInfo.testTableSecondColumnName],
+				connections.secondId,
+				secondTableInfo.testTableName,
+				[secondTableInfo.testTableSecondColumnName],
 				['id'],
 				['updated_at'],
 				['created_at'],
@@ -2628,7 +2628,7 @@ test.serial(
 			);
 
 			const updateTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}}}`)
+				.put(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
 				.send(updateTableSettingsDTO)
 				.set('Cookie', simpleUserToken)
 				.set('Content-Type', 'application/json')
