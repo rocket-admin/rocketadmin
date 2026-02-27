@@ -140,17 +140,6 @@
 	}
 }
 
-.ai-table-field {
-	flex: 0 0 220px;
-}
-
-@media (width <= 600px) {
-	.ai-table-field {
-		flex: 1;
-		width: 100%;
-	}
-}
-
 .ai-description-field {
 	flex: 1;
 }
