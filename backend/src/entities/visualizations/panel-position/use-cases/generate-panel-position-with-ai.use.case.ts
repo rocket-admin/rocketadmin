@@ -78,7 +78,6 @@ export class GeneratePanelPositionWithAiUseCase
 
 	public async implementation(inputData: GeneratePanelPositionWithAiDs): Promise<GeneratedPanelWithPositionDto> {
 		const {
-			dashboardId,
 			connectionId,
 			masterPassword,
 			userId,
@@ -97,15 +96,6 @@ export class GeneratePanelPositionWithAiUseCase
 
 		if (!foundConnection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
-		}
-
-		const foundDashboard = await this._dbContext.dashboardRepository.findDashboardByIdAndConnectionId(
-			dashboardId,
-			connectionId,
-		);
-
-		if (!foundDashboard) {
-			throw new NotFoundException(Messages.DASHBOARD_NOT_FOUND);
 		}
 
 		const dao = getDataAccessObject(foundConnection);
@@ -155,7 +145,6 @@ export class GeneratePanelPositionWithAiUseCase
 				position_y: position_y ?? 0,
 				width: width ?? 6,
 				height: height ?? 4,
-				dashboard_id: dashboardId,
 			},
 		};
 	}

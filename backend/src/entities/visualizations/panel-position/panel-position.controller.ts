@@ -164,20 +164,17 @@ export class DashboardWidgetController {
 		type: GeneratedPanelWithPositionDto,
 	})
 	@ApiBody({ type: GeneratePanelPositionWithAiDto })
-	@ApiParam({ name: 'dashboardId', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
 	@UseGuards(ConnectionEditGuard)
 	@Timeout(TimeoutDefaults.AI)
-	@Post('/dashboard/:dashboardId/widget/generate/:connectionId')
+	@Post('/widget/generate/:connectionId')
 	async generateWidgetWithAi(
 		@SlugUuid('connectionId') connectionId: string,
-		@Param('dashboardId') dashboardId: string,
 		@MasterPassword() masterPwd: string,
 		@UserId() userId: string,
 		@Body() generateDto: GeneratePanelPositionWithAiDto,
 	): Promise<GeneratedPanelWithPositionDto> {
 		const inputData: GeneratePanelPositionWithAiDs = {
-			dashboardId,
 			connectionId,
 			masterPassword: masterPwd,
 			userId,

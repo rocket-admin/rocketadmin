@@ -162,7 +162,6 @@ export class GenerateTableDashboardWithAiUseCase
 						position_y: row * PANEL_HEIGHT,
 						width: PANEL_WIDTH,
 						height: PANEL_HEIGHT,
-						dashboard_id: null,
 					},
 				});
 			} catch (error) {
