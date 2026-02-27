@@ -142,13 +142,11 @@ export class DashboardsService {
 	async generateWidgetWithAi(
 		dashboardId: string,
 		connectionId: string,
-		tableName: string,
 		payload: { chart_description: string; name?: string },
 	): Promise<GeneratedPanelWithPosition | null> {
 		return this._api.post<GeneratedPanelWithPosition>(
 			`/dashboard/${dashboardId}/widget/generate/${connectionId}`,
 			payload,
-			{ params: { tableName } },
 		);
 	}
 
