@@ -140,14 +140,10 @@ export class DashboardsService {
 	}
 
 	async generateWidgetWithAi(
-		dashboardId: string,
 		connectionId: string,
 		payload: { chart_description: string; name?: string },
 	): Promise<GeneratedPanelWithPosition | null> {
-		return this._api.post<GeneratedPanelWithPosition>(
-			`/dashboard/${dashboardId}/widget/generate/${connectionId}`,
-			payload,
-		);
+		return this._api.post<GeneratedPanelWithPosition>(`/widget/generate/${connectionId}`, payload);
 	}
 
 	async deleteWidget(connectionId: string, dashboardId: string, widgetId: string): Promise<DashboardWidget | null> {
