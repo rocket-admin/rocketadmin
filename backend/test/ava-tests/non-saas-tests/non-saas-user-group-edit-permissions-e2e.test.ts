@@ -120,6 +120,7 @@ test.serial(`${currentTest} should return connections, where second user have ac
 		t.is(Object.hasOwn(result[0].connection, 'author'), false);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -162,6 +163,7 @@ test.serial(`${currentTest} should return a found connection`, async (t) => {
 		t.is(Object.hasOwn(result, 'author'), false);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -193,6 +195,7 @@ test.serial(
 			t.is(Object.hasOwn(findOneRO, 'host'), false);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -222,6 +225,7 @@ test.serial(`${currentTest} should throw exception you do not have permission`, 
 		t.is(JSON.parse(updateConnectionResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -249,6 +253,7 @@ test.serial(
 			t.is(JSON.parse(updateConnectionResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -286,6 +291,7 @@ test.serial(`${currentTest} should throw an exception do not have permissions`, 
 		t.is(JSON.parse(findOneResponce.text).connection.id, connections.firstId);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -321,6 +327,7 @@ test.serial(
 			t.is(findOneResponce.status, 200);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -350,6 +357,7 @@ test.serial(`${currentTest} should throw an exception don not have permission`, 
 		t.is(JSON.parse(createGroupResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -377,6 +385,7 @@ test.serial(
 			t.is(JSON.parse(createGroupResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -426,6 +435,7 @@ test.serial(`${currentTest} should return connection without deleted group resul
 		t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -470,6 +480,7 @@ test.serial(
 			t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -519,6 +530,7 @@ test.serial(`${currentTest} should groups in connection`, async (t) => {
 		t.is(index >= 0, false);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -555,6 +567,7 @@ test.serial(
 			t.is(result.length, 0);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -612,6 +625,7 @@ test.serial(`${currentTest} should return permissions object for current group i
 		t.is(tables[tableIndex].accessLevel.edit, tablePermissions.edit);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -669,69 +683,69 @@ test.serial(`${currentTest} should return permissions object for current group i
 		t.is(tables[foundTableIndex].accessLevel.edit, tablePermissions.edit);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
-test.serial(
-	`${currentTest} should return permissions object for current group in current connection for current user`,
-	async (t) => {
-		try {
-			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-			const {
-				connections,
-				firstTableInfo,
-				groups,
-				permissions,
-				secondTableInfo,
-				users: { adminUserToken, simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} should return permissions object for current group in current connection for current user`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+		const {
+			connections,
+			firstTableInfo,
+			groups,
+			permissions,
+			secondTableInfo,
+			users: { adminUserToken, simpleUserToken },
+		} = testData;
 
-			const getGroupsResponse = await request(app.getHttpServer())
-				.get(`/connection/groups/${connections.secondId}`)
-				.set('Cookie', adminUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(getGroupsResponse.status, 200);
-			const getGroupsRO = JSON.parse(getGroupsResponse.text);
+		const getGroupsResponse = await request(app.getHttpServer())
+			.get(`/connection/groups/${connections.secondId}`)
+			.set('Cookie', adminUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getGroupsResponse.status, 200);
+		const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-			const groupId = getGroupsRO[0].group.id;
+		const groupId = getGroupsRO[0].group.id;
 
-			const response = await request(app.getHttpServer())
-				.get(`/connection/user/permissions?connectionId=${connections.secondId}&groupId=${groupId}`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
+		const response = await request(app.getHttpServer())
+			.get(`/connection/user/permissions?connectionId=${connections.secondId}&groupId=${groupId}`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
 
-			t.is(response.status, 200);
-			const result = JSON.parse(response.text);
+		t.is(response.status, 200);
+		const result = JSON.parse(response.text);
+		console.log('🚀 ~ result:', result);
 
-			t.is(Object.hasOwn(result, 'connection'), true);
-			t.is(Object.hasOwn(result, 'group'), true);
-			t.is(Object.hasOwn(result, 'tables'), true);
-			t.is(typeof result.connection, 'object');
-			t.is(typeof result.group, 'object');
-			t.is(result.connection.connectionId, connections.secondId);
-			t.is(result.group.groupId, groupId);
-			t.is(result.connection.accessLevel, AccessLevelEnum.none);
-			t.is(result.group.accessLevel, AccessLevelEnum.none);
-			t.is(typeof result.tables, 'object');
+		t.is(Object.hasOwn(result, 'connection'), true);
+		t.is(Object.hasOwn(result, 'group'), true);
+		t.is(Object.hasOwn(result, 'tables'), true);
+		t.is(typeof result.connection, 'object');
+		t.is(typeof result.group, 'object');
+		t.is(result.connection.connectionId, connections.secondId);
+		t.is(result.group.groupId, groupId);
+		t.is(result.connection.accessLevel, AccessLevelEnum.none);
+		t.is(result.group.accessLevel, AccessLevelEnum.none);
+		t.is(typeof result.tables, 'object');
 
-			const { tables } = result;
-			const foundTableIndex = tables.findIndex((table) => table.tableName === firstTableInfo.testTableName);
-			t.is(tables.length > 0, true);
-			t.is(typeof tables[0], 'object');
-			t.is(Object.hasOwn(tables[foundTableIndex], 'accessLevel'), true);
-			t.is(tables[foundTableIndex].accessLevel.visibility, false);
-			t.is(tables[foundTableIndex].accessLevel.readonly, false);
-			t.is(tables[foundTableIndex].accessLevel.add, false);
-			t.is(tables[foundTableIndex].accessLevel.delete, false);
-			t.is(tables[foundTableIndex].accessLevel.edit, false);
-			t.is(tables[foundTableIndex].accessLevel.edit, false);
-		} catch (e) {
-			console.error(e);
-		}
-	},
-);
+		const { tables } = result;
+		const foundTableIndex = tables.findIndex((table) => table.tableName === secondTableInfo.testTableName);
+		t.is(tables.length > 0, true);
+		t.is(typeof tables[0], 'object');
+		t.is(Object.hasOwn(tables[foundTableIndex], 'accessLevel'), true);
+		t.is(tables[foundTableIndex].accessLevel.visibility, false);
+		t.is(tables[foundTableIndex].accessLevel.readonly, false);
+		t.is(tables[foundTableIndex].accessLevel.add, false);
+		t.is(tables[foundTableIndex].accessLevel.delete, false);
+		t.is(tables[foundTableIndex].accessLevel.edit, false);
+		t.is(tables[foundTableIndex].accessLevel.edit, false);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 //****************************** GROUP CONTROLLER ******************************//
 
@@ -761,6 +775,7 @@ test.serial(`${currentTest} should return found groups with current user`, async
 		t.is(Object.hasOwn(groups[0].group, 'isMain'), true);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -801,6 +816,7 @@ test.serial(`${currentTest} it should return users in group`, async (t) => {
 		t.is(Object.hasOwn(getUsersRO[0], 'email'), true);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -836,6 +852,7 @@ test.serial(
 			t.is(getUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -884,6 +901,7 @@ test.serial(`${currentTest} should return group with added user`, async (t) => {
 		t.is(users[2].id === users[0].id, false);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -919,6 +937,7 @@ test.serial(`${currentTest} should throw exception, when user email not passed i
 		// t.is(addUserInGroupRO.message, ErrorsMessages.VALIDATION_FAILED);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -955,6 +974,7 @@ test.serial(`${currentTest} should throw exception, when group id not passed in 
 		t.is(addUserInGroupRO.message, Messages.GROUP_ID_MISSING);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -987,10 +1007,11 @@ test.serial(`${currentTest} should throw exception, when group id passed in requ
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text);
-		t.is(addUserInGroupResponse.status, 400);
-		t.is(addUserInGroupRO.message, Messages.CONNECTION_NOT_FOUND);
+		t.is(addUserInGroupResponse.status, 403);
+		t.is(addUserInGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1025,6 +1046,7 @@ test.serial(`${currentTest} should delete result after group deletion`, async (t
 		t.is(deleteGroupRO.isMain, false);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1060,6 +1082,7 @@ test.serial(`${currentTest} should throw an exception when you try delete admin 
 		t.is(deleteGroupRO.message, Messages.CANT_DELETE_ADMIN_GROUP);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1092,6 +1115,7 @@ test.serial(`${currentTest} should throw an exception when group id not passed i
 		t.is(deleteGroupResponse.status, 404);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1121,9 +1145,10 @@ test.serial(`${currentTest} should throw an exception when group id passed in re
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		const deleteGroupRO = JSON.parse(deleteGroupResponse.text);
-		t.is(deleteGroupRO.message, Messages.CONNECTION_NOT_FOUND);
+		t.is(deleteGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1179,6 +1204,7 @@ test.serial(`${currentTest} should return group without deleted user`, async (t)
 		t.is(users[0].id === users[1].id, false);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1218,6 +1244,7 @@ test.serial(`${currentTest} should throw exception, when user email not passed i
 		// t.is(deleteUserInGroupRO.message, ErrorsMessages.VALIDATION_FAILED);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1257,6 +1284,7 @@ test.serial(`${currentTest} should throw exception, when group id not passed in 
 		t.is(deleteUserInGroupRO.message, Messages.GROUP_ID_MISSING);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1294,9 +1322,10 @@ test.serial(`${currentTest} should throw exception, when group id passed in requ
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-		t.is(deleteUserInGroupRO.message, Messages.CONNECTION_NOT_FOUND);
+		t.is(deleteUserInGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1359,6 +1388,7 @@ test.serial(`${currentTest} should throw an exception do not have permission`, a
 		t.is(createOrUpdatePermissionRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1419,6 +1449,7 @@ test.serial(
 			t.is(createOrUpdatePermissionResponse.status, 403);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -1468,6 +1499,7 @@ test.serial(`${currentTest} should throw an exception, when you try change admin
 		t.is(createOrUpdatePermissionRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1507,6 +1539,7 @@ test.serial(`${currentTest} should return all tables in connection`, async (t) =
 		t.is(add, tablePermissions.add);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1529,6 +1562,7 @@ test.serial(`${currentTest} should throw an exception, when connection id not pa
 		t.is(getTablesInConnection.status, 404);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1556,6 +1590,7 @@ test.serial(
 			t.is(getTablesInConnectionRO.message, Messages.CONNECTION_NOT_FOUND);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -1590,6 +1625,7 @@ test.serial(`${currentTest} should return found rows from table`, async (t) => {
 		t.is(foreignKeys.length, 0);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1612,6 +1648,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 		t.is(getTablesRows.status, 404);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1637,6 +1674,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		t.is(getTablesInConnectionRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1662,6 +1700,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		t.is(getTablesInConnectionRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1697,6 +1736,7 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
 		t.is(foreignKeys.length, 0);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1720,6 +1760,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 		t.is(getTablesStructure.status, 404);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1746,6 +1787,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		t.is(getTablesStructureRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1770,6 +1812,7 @@ test.serial(`${currentTest} should throw an exception when table name not passed
 		t.is(getTablesStructureRO.message, Messages.TABLE_NAME_MISSING);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1795,6 +1838,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		t.is(getTablesStructureRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1841,6 +1885,7 @@ test.serial(`${currentTest} should return added row`, async (t) => {
 		t.is(Object.hasOwn(addRowInTableRO, 'readonly_fields'), true);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1875,6 +1920,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1909,6 +1955,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -1948,6 +1995,7 @@ test.serial(
 			t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -1983,6 +2031,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2017,6 +2066,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2042,6 +2092,7 @@ test.serial(`${currentTest} should return delete result`, async (t) => {
 		t.is(deleteRowInTable.status, 200);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2067,6 +2118,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		t.is(deleteRowInTable.status, 403);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2091,6 +2143,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		t.is(deleteRowInTabbleRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2123,6 +2176,7 @@ test.serial(`${currentTest} should return row`, async (t) => {
 		t.is(Object.hasOwn(getRowInTableRO, 'readonly_fields'), true);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2147,6 +2201,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 		t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2171,6 +2226,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 		t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2225,6 +2281,7 @@ test.serial(`${currentTest} should return all found logs in connection'`, async 
 		t.is(Object.hasOwn(getRowInTableRO.logs[0], 'connection_id'), true);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2324,6 +2381,7 @@ test.skip(`${currentTest} should return empty table settings when it was not cre
 		t.is(JSON.stringify(getTableSettingsRO), JSON.stringify({}));
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2378,6 +2436,7 @@ test.serial(`${currentTest} 'should return table settings when it was created`, 
 		t.is(getTableSettingsRO.connection_id, connections.firstId);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2426,6 +2485,7 @@ test.serial(
 			t.is(getTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -2466,6 +2526,7 @@ test.serial(`${currentTest} should throw an exception do not have permission`, a
 		t.is(JSON.parse(createTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2507,6 +2568,7 @@ test.serial(
 			t.is(createTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -2566,6 +2628,7 @@ test.serial(`${currentTest} should throw an exception do not have permission`, a
 		t.is(JSON.parse(updateTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2603,9 +2666,9 @@ test.serial(
 			t.is(createTableSettingsResponse.status, 201);
 
 			const updateTableSettingsDTO = mockFactory.generateTableSettings(
-				connections.firstId,
-				firstTableInfo.testTableName,
-				[firstTableInfo.testTableSecondColumnName],
+				connections.secondId,
+				secondTableInfo.testTableName,
+				[secondTableInfo.testTableSecondColumnName],
 				['id'],
 				['updated_at'],
 				['created_at'],
@@ -2615,7 +2678,7 @@ test.serial(
 			);
 
 			const updateTableSettingsResponse = await request(app.getHttpServer())
-				.put(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}}}`)
+				.put(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
 				.send(updateTableSettingsDTO)
 				.set('Cookie', simpleUserToken)
 				.set('Content-Type', 'application/json')
@@ -2624,6 +2687,7 @@ test.serial(
 			t.is(JSON.parse(updateTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -2671,6 +2735,7 @@ test.serial(`${currentTest} should return array without deleted table settings`,
 		t.is(JSON.parse(deleteTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2717,6 +2782,7 @@ test.serial(
 			t.is(deleteTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -2747,6 +2813,7 @@ test.serial(`${currentTest} should return empty widgets array when widgets not c
 		t.is(getTableWidgetsRO.length, 0);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2808,6 +2875,7 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
 		t.is(compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets), true);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2850,6 +2918,7 @@ test.serial(
 			t.pass();
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -2884,6 +2953,7 @@ test.serial(`${currentTest} should throw an exception do not have permissions`, 
 		t.is(createTableWidgetRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -2916,6 +2986,7 @@ test.serial(
 			t.is(createTableWidgetRO.message, Messages.DONT_HAVE_PERMISSIONS);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );

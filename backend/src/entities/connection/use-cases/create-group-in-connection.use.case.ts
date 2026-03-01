@@ -2,7 +2,10 @@ import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AccessLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { Cacher } from '../../../helpers/cache/cacher.js';
+import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
 import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 import { buildFoundGroupResponseDto } from '../../group/utils/biuld-found-group-response.dto.js';
 import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds.js';
@@ -33,6 +36,18 @@ export class CreateGroupInConnectionUseCase
 		const foundUser = await this._dbContext.userRepository.findOneUserById(cognitoUserName);
 		const newGroupEntity = buildNewGroupEntityForConnectionWithUser(connectionToUpdate, foundUser, title);
 		const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(newGroupEntity);
+		savedGroup.cedarPolicy = generateCedarPolicyForGroup(
+			savedGroup.id,
+			connectionId,
+			false,
+			{
+				connection: { connectionId, accessLevel: AccessLevelEnum.none },
+				group: { groupId: savedGroup.id, accessLevel: AccessLevelEnum.none },
+				tables: [],
+			},
+		);
+		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(savedGroup);
+		Cacher.invalidateCedarPolicyCache(connectionId);
 		return buildFoundGroupResponseDto(savedGroup);
 	}
 }

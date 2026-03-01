@@ -33,6 +33,9 @@ export class GroupEntity {
 	)
 	users?: Relation<UserEntity>[];
 
+	@Column({ type: 'text', default: null, nullable: true })
+	cedarPolicy: string | null;
+
 	@ManyToOne(
 		(_) => ConnectionEntity,
 		(connection) => connection.groups,

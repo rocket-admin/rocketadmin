@@ -40,6 +40,7 @@ import { DashboardModule } from './entities/visualizations/dashboard/dashboards.
 import { PanelPositionModule } from './entities/visualizations/panel-position/panel-position.module.js';
 import { PanelModule } from './entities/visualizations/panel/panel.module.js';
 import { TableWidgetModule } from './entities/widget/table-widget.module.js';
+import { CedarAuthorizationModule } from './entities/cedar-authorization/cedar-authorization.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
@@ -59,6 +60,7 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 				},
 			],
 		}),
+		CedarAuthorizationModule,
 		AICoreModule,
 		ConnectionModule,
 		ConnectionPropertiesModule,
