@@ -17,6 +17,12 @@
 	overflow-y: auto;
 }
 
+@media (prefers-color-scheme: dark) {
+	.charts-main {
+		background-color: #191919;
+	}
+}
+
 .charts-page {
 	margin: 3em auto;
 	padding: 0 clamp(40px, 5vw, 100px);

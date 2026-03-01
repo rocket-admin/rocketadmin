@@ -150,10 +150,16 @@
 	top: 9px;
 	right: 3px;
 	display: block;
-	background: rgba(0, 0, 0, 0.87);
+	background: var(--color-accentedPalette-500);
 	border-radius: 50%;
 	height: 5px;
 	width: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.action_active::after {
+		background: var(--color-accentedPalette-500);
+	}
 }
 
 .action-button_disabled {

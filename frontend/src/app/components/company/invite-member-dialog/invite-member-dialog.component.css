@@ -36,3 +36,9 @@
     margin-top: 2px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .role-option__description {
+        color: rgba(255,255,255,0.7);
+    }
+}
+

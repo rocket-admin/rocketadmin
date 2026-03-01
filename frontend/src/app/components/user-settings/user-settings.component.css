@@ -8,6 +8,12 @@
     overflow-y: auto;
 }
 
+@media (prefers-color-scheme: dark) {
+    .profile-main {
+        background-color: #191919;
+    }
+}
+
 ::ng-deep .profile-main > app-alert {
     position: relative;
     top: 0;
@@ -107,6 +113,10 @@
 @media (prefers-color-scheme: dark) {
     .api-key-list-item:hover {
         background: var(--color-primaryPalette-500);
+    }
+
+    ::ng-deep .user-settings__section-heading mat-icon[svgIcon] svg path {
+        fill: #ffffff;
     }
 }
 

@@ -911,3 +911,20 @@
         background-color: rgba(99, 132, 255, 0.25) !important;
     }
 }
+
+@media (prefers-color-scheme: dark) {
+    .ai-message ::ng-deep svg text,
+    .ai-message ::ng-deep svg .legend text,
+    .ai-message ::ng-deep svg .title text,
+    .ai-message ::ng-deep svg .label text,
+    .ai-message ::ng-deep svg .tick text,
+    .ai-message ::ng-deep svg .axis text,
+    .ai-message ::ng-deep svg .pieCircle text,
+    .ai-message ::ng-deep svg .slice text {
+        fill: rgba(255, 255, 255, 0.87) !important;
+    }
+
+    .ai-message ::ng-deep svg .title {
+        fill: rgba(255, 255, 255, 0.87) !important;
+    }
+}

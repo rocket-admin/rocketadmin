@@ -8,6 +8,12 @@
 	overflow-y: auto;
 }
 
+@media (prefers-color-scheme: dark) {
+	.profile-main {
+		background-color: #191919;
+	}
+}
+
 ::ng-deep .profile-main > app-alert {
 	position: relative;
 	top: 0;
