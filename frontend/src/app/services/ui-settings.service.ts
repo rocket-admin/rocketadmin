@@ -15,25 +15,20 @@ export class UiSettingsService {
 	};
 
 	private uiSettings = null;
-	private codeEditorTheme: 'vs' | 'vs-dark';
+	private _isDarkMode: boolean;
 
 	constructor(
 		private _http: HttpClient,
 		private _notifications: NotificationsService,
 	) {
-		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-		this.codeEditorTheme = prefersDark ? 'vs-dark' : 'vs';
+		this._isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 	}
 
-	// get uiSettings$(){
-	//   return this.uiSettings.asObservable();
-	// }
-
-	get editorTheme(): 'vs' | 'vs-dark' {
-		return this.codeEditorTheme;
+	get isDarkMode(): boolean {
+		return this._isDarkMode;
 	}
 
-	updateGlobalSetting(key: string, value: any) {
+updateGlobalSetting(key: string, value: any) {
 		this.settings.globalSettings[key] = value;
 		this.syncUiSettings().subscribe();
 	}

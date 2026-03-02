@@ -1,0 +1,14 @@
+@if (loading()) {
+	<div class="auto-configure">
+		<mat-spinner diameter="48"></mat-spinner>
+		<h2 class="auto-configure__title">Setting up your dashboard</h2>
+		<p class="auto-configure__text">We're analyzing your database structure and applying the best configuration. This may take a while.</p>
+		<a mat-flat-button class="auto-configure__open-btn" [routerLink]="'/dashboard/' + connectionId()">Open tables</a>
+		<p class="auto-configure__hint">Setup will continue in the background</p>
+	</div>
+} @else if (errorMessage()) {
+	<div class="auto-configure">
+		<p class="auto-configure__notice">{{ errorMessage() }}</p>
+		<a mat-flat-button [routerLink]="'/dashboard/' + connectionId()">Continue to dashboard</a>
+	</div>
+}

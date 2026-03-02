@@ -30,6 +30,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	public supportedDatabasesTitles = supportedDatabasesTitles;
 	public supportedOrderedDatabases = supportedOrderedDatabases;
 	public hasMultipleMembers: boolean = false;
+	public isDarkMode: boolean = false;
 
 	constructor(
 		private _uiSettings: UiSettingsService,
@@ -37,6 +38,8 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	) {}
 
 	ngOnInit() {
+		this.isDarkMode = this._uiSettings.isDarkMode;
+
 		this._uiSettings.getUiSettings().subscribe((settings: UiSettings) => {
 			this.connectionsListCollapsed = settings?.globalSettings?.connectionsListCollapsed;
 			this.displayedCardCount = this.connectionsListCollapsed ? 3 : this.connections.length;

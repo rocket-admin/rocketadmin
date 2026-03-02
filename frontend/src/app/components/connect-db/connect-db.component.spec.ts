@@ -78,7 +78,10 @@ describe('ConnectDBComponent', () => {
 			],
 			providers: [
 				provideHttpClient(),
-				provideRouter([{ path: 'dashboard/:id', component: ConnectDBComponent }]),
+				provideRouter([
+					{ path: 'dashboard/:id', component: ConnectDBComponent },
+					{ path: 'auto-configure/:connection-id', component: ConnectDBComponent },
+				]),
 				{
 					provide: NG_VALUE_ACCESSOR,
 					useExisting: forwardRef(() => ConnectDBComponent),

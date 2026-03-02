@@ -12,7 +12,7 @@ describe('MarkdownEditComponent', () => {
 	let fixture: ComponentFixture<MarkdownEditComponent>;
 
 	const mockUiSettingsService = {
-		editorTheme: 'vs-dark',
+		isDarkMode: true,
 	};
 
 	beforeEach(async () => {
@@ -67,7 +67,7 @@ describe('MarkdownEditComponent', () => {
 	});
 
 	it('should use light theme when configured', () => {
-		const lightThemeService = { editorTheme: 'vs' };
+		const lightThemeService = { isDarkMode: false };
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule({
 			imports: [MarkdownEditComponent, BrowserAnimationsModule],

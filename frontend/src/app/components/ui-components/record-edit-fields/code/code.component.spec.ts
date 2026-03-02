@@ -12,7 +12,7 @@ describe('CodeEditComponent', () => {
 	let fixture: ComponentFixture<CodeEditComponent>;
 
 	const mockUiSettingsService = {
-		editorTheme: 'vs-dark',
+		isDarkMode: true,
 	};
 
 	beforeEach(async () => {

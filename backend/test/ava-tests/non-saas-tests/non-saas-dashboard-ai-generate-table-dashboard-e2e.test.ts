@@ -9,7 +9,6 @@ import request from 'supertest';
 import { AICoreService } from '../../../src/ai-core/index.js';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { DashboardWidgetTypeEnum } from '../../../src/enums/dashboard-widget-type.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
@@ -18,7 +17,11 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { createTestTable } from '../../utils/create-test-table.js';
 import { getTestData } from '../../utils/get-test-data.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import {
+	createInitialTestUser,
+	registerUserAndReturnUserInfo,
+} from '../../utils/register-user-and-return-user-info.js';
+import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
@@ -26,50 +29,53 @@ let app: INestApplication;
 let testUtils: TestUtils;
 let currentTest: string;
 
-const MOCK_AI_RESPONSE_CHART = JSON.stringify({
-	name: 'Sales by Category',
-	description: 'Bar chart showing total sales grouped by category',
-	query_text: 'SELECT category, SUM(amount) as total FROM orders GROUP BY category',
-	panel_type: 'chart',
-	chart_type: 'bar',
-	panel_options: {
-		label_column: 'category',
-		value_column: 'total',
-		show_data_labels: true,
-		legend: {
-			show: true,
-			position: 'top',
+const MOCK_DASHBOARD_RESPONSE = JSON.stringify({
+	dashboard_name: 'Test Analytics Dashboard',
+	dashboard_description: 'Automated dashboard for test table analysis',
+	panels: [
+		{
+			name: 'Record Count',
+			description: 'Total number of records',
+			query_text: 'SELECT COUNT(*) as total FROM test_table',
+			panel_type: 'counter',
+			panel_options: {
+				value_column: 'total',
+			},
 		},
-	},
+		{
+			name: 'Records by Name',
+			description: 'Distribution of records by name',
+			query_text: "SELECT name as label, COUNT(*) as count FROM test_table GROUP BY name",
+			panel_type: 'chart',
+			chart_type: 'bar',
+			panel_options: {
+				label_column: 'label',
+				value_column: 'count',
+			},
+		},
+	],
 });
 
-const MOCK_AI_RESPONSE_COUNTER = JSON.stringify({
-	name: 'Total Orders',
-	description: 'Counter showing total number of orders',
-	query_text: 'SELECT COUNT(*) as total FROM orders',
-	panel_type: 'counter',
-	panel_options: {
-		value_column: 'total',
-	},
+const MOCK_DASHBOARD_RESPONSE_UNSAFE = JSON.stringify({
+	dashboard_name: 'Unsafe Dashboard',
+	dashboard_description: 'Dashboard with unsafe queries',
+	panels: [
+		{
+			name: 'Drop Table',
+			description: 'Unsafe query',
+			query_text: 'DROP TABLE test_table',
+			panel_type: 'table',
+		},
+		{
+			name: 'Delete All',
+			description: 'Another unsafe query',
+			query_text: 'DELETE FROM test_table',
+			panel_type: 'counter',
+		},
+	],
 });
 
-const MOCK_AI_RESPONSE_UNSAFE_QUERY = JSON.stringify({
-	name: 'Delete All',
-	description: 'Unsafe query',
-	query_text: 'DELETE FROM orders',
-	panel_type: 'table',
-});
-
-const MOCK_TABLES_LIST = [
-	{ tableName: 'test_table', isView: false },
-];
-
-const MOCK_TABLE_STRUCTURE = [
-	{ column_name: 'id', data_type: 'integer', allow_null: false },
-	{ column_name: 'name', data_type: 'varchar', allow_null: true },
-];
-
-let mockResponse = MOCK_AI_RESPONSE_CHART;
+let mockDashboardResponse = MOCK_DASHBOARD_RESPONSE;
 let toolCallCounter = 0;
 
 const mockAICoreService = {
@@ -96,10 +102,10 @@ const mockAICoreService = {
 				},
 			};
 		}
-		// Third call: AI returns final panel JSON
+		// Third call: AI returns final dashboard JSON
 		return {
 			*[Symbol.asyncIterator]() {
-				yield { type: 'text', content: mockResponse };
+				yield { type: 'text', content: mockDashboardResponse };
 				yield { type: 'done' };
 			},
 		};
@@ -131,6 +137,7 @@ const mockAICoreService = {
 };
 
 test.before(async () => {
+	setSaasEnvVariable();
 	const moduleFixture = await Test.createTestingModule({
 		imports: [ApplicationModule, DatabaseModule],
 		providers: [DatabaseService, TestUtils],
@@ -152,6 +159,7 @@ test.before(async () => {
 		}),
 	);
 	await app.init();
+	await createInitialTestUser(app);
 	app.getHttpServer().listen(0);
 });
 
@@ -164,10 +172,10 @@ test.after(async () => {
 	}
 });
 
-currentTest = 'POST /widget/generate/:connectionId';
+currentTest = 'POST /dashboard/generate-table-dashboard/:connectionId';
 
-test.serial(`${currentTest} should generate a widget with AI for chart type`, async (t) => {
-	mockResponse = MOCK_AI_RESPONSE_CHART;
+test.serial(`${currentTest} should generate and persist a table dashboard with AI`, async (t) => {
+	mockDashboardResponse = MOCK_DASHBOARD_RESPONSE;
 	toolCallCounter = 0;
 
 	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
@@ -183,35 +191,49 @@ test.serial(`${currentTest} should generate a widget with AI for chart type`, as
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
 	t.is(createConnectionResponse.status, 201);
 
-	const generateWidget = await request(app.getHttpServer())
-		.post(`/widget/generate/${connectionId}`)
-		.send({
-			chart_description: 'Show total sales by category as a bar chart',
-		})
+	const generateDashboard = await request(app.getHttpServer())
+		.post(`/dashboard/generate-table-dashboard/${connectionId}`)
+		.send({})
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const generateWidgetRO = JSON.parse(generateWidget.text);
-	t.is(generateWidget.status, 201);
+	const generateDashboardRO = JSON.parse(generateDashboard.text);
+	console.log('🚀 ~ generateDashboardRO:', generateDashboardRO)
+	t.is(generateDashboard.status, 201);
+	t.deepEqual(generateDashboardRO, { success: true });
 
-	t.is(generateWidgetRO.name, 'Sales by Category');
-	t.is(generateWidgetRO.description, 'Bar chart showing total sales grouped by category');
-	t.is(generateWidgetRO.panel_type, DashboardWidgetTypeEnum.Chart);
-	t.is(generateWidgetRO.chart_type, 'bar');
-	t.is(generateWidgetRO.query_text, 'SELECT category, SUM(amount) as total FROM orders GROUP BY category');
-	t.is(generateWidgetRO.connection_id, connectionId);
-	t.truthy(generateWidgetRO.panel_options);
-	t.is(generateWidgetRO.panel_options.label_column, 'category');
-	t.is(generateWidgetRO.panel_options.value_column, 'total');
+	// Verify dashboard was persisted
+	const getDashboards = await request(app.getHttpServer())
+		.get(`/dashboards/${connectionId}`)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
 
-	t.truthy(generateWidgetRO.panel_position);
-	t.is(generateWidgetRO.panel_position.position_x, 0);
-	t.is(generateWidgetRO.panel_position.position_y, 0);
-	t.is(generateWidgetRO.panel_position.width, 6);
-	t.is(generateWidgetRO.panel_position.height, 4);
+	const dashboards = JSON.parse(getDashboards.text);
+	t.is(getDashboards.status, 200);
+	t.true(Array.isArray(dashboards));
 
+	const generatedDashboard = dashboards.find((d: any) => d.name === 'Test Analytics Dashboard');
+	t.truthy(generatedDashboard);
+	t.is(generatedDashboard.description, 'Automated dashboard for test table analysis');
+	t.is(generatedDashboard.connection_id, connectionId);
+
+	// Verify panel positions (widgets) were persisted in the dashboard
+	t.truthy(generatedDashboard.widgets);
+	t.is(generatedDashboard.widgets.length, 2);
+
+	for (const widget of generatedDashboard.widgets) {
+		t.truthy(widget.id);
+		t.truthy(widget.query_id);
+		t.is(widget.dashboard_id, generatedDashboard.id);
+		t.is(widget.width, 6);
+		t.is(widget.height, 4);
+	}
+
+	// Verify panels (saved queries) were persisted
 	const getSavedQueries = await request(app.getHttpServer())
 		.get(`/connection/${connectionId}/saved-queries`)
 		.set('Cookie', token)
@@ -221,11 +243,19 @@ test.serial(`${currentTest} should generate a widget with AI for chart type`, as
 
 	const queries = JSON.parse(getSavedQueries.text);
 	t.is(getSavedQueries.status, 200);
-	t.is(queries.length, 0);
+	t.true(queries.length >= 2);
+
+	const generatedPanels = queries.filter((q: any) => q.name === 'Record Count');
+	t.is(generatedPanels.length, 1);
+	for (const panel of generatedPanels) {
+		t.truthy(panel.id);
+		t.is(panel.connection_id, connectionId);
+		t.truthy(panel.query_text);
+	}
 });
 
-test.serial(`${currentTest} should generate a counter widget with AI`, async (t) => {
-	mockResponse = MOCK_AI_RESPONSE_COUNTER;
+test.serial(`${currentTest} should use custom dashboard name when provided`, async (t) => {
+	mockDashboardResponse = MOCK_DASHBOARD_RESPONSE;
 	toolCallCounter = 0;
 
 	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
@@ -241,30 +271,35 @@ test.serial(`${currentTest} should generate a counter widget with AI`, async (t)
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
 	t.is(createConnectionResponse.status, 201);
 
-	const generateWidget = await request(app.getHttpServer())
-		.post(`/widget/generate/${connectionId}`)
-		.send({
-			chart_description: 'Show total count of orders',
-		})
+	const customDashboardName = 'My Custom AI Dashboard';
+
+	const generateDashboard = await request(app.getHttpServer())
+		.post(`/dashboard/generate-table-dashboard/${connectionId}`)
+		.send({ dashboard_name: customDashboardName })
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	console.log('🚀 ~ generateDashboard:', generateDashboard.text)
+
+	t.is(generateDashboard.status, 201);
+	t.deepEqual(JSON.parse(generateDashboard.text), { success: true });
+
+	// Verify dashboard was created with the custom name
+	const getDashboards = await request(app.getHttpServer())
+		.get(`/dashboards/${connectionId}`)
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	const generateWidgetRO = JSON.parse(generateWidget.text);
-	t.is(generateWidget.status, 201);
-
-	t.is(generateWidgetRO.name, 'Total Orders');
-	t.is(generateWidgetRO.description, 'Counter showing total number of orders');
-	t.is(generateWidgetRO.panel_type, DashboardWidgetTypeEnum.Counter);
-	t.is(generateWidgetRO.query_text, 'SELECT COUNT(*) as total FROM orders');
-	t.is(generateWidgetRO.connection_id, connectionId);
-
-	t.truthy(generateWidgetRO.panel_position);
+	const dashboards = JSON.parse(getDashboards.text);
+	const customDashboard = dashboards.find((d: any) => d.name === customDashboardName);
+	t.truthy(customDashboard);
 });
 
-test.serial(`${currentTest} should reject AI-generated unsafe query`, async (t) => {
-	mockResponse = MOCK_AI_RESPONSE_UNSAFE_QUERY;
+test.serial(`${currentTest} should reject when all AI panels have unsafe queries`, async (t) => {
+	mockDashboardResponse = MOCK_DASHBOARD_RESPONSE_UNSAFE;
 	toolCallCounter = 0;
 
 	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
@@ -278,80 +313,17 @@ test.serial(`${currentTest} should reject AI-generated unsafe query`, async (t) 
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 	const connectionId = JSON.parse(createConnectionResponse.text).id;
+	t.is(createConnectionResponse.status, 201);
 
-	const generateWidget = await request(app.getHttpServer())
-		.post(`/widget/generate/${connectionId}`)
-		.send({
-			chart_description: 'Delete all data',
-		})
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	t.is(generateWidget.status, 400);
-	const errorResponse = JSON.parse(generateWidget.text);
-	t.truthy(errorResponse.message);
-	t.true(errorResponse.message.includes('Unsafe query') || errorResponse.message.includes('DELETE'));
-});
-
-test.serial(`${currentTest} should generate widget with custom name`, async (t) => {
-	mockResponse = MOCK_AI_RESPONSE_CHART;
-	toolCallCounter = 0;
-
-	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-	const { token } = await registerUserAndReturnUserInfo(app);
-	const { testTableName } = await createTestTable(connectionToTestDB);
-
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', token)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const connectionId = JSON.parse(createConnectionResponse.text).id;
-
-	const customName = 'My Custom Widget Name';
-	const generateWidget = await request(app.getHttpServer())
-		.post(`/widget/generate/${connectionId}`)
-		.send({
-			chart_description: 'Show sales data',
-			name: customName,
-		})
-		.set('Cookie', token)
-		.set('masterpwd', 'ahalaimahalai')
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const generateWidgetRO = JSON.parse(generateWidget.text);
-	t.is(generateWidget.status, 201);
-	t.is(generateWidgetRO.name, customName);
-});
-
-test.serial(`${currentTest} should fail without chart_description`, async (t) => {
-	mockResponse = MOCK_AI_RESPONSE_CHART;
-	toolCallCounter = 0;
-
-	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-	const { token } = await registerUserAndReturnUserInfo(app);
-	const { testTableName } = await createTestTable(connectionToTestDB);
-
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', token)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const connectionId = JSON.parse(createConnectionResponse.text).id;
-
-	const generateWidget = await request(app.getHttpServer())
-		.post(`/widget/generate/${connectionId}`)
+	const generateDashboard = await request(app.getHttpServer())
+		.post(`/dashboard/generate-table-dashboard/${connectionId}`)
 		.send({})
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 
-	t.is(generateWidget.status, 400);
+	t.is(generateDashboard.status, 400);
+	const errorResponse = JSON.parse(generateDashboard.text);
+	t.truthy(errorResponse.message);
 });
-

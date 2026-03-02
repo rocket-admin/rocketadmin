@@ -120,6 +120,5 @@ export interface GeneratedPanelWithPosition {
 		position_y: number;
 		width: number;
 		height: number;
-		dashboard_id: string;
 	};
 }

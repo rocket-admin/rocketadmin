@@ -64,6 +64,38 @@ export function createDatabaseTools(isMongoDB: boolean): AIToolDefinition[] {
 	return tools;
 }
 
+export function createDashboardGenerationTools(): AIToolDefinition[] {
+	return [
+		{
+			name: 'getTablesList',
+			description:
+				'Returns the list of all tables and views available in the database. Use this to discover what tables exist before requesting their structure.',
+			parameters: {
+				type: 'object',
+				properties: {},
+				required: [],
+				additionalProperties: false,
+			},
+		},
+		{
+			name: 'getTableStructure',
+			description:
+				'Returns the structure of the specified table including column names, data types, and nullability. Use this to inspect tables before generating dashboard panels.',
+			parameters: {
+				type: 'object',
+				properties: {
+					tableName: {
+						type: 'string',
+						description: 'The name of the table to get the structure for.',
+					},
+				},
+				required: ['tableName'],
+				additionalProperties: false,
+			},
+		},
+	];
+}
+
 export function createTableAnalysisTools(): AIToolDefinition[] {
 	return [
 		{

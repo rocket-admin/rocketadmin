@@ -20,10 +20,13 @@ import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
+import { DashboardEntity } from '../../dashboard/dashboard.entity.js';
+import { PanelEntity } from '../../panel/panel.entity.js';
 import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
-import { GeneratePanelPositionWithAiDs } from '../data-structures/generate-panel-position-with-ai.ds.js';
+import { GenerateTableDashboardWithAiDs } from '../data-structures/generate-table-dashboard-with-ai.ds.js';
 import { GeneratedPanelWithPositionDto } from '../dto/generated-panel-with-position.dto.js';
-import { IGeneratePanelPositionWithAi } from './panel-position-use-cases.interface.js';
+import { PanelPositionEntity } from '../panel-position.entity.js';
+import { IGenerateTableDashboardWithAi } from './panel-position-use-cases.interface.js';
 
 interface AIGeneratedPanelResponse {
 	name: string;
@@ -49,8 +52,17 @@ interface AIGeneratedPanelResponse {
 	};
 }
 
+interface AIDashboardResponse {
+	dashboard_name: string;
+	dashboard_description: string;
+	panels: AIGeneratedPanelResponse[];
+}
+
 const MAX_TOOL_ITERATIONS = 10;
-const MAX_FEEDBACK_ITERATIONS = 3;
+const DEFAULT_MAX_PANELS = 6;
+const PANEL_WIDTH = 6;
+const PANEL_HEIGHT = 4;
+const PANELS_PER_ROW = 2;
 
 const EXPLAIN_SUPPORTED_TYPES: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.postgres,
@@ -61,12 +73,14 @@ const EXPLAIN_SUPPORTED_TYPES: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.agent_clickhouse,
 ]);
 
+const MAX_FEEDBACK_ITERATIONS = 3;
+
 @Injectable({ scope: Scope.REQUEST })
-export class GeneratePanelPositionWithAiUseCase
-	extends AbstractUseCase<GeneratePanelPositionWithAiDs, GeneratedPanelWithPositionDto>
-	implements IGeneratePanelPositionWithAi
+export class GenerateTableDashboardWithAiUseCase
+	extends AbstractUseCase<GenerateTableDashboardWithAiDs, { success: boolean }>
+	implements IGenerateTableDashboardWithAi
 {
-	private readonly logger = new Logger(GeneratePanelPositionWithAiUseCase.name);
+	private readonly logger = new Logger(GenerateTableDashboardWithAiUseCase.name);
 
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -76,18 +90,10 @@ export class GeneratePanelPositionWithAiUseCase
 		super();
 	}
 
-	public async implementation(inputData: GeneratePanelPositionWithAiDs): Promise<GeneratedPanelWithPositionDto> {
-		const {
-			connectionId,
-			masterPassword,
-			userId,
-			chart_description,
-			name,
-			position_x,
-			position_y,
-			width,
-			height,
-		} = inputData;
+	public async implementation(inputData: GenerateTableDashboardWithAiDs): Promise<{ success: boolean }> {
+		const { connectionId, masterPassword, userId, max_panels, dashboard_name } = inputData;
+
+		const maxPanels = max_panels ?? DEFAULT_MAX_PANELS;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -107,83 +113,137 @@ export class GeneratePanelPositionWithAiUseCase
 
 		const tools = createDashboardGenerationTools();
 
-		const systemPrompt = this.buildSystemPrompt(foundConnection.type as ConnectionTypesEnum);
+		const systemPrompt = this.buildDashboardSystemPrompt(foundConnection.type as ConnectionTypesEnum, maxPanels);
 
 		const messages = new MessageBuilder()
 			.system(systemPrompt)
 			.human(
-				`Generate a single panel based on this description: "${chart_description}". ` +
-					`Start by listing the available tables, then inspect the ones that are relevant to this request. ` +
-					`Generate the panel configuration.`,
+				`Analyze the database and generate a dashboard with up to ${maxPanels} panels. ` +
+					`Start by listing the available tables, then inspect the ones that look most interesting for analytics. ` +
+					`Generate diverse and meaningful visualizations.`,
 			)
 			.build();
 
-		const aiResponse = await this.runToolLoop(messages, tools, dao, userEmail);
+		const dashboardResponse = await this.runToolLoop(messages, tools, dao, userEmail);
 
-		const generatedPanel = this.parseAIResponse(aiResponse);
+		const parsedDashboard = this.parseDashboardResponse(dashboardResponse);
 
-		validateQuerySafety(generatedPanel.query_text, foundConnection.type as ConnectionTypesEnum);
+		const effectiveDashboardName = dashboard_name || parsedDashboard.dashboard_name || 'AI Generated Dashboard';
 
-		const refinedPanel = await this.validateAndRefineQueryWithExplain(
-			dao,
-			generatedPanel,
-			foundConnection.type as ConnectionTypesEnum,
-		);
+		const validPanels: GeneratedPanelWithPositionDto[] = [];
 
-		return {
-			name: name || refinedPanel.name,
-			description: refinedPanel.description || null,
-			panel_type: this.mapPanelType(refinedPanel.panel_type),
-			chart_type: refinedPanel.chart_type || null,
-			panel_options: refinedPanel.panel_options
-				? (refinedPanel.panel_options as unknown as Record<string, unknown>)
-				: null,
-			query_text: refinedPanel.query_text,
-			connection_id: connectionId,
-			panel_position: {
-				position_x: position_x ?? 0,
-				position_y: position_y ?? 0,
-				width: width ?? 6,
-				height: height ?? 4,
-			},
-		};
+		for (let i = 0; i < parsedDashboard.panels.length && validPanels.length < maxPanels; i++) {
+			const panel = parsedDashboard.panels[i];
+			try {
+				validateQuerySafety(panel.query_text, foundConnection.type as ConnectionTypesEnum);
+
+				const refinedPanel = await this.validateAndRefineQueryWithExplain(
+					dao,
+					panel,
+					foundConnection.type as ConnectionTypesEnum,
+				);
+
+				const index = validPanels.length;
+				const row = Math.floor(index / PANELS_PER_ROW);
+				const col = index % PANELS_PER_ROW;
+
+				validPanels.push({
+					name: refinedPanel.name,
+					description: refinedPanel.description || null,
+					panel_type: this.mapPanelType(refinedPanel.panel_type),
+					chart_type: refinedPanel.chart_type || null,
+					panel_options: refinedPanel.panel_options
+						? (refinedPanel.panel_options as unknown as Record<string, unknown>)
+						: null,
+					query_text: refinedPanel.query_text,
+					connection_id: connectionId,
+					panel_position: {
+						position_x: col * PANEL_WIDTH,
+						position_y: row * PANEL_HEIGHT,
+						width: PANEL_WIDTH,
+						height: PANEL_HEIGHT,
+					},
+				});
+			} catch (error) {
+				this.logger.warn(`Panel "${panel.name}" skipped: ${error.message}`);
+			}
+		}
+
+		if (validPanels.length === 0) {
+			throw new BadRequestException('Failed to generate any valid panels. Please try again.');
+		}
+
+		const dashboardEntity = new DashboardEntity();
+		dashboardEntity.name = effectiveDashboardName;
+		dashboardEntity.description = parsedDashboard.dashboard_description || null;
+		dashboardEntity.connection_id = connectionId;
+		const savedDashboard = await this._dbContext.dashboardRepository.saveDashboard(dashboardEntity);
+
+		for (const panel of validPanels) {
+			const panelEntity = new PanelEntity();
+			panelEntity.name = panel.name;
+			panelEntity.description = panel.description || null;
+			panelEntity.panel_type = panel.panel_type;
+			panelEntity.chart_type = panel.chart_type || null;
+			panelEntity.panel_options = panel.panel_options ? (panel.panel_options as unknown as string) : null;
+			panelEntity.query_text = panel.query_text;
+			panelEntity.connection_id = connectionId;
+			const savedPanel = await this._dbContext.panelRepository.save(panelEntity);
+
+			const positionEntity = new PanelPositionEntity();
+			positionEntity.position_x = panel.panel_position.position_x;
+			positionEntity.position_y = panel.panel_position.position_y;
+			positionEntity.width = panel.panel_position.width;
+			positionEntity.height = panel.panel_position.height;
+			positionEntity.dashboard_id = savedDashboard.id;
+			positionEntity.query_id = savedPanel.id;
+			await this._dbContext.panelPositionRepository.savePanelPosition(positionEntity);
+		}
+
+		return { success: true };
 	}
 
-	private buildSystemPrompt(databaseType: ConnectionTypesEnum): string {
-		return `You are a database analytics assistant that generates a single panel. You have access to two tools: getTablesList and getTableStructure. You do NOT have the ability to execute queries.
+	private buildDashboardSystemPrompt(databaseType: ConnectionTypesEnum, maxPanels: number): string {
+		return `You are a database analytics assistant that generates dashboards. You have access to two tools: getTablesList and getTableStructure. You do NOT have the ability to execute queries.
 
 DATABASE TYPE: ${databaseType}
 
 YOUR WORKFLOW:
 1. Call getTablesList to see all available tables
-2. Call getTableStructure for tables that are relevant to the user's request
-3. Based on the table schemas, generate a single panel configuration
+2. Call getTableStructure for tables that look most interesting for analytics
+3. Based on the table schemas, generate a complete dashboard with up to ${maxPanels} panels
 
 CRITICAL: Your final response MUST be a raw JSON object only — no explanations, no markdown, no code fences, no text before or after. Just the JSON object in this format:
 {
-  "name": "Short descriptive name for the panel (max 50 chars)",
-  "description": "Brief description of what the panel shows",
-  "query_text": "SELECT query that returns data for the visualization",
-  "panel_type": "chart" | "table" | "counter" | "text",
-  "chart_type": "bar" | "line" | "pie" | "doughnut" | "polarArea",
-  "panel_options": {
-    "label_column": "column name for labels/categories (x-axis)",
-    "value_column": "column name for values (y-axis) - use for single series",
-    "series": [
-      {
-        "value_column": "column name",
-        "label": "Series label",
-        "color": "#hex_color"
+  "dashboard_name": "Descriptive name for the dashboard (max 100 chars)",
+  "dashboard_description": "Brief description of what this dashboard shows",
+  "panels": [
+    {
+      "name": "Short descriptive name for the panel (max 50 chars)",
+      "description": "Brief description of what the panel shows",
+      "query_text": "SELECT query that returns data for the visualization",
+      "panel_type": "chart" | "table" | "counter" | "text",
+      "chart_type": "bar" | "line" | "pie" | "doughnut" | "polarArea",
+      "panel_options": {
+        "label_column": "column name for labels/categories (x-axis)",
+        "value_column": "column name for values (y-axis) - use for single series",
+        "series": [
+          {
+            "value_column": "column name",
+            "label": "Series label",
+            "color": "#hex_color"
+          }
+        ],
+        "stacked": false,
+        "horizontal": false,
+        "show_data_labels": true,
+        "legend": {
+          "show": true,
+          "position": "top"
+        }
       }
-    ],
-    "stacked": false,
-    "horizontal": false,
-    "show_data_labels": true,
-    "legend": {
-      "show": true,
-      "position": "top"
     }
-  }
+  ]
 }
 
 IMPORTANT GUIDELINES:
@@ -199,11 +259,10 @@ IMPORTANT GUIDELINES:
    - pie/doughnut: parts of a whole (percentages)
    - polarArea: similar to pie but with equal angles
 5. Use meaningful colors from this palette: #3366CC, #DC3912, #FF9900, #109618, #990099, #0099C6, #DD4477, #66AA00
-6. Set panel_options.label_column to the column that should be used for labels
-7. For single value series, use value_column directly
-8. For multiple series, use the series array
-9. You may use multiple tables in queries (JOINs) if they are related
-10. Your final response must start with { and end with } — no text, no markdown, no explanation`;
+6. Include a mix of panel types (counters, charts, tables) for variety
+7. Generate exactly ${maxPanels} panels
+8. You may use multiple tables in queries (JOINs) if they are related
+9. Your final response must start with { and end with } — no text, no markdown, no explanation`;
 	}
 
 	private async runToolLoop(
@@ -220,7 +279,7 @@ IMPORTANT GUIDELINES:
 				AIProviderType.BEDROCK,
 				currentMessages,
 				tools,
-				{ temperature: 0.3 },
+				{ temperature: 0.4 },
 			);
 
 			let accumulatedContent = '';
@@ -307,25 +366,6 @@ IMPORTANT GUIDELINES:
 		return results;
 	}
 
-	private parseAIResponse(aiResponse: string): AIGeneratedPanelResponse {
-		try {
-			const extracted = this.extractJsonFromResponse(aiResponse);
-			const cleanedResponse = cleanAIJsonResponse(extracted);
-			const parsed = JSON.parse(cleanedResponse) as AIGeneratedPanelResponse;
-
-			if (!parsed.name || !parsed.query_text || !parsed.panel_type) {
-				throw new Error('Missing required fields in AI response');
-			}
-
-			return parsed;
-		} catch (error) {
-			this.logger.error('Error parsing AI response:', error.message);
-			throw new BadRequestException(
-				'Failed to generate panel configuration from AI. Please try again with a different description.',
-			);
-		}
-	}
-
 	private extractJsonFromResponse(response: string): string {
 		const jsonBlockMatch = response.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
 		if (jsonBlockMatch) {
@@ -338,6 +378,29 @@ IMPORTANT GUIDELINES:
 		}
 
 		return response;
+	}
+
+	private parseDashboardResponse(aiResponse: string): AIDashboardResponse {
+		try {
+			const extracted = this.extractJsonFromResponse(aiResponse);
+			const cleanedResponse = cleanAIJsonResponse(extracted);
+			const parsed = JSON.parse(cleanedResponse) as AIDashboardResponse;
+
+			if (!parsed.panels || !Array.isArray(parsed.panels) || parsed.panels.length === 0) {
+				throw new Error('Missing or empty panels array in AI response');
+			}
+
+			for (const panel of parsed.panels) {
+				if (!panel.name || !panel.query_text || !panel.panel_type) {
+					throw new Error('Panel missing required fields (name, query_text, panel_type)');
+				}
+			}
+
+			return parsed;
+		} catch (error) {
+			this.logger.error('Error parsing dashboard AI response:', error.message);
+			throw new BadRequestException('Failed to generate dashboard from AI. Please try again.');
+		}
 	}
 
 	private async validateAndRefineQueryWithExplain(

@@ -143,6 +143,14 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       });
     }
 
+    // If no custom folders exist, always keep "All tables" expanded
+    if (!this.hasCustomFolders()) {
+      const allTablesFolder = this.folders.find(folder => folder.id === 'all-tables-kitten');
+      if (allTablesFolder) {
+        allTablesFolder.expanded = true;
+      }
+    }
+
     console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
   }
 
@@ -234,6 +242,10 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   toggleFolder(folderId: string) {
     const folder = this.folders.find (f => f.id === folderId);
     if (folder) {
+      // Prevent collapsing "All tables" when no custom folders exist
+      if (folder.id === 'all-tables-kitten' && folder.expanded && !this.hasCustomFolders()) {
+        return;
+      }
       folder.expanded = !folder.expanded;
       const expandedFolders = this.folders.filter(f => f.expanded).map(f => f.id);
       this._uiSettingsService.updateConnectionSetting(this.connectionID, 'tableFoldersExpanded', expandedFolders);
@@ -443,8 +455,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   hasCustomFolders(): boolean {
-    // Check if there are folders other than "All Tables"
-    return this.folders.some(folder => folder.name !== 'All Tables');
+    // Check if there are folders other than "All tables"
+    return this.folders.some(folder => folder.id !== 'all-tables-kitten');
   }
 
   private preserveFolderStates() {
@@ -453,12 +465,9 @@ export class DbTablesListComponent implements OnInit, OnChanges {
       this.preservedFolderStates[folder.id] = folder.expanded;
     });
 
-    // Check if there are only "All Tables" folder (no custom folders)
-    const hasCustomFolders = this.folders.some(folder => folder.name !== 'All Tables');
-
-    // If no custom folders exist, ensure "All Tables" is always expanded
-    if (!hasCustomFolders) {
-      const allTablesFolder = this.folders.find(folder => folder.name === 'All Tables');
+    // If no custom folders exist, ensure "All tables" is always expanded
+    if (!this.hasCustomFolders()) {
+      const allTablesFolder = this.folders.find(folder => folder.id === 'all-tables-kitten');
       if (allTablesFolder) {
         this.preservedFolderStates[allTablesFolder.id] = true;
         this.preservedActiveFolder = allTablesFolder.id;
@@ -471,12 +480,9 @@ export class DbTablesListComponent implements OnInit, OnChanges {
   }
 
   private restoreFolderStates() {
-    // Check if there are only "All Tables" folder (no custom folders)
-    const hasCustomFolders = this.folders.some(folder => folder.name !== 'All Tables');
-
-    // If no custom folders exist, always expand "All Tables"
-    if (!hasCustomFolders) {
-      const allTablesFolder = this.folders.find(folder => folder.name === 'All Tables');
+    // If no custom folders exist, always expand "All tables"
+    if (!this.hasCustomFolders()) {
+      const allTablesFolder = this.folders.find(folder => folder.id === 'all-tables-kitten');
       if (allTablesFolder) {
         allTablesFolder.expanded = true;
         this.currentCollapsedFolder = allTablesFolder;

@@ -1,5 +1,5 @@
 import { BaseMessage } from '@langchain/core/messages';
-import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
@@ -38,6 +38,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 	extends AbstractUseCase<RequestInfoFromTableDSV2, void>
 	implements IRequestInfoFromTableV2
 {
+	private readonly logger = new Logger(RequestInfoFromTableWithAIUseCaseV7.name);
 	private readonly maxDepth: number = 10;
 	private readonly aiProvider: AIProviderType = AIProviderType.BEDROCK;
 
@@ -184,8 +185,19 @@ export class RequestInfoFromTableWithAIUseCaseV7
 					}
 				}
 
+				this.logger.log(
+					`Tool loop iteration ${depth + 1}: toolCalls=${pendingToolCalls.map((tc) => tc.name).join(', ') || 'none'}, ` +
+						`contentLength=${accumulatedContent.length}`,
+				);
+
 				if (pendingToolCalls.length === 0) {
 					break;
+				}
+
+				for (const toolCall of pendingToolCalls) {
+					this.logger.log(
+						`Tool call: ${toolCall.name}, arguments=${JSON.stringify(toolCall.arguments)}`,
+					);
 				}
 
 				const toolResults = await this.executeToolCalls(
@@ -195,6 +207,12 @@ export class RequestInfoFromTableWithAIUseCaseV7
 					userEmail,
 					foundConnection,
 				);
+
+				for (const toolResult of toolResults) {
+					this.logger.log(
+						`Tool result for ${toolResult.toolCallId}: resultLength=${toolResult.result.length}`,
+					);
+				}
 
 				if (this.aiProvider === AIProviderType.OPENAI && lastResponseId) {
 					currentConfig = { ...currentConfig, previousResponseId: lastResponseId };
@@ -209,11 +227,15 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 				depth++;
 			} catch (loopError) {
+				this.logger.error(
+					`Error in tool loop at depth ${depth + 1}: ${loopError.message}`,
+				);
 				throw loopError;
 			}
 		}
 
 		if (depth >= this.maxDepth) {
+			this.logger.warn(`Tool loop reached max depth (${this.maxDepth})`);
 			const maxDepthMessage =
 				'\n\nYour question is too complex to process at this time. Please try simplifying it or breaking it down into smaller parts.';
 			response.write(maxDepthMessage);
@@ -284,6 +306,9 @@ export class RequestInfoFromTableWithAIUseCaseV7
 						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
 				}
 			} catch (error) {
+				this.logger.error(
+					`Tool call ${toolCall.name} (${toolCall.id}) failed: ${error.message}`,
+				);
 				result = encodeError({ error: error.message });
 			}
 
@@ -409,8 +434,8 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 	private async generateAndUpdateChatName(chatId: string, userMessage: string): Promise<void> {
 		try {
-			const CHAT_NAME_GENERATION_PROMPT = `Generate a very short, concise title (max 5-6 words) for a chat conversation based on the user's first question. 
-The title should capture the main topic or intent. 
+			const CHAT_NAME_GENERATION_PROMPT = `Generate a very short, concise title (max 5-6 words) for a chat conversation based on the user's first question.
+The title should capture the main topic or intent.
 Respond ONLY with the title, no quotes, no explanation.
 User question: `;
 			const prompt = CHAT_NAME_GENERATION_PROMPT + userMessage;

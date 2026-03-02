@@ -317,7 +317,7 @@ export class DbTableWidgetsComponent implements OnInit {
 			);
 			this.getWidgets();
 		});
-		this.codeEditorTheme = this._uiSettings.editorTheme;
+		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
 	}
 
 	get currentConnection() {
