@@ -17,12 +17,7 @@
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
-}
-
-@media (prefers-color-scheme: dark) {
-	.chart-edit-main {
-		background-color: #191919;
-	}
+	background-color: var(--mat-sidenav-content-background-color);
 }
 
 .chart-edit-page {

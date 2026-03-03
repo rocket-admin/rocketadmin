@@ -5,12 +5,7 @@ app-dashboard-view .dashboard-view-page {
 	height: calc(100vh - 64px);
 	display: flex;
 	flex-direction: column;
-}
-
-@media (prefers-color-scheme: dark) {
-	app-dashboard-view .dashboard-view-page {
-		background-color: #191919;
-	}
+	background-color: var(--mat-sidenav-content-background-color);
 }
 
 app-dashboard-view .dashboard-header {

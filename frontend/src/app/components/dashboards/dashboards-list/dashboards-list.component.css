@@ -14,13 +14,8 @@
 
 .dashboards-main {
 	flex: 1;
+	background-color: var(--mat-sidenav-content-background-color);
 	overflow-y: auto;
-}
-
-@media (prefers-color-scheme: dark) {
-	.dashboards-main {
-		background-color: #191919;
-	}
 }
 
 .dashboards-page {

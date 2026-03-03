@@ -5,13 +5,8 @@
 
 .profile-main {
     flex: 1;
+    background-color: var(--mat-sidenav-content-background-color);
     overflow-y: auto;
-}
-
-@media (prefers-color-scheme: dark) {
-    .profile-main {
-        background-color: #191919;
-    }
 }
 
 ::ng-deep .profile-main > app-alert {

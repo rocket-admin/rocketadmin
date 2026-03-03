@@ -15,12 +15,7 @@
 .charts-main {
 	flex: 1;
 	overflow-y: auto;
-}
-
-@media (prefers-color-scheme: dark) {
-	.charts-main {
-		background-color: #191919;
-	}
+	background-color: var(--mat-sidenav-content-background-color);
 }
 
 .charts-page {
