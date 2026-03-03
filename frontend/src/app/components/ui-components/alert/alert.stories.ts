@@ -1,3 +1,4 @@
+import { MAT_ICON_DEFAULT_OPTIONS, MatIconDefaultOptions } from '@angular/material/icon';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
 import { AlertType } from 'src/app/models/alert';
 import { NotificationsService } from 'src/app/services/notifications.service';
@@ -8,7 +9,13 @@ const meta: Meta<AlertComponent> = {
 	component: AlertComponent,
 	decorators: [
 		applicationConfig({
-			providers: [{ provide: NotificationsService, useValue: { currentAlert: null } }],
+			providers: [
+				{ provide: NotificationsService, useValue: { currentAlert: null } },
+				{
+					provide: MAT_ICON_DEFAULT_OPTIONS,
+					useValue: { fontSet: 'material-symbols-outlined' } as MatIconDefaultOptions,
+				},
+			],
 		}),
 	],
 	args: {
