@@ -74,122 +74,185 @@
 
     <ng-template #emptyState>
         <div class="empty-state">
-            <!--<p class="empty-state__text">No fields configured</p>-->
-            <p class="widgets-hint">
-                <strong class="widgets-hint__title">Customize how fields look in forms and tables</strong>
-                <span class="widgets-hint__text">Nothing will be changed in your data types, just better reflecting the nature of the data.</span>
-            </p>
-
-            <div class="empty-state__actions">
-                <button mat-flat-button color="accent"
-                    angulartics2On="click"
-                    angularticsAction="Widgets: add first widget is clicked"
-                    (click)="addNewWidget(); posthog.capture('Widgets: add first widget is clicked')">
-                    Create UI Widget
-                </button>
-                <a mat-stroked-button color="primary"
-                    href="https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_definition"
-                    target="_blank"
-                    rel="noopener noreferrer">
-                    Read what UI Widgets are
-                    <mat-icon>open_in_new</mat-icon>
-                </a>
-            </div>
-
-            <div class="widget-examples">
-                <div class="widget-example">
-                    <app-edit-text
-                        key="password-original-example"
-                        label="Password"
-                        value="MySuper-Secret-Password_12345678"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-text>
-                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
-                    <app-edit-password
-                        key="password-example"
-                        label="Password"
-                        value="MySuper-Secret-Password_12345678"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-password>
+            <div class="empty-left">
+                <div class="empty-icon-box">
+                    <mat-icon class="empty-icon">tune</mat-icon>
                 </div>
 
-                <div class="widget-example widget-example_row-2">
-                    <app-edit-text
-                        key="select-original-example"
-                        label="Color"
-                        value="💜 Purple"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-text>
-                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
-                    <app-edit-select
-                        key="select-example"
-                        label="Color"
-                        value="purple"
-                        [widgetStructure]="{widget_params: {options: [{value: 'red', label: '❤️ Red'}, {value: 'green', label: '💚 Green'}, {value: 'blue', label: '💙 Blue'}, {value: 'purple', label: '💜 Purple'}]}}"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-select>
+                <h2 class="empty-title">Make your data easier to read and edit</h2>
+                <p class="empty-subtitle">By default every column shows <strong>raw text</strong>. Widgets change how a column is <strong>displayed and edited</strong> — without modifying the database.</p>
+
+                <div class="demo-table">
+                    <div class="demo-header">
+                        <span class="demo-header-col">Column</span>
+                        <span class="demo-header-val">Value</span>
+                    </div>
+                    <div class="demo-row" [class.show-widget]="animatedRows[0]">
+                        <span class="demo-col">is_active</span>
+                        <span class="demo-val-wrap">
+                            <span class="demo-raw">1</span>
+                            <span class="demo-widget demo-widget--green">
+                                <mat-icon class="demo-widget-icon demo-widget-icon--green">check_circle</mat-icon>
+                                Yes
+                            </span>
+                        </span>
+                        <span class="widget-badge" [class.widget-badge--visible]="animatedRows[0]">Boolean</span>
+                    </div>
+                    <div class="demo-row" [class.show-widget]="animatedRows[1]">
+                        <span class="demo-col">price</span>
+                        <span class="demo-val-wrap">
+                            <span class="demo-raw">9900</span>
+                            <span class="demo-widget demo-widget--amber">USD 99.00</span>
+                        </span>
+                        <span class="widget-badge" [class.widget-badge--visible]="animatedRows[1]">Money</span>
+                    </div>
+                    <div class="demo-row" [class.show-widget]="animatedRows[2]">
+                        <span class="demo-col">website</span>
+                        <span class="demo-val-wrap">
+                            <span class="demo-raw">https://rocketadmin.com</span>
+                            <span class="demo-widget demo-widget--purple">
+                                <mat-icon class="demo-widget-icon demo-widget-icon--purple">link</mat-icon>
+                                rocketadmin.com
+                            </span>
+                        </span>
+                        <span class="widget-badge" [class.widget-badge--visible]="animatedRows[2]">URL</span>
+                    </div>
+                    <div class="demo-row demo-row--last" [class.show-widget]="animatedRows[3]">
+                        <span class="demo-col">country</span>
+                        <span class="demo-val-wrap">
+                            <span class="demo-raw">US</span>
+                            <span class="demo-widget demo-widget--blue">
+                                &#127482;&#127480; United States
+                            </span>
+                        </span>
+                        <span class="widget-badge" [class.widget-badge--visible]="animatedRows[3]">Country</span>
+                    </div>
                 </div>
 
-                <div class="widget-example widget-example_row-1-2">
-                    <app-edit-text
-                        key="image-original-example"
-                        label="Image"
-                        value="https://app.rocketadmin.com/assets/main-table-reg-image.svg"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-text>
-                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
-                    <app-edit-image
-                        key="image-example"
-                        label="Image"
-                        value="https://app.rocketadmin.com/assets/main-table-reg-image.svg"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-image>
-                </div>
-
-                <div class="widget-example widget-example_row-1-2">
-                    <app-edit-long-text
-                        key="long-text-original-example"
-                        label="code"
-                        [value]="widgetCodeEample"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-long-text>
-                    <mat-icon class="examples-arrow">arrow_downward</mat-icon>
-                    <app-edit-code
-                        key="code-example"
-                        label="Code"
-                        [value]="widgetCodeEample"
-                        [widgetStructure]="{widget_params: {language: 'html'}}"
-                        [required]="false"
-                        [readonly]="false"
-                        [disabled]="false">
-                    </app-edit-code>
+                <div class="empty-cta">
+                    <button mat-flat-button color="accent"
+                        angulartics2On="click"
+                        angularticsAction="Widgets: add first widget is clicked"
+                        (click)="addNewWidget(); posthog.capture('Widgets: add first widget is clicked')">
+                        Create first widget
+                    </button>
+                    <a class="empty-docs-link"
+                        href="https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_definition"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        Docs <mat-icon class="empty-docs-icon">open_in_new</mat-icon>
+                    </a>
                 </div>
             </div>
 
-            <div class="actions">
-                <button mat-stroked-button type="button" (click)="goBack()">
-                    Back
-                </button>
+            <div class="empty-divider"></div>
 
-                <button mat-flat-button color="primary"
-                    type="submit" disabled>
-                    Save
-                </button>
+            <div class="empty-right">
+                <span class="widget-grid-label">Available widgets</span>
+                <div class="widget-grid">
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">image</mat-icon>
+                        <span class="widget-card-name">Image</span>
+                        <span class="widget-card-desc">Photo preview</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">toggle_on</mat-icon>
+                        <span class="widget-card-name">Boolean</span>
+                        <span class="widget-card-desc">Yes / No</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">payments</mat-icon>
+                        <span class="widget-card-name">Money</span>
+                        <span class="widget-card-desc">Currency format</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">flag</mat-icon>
+                        <span class="widget-card-name">Country</span>
+                        <span class="widget-card-desc">Country picker</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">link</mat-icon>
+                        <span class="widget-card-name">URL</span>
+                        <span class="widget-card-desc">Clickable link</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">list</mat-icon>
+                        <span class="widget-card-name">Select</span>
+                        <span class="widget-card-desc">Dropdown list</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">event</mat-icon>
+                        <span class="widget-card-name">Date</span>
+                        <span class="widget-card-desc">Date picker</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">palette</mat-icon>
+                        <span class="widget-card-name">Color</span>
+                        <span class="widget-card-desc">Color picker</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">phone</mat-icon>
+                        <span class="widget-card-name">Phone</span>
+                        <span class="widget-card-desc">Phone format</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">code</mat-icon>
+                        <span class="widget-card-name">Code</span>
+                        <span class="widget-card-desc">Syntax highlight</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">tag</mat-icon>
+                        <span class="widget-card-name">Number</span>
+                        <span class="widget-card-desc">Numeric display</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">linear_scale</mat-icon>
+                        <span class="widget-card-name">Range</span>
+                        <span class="widget-card-desc">Slider input</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">password</mat-icon>
+                        <span class="widget-card-name">Password</span>
+                        <span class="widget-card-desc">Hidden text</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">notes</mat-icon>
+                        <span class="widget-card-name">Textarea</span>
+                        <span class="widget-card-desc">Multi-line text</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">fingerprint</mat-icon>
+                        <span class="widget-card-name">UUID</span>
+                        <span class="widget-card-desc">Auto-generate</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">cloud_upload</mat-icon>
+                        <span class="widget-card-name">S3</span>
+                        <span class="widget-card-desc">File storage</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">vpn_key</mat-icon>
+                        <span class="widget-card-name">Foreign key</span>
+                        <span class="widget-card-desc">Linked record</span>
+                    </div>
+                    <div class="widget-card">
+                        <mat-icon class="widget-card-icon">text_fields</mat-icon>
+                        <span class="widget-card-name">String</span>
+                        <span class="widget-card-desc">Text validation</span>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div class="actions">
+            <button mat-stroked-button type="button" (click)="goBack()">
+                Back
+            </button>
+
+            <button mat-flat-button color="primary"
+                type="submit" disabled>
+                Save
+            </button>
         </div>
     </ng-template>
 </div>

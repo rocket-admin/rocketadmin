@@ -1,5 +1,5 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -21,12 +21,6 @@ import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { PlaceholderTableWidgetsComponent } from '../../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
 import { AlertComponent } from '../../../ui-components/alert/alert.component';
 import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcrumbs.component';
-import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
-import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
-import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
-import { PasswordEditComponent } from '../../../ui-components/record-edit-fields/password/password.component';
-import { SelectEditComponent } from '../../../ui-components/record-edit-fields/select/select.component';
-import { TextEditComponent } from '../../../ui-components/record-edit-fields/text/text.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 
@@ -46,17 +40,11 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 		AlertComponent,
 		PlaceholderTableWidgetsComponent,
 		BreadcrumbsComponent,
-		PasswordEditComponent,
-		ImageEditComponent,
-		CodeEditComponent,
 		WidgetComponent,
-		TextEditComponent,
-		LongTextEditComponent,
-		SelectEditComponent,
 		Angulartics2OnModule,
 	],
 })
-export class DbTableWidgetsComponent implements OnInit {
+export class DbTableWidgetsComponent implements OnInit, OnDestroy {
 	protected posthog = posthog;
 	public connectionID: string | null = null;
 	public tableName: string | null = null;
@@ -68,6 +56,8 @@ export class DbTableWidgetsComponent implements OnInit {
 	public submitting: boolean = false;
 	public widgetsWithSettings: string[];
 	public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
+	public animatedRows: boolean[] = [false, false, false, false];
+
 	public paramsEditorOptions = {
 		minimap: { enabled: false },
 		lineNumbersMinChars: 3,
@@ -76,10 +66,6 @@ export class DbTableWidgetsComponent implements OnInit {
 		scrollBeyondLastLine: false,
 		wordWrap: 'on',
 	};
-	public widgetCodeEample = `<h1 class="post-title">Why UI Customization Matters in Admin Panels</h1>
-<p class="post-paragraph">
-  A well-designed <strong>admin panel</strong> isn’t just about managing data — it’s about making that data easier to understand and interact with. By customizing how each field is displayed, you can turn raw database values into meaningful, user-friendly interfaces that save time and reduce errors.
-</p>`;
 	// JSON5-formatted default params
 	public defaultParams = {
 		Boolean: `// Display "Yes/No" buttons with configurable options:
@@ -320,6 +306,10 @@ export class DbTableWidgetsComponent implements OnInit {
 		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
 	}
 
+	ngOnDestroy(): void {
+		this._clearAnimationTimers();
+	}
+
 	get currentConnection() {
 		return this._connections.currentConnection;
 	}
@@ -413,6 +403,9 @@ export class DbTableWidgetsComponent implements OnInit {
 				if (widget.widget_type === '') widget.widget_type = 'Default';
 			});
 			this.widgets = res;
+			if (this.widgets.length === 0) {
+				this._startWidgetAnimation();
+			}
 		});
 	}
 
@@ -437,5 +430,39 @@ export class DbTableWidgetsComponent implements OnInit {
 				this.submitting = false;
 			},
 		);
+	}
+
+	private _animationTimers: ReturnType<typeof setTimeout>[] = [];
+
+	private _startWidgetAnimation(): void {
+		this._clearAnimationTimers();
+		this._runAnimationCycle();
+	}
+
+	private _runAnimationCycle(): void {
+		for (let i = 0; i < 4; i++) {
+			this._animationTimers.push(
+				setTimeout(() => {
+					this.animatedRows[i] = true;
+				}, i * 600),
+			);
+		}
+
+		this._animationTimers.push(
+			setTimeout(() => {
+				this.animatedRows = [false, false, false, false];
+
+				this._animationTimers.push(
+					setTimeout(() => {
+						this._runAnimationCycle();
+					}, 800),
+				);
+			}, 3 * 600 + 2200),
+		);
+	}
+
+	private _clearAnimationTimers(): void {
+		this._animationTimers.forEach((t) => clearTimeout(t));
+		this._animationTimers = [];
 	}
 }
