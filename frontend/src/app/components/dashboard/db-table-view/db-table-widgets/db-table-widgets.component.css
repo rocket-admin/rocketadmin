@@ -157,7 +157,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    font-size: 13px;
+    font-family: monospace;
+    font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
     display: flex;
@@ -184,7 +185,7 @@
 }
 
 .demo-widget--amber {
-    color: #f59e0b;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .demo-widget--purple {
@@ -192,7 +193,7 @@
 }
 
 .demo-widget--blue {
-    color: #3b82f6;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .demo-widget-icon {
