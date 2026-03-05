@@ -5,8 +5,13 @@
 	border-right: 1px solid var(--mat-sidenav-container-divider-color);
 	display: flex;
 	flex-direction: column;
-	background-color: var(--color-primaryPalette-50);
 	overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+	.profile-sidebar {
+		background-color: var(--surface-dark-color);
+	}
 }
 
 .profile-sidebar_initialized {
@@ -15,23 +20,15 @@
 		min-width 0.2s ease-in-out;
 }
 
-@media (prefers-color-scheme: dark) {
-	.profile-sidebar {
-		background-color: #212121;
-	}
-}
-
 .profile-sidebar_collapsed {
 	width: 56px;
 	min-width: 56px;
 }
 
 .sidebar-toggle-button {
-	margin: 12px;
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 4px;
+	align-self: flex-start;
+	margin-top: 8px;
+  	margin-left: 12px;
 }
 
 .sidebar-toggle-button_collapsed {

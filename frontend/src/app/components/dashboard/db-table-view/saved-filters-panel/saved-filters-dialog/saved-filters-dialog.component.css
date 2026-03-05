@@ -51,7 +51,7 @@
     }
 }
 
-.add-condition-button {
+/* .add-condition-button {
     width: auto;
     min-width: auto;
     min-height: 36px;
@@ -78,7 +78,7 @@
     width: 20px;
     height: 20px;
     line-height: 20px;
-}
+} */
 
 .empty-conditions-container .column-name-icon {
     font-size: 18px;

@@ -34,12 +34,6 @@
                 width 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-    .ai-panel-sidebar_open {
-        background-color: #202020;
-    }
-}
-
 @media (width <= 600px) {
     .ai-panel-sidebar_open {
         width: 0;

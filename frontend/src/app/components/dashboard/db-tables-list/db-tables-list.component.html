@@ -28,7 +28,7 @@
                         class="material-symbols-outlined collapsed-folder-icon">dehaze</span>
                         <span *ngIf="folder.id !== 'all-tables-kitten'"
                             class="material-symbols-outlined collapsed-folder-icon"
-                            [style.color]="getFolderIconColor(folder, currentCollapsedFolder === folder.id)">folder</span>
+                            [style.color]="folder.iconColor || null">folder</span>
                     </div>
                 </div>
                 <!-- Fallback to dehaze if no folders -->
@@ -63,7 +63,7 @@
                 <!-- Add folder button -->
                 <div class="collapsed-add-button"
                     (click)="onAddFolder()"
-                    matTooltip="Add Folder"
+                    matTooltip="Add folder"
                     matTooltipPosition="right">
                     <mat-icon class="collapsed-action-icon">add</mat-icon>
                 </div>
@@ -85,7 +85,7 @@
             <div *ngIf="accessLevel === 'edit'" class="add-folder-button-container">
                 <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
                     <mat-icon>add</mat-icon>
-                    Add Folder
+                    Add folder
                 </button>
             </div>
 
@@ -105,10 +105,10 @@
                                 <!-- Folder icon on the left -->
                                 <span *ngIf="folder.id === 'all-tables-kitten'"
                                     class="material-symbols-outlined folder-icon"
-                                    [style.color]="getFolderIconColor(folder)">dehaze</span>
+                                    [style.color]="folder.iconColor || null">dehaze</span>
                                 <span *ngIf="folder.id !== 'all-tables-kitten'"
                                     class="material-symbols-outlined folder-icon"
-                                    [style.color]="getFolderIconColor(folder)">folder</span>
+                                    [style.color]="folder.iconColor || null">folder</span>
 
                                 <div class="folder-name">
                                     {{folder.name}}
@@ -173,7 +173,7 @@
                                             color="primary"
                                             [class.empty-folder-button]="folder.isEmpty"
                                             (click)="showEditTablesDialog(folder)">
-                                            {{folder.isEmpty ? 'Add or drag and drop tables' : 'Add Table'}}
+                                            {{folder.isEmpty ? 'Add or drag and drop tables' : 'Add table'}}
                                         </button>
                                     </div>
                                 </ng-template>

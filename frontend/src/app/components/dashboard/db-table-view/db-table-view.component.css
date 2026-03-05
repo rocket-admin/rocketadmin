@@ -156,12 +156,6 @@
 	width: 5px;
 }
 
-@media (prefers-color-scheme: dark) {
-	.action_active::after {
-		background: var(--color-accentedPalette-500);
-	}
-}
-
 .action-button_disabled {
 	--mat-theme-text-disabled-on-background: rgba(0, 0, 0, 0.78);
 
@@ -313,8 +307,8 @@
 
 @media (prefers-color-scheme: dark) {
 	.table-surface {
-		--mat-table-background-color: #202020;
-		--mat-paginator-container-background-color: #202020;
+		--mat-table-background-color: var(--surface-dark-color);
+		--mat-paginator-container-background-color: var(--surface-dark-color);
 	}
 }
 
