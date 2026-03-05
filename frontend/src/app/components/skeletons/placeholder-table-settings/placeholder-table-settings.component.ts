@@ -3,11 +3,9 @@ import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-placeholder-table-settings',
-  templateUrl: './placeholder-table-settings.component.html',
-  styleUrls: ['./placeholder-table-settings.component.css'],
-  imports: [CommonModule, MatIconModule]
+	selector: 'app-placeholder-table-settings',
+	templateUrl: './placeholder-table-settings.component.html',
+	styleUrls: ['./placeholder-table-settings.component.css'],
+	imports: [CommonModule, MatIconModule],
 })
-export class PlaceholderTableSettingsComponent {
-
-}
+export class PlaceholderTableSettingsComponent {}

@@ -58,7 +58,13 @@ describe('SecretsComponent', () => {
 		} as any;
 
 		await TestBed.configureTestingModule({
-			imports: [SecretsComponent, BrowserAnimationsModule, MatSnackBarModule, Angulartics2Module.forRoot(), RouterModule.forRoot([])],
+			imports: [
+				SecretsComponent,
+				BrowserAnimationsModule,
+				MatSnackBarModule,
+				Angulartics2Module.forRoot(),
+				RouterModule.forRoot([]),
+			],
 			providers: [
 				provideHttpClient(),
 				provideHttpClientTesting(),

@@ -7,14 +7,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { SamlConfig, Company } from 'src/app/models/company';
+import { RouterModule } from '@angular/router';
+import { Company, SamlConfig } from 'src/app/models/company';
 import { SubscriptionPlans } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
-import { AlertComponent } from '../ui-components/alert/alert.component';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { PlaceholderSsoComponent } from '../skeletons/placeholder-sso/placeholder-sso.component';
+import { AlertComponent } from '../ui-components/alert/alert.component';
 
 @Component({
 	selector: 'app-sso',
@@ -67,13 +67,14 @@ export class SsoComponent implements OnInit {
 	) {}
 
 	ngOnInit() {
-		this._company.getCurrentTabTitle().subscribe(tabTitle => {
+		this._company.getCurrentTabTitle().subscribe((tabTitle) => {
 			this.title.setTitle(`SAML SSO | ${tabTitle || 'Rocketadmin'}`);
 		});
 
-		this._company.fetchCompany().subscribe(res => {
+		this._company.fetchCompany().subscribe((res) => {
 			this.company = res;
-			this.hasEnterprisePlan = res.subscriptionLevel === SubscriptionPlans.enterprise ||
+			this.hasEnterprisePlan =
+				res.subscriptionLevel === SubscriptionPlans.enterprise ||
 				res.subscriptionLevel === SubscriptionPlans.enterpriseAnnual;
 
 			if (this.hasEnterprisePlan) {
@@ -90,7 +91,7 @@ export class SsoComponent implements OnInit {
 			() => {
 				this.submitting = false;
 				this.saved = true;
-				setTimeout(() => this.saved = false, 3000);
+				setTimeout(() => (this.saved = false), 3000);
 			},
 			() => {
 				this.submitting = false;
@@ -104,7 +105,7 @@ export class SsoComponent implements OnInit {
 			() => {
 				this.submitting = false;
 				this.saved = true;
-				setTimeout(() => this.saved = false, 3000);
+				setTimeout(() => (this.saved = false), 3000);
 			},
 			() => {
 				this.submitting = false;

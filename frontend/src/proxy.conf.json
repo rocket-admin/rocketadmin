@@ -1,6 +1,6 @@
-{  
-    "/api/**": {    
-        "target": "https://app.rocketadmin.com/api/",    
-        "secure": false  
-    }
+{
+	"/api/**": {
+		"target": "https://app.rocketadmin.com/api/",
+		"secure": false
+	}
 }

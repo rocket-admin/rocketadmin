@@ -3,10 +3,11 @@ import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvb
 import { AuthGuard } from '../auth.guard';
 
 export const PASSWORD_CHANGE_ROUTES: Routes = [
-  {
-    path: '',
-    loadComponent: () => import('../components/password-change/password-change.component').then(m => m.PasswordChangeComponent),
-    canActivate: [AuthGuard],
-    providers: [provideZxvbnServiceForPSM()]
-  }
+	{
+		path: '',
+		loadComponent: () =>
+			import('../components/password-change/password-change.component').then((m) => m.PasswordChangeComponent),
+		canActivate: [AuthGuard],
+		providers: [provideZxvbnServiceForPSM()],
+	},
 ];

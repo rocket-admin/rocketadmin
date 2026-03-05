@@ -81,7 +81,7 @@ describe('DbTableSettingsComponent', () => {
 		excluded_fields: [],
 		list_fields: [],
 		ordering: TableOrdering.Ascending,
-    	ordering_field: "",
+		ordering_field: '',
 		columns_view: [],
 		// identification_fields: [],
 		// list_per_page: null,

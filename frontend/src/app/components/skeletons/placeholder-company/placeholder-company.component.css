@@ -1,86 +1,86 @@
 .wrapper {
-    margin: var(--top-margin) auto;
-    padding: 0 clamp(40px, 5vw, 100px);
-    max-width: 1200px;
-    width: 100%;
+	margin: var(--top-margin) auto;
+	padding: 0 clamp(40px, 5vw, 100px);
+	max-width: 1200px;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .wrapper {
-        padding: 0 9vw;
-        width: 100vw;
-    }
+	.wrapper {
+		padding: 0 9vw;
+		width: 100vw;
+	}
 }
 
 .title {
-    height: 32px;
-    margin-bottom: 32px;
-    width: 332px;
+	height: 32px;
+	margin-bottom: 32px;
+	width: 332px;
 }
 
 .form__field {
-    height: 44px;
-    width: 100%;
+	height: 44px;
+	width: 100%;
 }
 
 .form__line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 8px 0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 8px 0;
 }
 
 .form__line_invite {
-    margin-bottom: 16px;
+	margin-bottom: 16px;
 }
 
 .form__title {
-    height: 32px;
-    width: 142px;
+	height: 32px;
+	width: 142px;
 }
 
 @media (width <= 600px) {
-    .form__title {
-        width: 120px;
-    }
+	.form__title {
+		width: 120px;
+	}
 }
 
 .form__string {
-    height: 24px;
-    width: 120px;
+	height: 24px;
+	width: 120px;
 }
 
 @media (width <= 600px) {
-    .form__string {
-        width: 80px;
-    }
+	.form__string {
+		width: 80px;
+	}
 }
 
 .form__button {
-    border-radius: 4px;
-    height: 36px;
+	border-radius: 4px;
+	height: 36px;
 }
 
 .form__button_plan {
-    width: 190px;
+	width: 190px;
 }
 
 @media (width <= 600px) {
-    .form__button_plan {
-        width: 124px;
-    }
+	.form__button_plan {
+		width: 124px;
+	}
 }
 
 .form__button_invite {
-    width: 152px;
+	width: 152px;
 }
 
 @media (width <= 600px) {
-    .form__button_plan {
-        width: 132px;
-    }
+	.form__button_plan {
+		width: 132px;
+	}
 }
 
 .form__table {
-    padding: 0 8px;
+	padding: 0 8px;
 }

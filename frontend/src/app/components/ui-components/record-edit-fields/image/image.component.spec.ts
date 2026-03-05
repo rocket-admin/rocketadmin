@@ -1,27 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { ImageEditComponent } from './image.component';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ImageEditComponent } from './image.component';
 
 describe('ImageComponent', () => {
-  let component: ImageEditComponent;
-  let fixture: ComponentFixture<ImageEditComponent>;
+	let component: ImageEditComponent;
+	let fixture: ComponentFixture<ImageEditComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [
-        FormsModule,
-        ImageEditComponent,
-        BrowserAnimationsModule
-    ]}).compileComponents();
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [FormsModule, ImageEditComponent, BrowserAnimationsModule],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(ImageEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(ImageEditComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

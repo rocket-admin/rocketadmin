@@ -2,8 +2,8 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CodeEditorModule } from '@ngstack/code-editor';
-import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
 import { JsonEditorEditComponent } from './json-editor.component';
 
 describe('JsonEditorEditComponent', () => {

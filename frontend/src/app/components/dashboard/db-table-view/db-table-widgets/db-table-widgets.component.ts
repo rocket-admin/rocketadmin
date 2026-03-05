@@ -425,5 +425,4 @@ export class DbTableWidgetsComponent implements OnInit {
 			},
 		);
 	}
-
 }

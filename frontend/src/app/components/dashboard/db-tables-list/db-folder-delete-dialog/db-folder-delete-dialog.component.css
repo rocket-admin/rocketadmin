@@ -1,43 +1,43 @@
 .confirmation-message {
-    margin: 0 0 20px 0;
+	margin: 0 0 20px 0;
 }
 
 .folder-info {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 16px;
-    background-color: color-mix(in hsl, #296EE9, transparent 95%);
-    border-radius: 4px;
-    margin-bottom: 20px;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 12px 16px;
+	background-color: color-mix(in hsl, #296ee9, transparent 95%);
+	border-radius: 4px;
+	margin-bottom: 20px;
 }
 
 .info-icon {
-    color: #296EE9;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    margin-top: 2px;
+	color: #296ee9;
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	margin-top: 2px;
 }
 
 .info-text {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.5;
-    flex: 1;
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.5;
+	flex: 1;
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-    .folder-info {
-        background-color: color-mix(in hsl, #296EE9, transparent 75%);
-    }
+	.folder-info {
+		background-color: color-mix(in hsl, #296ee9, transparent 75%);
+	}
 
-    .info-icon {
-        color: #296EE9;
-    }
+	.info-icon {
+		color: #296ee9;
+	}
 
-    .info-text {
-        color: #e0e0e0;
-    }
+	.info-text {
+		color: #e0e0e0;
+	}
 }

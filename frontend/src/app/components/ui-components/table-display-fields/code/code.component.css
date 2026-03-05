@@ -1,17 +1,17 @@
 .field-value {
-  border-radius: 4px;
-  font-family: monospace;
-  padding: 0 8px;
+	border-radius: 4px;
+	font-family: monospace;
+	padding: 0 8px;
 }
 
 @media (prefers-color-scheme: light) {
-  .field-value {
-    background-color: #EAEAFF;
-  }
+	.field-value {
+		background-color: #eaeaff;
+	}
 }
 
 @media (prefers-color-scheme: dark) {
-  .field-value {
-    background-color: #2C2C54;
-  }
+	.field-value {
+		background-color: #2c2c54;
+	}
 }

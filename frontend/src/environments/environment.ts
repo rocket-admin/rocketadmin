@@ -3,10 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  apiRoot: "/api",
-  stagingHost: "rocketadmin-dev.tail9f8b2.ts.net",  // Tailscale host
-  version: '0.0.0'
+	production: false,
+	apiRoot: '/api',
+	stagingHost: 'rocketadmin-dev.tail9f8b2.ts.net', // Tailscale host
+	version: '0.0.0',
 } as Record<string, any>;
 
 /*

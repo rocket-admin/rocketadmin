@@ -1,24 +1,17 @@
-import { AfterViewInit, Component, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
+import { AfterViewInit, Component, inject, input, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 import { UiSettingsService } from '../../../services/ui-settings.service';
 
 @Component({
 	selector: 'app-dashboards-sidebar',
 	templateUrl: './dashboards-sidebar.component.html',
 	styleUrls: ['./dashboards-sidebar.component.css'],
-	imports: [
-		CommonModule,
-		RouterModule,
-		MatListModule,
-		MatIconModule,
-		MatButtonModule,
-		MatTooltipModule,
-	],
+	imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatButtonModule, MatTooltipModule],
 })
 export class DashboardsSidebarComponent implements OnInit, AfterViewInit {
 	connectionId = input.required<string>();

@@ -76,7 +76,9 @@ describe('DashboardComponent', () => {
 
 		fakeTablesService = {
 			fetchTables: vi.fn().mockReturnValue(of(fakeTables)),
-			fetchTablesFolders: vi.fn().mockReturnValue(of([{ category_id: 'all-tables-kitten', category_name: 'All Tables', tables: fakeTables }])),
+			fetchTablesFolders: vi
+				.fn()
+				.mockReturnValue(of([{ category_id: 'all-tables-kitten', category_name: 'All Tables', tables: fakeTables }])),
 			cast: new BehaviorSubject(''),
 		};
 
@@ -129,9 +131,11 @@ describe('DashboardComponent', () => {
 	});
 
 	it('should call getData and populate tables', () => {
-		fakeTablesService.fetchTablesFolders.mockReturnValue(of([{ category_id: 'all-tables-kitten', category_name: 'All Tables', tables: fakeTables }]));
+		fakeTablesService.fetchTablesFolders.mockReturnValue(
+			of([{ category_id: 'all-tables-kitten', category_name: 'All Tables', tables: fakeTables }]),
+		);
 		component.getData();
 		expect(component.allTables.length).toEqual(fakeTables.length);
-		expect(component.allTables.map(t => t.table)).toEqual(fakeTables.map(t => t.table));
+		expect(component.allTables.map((t) => t.table)).toEqual(fakeTables.map((t) => t.table));
 	});
 });

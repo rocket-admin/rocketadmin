@@ -1,98 +1,98 @@
 .profile-layout {
-    display: flex;
-    height: calc(100vh - 64px);
+	display: flex;
+	height: calc(100vh - 64px);
 }
 
 .profile-main {
-    flex: 1;
-    background-color: var(--mat-sidenav-content-background-color);
-    overflow-y: auto;
+	flex: 1;
+	background-color: var(--mat-sidenav-content-background-color);
+	overflow-y: auto;
 }
 
 ::ng-deep .profile-main > app-alert {
-    position: relative;
-    top: 0;
-    margin: 24px;
+	position: relative;
+	top: 0;
+	margin: 24px;
 }
 
 .sso-page {
-    margin: var(--top-margin) auto;
-    padding: 0 clamp(40px, 5vw, 100px);
-    max-width: 800px;
+	margin: var(--top-margin) auto;
+	padding: 0 clamp(40px, 5vw, 100px);
+	max-width: 800px;
 }
 
 @media (width <= 600px) {
-    .sso-page {
-        padding: 0 16px;
-        margin: 1.5em auto;
-    }
+	.sso-page {
+		padding: 0 16px;
+		margin: 1.5em auto;
+	}
 }
 
 .sso-description {
-    color: rgba(0, 0, 0, 0.64);
-    margin-top: 8px;
-    margin-bottom: 32px;
+	color: rgba(0, 0, 0, 0.64);
+	margin-top: 8px;
+	margin-bottom: 32px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .sso-description {
-        color: rgba(255, 255, 255, 0.7);
-    }
+	.sso-description {
+		color: rgba(255, 255, 255, 0.7);
+	}
 }
 
 .saml-config-form {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .saml-config-form__checkboxes {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 24px;
 }
 
 .saml-config-form__checkbox {
-    margin: 0;
+	margin: 0;
 }
 
 .saml-config-form__actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-    padding-bottom: 32px;
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 16px;
+	padding-bottom: 32px;
 }
 
 .upgrade-required {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 48px 24px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 48px 24px;
 }
 
 .upgrade-required__icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    color: rgba(0, 0, 0, 0.38);
-    margin-bottom: 24px;
+	font-size: 64px;
+	width: 64px;
+	height: 64px;
+	color: rgba(0, 0, 0, 0.38);
+	margin-bottom: 24px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .upgrade-required__icon {
-        color: rgba(255, 255, 255, 0.38);
-    }
+	.upgrade-required__icon {
+		color: rgba(255, 255, 255, 0.38);
+	}
 }
 
 .upgrade-required__description {
-    color: rgba(0, 0, 0, 0.64);
-    margin-bottom: 24px;
-    max-width: 400px;
+	color: rgba(0, 0, 0, 0.64);
+	margin-bottom: 24px;
+	max-width: 400px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .upgrade-required__description {
-        color: rgba(255, 255, 255, 0.7);
-    }
+	.upgrade-required__description {
+		color: rgba(255, 255, 255, 0.7);
+	}
 }

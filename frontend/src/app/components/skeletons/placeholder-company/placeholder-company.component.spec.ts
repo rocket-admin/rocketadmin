@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlaceholderCompanyComponent } from './placeholder-company.component';
 
 describe('PlaceholderCompanyComponent', () => {
-  let component: PlaceholderCompanyComponent;
-  let fixture: ComponentFixture<PlaceholderCompanyComponent>;
+	let component: PlaceholderCompanyComponent;
+	let fixture: ComponentFixture<PlaceholderCompanyComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [PlaceholderCompanyComponent]
-})
-    .compileComponents();
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [PlaceholderCompanyComponent],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(PlaceholderCompanyComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(PlaceholderCompanyComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

@@ -1,134 +1,134 @@
 .profile-layout {
-    display: flex;
-    height: calc(100vh - 64px);
+	display: flex;
+	height: calc(100vh - 64px);
 }
 
 .profile-main {
-    flex: 1;
-    background-color: var(--mat-sidenav-content-background-color);
-    overflow-y: auto;
+	flex: 1;
+	background-color: var(--mat-sidenav-content-background-color);
+	overflow-y: auto;
 }
 
 ::ng-deep .profile-main > app-alert {
-    position: relative;
-    top: 0;
-    margin: 24px;
+	position: relative;
+	top: 0;
+	margin: 24px;
 }
 
 .page {
-    display: flex;
-    flex-direction: column;
-    margin: var(--top-margin) auto;
-    max-width: 520px;
-    min-width: 300px;
-    width: 96%;
-    padding: 0 24px;
+	display: flex;
+	flex-direction: column;
+	margin: var(--top-margin) auto;
+	max-width: 520px;
+	min-width: 300px;
+	width: 96%;
+	padding: 0 24px;
 }
 
 @media (width <= 600px) {
-    .page {
-        padding: 0 16px;
-        margin: 1.5em auto;
-    }
+	.page {
+		padding: 0 16px;
+		margin: 1.5em auto;
+	}
 }
 
 .user-settings {
-    margin-top: 32px;
+	margin-top: 32px;
 }
 
 .user-settings__name-form {
-    display: flex;
-    align-items: center;
-    margin-bottom: -24px;
+	display: flex;
+	align-items: center;
+	margin-bottom: -24px;
 }
 
 .user-settings__section-heading {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 40px;
-    margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 40px;
+	margin-bottom: 8px;
 }
 
 .user-settings__text-input {
-    width: 100%
+	width: 100%;
 }
 
 .user-settings__save-button {
-    margin-top: -20px;
-    margin-left: -68px;
+	margin-top: -20px;
+	margin-left: -68px;
 }
 
 .user-settings__value {
-    margin-bottom: 0 !important;
+	margin-bottom: 0 !important;
 }
 
 .twoFA-toggle {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 40px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 40px;
 }
 
 .twoFA-toggle .twoFAhint {
-    font-size: 20px;
-    height: 20px;
-    width: 20px;
+	font-size: 20px;
+	height: 20px;
+	width: 20px;
 }
 
 .qr-verification {
-    margin-top: 28px;
+	margin-top: 28px;
 }
 
 .api-key-form {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .api-key-form__generate-button {
-    margin-top: -20px;
-    margin-left: -82px;
+	margin-top: -20px;
+	margin-left: -82px;
 }
 
 .api-key-value {
-    display: flex;
-    margin-bottom: 8px;
-    width: 100%;
+	display: flex;
+	margin-bottom: 8px;
+	width: 100%;
 }
 
 .api-key-value__copy-button {
-    margin-top: 4px;
-    margin-left: 12px;
+	margin-top: 4px;
+	margin-left: 12px;
 }
 
 .api-key-list-item:hover {
-    background: var(--color-primaryPalette-50);
+	background: var(--color-primaryPalette-50);
 }
 
 @media (prefers-color-scheme: dark) {
-    .api-key-list-item:hover {
-        background: var(--color-primaryPalette-500);
-    }
+	.api-key-list-item:hover {
+		background: var(--color-primaryPalette-500);
+	}
 
-    ::ng-deep .user-settings__section-heading mat-icon[svgIcon] svg path {
-        fill: #ffffff;
-    }
+	::ng-deep .user-settings__section-heading mat-icon[svgIcon] svg path {
+		fill: #ffffff;
+	}
 }
 
 @media (prefers-color-scheme: light) {
-    .api-key-list-item:hover {
-        background: var(--color-primaryPalette-50);
-    }
+	.api-key-list-item:hover {
+		background: var(--color-primaryPalette-50);
+	}
 }
 
 .api-key {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    /* width: 100%; */
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	/* width: 100%; */
 }
 
 .delete-button {
-    align-self: center;
-    margin-top: 80px;
+	align-self: center;
+	margin-top: 80px;
 }
