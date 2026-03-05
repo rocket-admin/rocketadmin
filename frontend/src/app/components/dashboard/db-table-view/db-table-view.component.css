@@ -150,7 +150,7 @@
 	top: 9px;
 	right: 3px;
 	display: block;
-	background: rgba(0, 0, 0, 0.87);
+	background: var(--color-accentedPalette-500);
 	border-radius: 50%;
 	height: 5px;
 	width: 5px;
@@ -307,8 +307,8 @@
 
 @media (prefers-color-scheme: dark) {
 	.table-surface {
-		--mat-table-background-color: #202020;
-		--mat-paginator-container-background-color: #202020;
+		--mat-table-background-color: var(--surface-dark-color);
+		--mat-paginator-container-background-color: var(--surface-dark-color);
 	}
 }
 

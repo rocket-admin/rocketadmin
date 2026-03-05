@@ -23,6 +23,7 @@ import { AlertComponent } from '../../ui-components/alert/alert.component';
 import { DashboardDeleteDialogComponent } from '../dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { DashboardEditDialogComponent } from '../dashboard-edit-dialog/dashboard-edit-dialog.component';
 import { DashboardsSidebarComponent } from '../dashboards-sidebar/dashboards-sidebar.component';
+import { ChartMiniPreviewComponent } from '../chart-mini-preview/chart-mini-preview.component';
 
 @Component({
 	selector: 'app-dashboards-list',
@@ -43,6 +44,7 @@ import { DashboardsSidebarComponent } from '../dashboards-sidebar/dashboards-sid
 		PlaceholderDashboardsComponent,
 		AlertComponent,
 		DashboardsSidebarComponent,
+		ChartMiniPreviewComponent,
 	],
 })
 export class DashboardsListComponent implements OnInit {

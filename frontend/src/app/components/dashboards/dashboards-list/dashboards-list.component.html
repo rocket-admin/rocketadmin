@@ -37,10 +37,39 @@
             <app-placeholder-dashboards *ngIf="loading()"></app-placeholder-dashboards>
 
             <div *ngIf="!loading() && filteredDashboards().length === 0" class="no-dashboards">
-                <mat-icon class="no-dashboards-icon">dashboard</mat-icon>
-                <h3>No dashboards found</h3>
+                <svg class="no-dashboards-illustration" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Back card -->
+                    <rect class="illust-card-back" x="30" y="8" width="60" height="44" rx="6"/>
+                    <rect class="illust-detail" x="38" y="16" width="20" height="3" rx="1.5"/>
+                    <rect class="illust-detail" x="38" y="23" width="36" height="2" rx="1"/>
+                    <rect class="illust-detail" x="38" y="28" width="28" height="2" rx="1"/>
+
+                    <!-- Middle card -->
+                    <rect class="illust-card-mid" x="20" y="22" width="60" height="44" rx="6"/>
+                    <rect class="illust-detail" x="28" y="30" width="18" height="3" rx="1.5"/>
+                    <rect class="illust-detail" x="28" y="37" width="32" height="2" rx="1"/>
+                    <rect class="illust-detail" x="28" y="42" width="24" height="2" rx="1"/>
+
+                    <!-- Front card -->
+                    <rect class="illust-card-front" x="10" y="38" width="60" height="52" rx="7"/>
+                    <rect class="illust-detail-accent" x="18" y="46" width="22" height="3" rx="1.5"/>
+                    <rect class="illust-detail" x="18" y="53" width="16" height="2" rx="1"/>
+
+                    <!-- Mini line chart -->
+                    <defs>
+                        <linearGradient id="emptyChartGrad" x1="18" y1="62" x2="18" y2="82">
+                            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M18,78 L28,72 L38,75 L48,65 L58,68" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+                    <path d="M18,78 L28,72 L38,75 L48,65 L58,68 L58,82 L18,82 Z" fill="url(#emptyChartGrad)"/>
+                    <circle cx="48" cy="65" r="2.5" fill="#3b82f6" opacity="0.9"/>
+                    <circle cx="58" cy="68" r="2.5" fill="#3b82f6" opacity="0.9"/>
+                </svg>
+                <h3>No dashboards yet</h3>
                 <p *ngIf="searchQuery()">No dashboards match your search criteria.</p>
-                <p *ngIf="!searchQuery()">Create your first dashboard to visualize your data.</p>
+                <p *ngIf="!searchQuery()">Dashboards help you visualize your data with charts, tables, and metrics — all in one place.</p>
                 <button mat-flat-button color="primary"
                     (click)="openCreateDialog()"
                     data-testid="create-dashboard-button">
@@ -58,8 +87,12 @@
                     <a [routerLink]="['/dashboards', connectionId(), dashboard.id]"
                         (click)="trackViewDashboardOpened()"
                         class="dashboard-preview">
-                        <div class="preview-placeholder">
-                            <mat-icon class="preview-placeholder-icon">dashboard</mat-icon>
+                        <div *ngIf="!dashboard.widgets?.length" class="preview-placeholder">
+                            <mat-icon class="preview-placeholder-icon" fontSet="material-symbols-outlined">dashboard</mat-icon>
+                            <span class="preview-placeholder-hint">Connect your first panel</span>
+                        </div>
+                        <div *ngIf="dashboard.widgets?.length" class="preview-chart">
+                            <app-chart-mini-preview [chartType]="'line'"></app-chart-mini-preview>
                         </div>
                     </a>
 
@@ -103,7 +136,7 @@
                         <div class="dashboard-meta">
                             <span class="dashboard-widgets-count">
                                 <mat-icon class="meta-icon">widgets</mat-icon>
-                                {{dashboard.widgets?.length || 0}} widgets
+                                {{dashboard.widgets?.length || 0}} panels
                             </span>
                             <span class="dashboard-updated">
                                 {{dashboard.updated_at | date:'mediumDate'}}

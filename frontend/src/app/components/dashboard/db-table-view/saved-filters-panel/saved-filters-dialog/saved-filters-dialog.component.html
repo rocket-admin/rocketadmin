@@ -212,8 +212,10 @@
 
             <!-- Add Condition Button -->
             <div class="add-condition-container">
-                <button *ngIf="!showAddConditionField" mat-stroked-button type="button" (click)="handleAddConditionButtonClick()" class="add-condition-button accent-button">
-                    <mat-icon class="add-icon">add</mat-icon>
+                <button *ngIf="!showAddConditionField"
+                    mat-stroked-button type="button" color="accent"
+                    (click)="handleAddConditionButtonClick()">
+                    <mat-icon>add</mat-icon>
                     <span>Add condition</span>
                 </button>
                 <mat-form-field *ngIf="showAddConditionField" class="filters-select empty-condition-input" appearance="outline" [class.mat-form-field-invalid]="showConditionsError">

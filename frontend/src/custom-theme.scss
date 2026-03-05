@@ -24,13 +24,17 @@ html {
   --mat-button-outlined-container-shape: 4px;
   --mat-button-text-container-shape: 4px;
   --mat-form-field-outlined-container-shape: 4px !important;
+
+  --surface-dark-color: #202020 !important;
+  --mat-toolbar-container-background-color: var(--surface-dark-color) !important;
 }
 
 @media (prefers-color-scheme: dark) {
   html {
-    --mat-expansion-container-background-color: #202020 !important;
-    --mat-table-background-color: #202020 !important;
-    --mat-paginator-container-background-color: #202020 !important;
+    --mat-expansion-container-background-color: var(--surface-dark-color) !important;
+    --mat-table-background-color: var(--surface-dark-color) !important;
+    --mat-paginator-container-background-color: var(--surface-dark-color) !important;
+    --mat-snack-bar-button-color: var(--color-accentedPalette-500) !important;
   }
 
   .mat-datepicker-content {

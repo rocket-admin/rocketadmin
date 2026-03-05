@@ -10,7 +10,7 @@
 
 @media (prefers-color-scheme: dark) {
     .table-list-sidenav {
-        background-color: #202020;
+        background-color: var(--surface-dark-color);
     }
 }
 

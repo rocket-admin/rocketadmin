@@ -51,35 +51,6 @@
     }
 }
 
-.add-condition-button {
-    width: auto;
-    min-width: auto;
-    min-height: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-transform: none;
-    margin: 0 !important;
-    padding: 0 16px;
-    gap: 4px;
-}
-
-.add-condition-button.accent-button {
-    color: #C177FC;
-}
-
-.add-condition-button.accent-button:hover {
-    background-color: rgba(193, 119, 252, 0.04);
-}
-
-.add-condition-button.accent-button .add-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-}
-
 .empty-conditions-container .column-name-icon {
     font-size: 18px;
     width: 18px;

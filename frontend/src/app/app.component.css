@@ -26,7 +26,7 @@
 	position: sticky;
 	top: 0;
 	flex-shrink: 0;
-	background-color: #212121;
+	background-color: var(--surface-dark-color);
 	z-index: 3;
 }
 
@@ -295,12 +295,6 @@
 	height: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-	.main-menu-content_interior .content {
-		background-color: #212121;
-	}
-}
-
 .helpContainer {
 	position: fixed;
 	right: 16px;
@@ -319,7 +313,7 @@
 
 @media (prefers-color-scheme: dark) {
 	.footer {
-		background: #212121;
+		background: var(--surface-dark-color);
 		border-top: 1px solid #303030;
 	}
 }
