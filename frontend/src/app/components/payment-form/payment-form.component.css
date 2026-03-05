@@ -1,32 +1,32 @@
 :host app-alert:not(:empty) {
-    --alert-margin: 24px;
+	--alert-margin: 24px;
 }
 
 .payment-page {
-    margin: var(--top-margin) auto;
-    width: clamp(18.75em, 96%, 45em);
+	margin: var(--top-margin) auto;
+	width: clamp(18.75em, 96%, 45em);
 }
 
 .payment-page__header {
-    margin: 2em 0 1em;
+	margin: 2em 0 1em;
 }
 
 .plan-name {
-    text-transform: capitalize;
+	text-transform: capitalize;
 }
 
 .billing-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 16px;
-    gap: 16px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: 16px;
+	gap: 16px;
 }
 
 .full-width {
-    grid-column: 1 / span 2;
+	grid-column: 1 / span 2;
 }
 
 .note {
-    margin-top: 20px !important;
-    margin-bottom: 52px !important;
+	margin-top: 20px !important;
+	margin-bottom: 52px !important;
 }

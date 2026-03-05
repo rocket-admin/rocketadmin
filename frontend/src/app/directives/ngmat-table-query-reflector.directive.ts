@@ -20,150 +20,140 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { Directive, Input, OnInit, OnDestroy } from '@angular/core';
-import { Sort, MatSortable } from '@angular/material/sort';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Subject, interval, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { MatTableDataSource } from '@angular/material/table';
+import { Directive, Input, OnDestroy, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
+import { MatSortable, Sort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute, Router } from '@angular/router';
+import { interval, Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Directive({
-  selector: '[NgMatTableQueryReflector]'
+	selector: '[NgMatTableQueryReflector]',
 })
 export class NgMatTableQueryReflectorDirective implements OnInit, OnDestroy {
+	private unsubscribeAll$: Subject<any> = new Subject();
 
-  private unsubscribeAll$: Subject<any> = new Subject();
+	@Input() matSortActive: string;
+	@Input() matSortDirection: 'asc' | 'desc';
+	@Input() dataSource: MatTableDataSource<any>;
+	private _dataSourceChecker$: Subscription;
 
-  @Input() matSortActive: string;
-  @Input() matSortDirection: 'asc' | 'desc';
-  @Input() dataSource: MatTableDataSource<any>;
-  private _dataSourceChecker$: Subscription;
+	constructor(
+		private _router: Router,
+		private _activatedRoute: ActivatedRoute,
+	) {}
 
-  constructor(
-    private _router: Router,
-    private _activatedRoute: ActivatedRoute
-  ) { }
+	async ngOnInit(): Promise<void> {
+		await this.waitForDatasourceToLoad();
+		this._initialSetup();
+		this.listenToStateChangeEvents();
+	}
 
-  async ngOnInit(): Promise<void> {
-    await this.waitForDatasourceToLoad();
-    this._initialSetup();
-    this.listenToStateChangeEvents();
-  }
+	private _initialSetup(): void {
+		const activePageQuery = this.isPageQueryActive();
 
-  private _initialSetup(): void {
+		if (activePageQuery) {
+			this.dataSource.paginator.pageIndex = activePageQuery.page_index;
+			this.dataSource.paginator.pageSize = activePageQuery.page_size;
+		}
 
-    const activePageQuery = this.isPageQueryActive();
+		// Activating initial Sort
+		const activeSortQuery = this.isSortQueryActive();
+		if (activeSortQuery) {
+			const sortActiveColumn = activeSortQuery
+				? activeSortQuery.sort_direction
+					? activeSortQuery.sort_active
+					: null
+				: this.matSortActive;
+			const sortable: MatSortable = {
+				id: sortActiveColumn,
+				start: activeSortQuery ? activeSortQuery.sort_direction || null : this.matSortDirection,
+				disableClear: true,
+			};
+			this.dataSource.sort.sort(sortable);
 
-    if (activePageQuery) {
-      this.dataSource.paginator.pageIndex = activePageQuery.page_index;
-      this.dataSource.paginator.pageSize = activePageQuery.page_size;
-    }
+			if (!sortActiveColumn) {
+				return;
+			}
+			// Material Sort Issue: https://github.com/angular/components/issues/10242
+			// Picked a hack from: https://github.com/angular/components/issues/10242#issuecomment-421490991
+			const activeSortHeader = this.dataSource.sort.sortables.get(sortActiveColumn);
+			if (!activeSortHeader) {
+				return;
+			}
+		}
+	}
 
-    // Activating initial Sort
-    const activeSortQuery = this.isSortQueryActive();
-    if (activeSortQuery) {
-      const sortActiveColumn = activeSortQuery ? (activeSortQuery.sort_direction ? activeSortQuery.sort_active : null) : this.matSortActive;
-      const sortable: MatSortable = {
-        id: sortActiveColumn,
-        start: activeSortQuery ? (activeSortQuery.sort_direction || null) : this.matSortDirection,
-        disableClear: true
-      };
-      this.dataSource.sort.sort(sortable);
+	private isSortQueryActive(): { sort_active: string; sort_direction: 'asc' | 'desc' } {
+		const queryParams = this._activatedRoute.snapshot.queryParams;
 
-      if (!sortActiveColumn) { return; }
-      // Material Sort Issue: https://github.com/angular/components/issues/10242
-      // Picked a hack from: https://github.com/angular/components/issues/10242#issuecomment-421490991
-      const activeSortHeader = this.dataSource.sort.sortables.get(sortActiveColumn);
-      if (!activeSortHeader) { return; }
-    }
+		if (Object.hasOwn(queryParams, 'sort_active') || Object.hasOwn(queryParams, 'sort_direction')) {
+			return {
+				sort_active: queryParams.sort_active,
+				sort_direction: queryParams.sort_direction,
+			};
+		}
 
-  }
+		return;
+	}
 
-  private isSortQueryActive(): { sort_active: string, sort_direction: 'asc' | 'desc' } {
+	private isPageQueryActive(): { page_size: number; page_index: number } {
+		const queryParams = this._activatedRoute.snapshot.queryParams;
 
-    const queryParams = this._activatedRoute.snapshot.queryParams;
+		if (Object.hasOwn(queryParams, 'page_size') || Object.hasOwn(queryParams, 'page_index')) {
+			return {
+				page_size: queryParams.page_size,
+				page_index: queryParams.page_index,
+			};
+		}
 
-    if (Object.hasOwn(queryParams, 'sort_active') || Object.hasOwn(queryParams, 'sort_direction')) {
-      return {
-        sort_active: queryParams.sort_active,
-        sort_direction: queryParams.sort_direction
-      };
-    }
+		return;
+	}
 
-    return;
-  }
+	private listenToStateChangeEvents(): void {
+		this.dataSource.sort.sortChange.pipe(takeUntil(this.unsubscribeAll$)).subscribe((sortChange: Sort) => {
+			this._applySortChangesToUrlQueryParams(sortChange);
+		});
 
-  private isPageQueryActive(): { page_size: number, page_index: number } {
+		this.dataSource.paginator.page.pipe(takeUntil(this.unsubscribeAll$)).subscribe((pageChange: PageEvent) => {
+			this._applyPageStateChangesToUrlQueryParams(pageChange);
+		});
+	}
 
-    const queryParams = this._activatedRoute.snapshot.queryParams;
+	private _applySortChangesToUrlQueryParams(sortChange: Sort): void {
+		const sortingAndPaginationQueryParams = {
+			sort_active: sortChange.active,
+			sort_direction: sortChange.direction,
+		};
 
-    if (Object.hasOwn(queryParams, 'page_size') || Object.hasOwn(queryParams, 'page_index')) {
-      return {
-        page_size: queryParams.page_size,
-        page_index: queryParams.page_index
-      };
-    }
+		this._router.navigate([], { queryParams: sortingAndPaginationQueryParams, queryParamsHandling: 'merge' });
+	}
 
-    return;
-  }
+	private _applyPageStateChangesToUrlQueryParams(pageChange: PageEvent): void {
+		const sortingAndPaginationQueryParams = {
+			page_size: pageChange.pageSize,
+			page_index: pageChange.pageIndex,
+		};
 
-  private listenToStateChangeEvents(): void {
-    this.dataSource.sort.sortChange
-      .pipe(
-        takeUntil(this.unsubscribeAll$)
-      )
-      .subscribe((sortChange: Sort) => {
-        this._applySortChangesToUrlQueryParams(sortChange);
-      });
+		this._router.navigate([], { queryParams: sortingAndPaginationQueryParams, queryParamsHandling: 'merge' });
+	}
 
-    this.dataSource.paginator.page
-      .pipe(
-        takeUntil(this.unsubscribeAll$)
-      )
-      .subscribe((pageChange: PageEvent) => {
-        this._applyPageStateChangesToUrlQueryParams(pageChange);
-      });
-  }
+	private waitForDatasourceToLoad(): Promise<void> {
+		const titleCheckingInterval$ = interval(500);
 
-  private _applySortChangesToUrlQueryParams(sortChange: Sort): void {
+		return new Promise((resolve) => {
+			this._dataSourceChecker$ = titleCheckingInterval$.subscribe((_val) => {
+				if (this.dataSource?.sort && this.dataSource?.paginator) {
+					this._dataSourceChecker$.unsubscribe();
+					return resolve();
+				}
+			});
+		});
+	}
 
-    const sortingAndPaginationQueryParams = {
-      sort_active: sortChange.active,
-      sort_direction: sortChange.direction,
-    };
-
-    this._router.navigate([], { queryParams: sortingAndPaginationQueryParams, queryParamsHandling: 'merge' });
-  }
-
-  private _applyPageStateChangesToUrlQueryParams(pageChange: PageEvent): void {
-
-    const sortingAndPaginationQueryParams = {
-      page_size: pageChange.pageSize,
-      page_index: pageChange.pageIndex,
-    };
-
-    this._router.navigate([], { queryParams: sortingAndPaginationQueryParams, queryParamsHandling: 'merge' });
-  }
-
-  private waitForDatasourceToLoad(): Promise<void> {
-
-    const titleCheckingInterval$ = interval(500);
-
-    return new Promise((resolve) => {
-      this._dataSourceChecker$ = titleCheckingInterval$.subscribe(_val => {
-        if (this.dataSource?.sort && this.dataSource?.paginator) {
-          this._dataSourceChecker$.unsubscribe();
-          return resolve();
-        }
-      });
-    });
-
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribeAll$.next(null);
-    this.unsubscribeAll$.complete();
-  }
-
+	ngOnDestroy(): void {
+		this.unsubscribeAll$.next(null);
+		this.unsubscribeAll$.complete();
+	}
 }

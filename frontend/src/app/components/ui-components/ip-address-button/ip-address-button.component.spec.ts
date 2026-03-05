@@ -4,21 +4,20 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IpAddressButtonComponent } from './ip-address-button.component';
 
 describe('IpAddressButtonComponent', () => {
-  let component: IpAddressButtonComponent;
-  let fixture: ComponentFixture<IpAddressButtonComponent>;
+	let component: IpAddressButtonComponent;
+	let fixture: ComponentFixture<IpAddressButtonComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [MatSnackBarModule, IpAddressButtonComponent]
-})
-    .compileComponents();
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [MatSnackBarModule, IpAddressButtonComponent],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(IpAddressButtonComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(IpAddressButtonComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

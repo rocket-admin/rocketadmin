@@ -1,16 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { DbFolderDeleteDialogComponent, DbFolderDeleteDialogData } from './db-folder-delete-dialog/db-folder-delete-dialog.component';
-import { DbFolderEditDialogComponent, DbFolderEditDialogData } from './db-folder-edit-dialog/db-folder-edit-dialog.component';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TableProperties, } from 'src/app/models/table';
-
-import { AccessLevel } from 'src/app/models/user';
 import { CommonModule } from '@angular/common';
-import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -18,610 +12,617 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableCategory } from 'src/app/models/connection';
+import { TableProperties } from 'src/app/models/table';
+import { AccessLevel } from 'src/app/models/user';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { normalizeTableName } from 'src/app/lib/normalize';
+import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
+import {
+	DbFolderDeleteDialogComponent,
+	DbFolderDeleteDialogData,
+} from './db-folder-delete-dialog/db-folder-delete-dialog.component';
+import {
+	DbFolderEditDialogComponent,
+	DbFolderEditDialogData,
+} from './db-folder-edit-dialog/db-folder-edit-dialog.component';
 
 export interface Folder {
-  id: string;
-  name: string;
-  expanded: boolean;
-  tableIds: string[];
-  iconColor?: string; // Optional color for folder icon
-  isEmpty?: boolean; // Flag to indicate if folder is newly created and empty
+	id: string;
+	name: string;
+	expanded: boolean;
+	tableIds: string[];
+	iconColor?: string; // Optional color for folder icon
+	isEmpty?: boolean; // Flag to indicate if folder is newly created and empty
 }
 
 interface Category {
-  category_id: string;
-  category_name: string;
-  category_color?: string;
-  tables: TableProperties[];
+	category_id: string;
+	category_name: string;
+	category_color?: string;
+	tables: TableProperties[];
 }
 
 @Component({
-  selector: 'app-db-tables-list',
-  templateUrl: './db-tables-list.component.html',
-  styleUrls: ['./db-tables-list.component.css'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    DragDropModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatListModule,
-    MatTooltipModule,
-    MatMenuModule,
-    MatDialogModule,
-    RouterModule,
-    ContentLoaderComponent
-  ]
+	selector: 'app-db-tables-list',
+	templateUrl: './db-tables-list.component.html',
+	styleUrls: ['./db-tables-list.component.css'],
+	imports: [
+		CommonModule,
+		FormsModule,
+		DragDropModule,
+		MatButtonModule,
+		MatCheckboxModule,
+		MatIconModule,
+		MatFormFieldModule,
+		MatInputModule,
+		MatListModule,
+		MatTooltipModule,
+		MatMenuModule,
+		MatDialogModule,
+		RouterModule,
+		ContentLoaderComponent,
+	],
 })
 export class DbTablesListComponent implements OnInit, OnChanges {
-  @Input() connectionID: string;
-  @Input() connectionTitle: string;
-  @Input() tableFolders: Category[];
-  @Input() selectedTable: string;
-  @Input() collapsed: boolean;
-  @Input() uiSettings: any;
-  @Input() accessLevel: AccessLevel;
-
-  @Output() expandSidebar = new EventEmitter<void>();
-
-  public tableCategories: TableCategory[] = [];
-  public substringToSearch: string;
-  public foundTables: TableProperties[];
-  public folders: Folder[] = [];
-
-  // Dialog state
-  public currentFolder: Folder | null = null;
-
-  // Drag and drop state
-  public draggedTable: TableProperties | null = null;
-  public dragOverFolder: string | null = null;
-
-  // Collapsed state
-  public showCollapsedTableList: boolean = false;
-  public currentCollapsedFolder: Folder | null = null;
-
-  // State preservation
-  private preservedFolderStates: { [key: string]: boolean } = {};
-  private preservedActiveFolder: string | null = null;
-
-  // Search state preservation
-  private preSearchFolderStates: { [key: string]: boolean } | null = null;
-
-  // Folder icon colors
-  public folderIconColors = [
-    { name: 'Default', value: 'rgba(0, 0, 0, 0.87)' },
-    { name: 'Blue', value: '#2196F3' },
-    { name: 'Green', value: '#4CAF50' },
-    { name: 'Orange', value: '#FF9800' },
-    { name: 'Red', value: '#F44336' },
-    { name: 'Purple', value: '#9C27B0' },
-    { name: 'Teal', value: '#009688' },
-    { name: 'Pink', value: '#E91E63' }
-  ];
-
-  constructor(
-    private _tableState: TableStateService,
-    private _tablesService: TablesService,
-    private _uiSettingsService: UiSettingsService,
-    private dialog: MatDialog
-  ) { }
-
-  ngOnInit() {
-    this.foundTables = this.tableFolders
-      .find((folder: any) => folder.category_id === 'all-tables-kitten')?.tables
-      .map((table: TableProperties) => {
-        return {
-          table: table.table,
-          display_name: table.display_name,
-          normalizedTableName: normalizeTableName(table.table),
-          permissions: table.permissions
-        };
-      });
-    this.folders = this.tableFolders.map(category => {
-      const tableIds = category.tables.map((table: TableProperties) => table.table);
-      return {
-        id: category.category_id,
-        name: category.category_name,
-        expanded: category.category_id === 'all-tables-kitten' ? true : false,
-        tableIds,
-        iconColor: category.category_color
-      };
-    });
-
-    const expandedFolders = this.uiSettings?.tableFoldersExpanded || ['0'];
-    if (expandedFolders && expandedFolders.length > 0) {
-      this.folders.forEach(folder => {
-        folder.expanded = expandedFolders.includes(folder.id);
-      });
-    }
-
-    // If no custom folders exist, always keep "All tables" expanded
-    if (!this.hasCustomFolders()) {
-      const allTablesFolder = this.folders.find(folder => folder.id === 'all-tables-kitten');
-      if (allTablesFolder) {
-        allTablesFolder.expanded = true;
-      }
-    }
-
-    console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.collapsed) {
-      if (changes.collapsed.currentValue === true) {
-        // Sidebar is being collapsed - preserve current state
-        this.preserveFolderStates();
-      } else if (changes.collapsed.currentValue === false) {
-        // Sidebar is being expanded - restore preserved state
-        this.restoreFolderStates();
-      }
-    }
-  }
-
-  searchSubstring() {
-    if (!this.substringToSearch || this.substringToSearch.trim() === '') {
-      this.foundTables = this.allTables;
-      // Restore folder expanded states from before the search
-      if (this.preSearchFolderStates) {
-        this.folders.forEach(folder => {
-          if (Object.hasOwn(this.preSearchFolderStates, folder.id)) {
-            folder.expanded = this.preSearchFolderStates[folder.id];
-          }
-        });
-        this.preSearchFolderStates = null;
-      }
-      return;
-    }
-
-    // Save folder states before the first search modification
-    if (!this.preSearchFolderStates) {
-      this.preSearchFolderStates = {};
-      this.folders.forEach(folder => {
-        this.preSearchFolderStates[folder.id] = folder.expanded;
-      });
-    }
-
-    const searchTerm = this.substringToSearch.toLowerCase();
-
-    // Filter all tables by search term
-    this.foundTables = this.allTables.filter(tableItem =>
-      tableItem.table.toLowerCase().includes(searchTerm) ||
-      (tableItem.display_name?.toLowerCase().includes(searchTerm)) ||
-      (tableItem.normalizedTableName?.toLowerCase().includes(searchTerm))
-    );
-
-    // Expand all folders that contain matching tables
-    this.folders.forEach(folder => {
-      const folderTables = this.getFolderTables(folder);
-      const hasMatchingTables = folderTables.some(table =>
-        this.foundTables.some(foundTable => foundTable.table === table.table)
-      );
-
-      if (hasMatchingTables) {
-        folder.expanded = true;
-      } else {
-        folder.expanded = false;
-      }
-    });
-  }
-
-  getTableName(table: TableProperties) {
-    return table.display_name || table.normalizedTableName || table.table
-  }
-
-  getTableNameLength(tableName: string) {
-    return tableName.length;
-  }
-
-  closeSidebar() {
-    this._tableState.clearSelection();
-    this._tableState.closeAIpanel();
-  }
-
-  onAddFolder() {
-    const newFolder: Folder = {
-      id: this.generateFolderId(),
-      name: `Folder ${this.folders.length}`,
-      expanded: true, // Разворачиваем папку сразу после создания
-      tableIds: [],
-      isEmpty: true // Mark as empty for special styling
-    };
-    this.folders.push(newFolder);
-    console.log('onAddFolder');
-    this.saveFolders();
-  }
-
-  toggleFolder(folderId: string) {
-    const folder = this.folders.find (f => f.id === folderId);
-    if (folder) {
-      // Prevent collapsing "All tables" when no custom folders exist
-      if (folder.id === 'all-tables-kitten' && folder.expanded && !this.hasCustomFolders()) {
-        return;
-      }
-      folder.expanded = !folder.expanded;
-      const expandedFolders = this.folders.filter(f => f.expanded).map(f => f.id);
-      this._uiSettingsService.updateConnectionSetting(this.connectionID, 'tableFoldersExpanded', expandedFolders);
-    }
-  }
-
-  onCollapsedFolderClick(folder: Folder) {
-    console.log('Clicked on folder:', folder.name);
-
-    // If clicking on the same folder that's already open, close it
-    if (this.currentCollapsedFolder?.id === folder.id) {
-      this.showCollapsedTableList = false;
-      this.currentCollapsedFolder = null;
-    } else {
-      // If clicking on a different folder, open it immediately
-      this.showCollapsedTableList = true;
-      this.currentCollapsedFolder = folder;
-    }
-  }
-
-  getCollapsedTableList(): TableProperties[] {
-    if (!this.currentCollapsedFolder) {
-      console.log('No current collapsed folder');
-      return [];
-    }
-
-    const tables = this.getFolderTables(this.currentCollapsedFolder);
-    console.log('getCollapsedTableList - tables:', tables);
-    return tables;
-  }
-
-  navigateToTable(_table: TableProperties) {
-    // This method is called when clicking on a table in collapsed mode
-    // The actual navigation is handled by routerLink in the template
-    // We just need to close the sidebar after navigation
-    this.closeSidebar();
-  }
-
-  toggleCollapsedSearch() {
-    // Open the sidebar and activate search
-    this.expandSidebar.emit();
-    // Focus on search input after sidebar expands
-    setTimeout(() => {
-      const input = document.querySelector('.search-input input') as HTMLInputElement;
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    }, 300); // Wait for sidebar animation to complete
-  }
-
-  deleteFolder(folder: Folder) {
-    const dialogData: DbFolderDeleteDialogData = {
-      folderName: folder.name,
-      tableCount: folder.tableIds.length
-    };
-
-    const dialogRef = this.dialog.open(DbFolderDeleteDialogComponent, {
-      width: '24em',
-      data: dialogData,
-      panelClass: 'db-folder-delete-dialog'
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
-        const index = this.folders.findIndex(f => f.id === folder.id);
-        if (index > -1) {
-          this.folders.splice(index, 1);
-          this.saveFolders();
-        }
-      }
-    });
-  }
-
-  getFolderTables(folder: Folder): TableProperties[] {
-    // Preserve folder.tableIds order by mapping through tableIds
-    const allTablesMap = new Map(this.allTables.map(t => [t.table, t]));
-    const folderTables = folder.tableIds
-      .map(tableId => allTablesMap.get(tableId))
-      .filter((table): table is TableProperties => !!table);
-
-    // If there's a search term, filter the collection tables too
-    if (this.substringToSearch && this.substringToSearch.trim() !== '') {
-      const searchTerm = this.substringToSearch.toLowerCase();
-      return folderTables.filter(table =>
-        table.table.toLowerCase().includes(searchTerm) ||
-        (table.display_name?.toLowerCase().includes(searchTerm)) ||
-        (table.normalizedTableName?.toLowerCase().includes(searchTerm))
-      );
-    }
-
-    return folderTables;
-  }
-
-  getAvailableTables(folder: Folder | null): TableProperties[] {
-    if (!folder) return [];
-    return this.allTables.filter(table => !folder.tableIds.includes(table.table));
-  }
-
-  isTableInAnyFolder(table: TableProperties): boolean {
-    return this.folders.some(folder => folder.tableIds.includes(table.table));
-  }
-
-  shouldShowFolder(folder: Folder): boolean {
-    // If no search term, show all folders
-    if (!this.substringToSearch || this.substringToSearch.trim() === '') {
-      return true;
-    }
-
-    // Show collection if it has tables matching the search
-    const matchingTables = this.getFolderTables(folder);
-    return matchingTables.length > 0;
-  }
-
-  showEditTablesDialog(folder: Folder) {
-    // Expand the folder if it's collapsed
-    folder.expanded = true;
-
-    const dialogData: DbFolderEditDialogData = {
-      folder: folder,
-      tables: this.allTables,
-      folderIconColors: this.folderIconColors
-    };
-
-    const dialogRef = this.dialog.open(DbFolderEditDialogComponent, {
-      width: '32em',
-      data: dialogData,
-      panelClass: 'db-folder-edit-dialog'
-    });
-
-    dialogRef.afterClosed().subscribe((result: Folder | undefined) => {
-      if (result) {
-        // Update the folder with the result from dialog
-        const index = this.folders.findIndex(f => f.id === result.id);
-        if (index !== -1) {
-          this.folders[index] = result;
-          this.saveFolders();
-        }
-      }
-    });
-  }
-
-
-  get allTables(): TableProperties[] {
-    return this.tableFolders
-      ?.find((folder: any) => folder.category_id === 'all-tables-kitten')?.tables || [];
-  }
-
-  isTableInFolder(table: TableProperties): boolean {
-    return this.currentFolder ? this.currentFolder.tableIds.includes(table.table) : false;
-  }
-
-  isTableInCurrentDraggedFolder(table: TableProperties, folder: Folder): boolean {
-    return this.draggedTable &&
-      this.draggedTable.table === table.table &&
-      folder.tableIds.includes(table.table);
-  }
-
-  toggleTableInFolder(table: TableProperties) {
-    if (!this.currentFolder) return;
-
-    const tableId = table.table;
-    const isInFolder = this.currentFolder.tableIds.includes(tableId);
-
-    if (isInFolder) {
-      // Remove from folder
-      this.currentFolder.tableIds = this.currentFolder.tableIds.filter(id => id !== tableId);
-    } else {
-      // Add to folder
-      this.currentFolder.tableIds.push(tableId);
-      // Remove empty flag when adding tables
-      if (this.currentFolder.isEmpty) {
-        this.currentFolder.isEmpty = false;
-      }
-    }
-
-    console.log('toggleTableInFolder');
-    this.saveFolders();
-  }
-
-
-  removeTableFromFolder(folder: Folder, table: TableProperties, event: Event) {
-    event.stopPropagation();
-    folder.tableIds = folder.tableIds.filter(id => id !== table.table);
-    console.log('removeTableFromFolder');
-    this.saveFolders();
-  }
-
-  trackByFolderId(_index: number, folder: Folder): string {
-    return folder.id;
-  }
-
-  hasCustomFolders(): boolean {
-    // Check if there are folders other than "All tables"
-    return this.folders.some(folder => folder.id !== 'all-tables-kitten');
-  }
-
-  private preserveFolderStates() {
-    // Save expanded states of all folders
-    this.folders.forEach(folder => {
-      this.preservedFolderStates[folder.id] = folder.expanded;
-    });
-
-    // If no custom folders exist, ensure "All tables" is always expanded
-    if (!this.hasCustomFolders()) {
-      const allTablesFolder = this.folders.find(folder => folder.id === 'all-tables-kitten');
-      if (allTablesFolder) {
-        this.preservedFolderStates[allTablesFolder.id] = true;
-        this.preservedActiveFolder = allTablesFolder.id;
-      }
-    } else {
-      // Find and save the currently active folder (the one that contains selected table)
-      const activeFolder = this.findActiveFolder();
-      this.preservedActiveFolder = activeFolder ? activeFolder.id : null;
-    }
-  }
-
-  private restoreFolderStates() {
-    // If no custom folders exist, always expand "All tables"
-    if (!this.hasCustomFolders()) {
-      const allTablesFolder = this.folders.find(folder => folder.id === 'all-tables-kitten');
-      if (allTablesFolder) {
-        allTablesFolder.expanded = true;
-        this.currentCollapsedFolder = allTablesFolder;
-        this.showCollapsedTableList = true;
-        return;
-      }
-    }
-
-    // Restore expanded states of all folders
-    this.folders.forEach(folder => {
-      if (Object.hasOwn(this.preservedFolderStates, folder.id)) {
-        folder.expanded = this.preservedFolderStates[folder.id];
-      }
-    });
-
-    // In collapsed view, show the table list if any folder was expanded
-    const hasExpandedFolders = Object.values(this.preservedFolderStates).some(expanded => expanded);
-    if (hasExpandedFolders) {
-      // If there was an active folder, use it; otherwise use the first expanded folder
-      let targetFolder = null;
-
-      if (this.preservedActiveFolder) {
-        targetFolder = this.folders.find(f => f.id === this.preservedActiveFolder);
-      }
-
-      if (!targetFolder) {
-        // Find the first expanded folder
-        targetFolder = this.folders.find(f => this.preservedFolderStates[f.id]);
-      }
-
-      if (targetFolder) {
-        this.currentCollapsedFolder = targetFolder;
-        this.showCollapsedTableList = true;
-      }
-    }
-  }
-
-  private findActiveFolder(): Folder | null {
-    if (!this.selectedTable) return null;
-
-    return this.folders.find(folder =>
-      folder.tableIds.includes(this.selectedTable)
-    ) || null;
-  }
-
-  private generateFolderId(): string {
-    return Date.now().toString();
-  }
-
-  private getDropIndex(event: DragEvent, folder: Folder): number {
-    const folderEl = (event.currentTarget as HTMLElement);
-    const tableItems = folderEl.querySelectorAll('.selected-table-item');
-    const y = event.clientY;
-
-    for (let i = 0; i < tableItems.length; i++) {
-      const rect = tableItems[i].getBoundingClientRect();
-      const midY = rect.top + rect.height / 2;
-      if (y < midY) {
-        return i;
-      }
-    }
-    return folder.tableIds.length;
-  }
-
-  private saveFolders() {
-    try {
-      this.tableCategories = this.folders
-        .map(folder => ({
-          category_id: folder.id,
-          category_name: folder.name,
-          category_color: folder.iconColor,
-          tables: folder.tableIds
-        }));
-      this._tablesService.updateTablesFolders(this.connectionID, this.tableCategories).subscribe({
-        next: () => {
-          console.log('Connection settings updated with folders.');
-        },
-        error: (error) => {
-          console.error('Error updating connection settings with folders:', error);
-        }
-      });
-    } catch (e) {
-      console.error('Error saving folders:', e);
-    }
-  }
-
-  // Table reordering within folders
-  isReorderingEnabled(folder: Folder): boolean {
-    return this.accessLevel === 'edit'
-      && !this.collapsed
-      && (!this.substringToSearch || this.substringToSearch.trim() === '');
-  }
-
-  onTableReorder(event: CdkDragDrop<TableProperties[]>, folder: Folder) {
-    if (event.previousIndex === event.currentIndex) {
-      return;
-    }
-    moveItemInArray(folder.tableIds, event.previousIndex, event.currentIndex);
-    this.saveFolders();
-  }
-
-  // Drag and drop methods
-  onTableDragStart(event: DragEvent, table: TableProperties) {
-    this.draggedTable = table;
-    if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', table.table);
-    }
-  }
-
-  onTableDragEnd(_event: DragEvent) {
-    this.draggedTable = null;
-    this.dragOverFolder = null;
-  }
-
-  onFolderDragOver(event: DragEvent, folderId: string) {
-    event.preventDefault();
-    if (event.dataTransfer) {
-      event.dataTransfer.dropEffect = 'move';
-    }
-    this.dragOverFolder = folderId;
-  }
-
-  onFolderDragLeave(event: DragEvent, _folderId: string) {
-    // Only clear if we're actually leaving the collection (not moving to a child element)
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = event.clientX;
-    const y = event.clientY;
-
-    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-      this.dragOverFolder = null;
-    }
-  }
-
-  onFolderDrop(event: DragEvent, folder: Folder) {
-    event.preventDefault();
-
-    if (this.draggedTable) {
-      // Check if table is already in this specific folder
-      if (folder.tableIds.includes(this.draggedTable.table)) {
-        // Table already exists in this folder, do nothing (no notification)
-        return;
-      } else {
-        // Determine insertion index based on drop position
-        const insertIndex = this.getDropIndex(event, folder);
-        folder.tableIds.splice(insertIndex, 0, this.draggedTable.table);
-        // Remove empty flag when adding tables via drag and drop
-        if (folder.isEmpty) {
-          folder.isEmpty = false;
-        }
-        this.saveFolders();
-      }
-    }
-
-    this.draggedTable = null;
-    this.dragOverFolder = null;
-  }
+	@Input() connectionID: string;
+	@Input() connectionTitle: string;
+	@Input() tableFolders: Category[];
+	@Input() selectedTable: string;
+	@Input() collapsed: boolean;
+	@Input() uiSettings: any;
+	@Input() accessLevel: AccessLevel;
+
+	@Output() expandSidebar = new EventEmitter<void>();
+
+	public tableCategories: TableCategory[] = [];
+	public substringToSearch: string;
+	public foundTables: TableProperties[];
+	public folders: Folder[] = [];
+
+	// Dialog state
+	public currentFolder: Folder | null = null;
+
+	// Drag and drop state
+	public draggedTable: TableProperties | null = null;
+	public dragOverFolder: string | null = null;
+
+	// Collapsed state
+	public showCollapsedTableList: boolean = false;
+	public currentCollapsedFolder: Folder | null = null;
+
+	// State preservation
+	private preservedFolderStates: { [key: string]: boolean } = {};
+	private preservedActiveFolder: string | null = null;
+
+	// Search state preservation
+	private preSearchFolderStates: { [key: string]: boolean } | null = null;
+
+	// Folder icon colors
+	public folderIconColors = [
+		{ name: 'Default', value: 'rgba(0, 0, 0, 0.87)' },
+		{ name: 'Blue', value: '#2196F3' },
+		{ name: 'Green', value: '#4CAF50' },
+		{ name: 'Orange', value: '#FF9800' },
+		{ name: 'Red', value: '#F44336' },
+		{ name: 'Purple', value: '#9C27B0' },
+		{ name: 'Teal', value: '#009688' },
+		{ name: 'Pink', value: '#E91E63' },
+	];
+
+	constructor(
+		private _tableState: TableStateService,
+		private _tablesService: TablesService,
+		private _uiSettingsService: UiSettingsService,
+		private dialog: MatDialog,
+	) {}
+
+	ngOnInit() {
+		this.foundTables = this.tableFolders
+			.find((folder: any) => folder.category_id === 'all-tables-kitten')
+			?.tables.map((table: TableProperties) => {
+				return {
+					table: table.table,
+					display_name: table.display_name,
+					normalizedTableName: normalizeTableName(table.table),
+					permissions: table.permissions,
+				};
+			});
+		this.folders = this.tableFolders.map((category) => {
+			const tableIds = category.tables.map((table: TableProperties) => table.table);
+			return {
+				id: category.category_id,
+				name: category.category_name,
+				expanded: category.category_id === 'all-tables-kitten' ? true : false,
+				tableIds,
+				iconColor: category.category_color,
+			};
+		});
+
+		const expandedFolders = this.uiSettings?.tableFoldersExpanded || ['0'];
+		if (expandedFolders && expandedFolders.length > 0) {
+			this.folders.forEach((folder) => {
+				folder.expanded = expandedFolders.includes(folder.id);
+			});
+		}
+
+		// If no custom folders exist, always keep "All tables" expanded
+		if (!this.hasCustomFolders()) {
+			const allTablesFolder = this.folders.find((folder) => folder.id === 'all-tables-kitten');
+			if (allTablesFolder) {
+				allTablesFolder.expanded = true;
+			}
+		}
+
+		console.log('ngOnInit - showCollapsedTableList initialized to:', this.showCollapsedTableList);
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		if (changes.collapsed) {
+			if (changes.collapsed.currentValue === true) {
+				// Sidebar is being collapsed - preserve current state
+				this.preserveFolderStates();
+			} else if (changes.collapsed.currentValue === false) {
+				// Sidebar is being expanded - restore preserved state
+				this.restoreFolderStates();
+			}
+		}
+	}
+
+	searchSubstring() {
+		if (!this.substringToSearch || this.substringToSearch.trim() === '') {
+			this.foundTables = this.allTables;
+			// Restore folder expanded states from before the search
+			if (this.preSearchFolderStates) {
+				this.folders.forEach((folder) => {
+					if (Object.hasOwn(this.preSearchFolderStates, folder.id)) {
+						folder.expanded = this.preSearchFolderStates[folder.id];
+					}
+				});
+				this.preSearchFolderStates = null;
+			}
+			return;
+		}
+
+		// Save folder states before the first search modification
+		if (!this.preSearchFolderStates) {
+			this.preSearchFolderStates = {};
+			this.folders.forEach((folder) => {
+				this.preSearchFolderStates[folder.id] = folder.expanded;
+			});
+		}
+
+		const searchTerm = this.substringToSearch.toLowerCase();
+
+		// Filter all tables by search term
+		this.foundTables = this.allTables.filter(
+			(tableItem) =>
+				tableItem.table.toLowerCase().includes(searchTerm) ||
+				tableItem.display_name?.toLowerCase().includes(searchTerm) ||
+				tableItem.normalizedTableName?.toLowerCase().includes(searchTerm),
+		);
+
+		// Expand all folders that contain matching tables
+		this.folders.forEach((folder) => {
+			const folderTables = this.getFolderTables(folder);
+			const hasMatchingTables = folderTables.some((table) =>
+				this.foundTables.some((foundTable) => foundTable.table === table.table),
+			);
+
+			if (hasMatchingTables) {
+				folder.expanded = true;
+			} else {
+				folder.expanded = false;
+			}
+		});
+	}
+
+	getTableName(table: TableProperties) {
+		return table.display_name || table.normalizedTableName || table.table;
+	}
+
+	getTableNameLength(tableName: string) {
+		return tableName.length;
+	}
+
+	closeSidebar() {
+		this._tableState.clearSelection();
+		this._tableState.closeAIpanel();
+	}
+
+	onAddFolder() {
+		const newFolder: Folder = {
+			id: this.generateFolderId(),
+			name: `Folder ${this.folders.length}`,
+			expanded: true, // Разворачиваем папку сразу после создания
+			tableIds: [],
+			isEmpty: true, // Mark as empty for special styling
+		};
+		this.folders.push(newFolder);
+		console.log('onAddFolder');
+		this.saveFolders();
+	}
+
+	toggleFolder(folderId: string) {
+		const folder = this.folders.find((f) => f.id === folderId);
+		if (folder) {
+			// Prevent collapsing "All tables" when no custom folders exist
+			if (folder.id === 'all-tables-kitten' && folder.expanded && !this.hasCustomFolders()) {
+				return;
+			}
+			folder.expanded = !folder.expanded;
+			const expandedFolders = this.folders.filter((f) => f.expanded).map((f) => f.id);
+			this._uiSettingsService.updateConnectionSetting(this.connectionID, 'tableFoldersExpanded', expandedFolders);
+		}
+	}
+
+	onCollapsedFolderClick(folder: Folder) {
+		console.log('Clicked on folder:', folder.name);
+
+		// If clicking on the same folder that's already open, close it
+		if (this.currentCollapsedFolder?.id === folder.id) {
+			this.showCollapsedTableList = false;
+			this.currentCollapsedFolder = null;
+		} else {
+			// If clicking on a different folder, open it immediately
+			this.showCollapsedTableList = true;
+			this.currentCollapsedFolder = folder;
+		}
+	}
+
+	getCollapsedTableList(): TableProperties[] {
+		if (!this.currentCollapsedFolder) {
+			console.log('No current collapsed folder');
+			return [];
+		}
+
+		const tables = this.getFolderTables(this.currentCollapsedFolder);
+		console.log('getCollapsedTableList - tables:', tables);
+		return tables;
+	}
+
+	navigateToTable(_table: TableProperties) {
+		// This method is called when clicking on a table in collapsed mode
+		// The actual navigation is handled by routerLink in the template
+		// We just need to close the sidebar after navigation
+		this.closeSidebar();
+	}
+
+	toggleCollapsedSearch() {
+		// Open the sidebar and activate search
+		this.expandSidebar.emit();
+		// Focus on search input after sidebar expands
+		setTimeout(() => {
+			const input = document.querySelector('.search-input input') as HTMLInputElement;
+			if (input) {
+				input.focus();
+				input.select();
+			}
+		}, 300); // Wait for sidebar animation to complete
+	}
+
+	deleteFolder(folder: Folder) {
+		const dialogData: DbFolderDeleteDialogData = {
+			folderName: folder.name,
+			tableCount: folder.tableIds.length,
+		};
+
+		const dialogRef = this.dialog.open(DbFolderDeleteDialogComponent, {
+			width: '24em',
+			data: dialogData,
+			panelClass: 'db-folder-delete-dialog',
+		});
+
+		dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+			if (confirmed) {
+				const index = this.folders.findIndex((f) => f.id === folder.id);
+				if (index > -1) {
+					this.folders.splice(index, 1);
+					this.saveFolders();
+				}
+			}
+		});
+	}
+
+	getFolderTables(folder: Folder): TableProperties[] {
+		// Preserve folder.tableIds order by mapping through tableIds
+		const allTablesMap = new Map(this.allTables.map((t) => [t.table, t]));
+		const folderTables = folder.tableIds
+			.map((tableId) => allTablesMap.get(tableId))
+			.filter((table): table is TableProperties => !!table);
+
+		// If there's a search term, filter the collection tables too
+		if (this.substringToSearch && this.substringToSearch.trim() !== '') {
+			const searchTerm = this.substringToSearch.toLowerCase();
+			return folderTables.filter(
+				(table) =>
+					table.table.toLowerCase().includes(searchTerm) ||
+					table.display_name?.toLowerCase().includes(searchTerm) ||
+					table.normalizedTableName?.toLowerCase().includes(searchTerm),
+			);
+		}
+
+		return folderTables;
+	}
+
+	getAvailableTables(folder: Folder | null): TableProperties[] {
+		if (!folder) return [];
+		return this.allTables.filter((table) => !folder.tableIds.includes(table.table));
+	}
+
+	isTableInAnyFolder(table: TableProperties): boolean {
+		return this.folders.some((folder) => folder.tableIds.includes(table.table));
+	}
+
+	shouldShowFolder(folder: Folder): boolean {
+		// If no search term, show all folders
+		if (!this.substringToSearch || this.substringToSearch.trim() === '') {
+			return true;
+		}
+
+		// Show collection if it has tables matching the search
+		const matchingTables = this.getFolderTables(folder);
+		return matchingTables.length > 0;
+	}
+
+	showEditTablesDialog(folder: Folder) {
+		// Expand the folder if it's collapsed
+		folder.expanded = true;
+
+		const dialogData: DbFolderEditDialogData = {
+			folder: folder,
+			tables: this.allTables,
+			folderIconColors: this.folderIconColors,
+		};
+
+		const dialogRef = this.dialog.open(DbFolderEditDialogComponent, {
+			width: '32em',
+			data: dialogData,
+			panelClass: 'db-folder-edit-dialog',
+		});
+
+		dialogRef.afterClosed().subscribe((result: Folder | undefined) => {
+			if (result) {
+				// Update the folder with the result from dialog
+				const index = this.folders.findIndex((f) => f.id === result.id);
+				if (index !== -1) {
+					this.folders[index] = result;
+					this.saveFolders();
+				}
+			}
+		});
+	}
+
+	get allTables(): TableProperties[] {
+		return this.tableFolders?.find((folder: any) => folder.category_id === 'all-tables-kitten')?.tables || [];
+	}
+
+	isTableInFolder(table: TableProperties): boolean {
+		return this.currentFolder ? this.currentFolder.tableIds.includes(table.table) : false;
+	}
+
+	isTableInCurrentDraggedFolder(table: TableProperties, folder: Folder): boolean {
+		return this.draggedTable && this.draggedTable.table === table.table && folder.tableIds.includes(table.table);
+	}
+
+	toggleTableInFolder(table: TableProperties) {
+		if (!this.currentFolder) return;
+
+		const tableId = table.table;
+		const isInFolder = this.currentFolder.tableIds.includes(tableId);
+
+		if (isInFolder) {
+			// Remove from folder
+			this.currentFolder.tableIds = this.currentFolder.tableIds.filter((id) => id !== tableId);
+		} else {
+			// Add to folder
+			this.currentFolder.tableIds.push(tableId);
+			// Remove empty flag when adding tables
+			if (this.currentFolder.isEmpty) {
+				this.currentFolder.isEmpty = false;
+			}
+		}
+
+		console.log('toggleTableInFolder');
+		this.saveFolders();
+	}
+
+	removeTableFromFolder(folder: Folder, table: TableProperties, event: Event) {
+		event.stopPropagation();
+		folder.tableIds = folder.tableIds.filter((id) => id !== table.table);
+		console.log('removeTableFromFolder');
+		this.saveFolders();
+	}
+
+	trackByFolderId(_index: number, folder: Folder): string {
+		return folder.id;
+	}
+
+	hasCustomFolders(): boolean {
+		// Check if there are folders other than "All tables"
+		return this.folders.some((folder) => folder.id !== 'all-tables-kitten');
+	}
+
+	private preserveFolderStates() {
+		// Save expanded states of all folders
+		this.folders.forEach((folder) => {
+			this.preservedFolderStates[folder.id] = folder.expanded;
+		});
+
+		// If no custom folders exist, ensure "All tables" is always expanded
+		if (!this.hasCustomFolders()) {
+			const allTablesFolder = this.folders.find((folder) => folder.id === 'all-tables-kitten');
+			if (allTablesFolder) {
+				this.preservedFolderStates[allTablesFolder.id] = true;
+				this.preservedActiveFolder = allTablesFolder.id;
+			}
+		} else {
+			// Find and save the currently active folder (the one that contains selected table)
+			const activeFolder = this.findActiveFolder();
+			this.preservedActiveFolder = activeFolder ? activeFolder.id : null;
+		}
+	}
+
+	private restoreFolderStates() {
+		// If no custom folders exist, always expand "All tables"
+		if (!this.hasCustomFolders()) {
+			const allTablesFolder = this.folders.find((folder) => folder.id === 'all-tables-kitten');
+			if (allTablesFolder) {
+				allTablesFolder.expanded = true;
+				this.currentCollapsedFolder = allTablesFolder;
+				this.showCollapsedTableList = true;
+				return;
+			}
+		}
+
+		// Restore expanded states of all folders
+		this.folders.forEach((folder) => {
+			if (Object.hasOwn(this.preservedFolderStates, folder.id)) {
+				folder.expanded = this.preservedFolderStates[folder.id];
+			}
+		});
+
+		// In collapsed view, show the table list if any folder was expanded
+		const hasExpandedFolders = Object.values(this.preservedFolderStates).some((expanded) => expanded);
+		if (hasExpandedFolders) {
+			// If there was an active folder, use it; otherwise use the first expanded folder
+			let targetFolder = null;
+
+			if (this.preservedActiveFolder) {
+				targetFolder = this.folders.find((f) => f.id === this.preservedActiveFolder);
+			}
+
+			if (!targetFolder) {
+				// Find the first expanded folder
+				targetFolder = this.folders.find((f) => this.preservedFolderStates[f.id]);
+			}
+
+			if (targetFolder) {
+				this.currentCollapsedFolder = targetFolder;
+				this.showCollapsedTableList = true;
+			}
+		}
+	}
+
+	private findActiveFolder(): Folder | null {
+		if (!this.selectedTable) return null;
+
+		return this.folders.find((folder) => folder.tableIds.includes(this.selectedTable)) || null;
+	}
+
+	private generateFolderId(): string {
+		return Date.now().toString();
+	}
+
+	private getDropIndex(event: DragEvent, folder: Folder): number {
+		const folderEl = event.currentTarget as HTMLElement;
+		const tableItems = folderEl.querySelectorAll('.selected-table-item');
+		const y = event.clientY;
+
+		for (let i = 0; i < tableItems.length; i++) {
+			const rect = tableItems[i].getBoundingClientRect();
+			const midY = rect.top + rect.height / 2;
+			if (y < midY) {
+				return i;
+			}
+		}
+		return folder.tableIds.length;
+	}
+
+	private saveFolders() {
+		try {
+			this.tableCategories = this.folders.map((folder) => ({
+				category_id: folder.id,
+				category_name: folder.name,
+				category_color: folder.iconColor,
+				tables: folder.tableIds,
+			}));
+			this._tablesService.updateTablesFolders(this.connectionID, this.tableCategories).subscribe({
+				next: () => {
+					console.log('Connection settings updated with folders.');
+				},
+				error: (error) => {
+					console.error('Error updating connection settings with folders:', error);
+				},
+			});
+		} catch (e) {
+			console.error('Error saving folders:', e);
+		}
+	}
+
+	// Table reordering within folders
+	isReorderingEnabled(folder: Folder): boolean {
+		return (
+			this.accessLevel === 'edit' &&
+			!this.collapsed &&
+			(!this.substringToSearch || this.substringToSearch.trim() === '')
+		);
+	}
+
+	onTableReorder(event: CdkDragDrop<TableProperties[]>, folder: Folder) {
+		if (event.previousIndex === event.currentIndex) {
+			return;
+		}
+		moveItemInArray(folder.tableIds, event.previousIndex, event.currentIndex);
+		this.saveFolders();
+	}
+
+	// Drag and drop methods
+	onTableDragStart(event: DragEvent, table: TableProperties) {
+		this.draggedTable = table;
+		if (event.dataTransfer) {
+			event.dataTransfer.effectAllowed = 'move';
+			event.dataTransfer.setData('text/plain', table.table);
+		}
+	}
+
+	onTableDragEnd(_event: DragEvent) {
+		this.draggedTable = null;
+		this.dragOverFolder = null;
+	}
+
+	onFolderDragOver(event: DragEvent, folderId: string) {
+		event.preventDefault();
+		if (event.dataTransfer) {
+			event.dataTransfer.dropEffect = 'move';
+		}
+		this.dragOverFolder = folderId;
+	}
+
+	onFolderDragLeave(event: DragEvent, _folderId: string) {
+		// Only clear if we're actually leaving the collection (not moving to a child element)
+		const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+		const x = event.clientX;
+		const y = event.clientY;
+
+		if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+			this.dragOverFolder = null;
+		}
+	}
+
+	onFolderDrop(event: DragEvent, folder: Folder) {
+		event.preventDefault();
+
+		if (this.draggedTable) {
+			// Check if table is already in this specific folder
+			if (folder.tableIds.includes(this.draggedTable.table)) {
+				// Table already exists in this folder, do nothing (no notification)
+				return;
+			} else {
+				// Determine insertion index based on drop position
+				const insertIndex = this.getDropIndex(event, folder);
+				folder.tableIds.splice(insertIndex, 0, this.draggedTable.table);
+				// Remove empty flag when adding tables via drag and drop
+				if (folder.isEmpty) {
+					folder.isEmpty = false;
+				}
+				this.saveFolders();
+			}
+		}
+
+		this.draggedTable = null;
+		this.dragOverFolder = null;
+	}
 }

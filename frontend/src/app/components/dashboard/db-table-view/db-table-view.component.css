@@ -163,8 +163,8 @@
 }
 
 .ai-insights-button {
-    order: 999;
-    margin-left: auto;
+	order: 999;
+	margin-left: auto;
 }
 
 @media (prefers-color-scheme: light) {

@@ -17,7 +17,6 @@ import { UiSettingsService } from 'src/app/services/ui-settings.service';
 	templateUrl: './own-connections.component.html',
 	styleUrl: './own-connections.component.css',
 })
-
 export class OwnConnectionsComponent implements OnInit, OnChanges {
 	protected posthog = posthog;
 	@Input() currentUser: User;
@@ -34,7 +33,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 
 	constructor(
 		private _uiSettings: UiSettingsService,
-		private _companyService: CompanyService
+		private _companyService: CompanyService,
 	) {}
 
 	ngOnInit() {

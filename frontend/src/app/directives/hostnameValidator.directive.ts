@@ -1,23 +1,22 @@
-import { Directive, Input } from "@angular/core";
-import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from "@angular/forms";
-import { hostnameValidation } from "../validators/hostname.validator";
-import { DBtype } from "../models/connection";
+import { Directive, Input } from '@angular/core';
+import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from '@angular/forms';
+import { DBtype } from '../models/connection';
+import { hostnameValidation } from '../validators/hostname.validator';
 
 @Directive({
-    selector: '[hostnameValidator][ngModel]',
-    providers: [
-        {
-          provide: NG_VALIDATORS,
-          useExisting: HostnameValidationDirective,
-          multi: true
-        }
-      ]
+	selector: '[hostnameValidator][ngModel]',
+	providers: [
+		{
+			provide: NG_VALIDATORS,
+			useExisting: HostnameValidationDirective,
+			multi: true,
+		},
+	],
 })
-
 export class HostnameValidationDirective implements Validator {
-    @Input() hostnameValidator: DBtype;
+	@Input() hostnameValidator: DBtype;
 
-    validate(control: AbstractControl): ValidationErrors | null {
-      return hostnameValidation(this.hostnameValidator)(control);
-    }
+	validate(control: AbstractControl): ValidationErrors | null {
+		return hostnameValidation(this.hostnameValidator)(control);
+	}
 }

@@ -1,5 +1,5 @@
 :host app-alert:not(:empty) {
-    --alert-margin: 24px;
+	--alert-margin: 24px;
 }
 
 .page {

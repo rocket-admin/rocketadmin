@@ -1,73 +1,73 @@
 :host app-alert:not(:empty) {
-    --alert-margin: 24px;
+	--alert-margin: 24px;
 }
 
 .wrapper {
-    min-width: 300px;
-    margin: 0 auto 16px;
-    width: 90%;
+	min-width: 300px;
+	margin: 0 auto 16px;
+	width: 90%;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    margin: 2.5em 70px 24px 0;
+	display: flex;
+	justify-content: space-between;
+	margin: 2.5em 70px 24px 0;
 }
 
 .header-actions-box {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 16px;
 }
 
 .header-actions {
-    display: flex;
-    gap: 16px;
+	display: flex;
+	gap: 16px;
 }
 
 .header-links {
-    display: flex;
-    gap: 16px;
+	display: flex;
+	gap: 16px;
 }
 
 .widget-settings {
-    display: grid;
-    grid-template-columns: minmax(10%, 130px) 1fr 2fr 1fr 2fr 50px;
-    align-items: start;
-    grid-gap: 0 20px;
+	display: grid;
+	grid-template-columns: minmax(10%, 130px) 1fr 2fr 1fr 2fr 50px;
+	align-items: start;
+	grid-gap: 0 20px;
 }
 
 .widget-item {
-    display: contents;
+	display: contents;
 }
 
 .actions {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--background-color);
-    box-shadow: var(--shadow);
-    height: 64px;
-    /* padding: 0 max(calc(50vw - 500px), 2%); */
-    padding: 0 calc(5% + 70px) 0 5%;
-    width: 100vw;
-    z-index: 10;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: var(--background-color);
+	box-shadow: var(--shadow);
+	height: 64px;
+	/* padding: 0 max(calc(50vw - 500px), 2%); */
+	padding: 0 calc(5% + 70px) 0 5%;
+	width: 100vw;
+	z-index: 10;
 }
 
 @media (prefers-color-scheme: dark) {
-    .actions {
-        --shadow: 0 3px 1px -2px rgba(0,0,0,.5),0 2px 2px 0 rgba(0,0,0,.64),0 1px 5px 0 rgba(0,0,0,0.85);
-        --background-color: var(--surface-dark-color);
-    }
+	.actions {
+		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.5), 0 2px 2px 0 rgba(0, 0, 0, 0.64), 0 1px 5px 0 rgba(0, 0, 0, 0.85);
+		--background-color: var(--surface-dark-color);
+	}
 }
 
 @media (prefers-color-scheme: light) {
-    .actions {
-        --shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
-        --background-color: #fff;
-    }
+	.actions {
+		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+		--background-color: #fff;
+	}
 }

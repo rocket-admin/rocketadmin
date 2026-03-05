@@ -1,37 +1,33 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { Angulartics2Module } from 'angulartics2';
 import { DbTablesListComponent } from './db-tables-list.component';
-import { provideHttpClient } from '@angular/common/http';
 
 describe('DbTablesListComponent', () => {
-  let component: DbTablesListComponent;
-  let fixture: ComponentFixture<DbTablesListComponent>;
+	let component: DbTablesListComponent;
+	let fixture: ComponentFixture<DbTablesListComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      providers: [provideHttpClient()],
-      imports: [
-        Angulartics2Module.forRoot(),
-        DbTablesListComponent
-      ]
-    }).compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			providers: [provideHttpClient()],
+			imports: [Angulartics2Module.forRoot(), DbTablesListComponent],
+		}).compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DbTablesListComponent);
-    component = fixture.componentInstance;
-    component.tableFolders = [
-      {
-        category_id: 'all-tables-kitten',
-        category_name: 'All Tables',
-        tables: [],
-      },
-    ];
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(DbTablesListComponent);
+		component = fixture.componentInstance;
+		component.tableFolders = [
+			{
+				category_id: 'all-tables-kitten',
+				category_name: 'All Tables',
+				tables: [],
+			},
+		];
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

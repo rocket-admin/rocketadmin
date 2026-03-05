@@ -1,40 +1,34 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog.component';
-import { Angulartics2Module } from 'angulartics2';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Angulartics2Module } from 'angulartics2';
+import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog.component';
 
 describe('RevokeInvitationDialogComponent', () => {
-  let component: RevokeInvitationDialogComponent;
-  let fixture: ComponentFixture<RevokeInvitationDialogComponent>;
+	let component: RevokeInvitationDialogComponent;
+	let fixture: ComponentFixture<RevokeInvitationDialogComponent>;
 
-  const _mockDialogRef = {
-    close: () => { }
-  };
+	const _mockDialogRef = {
+		close: () => {},
+	};
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [
-      MatSnackBarModule,
-      Angulartics2Module.forRoot(),
-      RevokeInvitationDialogComponent
-    ],
-    providers: [
-      provideHttpClient(),
-      { provide: MAT_DIALOG_DATA, useValue: { companyId: '', userEmail: '' } },
-      { provide: MatDialogRef, useValue: MatDialogRef }
-    ],
-})
-    .compileComponents();
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [MatSnackBarModule, Angulartics2Module.forRoot(), RevokeInvitationDialogComponent],
+			providers: [
+				provideHttpClient(),
+				{ provide: MAT_DIALOG_DATA, useValue: { companyId: '', userEmail: '' } },
+				{ provide: MatDialogRef, useValue: MatDialogRef },
+			],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(RevokeInvitationDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(RevokeInvitationDialogComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

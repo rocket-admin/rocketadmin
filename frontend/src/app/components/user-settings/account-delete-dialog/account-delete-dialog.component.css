@@ -1,20 +1,20 @@
 .radio-group {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .radio-group__message {
-    margin-bottom: 8px;
+	margin-bottom: 8px;
 }
 
 .radio-button {
-    margin: 8px 0;
+	margin: 8px 0;
 }
 
 .message {
-    width: 100%;
+	width: 100%;
 }
 
 .message textarea {
-    resize: none;
+	resize: none;
 }

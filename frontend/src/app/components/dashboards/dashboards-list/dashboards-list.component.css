@@ -277,19 +277,48 @@
 }
 
 /* Illustration — light theme */
-.illust-card-back { fill: #e2e8f0; stroke: #cbd5e1; stroke-width: 1.5; }
-.illust-card-mid { fill: #eef2f7; stroke: #cbd5e1; stroke-width: 1.5; }
-.illust-card-front { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; }
-.illust-detail { fill: #cbd5e1; }
-.illust-detail-accent { fill: #94a3b8; }
+.illust-card-back {
+	fill: #e2e8f0;
+	stroke: #cbd5e1;
+	stroke-width: 1.5;
+}
+.illust-card-mid {
+	fill: #eef2f7;
+	stroke: #cbd5e1;
+	stroke-width: 1.5;
+}
+.illust-card-front {
+	fill: #f8fafc;
+	stroke: #94a3b8;
+	stroke-width: 1.5;
+}
+.illust-detail {
+	fill: #cbd5e1;
+}
+.illust-detail-accent {
+	fill: #94a3b8;
+}
 
 /* Illustration — dark theme */
 @media (prefers-color-scheme: dark) {
-	.illust-card-back { fill: #0f1219; stroke: #1e293b; }
-	.illust-card-mid { fill: #141820; stroke: #1e293b; }
-	.illust-card-front { fill: #1a1f2e; stroke: #334155; }
-	.illust-detail { fill: #1e293b; }
-	.illust-detail-accent { fill: #334155; }
+	.illust-card-back {
+		fill: #0f1219;
+		stroke: #1e293b;
+	}
+	.illust-card-mid {
+		fill: #141820;
+		stroke: #1e293b;
+	}
+	.illust-card-front {
+		fill: #1a1f2e;
+		stroke: #334155;
+	}
+	.illust-detail {
+		fill: #1e293b;
+	}
+	.illust-detail-accent {
+		fill: #334155;
+	}
 }
 
 .no-dashboards h3 {

@@ -1,21 +1,21 @@
 .field-wrapper {
-  display: flex;
-  align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .value-wrapper {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 300px;
-  font-family: monospace;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 300px;
+	font-family: monospace;
 }
 
 .copy-button {
-  visibility: hidden;
-  margin-left: 4px;
+	visibility: hidden;
+	margin-left: 4px;
 }
 
 .field-wrapper:hover .copy-button {
-  visibility: visible;
+	visibility: visible;
 }

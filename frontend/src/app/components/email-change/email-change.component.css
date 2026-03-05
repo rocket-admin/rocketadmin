@@ -1,30 +1,30 @@
 :host app-alert:not(:empty) {
-    --alert-margin: 24px;
+	--alert-margin: 24px;
 
-    position: absolute;
-    top: var(--mat-toolbar-standard-height);
-    width: calc(100% - 48px);
+	position: absolute;
+	top: var(--mat-toolbar-standard-height);
+	width: calc(100% - 48px);
 }
 
 .wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    margin: 0 auto;
-    width: clamp(300px, 33vw, 600px);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 100%;
+	margin: 0 auto;
+	width: clamp(300px, 33vw, 600px);
 }
 
 .new-email-form {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .email-input {
-    margin-top: 8px;
-    width: 100%;
+	margin-top: 8px;
+	width: 100%;
 }
 
 .new-email-button {
-    align-self: flex-end;
+	align-self: flex-end;
 }

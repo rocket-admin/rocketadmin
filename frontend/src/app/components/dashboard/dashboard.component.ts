@@ -160,7 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		console.log('getData');
 
 		this._tables.fetchTablesFolders(this.connectionID).subscribe((res) => {
-			console.log('getTables folders')
+			console.log('getTables folders');
 			console.log(res);
 
 			const tables = res.find((item) => item.category_id === 'all-tables-kitten')?.tables || [];
@@ -220,7 +220,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	formatTableNames() {
 		// Format table names inside tableFolders so all components receive formatted tables
-		this.tableFolders = this.tableFolders.map(category => ({
+		this.tableFolders = this.tableFolders.map((category) => ({
 			...category,
 			tables: category.tables.map((tableItem: TableProperties) => this.formatTable(tableItem)),
 		}));

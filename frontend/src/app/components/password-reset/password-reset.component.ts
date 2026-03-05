@@ -1,58 +1,48 @@
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
-
-import { AlertComponent } from '../ui-components/alert/alert.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UserPasswordComponent } from '../ui-components/user-password/user-password.component';
-import { UserService } from 'src/app/services/user.service';
-import { map } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { map } from 'rxjs/operators';
+import { UserService } from 'src/app/services/user.service';
+import { AlertComponent } from '../ui-components/alert/alert.component';
+import { UserPasswordComponent } from '../ui-components/user-password/user-password.component';
 
 @Component({
-  selector: 'app-password-reset',
-  templateUrl: './password-reset.component.html',
-  styleUrls: ['./password-reset.component.css'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    AlertComponent,
-    UserPasswordComponent
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+	selector: 'app-password-reset',
+	templateUrl: './password-reset.component.html',
+	styleUrls: ['./password-reset.component.css'],
+	imports: [CommonModule, FormsModule, MatButtonModule, AlertComponent, UserPasswordComponent],
+	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class PasswordResetComponent implements OnInit {
+	public token: string;
+	public newPassword: string = '';
+	public submitting: boolean;
 
-  public token: string;
-  public newPassword: string = '';
-  public submitting: boolean;
+	constructor(
+		private router: Router,
+		private route: ActivatedRoute,
+		private _userService: UserService,
+	) {}
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private _userService: UserService
-  ) { }
+	ngOnInit(): void {
+		this.route.paramMap
+			.pipe(
+				map((params: ParamMap) => {
+					this.token = params.get('verification-token');
+				}),
+			)
+			.subscribe();
+	}
 
-  ngOnInit(): void {
-    this.route.paramMap
-    .pipe(
-      map((params: ParamMap) => {
-        this.token = params.get('verification-token');
-      })
-    ).subscribe();
-  }
+	updatePasswordField(updatedValue: string) {
+		this.newPassword = updatedValue;
+	}
 
-  updatePasswordField(updatedValue: string) {
-    this.newPassword = updatedValue;
-  }
-
-  updatePassword() {
-    this._userService.resetPassword(this.token, this.newPassword)
-      .subscribe(() => {
-        this.router.navigate(['/login'])
-      });
-  }
-
+	updatePassword() {
+		this._userService.resetPassword(this.token, this.newPassword).subscribe(() => {
+			this.router.navigate(['/login']);
+		});
+	}
 }

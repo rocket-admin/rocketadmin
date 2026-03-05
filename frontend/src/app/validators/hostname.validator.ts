@@ -1,29 +1,29 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
-
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import is_ip_private from 'private-ip';
 import isFQDN from 'validator/es/lib/isFQDN';
 import isIP from 'validator/es/lib/isIP';
-import is_ip_private from 'private-ip';
-import { DBtype } from "../models/connection";
+import { DBtype } from '../models/connection';
 
-export function hostnameValidation(dbType: DBtype):ValidatorFn {
-    return (control: AbstractControl) : ValidationErrors | null=> {
-        if (control.value) {
-            let hostname = (control.value as string);
+export function hostnameValidation(dbType: DBtype): ValidatorFn {
+	return (control: AbstractControl): ValidationErrors | null => {
+		if (control.value) {
+			let hostname = control.value as string;
 
-            if (dbType === 'dynamodb') {
-                if (!hostname.startsWith("https://")) {
-                    return { 'missingHttps': true };
-                }
+			if (dbType === 'dynamodb') {
+				if (!hostname.startsWith('https://')) {
+					return { missingHttps: true };
+				}
 
-                hostname = hostname.replace(/^https:\/\//, '');
-            }
+				hostname = hostname.replace(/^https:\/\//, '');
+			}
 
-            if (dbType === 'mongodb') {
-                hostname = hostname.replace(/^mongodb\+srv:\/\//, '');
-            }
+			if (dbType === 'mongodb') {
+				hostname = hostname.replace(/^mongodb\+srv:\/\//, '');
+			}
 
-            if (control.value === 'localhost' || isIP(control.value) && is_ip_private(control.value)) return { 'isLocalhost': true }
-            if (!(isIP(hostname) || isFQDN(hostname))) return { 'isInvalidHostname': true }
-        }
-    }
+			if (control.value === 'localhost' || (isIP(control.value) && is_ip_private(control.value)))
+				return { isLocalhost: true };
+			if (!(isIP(hostname) || isFQDN(hostname))) return { isInvalidHostname: true };
+		}
+	};
 }

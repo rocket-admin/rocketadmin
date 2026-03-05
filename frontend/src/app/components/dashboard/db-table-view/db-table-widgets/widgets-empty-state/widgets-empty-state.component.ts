@@ -9,12 +9,7 @@ import posthog from 'posthog-js';
 	selector: 'app-widgets-empty-state',
 	templateUrl: './widgets-empty-state.component.html',
 	styleUrls: ['./widgets-empty-state.component.css'],
-	imports: [
-		CommonModule,
-		MatButtonModule,
-		MatIconModule,
-		Angulartics2OnModule,
-	],
+	imports: [CommonModule, MatButtonModule, MatIconModule, Angulartics2OnModule],
 })
 export class WidgetsEmptyStateComponent implements OnInit, OnDestroy {
 	protected posthog = posthog;
@@ -48,15 +43,18 @@ export class WidgetsEmptyStateComponent implements OnInit, OnDestroy {
 		}
 
 		this._animationTimers.push(
-			setTimeout(() => {
-				this.animatedRows = [false, false, false, false];
+			setTimeout(
+				() => {
+					this.animatedRows = [false, false, false, false];
 
-				this._animationTimers.push(
-					setTimeout(() => {
-						this._runAnimationCycle();
-					}, 800),
-				);
-			}, 3 * 600 + 2200),
+					this._animationTimers.push(
+						setTimeout(() => {
+							this._runAnimationCycle();
+						}, 800),
+					);
+				},
+				3 * 600 + 2200,
+			),
 		);
 	}
 

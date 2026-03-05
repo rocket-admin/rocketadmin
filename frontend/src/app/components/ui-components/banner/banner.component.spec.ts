@@ -1,31 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { BannerComponent } from './banner.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BannerComponent } from './banner.component';
 
 describe('BannerComponent', () => {
-  let component: BannerComponent;
-  let fixture: ComponentFixture<BannerComponent>;
+	let component: BannerComponent;
+	let fixture: ComponentFixture<BannerComponent>;
 
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [MatSnackBarModule, BannerComponent],
+		}).compileComponents();
+	});
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [
-        MatSnackBarModule,
-        BannerComponent
-    ]
-})
-    .compileComponents();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(BannerComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BannerComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });
-

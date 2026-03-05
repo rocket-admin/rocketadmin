@@ -1,9 +1,9 @@
 export function codeSnippets(signingKey: string) {
-    return {
-        cs: {
-            langName: 'C#',
-            mode: 'csharp',
-            snippet: `using System;
+	return {
+		cs: {
+			langName: 'C#',
+			mode: 'csharp',
+			snippet: `using System;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
@@ -35,13 +35,13 @@ public class RocketAdminController : ControllerBase
         }
     }
 }
-`
-        },
+`,
+		},
 
-        java: {
-            langName: 'Java',
-            mode: 'java',
-            snippet: `import org.springframework.http.ResponseEntity;
+		java: {
+			langName: 'Java',
+			mode: 'java',
+			snippet: `import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -76,13 +76,13 @@ public class RocketAdminController {
         }
     }
 }
-`
-        },
+`,
+		},
 
-        php: {
-          langName: 'PHP',
-          mode: 'php',
-          snippet: String.raw`<?php
+		php: {
+			langName: 'PHP',
+			mode: 'php',
+			snippet: String.raw`<?php
 
 namespace App\Http\Controllers;
 
@@ -107,13 +107,13 @@ class RocketadminController extends Controller
             return response()->json(['error' => 'Signature invalid'], 400);
         }
     }
-}`
-        },
+}`,
+		},
 
-        go: {
-          langName: 'Go',
-          mode: 'go',
-          snippet: `package main
+		go: {
+			langName: 'Go',
+			mode: 'go',
+			snippet: `package main
 import (
     "crypto/hmac"
     "crypto/sha256"
@@ -147,13 +147,13 @@ func main() {
 
     http.ListenAndServe(":8080", nil)
 }
-`
-        },
+`,
+		},
 
-        python: {
-          langName: 'Python',
-          mode: 'python',
-          snippet: `from django.http import JsonResponse
+		python: {
+			langName: 'Python',
+			mode: 'python',
+			snippet: `from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import constant_time_compare
 import hashlib
@@ -176,13 +176,13 @@ def rocketadmin(request):
             return JsonResponse({}, status=200)
         else:
             return JsonResponse({'error': 'Signature invalid'}, status=400)
-`
-        },
+`,
+		},
 
-        node: {
-          langName: 'Node.js',
-          mode: 'javascript',
-          snippet: `const crypto = require("crypto");
+		node: {
+			langName: 'Node.js',
+			mode: 'javascript',
+			snippet: `const crypto = require("crypto");
 
 app.use(express.json());
 
@@ -205,7 +205,7 @@ router.post("/rocketadmin", (req, res) => {
     res.status(400).send("Signature invalid");
     }
 });
-`
-        }
-    }
+`,
+		},
+	};
 }
