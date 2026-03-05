@@ -201,11 +201,11 @@
 @media (prefers-color-scheme: dark) {
 	.code-snippet-box {
 		border-color: rgba(255, 255, 255, 0.12);
-		background-color: #202020;
+		background-color: var(--surface-dark-color);
 	}
 
 	.copy-button {
-		background-color: #202020;
+		background-color: var(--surface-dark-color);
 	}
 }
 
@@ -302,7 +302,7 @@
 @media (prefers-color-scheme: dark) {
 	.rule-example {
 		border-color: rgba(255, 255, 255, 0.12);
-		background-color: #202020;
+		background-color: var(--surface-dark-color);
 	}
 }
 

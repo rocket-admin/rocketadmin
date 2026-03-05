@@ -63,7 +63,7 @@
     }
 
     .testConnectionLink:hover {
-        background: #212121;
+        background: var(--surface-dark-color);
         border: 1px solid rgba(255, 255, 255, 0.75);
         box-shadow:
             0px 1px 3px 0px rgba(255, 255, 255, 0.1),

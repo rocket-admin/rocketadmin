@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>
-    Delete Folder
+    Delete folder
 </h1>
 
 <mat-dialog-content>
@@ -14,22 +14,17 @@
             The tables will not be deleted, only removed from this folder.
         </p>
     </div>
-
-    <div class="warning-note">
-        <p><strong>Note:</strong> This action cannot be undone.</p>
-    </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
     <button mat-button
-            (click)="onCancel()"
-            class="cancel-button">
+            (click)="onCancel()">
         Cancel
     </button>
     <button mat-flat-button
             color="warn"
             (click)="onDelete()"
             class="delete-button">
-        Delete Folder
+        Delete folder
     </button>
 </mat-dialog-actions>

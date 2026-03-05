@@ -23,7 +23,7 @@
 @media (prefers-color-scheme: dark) {
 	.row-preview-sidebar_open {
 		border-left: 1px solid var(--mat-sidenav-container-divider-color);
-		background-color: #202020;
+		background-color: var(--surface-dark-color);
 	}
 }
 

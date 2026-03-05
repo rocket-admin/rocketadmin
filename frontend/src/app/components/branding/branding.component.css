@@ -5,6 +5,7 @@
 
 .profile-main {
     flex: 1;
+    background-color: var(--mat-sidenav-content-background-color);
     overflow-y: auto;
 }
 
@@ -123,7 +124,7 @@
 
 @media (prefers-color-scheme: dark) {
     .white-label-settings__overlay {
-        background-color: rgba(0,0,0,0.64);
+        background-color: rgba(25,25,25,0.64);
     }
 }
 

@@ -97,7 +97,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 
   // Folder icon colors
   public folderIconColors = [
-    { name: 'Default', value: '#212121' },
+    { name: 'Default', value: 'rgba(0, 0, 0, 0.87)' },
     { name: 'Blue', value: '#2196F3' },
     { name: 'Green', value: '#4CAF50' },
     { name: 'Orange', value: '#FF9800' },
@@ -386,22 +386,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
         }
       }
     });
-  }
-
-
-  getFolderIconColor(folder: Folder, isActive?: boolean): string {
-    if (isActive) {
-      return '#212121'; // Black for active folders
-    }
-
-    // Check if we're in dark theme
-    if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
-      // In dark theme, use #212121 for folders without custom color
-      return folder.iconColor || '#212121';
-    }
-
-    // In light theme, use default color
-    return folder.iconColor || '#212121';
   }
 
 

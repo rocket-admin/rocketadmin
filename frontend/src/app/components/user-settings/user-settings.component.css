@@ -5,6 +5,7 @@
 
 .profile-main {
     flex: 1;
+    background-color: var(--mat-sidenav-content-background-color);
     overflow-y: auto;
 }
 
@@ -107,6 +108,10 @@
 @media (prefers-color-scheme: dark) {
     .api-key-list-item:hover {
         background: var(--color-primaryPalette-500);
+    }
+
+    ::ng-deep .user-settings__section-heading mat-icon[svgIcon] svg path {
+        fill: #ffffff;
     }
 }
 

@@ -18,6 +18,7 @@
     </ng-template>
 
     <mat-nav-list class="sidebar-nav">
+        <span *ngIf="!collapsed()" class="sidebar-group-label">General</span>
         <a mat-list-item
             routerLink="/user-settings"
             [class.active-link]="activeTab() === 'account'"
@@ -49,6 +50,9 @@
             <mat-icon matListItemIcon>payments</mat-icon>
             <span *ngIf="!collapsed()" matListItemTitle>Subscription</span>
         </a>
+
+        <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
+        <span *ngIf="!collapsed()" class="sidebar-group-label">Customization</span>
         <a mat-list-item
             routerLink="/branding"
             [class.active-link]="activeTab() === 'branding'"
@@ -59,6 +63,9 @@
             <mat-icon matListItemIcon>palette</mat-icon>
             <span *ngIf="!collapsed()" matListItemTitle>Branding</span>
         </a>
+
+        <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
+        <span *ngIf="!collapsed()" class="sidebar-group-label">Security</span>
         <a mat-list-item
             *ngIf="isSaas"
             routerLink="/saml"
@@ -71,16 +78,6 @@
             <span *ngIf="!collapsed()" matListItemTitle>SAML SSO</span>
         </a>
         <a mat-list-item
-            routerLink="/api-keys"
-            [class.active-link]="activeTab() === 'api'"
-            class="sidebar-nav-item"
-            [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'API Keys' : ''"
-            matTooltipPosition="right">
-            <mat-icon matListItemIcon>vpn_key</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>API Keys</span>
-        </a>
-        <a mat-list-item
             routerLink="/secrets"
             [class.active-link]="activeTab() === 'secrets'"
             class="sidebar-nav-item"
@@ -89,6 +86,19 @@
             matTooltipPosition="right">
             <mat-icon matListItemIcon>key</mat-icon>
             <span *ngIf="!collapsed()" matListItemTitle>Secrets</span>
+        </a>
+
+        <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
+        <span *ngIf="!collapsed()" class="sidebar-group-label">Developer</span>
+        <a mat-list-item
+            routerLink="/api-keys"
+            [class.active-link]="activeTab() === 'api'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'API Keys' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>vpn_key</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>API Keys</span>
         </a>
         <a mat-list-item
             *ngIf="isSaas"

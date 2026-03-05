@@ -94,6 +94,7 @@ dist/
 # Storybook build outputs
 .out
 .storybook-out
+storybook-static/
 
 # vuepress build output
 .vuepress/dist

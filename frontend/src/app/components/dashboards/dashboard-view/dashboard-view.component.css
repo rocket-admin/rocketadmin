@@ -5,6 +5,7 @@ app-dashboard-view .dashboard-view-page {
 	height: calc(100vh - 64px);
 	display: flex;
 	flex-direction: column;
+	background-color: var(--mat-sidenav-content-background-color);
 }
 
 app-dashboard-view .dashboard-header {
@@ -119,7 +120,7 @@ app-dashboard-view .dashboard-grid {
 
 @media (prefers-color-scheme: dark) {
 	app-dashboard-view .dashboard-grid {
-		background-color: rgba(255, 255, 255, 0.02);
+		background-color: var(--surface-dark-color);
 	}
 }
 
