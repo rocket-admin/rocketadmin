@@ -1,5 +1,5 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -23,6 +23,7 @@ import { AlertComponent } from '../../../ui-components/alert/alert.component';
 import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcrumbs.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
+import { WidgetsEmptyStateComponent } from './widgets-empty-state/widgets-empty-state.component';
 
 @Component({
 	selector: 'app-db-table-widgets',
@@ -41,10 +42,11 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 		PlaceholderTableWidgetsComponent,
 		BreadcrumbsComponent,
 		WidgetComponent,
+		WidgetsEmptyStateComponent,
 		Angulartics2OnModule,
 	],
 })
-export class DbTableWidgetsComponent implements OnInit, OnDestroy {
+export class DbTableWidgetsComponent implements OnInit {
 	protected posthog = posthog;
 	public connectionID: string | null = null;
 	public tableName: string | null = null;
@@ -56,7 +58,6 @@ export class DbTableWidgetsComponent implements OnInit, OnDestroy {
 	public submitting: boolean = false;
 	public widgetsWithSettings: string[];
 	public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
-	public animatedRows: boolean[] = [false, false, false, false];
 
 	public paramsEditorOptions = {
 		minimap: { enabled: false },
@@ -306,10 +307,6 @@ export class DbTableWidgetsComponent implements OnInit, OnDestroy {
 		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
 	}
 
-	ngOnDestroy(): void {
-		this._clearAnimationTimers();
-	}
-
 	get currentConnection() {
 		return this._connections.currentConnection;
 	}
@@ -403,9 +400,6 @@ export class DbTableWidgetsComponent implements OnInit, OnDestroy {
 				if (widget.widget_type === '') widget.widget_type = 'Default';
 			});
 			this.widgets = res;
-			if (this.widgets.length === 0) {
-				this._startWidgetAnimation();
-			}
 		});
 	}
 
@@ -432,37 +426,4 @@ export class DbTableWidgetsComponent implements OnInit, OnDestroy {
 		);
 	}
 
-	private _animationTimers: ReturnType<typeof setTimeout>[] = [];
-
-	private _startWidgetAnimation(): void {
-		this._clearAnimationTimers();
-		this._runAnimationCycle();
-	}
-
-	private _runAnimationCycle(): void {
-		for (let i = 0; i < 4; i++) {
-			this._animationTimers.push(
-				setTimeout(() => {
-					this.animatedRows[i] = true;
-				}, i * 600),
-			);
-		}
-
-		this._animationTimers.push(
-			setTimeout(() => {
-				this.animatedRows = [false, false, false, false];
-
-				this._animationTimers.push(
-					setTimeout(() => {
-						this._runAnimationCycle();
-					}, 800),
-				);
-			}, 3 * 600 + 2200),
-		);
-	}
-
-	private _clearAnimationTimers(): void {
-		this._animationTimers.forEach((t) => clearTimeout(t));
-		this._animationTimers = [];
-	}
 }
