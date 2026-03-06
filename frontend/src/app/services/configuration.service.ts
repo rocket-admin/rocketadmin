@@ -1,11 +1,11 @@
-import { Injectable, } from '@angular/core';
-import config from "../../config.json";
+import { Injectable } from '@angular/core';
+import config from '../../config.json';
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root',
 })
 export class ConfigurationService {
-    getConfig() {
-      return config;
-    }
+	getConfig() {
+		return config;
+	}
 }

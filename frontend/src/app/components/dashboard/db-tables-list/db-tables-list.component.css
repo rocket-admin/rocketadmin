@@ -87,7 +87,6 @@
 
 .collapsed-folder-item_active {
 	background-color: rgba(33, 33, 33, 0.1);
-	color: #212121;
 }
 
 .collapsed-folder-item_active:hover {
@@ -98,6 +97,13 @@
 	font-size: 20px;
 	height: 20px;
 	width: 20px;
+	color: rgba(0, 0, 0, 0.87);
+}
+
+@media (prefers-color-scheme: dark) {
+	.collapsed-folder-icon {
+		color: rgba(255, 255, 255, 0.54);
+	}
 }
 
 .collapsed-folder-icon.fallback {
@@ -191,24 +197,8 @@
 	transform: scale(1.02);
 }
 
-.collapsed-table-item:hover .collapsed-table-initials {
-	background-color: var(--color-primaryPalette-100);
-	transform: scale(1.02);
-}
-
 .collapsed-table-item_active {
 	background-color: rgba(33, 33, 33, 0.1);
-	color: #212121;
-}
-
-.collapsed-table-item_active .collapsed-table-initials {
-	background-color: #212121;
-	color: white;
-	transform: scale(1.05);
-}
-
-.collapsed-table-item_active:hover .collapsed-table-initials {
-	background-color: #000000;
 }
 
 /* Dark theme adaptations */
@@ -232,13 +222,8 @@
 	}
 
 	.collapsed-folder-item_active {
-		background-color: #212121 !important;
+		background-color: var(--surface-dark-color) !important;
 		color: #ffffff !important;
-	}
-
-	/* Более специфичный селектор для гарантии */
-	.collapsed-folder-item.collapsed-folder-item_active {
-		background-color: #212121 !important;
 	}
 
 	.collapsed-folder-item_active .collapsed-folder-icon {
@@ -253,7 +238,7 @@
 
 	/* Гарантируем фон для активной папки во всех состояниях */
 	.collapsed-folder-item_active:not(:hover):not(:focus):not(:active) {
-		background-color: #212121 !important;
+		background-color: var(--surface-dark-color) !important;
 	}
 
 	.collapsed-table-item {
@@ -265,55 +250,12 @@
 	}
 
 	.collapsed-table-item_active {
-		background-color: #212121;
+		background-color: var(--surface-dark-color);
 		color: #ffffff;
 	}
 
 	.collapsed-table-item_active:hover {
 		background-color: #000000;
-	}
-
-	.collapsed-table-icon-container {
-		background-color: #424242;
-	}
-
-	.collapsed-table-item:hover .collapsed-table-icon-container {
-		background-color: rgba(255, 255, 255, 0.1);
-	}
-
-	.collapsed-table-item_active .collapsed-table-icon-container {
-		background-color: #ffffff;
-		color: #000000;
-	}
-
-	.collapsed-table-item_active:hover .collapsed-table-icon-container {
-		background-color: #f5f5f5;
-	}
-
-	.collapsed-table-icon-container .collapsed-table-icon {
-		color: #e0e0e0;
-	}
-
-	.collapsed-table-item_active .collapsed-table-icon-container .collapsed-table-icon {
-		color: #000000;
-	}
-
-	.collapsed-table-initials {
-		background-color: #424242;
-		color: #e0e0e0;
-	}
-
-	.collapsed-table-item:hover .collapsed-table-initials {
-		background-color: rgba(255, 255, 255, 0.1);
-	}
-
-	.collapsed-table-item_active .collapsed-table-initials {
-		background-color: #ffffff;
-		color: #000000;
-	}
-
-	.collapsed-table-item_active:hover .collapsed-table-initials {
-		background-color: #f5f5f5;
 	}
 
 	.collapsed-search-button {
@@ -338,73 +280,11 @@
 	background-color: rgba(33, 33, 33, 0.25);
 }
 
-.collapsed-table-icon-container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	background-color: var(--color-primaryPalette-50);
-	border-radius: 6px;
-	transition: all 0.2s ease;
-}
-
-.collapsed-table-item:hover .collapsed-table-icon-container {
-	background-color: var(--color-primaryPalette-100);
-	transform: scale(1.02);
-}
-
-.collapsed-table-item_active .collapsed-table-icon-container {
-	background-color: #212121;
-	color: white;
-	transform: scale(1.05);
-}
-
-.collapsed-table-item_active:hover .collapsed-table-icon-container {
-	background-color: #000000;
-}
-
-.collapsed-table-icon-container .collapsed-table-icon {
-	font-size: 16px;
-	color: var(--color-primaryPalette-50-contrast);
-}
-
-.collapsed-table-item_active .collapsed-table-icon-container .collapsed-table-icon {
-	color: white;
-}
-
-.collapsed-table-initials {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 100%;
-	background-color: var(--color-primaryPalette-50);
-	color: var(--color-primaryPalette-50-contrast);
-	border-radius: 6px;
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.5px;
-	transition: all 0.2s ease;
-}
-
 .collapsed-table-icon {
 	font-size: 18px;
 	width: 18px;
 	height: 18px;
 	color: inherit;
-}
-
-.collapsed-table-initials {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 6px;
-	background-color: var(--color-primaryPalette-50);
-	color: var(--color-primaryPalette-50-contrast);
-	transition: all 0.2s ease;
 }
 
 .collapsed-table-text {
@@ -473,7 +353,7 @@
 	}
 
 	.folder-header.expanded {
-		background-color: #212121 !important;
+		background-color: var(--surface-dark-color) !important;
 		color: #ffffff !important;
 	}
 
@@ -738,10 +618,16 @@
 	font-size: 20px;
 	width: 20px;
 	height: 20px;
-	color: #666;
-	margin-right: 8px; /* Уменьшаем отступ до названия папки до 8px */
-	margin-left: 8px; /* Сдвигаем иконку вправо на 8px */
+	color: rgba(0, 0, 0, 0.87);
+	margin-right: 8px;
+	margin-left: 8px;
 	flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+	.folder-icon {
+		color: rgba(255, 255, 255, 0.54);
+	}
 }
 
 .folder-expand-icon {
@@ -1188,9 +1074,10 @@
 .cdk-drag-preview.selected-table-item {
 	box-sizing: border-box;
 	border-radius: 4px;
-	box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-				0 8px 10px 1px rgba(0, 0, 0, 0.14),
-				0 3px 14px 2px rgba(0, 0, 0, 0.12);
+	box-shadow:
+		0 5px 5px -3px rgba(0, 0, 0, 0.2),
+		0 8px 10px 1px rgba(0, 0, 0, 0.14),
+		0 3px 14px 2px rgba(0, 0, 0, 0.12);
 	background: #ffffff;
 	opacity: 0.9;
 }

@@ -309,7 +309,6 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		return this.allTables.filter((t) => !tablesInFolders.has(t.table));
 	}
 
-
 	loadRowsPage() {
 		this.tableRelatedRecords = null;
 		this.tableData.fetchRows({
@@ -692,7 +691,6 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	getFolderTables(folder: TableCategory): TableProperties[] {
 		return folder.tables || [];
 	}
-
 
 	onFilterSelected($event) {
 		console.log('table view fiers filterSelected:', $event);

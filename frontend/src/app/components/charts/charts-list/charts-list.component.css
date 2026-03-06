@@ -15,6 +15,7 @@
 .charts-main {
 	flex: 1;
 	overflow-y: auto;
+	background-color: var(--mat-sidenav-content-background-color);
 }
 
 .charts-page {

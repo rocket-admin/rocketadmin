@@ -1,11 +1,11 @@
 export enum PlanKey {
-    Free = 'free',
-    Tean = 'team',
-    Enterprise = 'enterprise',
+	Free = 'free',
+	Tean = 'team',
+	Enterprise = 'enterprise',
 }
 
 export interface PricePlan {
-    key: PlanKey,
-    name: string,
-    price: number,
+	key: PlanKey;
+	name: string;
+	price: number;
 }

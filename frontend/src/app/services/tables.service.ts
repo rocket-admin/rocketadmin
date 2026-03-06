@@ -80,7 +80,7 @@ export class TablesService {
 	}
 
 	fetchTablesFolders(connectionID: string, hidden?: boolean) {
-		console.log('fetchTablesFolders service')
+		console.log('fetchTablesFolders service');
 		return this._http
 			.get<any>(`/table-categories/v2/${connectionID}`, {
 				params: {

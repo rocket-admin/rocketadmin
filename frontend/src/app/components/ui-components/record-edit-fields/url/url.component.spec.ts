@@ -1,28 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { UrlEditComponent } from './url.component';
 import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UrlEditComponent } from './url.component';
 
 describe('UrlComponent', () => {
-  let component: UrlEditComponent;
-  let fixture: ComponentFixture<UrlEditComponent>;
+	let component: UrlEditComponent;
+	let fixture: ComponentFixture<UrlEditComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [
-        FormsModule,
-        UrlEditComponent,
-        BrowserAnimationsModule
-    ]
-  }).compileComponents();
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [FormsModule, UrlEditComponent, BrowserAnimationsModule],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(UrlEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(UrlEditComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

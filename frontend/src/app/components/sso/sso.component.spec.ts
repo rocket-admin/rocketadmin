@@ -52,10 +52,7 @@ describe('SsoComponent', () => {
 
 		await TestBed.configureTestingModule({
 			imports: [SsoComponent, RouterModule.forRoot([])],
-			providers: [
-				provideHttpClient(),
-				{ provide: CompanyService, useValue: companyServiceSpy },
-			],
+			providers: [provideHttpClient(), { provide: CompanyService, useValue: companyServiceSpy }],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(SsoComponent);

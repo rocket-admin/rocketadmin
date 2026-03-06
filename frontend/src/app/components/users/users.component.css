@@ -1,63 +1,63 @@
 .wrapper {
-    margin: 0 auto;
-    width: clamp(18.75em, 96%, 42em);
+	margin: 0 auto;
+	width: clamp(18.75em, 96%, 42em);
 }
 
 header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 2em 0 1em;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 2em 0 1em;
 }
 
 .mat-h1 {
-    margin: 0;
+	margin: 0;
 }
 
 .expansion-panel_admin {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
-.add-group-button .mat-icon{
-    font-size: 2em;
+.add-group-button .mat-icon {
+	font-size: 2em;
 }
 
 .mat-expansion-panel-header-title {
-    align-items: center;
+	align-items: center;
 }
 
 .title-edit-button {
-    display: none;
-    color: var(--mat-expansion-header-description-color);
-    margin-left: 12px;
+	display: none;
+	color: var(--mat-expansion-header-description-color);
+	margin-left: 12px;
 }
 
 .group-actions {
-    display: none;
-    flex-grow: 0 !important;
-    justify-content: flex-end;
-    align-items: center;
+	display: none;
+	flex-grow: 0 !important;
+	justify-content: flex-end;
+	align-items: center;
 }
 
 .group-item:hover .title-edit-button,
 .mat-expanded .title-edit-button {
-    display: block;
+	display: block;
 }
 
 .group-item:hover .group-actions,
 .mat-expanded .group-actions {
-    display: flex;
+	display: flex;
 }
 
 .user {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    padding-right: 1.5em;
-    width: calc(100% + 1em);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	box-sizing: border-box;
+	padding-right: 1.5em;
+	width: calc(100% + 1em);
 }
 
 .no-access {
-    margin-top: 32px !important;
+	margin-top: 32px !important;
 }

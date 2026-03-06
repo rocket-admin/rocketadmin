@@ -28,7 +28,7 @@ export class UiSettingsService {
 		return this._isDarkMode;
 	}
 
-updateGlobalSetting(key: string, value: any) {
+	updateGlobalSetting(key: string, value: any) {
 		this.settings.globalSettings[key] = value;
 		this.syncUiSettings().subscribe();
 	}
@@ -42,9 +42,9 @@ updateGlobalSetting(key: string, value: any) {
 	}
 
 	updateTableSetting(connectionId: string, tableName: string, key: string, value: any) {
-		console.log('updateTableSetting')
+		console.log('updateTableSetting');
 		if (!this.settings.connections[connectionId]) {
-		this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
+			this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
 		}
 		// if (!this.settings.connections[connectionId].tables[tableName]) {
 		//   this.settings.connections[connectionId].tables[tableName] = { shownColumns: [] };

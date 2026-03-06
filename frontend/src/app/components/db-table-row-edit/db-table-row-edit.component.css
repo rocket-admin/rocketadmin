@@ -1,5 +1,5 @@
 :host app-alert:not(:empty) {
-    --alert-margin: 24px;
+	--alert-margin: 24px;
 }
 
 .page {
@@ -170,7 +170,7 @@
 	display: flex;
 	align-items: center;
 	/* justify-content: space-between; */
-	background-color: var(--mat-sidenav-content-background-color);
+	background-color: var(--background-color);
 	box-shadow: var(--shadow);
 	height: 64px;
 	padding: 0 max(calc(50vw - 260px), 2%);
@@ -195,12 +195,14 @@
 @media (prefers-color-scheme: dark) {
 	.actions {
 		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.5), 0 2px 2px 0 rgba(0, 0, 0, 0.64), 0 1px 5px 0 rgba(0, 0, 0, 0.85);
+		--background-color: var(--surface-dark-color);
 	}
 }
 
 @media (prefers-color-scheme: light) {
 	.actions {
 		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+		--background-color: #fff;
 	}
 }
 

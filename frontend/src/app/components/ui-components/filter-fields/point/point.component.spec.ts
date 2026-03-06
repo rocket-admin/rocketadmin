@@ -1,25 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { PointFilterComponent } from './point.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { PointFilterComponent } from './point.component';
 
 describe('PointFilterComponent', () => {
-  let component: PointFilterComponent;
-  let fixture: ComponentFixture<PointFilterComponent>;
+	let component: PointFilterComponent;
+	let fixture: ComponentFixture<PointFilterComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [PointFilterComponent, BrowserAnimationsModule]
-    }).compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [PointFilterComponent, BrowserAnimationsModule],
+		}).compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(PointFilterComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(PointFilterComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

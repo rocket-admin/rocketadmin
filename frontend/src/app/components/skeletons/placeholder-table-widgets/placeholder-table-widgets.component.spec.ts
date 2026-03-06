@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlaceholderTableWidgetsComponent } from './placeholder-table-widgets.component';
 
 describe('PlaceholderTableWidgetsComponent', () => {
-  let component: PlaceholderTableWidgetsComponent;
-  let fixture: ComponentFixture<PlaceholderTableWidgetsComponent>;
+	let component: PlaceholderTableWidgetsComponent;
+	let fixture: ComponentFixture<PlaceholderTableWidgetsComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    imports: [PlaceholderTableWidgetsComponent]
-})
-    .compileComponents();
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [PlaceholderTableWidgetsComponent],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(PlaceholderTableWidgetsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(PlaceholderTableWidgetsComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

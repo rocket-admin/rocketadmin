@@ -1,15 +1,15 @@
 .phone-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .country-flag {
-  font-size: 16px;
-  cursor: help;
-  user-select: none;
+	font-size: 16px;
+	cursor: help;
+	user-select: none;
 }
 
 .phone-link {
-  color: var(--primary-color);
+	color: var(--primary-color);
 }

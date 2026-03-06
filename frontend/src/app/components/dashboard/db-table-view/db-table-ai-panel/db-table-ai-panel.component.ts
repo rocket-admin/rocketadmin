@@ -109,8 +109,14 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 
 	async ngAfterViewInit() {
 		const mermaid = await import('mermaid');
+		const mermaidAPI: any = mermaid.default ?? mermaid;
+		const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		mermaidAPI.initialize({
+			startOnLoad: false,
+			theme: isDark ? 'dark' : 'default',
+		});
 		//@ts-expect-error dynamic load of mermaid
-		window.mermaid = mermaid.default ?? mermaid;
+		window.mermaid = mermaidAPI;
 	}
 
 	ngOnDestroy() {

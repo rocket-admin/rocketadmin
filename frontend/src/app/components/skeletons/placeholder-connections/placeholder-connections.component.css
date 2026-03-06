@@ -1,36 +1,36 @@
 .connections {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 20px;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .connections {
-        flex-direction: column;
-    }
+	.connections {
+		flex-direction: column;
+	}
 }
 
 .connectionCard {
-    flex: 0 0 calc((100% - 40px)/3);
-    border-radius: 4px;
-    height: 148px;
-    width: 100%;
+	flex: 0 0 calc((100% - 40px) / 3);
+	border-radius: 4px;
+	height: 148px;
+	width: 100%;
 }
 
 @media (width <= 600px) {
-    .connectionCard {
-        flex: initial;
-    }
+	.connectionCard {
+		flex: initial;
+	}
 }
 
 .connectionAddButton {
-    align-self: flex-end;
-    border-radius: 24px;
-    height: 48px;
-    margin-top: 36px;
-    margin-bottom: 32px;
-    margin-left: auto;
-    width: 178px;
+	align-self: flex-end;
+	border-radius: 24px;
+	height: 48px;
+	margin-top: 36px;
+	margin-bottom: 32px;
+	margin-left: auto;
+	width: 178px;
 }

@@ -1,20 +1,20 @@
 .mat-mdc-dialog-content {
-    margin-bottom: -20px;
+	margin-bottom: -20px;
 }
 
 .radio-group {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .radio-button {
-    margin: 8px 0;
+	margin: 8px 0;
 }
 
 .message {
-    width: 100%;
+	width: 100%;
 }
 
 .message textarea {
-    resize: none;
+	resize: none;
 }

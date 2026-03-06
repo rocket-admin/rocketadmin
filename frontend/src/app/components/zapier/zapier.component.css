@@ -1,28 +1,29 @@
 .profile-layout {
-    display: flex;
-    height: calc(100vh - 64px);
+	display: flex;
+	height: calc(100vh - 64px);
 }
 
 .profile-main {
-    flex: 1;
-    overflow-y: auto;
+	flex: 1;
+	background-color: var(--mat-sidenav-content-background-color);
+	overflow-y: auto;
 }
 
 ::ng-deep .profile-main > app-alert {
-    position: relative;
-    top: 0;
-    margin: 24px;
+	position: relative;
+	top: 0;
+	margin: 24px;
 }
 
 .zapier-page {
-    display: flex;
-    flex-direction: column;
-    margin: var(--top-margin) auto;
-    padding: 0 clamp(40px, 5vw, 100px);
-    max-width: 1200px;
+	display: flex;
+	flex-direction: column;
+	margin: var(--top-margin) auto;
+	padding: 0 clamp(40px, 5vw, 100px);
+	max-width: 1200px;
 }
 
 .zapier-docs-button {
-    align-self: flex-end;
-    margin-bottom: -36px;
+	align-self: flex-end;
+	margin-bottom: -36px;
 }

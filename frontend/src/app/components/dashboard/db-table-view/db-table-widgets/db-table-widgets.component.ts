@@ -21,14 +21,9 @@ import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { PlaceholderTableWidgetsComponent } from '../../../skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
 import { AlertComponent } from '../../../ui-components/alert/alert.component';
 import { BreadcrumbsComponent } from '../../../ui-components/breadcrumbs/breadcrumbs.component';
-import { CodeEditComponent } from '../../../ui-components/record-edit-fields/code/code.component';
-import { ImageEditComponent } from '../../../ui-components/record-edit-fields/image/image.component';
-import { LongTextEditComponent } from '../../../ui-components/record-edit-fields/long-text/long-text.component';
-import { PasswordEditComponent } from '../../../ui-components/record-edit-fields/password/password.component';
-import { SelectEditComponent } from '../../../ui-components/record-edit-fields/select/select.component';
-import { TextEditComponent } from '../../../ui-components/record-edit-fields/text/text.component';
 import { WidgetComponent } from './widget/widget.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
+import { WidgetsEmptyStateComponent } from './widgets-empty-state/widgets-empty-state.component';
 
 @Component({
 	selector: 'app-db-table-widgets',
@@ -46,13 +41,8 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 		AlertComponent,
 		PlaceholderTableWidgetsComponent,
 		BreadcrumbsComponent,
-		PasswordEditComponent,
-		ImageEditComponent,
-		CodeEditComponent,
 		WidgetComponent,
-		TextEditComponent,
-		LongTextEditComponent,
-		SelectEditComponent,
+		WidgetsEmptyStateComponent,
 		Angulartics2OnModule,
 	],
 })
@@ -68,6 +58,7 @@ export class DbTableWidgetsComponent implements OnInit {
 	public submitting: boolean = false;
 	public widgetsWithSettings: string[];
 	public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
+
 	public paramsEditorOptions = {
 		minimap: { enabled: false },
 		lineNumbersMinChars: 3,
@@ -76,10 +67,6 @@ export class DbTableWidgetsComponent implements OnInit {
 		scrollBeyondLastLine: false,
 		wordWrap: 'on',
 	};
-	public widgetCodeEample = `<h1 class="post-title">Why UI Customization Matters in Admin Panels</h1>
-<p class="post-paragraph">
-  A well-designed <strong>admin panel</strong> isn’t just about managing data — it’s about making that data easier to understand and interact with. By customizing how each field is displayed, you can turn raw database values into meaningful, user-friendly interfaces that save time and reduce errors.
-</p>`;
 	// JSON5-formatted default params
 	public defaultParams = {
 		Boolean: `// Display "Yes/No" buttons with configurable options:
