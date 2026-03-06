@@ -421,7 +421,7 @@ ${currentQuery}
 
 ${feedbackSection}
 
-Respond with SQL only. Preserve column aliases. Valid ${connectionType} syntax.`;
+CRITICAL: Respond with the SQL query ONLY — no explanations, no comments, no markdown, no text before or after the query. Just the raw SQL statement. Preserve column aliases. Valid ${connectionType} syntax.`;
 	}
 
 	private cleanQueryResponse(aiResponse: string): string {
@@ -437,8 +437,34 @@ Respond with SQL only. Preserve column aliases. Valid ${connectionType} syntax.`
 				if (parsed.query_text) {
 					return parsed.query_text;
 				}
-			} catch {
-				// Not valid JSON, return as-is
+			} catch {}
+		}
+
+		const sqlPrefixes = ['SELECT', 'WITH', 'SHOW', 'DESCRIBE', 'DESC', 'EXPLAIN'];
+		const upperCleaned = cleaned.toUpperCase();
+		const startsWithSql = sqlPrefixes.some((prefix) => upperCleaned.startsWith(prefix));
+
+		if (!startsWithSql) {
+			const sqlPattern = new RegExp(
+				`^(${sqlPrefixes.join('|')})\\b`,
+				'im',
+			);
+			const match = cleaned.match(sqlPattern);
+			if (match) {
+				const sqlStart = cleaned.indexOf(match[0]);
+				let sqlBody = cleaned.slice(sqlStart);
+
+				sqlBody = sqlBody.replace(/```\s*$/, '').trim();
+
+				const lastSemicolon = sqlBody.lastIndexOf(';');
+				if (lastSemicolon !== -1) {
+					const afterSemicolon = sqlBody.slice(lastSemicolon + 1).trim();
+					if (afterSemicolon.length > 0 && /[a-zA-Z]{3,}/.test(afterSemicolon)) {
+						sqlBody = sqlBody.slice(0, lastSemicolon + 1);
+					}
+				}
+
+				return sqlBody.trim();
 			}
 		}
 
