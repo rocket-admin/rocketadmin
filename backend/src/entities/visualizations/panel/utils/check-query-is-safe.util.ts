@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { slackPostMessage } from '../../../../helpers/index.js';
 
 const FORBIDDEN_SQL_KEYWORDS = [
 	'INSERT',
@@ -243,6 +244,7 @@ export function validateQuerySafety(query: string, connectionType: ConnectionTyp
 	const result = checker(query);
 
 	if (!result.isSafe) {
+		slackPostMessage(`Unsafe query: ${query}\nReason: ${result.reason}\nConnection Type: ${connectionType}`);
 		throw new BadRequestException(`Unsafe query: ${result.reason}. Only read-only queries are allowed.`);
 	}
 }
