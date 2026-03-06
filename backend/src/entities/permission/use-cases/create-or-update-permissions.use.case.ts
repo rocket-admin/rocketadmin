@@ -11,6 +11,8 @@ import {
 	TablePermissionDs,
 } from '../application/data-structures/create-permissions.ds.js';
 import { PermissionEntity } from '../permission.entity.js';
+import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
+import { Cacher } from '../../../helpers/cache/cacher.js';
 import { buildFinalTablesPermissions } from '../utils/build-final-tables-permissions.js';
 import { buildNewPermissionEntityConnection } from '../utils/build-new-permission-entity-connection.js';
 import { buildNewPermissionEntityGroup } from '../utils/build-new-permission-entity-group.js';
@@ -185,6 +187,13 @@ export class CreateOrUpdatePermissionsUseCase
 			deletedPermissions,
 			createdPermissions,
 		);
+
+		// Generate and save Cedar policy for this group
+		const cedarPolicy = generateCedarPolicyForGroup(groupId, connectionId, groupToUpdate.isMain, resultPermissions);
+		groupToUpdate.cedarPolicy = cedarPolicy;
+		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
+		Cacher.invalidateCedarPolicyCache(connectionId);
+
 		return resultPermissions;
 	}
 }
