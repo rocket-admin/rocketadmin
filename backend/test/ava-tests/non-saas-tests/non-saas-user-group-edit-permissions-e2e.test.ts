@@ -882,13 +882,15 @@ test.serial(`${currentTest} should return group with added user`, async (t) => {
 
 		const groupId = getGroupsRO[0].group.id;
 
-		const email = faker.internet.email();
+		const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app, undefined);
+		const email = thirdTestUser.email;
 		const addUserInGroupResponse = await request(app.getHttpServer())
 			.put('/group/user')
 			.set('Cookie', simpleUserToken)
 			.send({ groupId, email })
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
+		t.is(addUserInGroupResponse.status, 200);
 		const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text).group;
 
 		t.is(Object.hasOwn(addUserInGroupRO, 'title'), true);
@@ -1061,25 +1063,15 @@ test.serial(`${currentTest} should throw an exception when you try delete admin 
 			secondTableInfo,
 			users: { adminUserToken, simpleUserToken },
 		} = testData;
-		const getGroupsResponse = await request(app.getHttpServer())
-			.get(`/connection/groups/${connections.firstId}`)
-			.set('Cookie', simpleUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
 
-		t.is(getGroupsResponse.status, 200);
-		const getGroupsRO = JSON.parse(getGroupsResponse.text);
-
-		const adminGroupIndex = getGroupsRO.findIndex((group) => group.group.isMain);
-
-		const groupId = getGroupsRO[adminGroupIndex].group.id;
+		const groupId = groups.firstAdminGroupId;
 		const deleteGroupResponse = await request(app.getHttpServer())
 			.delete(`/group/${groupId}`)
 			.set('Cookie', simpleUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		const deleteGroupRO = JSON.parse(deleteGroupResponse.text);
-		t.is(deleteGroupRO.message, Messages.CANT_DELETE_ADMIN_GROUP);
+		t.is(deleteGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
 	} catch (e) {
 		console.error(e);
 		throw e;
@@ -1527,7 +1519,7 @@ test.serial(`${currentTest} should return all tables in connection`, async (t) =
 		const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
 		t.is(getTablesInConnectionRO.length > 0, true);
 		const tableIndex = getTablesInConnectionRO.findIndex(
-			(table: any) => table.tableName === testData.firstTableInfo.testTableName,
+			(table: any) => table.table === testData.firstTableInfo.testTableName,
 		);
 		t.is(getTablesInConnectionRO[tableIndex].table, testData.firstTableInfo.testTableName);
 		t.is(typeof getTablesInConnectionRO[tableIndex].permissions, 'object');
