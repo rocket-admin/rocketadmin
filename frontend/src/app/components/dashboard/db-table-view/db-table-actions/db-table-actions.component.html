@@ -46,16 +46,22 @@
 
         <div class="creation-flow" *ngIf="selectedRule && rules.length && !isCreationMode">
             <form (ngSubmit)="handleRuleSubmitting()" (input)="isSaved = false" class="creation-flow__form">
-                <mat-form-field appearance="outline" class="creation-flow__name">
-                    <mat-label>Name</mat-label>
-                    <input matInput [(ngModel)]="selectedRuleTitle" name="rule-title" required>
-                </mat-form-field>
+                <div class="creation-flow__name-row">
+                    <mat-form-field appearance="outline" class="creation-flow__name">
+                        <mat-label>Name</mat-label>
+                        <input matInput [(ngModel)]="selectedRuleTitle" name="rule-title" required>
+                    </mat-form-field>
+                    <button mat-button color="warn" type="button"
+                        (click)="handleRemoveRule()">
+                        Delete
+                    </button>
+                </div>
 
                 <!-- Triggers -->
                 <div class="creation-card">
                     <span class="creation-card__label">
                         <span class="step-label__badge step-label__badge--when">WHEN</span>
-                        trigger happens
+                        Trigger happens
                     </span>
 
                     <div class="trigger-pills">
@@ -110,12 +116,12 @@
                             <div class="affects-row__tabs">
                                 <button type="button" class="affects-tab"
                                     [class.affects-tab--active]="selectedRuleCustomEvent.type === 'single'"
-                                    (click)="$any(selectedRuleCustomEvent).type = 'single'">
+                                    (click)="setCustomEventType('single')">
                                     Single row
                                 </button>
                                 <button type="button" class="affects-tab"
                                     [class.affects-tab--active]="selectedRuleCustomEvent.type === 'multiple'"
-                                    (click)="$any(selectedRuleCustomEvent).type = 'multiple'">
+                                    (click)="setCustomEventType('multiple')">
                                     Multiple rows
                                 </button>
                             </div>
@@ -125,12 +131,14 @@
                 </div>
 
                 <!-- Action -->
-                <div class="creation-card">
+                <div class="creation-card" [class.creation-card--disabled]="!hasTriggersSelected">
                     <span class="creation-card__label">
                         <span class="step-label__badge step-label__badge--then">THEN</span>
-                        action
+                        Action
                     </span>
-
+                    @if (!hasTriggersSelected) {
+                        <span class="creation-card__hint">Add a trigger first</span>
+                    } @else {
                     <div class="action-methods">
                         <button type="button" class="action-method-pill"
                             [class.action-method-pill--active]="$any(selectedRule.table_actions[0]).method === 'URL'"
@@ -155,7 +163,7 @@
                                 <mat-label>Webhook URL</mat-label>
                                 <input matInput [(ngModel)]="selectedRule.table_actions[0].url" name="action-url" required>
                             </mat-form-field>
-                            <p class="action-fields__hint">Requests are signed with HMAC-SHA256. Use the code snippets below to verify.</p>
+                            <p class="action-fields__hint">Use the code snippets below to verify requests.</p>
 
                             <div class="code-snippet-box">
                                 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
@@ -201,13 +209,13 @@
                             </mat-form-field>
                         }
                     </div>
+                    }
                 </div>
 
-                <div class="creation-flow__actions">
-                    <button mat-stroked-button color="warn" type="button"
-                        (click)="handleRemoveRule()">
-                        Delete
-                    </button>
+                <div class="actions">
+                    <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                        Back
+                    </a>
 
                     <button mat-flat-button color="primary" type="submit"
                         [disabled]="submitting || !selectedRuleTitle || isSaved">
@@ -229,7 +237,7 @@
                 <div class="creation-card">
                     <span class="creation-card__label">
                         <span class="step-label__badge step-label__badge--when">WHEN</span>
-                        trigger happens
+                        Trigger happens
                     </span>
 
                     <div class="trigger-pills">
@@ -284,12 +292,12 @@
                             <div class="affects-row__tabs">
                                 <button type="button" class="affects-tab"
                                     [class.affects-tab--active]="selectedRuleCustomEvent.type === 'single'"
-                                    (click)="$any(selectedRuleCustomEvent).type = 'single'">
+                                    (click)="setCustomEventType('single')">
                                     Single row
                                 </button>
                                 <button type="button" class="affects-tab"
                                     [class.affects-tab--active]="selectedRuleCustomEvent.type === 'multiple'"
-                                    (click)="$any(selectedRuleCustomEvent).type = 'multiple'">
+                                    (click)="setCustomEventType('multiple')">
                                     Multiple rows
                                 </button>
                             </div>
@@ -302,7 +310,7 @@
                 <div class="creation-card" [class.creation-card--disabled]="!hasTriggersSelected">
                     <span class="creation-card__label">
                         <span class="step-label__badge step-label__badge--then">THEN</span>
-                        action
+                        Action
                     </span>
                     @if (!hasTriggersSelected) {
                         <span class="creation-card__hint">Add a trigger first</span>
@@ -331,7 +339,7 @@
                                     <mat-label>Webhook URL</mat-label>
                                     <input matInput [(ngModel)]="selectedRule.table_actions[0].url" name="action-url" required>
                                 </mat-form-field>
-                                <p class="action-fields__hint">Requests are signed with HMAC-SHA256. Use the code snippets below to verify.</p>
+    
 
                                 <div class="code-snippet-box">
                                     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
@@ -380,11 +388,11 @@
                     }
                 </div>
 
-                <div class="creation-flow__actions">
-                    <button mat-stroked-button color="warn" type="button"
-                        (click)="undoRule()">
-                        Discard
-                    </button>
+                <div class="actions">
+                    <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                        Back
+                    </a>
+
                     <button mat-flat-button color="primary" type="submit"
                         [disabled]="submitting || !selectedRuleTitle || !hasTriggersSelected || isSaved">
                         {{ isSaved ? 'Saved' : 'Save' }}

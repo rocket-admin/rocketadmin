@@ -17,6 +17,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import posthog from 'posthog-js';
@@ -63,6 +64,7 @@ import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delet
 		ContentLoaderComponent,
 		IconPickerComponent,
 		Angulartics2OnModule,
+		RouterModule,
 	],
 })
 export class DbTableActionsComponent implements OnInit {
@@ -250,6 +252,11 @@ export class DbTableActionsComponent implements OnInit {
 
 	updateIcon(icon: string) {
 		this.selectedRuleCustomEvent.icon = icon;
+	}
+
+	setCustomEventType(type: string) {
+		this.selectedRuleCustomEvent.type = type as CustomActionType;
+		this.isSaved = false;
 	}
 
 	switchRulesView(rule: Rule) {
