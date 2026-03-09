@@ -22,30 +22,30 @@ describe('NumberRecordViewComponent', () => {
 	});
 
 	it('should display em dash for null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		expect(component.displayValue).toBe('—');
 	});
 
 	it('should display number as string when no unit', () => {
-		component.value = 42;
+		fixture.componentRef.setInput('value', 42);
 		expect(component.displayValue).toBe('42');
 	});
 
 	it('should return false for isOutOfThreshold when no thresholds', () => {
-		component.value = '50';
-		component.widgetStructure = { widget_params: {} } as any;
+		fixture.componentRef.setInput('value', '50');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: {} } as any);
 		expect(component.isOutOfThreshold).toBe(false);
 	});
 
 	it('should return down when value below threshold_min', () => {
-		component.value = '5';
-		component.widgetStructure = { widget_params: { threshold_min: 10 } } as any;
+		fixture.componentRef.setInput('value', '5');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { threshold_min: 10 } } as any);
 		expect(component.isOutOfThreshold).toBe('down');
 	});
 
 	it('should return up when value above threshold_max', () => {
-		component.value = '150';
-		component.widgetStructure = { widget_params: { threshold_max: 100 } } as any;
+		fixture.componentRef.setInput('value', '150');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { threshold_max: 100 } } as any);
 		expect(component.isOutOfThreshold).toBe('up');
 	});
 });

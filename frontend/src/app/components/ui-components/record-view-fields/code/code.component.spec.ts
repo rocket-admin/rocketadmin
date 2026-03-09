@@ -25,12 +25,12 @@ describe('CodeRecordViewComponent', () => {
 	});
 
 	it('should set code model on init', () => {
-		component.value = 'console.log()';
-		component.widgetStructure = {
+		fixture.componentRef.setInput('value', 'console.log()');
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { language: 'javascript' },
 			field_name: 'code',
-		} as any;
-		component.key = 'test';
+		});
+		fixture.componentRef.setInput('key', 'test');
 		component.ngOnInit();
 		expect(component.codeModel).toEqual({
 			language: 'javascript',
@@ -40,12 +40,12 @@ describe('CodeRecordViewComponent', () => {
 	});
 
 	it('should use light theme when not dark mode', () => {
-		component.value = 'code';
-		component.widgetStructure = {
+		fixture.componentRef.setInput('value', 'code');
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { language: 'javascript' },
 			field_name: 'code',
-		} as any;
-		component.key = 'test';
+		});
+		fixture.componentRef.setInput('key', 'test');
 		component.ngOnInit();
 		expect(component.codeEditorTheme).toBe('vs');
 	});

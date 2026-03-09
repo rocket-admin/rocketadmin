@@ -23,19 +23,19 @@ describe('DateRecordViewComponent', () => {
 	});
 
 	it('should format valid date', () => {
-		component.value = '2023-04-29';
+		fixture.componentRef.setInput('value', '2023-04-29');
 		component.ngOnInit();
 		expect(component.formattedDate).toBeDefined();
 	});
 
 	it('should handle invalid date', () => {
-		component.value = 'invalid';
+		fixture.componentRef.setInput('value', 'invalid');
 		component.ngOnInit();
 		expect(component.formattedDate).toBe('invalid');
 	});
 
 	it('should handle null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		expect(component.formattedDate).toBeUndefined();
 	});

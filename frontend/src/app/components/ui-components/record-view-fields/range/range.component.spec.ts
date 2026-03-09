@@ -21,28 +21,28 @@ describe('RangeRecordViewComponent', () => {
 	});
 
 	it('should display value with default max', () => {
-		component.value = 50;
+		fixture.componentRef.setInput('value', 50);
 		component.ngOnInit();
 		expect(component.displayValue).toBe('50 / 100');
 	});
 
 	it('should parse widget params for min/max', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { min: 0, max: 200 },
-		} as any;
-		component.value = 100;
+		});
+		fixture.componentRef.setInput('value', 100);
 		component.ngOnInit();
 		expect(component.displayValue).toBe('100 / 200');
 	});
 
 	it('should calculate progress value', () => {
-		component.value = 50;
+		fixture.componentRef.setInput('value', 50);
 		component.ngOnInit();
 		expect(component.getProgressValue()).toBe(50);
 	});
 
 	it('should clamp progress value', () => {
-		component.value = 150;
+		fixture.componentRef.setInput('value', 150);
 		component.ngOnInit();
 		expect(component.getProgressValue()).toBe(100);
 	});

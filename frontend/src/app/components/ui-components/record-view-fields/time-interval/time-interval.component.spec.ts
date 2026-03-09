@@ -23,19 +23,19 @@ describe('TimeIntervalRecordViewComponent', () => {
 	});
 
 	it('should format interval object', () => {
-		component.value = { hours: 2, minutes: 30 };
+		fixture.componentRef.setInput('value', { hours: 2, minutes: 30 });
 		component.ngOnInit();
 		expect(component.formattedInterval).toBe('2h 30m');
 	});
 
 	it('should display em dash for null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		expect(component.formattedInterval).toBe('—');
 	});
 
 	it('should handle string JSON interval', () => {
-		component.value = '{"hours":1,"minutes":15}';
+		fixture.componentRef.setInput('value', '{"hours":1,"minutes":15}');
 		component.ngOnInit();
 		expect(component.formattedInterval).toBe('1h 15m');
 	});

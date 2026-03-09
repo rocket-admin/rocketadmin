@@ -40,28 +40,28 @@ describe('S3RecordViewComponent', () => {
 	});
 
 	it('should parse widget params', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {
 				bucket: 'my-bucket',
 				type: 'file',
 				aws_access_key_id_secret_name: 'key',
 				aws_secret_access_key_secret_name: 'secret',
 			},
-		} as any;
+		});
 		component.ngOnInit();
 		expect(component.params).toBeDefined();
 		expect(component.params.bucket).toBe('my-bucket');
 	});
 
 	it('should identify image type', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {
 				bucket: 'my-bucket',
 				type: 'image',
 				aws_access_key_id_secret_name: 'key',
 				aws_secret_access_key_secret_name: 'secret',
 			},
-		} as any;
+		});
 		component.ngOnInit();
 		expect(component.isImageType).toBe(true);
 	});

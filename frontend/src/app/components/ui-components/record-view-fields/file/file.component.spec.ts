@@ -22,27 +22,27 @@ describe('FileRecordViewComponent', () => {
 	});
 
 	it('should identify blob objects', () => {
-		component.value = { type: 'Buffer', data: [1, 2] };
+		fixture.componentRef.setInput('value', { type: 'Buffer', data: [1, 2] });
 		expect(component.isBlob).toBe(true);
 	});
 
 	it('should return Binary Data for blobs', () => {
-		component.value = { type: 'Buffer', data: [1, 2] };
+		fixture.componentRef.setInput('value', { type: 'Buffer', data: [1, 2] });
 		expect(component.displayText).toBe('Binary Data');
 	});
 
 	it('should return Binary Data for long strings', () => {
-		component.value = 'a]bcdefghijklmnopqrstu';
+		fixture.componentRef.setInput('value', 'a]bcdefghijklmnopqrstu');
 		expect(component.displayText).toBe('Binary Data');
 	});
 
 	it('should return the value for short strings', () => {
-		component.value = 'short.txt';
+		fixture.componentRef.setInput('value', 'short.txt');
 		expect(component.displayText).toBe('short.txt');
 	});
 
 	it('should return dash for null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		expect(component.displayText).toBe('—');
 	});
 });

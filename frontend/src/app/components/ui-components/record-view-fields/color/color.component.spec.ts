@@ -22,17 +22,17 @@ describe('ColorRecordViewComponent', () => {
 	});
 
 	it('should validate hex color', () => {
-		component.value = '#ff0000';
+		fixture.componentRef.setInput('value', '#ff0000');
 		expect(component.isValidColor).toBe(true);
 	});
 
 	it('should return false for invalid color', () => {
-		component.value = 'notacolor';
+		fixture.componentRef.setInput('value', 'notacolor');
 		expect(component.isValidColor).toBe(false);
 	});
 
 	it('should normalize color to hex format', () => {
-		component.value = '#ff0000';
+		fixture.componentRef.setInput('value', '#ff0000');
 		expect(component.normalizedColorForDisplay).toBe('#ff0000');
 	});
 });

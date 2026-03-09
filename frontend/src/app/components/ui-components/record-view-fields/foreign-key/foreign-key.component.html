@@ -1,8 +1,8 @@
 <a
-  [routerLink]="link"
+  [routerLink]="link()"
   [queryParams]="foreignKeyURLParams"
   class="field-view-value foreign-key-link"
-  (click)="onForeignKeyClick.emit()">
-  <span>{{displayValue}}</span>
+  (click)="onForeignKeyClick.emit({ foreignKey: primaryKeysParams(), value: displayValue() })">
+  <span>{{displayValue()}}</span>
   <mat-icon fontSet="material-symbols-outlined" class="field-view-icon">visibility</mat-icon>
 </a>

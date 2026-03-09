@@ -22,26 +22,26 @@ describe('ImageRecordViewComponent', () => {
 	});
 
 	it('should return value as srcValue when no prefix', () => {
-		component.value = 'image.png';
-		component.widgetStructure = undefined;
+		fixture.componentRef.setInput('value', 'image.png');
+		fixture.componentRef.setInput('widgetStructure', undefined);
 		expect(component.srcValue).toBe('image.png');
 	});
 
 	it('should prepend prefix to srcValue from widget params', () => {
-		component.value = 'image.png';
-		component.widgetStructure = { widget_params: { prefix: 'https://cdn.example.com/' } } as any;
+		fixture.componentRef.setInput('value', 'image.png');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { prefix: 'https://cdn.example.com/' } } as any);
 		expect(component.srcValue).toBe('https://cdn.example.com/image.png');
 	});
 
 	it('should return true for isUrl when valid URL', () => {
-		component.value = 'image.png';
-		component.widgetStructure = { widget_params: { prefix: 'https://cdn.example.com/' } } as any;
+		fixture.componentRef.setInput('value', 'image.png');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { prefix: 'https://cdn.example.com/' } } as any);
 		expect(component.isUrl).toBe(true);
 	});
 
 	it('should return false for isUrl when invalid URL', () => {
-		component.value = 'image.png';
-		component.widgetStructure = undefined;
+		fixture.componentRef.setInput('value', 'image.png');
+		fixture.componentRef.setInput('widgetStructure', undefined);
 		expect(component.isUrl).toBe(false);
 	});
 });

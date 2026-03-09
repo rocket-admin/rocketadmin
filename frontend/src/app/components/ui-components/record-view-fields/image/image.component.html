@@ -1,5 +1,9 @@
-<span *ngIf="!isUrl" class="field-view-value">[Image URL]</span>
-<img *ngIf="isUrl"
-  class="image-preview"
-  [src]="srcValue" alt="Image">
-<span class="field-view-value">{{value || '—'}}</span>
+@if (!isUrl) {
+  <span class="field-view-value">[Image URL]</span>
+}
+@if (isUrl) {
+  <img
+    class="image-preview"
+    [src]="srcValue" alt="Image">
+}
+<span class="field-view-value">{{value() || '—'}}</span>

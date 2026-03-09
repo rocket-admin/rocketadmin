@@ -25,8 +25,8 @@ describe('JsonEditorRecordViewComponent', () => {
 	});
 
 	it('should set JSON code model on init', () => {
-		component.value = '{"key":"value"}';
-		component.key = 'test';
+		fixture.componentRef.setInput('value', '{"key":"value"}');
+		fixture.componentRef.setInput('key', 'test');
 		component.ngOnInit();
 		expect(component.codeModel).toEqual({
 			language: 'json',

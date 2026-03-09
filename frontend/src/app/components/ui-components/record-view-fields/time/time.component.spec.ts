@@ -23,13 +23,13 @@ describe('TimeRecordViewComponent', () => {
 	});
 
 	it('should preserve time string format', () => {
-		component.value = '14:30:00';
+		fixture.componentRef.setInput('value', '14:30:00');
 		component.ngOnInit();
 		expect(component.formattedTime).toBe('14:30:00');
 	});
 
 	it('should handle null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		expect(component.formattedTime).toBeUndefined();
 	});

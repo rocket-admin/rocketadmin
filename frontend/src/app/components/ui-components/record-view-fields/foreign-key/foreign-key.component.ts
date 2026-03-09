@@ -1,26 +1,24 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
+import { Component, input, OnInit, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-foreign-key-record-view',
 	templateUrl: './foreign-key.component.html',
 	styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './foreign-key.component.css'],
-	imports: [MatIconModule, RouterModule, CommonModule],
+	imports: [MatIconModule, RouterModule],
 })
 export class ForeignKeyRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
-	@Input() link: string;
-	@Input() primaryKeysParams: any;
-	@Input() displayValue: string;
+	readonly link = input<string>();
+	readonly primaryKeysParams = input<any>();
+	readonly displayValue = input<string>();
 
-	@Output() onForeignKeyClick = new EventEmitter<{ foreignKey: any; value: string }>();
+	readonly onForeignKeyClick = output<{ foreignKey: any; value: string }>();
 
 	public foreignKeyURLParams: any;
 
 	ngOnInit() {
-		this.foreignKeyURLParams = { ...this.primaryKeysParams, mode: 'view' };
+		this.foreignKeyURLParams = { ...this.primaryKeysParams(), mode: 'view' };
 	}
 }

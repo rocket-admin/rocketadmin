@@ -1,12 +1,16 @@
-<ng-container *ngIf="isImageType; else fileDisplay">
-  <mat-spinner *ngIf="isLoading" diameter="30" class="s3-spinner"></mat-spinner>
-  <img *ngIf="previewUrl && !isLoading"
-    class="s3-preview"
-    [src]="previewUrl"
-    alt="S3 Image">
-  <span *ngIf="!previewUrl && !isLoading && value" class="field-view-value">[S3 Image]</span>
-</ng-container>
-
-<ng-template #fileDisplay>
-  <span class="field-view-value">{{value || '—'}}</span>
-</ng-template>
+@if (isImageType) {
+  @if (isLoading) {
+    <mat-spinner diameter="30" class="s3-spinner"></mat-spinner>
+  }
+  @if (previewUrl && !isLoading) {
+    <img
+      class="s3-preview"
+      [src]="previewUrl"
+      alt="S3 Image">
+  }
+  @if (!previewUrl && !isLoading && value()) {
+    <span class="field-view-value">[S3 Image]</span>
+  }
+} @else {
+  <span class="field-view-value">{{value() || '—'}}</span>
+}

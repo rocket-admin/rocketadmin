@@ -22,12 +22,12 @@ describe('BooleanRecordViewComponent', () => {
 	});
 
 	it('should return false for invertColors when no widget params', () => {
-		component.widgetStructure = undefined;
+		fixture.componentRef.setInput('widgetStructure', undefined);
 		expect(component.invertColors).toBe(false);
 	});
 
 	it('should return true for invertColors when widget_params.invertColors is true', () => {
-		component.widgetStructure = { widget_params: { invertColors: true } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { invertColors: true } } as any);
 		expect(component.invertColors).toBe(true);
 	});
 });

@@ -1,8 +1,7 @@
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-time-interval-record-view',
 	templateUrl: './time-interval.component.html',
@@ -13,13 +12,13 @@ export class TimeIntervalRecordViewComponent extends BaseRecordViewFieldComponen
 	formattedInterval: string;
 
 	ngOnInit() {
-		if (!this.value) {
+		if (!this.value()) {
 			this.formattedInterval = '—';
 			return;
 		}
 
 		try {
-			const interval = typeof this.value === 'string' ? JSON.parse(this.value) : this.value;
+			const interval = typeof this.value() === 'string' ? JSON.parse(this.value()) : this.value();
 			let parts = [];
 
 			if (interval.days) parts.push(`${interval.days}d`);
@@ -30,7 +29,7 @@ export class TimeIntervalRecordViewComponent extends BaseRecordViewFieldComponen
 
 			this.formattedInterval = parts.length > 0 ? parts.join(' ') : '0';
 		} catch (_e) {
-			this.formattedInterval = String(this.value);
+			this.formattedInterval = String(this.value());
 		}
 	}
 }

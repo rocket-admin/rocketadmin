@@ -1,8 +1,7 @@
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { format } from 'date-fns';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-time-record-view',
 	templateUrl: './time.component.html',
@@ -15,21 +14,21 @@ export class TimeRecordViewComponent extends BaseRecordViewFieldComponent implem
 	public formattedTime: string;
 
 	ngOnInit(): void {
-		if (this.value) {
+		if (this.value()) {
 			try {
-				if (this.value.includes(':')) {
+				if (this.value().includes(':')) {
 					// Handle time string format
-					this.formattedTime = this.value;
+					this.formattedTime = this.value();
 				} else {
-					const date = new Date(this.value);
+					const date = new Date(this.value());
 					if (!Number.isNaN(date.getTime())) {
 						this.formattedTime = format(date, 'HH:mm:ss');
 					} else {
-						this.formattedTime = this.value;
+						this.formattedTime = this.value();
 					}
 				}
 			} catch (_error) {
-				this.formattedTime = this.value;
+				this.formattedTime = this.value();
 			}
 		}
 	}

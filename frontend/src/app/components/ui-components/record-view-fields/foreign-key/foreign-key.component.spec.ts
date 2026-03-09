@@ -23,7 +23,7 @@ describe('ForeignKeyRecordViewComponent', () => {
 	});
 
 	it('should set foreignKeyURLParams on init', () => {
-		component.primaryKeysParams = { id: 1 };
+		fixture.componentRef.setInput('primaryKeysParams', { id: 1 });
 		component.ngOnInit();
 		expect(component.foreignKeyURLParams).toEqual({ id: 1, mode: 'view' });
 	});

@@ -23,20 +23,20 @@ describe('CountryRecordViewComponent', () => {
 	});
 
 	it('should display country name from code', () => {
-		component.value = 'US';
+		fixture.componentRef.setInput('value', 'US');
 		component.ngOnInit();
 		expect(component.countryName).toContain('United States');
 	});
 
 	it('should display em dash for null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		expect(component.countryName).toBe('—');
 	});
 
 	it('should respect show_flag widget param', () => {
-		component.value = 'US';
-		component.widgetStructure = { widget_params: { show_flag: false } } as any;
+		fixture.componentRef.setInput('value', 'US');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { show_flag: false } } as any);
 		component.ngOnInit();
 		expect(component.showFlag).toBe(false);
 	});

@@ -22,17 +22,17 @@ describe('UrlRecordViewComponent', () => {
 	});
 
 	it('should return true for valid URL', () => {
-		component.value = 'https://example.com';
+		fixture.componentRef.setInput('value', 'https://example.com');
 		expect(component.isValidUrl).toBe(true);
 	});
 
 	it('should return false for invalid URL', () => {
-		component.value = 'not-a-url';
+		fixture.componentRef.setInput('value', 'not-a-url');
 		expect(component.isValidUrl).toBe(false);
 	});
 
 	it('should return false for empty value', () => {
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 		expect(component.isValidUrl).toBe(false);
 	});
 });

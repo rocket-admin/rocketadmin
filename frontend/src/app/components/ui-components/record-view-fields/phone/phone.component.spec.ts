@@ -21,20 +21,20 @@ describe('PhoneRecordViewComponent', () => {
 	});
 
 	it('should parse valid phone number', () => {
-		component.value = '+12025551234';
+		fixture.componentRef.setInput('value', '+12025551234');
 		component.ngOnInit();
 		expect(component.formattedNumber).toBeDefined();
 		expect(component.formattedNumber).not.toBe('');
 	});
 
 	it('should handle invalid phone number gracefully', () => {
-		component.value = 'not-a-phone';
+		fixture.componentRef.setInput('value', 'not-a-phone');
 		component.ngOnInit();
 		expect(component.formattedNumber).toBe('not-a-phone');
 	});
 
 	it('should handle null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		expect(component.formattedNumber).toBe('');
 	});

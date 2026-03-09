@@ -23,13 +23,13 @@ describe('DateTimeRecordViewComponent', () => {
 	});
 
 	it('should format valid datetime', () => {
-		component.value = '2023-04-29T14:30:00';
+		fixture.componentRef.setInput('value', '2023-04-29T14:30:00');
 		component.ngOnInit();
 		expect(component.formattedDateTime).toBeDefined();
 	});
 
 	it('should handle invalid datetime', () => {
-		component.value = 'invalid';
+		fixture.componentRef.setInput('value', 'invalid');
 		component.ngOnInit();
 		expect(component.formattedDateTime).toBe('invalid');
 	});

@@ -22,36 +22,36 @@ describe('TextRecordViewComponent', () => {
 	});
 
 	it('should return false for isInvalid when value is empty', () => {
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 		expect(component.isInvalid).toBe(false);
 	});
 
 	it('should return false for isInvalid when no validate widget param', () => {
-		component.value = 'sometext';
-		component.widgetStructure = { widget_params: {} } as any;
+		fixture.componentRef.setInput('value', 'sometext');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: {} } as any);
 		expect(component.isInvalid).toBe(false);
 	});
 
 	it('should return true for isInvalid when email validation fails', () => {
-		component.value = 'notanemail';
-		component.widgetStructure = { widget_params: { validate: 'isEmail' } } as any;
+		fixture.componentRef.setInput('value', 'notanemail');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: 'isEmail' } } as any);
 		expect(component.isInvalid).toBe(true);
 	});
 
 	it('should return false for isInvalid when email validation passes', () => {
-		component.value = 'test@test.com';
-		component.widgetStructure = { widget_params: { validate: 'isEmail' } } as any;
+		fixture.componentRef.setInput('value', 'test@test.com');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: 'isEmail' } } as any);
 		expect(component.isInvalid).toBe(false);
 	});
 
 	it('should return correct validationErrorMessage for isEmail', () => {
-		component.widgetStructure = { widget_params: { validate: 'isEmail' } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: 'isEmail' } } as any);
 		expect(component.validationErrorMessage).toBe('Invalid email address');
 	});
 
 	it('should validate regex pattern', () => {
-		component.value = 'abc';
-		component.widgetStructure = { widget_params: { validate: 'regex', regex: '^[0-9]+$' } } as any;
+		fixture.componentRef.setInput('value', 'abc');
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: 'regex', regex: '^[0-9]+$' } } as any);
 		expect(component.isInvalid).toBe(true);
 	});
 });

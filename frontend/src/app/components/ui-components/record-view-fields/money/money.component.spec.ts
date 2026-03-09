@@ -21,29 +21,29 @@ describe('MoneyRecordViewComponent', () => {
 	});
 
 	it('should format value with currency symbol', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { default_currency: 'USD' },
-		} as any;
-		component.value = 42.5;
+		});
+		fixture.componentRef.setInput('value', 42.5);
 		component.ngOnInit();
 		expect(component.formattedValue).toContain('$');
 		expect(component.formattedValue).toContain('42.50');
 	});
 
 	it('should return empty string for null value', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { default_currency: 'USD' },
-		} as any;
-		component.value = null;
+		});
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		expect(component.formattedValue).toBe('');
 	});
 
 	it('should handle object value with amount and currency', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { default_currency: 'USD' },
-		} as any;
-		component.value = { amount: 100, currency: 'EUR' };
+		});
+		fixture.componentRef.setInput('value', { amount: 100, currency: 'EUR' });
 		component.ngOnInit();
 		expect(component.formattedValue).toContain('100.00');
 	});
