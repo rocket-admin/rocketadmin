@@ -3963,6 +3963,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ngx-formly/core@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@ngx-formly/core@npm:7.1.0"
+  dependencies:
+    tslib: ^2.0.0
+  peerDependencies:
+    "@angular/forms": ">=13.2.0"
+    rxjs: ^6.5.3 || ^7.0.0
+  checksum: 7e8051edd80dcf1de39505f07ea2fcc1821484d5393eefbef935051d03eb943ca710c2acf4404c841f54ddbf38ffea9a38eaed142a3114f834c5df0fa4d94671
+  languageName: node
+  linkType: hard
+
+"@ngx-formly/material@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@ngx-formly/material@npm:7.1.0"
+  dependencies:
+    tslib: ^2.0.0
+  peerDependencies:
+    "@angular/material": ">=16.0.0"
+    "@ngx-formly/core": 7.1.0
+  checksum: fe5f9c683d37f60406453ebc60a247756d9e601d90e98d1af6e54e8fb0e49d29e4a49b90846093f02594aa1c7ebd8f021496e985c4720d7943eb6add818ffad0
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -12975,6 +12999,8 @@ __metadata:
     "@jsonurl/jsonurl": ^1.1.8
     "@material-symbols/font-400": ^0.40.2
     "@ngstack/code-editor": ^9.0.0
+    "@ngx-formly/core": ^7.1.0
+    "@ngx-formly/material": ^7.1.0
     "@sentry-internal/rrweb": ^2.16.0
     "@sentry/angular": ^10.33.0
     "@storybook/angular": ^10.2.14

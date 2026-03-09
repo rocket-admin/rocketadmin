@@ -33,6 +33,8 @@
 		"@jsonurl/jsonurl": "^1.1.8",
 		"@material-symbols/font-400": "^0.40.2",
 		"@ngstack/code-editor": "^9.0.0",
+		"@ngx-formly/core": "^7.1.0",
+		"@ngx-formly/material": "^7.1.0",
 		"@sentry-internal/rrweb": "^2.31.0",
 		"@sentry/angular": "^10.33.0",
 		"@stripe/stripe-js": "^5.3.0",

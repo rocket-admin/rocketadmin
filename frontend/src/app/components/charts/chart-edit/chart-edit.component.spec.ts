@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA, Signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormGroup } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,7 +10,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
-import { ChartSeriesConfig, ChartType, SavedQuery } from 'src/app/models/saved-query';
+import { ChartOptionsModel } from 'src/app/formly/chart-options-fields';
+import { SavedQuery } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { SavedQueriesService } from 'src/app/services/saved-queries.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
@@ -26,9 +28,8 @@ type ChartEditComponentTestable = ChartEditComponent & {
 	testResults: WritableSignal<Record<string, unknown>[]>;
 	resultColumns: WritableSignal<string[]>;
 	executionTime: WritableSignal<number | null>;
-	labelColumn: WritableSignal<string>;
-	seriesList: WritableSignal<ChartSeriesConfig[]>;
-	chartType: WritableSignal<ChartType>;
+	chartModel: ChartOptionsModel;
+	chartForm: FormGroup;
 	canSave: Signal<boolean>;
 	canTest: Signal<boolean>;
 	hasChartData: Signal<boolean>;
@@ -134,7 +135,7 @@ describe('ChartEditComponent', () => {
 
 	it('should have correct default chart type', () => {
 		const testable = component as ChartEditComponentTestable;
-		expect(testable.chartType()).toBe('bar');
+		expect(testable.chartModel.chartType).toBe('bar');
 	});
 
 	describe('canSave computed', () => {
@@ -214,8 +215,8 @@ describe('ChartEditComponent', () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.queryText.set('SELECT * FROM users');
 			await component.testQuery();
-			expect(testable.labelColumn()).toBe('name');
-			expect(testable.seriesList()).toEqual([{ value_column: 'count' }]);
+			expect(testable.chartModel.labelColumn).toBe('name');
+			expect(testable.chartModel.seriesList).toEqual([{ value_column: 'count' }]);
 		});
 	});
 
@@ -263,16 +264,18 @@ describe('ChartEditComponent', () => {
 		it('should return false when no series configured', () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.testResults.set([{ name: 'John' }]);
-			testable.labelColumn.set('name');
-			testable.seriesList.set([]);
+			testable.chartModel = { ...testable.chartModel, labelColumn: 'name', seriesList: [] };
 			expect(testable.hasChartData()).toBe(false);
 		});
 
 		it('should return true when results, label and series are set', () => {
 			const testable = component as ChartEditComponentTestable;
 			testable.testResults.set([{ name: 'John', count: 10 }]);
-			testable.labelColumn.set('name');
-			testable.seriesList.set([{ value_column: 'count' }]);
+			testable.chartModel = {
+				...testable.chartModel,
+				labelColumn: 'name',
+				seriesList: [{ value_column: 'count' }],
+			};
 			expect(testable.hasChartData()).toBe(true);
 		});
 	});

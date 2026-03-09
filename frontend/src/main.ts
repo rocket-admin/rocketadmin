@@ -19,6 +19,7 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
+import { FORMLY_IMPORTS } from './app/formly/formly-config';
 import { ConfigModule } from './app/modules/config.module';
 import { ConnectionsService } from './app/services/connections.service';
 import { NotificationsService } from './app/services/notifications.service';
@@ -97,6 +98,7 @@ bootstrapApplication(AppComponent, {
 			Angulartics2Module.forRoot(),
 			ClipboardModule,
 			DragDropModule,
+			...FORMLY_IMPORTS,
 			MarkdownModule.forRoot(),
 			// ...saasExtraModules,
 			NgxThemeModule.forRoot(colorConfig, {
