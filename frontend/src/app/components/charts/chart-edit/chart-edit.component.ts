@@ -3,12 +3,10 @@ import { Component, computed, effect, inject, OnInit, signal } from '@angular/co
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
@@ -22,7 +20,6 @@ import {
 	ChartOptionsModel,
 	DEFAULT_CHART_OPTIONS_MODEL,
 } from 'src/app/formly/chart-options-fields';
-import { DEFAULT_COLOR_PALETTE } from 'src/app/lib/chart-config.helper';
 import {
 	ChartAxisConfig,
 	ChartLegendConfig,
@@ -32,7 +29,6 @@ import {
 	ChartUnitConfig,
 	ChartWidgetOptions,
 	GeneratedPanelWithPosition,
-	TestQueryResult,
 } from 'src/app/models/saved-query';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
@@ -52,11 +48,9 @@ import { ChartPreviewComponent } from '../chart-preview/chart-preview.component'
 		ReactiveFormsModule,
 		RouterModule,
 		MatButtonModule,
-		MatExpansionModule,
 		MatIconModule,
 		MatInputModule,
 		MatFormFieldModule,
-		MatSelectModule,
 		MatTableModule,
 		MatTooltipModule,
 		MatProgressSpinnerModule,
@@ -115,6 +109,7 @@ export class ChartEditComponent implements OnInit {
 	protected canTest = computed(() => !!this.queryText().trim() && !this.testing());
 
 	protected hasChartData = computed(() => {
+		this._modelVersion();
 		const model = this.chartModel;
 		const hasLabel = !!model.labelColumn;
 		if (model.seriesMode === 'column') {
@@ -125,8 +120,6 @@ export class ChartEditComponent implements OnInit {
 	});
 
 	protected currentWidgetOptions = computed<ChartWidgetOptions>(() => {
-		// Touch testResults to trigger recompute when model changes via formly
-		this.testResults();
 		this._modelVersion();
 
 		const model = this.chartModel;
@@ -189,7 +182,10 @@ export class ChartEditComponent implements OnInit {
 		return options;
 	});
 
-	protected chartType = computed(() => this.chartModel.chartType as ChartType);
+	protected chartType = computed(() => {
+		this._modelVersion();
+		return this.chartModel.chartType as ChartType;
+	});
 
 	// Bumped on every formly model change to trigger computed signal recalculation
 	private _modelVersion = signal(0);
@@ -235,7 +231,11 @@ export class ChartEditComponent implements OnInit {
 	}
 
 	onModelChange(model: ChartOptionsModel): void {
-		this.chartModel = { ...model };
+		this.chartModel = {
+			...model,
+			seriesList: model.seriesList.map((s) => ({ ...s })),
+			colorPalette: [...model.colorPalette],
+		};
 		this._modelVersion.update((v) => v + 1);
 	}
 
@@ -291,16 +291,15 @@ export class ChartEditComponent implements OnInit {
 				this.resultColumns.set(result.data.length > 0 ? Object.keys(result.data[0]) : []);
 				this.showResults.set(true);
 
+				const updates: Partial<ChartOptionsModel> = {};
 				if (this.resultColumns().length > 0 && !this.chartModel.labelColumn) {
-					this.chartModel = { ...this.chartModel, labelColumn: this.resultColumns()[0] };
-					this._modelVersion.update((v) => v + 1);
+					updates.labelColumn = this.resultColumns()[0];
 				}
-				// Auto-add first series if none exist
 				if (this.chartModel.seriesList.length === 0 && this.resultColumns().length > 1) {
-					this.chartModel = {
-						...this.chartModel,
-						seriesList: [{ value_column: this.resultColumns()[1] }],
-					};
+					updates.seriesList = [{ value_column: this.resultColumns()[1] }];
+				}
+				if (Object.keys(updates).length > 0) {
+					this.chartModel = { ...this.chartModel, ...updates };
 					this._modelVersion.update((v) => v + 1);
 				}
 			}

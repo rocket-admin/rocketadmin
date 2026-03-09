@@ -3,13 +3,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FieldArrayType, FormlyModule } from '@ngx-formly/core';
+import { DEFAULT_COLOR_PALETTE } from 'src/app/lib/chart-config.helper';
 
 @Component({
 	selector: 'formly-color-palette',
 	template: `
 		<div class="option-group">
 			<div class="palette-colors">
-				@for (f of field.fieldGroup; track $index) {
+				@for (f of field.fieldGroup; track f.id) {
 					<div class="palette-color-item">
 						<formly-field [field]="f"></formly-field>
 						<button mat-icon-button (click)="remove($index)" matTooltip="Remove color" class="color-remove-button" type="button">
@@ -78,23 +79,11 @@ import { FieldArrayType, FormlyModule } from '@ngx-formly/core';
 })
 export class ColorPaletteType extends FieldArrayType {
 	loadDefaults(): void {
-		const defaults = [
-			'rgba(99, 102, 241, 0.7)',
-			'rgba(16, 185, 129, 0.7)',
-			'rgba(245, 158, 11, 0.7)',
-			'rgba(239, 68, 68, 0.7)',
-			'rgba(139, 92, 246, 0.7)',
-			'rgba(236, 72, 153, 0.7)',
-			'rgba(14, 165, 233, 0.7)',
-			'rgba(20, 184, 166, 0.7)',
-			'rgba(251, 146, 60, 0.7)',
-			'rgba(168, 85, 247, 0.7)',
-		];
 		const formArray = this.formControl;
 		while (formArray.length) {
 			this.remove(0);
 		}
-		defaults.forEach(() => this.add());
-		formArray.patchValue(defaults);
+		DEFAULT_COLOR_PALETTE.forEach(() => this.add());
+		formArray.patchValue(DEFAULT_COLOR_PALETTE);
 	}
 }

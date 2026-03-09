@@ -17,12 +17,12 @@ import { FieldArrayType, FormlyModule } from '@ngx-formly/core';
 				}
 			</div>
 
-			@for (f of field.fieldGroup; track $index) {
+			@for (f of field.fieldGroup; track f.id; let i = $index) {
 				<div class="series-card">
 					<div class="series-card-header">
-						<span class="series-number">{{ props['itemLabel'] || 'Item' }} {{ $index + 1 }}</span>
+						<span class="series-number">{{ props['itemLabel'] || 'Item' }} {{ i + 1 }}</span>
 						@if (field.fieldGroup!.length > 1) {
-							<button mat-icon-button (click)="remove($index)" matTooltip="Remove" class="remove-series-button" type="button">
+							<button mat-icon-button (click)="remove(i)" matTooltip="Remove" class="remove-series-button" type="button">
 								<mat-icon>close</mat-icon>
 							</button>
 						}

@@ -150,12 +150,27 @@ function isPieType(model: ChartOptionsModel): boolean {
 	return ['pie', 'doughnut', 'polarArea'].includes(model.chartType);
 }
 
+function getRootModel(field: FormlyFieldConfig): ChartOptionsModel {
+	let f = field;
+	while (f.parent) f = f.parent;
+	return f.model as ChartOptionsModel;
+}
+
 // ---------------------------------------------------------------------------
 // Layout builder
 // ---------------------------------------------------------------------------
 
 export function buildChartOptionsFields(resultColumns: Signal<string[]>): FormlyFieldConfig[] {
-	const columnOptions = () => resultColumns().map((c) => ({ value: c, label: c }));
+	let _cachedCols: string[] = [];
+	let _cachedOptions: { value: string; label: string }[] = [];
+	const columnOptions = () => {
+		const cols = resultColumns();
+		if (cols !== _cachedCols) {
+			_cachedCols = cols;
+			_cachedOptions = cols.map((c) => ({ value: c, label: c }));
+		}
+		return _cachedOptions;
+	};
 
 	return [
 		// Basic chart config
@@ -238,15 +253,15 @@ export function buildChartOptionsFields(resultColumns: Signal<string[]>): Formly
 										key: 'color',
 										type: 'color-picker',
 										expressions: {
-											hide: (field) => isPieType(field.parent?.parent?.parent?.model),
+											hide: (field) => isPieType(getRootModel(field)),
 										},
 									},
 									ssf('point_style', {
 										className: 'series-field',
 										expressions: {
 											hide: (field) => {
-												const root = field.parent?.parent?.parent?.model;
-												return isPieType(root) || root?.chartType === 'bar';
+												const root = getRootModel(field);
+												return isPieType(root) || root.chartType === 'bar';
 											},
 										},
 									}),
@@ -254,16 +269,16 @@ export function buildChartOptionsFields(resultColumns: Signal<string[]>): Formly
 							},
 							{
 								fieldGroupClassName: 'series-options',
-								expressions: { hide: (field) => isPieType(field.parent?.parent?.model) },
+								expressions: { hide: (field) => isPieType(getRootModel(field)) },
 								fieldGroup: [
 									ssf('fill', {
 										type: 'checkbox',
 										className: 'series-option-checkbox',
 										expressions: {
 											hide: (field) => {
-												const root = field.parent?.parent?.parent?.parent?.model;
+												const root = getRootModel(field);
 												const series = field.parent?.parent?.model;
-												return root?.chartType !== 'line' && series?.type !== 'line';
+												return root.chartType !== 'line' && series?.type !== 'line';
 											},
 										},
 									}),
@@ -272,9 +287,9 @@ export function buildChartOptionsFields(resultColumns: Signal<string[]>): Formly
 										props: { step: 0.1 },
 										expressions: {
 											hide: (field) => {
-												const root = field.parent?.parent?.parent?.parent?.model;
+												const root = getRootModel(field);
 												const series = field.parent?.parent?.model;
-												return root?.chartType !== 'line' && series?.type !== 'line';
+												return root.chartType !== 'line' && series?.type !== 'line';
 											},
 										},
 									}),
@@ -282,8 +297,8 @@ export function buildChartOptionsFields(resultColumns: Signal<string[]>): Formly
 										className: 'series-field',
 										expressions: {
 											hide: (field) => {
-												const root = field.parent?.parent?.parent?.parent?.model;
-												return (root?.seriesList?.length || 0) <= 1;
+												const root = getRootModel(field);
+												return (root.seriesList?.length || 0) <= 1;
 											},
 										},
 									}),
