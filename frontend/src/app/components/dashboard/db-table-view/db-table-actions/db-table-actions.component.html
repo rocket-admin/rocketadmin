@@ -2,19 +2,11 @@
     <mat-drawer mode="side" opened>
         <div class="drawer-header">
             <h1 class="mat-h1">Automations</h1>
-
-            <button mat-icon-button color="primary" *ngIf="rulesData && rules && rules.length !== 0"
-                type="button" class="add-icon-button"
-                angulartics2On="click"
-                angularticsAction="Actions: add first action is clicked"
-                (click)="addNewRule(); posthog.capture('Actions: add first action is clicked')">
-                <mat-icon>add</mat-icon>
-            </button>
         </div>
-        <div class="no-actions" *ngIf="rulesData && rules && rules.length === 0 && !newRule">
+        <div class="no-actions" *ngIf="rulesData && rules && rules.length === 0 && !isCreationMode">
             <span>No added automations</span>
         </div>
-        <mat-action-list *ngIf="rulesData && rules && rules.length">
+        <mat-action-list *ngIf="rulesData && rules">
             <button mat-list-item *ngFor="let rule of rules; let i = index"
                 class="list-action-list-item"
                 [ngClass]="{
@@ -22,21 +14,16 @@
                     'list-action-list-item_notSaved': rule.id === ''
                 }"
                 (click)="switchRulesView(rule)">
-                <span>{{ rule.title }}</span>
+                <span>{{ rule.title || 'New automation' }}</span>
             </button>
         </mat-action-list>
-        <mat-form-field *ngIf="newRule && !isCreationMode" appearance="fill" class="new-action-input">
-            <input matInput name="newRuleTitle" #newActionInput #newActionTitle="matInput"
-                required
-                placeholder="Enter rule name"
-                [(ngModel)]="newRule.title"
-                (keyup.enter)="handleAddNewRule()">
-            <span *ngIf="actionNameError" class="action-error">{{actionNameError}}</span>
-            <button mat-icon-button matSuffix
-                (click)="undoRule()">
-                <mat-icon>close</mat-icon>
-            </button>
-        </mat-form-field>
+        <button *ngIf="rulesData && rules && !isCreationMode" mat-button type="button"
+            class="add-automation-button"
+            angulartics2On="click"
+            angularticsAction="Actions: add first action is clicked"
+            (click)="addNewRule(); posthog.capture('Actions: add first action is clicked')">
+            <mat-icon>add</mat-icon> Add automation
+        </button>
     </mat-drawer>
 
     <mat-drawer-content *ngIf="rulesData">
@@ -230,7 +217,8 @@
             <form (ngSubmit)="handleRuleSubmitting()" (input)="isSaved = false" class="creation-flow__form">
                 <mat-form-field appearance="outline" class="creation-flow__name">
                     <mat-label>Automation name</mat-label>
-                    <input matInput #ruleNameInput [(ngModel)]="selectedRuleTitle" name="rule-title">
+                    <input matInput #ruleNameInput [(ngModel)]="selectedRuleTitle" name="rule-title"
+                        (ngModelChange)="selectedRule.title = $event">
                 </mat-form-field>
 
                 <!-- Triggers -->

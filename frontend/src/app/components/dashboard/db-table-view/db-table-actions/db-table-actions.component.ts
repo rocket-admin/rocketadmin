@@ -289,9 +289,9 @@ export class DbTableActionsComponent implements OnInit {
 			],
 		};
 
+		this.rules.push(this.newRule);
 		this.setSelectedRule(this.newRule);
 		this.isCreationMode = true;
-		setTimeout(() => this.newActionInput?.nativeElement?.focus());
 	}
 
 	addNewAction() {
@@ -321,7 +321,11 @@ export class DbTableActionsComponent implements OnInit {
 	}
 
 	undoRule() {
+		if (this.newRule) {
+			this.rules = this.rules.filter((r) => r !== this.newRule);
+		}
 		this.newRule = null;
+		this.isCreationMode = false;
 		if (this.rules.length) this.setSelectedRule(this.rules[0]);
 	}
 

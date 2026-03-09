@@ -25,6 +25,21 @@
 	margin: 0;
 }
 
+.add-automation-button {
+	width: calc(100% - 24px);
+	margin: 8px 12px;
+	border: 1.5px dashed #8888a0 !important;
+	border-radius: 4px;
+	color: #8888a0;
+}
+
+@media (prefers-color-scheme: light) {
+	.add-automation-button {
+		border-color: #b0b0c0 !important;
+		color: #8090a0;
+	}
+}
+
 .custom-event-inline app-icon-picker ::ng-deep .icon-picker-button {
 	border: 1.5px dashed #8888a0;
 }
