@@ -20,6 +20,7 @@ export async function migratePermissionsToCedar(dataSource: DataSource): Promise
 			.leftJoinAndSelect('group.connection', 'connection')
 			.leftJoinAndSelect('group.permissions', 'permission')
 			.where('connection.id = :connectionId', { connectionId: connection.id })
+			.andWhere('(group.cedarPolicy IS NULL OR group.cedarPolicy = :empty)', { empty: '' })
 			.getMany();
 
 		for (const group of groups) {
@@ -61,5 +62,5 @@ export async function migratePermissionsToCedar(dataSource: DataSource): Promise
 		}
 	}
 
-	console.log(`Migrated Cedar policies for ${migratedCount} groups`);
+	console.log(`Migrated Cedar policies for ${migratedCount} groups (skipped groups with existing policies)`);
 }
