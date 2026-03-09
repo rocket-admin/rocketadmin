@@ -104,6 +104,7 @@ export class DbTableActionsComponent implements OnInit {
 	];
 
 	@ViewChild('newActionInput') newActionInput: ElementRef<HTMLInputElement>;
+	@ViewChild('ruleNameInput') ruleNameInput: ElementRef<HTMLInputElement>;
 
 	public signingKey: string;
 
@@ -194,6 +195,12 @@ export class DbTableActionsComponent implements OnInit {
 
 	get hasTriggersSelected(): boolean {
 		return this.selectedRule?.events?.some((e) => e.event !== null) ?? false;
+	}
+
+	get saveDisabledReason(): string {
+		if (!this.selectedRuleTitle) return 'Enter automation name';
+		if (!this.hasTriggersSelected) return 'Select at least one trigger';
+		return '';
 	}
 
 	get activeTriggers() {
@@ -336,6 +343,38 @@ export class DbTableActionsComponent implements OnInit {
 	}
 
 	handleRuleSubmitting() {
+		if (!this.selectedRuleTitle) {
+			this.ruleNameInput?.nativeElement?.focus();
+			return;
+		}
+
+		if (!this.hasTriggersSelected) {
+			const triggerCard = document.querySelector('.creation-card') as HTMLElement;
+			if (triggerCard) {
+				triggerCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				triggerCard.classList.add('creation-card--highlight');
+				setTimeout(() => triggerCard.classList.remove('creation-card--highlight'), 1500);
+			}
+			return;
+		}
+
+		const action = this.selectedRule.table_actions[0];
+		if (action) {
+			const method = (action.method as string).toUpperCase();
+			if (method === 'URL' && !action.url) {
+				(document.querySelector('input[name="action-url"]') as HTMLInputElement)?.focus();
+				return;
+			}
+			if (method === 'EMAIL' && (!action.emails || action.emails.length === 0)) {
+				(document.querySelector('mat-select[name="notification-emails"]') as HTMLElement)?.click();
+				return;
+			}
+			if (method === 'SLACK' && !(action as any).slack_url) {
+				(document.querySelector('input[name="action-slack-url"]') as HTMLInputElement)?.focus();
+				return;
+			}
+		}
+
 		if (this.selectedRule.events.filter((event) => event.event !== null).length > 0) {
 			if (this.selectedRule.id) {
 				this.updateRule();

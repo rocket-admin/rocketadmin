@@ -458,6 +458,22 @@
 	pointer-events: none;
 }
 
+.creation-card--highlight {
+	animation: card-pulse 1.5s ease;
+}
+
+@keyframes card-pulse {
+	0%, 100% { border-color: rgba(0, 0, 0, 0.12); }
+	25%, 75% { border-color: var(--color-accentedPalette-500); }
+}
+
+@media (prefers-color-scheme: dark) {
+	@keyframes card-pulse {
+		0%, 100% { border-color: rgba(255, 255, 255, 0.12); }
+		25%, 75% { border-color: var(--color-accentedPalette-500); }
+	}
+}
+
 .creation-card__label {
 	font-weight: 500;
 	display: block;
