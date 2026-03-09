@@ -3,7 +3,7 @@
   <img *ngIf="isUrl"
     class="image-thumbnail"
     [src]="srcValue" alt="Image"
-    [style.--height.px]="widgetStructure.widget_params.height">
+    [style.--height.px]="widgetStructure().widget_params.height">
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy image URL"
