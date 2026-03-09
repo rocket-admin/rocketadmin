@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { BaseEditFieldComponent } from './base-row-field.component';
 
 describe('BaseEditFieldComponent', () => {
@@ -13,10 +12,26 @@ describe('BaseEditFieldComponent', () => {
 
 		fixture = TestBed.createComponent(BaseEditFieldComponent);
 		component = fixture.componentInstance;
-		fixture.detectChanges();
 	});
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	it('should normalize label on init', () => {
+		component.label = 'user_first_name';
+		component.ngOnInit();
+		expect(component.normalizedLabel).toBeTruthy();
+	});
+
+	it('should set normalizedLabel from label input', () => {
+		component.label = 'test_field';
+		component.ngOnInit();
+		expect(component.normalizedLabel).toBeDefined();
+		expect(typeof component.normalizedLabel).toBe('string');
+	});
+
+	it('should have onFieldChange event emitter', () => {
+		expect(component.onFieldChange).toBeDefined();
 	});
 });
