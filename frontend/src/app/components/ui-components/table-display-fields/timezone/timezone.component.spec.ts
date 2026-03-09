@@ -22,19 +22,19 @@ describe('TimezoneDisplayComponent', () => {
 	});
 
 	it('should display formatted timezone with UTC offset', () => {
-		component.value = 'America/New_York';
+		fixture.componentRef.setInput('value', 'America/New_York');
 		expect(component.formattedTimezone).toContain('America/New_York');
 		expect(component.formattedTimezone).toContain('UTC');
 	});
 
 	it('should display dash for null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		expect(component.formattedTimezone).toBe('—');
 	});
 
-	it('should emit copy event on button click', () => {
-		vi.spyOn(component.onCopyToClipboard, 'emit');
-		component.value = 'Europe/London';
+	it('should render copy button', () => {
+		fixture.componentRef.setInput('value', 'Europe/London');
+		fixture.detectChanges();
 		const compiled = fixture.nativeElement;
 		const button = compiled.querySelector('button');
 		expect(button).toBeTruthy();
