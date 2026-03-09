@@ -1,10 +1,12 @@
 <div class="field-display">
   <div class="color-display">
-    <div *ngIf="isValidColor"
-      class="color-swatch"
-      [style.background-color]="normalizedColorForDisplay"
-      [title]="value() || 'No color'"
-    ></div>
+    @if (isValidColor) {
+      <div
+        class="color-swatch"
+        [style.background-color]="normalizedColorForDisplay"
+        [title]="value() || 'No color'"
+      ></div>
+    }
     <span class="field-value">{{value() || '—'}}</span>
   </div>
   <button type="button" mat-icon-button

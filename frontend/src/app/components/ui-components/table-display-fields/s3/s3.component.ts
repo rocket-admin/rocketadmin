@@ -1,5 +1,4 @@
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +22,7 @@ interface S3WidgetParams {
 	selector: 'app-s3-display',
 	templateUrl: './s3.component.html',
 	styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './s3.component.css'],
-	imports: [CommonModule, ClipboardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
+	imports: [ClipboardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
 })
 export class S3DisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
 	public params: S3WidgetParams;

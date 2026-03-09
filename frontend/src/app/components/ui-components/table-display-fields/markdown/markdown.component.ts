@@ -1,7 +1,6 @@
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MarkdownModule } from 'ngx-markdown';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +11,7 @@ import { marked } from 'marked';
   selector: 'app-markdown-display',
   templateUrl: './markdown.component.html',
   styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './markdown.component.css'],
-  imports: [CommonModule, MarkdownModule, ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
+  imports: [MarkdownModule, ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class MarkdownDisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
   public renderedMarkdown: string = '';

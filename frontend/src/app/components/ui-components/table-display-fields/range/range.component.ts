@@ -1,6 +1,5 @@
 import { Component, input, OnInit, OnChanges } from '@angular/core';
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
@@ -9,7 +8,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   templateUrl: './range.component.html',
   styleUrls: ['./range.component.css'],
   imports: [
-    CommonModule,
     MatProgressBarModule
   ],
 })

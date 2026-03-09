@@ -1,13 +1,15 @@
 <div class="field-display">
   <div class="field-value">
-    <mat-icon *ngIf="value() === true"
-              [ngClass]="{'boolean-icon': true, 'boolean-icon-true': !invertColors, 'boolean-icon-false': invertColors}">
-      check
-    </mat-icon>
-    <mat-icon *ngIf="value() === false"
-              [ngClass]="{'boolean-icon': true, 'boolean-icon-false': !invertColors, 'boolean-icon-true': invertColors}">
-      close
-    </mat-icon>
-    <span *ngIf="value() !== true && value() !== false">—</span>
+    @if (value() === true) {
+      <mat-icon [ngClass]="{'boolean-icon': true, 'boolean-icon-true': !invertColors, 'boolean-icon-false': invertColors}">
+        check
+      </mat-icon>
+    } @else if (value() === false) {
+      <mat-icon [ngClass]="{'boolean-icon': true, 'boolean-icon-false': !invertColors, 'boolean-icon-true': invertColors}">
+        close
+      </mat-icon>
+    } @else {
+      <span>—</span>
+    }
   </div>
 </div>

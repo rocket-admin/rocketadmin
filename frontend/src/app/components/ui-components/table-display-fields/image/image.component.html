@@ -1,9 +1,12 @@
 <div class="field-display">
-  <span *ngIf="!isUrl" class="field-value">[Image URL]</span>
-  <img *ngIf="isUrl"
-    class="image-thumbnail"
-    [src]="srcValue" alt="Image"
-    [style.--height.px]="widgetStructure().widget_params.height">
+  @if (isUrl) {
+    <img
+      class="image-thumbnail"
+      [src]="srcValue" alt="Image"
+      [style.--height.px]="widgetStructure().widget_params.height">
+  } @else {
+    <span class="field-value">[Image URL]</span>
+  }
   <button type="button" mat-icon-button
       class="field-copy-button"
       matTooltip="Copy image URL"

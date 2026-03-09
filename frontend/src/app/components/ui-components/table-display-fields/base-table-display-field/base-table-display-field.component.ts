@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { TableField, WidgetStructure } from 'src/app/models/table';
 
@@ -6,7 +5,7 @@ import { TableField, WidgetStructure } from 'src/app/models/table';
 	selector: 'app-base-display-field',
 	templateUrl: './base-table-display-field.component.html',
 	styleUrl: './base-table-display-field.component.css',
-	imports: [CommonModule],
+	imports: [],
 })
 export class BaseTableDisplayFieldComponent {
 	readonly key = input<string>();

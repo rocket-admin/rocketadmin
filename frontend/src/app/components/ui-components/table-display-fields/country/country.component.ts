@@ -3,7 +3,6 @@ import { Component, OnInit, } from '@angular/core';
 
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -12,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'app-country-display',
   templateUrl: './country.component.html',
   styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './country.component.css'],
-  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule]
+  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class CountryDisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
   static type = 'country';
