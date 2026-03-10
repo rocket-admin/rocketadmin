@@ -377,6 +377,25 @@
 
 /* ── Card connector (line + arrow) ── */
 
+.creation-card--trigger::after {
+	content: '';
+	position: absolute;
+	bottom: -4px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background-color: #8888a0;
+	z-index: 1;
+}
+
+@media (prefers-color-scheme: light) {
+	.creation-card--trigger::after {
+		background-color: #b0b0c0;
+	}
+}
+
 .card-connector {
 	display: flex;
 	flex-direction: column;
