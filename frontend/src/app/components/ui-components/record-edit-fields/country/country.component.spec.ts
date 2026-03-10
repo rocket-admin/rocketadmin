@@ -33,13 +33,13 @@ describe('CountryEditComponent', () => {
 	});
 
 	it('should load countries on init', () => {
-		component.structure = fakeStructure as any;
+		fixture.componentRef.setInput('structure', fakeStructure as any);
 		component.ngOnInit();
 		expect(component.countries.length).toBeGreaterThan(0);
 	});
 
 	it('should sort countries alphabetically', () => {
-		component.structure = fakeStructure as any;
+		fixture.componentRef.setInput('structure', fakeStructure as any);
 		component.ngOnInit();
 		const labels = component.countries.map((c) => c.label);
 		const sorted = [...labels].sort((a, b) => a.localeCompare(b));
@@ -47,21 +47,21 @@ describe('CountryEditComponent', () => {
 	});
 
 	it('should prepend null option when allow_null is true', () => {
-		component.structure = { ...fakeStructure, allow_null: true } as any;
+		fixture.componentRef.setInput('structure', { ...fakeStructure, allow_null: true } as any);
 		component.ngOnInit();
 		expect(component.countries[0].value).toBeNull();
 		expect(component.countries[0].label).toBe('');
 	});
 
 	it('should not prepend null option when allow_null is false', () => {
-		component.structure = fakeStructure as any;
+		fixture.componentRef.setInput('structure', fakeStructure as any);
 		component.ngOnInit();
 		expect(component.countries[0].value).not.toBeNull();
 	});
 
 	it('should set initial value when value matches a country code', () => {
-		component.value = 'US';
-		component.structure = fakeStructure as any;
+		fixture.componentRef.setInput('value', 'US');
+		fixture.componentRef.setInput('structure', fakeStructure as any);
 		component.ngOnInit();
 		const controlValue = component.countryControl.value;
 		expect(controlValue).toBeTruthy();
@@ -70,8 +70,8 @@ describe('CountryEditComponent', () => {
 	});
 
 	it('should not set control value when value does not match any country', () => {
-		component.value = 'XX';
-		component.structure = fakeStructure as any;
+		fixture.componentRef.setInput('value', 'XX');
+		fixture.componentRef.setInput('structure', fakeStructure as any);
 		component.ngOnInit();
 		const controlValue = component.countryControl.value;
 		expect(controlValue).toBe('');
@@ -81,7 +81,7 @@ describe('CountryEditComponent', () => {
 		vi.spyOn(component.onFieldChange, 'emit');
 		const country = { value: 'FR', label: 'France', flag: '🇫🇷' };
 		component.onCountrySelected(country);
-		expect(component.value).toBe('FR');
+		expect(component.value()).toBe('FR');
 		expect(component.onFieldChange.emit).toHaveBeenCalledWith('FR');
 	});
 
@@ -101,7 +101,7 @@ describe('CountryEditComponent', () => {
 	});
 
 	it('should filter countries by label', () => {
-		component.structure = fakeStructure as any;
+		fixture.componentRef.setInput('structure', fakeStructure as any);
 		component.ngOnInit();
 		component.countryControl.setValue('united');
 		const filtered = component.filteredCountries();

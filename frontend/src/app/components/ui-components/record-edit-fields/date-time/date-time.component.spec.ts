@@ -28,7 +28,7 @@ describe('DateTimeEditComponent', () => {
 	});
 
 	it('should prepare date and time for date and time inputs', () => {
-		component.value = '2021-06-26T07:22:00.603';
+		fixture.componentRef.setInput('value', '2021-06-26T07:22:00.603');
 		component.ngOnInit();
 
 		expect(component.date).toEqual('2021-06-26');

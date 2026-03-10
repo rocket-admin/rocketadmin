@@ -22,13 +22,13 @@ describe('LongTextEditComponent', () => {
 	});
 
 	it('should set maxLength from structure character_maximum_length', () => {
-		component.structure = { character_maximum_length: 1000 } as any;
+		fixture.componentRef.setInput('structure', { character_maximum_length: 1000 } as any);
 		component.ngOnInit();
 		expect(component.maxLength).toBe(1000);
 	});
 
 	it('should keep maxLength null when structure has no character_maximum_length', () => {
-		component.structure = {} as any;
+		fixture.componentRef.setInput('structure', {} as any);
 		component.ngOnInit();
 		expect(component.maxLength).toBeNull();
 	});
@@ -39,26 +39,26 @@ describe('LongTextEditComponent', () => {
 	});
 
 	it('should parse rowsCount from widget params', () => {
-		component.widgetStructure = { widget_params: { rows: '10' } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { rows: '10' } } as any);
 		component.ngOnInit();
 		expect(component.rowsCount).toBe('10');
 	});
 
 	it('should parse validateType from widget params object', () => {
-		component.widgetStructure = { widget_params: { validate: 'isJSON' } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: 'isJSON' } } as any);
 		component.ngOnInit();
 		expect(component.validateType).toBe('isJSON');
 	});
 
 	it('should parse validateType from widget params string', () => {
-		component.widgetStructure = { widget_params: JSON.stringify({ validate: 'isEmail', rows: '6' }) } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: JSON.stringify({ validate: 'isEmail', rows: '6' }) } as any);
 		component.ngOnInit();
 		expect(component.validateType).toBe('isEmail');
 		expect(component.rowsCount).toBe('6');
 	});
 
 	it('should parse regexPattern from widget params', () => {
-		component.widgetStructure = { widget_params: { validate: 'regex', regex: '^\\d+$' } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: 'regex', regex: '^\\d+$' } } as any);
 		component.ngOnInit();
 		expect(component.regexPattern).toBe('^\\d+$');
 	});

@@ -29,9 +29,9 @@ describe('RangeEditComponent', () => {
 	});
 
 	it('should parse widget params on init', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { min: 10, max: 200, step: 5 },
-		} as any;
+		} as any);
 		component.ngOnInit();
 		expect(component.min).toBe(10);
 		expect(component.max).toBe(200);
@@ -39,9 +39,9 @@ describe('RangeEditComponent', () => {
 	});
 
 	it('should parse widget params on changes', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { min: 5, max: 50, step: 2 },
-		} as any;
+		} as any);
 		component.ngOnChanges();
 		expect(component.min).toBe(5);
 		expect(component.max).toBe(50);
@@ -49,7 +49,7 @@ describe('RangeEditComponent', () => {
 	});
 
 	it('should keep defaults when widget_params is undefined', () => {
-		component.widgetStructure = undefined;
+		fixture.componentRef.setInput('widgetStructure', undefined);
 		component.ngOnInit();
 		expect(component.min).toBe(0);
 		expect(component.max).toBe(100);
@@ -57,9 +57,9 @@ describe('RangeEditComponent', () => {
 	});
 
 	it('should handle partial widget params', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { min: 20 },
-		} as any;
+		} as any);
 		component.ngOnInit();
 		expect(component.min).toBe(20);
 		expect(component.max).toBe(100);
@@ -69,7 +69,7 @@ describe('RangeEditComponent', () => {
 	it('should emit onFieldChange when value changes', () => {
 		vi.spyOn(component.onFieldChange, 'emit');
 		component.onValueChange(42);
-		expect(component.value).toBe(42);
+		expect(component.value()).toBe(42);
 		expect(component.onFieldChange.emit).toHaveBeenCalledWith(42);
 	});
 });

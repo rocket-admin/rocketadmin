@@ -25,47 +25,47 @@ describe('ImageComponent', () => {
 	});
 
 	it('should parse prefix from widget params object', () => {
-		component.widgetStructure = { widget_params: { prefix: 'https://cdn.example.com/' } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { prefix: 'https://cdn.example.com/' } } as any);
 		component.ngOnInit();
 		expect(component.prefix).toBe('https://cdn.example.com/');
 	});
 
 	it('should parse prefix from widget params string', () => {
-		component.widgetStructure = { widget_params: JSON.stringify({ prefix: 'https://images.test/' }) } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: JSON.stringify({ prefix: 'https://images.test/' }) } as any);
 		component.ngOnInit();
 		expect(component.prefix).toBe('https://images.test/');
 	});
 
 	it('should keep empty prefix when widget params have no prefix', () => {
-		component.widgetStructure = { widget_params: {} } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: {} } as any);
 		component.ngOnInit();
 		expect(component.prefix).toBe('');
 	});
 
 	it('should update prefix on ngOnChanges', () => {
-		component.widgetStructure = { widget_params: { prefix: 'https://cdn.test/' } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { prefix: 'https://cdn.test/' } } as any);
 		component.ngOnChanges();
 		expect(component.prefix).toBe('https://cdn.test/');
 	});
 
 	it('should return empty string for imageUrl when value is empty', () => {
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 		expect(component.imageUrl).toBe('');
 	});
 
 	it('should return value without prefix when prefix is empty', () => {
-		component.value = 'photo.jpg';
+		fixture.componentRef.setInput('value', 'photo.jpg');
 		expect(component.imageUrl).toBe('photo.jpg');
 	});
 
 	it('should return prefix + value for imageUrl', () => {
 		component.prefix = 'https://cdn.example.com/';
-		component.value = 'photo.jpg';
+		fixture.componentRef.setInput('value', 'photo.jpg');
 		expect(component.imageUrl).toBe('https://cdn.example.com/photo.jpg');
 	});
 
 	it('should handle invalid JSON in widget params gracefully', () => {
-		component.widgetStructure = { widget_params: 'invalid-json' } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: 'invalid-json' } as any);
 		component.ngOnInit();
 		expect(component.prefix).toBe('');
 	});

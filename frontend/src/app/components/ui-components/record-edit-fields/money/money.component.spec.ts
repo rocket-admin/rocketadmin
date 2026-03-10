@@ -29,10 +29,10 @@ describe('MoneyEditComponent', () => {
 		component = fixture.componentInstance;
 
 		// Set required properties from base component
-		component.label = 'Test Money';
-		component.required = false;
-		component.disabled = false;
-		component.readonly = false;
+		fixture.componentRef.setInput('label', 'Test Money');
+		fixture.componentRef.setInput('required', false);
+		fixture.componentRef.setInput('disabled', false);
+		fixture.componentRef.setInput('readonly', false);
 
 		fixture.detectChanges();
 	});
@@ -48,21 +48,21 @@ describe('MoneyEditComponent', () => {
 	});
 
 	it('should parse string value correctly', () => {
-		component.value = '100.50 EUR';
+		fixture.componentRef.setInput('value', '100.50 EUR');
 		component.ngOnInit();
 		expect(component.selectedCurrency).toBe('EUR');
 		expect(component.amount).toBe(100.5);
 	});
 
 	it('should parse object value correctly', () => {
-		component.value = { amount: 250.75, currency: 'GBP' };
+		fixture.componentRef.setInput('value', { amount: 250.75, currency: 'GBP' });
 		component.ngOnInit();
 		expect(component.selectedCurrency).toBe('GBP');
 		expect(component.amount).toBe(250.75);
 	});
 
 	it('should parse numeric value correctly when currency selector is disabled', () => {
-		component.value = 150.25;
+		fixture.componentRef.setInput('value', 150.25);
 		component.ngOnInit();
 		expect(component.selectedCurrency).toBe('USD');
 		expect(component.amount).toBe(150.25);
@@ -70,7 +70,7 @@ describe('MoneyEditComponent', () => {
 	});
 
 	it('should handle empty value', () => {
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 		component.ngOnInit();
 		expect(component.selectedCurrency).toBe('USD');
 		expect(component.amount).toBe('');
@@ -162,7 +162,7 @@ describe('MoneyEditComponent', () => {
 	});
 
 	it('should configure from widget params', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			field_name: 'test_field',
 			widget_type: 'Money',
 			name: 'Test Widget',
@@ -173,7 +173,7 @@ describe('MoneyEditComponent', () => {
 				decimal_places: 3,
 				allow_negative: false,
 			},
-		};
+		});
 
 		component.configureFromWidgetParams();
 

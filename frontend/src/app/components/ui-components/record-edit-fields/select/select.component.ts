@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -13,7 +13,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SelectEditComponent extends BaseEditFieldComponent {
-	@Input() value: string;
+	readonly value = model<string>();
 
 	public options: { value: string | null; label: string }[] = [];
 
@@ -23,16 +23,19 @@ export class SelectEditComponent extends BaseEditFieldComponent {
 
 	ngOnInit(): void {
 		super.ngOnInit();
-		if (this.widgetStructure) {
-			this.options = this.widgetStructure.widget_params.options;
-			if (this.widgetStructure.widget_params.allow_null) {
+		const ws = this.widgetStructure();
+		const struct = this.structure();
+
+		if (ws) {
+			this.options = ws.widget_params.options;
+			if (ws.widget_params.allow_null) {
 				this.options = [{ value: null, label: '' }, ...this.options];
 			}
-		} else if (this.structure) {
-			this.options = this.structure.data_type_params.map((option) => {
+		} else if (struct) {
+			this.options = struct.data_type_params.map((option) => {
 				return { value: option, label: option };
 			});
-			if (this.structure.allow_null) {
+			if (struct.allow_null) {
 				this.options = [{ value: null, label: '' }, ...this.options];
 			}
 		}

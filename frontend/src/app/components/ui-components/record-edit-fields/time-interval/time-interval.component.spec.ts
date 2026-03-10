@@ -42,13 +42,13 @@ describe('TimeIntervalEditComponent', () => {
 			seconds: '0',
 			milliseconds: '0',
 		};
-		component.value = intervalValue;
+		fixture.componentRef.setInput('value', intervalValue);
 		component.ngOnInit();
 		expect(component.interval).toBe(intervalValue);
 	});
 
 	it('should keep default interval when value is falsy on init', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		expect(component.interval.years).toBe('');
 	});

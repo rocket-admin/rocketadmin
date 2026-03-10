@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, computed, model, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +13,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, UrlValidatorDirective],
 })
 export class ImageEditComponent extends BaseEditFieldComponent implements OnInit {
-	@Input() value: string;
+	readonly value = model<string>();
 	public prefix: string = '';
 
 	ngOnInit(): void {
@@ -25,13 +25,17 @@ export class ImageEditComponent extends BaseEditFieldComponent implements OnInit
 		this._parseWidgetParams();
 	}
 
+	get imageUrl(): string {
+		const val = this.value();
+		if (!val) return '';
+		return this.prefix + val;
+	}
+
 	private _parseWidgetParams(): void {
-		if (this.widgetStructure?.widget_params) {
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
 			try {
-				const params =
-					typeof this.widgetStructure.widget_params === 'string'
-						? JSON.parse(this.widgetStructure.widget_params)
-						: this.widgetStructure.widget_params;
+				const params = typeof ws.widget_params === 'string' ? JSON.parse(ws.widget_params) : ws.widget_params;
 
 				if (params.prefix !== undefined) {
 					this.prefix = params.prefix || '';
@@ -40,10 +44,5 @@ export class ImageEditComponent extends BaseEditFieldComponent implements OnInit
 				console.error('Error parsing Image widget params:', e);
 			}
 		}
-	}
-
-	get imageUrl(): string {
-		if (!this.value) return '';
-		return this.prefix + this.value;
 	}
 }

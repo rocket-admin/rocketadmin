@@ -23,14 +23,14 @@ describe('DateEditComponent', () => {
 	});
 
 	it('should prepare date for date input', () => {
-		component.value = '2021-06-26T07:22:00.603Z';
+		fixture.componentRef.setInput('value', '2021-06-26T07:22:00.603Z');
 		component.ngOnInit();
 
 		expect(component.date).toEqual('2021-06-26');
 	});
 
 	it('should remain date undefined if there is no value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 
 		expect(component.date).not.toBeDefined();

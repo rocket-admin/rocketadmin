@@ -30,14 +30,14 @@ describe('SelectEditComponent', () => {
 			{ value: 'opt1', label: 'Option 1' },
 			{ value: 'opt2', label: 'Option 2' },
 		];
-		component.widgetStructure = { widget_params: { options } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { options } } as any);
 		component.ngOnInit();
 		expect(component.options).toEqual(options);
 	});
 
 	it('should prepend null option when widgetStructure allow_null is true', () => {
 		const options = [{ value: 'opt1', label: 'Option 1' }];
-		component.widgetStructure = { widget_params: { options, allow_null: true } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { options, allow_null: true } } as any);
 		component.ngOnInit();
 		expect(component.options[0]).toEqual({ value: null, label: '' });
 		expect(component.options.length).toBe(2);
@@ -45,17 +45,17 @@ describe('SelectEditComponent', () => {
 
 	it('should not prepend null option when widgetStructure allow_null is false', () => {
 		const options = [{ value: 'opt1', label: 'Option 1' }];
-		component.widgetStructure = { widget_params: { options, allow_null: false } } as any;
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { options, allow_null: false } } as any);
 		component.ngOnInit();
 		expect(component.options.length).toBe(1);
 		expect(component.options[0].value).toBe('opt1');
 	});
 
 	it('should load options from structure data_type_params when no widgetStructure', () => {
-		component.structure = {
+		fixture.componentRef.setInput('structure', {
 			data_type_params: ['active', 'inactive', 'pending'],
 			allow_null: false,
-		} as any;
+		} as any);
 		component.ngOnInit();
 		expect(component.options).toEqual([
 			{ value: 'active', label: 'active' },
@@ -65,10 +65,10 @@ describe('SelectEditComponent', () => {
 	});
 
 	it('should prepend null option from structure when allow_null is true', () => {
-		component.structure = {
+		fixture.componentRef.setInput('structure', {
 			data_type_params: ['active', 'inactive'],
 			allow_null: true,
-		} as any;
+		} as any);
 		component.ngOnInit();
 		expect(component.options[0]).toEqual({ value: null, label: '' });
 		expect(component.options.length).toBe(3);

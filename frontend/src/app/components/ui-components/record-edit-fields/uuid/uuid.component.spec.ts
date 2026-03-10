@@ -23,29 +23,29 @@ describe('UuidEditComponent', () => {
 	});
 
 	it('should be in create mode when value is empty', () => {
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 		component.ngOnInit();
 		expect(component.isCreateMode).toBe(true);
 	});
 
 	it('should be in update mode when value is set', () => {
-		component.value = '550e8400-e29b-41d4-a716-446655440000';
+		fixture.componentRef.setInput('value', '550e8400-e29b-41d4-a716-446655440000');
 		component.ngOnInit();
 		expect(component.isCreateMode).toBe(false);
 	});
 
 	it('should generate a UUID on create mode', () => {
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 		component.ngOnInit();
-		expect(component.value).toBeTruthy();
-		expect(uuidValidate(component.value)).toBe(true);
+		expect(component.value()).toBeTruthy();
+		expect(uuidValidate(component.value())).toBe(true);
 	});
 
 	it('should not overwrite existing value on init', () => {
 		const existingUuid = '550e8400-e29b-41d4-a716-446655440000';
-		component.value = existingUuid;
+		fixture.componentRef.setInput('value', existingUuid);
 		component.ngOnInit();
-		expect(component.value).toBe(existingUuid);
+		expect(component.value()).toBe(existingUuid);
 	});
 
 	it('should default to v4 UUID version', () => {
@@ -53,23 +53,23 @@ describe('UuidEditComponent', () => {
 	});
 
 	it('should parse widget params for version', () => {
-		component.value = '';
-		component.widgetStructure = {
+		fixture.componentRef.setInput('value', '');
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { version: 'v1' },
-		} as any;
+		} as any);
 		component.ngOnInit();
 		expect(component.uuidVersion).toBe('v1');
 	});
 
 	it('should parse widget params for namespace and name', () => {
-		component.value = '';
-		component.widgetStructure = {
+		fixture.componentRef.setInput('value', '');
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {
 				version: 'v5',
 				namespace: '6ba7b811-9dad-11d1-80b4-00c04fd430c8',
 				name: 'test',
 			},
-		} as any;
+		} as any);
 		component.ngOnInit();
 		expect(component.namespace).toBe('6ba7b811-9dad-11d1-80b4-00c04fd430c8');
 		expect(component.name).toBe('test');
@@ -78,33 +78,33 @@ describe('UuidEditComponent', () => {
 	it('should generate a valid v1 UUID', () => {
 		component.uuidVersion = 'v1';
 		component.generateUuid();
-		expect(uuidValidate(component.value)).toBe(true);
+		expect(uuidValidate(component.value())).toBe(true);
 	});
 
 	it('should generate a valid v4 UUID', () => {
 		component.uuidVersion = 'v4';
 		component.generateUuid();
-		expect(uuidValidate(component.value)).toBe(true);
+		expect(uuidValidate(component.value())).toBe(true);
 	});
 
 	it('should generate a valid v7 UUID', () => {
 		component.uuidVersion = 'v7';
 		component.generateUuid();
-		expect(uuidValidate(component.value)).toBe(true);
+		expect(uuidValidate(component.value())).toBe(true);
 	});
 
 	it('should generate a v3 UUID with name', () => {
 		component.uuidVersion = 'v3';
 		component.name = 'test-name';
 		component.generateUuid();
-		expect(uuidValidate(component.value)).toBe(true);
+		expect(uuidValidate(component.value())).toBe(true);
 	});
 
 	it('should generate a v5 UUID with name', () => {
 		component.uuidVersion = 'v5';
 		component.name = 'test-name';
 		component.generateUuid();
-		expect(uuidValidate(component.value)).toBe(true);
+		expect(uuidValidate(component.value())).toBe(true);
 	});
 
 	it('should generate deterministic v5 UUID for same inputs', () => {
@@ -112,10 +112,10 @@ describe('UuidEditComponent', () => {
 		component.name = 'test';
 		component.namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 		component.generateUuid();
-		const firstUuid = component.value;
+		const firstUuid = component.value();
 
 		component.generateUuid();
-		const secondUuid = component.value;
+		const secondUuid = component.value();
 
 		expect(firstUuid).toBe(secondUuid);
 	});
@@ -129,7 +129,7 @@ describe('UuidEditComponent', () => {
 	it('should fallback to v4 for unknown version', () => {
 		component.uuidVersion = 'v99' as any;
 		component.generateUuid();
-		expect(uuidValidate(component.value)).toBe(true);
+		expect(uuidValidate(component.value())).toBe(true);
 	});
 
 	it('should validate a valid UUID', () => {

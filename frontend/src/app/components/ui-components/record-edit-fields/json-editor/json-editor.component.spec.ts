@@ -29,8 +29,8 @@ describe('JsonEditorEditComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(JsonEditorEditComponent);
 		component = fixture.componentInstance;
-		component.label = 'metadata';
-		component.value = { id: 1, name: 'test', settings: { enabled: true } };
+		fixture.componentRef.setInput('label', 'metadata');
+		fixture.componentRef.setInput('value', { id: 1, name: 'test', settings: { enabled: true } });
 		fixture.detectChanges();
 	});
 
@@ -62,21 +62,21 @@ describe('JsonEditorEditComponent', () => {
 	});
 
 	it('should handle null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		component.ngOnInit();
 		// JSON.stringify(null) returns "null", fallback to '{}' only for undefined
 		expect((component.mutableCodeModel as any).value).toBe('null');
 	});
 
 	it('should handle undefined value with fallback', () => {
-		component.value = undefined;
+		fixture.componentRef.setInput('value', undefined);
 		component.ngOnInit();
 		// undefined is falsy so falls back to '{}'
 		expect((component.mutableCodeModel as any).value).toBe('{}');
 	});
 
 	it('should handle array value', () => {
-		component.value = [1, 2, 3] as any;
+		fixture.componentRef.setInput('value', [1, 2, 3] as any);
 		component.ngOnInit();
 		const modelValue = (component.mutableCodeModel as any).value;
 		expect(modelValue).toContain('1');
@@ -85,8 +85,8 @@ describe('JsonEditorEditComponent', () => {
 	});
 
 	it('should normalize label from base class', () => {
-		component.label = 'json_config_data';
+		fixture.componentRef.setInput('label', 'json_config_data');
 		component.ngOnInit();
-		expect(component.normalizedLabel).toBeDefined();
+		expect(component.normalizedLabel()).toBeDefined();
 	});
 });

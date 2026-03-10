@@ -19,16 +19,16 @@ describe('BaseEditFieldComponent', () => {
 	});
 
 	it('should normalize label on init', () => {
-		component.label = 'user_first_name';
+		fixture.componentRef.setInput('label', 'user_first_name');
 		component.ngOnInit();
-		expect(component.normalizedLabel).toBeTruthy();
+		expect(component.normalizedLabel()).toBeTruthy();
 	});
 
 	it('should set normalizedLabel from label input', () => {
-		component.label = 'test_field';
+		fixture.componentRef.setInput('label', 'test_field');
 		component.ngOnInit();
-		expect(component.normalizedLabel).toBeDefined();
-		expect(typeof component.normalizedLabel).toBe('string');
+		expect(component.normalizedLabel()).toBeDefined();
+		expect(typeof component.normalizedLabel()).toBe('string');
 	});
 
 	it('should have onFieldChange event emitter', () => {

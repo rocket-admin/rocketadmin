@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, model, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +14,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	imports: [CommonModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
 })
 export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit {
-	@Input() value: string | number | MoneyValue = '';
+	readonly value = model<string | number | MoneyValue>('');
 
 	static type = 'money';
 
@@ -36,8 +36,9 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
 	}
 
 	configureFromWidgetParams(): void {
-		if (this.widgetStructure?.widget_params) {
-			const params = this.widgetStructure.widget_params;
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
+			const params = ws.widget_params;
 
 			if (typeof params.default_currency === 'string') {
 				this.defaultCurrency = params.default_currency;
@@ -58,16 +59,17 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
 	}
 
 	private initializeMoneyValue(): void {
-		if (this.value) {
-			if (typeof this.value === 'string') {
-				this.parseStringValue(this.value);
-			} else if (typeof this.value === 'object' && this.value.amount !== undefined && this.value.currency) {
-				this.amount = this.value.amount;
-				this.selectedCurrency = this.value.currency;
+		const currentValue = this.value();
+		if (currentValue) {
+			if (typeof currentValue === 'string') {
+				this.parseStringValue(currentValue);
+			} else if (typeof currentValue === 'object' && (currentValue as MoneyValue).amount !== undefined && (currentValue as MoneyValue).currency) {
+				this.amount = (currentValue as MoneyValue).amount;
+				this.selectedCurrency = (currentValue as MoneyValue).currency;
 				this.displayAmount = this.formatAmount(this.amount);
-			} else if (typeof this.value === 'number') {
+			} else if (typeof currentValue === 'number') {
 				// Handle numeric values when currency selector is disabled
-				this.amount = this.value;
+				this.amount = currentValue;
 				this.selectedCurrency = this.defaultCurrency;
 				this.displayAmount = this.formatAmount(this.amount);
 			}
@@ -161,21 +163,21 @@ export class MoneyEditComponent extends BaseEditFieldComponent implements OnInit
 
 	public updateValue(): void {
 		if (this.amount === '' || this.amount === null || this.amount === undefined) {
-			this.value = '';
+			this.value.set('');
 		} else {
 			if (this.showCurrencySelector) {
 				// Store as object with amount and currency when selector is enabled
-				this.value = {
+				this.value.set({
 					amount: this.amount,
 					currency: this.selectedCurrency,
-				};
+				});
 			} else {
 				// Store only the numeric amount when currency selector is disabled
-				this.value = typeof this.amount === 'string' ? parseFloat(this.amount) || 0 : this.amount;
+				this.value.set(typeof this.amount === 'string' ? parseFloat(this.amount) || 0 : this.amount);
 			}
 		}
 
-		this.onFieldChange.emit(this.value);
+		this.onFieldChange.emit(this.value());
 	}
 
 	get selectedCurrencyData(): Money {

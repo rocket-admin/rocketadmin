@@ -29,14 +29,14 @@ describe('FileEditComponent', () => {
 	});
 
 	it('should set hexData from value on init when no widgetStructure', () => {
-		component.value = '48656c6c6f' as any;
+		fixture.componentRef.setInput('value', '48656c6c6f' as any);
 		component.ngOnInit();
 		expect(component.hexData).toBe('48656c6c6f');
 	});
 
 	it('should set fileType from widgetStructure on init', () => {
-		component.value = '48656c6c6f' as any;
-		component.widgetStructure = { widget_params: { type: 'base64' } } as any;
+		fixture.componentRef.setInput('value', '48656c6c6f' as any);
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { type: 'base64' } } as any);
 		component.ngOnInit();
 		expect(component.fileType).toBe('base64');
 	});
