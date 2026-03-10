@@ -4,6 +4,7 @@ import { Constants } from '../constants/constants.js';
 
 const invitationCache = new LRUCache(Constants.DEFAULT_INVITATION_CACHE_OPTIONS);
 const tableReadPermissionCache = new LRUCache(Constants.DEFAULT_TABLE_PERMISSIONS_CACHE_OPTIONS);
+const cedarPolicyCache = new LRUCache<string, string>(Constants.DEFAULT_CEDAR_POLICY_CACHE_OPTIONS);
 
 export class Cacher {
 	public static setUserTableReadPermissionCache(
@@ -65,8 +66,22 @@ export class Cacher {
 		return userInvitations <= 10 && groupInvitations <= 10;
 	}
 
+	public static getCedarPolicyCache(connectionId: string): string | null {
+		const cached = cedarPolicyCache.get(connectionId);
+		return cached !== undefined ? cached : null;
+	}
+
+	public static setCedarPolicyCache(connectionId: string, policies: string): void {
+		cedarPolicyCache.set(connectionId, policies);
+	}
+
+	public static invalidateCedarPolicyCache(connectionId: string): void {
+		cedarPolicyCache.delete(connectionId);
+	}
+
 	public static async clearAllCache(): Promise<void> {
 		await invitationCache.clear();
 		await tableReadPermissionCache.clear();
+		cedarPolicyCache.clear();
 	}
 }

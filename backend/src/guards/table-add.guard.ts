@@ -5,11 +5,14 @@ import {
 	ForbiddenException,
 	Inject,
 	Injectable,
+	Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 import { BaseType } from '../common/data-injection.tokens.js';
+import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';
+import { CedarAuthorizationService } from '../entities/cedar-authorization/cedar-authorization.service.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { getMasterPwd } from '../helpers/index.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
@@ -17,9 +20,12 @@ import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class TableAddGuard implements CanActivate {
+	private readonly logger = new Logger(TableAddGuard.name);
+
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarAuthService: CedarAuthorizationService,
 	) {}
 
 	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -37,6 +43,32 @@ export class TableAddGuard implements CanActivate {
 				reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
 				return;
 			}
+
+			// Cedar-first authorization
+			if (this.cedarAuthService.isFeatureEnabled()) {
+				try {
+					const allowed = await this.cedarAuthService.validate({
+						userId: cognitoUserName,
+						action: CedarAction.TableAdd,
+						connectionId,
+						tableName,
+					});
+					if (allowed) {
+						resolve(true);
+						return;
+					}
+					reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+					return;
+				} catch (e) {
+					if (e instanceof ForbiddenException || e?.status === 403) {
+						reject(e);
+						return;
+					}
+					this.logger.error(`Cedar authorization error, falling back to legacy: ${e.message}`);
+				}
+			}
+
+			// Legacy authorization fallback
 			let userTableAdd = false;
 			try {
 				userTableAdd = await this._dbContext.userAccessRepository.checkTableAdd(

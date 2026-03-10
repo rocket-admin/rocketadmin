@@ -88,6 +88,7 @@ test.serial(`${currentTest} should throw an exception when tableName is missing`
 		t.is(findSettingsRO.message, Messages.TABLE_NAME_MISSING);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -116,6 +117,7 @@ test.serial(`${currentTest} should throw an exception when connectionId is missi
 		t.is(findSettingsRO.message, Messages.CONNECTION_ID_MISSING);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -147,6 +149,7 @@ test.serial(
 			t.deepEqual(findSettingsRO, {});
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -222,6 +225,7 @@ test.serial(`${currentTest} should return connection settings object`, async (t)
 		t.is(findSettingsRO.connection_id, connectionId);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -297,6 +301,7 @@ test.serial(`${currentTest} should return created table settings`, async (t) => 
 		t.is(findSettingsRO.connection_id, connectionId);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -354,6 +359,7 @@ test.serial(`${currentTest} should throw exception when tableName is missing`, a
 		t.is(createTableSettingsRO.message, Messages.TABLE_NAME_MISSING);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -395,6 +401,7 @@ test.serial(`${currentTest} should throw exception when connectionId is missing`
 		t.is(createTableSettingsRO.message, Messages.CONNECTION_ID_MISSING);
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -451,6 +458,7 @@ test.serial(`${currentTest} should throw exception when search_fields is not an 
 		t.is(createTableSettingsRO.message, 'The field "search_fields" must be an array');
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -507,6 +515,7 @@ test.serial(`${currentTest} should throw exception when excluded_fields is not a
 		t.is(createTableSettingsRO.message, 'The field "excluded_fields" must be an array');
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -563,6 +572,7 @@ test.serial(`${currentTest} should throw exception when sortable_by is not an ar
 		t.is(createTableSettingsRO.message, 'The field "sortable_by" must be an array');
 	} catch (e) {
 		console.error(e);
+		throw e;
 	}
 });
 
@@ -622,6 +632,7 @@ test.serial(
 			t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -681,6 +692,7 @@ test.serial(
 			t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -724,6 +736,7 @@ test.serial(
 			t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
@@ -783,6 +796,7 @@ test.serial(
 			t.is(createTableSettingsRO.message, 'There are no such fields: testField - in the table "connection"');
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 	},
 );
