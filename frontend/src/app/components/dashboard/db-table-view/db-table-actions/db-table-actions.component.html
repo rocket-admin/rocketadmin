@@ -46,10 +46,7 @@
 
                 <!-- Triggers -->
                 <div class="creation-card">
-                    <span class="creation-card__label">
-                        <span class="step-label__badge step-label__badge--when">WHEN</span>
-                        Trigger happens
-                    </span>
+                    <span class="creation-card__label"><span class="step-label__badge step-label__badge--when">WHEN</span> Trigger</span>
 
                     <div class="trigger-pills">
                         <button type="button" class="trigger-pill trigger-pill--add-row"
@@ -117,12 +114,11 @@
                     }
                 </div>
 
+                <div class="card-connector"></div>
+
                 <!-- Action -->
                 <div class="creation-card" [class.creation-card--disabled]="!hasTriggersSelected">
-                    <span class="creation-card__label">
-                        <span class="step-label__badge step-label__badge--then">THEN</span>
-                        Action
-                    </span>
+                    <span class="creation-card__label"><span class="step-label__badge step-label__badge--then">THEN</span> Action</span>
                     @if (!hasTriggersSelected) {
                         <span class="creation-card__hint">Add a trigger first</span>
                     } @else {
@@ -223,10 +219,7 @@
 
                 <!-- Triggers -->
                 <div class="creation-card">
-                    <span class="creation-card__label">
-                        <span class="step-label__badge step-label__badge--when">WHEN</span>
-                        Trigger happens
-                    </span>
+                    <span class="creation-card__label"><span class="step-label__badge step-label__badge--when">WHEN</span> Trigger</span>
 
                     <div class="trigger-pills">
                         <button type="button" class="trigger-pill trigger-pill--add-row"
@@ -294,12 +287,11 @@
                     }
                 </div>
 
+                <div class="card-connector"></div>
+
                 <!-- Action card -->
                 <div class="creation-card" [class.creation-card--disabled]="!hasTriggersSelected">
-                    <span class="creation-card__label">
-                        <span class="step-label__badge step-label__badge--then">THEN</span>
-                        Action
-                    </span>
+                    <span class="creation-card__label"><span class="step-label__badge step-label__badge--then">THEN</span> Action</span>
                     @if (!hasTriggersSelected) {
                         <span class="creation-card__hint">Add a trigger first</span>
                     } @else {
