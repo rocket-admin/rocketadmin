@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { BaseType } from '../../common/data-injection.tokens.js';
+import { AccessLevelEnum, PermissionTypeEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../common/data-injection.tokens.js';
 import { GroupEntity } from '../group/group.entity.js';
-import { groupCustomRepositoryExtension } from '../group/repository/group-custom-repository-extension.js';
-import { IGroupRepository } from '../group/repository/group.repository.interface.js';
-import { UserEntity } from '../user/user.entity.js';
+import { IComplexPermission } from '../permission/permission.interface.js';
+import { PermissionEntity } from '../permission/permission.entity.js';
 import {
 	CedarAction,
 	CedarResourceType,
@@ -16,25 +16,23 @@ import {
 } from './cedar-action-map.js';
 import { ICedarAuthorizationService } from './cedar-authorization.service.interface.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
+import { parseCedarPolicyToClassicalPermissions } from './cedar-policy-parser.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
+import * as cedarWasm from '@cedar-policy/cedar-wasm/nodejs';
 
 @Injectable()
 export class CedarAuthorizationService implements ICedarAuthorizationService, OnModuleInit {
-	private cedarModule: typeof import('@cedar-policy/cedar-wasm/nodejs');
 	private schema: Record<string, unknown>;
-	private groupRepository: IGroupRepository;
 	private readonly logger = new Logger(CedarAuthorizationService.name);
 
 	constructor(
-		@Inject(BaseType.DATA_SOURCE)
-		private readonly dataSource: DataSource,
+		@Inject(BaseType.GLOBAL_DB_CONTEXT)
+		private readonly globalDbContext: IGlobalDatabaseContext,
 	) {}
 
 	async onModuleInit(): Promise<void> {
 		if (!this.isFeatureEnabled()) return;
-		this.cedarModule = await import('@cedar-policy/cedar-wasm/nodejs');
 		this.schema = CEDAR_SCHEMA as Record<string, unknown>;
-		this.groupRepository = this.dataSource.getRepository(GroupEntity).extend(groupCustomRepositoryExtension);
 		this.logger.log('Cedar authorization service initialized');
 	}
 
@@ -43,7 +41,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
-		const { userId, action, groupId, tableName } = request;
+		const { userId, action, groupId, tableName, dashboardId } = request;
 		let { connectionId } = request;
 
 		const actionPrefix = action.split(':')[0];
@@ -65,15 +63,100 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resourceType = CedarResourceType.Table;
 				resourceId = `${connectionId}/${tableName}`;
 				break;
+			case 'dashboard':
+				resourceType = CedarResourceType.Dashboard;
+				resourceId = `${connectionId}/${dashboardId}`;
+				break;
 			default:
 				return false;
 		}
 
-		return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName);
+		return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, dashboardId);
 	}
 
 	invalidatePolicyCacheForConnection(connectionId: string): void {
 		Cacher.invalidateCedarPolicyCache(connectionId);
+	}
+
+	getSchema(): Record<string, unknown> {
+		return this.schema;
+	}
+
+	async saveCedarPolicy(
+		connectionId: string,
+		groupId: string,
+		cedarPolicy: string,
+	): Promise<{ cedarPolicy: string; classicalPermissions: IComplexPermission }> {
+		this.validateCedarPolicyText(cedarPolicy);
+
+		const group = await this.globalDbContext.groupRepository.findGroupWithPermissionsById(groupId);
+		if (!group) {
+			throw new HttpException({ message: Messages.GROUP_NOT_FOUND }, HttpStatus.BAD_REQUEST);
+		}
+
+		const groupWithConnection = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+
+		if (groupWithConnection?.connection?.id !== connectionId) {
+			throw new HttpException({ message: Messages.GROUP_NOT_FROM_THIS_CONNECTION }, HttpStatus.BAD_REQUEST);
+		}
+
+		if (group.isMain) {
+			throw new HttpException({ message: Messages.CANNOT_CHANGE_ADMIN_GROUP }, HttpStatus.BAD_REQUEST);
+		}
+
+		const classicalPermissions = parseCedarPolicyToClassicalPermissions(cedarPolicy, connectionId, groupId);
+
+		await this.syncClassicalPermissions(group, classicalPermissions);
+
+		group.cedarPolicy = cedarPolicy;
+		await this.globalDbContext.groupRepository.saveNewOrUpdatedGroup(group);
+		Cacher.invalidateCedarPolicyCache(connectionId);
+
+		return { cedarPolicy, classicalPermissions };
+	}
+
+	validateCedarSchema(schema: Record<string, unknown>): void {
+		if (!schema || typeof schema !== 'object') {
+			throw new HttpException({ message: 'Cedar schema must be a valid JSON object' }, HttpStatus.BAD_REQUEST);
+		}
+
+		const namespaces = Object.keys(schema);
+		if (namespaces.length === 0) {
+			throw new HttpException({ message: 'Cedar schema must contain at least one namespace' }, HttpStatus.BAD_REQUEST);
+		}
+
+		for (const ns of namespaces) {
+			const namespace = schema[ns] as Record<string, unknown>;
+			if (!namespace || typeof namespace !== 'object') {
+				throw new HttpException({ message: `Namespace "${ns}" must be an object` }, HttpStatus.BAD_REQUEST);
+			}
+
+			if (!namespace.entityTypes || typeof namespace.entityTypes !== 'object') {
+				throw new HttpException(
+					{ message: `Namespace "${ns}" must contain "entityTypes" object` },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+
+			if (!namespace.actions || typeof namespace.actions !== 'object') {
+				throw new HttpException({ message: `Namespace "${ns}" must contain "actions" object` }, HttpStatus.BAD_REQUEST);
+			}
+		}
+
+		try {
+			const testCall = {
+				principal: { type: 'RocketAdmin::User', id: 'test' },
+				action: { type: 'RocketAdmin::Action', id: 'connection:read' },
+				resource: { type: 'RocketAdmin::Connection', id: 'test' },
+				context: {},
+				policies: { staticPolicies: 'permit(principal, action, resource);' },
+				entities: [],
+				schema: schema,
+			};
+			cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
+		} catch (e) {
+			throw new HttpException({ message: `Invalid cedar schema: ${e.message}` }, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	private async evaluate(
@@ -83,16 +166,17 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		resourceType: CedarResourceType,
 		resourceId: string,
 		tableName?: string,
+		dashboardId?: string,
 	): Promise<boolean> {
 		await this.assertUserNotSuspended(userId);
 
-		const userGroups = await this.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
+		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return false;
 
 		const policies = await this.loadPoliciesForConnection(connectionId);
 		if (!policies) return false;
 
-		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName);
+		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
 
 		const call = {
 			principal: { type: CEDAR_USER_TYPE, id: userId },
@@ -104,7 +188,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			schema: this.schema,
 		};
 
-		const result = this.cedarModule.isAuthorized(call as Parameters<typeof this.cedarModule.isAuthorized>[0]);
+		const result = cedarWasm.isAuthorized(call as Parameters<typeof cedarWasm.isAuthorized>[0]);
 		if (result.type === 'success') {
 			return result.response.decision === 'allow';
 		}
@@ -117,7 +201,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const cached = Cacher.getCedarPolicyCache(connectionId);
 		if (cached !== null) return cached;
 
-		const groups = await this.groupRepository.findAllGroupsInConnection(connectionId);
+		const groups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
 		const policyTexts = groups.map((g) => g.cedarPolicy).filter(Boolean);
 
 		if (policyTexts.length === 0) return null;
@@ -128,7 +212,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
-		const user = await this.dataSource.getRepository(UserEntity).findOne({
+		const user = await this.globalDbContext.userRepository.findOne({
 			where: { id: userId },
 			select: ['id', 'suspended'],
 		});
@@ -143,12 +227,99 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	private async getConnectionIdForGroup(groupId: string): Promise<string | null> {
-		const group = await this.dataSource
-			.getRepository(GroupEntity)
-			.createQueryBuilder('group')
-			.leftJoinAndSelect('group.connection', 'connection')
-			.where('group.id = :groupId', { groupId })
-			.getOne();
+		const group = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 		return group?.connection?.id ?? null;
+	}
+
+	private validateCedarPolicyText(policyText: string): void {
+		if (!policyText || typeof policyText !== 'string' || policyText.trim().length === 0) {
+			throw new HttpException({ message: 'Cedar policy must be a non-empty string' }, HttpStatus.BAD_REQUEST);
+		}
+
+		try {
+			const testCall = {
+				principal: { type: 'RocketAdmin::User', id: 'test' },
+				action: { type: 'RocketAdmin::Action', id: 'connection:read' },
+				resource: { type: 'RocketAdmin::Connection', id: 'test' },
+				context: {},
+				policies: { staticPolicies: policyText },
+				entities: [],
+				schema: this.schema,
+			};
+			cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
+		} catch (e) {
+			throw new HttpException({ message: `Invalid cedar policy: ${e.message}` }, HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	private async syncClassicalPermissions(group: GroupEntity, permissions: IComplexPermission): Promise<void> {
+		if (group.permissions && group.permissions.length > 0) {
+			for (const perm of group.permissions) {
+				await this.globalDbContext.permissionRepository.removePermissionEntity(perm);
+			}
+		}
+		group.permissions = [];
+
+		if (permissions.connection.accessLevel !== AccessLevelEnum.none) {
+			const connPerm = new PermissionEntity();
+			connPerm.type = PermissionTypeEnum.Connection;
+			connPerm.accessLevel = permissions.connection.accessLevel;
+			const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(connPerm);
+			group.permissions.push(saved);
+		}
+
+		if (permissions.group.accessLevel !== AccessLevelEnum.none) {
+			const groupPerm = new PermissionEntity();
+			groupPerm.type = PermissionTypeEnum.Group;
+			groupPerm.accessLevel = permissions.group.accessLevel;
+			const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(groupPerm);
+			group.permissions.push(saved);
+		}
+
+		for (const table of permissions.tables) {
+			const access = table.accessLevel;
+			if (access.visibility) {
+				const perm = new PermissionEntity();
+				perm.type = PermissionTypeEnum.Table;
+				perm.accessLevel = AccessLevelEnum.visibility;
+				perm.tableName = table.tableName;
+				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
+				group.permissions.push(saved);
+			}
+			if (access.readonly) {
+				const perm = new PermissionEntity();
+				perm.type = PermissionTypeEnum.Table;
+				perm.accessLevel = AccessLevelEnum.readonly;
+				perm.tableName = table.tableName;
+				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
+				group.permissions.push(saved);
+			}
+			if (access.add) {
+				const perm = new PermissionEntity();
+				perm.type = PermissionTypeEnum.Table;
+				perm.accessLevel = AccessLevelEnum.add;
+				perm.tableName = table.tableName;
+				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
+				group.permissions.push(saved);
+			}
+			if (access.edit) {
+				const perm = new PermissionEntity();
+				perm.type = PermissionTypeEnum.Table;
+				perm.accessLevel = AccessLevelEnum.edit;
+				perm.tableName = table.tableName;
+				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
+				group.permissions.push(saved);
+			}
+			if (access.delete) {
+				const perm = new PermissionEntity();
+				perm.type = PermissionTypeEnum.Table;
+				perm.accessLevel = AccessLevelEnum.delete;
+				perm.tableName = table.tableName;
+				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
+				group.permissions.push(saved);
+			}
+		}
+
+		await this.globalDbContext.groupRepository.saveNewOrUpdatedGroup(group);
 	}
 }

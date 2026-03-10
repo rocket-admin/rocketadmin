@@ -49,7 +49,34 @@ export function generateCedarPolicyForGroup(
 		);
 	}
 
-	// Table permissions
+	if (permissions.dashboards) {
+		for (const dashboard of permissions.dashboards) {
+			const dashboardRef = `RocketAdmin::Dashboard::"${connectionId}/${dashboard.dashboardId}"`;
+			const access = dashboard.accessLevel;
+
+			if (access.read) {
+				policies.push(
+					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${dashboardRef}\n);`,
+				);
+			}
+			if (access.create) {
+				policies.push(
+					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:create",\n  resource == ${dashboardRef}\n);`,
+				);
+			}
+			if (access.edit) {
+				policies.push(
+					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:edit",\n  resource == ${dashboardRef}\n);`,
+				);
+			}
+			if (access.delete) {
+				policies.push(
+					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:delete",\n  resource == ${dashboardRef}\n);`,
+				);
+			}
+		}
+	}
+
 	for (const table of permissions.tables) {
 		const tableRef = `RocketAdmin::Table::"${connectionId}/${table.tableName}"`;
 		const access = table.accessLevel;

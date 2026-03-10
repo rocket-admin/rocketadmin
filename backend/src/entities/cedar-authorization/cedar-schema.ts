@@ -36,6 +36,15 @@ export const CEDAR_SCHEMA = {
 					},
 				},
 			},
+			Dashboard: {
+				memberOfTypes: ['Connection'],
+				shape: {
+					type: 'Record',
+					attributes: {
+						connectionId: { type: 'String' },
+					},
+				},
+			},
 		},
 		actions: {
 			'connection:read': {
@@ -84,6 +93,30 @@ export const CEDAR_SCHEMA = {
 				appliesTo: {
 					principalTypes: ['User'],
 					resourceTypes: ['Table'],
+				},
+			},
+			'dashboard:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:create': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:edit': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:delete': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
 				},
 			},
 		},
