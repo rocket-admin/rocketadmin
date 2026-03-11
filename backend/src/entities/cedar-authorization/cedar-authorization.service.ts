@@ -63,16 +63,13 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resourceType = CedarResourceType.Table;
 				resourceId = `${connectionId}/${tableName}`;
 				break;
-			case 'dashboard':
-				if (action === CedarAction.DashboardCreate) {
-					resourceType = CedarResourceType.Connection;
-					resourceId = connectionId;
-				} else {
-					if (!dashboardId) return false;
-					resourceType = CedarResourceType.Dashboard;
-					resourceId = `${connectionId}/${dashboardId}`;
-				}
-				break;
+			case 'dashboard': {
+				resourceType = CedarResourceType.Dashboard;
+				const needsSentinel = action === CedarAction.DashboardCreate || !dashboardId;
+				const effectiveDashboardId = needsSentinel ? '__new__' : dashboardId;
+				resourceId = `${connectionId}/${effectiveDashboardId}`;
+				return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, effectiveDashboardId);
+			}
 			default:
 				return false;
 		}
