@@ -609,15 +609,15 @@
 }
 
 /* Default colored text & icons per type (muted when not selected) */
-.trigger-pill--add-row { color: #2d8a54; }
-.trigger-pill--update-row { color: #2a7faa; }
-.trigger-pill--delete-row { color: #a85656; }
+.trigger-pill--add-row { color: color-mix(in srgb, var(--success-color), transparent 40%); }
+.trigger-pill--update-row { color: color-mix(in srgb, var(--info-color), transparent 40%); }
+.trigger-pill--delete-row { color: color-mix(in srgb, var(--error-color), transparent 40%); }
 .trigger-pill--custom { color: #8660b0; }
 
 /* Full saturation when active */
-.trigger-pill--add-row.trigger-pill--active { color: #4ade80; }
-.trigger-pill--update-row.trigger-pill--active { color: #38bdf8; }
-.trigger-pill--delete-row.trigger-pill--active { color: #f87171; }
+.trigger-pill--add-row.trigger-pill--active { color: var(--success-color); }
+.trigger-pill--update-row.trigger-pill--active { color: var(--info-color); }
+.trigger-pill--delete-row.trigger-pill--active { color: var(--error-color); }
 .trigger-pill--custom.trigger-pill--active { color: #c084fc; }
 
 .trigger-pill:hover {
@@ -627,21 +627,21 @@
 
 /* Active states */
 .trigger-pill--add-row.trigger-pill--active {
-	border-color: #4ade80;
-	background: #0a1f14;
-	box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.25), 0 0 12px rgba(74, 222, 128, 0.08);
+	border-color: var(--success-color);
+	background: color-mix(in srgb, var(--success-color), transparent 90%);
+	box-shadow: 0 0 0 1px color-mix(in srgb, var(--success-color), transparent 75%), 0 0 12px color-mix(in srgb, var(--success-color), transparent 92%);
 }
 
 .trigger-pill--update-row.trigger-pill--active {
-	border-color: #38bdf8;
-	background: #071428;
-	box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25), 0 0 12px rgba(56, 189, 248, 0.08);
+	border-color: var(--info-color);
+	background: color-mix(in srgb, var(--info-color), transparent 90%);
+	box-shadow: 0 0 0 1px color-mix(in srgb, var(--info-color), transparent 75%), 0 0 12px color-mix(in srgb, var(--info-color), transparent 92%);
 }
 
 .trigger-pill--delete-row.trigger-pill--active {
-	border-color: #f87171;
-	background: #1a0808;
-	box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.25), 0 0 12px rgba(248, 113, 113, 0.08);
+	border-color: var(--error-color);
+	background: color-mix(in srgb, var(--error-color), transparent 90%);
+	box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color), transparent 75%), 0 0 12px color-mix(in srgb, var(--error-color), transparent 92%);
 }
 
 .trigger-pill--custom.trigger-pill--active {
@@ -657,14 +657,14 @@
 		border-color: #e2e8f0;
 	}
 
-	.trigger-pill--add-row { color: #6aab7d; }
-	.trigger-pill--update-row { color: #6a9fbf; }
-	.trigger-pill--delete-row { color: #c07070; }
+	.trigger-pill--add-row { color: color-mix(in srgb, var(--success-color), transparent 35%); }
+	.trigger-pill--update-row { color: color-mix(in srgb, var(--info-color), transparent 35%); }
+	.trigger-pill--delete-row { color: color-mix(in srgb, var(--error-color), transparent 35%); }
 	.trigger-pill--custom { color: #9878bf; }
 
-	.trigger-pill--add-row.trigger-pill--active { color: #16a34a; }
-	.trigger-pill--update-row.trigger-pill--active { color: #0284c7; }
-	.trigger-pill--delete-row.trigger-pill--active { color: #dc2626; }
+	.trigger-pill--add-row.trigger-pill--active { color: var(--success-color); }
+	.trigger-pill--update-row.trigger-pill--active { color: var(--info-color); }
+	.trigger-pill--delete-row.trigger-pill--active { color: var(--error-color); }
 	.trigger-pill--custom.trigger-pill--active { color: #9333ea; }
 
 	.trigger-pill:hover {
@@ -673,21 +673,21 @@
 	}
 
 	.trigger-pill--add-row.trigger-pill--active {
-		border-color: #16a34a;
-		background: #f0fdf4;
-		box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.25);
+		border-color: var(--success-color);
+		background: color-mix(in srgb, var(--success-color), transparent 92%);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--success-color), transparent 75%);
 	}
 
 	.trigger-pill--update-row.trigger-pill--active {
-		border-color: #0284c7;
-		background: #f0f9ff;
-		box-shadow: 0 0 0 1px rgba(2, 132, 199, 0.25);
+		border-color: var(--info-color);
+		background: color-mix(in srgb, var(--info-color), transparent 92%);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--info-color), transparent 75%);
 	}
 
 	.trigger-pill--delete-row.trigger-pill--active {
-		border-color: #dc2626;
-		background: #fef2f2;
-		box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.25);
+		border-color: var(--error-color);
+		background: color-mix(in srgb, var(--error-color), transparent 92%);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color), transparent 75%);
 	}
 
 	.trigger-pill--custom.trigger-pill--active {
