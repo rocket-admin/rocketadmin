@@ -602,6 +602,12 @@
 	transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
 
+.trigger-pill__checkbox {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
 .trigger-pill__icon {
 	font-size: 15px;
 	width: 15px;

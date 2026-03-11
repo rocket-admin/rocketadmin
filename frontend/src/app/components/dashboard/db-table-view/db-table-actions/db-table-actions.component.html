@@ -49,33 +49,37 @@
                     <span class="creation-card__label"><span class="step-label__badge step-label__badge--when">WHEN</span> Trigger</span>
 
                     <div class="trigger-pills">
-                        <button type="button" class="trigger-pill trigger-pill--add-row"
-                            [class.trigger-pill--active]="selectedEvents.includes('ADD_ROW')"
-                            (click)="toggleTriggerTile(availableEvents[0].value)">
+                        <label class="trigger-pill trigger-pill--add-row" [class.trigger-pill--active]="selectedEvents.includes('ADD_ROW')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('ADD_ROW')"
+                                (change)="toggleTriggerTile(availableEvents[0].value)">
                             <mat-icon class="trigger-pill__icon">add_circle_outline</mat-icon>
                             <span>Add row</span>
-                        </button>
+                        </label>
                         <span class="trigger-pills__or">or</span>
-                        <button type="button" class="trigger-pill trigger-pill--update-row"
-                            [class.trigger-pill--active]="selectedEvents.includes('UPDATE_ROW')"
-                            (click)="toggleTriggerTile(availableEvents[1].value)">
+                        <label class="trigger-pill trigger-pill--update-row" [class.trigger-pill--active]="selectedEvents.includes('UPDATE_ROW')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('UPDATE_ROW')"
+                                (change)="toggleTriggerTile(availableEvents[1].value)">
                             <mat-icon class="trigger-pill__icon">edit</mat-icon>
                             <span>Update row</span>
-                        </button>
+                        </label>
                         <span class="trigger-pills__or">or</span>
-                        <button type="button" class="trigger-pill trigger-pill--delete-row"
-                            [class.trigger-pill--active]="selectedEvents.includes('DELETE_ROW')"
-                            (click)="toggleTriggerTile(availableEvents[2].value)">
+                        <label class="trigger-pill trigger-pill--delete-row" [class.trigger-pill--active]="selectedEvents.includes('DELETE_ROW')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('DELETE_ROW')"
+                                (change)="toggleTriggerTile(availableEvents[2].value)">
                             <mat-icon class="trigger-pill__icon">delete_outline</mat-icon>
                             <span>Delete row</span>
-                        </button>
+                        </label>
                         <span class="trigger-pills__or">or</span>
-                        <button type="button" class="trigger-pill trigger-pill--custom"
-                            [class.trigger-pill--active]="selectedEvents.includes('CUSTOM')"
-                            (click)="toggleTriggerTile(availableEvents[3].value)">
+                        <label class="trigger-pill trigger-pill--custom" [class.trigger-pill--active]="selectedEvents.includes('CUSTOM')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('CUSTOM')"
+                                (change)="toggleTriggerTile(availableEvents[3].value)">
                             <mat-icon class="trigger-pill__icon">tune</mat-icon>
                             <span>Custom</span>
-                        </button>
+                        </label>
                     </div>
 
                     @if (selectedRuleCustomEvent) {
@@ -222,33 +226,37 @@
                     <span class="creation-card__label"><span class="step-label__badge step-label__badge--when">WHEN</span> Trigger</span>
 
                     <div class="trigger-pills">
-                        <button type="button" class="trigger-pill trigger-pill--add-row"
-                            [class.trigger-pill--active]="selectedEvents.includes('ADD_ROW')"
-                            (click)="toggleTriggerTile(availableEvents[0].value)">
+                        <label class="trigger-pill trigger-pill--add-row" [class.trigger-pill--active]="selectedEvents.includes('ADD_ROW')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('ADD_ROW')"
+                                (change)="toggleTriggerTile(availableEvents[0].value)">
                             <mat-icon class="trigger-pill__icon">add_circle_outline</mat-icon>
                             <span>Add row</span>
-                        </button>
+                        </label>
                         <span class="trigger-pills__or">or</span>
-                        <button type="button" class="trigger-pill trigger-pill--update-row"
-                            [class.trigger-pill--active]="selectedEvents.includes('UPDATE_ROW')"
-                            (click)="toggleTriggerTile(availableEvents[1].value)">
+                        <label class="trigger-pill trigger-pill--update-row" [class.trigger-pill--active]="selectedEvents.includes('UPDATE_ROW')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('UPDATE_ROW')"
+                                (change)="toggleTriggerTile(availableEvents[1].value)">
                             <mat-icon class="trigger-pill__icon">edit</mat-icon>
                             <span>Update row</span>
-                        </button>
+                        </label>
                         <span class="trigger-pills__or">or</span>
-                        <button type="button" class="trigger-pill trigger-pill--delete-row"
-                            [class.trigger-pill--active]="selectedEvents.includes('DELETE_ROW')"
-                            (click)="toggleTriggerTile(availableEvents[2].value)">
+                        <label class="trigger-pill trigger-pill--delete-row" [class.trigger-pill--active]="selectedEvents.includes('DELETE_ROW')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('DELETE_ROW')"
+                                (change)="toggleTriggerTile(availableEvents[2].value)">
                             <mat-icon class="trigger-pill__icon">delete_outline</mat-icon>
                             <span>Delete row</span>
-                        </button>
+                        </label>
                         <span class="trigger-pills__or">or</span>
-                        <button type="button" class="trigger-pill trigger-pill--custom"
-                            [class.trigger-pill--active]="selectedEvents.includes('CUSTOM')"
-                            (click)="toggleTriggerTile(availableEvents[3].value)">
+                        <label class="trigger-pill trigger-pill--custom" [class.trigger-pill--active]="selectedEvents.includes('CUSTOM')">
+                            <input type="checkbox" class="trigger-pill__checkbox"
+                                [checked]="selectedEvents.includes('CUSTOM')"
+                                (change)="toggleTriggerTile(availableEvents[3].value)">
                             <mat-icon class="trigger-pill__icon">tune</mat-icon>
                             <span>Custom</span>
-                        </button>
+                        </label>
                     </div>
 
                     @if (selectedRuleCustomEvent) {
