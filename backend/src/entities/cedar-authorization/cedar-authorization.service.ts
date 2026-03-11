@@ -64,8 +64,14 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resourceId = `${connectionId}/${tableName}`;
 				break;
 			case 'dashboard':
-				resourceType = CedarResourceType.Dashboard;
-				resourceId = `${connectionId}/${dashboardId}`;
+				if (action === CedarAction.DashboardCreate) {
+					resourceType = CedarResourceType.Connection;
+					resourceId = connectionId;
+				} else {
+					if (!dashboardId) return false;
+					resourceType = CedarResourceType.Dashboard;
+					resourceId = `${connectionId}/${dashboardId}`;
+				}
 				break;
 			default:
 				return false;
@@ -155,8 +161,16 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				entities: [],
 				schema: schema,
 			};
-			cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
+			const result = cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
+			if (result.type !== 'success') {
+				const errors = (result as unknown as { type: string; errors: string[] }).errors ?? [];
+				throw new HttpException(
+					{ message: `Invalid cedar schema: ${errors.join('; ') || 'unknown validation error'}` },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
 		} catch (e) {
+			if (e instanceof HttpException) throw e;
 			throw new HttpException({ message: `Invalid cedar schema: ${e.message}` }, HttpStatus.BAD_REQUEST);
 		}
 	}
