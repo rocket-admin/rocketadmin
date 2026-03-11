@@ -195,7 +195,8 @@
 
 .code-snippet-box {
 	position: relative;
-	border: 1px solid #b0b0b0;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 4px;
 	margin-top: 8px;
 	margin-bottom: 20px;
 	max-width: 1100px;
@@ -361,54 +362,38 @@
 .creation-card--trigger::after {
 	content: '';
 	position: absolute;
-	bottom: -4px;
+	bottom: -3px;
 	left: 50%;
 	transform: translateX(-50%);
-	width: 7px;
-	height: 7px;
+	width: 6px;
+	height: 6px;
 	border-radius: 50%;
-	background-color: #8888a0;
+	background-color: var(--color-accentedPalette-300);
 	z-index: 1;
-}
-
-@media (prefers-color-scheme: light) {
-	.creation-card--trigger::after {
-		background-color: #b0b0c0;
-	}
 }
 
 .card-connector {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	height: 28px;
-	margin: -14px 0;
+	height: 36px;
+	margin: -18px 0;
 	max-width: 900px;
 }
 
 .card-connector::before {
 	content: '';
 	flex: 1;
-	border-left: 1.5px dashed #8888a0;
+	border-left: 1px solid var(--color-accentedPalette-300);
 }
 
 .card-connector::after {
 	content: '';
 	width: 0;
 	height: 0;
-	border-left: 5px solid transparent;
-	border-right: 5px solid transparent;
-	border-top: 6px solid #8888a0;
-}
-
-@media (prefers-color-scheme: light) {
-	.card-connector::before {
-		border-left-color: #b0b0c0;
-	}
-
-	.card-connector::after {
-		border-top-color: #b0b0c0;
-	}
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid var(--color-accentedPalette-300);
 }
 
 .creation-flow__name-row {
@@ -710,135 +695,48 @@
 
 .affects-row {
 	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	width: 100%;
-	position: relative;
-	z-index: 1;
+	align-items: center;
+	gap: 16px;
 	margin-top: -8px;
+	width: 100%;
 }
 
 .affects-row__label {
 	font-weight: 500;
 	font-size: 0.85em;
-	color: rgba(0, 0, 0, 0.6);
+	color: rgba(0, 0, 0, 0.64);
 }
 
 @media (prefers-color-scheme: dark) {
 	.affects-row__label {
-		color: rgba(255, 255, 255, 0.6);
+		color: rgba(255, 255, 255, 0.64);
 	}
 }
 
-.affects-row__tabs {
-	display: flex;
-	gap: 8px;
+/* ── Accented toggle groups (affects + action methods) ── */
+
+.affects-row ::ng-deep .mat-button-toggle-checked,
+.action-methods ::ng-deep .mat-button-toggle-checked {
+	background-color: var(--color-accentedPalette-100);
+	color: var(--color-accentedPalette-100-contrast);
 }
 
-.affects-tab {
-	padding: 8px 16px;
-	border-radius: 4px;
-	border: 1.5px solid #3a3a4a;
-	background: transparent;
-	color: #8888a0;
-	font-size: 0.85em;
-	font-weight: 500;
-	cursor: pointer;
-	transition: border-color 0.15s, background-color 0.15s, color 0.15s;
-}
-
-.affects-tab:hover {
-	border-color: #50506a;
-	color: #a0a0b8;
-}
-
-@media (prefers-color-scheme: light) {
-	.affects-tab {
-		background: transparent;
-		border-color: #c8c8d0;
-		color: #6a6a7a;
-	}
-
-	.affects-tab:hover {
-		border-color: #a0a0b0;
-		color: #505060;
-	}
-}
-
-.affects-tab--active {
-	border-color: #1565c0;
-	background: rgba(21, 101, 192, 0.15);
-	color: #42a5f5;
-}
-
-@media (prefers-color-scheme: light) {
-	.affects-tab--active {
-		border-color: #1565c0;
-		background: rgba(21, 101, 192, 0.1);
-		color: #1565c0;
-	}
-}
-
-/* ── Action method pills ── */
+/* ── Action methods ── */
 
 .action-methods {
-	display: flex;
-	gap: 10px;
-	flex-wrap: wrap;
 	margin-bottom: 16px;
 }
 
-.action-method-pill {
-	display: inline-flex;
+.action-methods ::ng-deep .mat-button-toggle-label-content {
+	display: flex;
 	align-items: center;
-	gap: 6px;
-	padding: 8px 16px;
-	border-radius: 4px;
-	border: 1.5px solid #3a3a4a;
-	background: transparent;
-	color: #8888a0;
-	font-size: 0.9em;
-	font-weight: 500;
-	cursor: pointer;
-	transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+	gap: 4px;
 }
 
-.action-method-pill__icon {
+.action-methods mat-icon {
 	font-size: 18px;
 	width: 18px;
 	height: 18px;
-}
-
-.action-method-pill:hover {
-	border-color: #50506a;
-	color: #a0a0b8;
-}
-
-@media (prefers-color-scheme: light) {
-	.action-method-pill {
-		background: transparent;
-		border-color: #e0e0e4;
-		color: #9090a0;
-	}
-
-	.action-method-pill:hover {
-		border-color: #c0c0c8;
-		color: #606070;
-	}
-}
-
-.action-method-pill--active {
-	border-color: #1565c0;
-	background: rgba(21, 101, 192, 0.15);
-	color: #42a5f5;
-}
-
-@media (prefers-color-scheme: light) {
-	.action-method-pill--active {
-		border-color: #1565c0;
-		background: rgba(21, 101, 192, 0.1);
-		color: #1565c0;
-	}
 }
 
 /* ── Action fields ── */

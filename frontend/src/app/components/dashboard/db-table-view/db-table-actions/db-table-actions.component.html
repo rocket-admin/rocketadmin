@@ -101,18 +101,12 @@
                         </mat-checkbox>
                         <div class="affects-row">
                             <span class="affects-row__label">Affects</span>
-                            <div class="affects-row__tabs">
-                                <button type="button" class="affects-tab"
-                                    [class.affects-tab--active]="selectedRuleCustomEvent.type === 'single'"
-                                    (click)="setCustomEventType('single')">
-                                    Single row
-                                </button>
-                                <button type="button" class="affects-tab"
-                                    [class.affects-tab--active]="selectedRuleCustomEvent.type === 'multiple'"
-                                    (click)="setCustomEventType('multiple')">
-                                    Multiple rows
-                                </button>
-                            </div>
+                            <mat-button-toggle-group [value]="selectedRuleCustomEvent.type"
+                                (change)="setCustomEventType($event.value)"
+                                hideSingleSelectionIndicator>
+                                <mat-button-toggle value="single">Single row</mat-button-toggle>
+                                <mat-button-toggle value="multiple">Multiple rows</mat-button-toggle>
+                            </mat-button-toggle-group>
                         </div>
                     </div>
                     }
@@ -126,23 +120,20 @@
                     @if (!hasTriggersSelected) {
                         <span class="creation-card__hint">Add a trigger first</span>
                     } @else {
-                    <div class="action-methods">
-                        <button type="button" class="action-method-pill"
-                            [class.action-method-pill--active]="$any(selectedRule.table_actions[0]).method === 'URL'"
-                            (click)="selectActionMethod('URL')">
-                            <mat-icon class="action-method-pill__icon">link</mat-icon> URL webhook
-                        </button>
-                        <button type="button" class="action-method-pill"
-                            [class.action-method-pill--active]="$any(selectedRule.table_actions[0]).method === 'EMAIL'"
-                            (click)="selectActionMethod('EMAIL')">
-                            <mat-icon class="action-method-pill__icon">email</mat-icon> Email
-                        </button>
-                        <button type="button" class="action-method-pill"
-                            [class.action-method-pill--active]="$any(selectedRule.table_actions[0]).method === 'SLACK'"
-                            (click)="selectActionMethod('SLACK')">
-                            <mat-icon class="action-method-pill__icon">tag</mat-icon> Slack
-                        </button>
-                    </div>
+                    <mat-button-toggle-group class="action-methods"
+                        [value]="$any(selectedRule.table_actions[0]).method"
+                        (change)="selectActionMethod($event.value)"
+                        hideSingleSelectionIndicator>
+                        <mat-button-toggle value="URL">
+                            <mat-icon>link</mat-icon> URL webhook
+                        </mat-button-toggle>
+                        <mat-button-toggle value="EMAIL">
+                            <mat-icon>email</mat-icon> Email
+                        </mat-button-toggle>
+                        <mat-button-toggle value="SLACK">
+                            <mat-icon>tag</mat-icon> Slack
+                        </mat-button-toggle>
+                    </mat-button-toggle-group>
 
                     <div class="action-fields">
                         @if ($any(selectedRule.table_actions[0]).method === 'URL') {
@@ -278,18 +269,12 @@
                         </mat-checkbox>
                         <div class="affects-row">
                             <span class="affects-row__label">Affects</span>
-                            <div class="affects-row__tabs">
-                                <button type="button" class="affects-tab"
-                                    [class.affects-tab--active]="selectedRuleCustomEvent.type === 'single'"
-                                    (click)="setCustomEventType('single')">
-                                    Single row
-                                </button>
-                                <button type="button" class="affects-tab"
-                                    [class.affects-tab--active]="selectedRuleCustomEvent.type === 'multiple'"
-                                    (click)="setCustomEventType('multiple')">
-                                    Multiple rows
-                                </button>
-                            </div>
+                            <mat-button-toggle-group [value]="selectedRuleCustomEvent.type"
+                                (change)="setCustomEventType($event.value)"
+                                hideSingleSelectionIndicator>
+                                <mat-button-toggle value="single">Single row</mat-button-toggle>
+                                <mat-button-toggle value="multiple">Multiple rows</mat-button-toggle>
+                            </mat-button-toggle-group>
                         </div>
                     </div>
                     }
@@ -303,23 +288,20 @@
                     @if (!hasTriggersSelected) {
                         <span class="creation-card__hint">Add a trigger first</span>
                     } @else {
-                        <div class="action-methods">
-                            <button type="button" class="action-method-pill"
-                                [class.action-method-pill--active]="$any(selectedRule.table_actions[0]).method === 'URL'"
-                                (click)="selectActionMethod('URL')">
-                                <mat-icon class="action-method-pill__icon">link</mat-icon> URL webhook
-                            </button>
-                            <button type="button" class="action-method-pill"
-                                [class.action-method-pill--active]="$any(selectedRule.table_actions[0]).method === 'EMAIL'"
-                                (click)="selectActionMethod('EMAIL')">
-                                <mat-icon class="action-method-pill__icon">email</mat-icon> Email
-                            </button>
-                            <button type="button" class="action-method-pill"
-                                [class.action-method-pill--active]="$any(selectedRule.table_actions[0]).method === 'SLACK'"
-                                (click)="selectActionMethod('SLACK')">
-                                <mat-icon class="action-method-pill__icon">tag</mat-icon> Slack
-                            </button>
-                        </div>
+                        <mat-button-toggle-group class="action-methods"
+                            [value]="$any(selectedRule.table_actions[0]).method"
+                            (change)="selectActionMethod($event.value)"
+                            hideSingleSelectionIndicator>
+                            <mat-button-toggle value="URL">
+                                <mat-icon>link</mat-icon> URL webhook
+                            </mat-button-toggle>
+                            <mat-button-toggle value="EMAIL">
+                                <mat-icon>email</mat-icon> Email
+                            </mat-button-toggle>
+                            <mat-button-toggle value="SLACK">
+                                <mat-icon>tag</mat-icon> Slack
+                            </mat-button-toggle>
+                        </mat-button-toggle-group>
 
                         <div class="action-fields">
                             @if ($any(selectedRule.table_actions[0]).method === 'URL') {
