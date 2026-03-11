@@ -489,3 +489,208 @@ test.serial(
 		}
 	},
 );
+
+//****************************** CEDAR POLICY REFERENCE VALIDATION TESTS ******************************
+
+test.serial(
+	`${currentTest} should reject cedar policy that references a different group as principal`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const adminGroupId = testData.groups.firstAdminGroupId;
+
+			// Policy references adminGroupId as principal instead of the target groupId
+			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${adminGroupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`;
+
+			const response = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(response.status, 400);
+			t.is(JSON.parse(response.text).message, Messages.CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should reject cedar policy that references a non-existent group as principal`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const fakeGroupId = '00000000-0000-4000-a000-000000000099';
+
+			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${fakeGroupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`;
+
+			const response = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(response.status, 400);
+			t.is(JSON.parse(response.text).message, Messages.CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should reject cedar policy that references a foreign connection`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const secondConnectionId = testData.connections.secondId;
+			const groupId = testData.groups.createdGroupId;
+
+			// Policy references secondConnectionId as the resource
+			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${secondConnectionId}"\n);`;
+
+			const response = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(response.status, 400);
+			t.is(JSON.parse(response.text).message, Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should reject cedar policy that references a group from another connection as resource`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const secondAdminGroupId = testData.groups.secondAdminGroupId;
+
+			// Policy grants group:edit access to a group from the second connection
+			const cedarPolicy = [
+				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"group:edit",\n  resource == RocketAdmin::Group::"${secondAdminGroupId}"\n);`,
+			].join('\n\n');
+
+			const response = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(response.status, 400);
+			t.is(JSON.parse(response.text).message, Messages.CEDAR_POLICY_REFERENCES_FOREIGN_GROUP);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should reject cedar policy that references a table from another connection`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const secondConnectionId = testData.connections.secondId;
+			const groupId = testData.groups.createdGroupId;
+			const tableName = testData.firstTableInfo.testTableName;
+
+			// Policy references a table prefixed with the second connection ID
+			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${secondConnectionId}/${tableName}"\n);`;
+
+			const response = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(response.status, 400);
+			t.is(JSON.parse(response.text).message, Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should reject cedar policy that references a dashboard from another connection`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const secondConnectionId = testData.connections.secondId;
+			const groupId = testData.groups.createdGroupId;
+
+			// Policy references a dashboard prefixed with the second connection ID
+			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == RocketAdmin::Dashboard::"${secondConnectionId}/dash-1"\n);`;
+
+			const response = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(response.status, 400);
+			t.is(JSON.parse(response.text).message, Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should allow cedar policy that references a valid group from the same connection as resource`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const adminGroupId = testData.groups.firstAdminGroupId;
+
+			// Policy grants group:read access to the admin group of the SAME connection - this is valid
+			const cedarPolicy = [
+				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"group:read",\n  resource == RocketAdmin::Group::"${adminGroupId}"\n);`,
+			].join('\n\n');
+
+			const response = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(response.status, 201);
+			t.truthy(response.body.cedarPolicy);
+			t.truthy(response.body.classicalPermissions);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);

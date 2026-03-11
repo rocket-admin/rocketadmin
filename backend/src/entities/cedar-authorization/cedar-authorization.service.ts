@@ -104,6 +104,8 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			throw new HttpException({ message: Messages.CANNOT_CHANGE_ADMIN_GROUP }, HttpStatus.BAD_REQUEST);
 		}
 
+		await this.validatePolicyReferences(cedarPolicy, connectionId, groupId);
+
 		const classicalPermissions = parseCedarPolicyToClassicalPermissions(cedarPolicy, connectionId, groupId);
 
 		await this.syncClassicalPermissions(group, classicalPermissions);
@@ -249,6 +251,83 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
 		} catch (e) {
 			throw new HttpException({ message: `Invalid cedar policy: ${e.message}` }, HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	private async validatePolicyReferences(
+		cedarPolicy: string,
+		connectionId: string,
+		groupId: string,
+	): Promise<void> {
+		
+		const principalGroupIds = [
+			...cedarPolicy.matchAll(/principal\s+in\s+RocketAdmin::Group::"([^"]+)"/g),
+		].map((m) => m[1]);
+
+		for (const principalGroupId of principalGroupIds) {
+			if (principalGroupId !== groupId) {
+				throw new HttpException(
+					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
+
+		const connectionIds = [
+			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Connection::"([^"]+)"/g),
+		].map((m) => m[1]);
+
+		for (const refConnectionId of connectionIds) {
+			if (refConnectionId !== connectionId) {
+				throw new HttpException(
+					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
+
+		const groupResourceIds = [
+			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Group::"([^"]+)"/g),
+		].map((m) => m[1]);
+
+		if (groupResourceIds.length > 0) {
+			const connectionGroups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
+			const connectionGroupIds = new Set(connectionGroups.map((g) => g.id));
+
+			for (const refGroupId of groupResourceIds) {
+				if (!connectionGroupIds.has(refGroupId)) {
+					throw new HttpException(
+						{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_GROUP },
+						HttpStatus.BAD_REQUEST,
+					);
+				}
+			}
+		}
+
+		const tableResourceIds = [
+			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Table::"([^"]+)"/g),
+		].map((m) => m[1]);
+
+		for (const tableRef of tableResourceIds) {
+			if (!tableRef.startsWith(`${connectionId}/`)) {
+				throw new HttpException(
+					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
+
+		const dashboardResourceIds = [
+			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Dashboard::"([^"]+)"/g),
+		].map((m) => m[1]);
+
+		for (const dashboardRef of dashboardResourceIds) {
+			if (!dashboardRef.startsWith(`${connectionId}/`)) {
+				throw new HttpException(
+					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
 		}
 	}
 
