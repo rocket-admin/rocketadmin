@@ -83,3 +83,29 @@ test('empty groups array means user has no parents', (t) => {
 	t.truthy(userEntity);
 	t.deepEqual(userEntity.parents, []);
 });
+
+test('dashboard entity created when dashboardId provided with correct id and parent', (t) => {
+	const dashboardId = 'dash-1';
+	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId, undefined, dashboardId);
+	const dashEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Dashboard');
+	t.truthy(dashEntity);
+	t.is(dashEntity.uid.id, `${connectionId}/${dashboardId}`);
+	t.is(dashEntity.attrs.connectionId, connectionId);
+	t.deepEqual(dashEntity.parents, [{ type: 'RocketAdmin::Connection', id: connectionId }]);
+});
+
+test('no dashboard entity when dashboardId omitted', (t) => {
+	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId);
+	const dashEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Dashboard');
+	t.falsy(dashEntity);
+});
+
+test('both table and dashboard entities created when both provided', (t) => {
+	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId, 'users', 'dash-1');
+	const tableEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Table');
+	const dashEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Dashboard');
+	t.truthy(tableEntity);
+	t.truthy(dashEntity);
+	// 1 user + 1 group + 1 connection + 1 table + 1 dashboard = 5
+	t.is(entities.length, 5);
+});

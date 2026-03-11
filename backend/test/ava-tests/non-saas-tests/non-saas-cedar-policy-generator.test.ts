@@ -212,6 +212,85 @@ test('multiple tables generate separate policies per table with correct resource
 	t.is(permits.length, 3);
 });
 
+test('dashboard with read=true generates only dashboard:read', (t) => {
+	const result = generateCedarPolicyForGroup(
+		groupId,
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: true, create: false, edit: false, delete: false },
+				},
+			],
+		}),
+	);
+	t.true(result.includes('action == RocketAdmin::Action::"dashboard:read"'));
+	t.false(result.includes('dashboard:create'));
+	t.false(result.includes('dashboard:edit'));
+	t.false(result.includes('dashboard:delete'));
+	const permits = result.match(/permit\(/g);
+	t.is(permits.length, 1);
+});
+
+test('dashboard with all flags true generates dashboard:read + dashboard:create + dashboard:edit + dashboard:delete', (t) => {
+	const result = generateCedarPolicyForGroup(
+		groupId,
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: true, create: true, edit: true, delete: true },
+				},
+			],
+		}),
+	);
+	t.true(result.includes('dashboard:read'));
+	t.true(result.includes('dashboard:create'));
+	t.true(result.includes('dashboard:edit'));
+	t.true(result.includes('dashboard:delete'));
+	const permits = result.match(/permit\(/g);
+	t.is(permits.length, 4);
+});
+
+test('dashboard with all flags false generates no policies for that dashboard', (t) => {
+	const result = generateCedarPolicyForGroup(
+		groupId,
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: false, create: false, edit: false, delete: false },
+				},
+			],
+		}),
+	);
+	t.false(result.includes('dashboard:'));
+	t.is(result, '');
+});
+
+test('dashboard resource ref format uses connectionId/dashboardId', (t) => {
+	const result = generateCedarPolicyForGroup(
+		groupId,
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: true, create: false, edit: false, delete: false },
+				},
+			],
+		}),
+	);
+	t.true(result.includes(`RocketAdmin::Dashboard::"${connectionId}/dash-1"`));
+});
+
 test('resource ref format validation', (t) => {
 	const result = generateCedarPolicyForGroup(
 		groupId,

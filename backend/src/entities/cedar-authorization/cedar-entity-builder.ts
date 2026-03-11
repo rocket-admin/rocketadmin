@@ -11,6 +11,7 @@ export function buildCedarEntities(
 	userGroups: Array<GroupEntity>,
 	connectionId: string,
 	tableName?: string,
+	dashboardId?: string,
 ): Array<CedarEntityRecord> {
 	const entities: Array<CedarEntityRecord> = [];
 
@@ -44,6 +45,14 @@ export function buildCedarEntities(
 	if (tableName) {
 		entities.push({
 			uid: { type: 'RocketAdmin::Table', id: `${connectionId}/${tableName}` },
+			attrs: { connectionId: connectionId },
+			parents: [{ type: 'RocketAdmin::Connection', id: connectionId }],
+		});
+	}
+
+	if (dashboardId) {
+		entities.push({
+			uid: { type: 'RocketAdmin::Dashboard', id: `${connectionId}/${dashboardId}` },
 			attrs: { connectionId: connectionId },
 			parents: [{ type: 'RocketAdmin::Connection', id: connectionId }],
 		});
