@@ -231,7 +231,7 @@ test('dashboard with read=true generates only dashboard:read', (t) => {
 	t.false(result.includes('dashboard:edit'));
 	t.false(result.includes('dashboard:delete'));
 	const permits = result.match(/permit\(/g);
-	t.is(permits.length, 1);
+	t.is(permits.length, 2); // dash-1 read + __new__ read
 });
 
 test('dashboard with all flags true generates dashboard:read + dashboard:create + dashboard:edit + dashboard:delete', (t) => {
@@ -253,7 +253,7 @@ test('dashboard with all flags true generates dashboard:read + dashboard:create 
 	t.true(result.includes('dashboard:edit'));
 	t.true(result.includes('dashboard:delete'));
 	const permits = result.match(/permit\(/g);
-	t.is(permits.length, 4);
+	t.is(permits.length, 5); // dash-1: read + edit + delete, __new__: read + create
 });
 
 test('dashboard with all flags false generates no policies for that dashboard', (t) => {

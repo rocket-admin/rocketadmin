@@ -50,19 +50,20 @@ export function generateCedarPolicyForGroup(
 	}
 
 	if (permissions.dashboards) {
+		let hasCreatePermission = false;
+		let hasReadPermission = false;
 		for (const dashboard of permissions.dashboards) {
 			const dashboardRef = `RocketAdmin::Dashboard::"${connectionId}/${dashboard.dashboardId}"`;
 			const access = dashboard.accessLevel;
 
 			if (access.read) {
+				hasReadPermission = true;
 				policies.push(
 					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${dashboardRef}\n);`,
 				);
 			}
 			if (access.create) {
-				policies.push(
-					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:create",\n  resource == ${dashboardRef}\n);`,
-				);
+				hasCreatePermission = true;
 			}
 			if (access.edit) {
 				policies.push(
@@ -74,6 +75,17 @@ export function generateCedarPolicyForGroup(
 					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:delete",\n  resource == ${dashboardRef}\n);`,
 				);
 			}
+		}
+		const newDashboardRef = `RocketAdmin::Dashboard::"${connectionId}/__new__"`;
+		if (hasReadPermission) {
+			policies.push(
+				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${newDashboardRef}\n);`,
+			);
+		}
+		if (hasCreatePermission) {
+			policies.push(
+				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:create",\n  resource == ${newDashboardRef}\n);`,
+			);
 		}
 	}
 
