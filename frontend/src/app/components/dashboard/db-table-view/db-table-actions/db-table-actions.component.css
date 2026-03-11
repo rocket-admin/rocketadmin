@@ -28,41 +28,22 @@
 .add-automation-button {
 	width: calc(100% - 24px);
 	margin: 8px 12px;
-	border: 1.5px dashed #8888a0 !important;
-	border-radius: 4px;
-	color: #8888a0;
 }
 
-@media (prefers-color-scheme: light) {
-	.add-automation-button {
-		border-color: #b0b0c0 !important;
-		color: #8090a0;
-	}
-}
-
-.custom-event-inline app-icon-picker ::ng-deep .icon-picker-button {
-	border: 1.5px dashed #8888a0;
-}
-
-@media (prefers-color-scheme: light) {
-	.custom-event-inline app-icon-picker ::ng-deep .icon-picker-button {
-		border-color: #b0b0c0;
-	}
-}
 
 .no-actions {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 12px;
-	color: rgba(0, 0, 0, 0.5);
+	color: rgba(0, 0, 0, 0.64);
 	padding: 1rem 0;
 	text-align: center;
 }
 
 @media (prefers-color-scheme: dark) {
 	.no-actions {
-		color: rgba(255, 255, 255, 0.5);
+		color: rgba(255, 255, 255, 0.64);
 	}
 }
 
@@ -115,7 +96,7 @@
 	position: absolute;
 	top: 44px;
 	left: 0;
-	color: #e53935;
+	color: var(--color-error);
 	font-size: 0.75em;
 	width: 100%;
 }

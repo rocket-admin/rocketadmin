@@ -17,7 +17,7 @@
                 <span>{{ rule.title || 'New automation' }}</span>
             </button>
         </mat-action-list>
-        <button *ngIf="rulesData && rules && !isCreationMode" mat-button type="button"
+        <button *ngIf="rulesData && rules && !isCreationMode" mat-stroked-button type="button"
             class="add-automation-button"
             angulartics2On="click"
             angularticsAction="Actions: add first action is clicked"
