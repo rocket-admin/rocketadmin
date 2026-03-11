@@ -87,12 +87,52 @@ export function parseCedarPolicyToClassicalPermissions(
 
 function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
 	const results: ParsedPermitStatement[] = [];
-	const permitRegex = /permit\s*\(([\s\S]*?)\)\s*;/g;
-	let match: RegExpExecArray | null;
+	const permitKeyword = 'permit';
+	let searchFrom = 0;
 
-	while ((match = permitRegex.exec(policyText)) !== null) {
-		const body = match[1];
-		results.push(parsePermitBody(body));
+	while (searchFrom < policyText.length) {
+		const permitIndex = policyText.indexOf(permitKeyword, searchFrom);
+		if (permitIndex === -1) break;
+
+		let i = permitIndex + permitKeyword.length;
+		// Skip whitespace after "permit"
+		while (i < policyText.length && (policyText[i] === ' ' || policyText[i] === '\t' || policyText[i] === '\n' || policyText[i] === '\r')) {
+			i++;
+		}
+
+		if (i >= policyText.length || policyText[i] !== '(') {
+			searchFrom = i;
+			continue;
+		}
+
+		// Find matching closing parenthesis (handle nesting)
+		let depth = 1;
+		const bodyStart = i + 1;
+		i++;
+		while (i < policyText.length && depth > 0) {
+			if (policyText[i] === '(') depth++;
+			else if (policyText[i] === ')') depth--;
+			if (depth > 0) i++;
+		}
+
+		if (depth !== 0) {
+			searchFrom = bodyStart;
+			continue;
+		}
+
+		const body = policyText.slice(bodyStart, i);
+		// Skip past ')' and optional whitespace, expect ';'
+		let j = i + 1;
+		while (j < policyText.length && (policyText[j] === ' ' || policyText[j] === '\t' || policyText[j] === '\n' || policyText[j] === '\r')) {
+			j++;
+		}
+
+		if (j < policyText.length && policyText[j] === ';') {
+			results.push(parsePermitBody(body));
+			searchFrom = j + 1;
+		} else {
+			searchFrom = i + 1;
+		}
 	}
 
 	return results;
