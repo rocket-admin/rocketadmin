@@ -31,17 +31,25 @@
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="actions-breadcrumbs"></app-breadcrumbs>
         <app-content-loader *ngIf="!rules"></app-content-loader>
 
-        <div class="creation-flow" *ngIf="selectedRule && rules.length && !isCreationMode">
+        <div class="creation-flow" *ngIf="selectedRule && rules.length">
             <form (ngSubmit)="handleRuleSubmitting()" (input)="isSaved = false" class="creation-flow__form">
                 <div class="creation-flow__name-row">
                     <mat-form-field appearance="outline" class="creation-flow__name">
-                        <mat-label>Name</mat-label>
-                        <input matInput #ruleNameInput [(ngModel)]="selectedRuleTitle" name="rule-title">
+                        <mat-label>Automation name</mat-label>
+                        <input matInput #ruleNameInput [(ngModel)]="selectedRuleTitle" name="rule-title"
+                            (ngModelChange)="isCreationMode ? selectedRule.title = $event : null">
                     </mat-form-field>
-                    <button mat-button color="warn" type="button"
-                        (click)="handleRemoveRule()">
-                        Delete
-                    </button>
+                    @if (isCreationMode) {
+                        <button mat-button color="warn" type="button"
+                            (click)="undoRule()">
+                            Cancel
+                        </button>
+                    } @else {
+                        <button mat-button color="warn" type="button"
+                            (click)="handleRemoveRule()">
+                            Delete
+                        </button>
+                    }
                 </div>
 
                 <!-- Triggers -->
@@ -86,7 +94,7 @@
                     <div class="custom-event-inline">
                         <mat-form-field appearance="outline">
                             <mat-label>Button label</mat-label>
-                            <input matInput name="action-title" [(ngModel)]="selectedRuleCustomEvent.title">
+                            <input matInput name="custom-event-title" [(ngModel)]="selectedRuleCustomEvent.title">
                         </mat-form-field>
                         <app-icon-picker
                             [icon]="selectedRuleCustomEvent.icon"
@@ -94,7 +102,7 @@
                             tooltip="Choose an icon"
                             (onFieldChange)="updateIcon($event)">
                         </app-icon-picker>
-                        <mat-checkbox name="action-confirmation"
+                        <mat-checkbox name="custom-event-confirmation"
                             labelPosition="after"
                             [(ngModel)]="selectedRuleCustomEvent.require_confirmation">
                             Request confirmation
@@ -202,181 +210,6 @@
                 </div>
             </form>
         </div>
-
-        @if (selectedRule && isCreationMode) {
-        <div class="creation-flow">
-            <form (ngSubmit)="handleRuleSubmitting()" (input)="isSaved = false" class="creation-flow__form">
-                <div class="creation-flow__name-row">
-                    <mat-form-field appearance="outline" class="creation-flow__name">
-                        <mat-label>Automation name</mat-label>
-                        <input matInput #ruleNameInput [(ngModel)]="selectedRuleTitle" name="rule-title"
-                            (ngModelChange)="selectedRule.title = $event">
-                    </mat-form-field>
-                    <button mat-button color="warn" type="button"
-                        (click)="undoRule()">
-                        Cancel
-                    </button>
-                </div>
-
-                <!-- Triggers -->
-                <div class="creation-card creation-card--trigger">
-                    <span class="creation-card__label"><span class="step-label__badge step-label__badge--when">WHEN</span> Trigger</span>
-
-                    <div class="trigger-pills">
-                        <label class="trigger-pill trigger-pill--add-row" [class.trigger-pill--active]="selectedEvents.includes('ADD_ROW')">
-                            <input type="checkbox" class="trigger-pill__checkbox"
-                                [checked]="selectedEvents.includes('ADD_ROW')"
-                                (change)="toggleTriggerTile(availableEvents[0].value)">
-                            <mat-icon class="trigger-pill__icon">add_circle_outline</mat-icon>
-                            <span>Add row</span>
-                        </label>
-                        <span class="trigger-pills__or">or</span>
-                        <label class="trigger-pill trigger-pill--update-row" [class.trigger-pill--active]="selectedEvents.includes('UPDATE_ROW')">
-                            <input type="checkbox" class="trigger-pill__checkbox"
-                                [checked]="selectedEvents.includes('UPDATE_ROW')"
-                                (change)="toggleTriggerTile(availableEvents[1].value)">
-                            <mat-icon class="trigger-pill__icon">edit</mat-icon>
-                            <span>Update row</span>
-                        </label>
-                        <span class="trigger-pills__or">or</span>
-                        <label class="trigger-pill trigger-pill--delete-row" [class.trigger-pill--active]="selectedEvents.includes('DELETE_ROW')">
-                            <input type="checkbox" class="trigger-pill__checkbox"
-                                [checked]="selectedEvents.includes('DELETE_ROW')"
-                                (change)="toggleTriggerTile(availableEvents[2].value)">
-                            <mat-icon class="trigger-pill__icon">delete_outline</mat-icon>
-                            <span>Delete row</span>
-                        </label>
-                        <span class="trigger-pills__or">or</span>
-                        <label class="trigger-pill trigger-pill--custom" [class.trigger-pill--active]="selectedEvents.includes('CUSTOM')">
-                            <input type="checkbox" class="trigger-pill__checkbox"
-                                [checked]="selectedEvents.includes('CUSTOM')"
-                                (change)="toggleTriggerTile(availableEvents[3].value)">
-                            <mat-icon class="trigger-pill__icon">tune</mat-icon>
-                            <span>Custom</span>
-                        </label>
-                    </div>
-
-                    @if (selectedRuleCustomEvent) {
-                    <div class="custom-event-inline">
-                        <mat-form-field appearance="outline">
-                            <mat-label>Button label</mat-label>
-                            <input matInput name="custom-title" [(ngModel)]="selectedRuleCustomEvent.title">
-                        </mat-form-field>
-                        <app-icon-picker
-                            [icon]="selectedRuleCustomEvent.icon"
-                            [defaultIcons]="defaultIcons"
-                            tooltip="Choose an icon"
-                            (onFieldChange)="updateIcon($event)">
-                        </app-icon-picker>
-                        <mat-checkbox name="custom-confirmation"
-                            labelPosition="after"
-                            [(ngModel)]="selectedRuleCustomEvent.require_confirmation">
-                            Request confirmation
-                        </mat-checkbox>
-                        <div class="affects-row">
-                            <span class="affects-row__label">Affects</span>
-                            <mat-button-toggle-group [value]="selectedRuleCustomEvent.type"
-                                (change)="setCustomEventType($event.value)"
-                                hideSingleSelectionIndicator>
-                                <mat-button-toggle value="single">Single row</mat-button-toggle>
-                                <mat-button-toggle value="multiple">Multiple rows</mat-button-toggle>
-                            </mat-button-toggle-group>
-                        </div>
-                    </div>
-                    }
-                </div>
-
-                <div class="card-connector"></div>
-
-                <!-- Action card -->
-                <div class="creation-card" [class.creation-card--disabled]="!hasTriggersSelected">
-                    <span class="creation-card__label"><span class="step-label__badge step-label__badge--then">THEN</span> Action</span>
-                    @if (!hasTriggersSelected) {
-                        <span class="creation-card__hint">Add a trigger first</span>
-                    } @else {
-                        <mat-button-toggle-group class="action-methods"
-                            [value]="$any(selectedRule.table_actions[0]).method"
-                            (change)="selectActionMethod($event.value)"
-                            hideSingleSelectionIndicator>
-                            <mat-button-toggle value="URL">
-                                <mat-icon>link</mat-icon> URL webhook
-                            </mat-button-toggle>
-                            <mat-button-toggle value="EMAIL">
-                                <mat-icon>email</mat-icon> Email
-                            </mat-button-toggle>
-                            <mat-button-toggle value="SLACK">
-                                <mat-icon>tag</mat-icon> Slack
-                            </mat-button-toggle>
-                        </mat-button-toggle-group>
-
-                        <div class="action-fields">
-                            @if ($any(selectedRule.table_actions[0]).method === 'URL') {
-                                <mat-form-field appearance="outline" class="action-fields__input">
-                                    <mat-label>Webhook URL</mat-label>
-                                    <input matInput [(ngModel)]="selectedRule.table_actions[0].url" name="action-url">
-                                </mat-form-field>
-    
-
-                                <div class="code-snippet-box">
-                                    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
-                                        <mat-tab *ngFor="let lang of codeSnippets | keyvalue"
-                                            [label]="lang.value.langName">
-                                            <button type="button"
-                                                mat-icon-button
-                                                class="copy-button"
-                                                matTooltip="Copy code"
-                                                [cdkCopyToClipboard]="lang.value.snippet"
-                                                (cdkCopyToClipboardCopied)="showCopyNotification(lang.value.langName + ' code snippet was copied to clipboard.')">
-                                                <mat-icon>content_copy</mat-icon>
-                                            </button>
-                                            <ngs-code-editor
-                                                [theme]="codeEditorTheme"
-                                                [codeModel]="{
-                                                    language: lang.value.mode,
-                                                    uri: 'create-snippet.' + (lang.value.mode || 'txt'),
-                                                    value: lang.value.snippet
-                                                }"
-                                                [options]="codeViewerOptions">
-                                            </ngs-code-editor>
-                                        </mat-tab>
-                                    </mat-tab-group>
-                                </div>
-                            }
-
-                            @if ($any(selectedRule.table_actions[0]).method === 'EMAIL') {
-                                <mat-form-field appearance="outline" class="action-fields__input">
-                                    <mat-label>Notification emails</mat-label>
-                                    <mat-select multiple [(ngModel)]="selectedRule.table_actions[0].emails" name="notification-emails">
-                                        <mat-option *ngFor="let companyMember of companyMembers" [value]="companyMember.email">
-                                            <span *ngIf="companyMember.name">{{companyMember.name}} | </span> {{companyMember.email}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            }
-
-                            @if ($any(selectedRule.table_actions[0]).method === 'SLACK') {
-                                <mat-form-field appearance="outline" class="action-fields__input">
-                                    <mat-label>Slack webhook URL</mat-label>
-                                    <input matInput [(ngModel)]="$any(selectedRule.table_actions[0]).slack_url" name="action-slack-url">
-                                </mat-form-field>
-                            }
-                        </div>
-                    }
-                </div>
-
-                <div class="actions">
-                    <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
-                        Back
-                    </a>
-
-                    <button mat-flat-button color="primary" type="submit"
-                        [disabled]="submitting || isSaved">
-                        {{ isSaved ? 'Saved' : 'Save' }}
-                    </button>
-                </div>
-            </form>
-        </div>
-        }
 
         <div *ngIf="(!selectedRule || !rules.length) && !isCreationMode" class="empty-state">
             <p class="actions-hint">
