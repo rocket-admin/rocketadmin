@@ -19,7 +19,7 @@ export function buildCedarEntities(
 	entities.push({
 		uid: { type: 'RocketAdmin::User', id: userId },
 		attrs: { suspended: false },
-		parents: userGroups.map((g) => ({ type: 'RocketAdmin::Group', id: g.id })),
+		parents: [],
 	});
 
 	// Group entities
