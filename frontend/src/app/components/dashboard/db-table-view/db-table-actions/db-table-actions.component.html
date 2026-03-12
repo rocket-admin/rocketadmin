@@ -206,11 +206,17 @@
         @if (selectedRule && isCreationMode) {
         <div class="creation-flow">
             <form (ngSubmit)="handleRuleSubmitting()" (input)="isSaved = false" class="creation-flow__form">
-                <mat-form-field appearance="outline" class="creation-flow__name">
-                    <mat-label>Automation name</mat-label>
-                    <input matInput #ruleNameInput [(ngModel)]="selectedRuleTitle" name="rule-title"
-                        (ngModelChange)="selectedRule.title = $event">
-                </mat-form-field>
+                <div class="creation-flow__name-row">
+                    <mat-form-field appearance="outline" class="creation-flow__name">
+                        <mat-label>Automation name</mat-label>
+                        <input matInput #ruleNameInput [(ngModel)]="selectedRuleTitle" name="rule-title"
+                            (ngModelChange)="selectedRule.title = $event">
+                    </mat-form-field>
+                    <button mat-button color="warn" type="button"
+                        (click)="undoRule()">
+                        Cancel
+                    </button>
+                </div>
 
                 <!-- Triggers -->
                 <div class="creation-card creation-card--trigger">
