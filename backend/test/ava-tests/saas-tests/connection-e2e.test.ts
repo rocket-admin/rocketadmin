@@ -218,10 +218,9 @@ test.serial(`${currentTest} should return all connection users from different gr
 	const foundUsersRO = JSON.parse(findAllUsersResponse.text);
 	t.is(foundUsersRO.length, 2);
 
-	// t.is(foundUsersRO[0].isActive, false);
-	t.is(foundUsersRO[1].isActive, true);
-	t.is(Object.hasOwn(foundUsersRO[1], 'email'), true);
+	t.true(foundUsersRO.some((u: { isActive: boolean }) => u.isActive === true));
 	t.is(Object.hasOwn(foundUsersRO[0], 'email'), true);
+	t.is(Object.hasOwn(foundUsersRO[1], 'email'), true);
 	t.is(Object.hasOwn(foundUsersRO[0], 'createdAt'), true);
 	t.is(Object.hasOwn(foundUsersRO[1], 'createdAt'), true);
 

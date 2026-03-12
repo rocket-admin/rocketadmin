@@ -27,6 +27,16 @@ html {
 
   --surface-dark-color: #202020 !important;
   --mat-toolbar-container-background-color: var(--surface-dark-color) !important;
+
+  --error-color: var(--color-warnPalette-500);
+  --warning-color: #f79008;
+  --info-color: #296ee9;
+  --success-color: #1b5e20;
+
+  --error-background-color: color-mix(in hsl, var(--error-color), transparent 95%);
+  --warning-background-color: color-mix(in hsl, var(--warning-color), transparent 95%);
+  --info-background-color: color-mix(in hsl, var(--info-color), transparent 95%);
+  --success-background-color: color-mix(in hsl, var(--success-color), transparent 95%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,6 +45,11 @@ html {
     --mat-table-background-color: var(--surface-dark-color) !important;
     --mat-paginator-container-background-color: var(--surface-dark-color) !important;
     --mat-snack-bar-button-color: var(--color-accentedPalette-500) !important;
+
+    --error-color: var(--color-warnDarkPalette-500);
+    --warning-color: #f79008;
+    --info-color: #296ee9;
+    --success-color: #4caf50;
   }
 
   .mat-datepicker-content {

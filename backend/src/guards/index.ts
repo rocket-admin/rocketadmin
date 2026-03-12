@@ -1,5 +1,8 @@
 export { ConnectionEditGuard } from './connection-edit.guard.js';
 export { ConnectionReadGuard } from './connection-read.guard.js';
+export { DashboardCreateGuard } from './dashboard-create.guard.js';
+export { DashboardEditGuard } from './dashboard-edit.guard.js';
+export { DashboardReadGuard } from './dashboard-read.guard.js';
 export { GroupEditGuard } from './group-edit.guard.js';
 export { GroupReadGuard } from './group-read.guard.js';
 export { TableAddGuard } from './table-add.guard.js';
