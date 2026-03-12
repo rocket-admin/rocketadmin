@@ -395,6 +395,11 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
+	min-height: 100%;
+}
+
+.creation-flow__form > .actions {
+	margin-top: auto;
 }
 
 .creation-flow__form .creation-card {
