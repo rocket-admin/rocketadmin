@@ -186,7 +186,8 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return false;
 
-		const policies = await this.loadPoliciesForConnection(connectionId);
+		const userGroupIds = userGroups.map((g) => g.id);
+		const policies = await this.loadPoliciesForUser(connectionId, userId, userGroupIds);
 		if (!policies) return false;
 
 		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
@@ -210,17 +211,21 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		return false;
 	}
 
-	private async loadPoliciesForConnection(connectionId: string): Promise<string | null> {
-		const cached = Cacher.getCedarPolicyCache(connectionId);
+	private async loadPoliciesForUser(connectionId: string, userId: string, userGroupIds: string[]): Promise<string | null> {
+		const cached = Cacher.getCedarPolicyCache(connectionId, userId);
 		if (cached !== null) return cached;
 
 		const groups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
-		const policyTexts = groups.map((g) => g.cedarPolicy).filter(Boolean);
+		const userGroupIdSet = new Set(userGroupIds);
+		const policyTexts = groups
+			.filter((g) => userGroupIdSet.has(g.id))
+			.map((g) => g.cedarPolicy)
+			.filter(Boolean);
 
 		if (policyTexts.length === 0) return null;
 
 		const combined = policyTexts.join('\n\n');
-		Cacher.setCedarPolicyCache(connectionId, combined);
+		Cacher.setCedarPolicyCache(connectionId, userId, combined);
 		return combined;
 	}
 
@@ -271,19 +276,6 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		groupId: string,
 	): Promise<void> {
 		
-		const principalGroupIds = [
-			...cedarPolicy.matchAll(/principal\s+in\s+RocketAdmin::Group::"([^"]+)"/g),
-		].map((m) => m[1]);
-
-		for (const principalGroupId of principalGroupIds) {
-			if (principalGroupId !== groupId) {
-				throw new HttpException(
-					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL },
-					HttpStatus.BAD_REQUEST,
-				);
-			}
-		}
-
 		const connectionIds = [
 			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Connection::"([^"]+)"/g),
 		].map((m) => m[1]);

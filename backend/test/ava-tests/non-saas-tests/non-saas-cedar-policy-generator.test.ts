@@ -17,7 +17,7 @@ function makePermissions(overrides: Partial<IComplexPermission> = {}): IComplexP
 
 test('isMain=true generates a single wildcard permit', (t) => {
 	const result = generateCedarPolicyForGroup(groupId, connectionId, true, makePermissions());
-	t.true(result.includes('principal in RocketAdmin::Group::"test-group-id"'));
+	t.true(result.includes('principal,'));
 	t.true(result.includes('action,'));
 	t.true(result.includes('resource'));
 	// Should be a single policy
@@ -307,7 +307,7 @@ test('resource ref format validation', (t) => {
 			],
 		}),
 	);
-	t.true(result.includes(`RocketAdmin::Group::"${groupId}"`));
+	t.true(result.includes('principal,'));
 	t.true(result.includes(`RocketAdmin::Connection::"${connectionId}"`));
 	t.true(result.includes(`RocketAdmin::Table::"${connectionId}/users"`));
 });

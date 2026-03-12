@@ -8,12 +8,11 @@ export function generateCedarPolicyForGroup(
 	permissions: IComplexPermission,
 ): string {
 	const policies: Array<string> = [];
-	const groupRef = `RocketAdmin::Group::"${groupId}"`;
 	const connectionRef = `RocketAdmin::Connection::"${connectionId}"`;
 
 	if (isMain) {
 		policies.push(
-			`permit(\n  principal in ${groupRef},\n  action,\n  resource\n);`,
+			`permit(\n  principal,\n  action,\n  resource\n);`,
 		);
 		return policies.join('\n\n');
 	}
@@ -22,14 +21,14 @@ export function generateCedarPolicyForGroup(
 	const connAccess = permissions.connection.accessLevel;
 	if (connAccess === AccessLevelEnum.edit) {
 		policies.push(
-			`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"connection:read",\n  resource == ${connectionRef}\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == ${connectionRef}\n);`,
 		);
 		policies.push(
-			`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"connection:edit",\n  resource == ${connectionRef}\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:edit",\n  resource == ${connectionRef}\n);`,
 		);
 	} else if (connAccess === AccessLevelEnum.readonly) {
 		policies.push(
-			`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"connection:read",\n  resource == ${connectionRef}\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == ${connectionRef}\n);`,
 		);
 	}
 
@@ -38,14 +37,14 @@ export function generateCedarPolicyForGroup(
 	const groupResourceRef = `RocketAdmin::Group::"${permissions.group.groupId}"`;
 	if (groupAccess === AccessLevelEnum.edit) {
 		policies.push(
-			`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"group:read",\n  resource == ${groupResourceRef}\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"group:read",\n  resource == ${groupResourceRef}\n);`,
 		);
 		policies.push(
-			`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"group:edit",\n  resource == ${groupResourceRef}\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"group:edit",\n  resource == ${groupResourceRef}\n);`,
 		);
 	} else if (groupAccess === AccessLevelEnum.readonly) {
 		policies.push(
-			`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"group:read",\n  resource == ${groupResourceRef}\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"group:read",\n  resource == ${groupResourceRef}\n);`,
 		);
 	}
 
@@ -59,7 +58,7 @@ export function generateCedarPolicyForGroup(
 			if (access.read) {
 				hasReadPermission = true;
 				policies.push(
-					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${dashboardRef}\n);`,
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${dashboardRef}\n);`,
 				);
 			}
 			if (access.create) {
@@ -67,24 +66,24 @@ export function generateCedarPolicyForGroup(
 			}
 			if (access.edit) {
 				policies.push(
-					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:edit",\n  resource == ${dashboardRef}\n);`,
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:edit",\n  resource == ${dashboardRef}\n);`,
 				);
 			}
 			if (access.delete) {
 				policies.push(
-					`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:delete",\n  resource == ${dashboardRef}\n);`,
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:delete",\n  resource == ${dashboardRef}\n);`,
 				);
 			}
 		}
 		const newDashboardRef = `RocketAdmin::Dashboard::"${connectionId}/__new__"`;
 		if (hasReadPermission) {
 			policies.push(
-				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${newDashboardRef}\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${newDashboardRef}\n);`,
 			);
 		}
 		if (hasCreatePermission) {
 			policies.push(
-				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"dashboard:create",\n  resource == ${newDashboardRef}\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:create",\n  resource == ${newDashboardRef}\n);`,
 			);
 		}
 	}
@@ -96,22 +95,22 @@ export function generateCedarPolicyForGroup(
 		const hasAnyAccess = access.visibility || access.add || access.delete || access.edit;
 		if (hasAnyAccess) {
 			policies.push(
-				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"table:read",\n  resource == ${tableRef}\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == ${tableRef}\n);`,
 			);
 		}
 		if (access.add) {
 			policies.push(
-				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"table:add",\n  resource == ${tableRef}\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:add",\n  resource == ${tableRef}\n);`,
 			);
 		}
 		if (access.edit) {
 			policies.push(
-				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"table:edit",\n  resource == ${tableRef}\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:edit",\n  resource == ${tableRef}\n);`,
 			);
 		}
 		if (access.delete) {
 			policies.push(
-				`permit(\n  principal in ${groupRef},\n  action == RocketAdmin::Action::"table:delete",\n  resource == ${tableRef}\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:delete",\n  resource == ${tableRef}\n);`,
 			);
 		}
 	}

@@ -147,9 +147,9 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 		isWildcard: false,
 	};
 
-	const principalMatch = body.match(/principal\s+in\s+RocketAdmin::Group::"([^"]+)"/);
-	if (principalMatch) {
-		result.groupId = principalMatch[1];
+	const principalInMatch = body.match(/principal\s+in\s+RocketAdmin::Group::"([^"]+)"/);
+	if (principalInMatch) {
+		result.groupId = principalInMatch[1];
 	}
 
 	const actionMatch = body.match(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/);
