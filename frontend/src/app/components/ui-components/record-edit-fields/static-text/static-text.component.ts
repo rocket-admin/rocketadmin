@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, model } from '@angular/core';
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 
 @Component({
@@ -9,5 +9,5 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	styleUrls: ['./static-text.component.css'],
 })
 export class StaticTextEditComponent extends BaseEditFieldComponent {
-	@Input() value: string;
+	readonly value = model<string>();
 }

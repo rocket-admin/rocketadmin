@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, model, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +13,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	imports: [CommonModule, MatFormFieldModule, MatInputModule, FormsModule, TextValidatorDirective],
 })
 export class LongTextEditComponent extends BaseEditFieldComponent implements OnInit {
-	@Input() value: string;
+	readonly value = model<string>();
 
 	static type = 'text';
 	public rowsCount: string;
@@ -24,17 +24,14 @@ export class LongTextEditComponent extends BaseEditFieldComponent implements OnI
 	override ngOnInit(): void {
 		super.ngOnInit();
 
-		// Use character_maximum_length from the field structure if available
-		if (this.structure?.character_maximum_length) {
-			this.maxLength = this.structure.character_maximum_length;
+		const struct = this.structure();
+		if (struct?.character_maximum_length) {
+			this.maxLength = struct.character_maximum_length;
 		}
 
-		// Parse widget parameters
-		if (this.widgetStructure?.widget_params) {
-			const params =
-				typeof this.widgetStructure.widget_params === 'string'
-					? JSON.parse(this.widgetStructure.widget_params)
-					: this.widgetStructure.widget_params;
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
+			const params = typeof ws.widget_params === 'string' ? JSON.parse(ws.widget_params) : ws.widget_params;
 
 			this.rowsCount = params.rows || '4';
 			this.validateType = params.validate || null;
@@ -53,7 +50,6 @@ export class LongTextEditComponent extends BaseEditFieldComponent implements OnI
 			return "Value doesn't match the required pattern";
 		}
 
-		// Create user-friendly messages for common validators
 		const messages = {
 			isEmail: 'Invalid email address',
 			isURL: 'Invalid URL',

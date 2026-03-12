@@ -1,5 +1,4 @@
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +22,7 @@ interface S3WidgetParams {
 	selector: 'app-s3-display',
 	templateUrl: './s3.component.html',
 	styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './s3.component.css'],
-	imports: [CommonModule, ClipboardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
+	imports: [ClipboardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
 })
 export class S3DisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
 	public params: S3WidgetParams;
@@ -46,7 +45,7 @@ export class S3DisplayComponent extends BaseTableDisplayFieldComponent implement
 		this.tableName = this.tablesService.currentTableName;
 		this._parseWidgetParams();
 
-		if (this.value && this.isImageType && this.rowPrimaryKey) {
+		if (this.value() && this.isImageType && this.rowPrimaryKey) {
 			this._loadPreview();
 		}
 	}
@@ -56,22 +55,22 @@ export class S3DisplayComponent extends BaseTableDisplayFieldComponent implement
 	}
 
 	get rowPrimaryKey(): Record<string, unknown> | null {
-		if (!this.rowData || !this.primaryKeys) return null;
+		if (!this.rowData() || !this.primaryKeys()) return null;
 
 		const primaryKey: Record<string, unknown> = {};
-		for (const pk of this.primaryKeys) {
-			primaryKey[pk.column_name] = this.rowData[pk.column_name];
+		for (const pk of this.primaryKeys()) {
+			primaryKey[pk.column_name] = this.rowData()[pk.column_name];
 		}
 		return primaryKey;
 	}
 
 	private _parseWidgetParams(): void {
-		if (this.widgetStructure?.widget_params) {
+		if (this.widgetStructure()?.widget_params) {
 			try {
 				this.params =
-					typeof this.widgetStructure.widget_params === 'string'
-						? JSON.parse(this.widgetStructure.widget_params)
-						: this.widgetStructure.widget_params;
+					typeof this.widgetStructure().widget_params === 'string'
+						? JSON.parse(this.widgetStructure().widget_params as unknown as string)
+						: this.widgetStructure().widget_params;
 			} catch (e) {
 				console.error('Error parsing S3 widget params:', e);
 			}
@@ -80,14 +79,14 @@ export class S3DisplayComponent extends BaseTableDisplayFieldComponent implement
 
 	private async _loadPreview(): Promise<void> {
 		const primaryKey = this.rowPrimaryKey;
-		if (!this.value || !this.connectionId || !this.tableName || !primaryKey) return;
+		if (!this.value() || !this.connectionId || !this.tableName || !primaryKey) return;
 
 		this.isLoading = true;
 
 		const response = await this.s3Service.getFileUrl(
 			this.connectionId,
 			this.tableName,
-			this.widgetStructure.field_name,
+			this.widgetStructure().field_name,
 			primaryKey,
 		);
 

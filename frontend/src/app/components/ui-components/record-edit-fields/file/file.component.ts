@@ -1,5 +1,5 @@
-import { NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
+
+import { Component, inject, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,7 +28,6 @@ enum FileType {
 	templateUrl: './file.component.html',
 	styleUrls: ['./file.component.css'],
 	imports: [
-		NgIf,
 		FormsModule,
 		MatFormFieldModule,
 		MatInputModule,
@@ -39,7 +38,9 @@ enum FileType {
 	],
 })
 export class FileEditComponent extends BaseEditFieldComponent {
-	@Input() value: Blob;
+	readonly value = model<Blob>();
+
+	private sanitazer = inject(DomSanitizer);
 
 	static type = 'file';
 	public isNotSwitcherActive;
@@ -50,24 +51,21 @@ export class FileEditComponent extends BaseEditFieldComponent {
 	public fileURL: SafeUrl;
 	public initError: string | null = null;
 
-	constructor(private sanitazer: DomSanitizer) {
-		super();
-	}
-
 	ngOnInit(): void {
 		super.ngOnInit();
-		if (this.widgetStructure && this.value) {
-			this.fileType = this.widgetStructure.widget_params.type;
+		const ws = this.widgetStructure();
+		if (ws && this.value()) {
+			this.fileType = ws.widget_params.type;
 
 			if (this.fileType === 'hex') {
-				this.hexData = this.value;
+				this.hexData = this.value();
 				//@ts-expect-error
 				this.initError = hexValidation()({ value: this.hexData });
 				this.initError = 'Invalid hex format.';
 			}
 
 			if (this.fileType === 'base64') {
-				this.base64Data = this.value;
+				this.base64Data = this.value();
 				//@ts-expect-error
 				this.initError = base64Validation()({ value: this.hexData });
 				this.initError = 'Invalid base64 format.';
@@ -75,13 +73,13 @@ export class FileEditComponent extends BaseEditFieldComponent {
 
 			if (this.fileType === 'file') {
 				//@ts-expect-error
-				const blob = new Blob([this.value]);
+				const blob = new Blob([this.value()]);
 				this.fileURL = this.sanitazer.bypassSecurityTrustUrl(URL.createObjectURL(blob));
 			}
 		}
 
-		if (this.value) {
-			this.hexData = this.value;
+		if (this.value()) {
+			this.hexData = this.value();
 		}
 	}
 
@@ -155,7 +153,6 @@ export class FileEditComponent extends BaseEditFieldComponent {
 
 	fromFileToHex(reader: FileReader) {
 		let dataString = reader.result as ArrayBuffer;
-		// let dataStringArray = new Array(dataString.byteLength);
 
 		this.hexData = [...new Uint8Array(dataString)].map((b) => b.toString(16).padStart(2, '0')).join('');
 	}

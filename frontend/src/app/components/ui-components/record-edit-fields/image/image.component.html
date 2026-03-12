@@ -1,14 +1,20 @@
 <div class="image-box">
     <mat-form-field class="image-box__url" appearance="outline">
-        <mat-label>{{normalizedLabel}}</mat-label>
-        <span *ngIf="prefix" matTextPrefix>{{prefix}}</span>
-        <input matInput type="text" name="{{label}}-{{key}}" #image="ngModel"
-            [required]="required" [disabled]="disabled" [readonly]="readonly"
+        <mat-label>{{normalizedLabel()}}</mat-label>
+        @if (prefix) {
+            <span matTextPrefix>{{prefix}}</span>
+        }
+        <input matInput type="text" name="{{label()}}-{{key()}}" #image="ngModel"
+            [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
             urlValidator
             [urlPrefix]="prefix"
-            attr.data-testid="record-{{label}}-image"
+            attr.data-testid="record-{{label()}}-image"
             [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
-            <mat-error *ngIf="image.errors?.isInvalidURL">URL is invalid.</mat-error>
+            @if (image.errors?.isInvalidURL) {
+                <mat-error>URL is invalid.</mat-error>
+            }
     </mat-form-field>
-    <img *ngIf="!image.errors?.isInvalidURL" [src]="imageUrl" class="image-box__image">
+    @if (!image.errors?.isInvalidURL) {
+        <img [src]="imageUrl" class="image-box__image">
+    }
 </div>

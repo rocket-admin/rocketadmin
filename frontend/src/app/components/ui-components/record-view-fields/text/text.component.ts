@@ -1,8 +1,7 @@
-import { Component, Injectable } from '@angular/core';
+import { Component } from '@angular/core';
 import * as validator from 'validator';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-text-record-view',
 	templateUrl: './text.component.html',
@@ -11,20 +10,20 @@ import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-rec
 })
 export class TextRecordViewComponent extends BaseRecordViewFieldComponent {
 	get isInvalid(): boolean {
-		if (!this.value || this.value === '') {
+		if (!this.value() || this.value() === '') {
 			return false;
 		}
 
-		const validateType = this.widgetStructure?.widget_params?.validate;
+		const validateType = this.widgetStructure()?.widget_params?.validate;
 		if (!validateType) {
 			return false;
 		}
 
-		const stringValue = String(this.value);
+		const stringValue = String(this.value());
 
 		// Special case for regex validation
 		if (validateType === 'regex') {
-			const regexPattern = this.widgetStructure?.widget_params?.regex;
+			const regexPattern = this.widgetStructure()?.widget_params?.regex;
 			if (!regexPattern) {
 				return false;
 			}
@@ -55,7 +54,7 @@ export class TextRecordViewComponent extends BaseRecordViewFieldComponent {
 	}
 
 	get validationErrorMessage(): string {
-		const validateType = this.widgetStructure?.widget_params?.validate;
+		const validateType = this.widgetStructure()?.widget_params?.validate;
 		if (!validateType) {
 			return '';
 		}

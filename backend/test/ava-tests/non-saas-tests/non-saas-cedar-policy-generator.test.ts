@@ -16,8 +16,8 @@ function makePermissions(overrides: Partial<IComplexPermission> = {}): IComplexP
 }
 
 test('isMain=true generates a single wildcard permit', (t) => {
-	const result = generateCedarPolicyForGroup(groupId, connectionId, true, makePermissions());
-	t.true(result.includes('principal in RocketAdmin::Group::"test-group-id"'));
+	const result = generateCedarPolicyForGroup(connectionId, true, makePermissions());
+	t.true(result.includes('principal,'));
 	t.true(result.includes('action,'));
 	t.true(result.includes('resource'));
 	// Should be a single policy
@@ -27,7 +27,6 @@ test('isMain=true generates a single wildcard permit', (t) => {
 
 test('connection:edit generates ONLY connection:read + connection:edit (not wildcard)', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -49,7 +48,6 @@ test('connection:edit generates ONLY connection:read + connection:edit (not wild
 
 test('connection:readonly generates only connection:read', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -63,14 +61,13 @@ test('connection:readonly generates only connection:read', (t) => {
 });
 
 test('connection:none generates no connection policies', (t) => {
-	const result = generateCedarPolicyForGroup(groupId, connectionId, false, makePermissions());
+	const result = generateCedarPolicyForGroup(connectionId, false, makePermissions());
 	t.false(result.includes('connection:read'));
 	t.false(result.includes('connection:edit'));
 });
 
 test('group:edit generates group:read + group:edit', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -85,7 +82,6 @@ test('group:edit generates group:read + group:edit', (t) => {
 
 test('group:readonly generates only group:read', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -100,7 +96,6 @@ test('group:readonly generates only group:read', (t) => {
 
 test('table with visibility=true only generates only table:read', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -122,7 +117,6 @@ test('table with visibility=true only generates only table:read', (t) => {
 
 test('table with all flags true generates table:read + table:add + table:edit + table:delete', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -144,7 +138,6 @@ test('table with all flags true generates table:read + table:add + table:edit + 
 
 test('table with add=true only generates table:read + table:add (hasAnyAccess triggers table:read)', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -166,7 +159,6 @@ test('table with add=true only generates table:read + table:add (hasAnyAccess tr
 
 test('table with all flags false generates no policies for that table', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -183,13 +175,12 @@ test('table with all flags false generates no policies for that table', (t) => {
 });
 
 test('all none + no tables returns empty string', (t) => {
-	const result = generateCedarPolicyForGroup(groupId, connectionId, false, makePermissions());
+	const result = generateCedarPolicyForGroup(connectionId, false, makePermissions());
 	t.is(result, '');
 });
 
 test('multiple tables generate separate policies per table with correct resource refs', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -212,9 +203,83 @@ test('multiple tables generate separate policies per table with correct resource
 	t.is(permits.length, 3);
 });
 
+test('dashboard with read=true generates only dashboard:read', (t) => {
+	const result = generateCedarPolicyForGroup(
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: true, create: false, edit: false, delete: false },
+				},
+			],
+		}),
+	);
+	t.true(result.includes('action == RocketAdmin::Action::"dashboard:read"'));
+	t.false(result.includes('dashboard:create'));
+	t.false(result.includes('dashboard:edit'));
+	t.false(result.includes('dashboard:delete'));
+	const permits = result.match(/permit\(/g);
+	t.is(permits.length, 2); // dash-1 read + __new__ read
+});
+
+test('dashboard with all flags true generates dashboard:read + dashboard:create + dashboard:edit + dashboard:delete', (t) => {
+	const result = generateCedarPolicyForGroup(
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: true, create: true, edit: true, delete: true },
+				},
+			],
+		}),
+	);
+	t.true(result.includes('dashboard:read'));
+	t.true(result.includes('dashboard:create'));
+	t.true(result.includes('dashboard:edit'));
+	t.true(result.includes('dashboard:delete'));
+	const permits = result.match(/permit\(/g);
+	t.is(permits.length, 5); // dash-1: read + edit + delete, __new__: read + create
+});
+
+test('dashboard with all flags false generates no policies for that dashboard', (t) => {
+	const result = generateCedarPolicyForGroup(
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: false, create: false, edit: false, delete: false },
+				},
+			],
+		}),
+	);
+	t.false(result.includes('dashboard:'));
+	t.is(result, '');
+});
+
+test('dashboard resource ref format uses connectionId/dashboardId', (t) => {
+	const result = generateCedarPolicyForGroup(
+		connectionId,
+		false,
+		makePermissions({
+			dashboards: [
+				{
+					dashboardId: 'dash-1',
+					accessLevel: { read: true, create: false, edit: false, delete: false },
+				},
+			],
+		}),
+	);
+	t.true(result.includes(`RocketAdmin::Dashboard::"${connectionId}/dash-1"`));
+});
+
 test('resource ref format validation', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -228,7 +293,7 @@ test('resource ref format validation', (t) => {
 			],
 		}),
 	);
-	t.true(result.includes(`RocketAdmin::Group::"${groupId}"`));
+	t.true(result.includes('principal,'));
 	t.true(result.includes(`RocketAdmin::Connection::"${connectionId}"`));
 	t.true(result.includes(`RocketAdmin::Table::"${connectionId}/users"`));
 });

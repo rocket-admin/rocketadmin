@@ -1,23 +1,21 @@
-import { CommonModule } from '@angular/common';
-import { Component, Injectable } from '@angular/core';
+import { Component } from '@angular/core';
 import colorString from 'color-string';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-color-record-view',
 	templateUrl: './color.component.html',
 	styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './color.component.css'],
-	imports: [CommonModule],
+	imports: [],
 })
 export class ColorRecordViewComponent extends BaseRecordViewFieldComponent {
 	get isValidColor(): boolean {
-		if (!this.value) return false;
-		return this.parseColor(this.value) !== null;
+		if (!this.value()) return false;
+		return this.parseColor(this.value()) !== null;
 	}
 
 	get normalizedColorForDisplay(): string {
-		const parsed = this.parseColor(this.value);
+		const parsed = this.parseColor(this.value());
 		if (parsed) {
 			const [r, g, b] = parsed.value;
 			return `#${this.toHex(r)}${this.toHex(g)}${this.toHex(b)}`;

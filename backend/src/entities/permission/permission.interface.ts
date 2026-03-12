@@ -4,6 +4,7 @@ export interface IComplexPermission {
 	connection: IConnectionPermissionData;
 	group: IGroupPermissionData;
 	tables: Array<ITablePermissionData>;
+	dashboards?: Array<IDashboardPermissionData>;
 }
 
 export interface IConnectionPermissionData {
@@ -31,4 +32,16 @@ export interface ITablePermissionData {
 
 export interface ITableAndViewPermissionData extends ITablePermissionData {
 	isView: boolean;
+}
+
+export interface IDashboardAccessLevel {
+	read: boolean;
+	create: boolean;
+	edit: boolean;
+	delete: boolean;
+}
+
+export interface IDashboardPermissionData {
+	dashboardId: string;
+	accessLevel: IDashboardAccessLevel;
 }

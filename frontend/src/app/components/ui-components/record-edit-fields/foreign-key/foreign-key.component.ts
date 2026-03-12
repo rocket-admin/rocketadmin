@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, signal } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -43,7 +43,10 @@ interface Suggestion {
 	],
 })
 export class ForeignKeyEditComponent extends BaseEditFieldComponent {
-	@Input() value;
+	readonly value = model<any>();
+
+	private _tables = inject(TablesService);
+	private _connections = inject(ConnectionsService);
 
 	public connectionID: string;
 	public currentDisplayedString: string;
@@ -55,23 +58,18 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 	public primaeyKeys: { data_type: string; column_name: string }[];
 
 	public fkRelations: TableForeignKey = null;
-	private _debounceTimer: ReturnType<typeof setTimeout>;
 
-	constructor(
-		private _tables: TablesService,
-		private _connections: ConnectionsService,
-	) {
-		super();
-	}
+	private _debounceTimer: ReturnType<typeof setTimeout>;
 
 	async ngOnInit(): Promise<void> {
 		super.ngOnInit();
 		this.connectionID = this._connections.currentConnectionID;
 
-		if (this.widgetStructure?.widget_params) {
-			this.fkRelations = this.widgetStructure.widget_params as TableForeignKey;
-		} else if (this.relations) {
-			this.fkRelations = this.relations;
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
+			this.fkRelations = ws.widget_params as TableForeignKey;
+		} else if (this.relations()) {
+			this.fkRelations = this.relations();
 		}
 
 		if (this.fkRelations) {
@@ -83,14 +81,14 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 						requstedPage: 1,
 						chunkSize: 10,
 						foreignKeyRowName: this.fkRelations.referenced_column_name,
-						foreignKeyRowValue: this.value,
+						foreignKeyRowValue: this.value(),
 					}),
 				)) as FetchTableResponse;
 
 				if (res.rows.length) {
 					this.identityColumn = res.identity_column;
 					const modifiedRow = this.getModifiedRow(res.rows[0]);
-					if (this.value) {
+					if (this.value()) {
 						this.currentDisplayedString = this.identityColumn
 							? `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow)
 									.filter((value) => value)

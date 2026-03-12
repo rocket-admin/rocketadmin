@@ -29,11 +29,11 @@ describe('MarkdownEditComponent', () => {
 		fixture = TestBed.createComponent(MarkdownEditComponent);
 		component = fixture.componentInstance;
 
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {},
-		} as any;
-		component.label = 'description';
-		component.value = '# Hello World\n\nThis is **bold** text.';
+		} as any);
+		fixture.componentRef.setInput('label', 'description');
+		fixture.componentRef.setInput('value', '# Hello World\n\nThis is **bold** text.');
 
 		fixture.detectChanges();
 	});
@@ -81,17 +81,17 @@ describe('MarkdownEditComponent', () => {
 
 		const newFixture = TestBed.createComponent(MarkdownEditComponent);
 		const newComponent = newFixture.componentInstance;
-		newComponent.widgetStructure = { widget_params: {} } as any;
-		newComponent.label = 'content';
-		newComponent.value = 'test';
+		newFixture.componentRef.setInput('widgetStructure', { widget_params: {} } as any);
+		newFixture.componentRef.setInput('label', 'content');
+		newFixture.componentRef.setInput('value', 'test');
 		newFixture.detectChanges();
 
 		expect(newComponent.codeEditorTheme).toBe('vs');
 	});
 
 	it('should normalize label from base class', () => {
-		component.label = 'product_description';
+		fixture.componentRef.setInput('label', 'product_description');
 		component.ngOnInit();
-		expect(component.normalizedLabel).toBeDefined();
+		expect(component.normalizedLabel()).toBeDefined();
 	});
 });

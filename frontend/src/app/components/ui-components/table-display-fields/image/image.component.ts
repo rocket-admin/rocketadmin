@@ -1,32 +1,31 @@
+import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 
 @Component({
-	selector: 'app-image-display',
-	templateUrl: './image.component.html',
-	styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './image.component.css'],
-	imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule],
+  selector: 'app-image-display',
+  templateUrl: './image.component.html',
+  styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './image.component.css'],
+  imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class ImageDisplayComponent extends BaseTableDisplayFieldComponent {
-	get srcValue(): string {
-		if (!this.value) return '';
-		const prefix = this.widgetStructure?.widget_params?.prefix || '';
-		return prefix + this.value;
-	}
+  get srcValue(): string {
+    if (!this.value()) return '';
+    const prefix = this.widgetStructure()?.widget_params?.prefix || '';
+    return prefix + this.value();
+  }
 
-	get isUrl(): boolean {
-		if (!this.value) return false;
-		try {
-			// Check if the prefixed URL is valid
-			new URL(this.srcValue);
-			return true;
-		} catch {
-			return false;
-		}
-	}
+  get isUrl(): boolean {
+    if (!this.value()) return false;
+    try {
+      // Check if the prefixed URL is valid
+      new URL(this.srcValue);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

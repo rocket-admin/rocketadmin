@@ -189,7 +189,7 @@ export class CreateOrUpdatePermissionsUseCase
 		);
 
 		// Generate and save Cedar policy for this group
-		const cedarPolicy = generateCedarPolicyForGroup(groupId, connectionId, groupToUpdate.isMain, resultPermissions);
+		const cedarPolicy = generateCedarPolicyForGroup(connectionId, groupToUpdate.isMain, resultPermissions);
 		groupToUpdate.cedarPolicy = cedarPolicy;
 		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
 		Cacher.invalidateCedarPolicyCache(connectionId);

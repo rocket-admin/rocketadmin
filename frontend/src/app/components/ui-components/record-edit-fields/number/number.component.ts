@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +11,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	imports: [MatFormFieldModule, MatInputModule, FormsModule],
 })
 export class NumberEditComponent extends BaseEditFieldComponent {
-	@Input() value: number;
+	readonly value = model<number>();
 
 	static type = 'number';
 }

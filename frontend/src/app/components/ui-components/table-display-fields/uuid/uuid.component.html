@@ -1,9 +1,9 @@
 <div class="field-value uuid-display">
-  @if (value) {
-    <span class="uuid-text">{{ value }}</span>
+  @if (value()) {
+    <span class="uuid-text">{{ value() }}</span>
     <button
       mat-icon-button
-      [cdkCopyToClipboard]="value"
+      [cdkCopyToClipboard]="value()"
       matTooltip="Copy UUID"
       class="copy-button"
     >

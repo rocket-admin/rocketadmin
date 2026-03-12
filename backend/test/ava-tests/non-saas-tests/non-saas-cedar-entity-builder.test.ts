@@ -9,16 +9,14 @@ function makeGroup(id: string, isMain: boolean): GroupEntity {
 	return { id, isMain } as unknown as GroupEntity;
 }
 
-test('user entity has correct type, id, suspended=false, and group parents', (t) => {
+test('user entity has correct type, id, suspended=false, and empty parents', (t) => {
 	const groups = [makeGroup('g1', false), makeGroup('g2', true)];
 	const entities = buildCedarEntities(userId, groups, connectionId);
 	const userEntity = entities.find((e) => e.uid.type === 'RocketAdmin::User');
 	t.truthy(userEntity);
 	t.is(userEntity.uid.id, userId);
 	t.is(userEntity.attrs.suspended, false);
-	t.is(userEntity.parents.length, 2);
-	t.deepEqual(userEntity.parents[0], { type: 'RocketAdmin::Group', id: 'g1' });
-	t.deepEqual(userEntity.parents[1], { type: 'RocketAdmin::Group', id: 'g2' });
+	t.deepEqual(userEntity.parents, []);
 });
 
 test('group entities have correct type, isMain attribute, connectionId attribute, empty parents', (t) => {
@@ -82,4 +80,30 @@ test('empty groups array means user has no parents', (t) => {
 	const userEntity = entities.find((e) => e.uid.type === 'RocketAdmin::User');
 	t.truthy(userEntity);
 	t.deepEqual(userEntity.parents, []);
+});
+
+test('dashboard entity created when dashboardId provided with correct id and parent', (t) => {
+	const dashboardId = 'dash-1';
+	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId, undefined, dashboardId);
+	const dashEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Dashboard');
+	t.truthy(dashEntity);
+	t.is(dashEntity.uid.id, `${connectionId}/${dashboardId}`);
+	t.is(dashEntity.attrs.connectionId, connectionId);
+	t.deepEqual(dashEntity.parents, [{ type: 'RocketAdmin::Connection', id: connectionId }]);
+});
+
+test('no dashboard entity when dashboardId omitted', (t) => {
+	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId);
+	const dashEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Dashboard');
+	t.falsy(dashEntity);
+});
+
+test('both table and dashboard entities created when both provided', (t) => {
+	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId, 'users', 'dash-1');
+	const tableEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Table');
+	const dashEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Dashboard');
+	t.truthy(tableEntity);
+	t.truthy(dashEntity);
+	// 1 user + 1 group + 1 connection + 1 table + 1 dashboard = 5
+	t.is(entities.length, 5);
 });

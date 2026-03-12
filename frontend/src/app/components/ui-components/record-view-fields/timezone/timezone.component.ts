@@ -1,7 +1,6 @@
-import { Component, Injectable } from '@angular/core';
+import { Component } from '@angular/core';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-timezone-record-view',
 	templateUrl: './timezone.component.html',
@@ -10,16 +9,16 @@ import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-rec
 })
 export class TimezoneRecordViewComponent extends BaseRecordViewFieldComponent {
 	get formattedTimezone(): string {
-		console.log('timezone', this.value);
-		if (!this.value) {
+		console.log('timezone', this.value());
+		if (!this.value()) {
 			return '—';
 		}
 
 		try {
-			const offset = this.getTimezoneOffset(this.value);
-			return `${this.value} (UTC${offset})`;
+			const offset = this.getTimezoneOffset(this.value());
+			return `${this.value()} (UTC${offset})`;
 		} catch (_error) {
-			return this.value;
+			return this.value();
 		}
 	}
 

@@ -16,7 +16,7 @@ describe('MarkdownRecordViewComponent', () => {
 
 		fixture = TestBed.createComponent(MarkdownRecordViewComponent);
 		component = fixture.componentInstance;
-		component.value = '# Test Markdown';
+		fixture.componentRef.setInput('value', '# Test Markdown');
 		fixture.detectChanges();
 	});
 

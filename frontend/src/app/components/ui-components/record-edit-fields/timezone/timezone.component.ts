@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,7 +14,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class TimezoneEditComponent extends BaseEditFieldComponent {
-	@Input() value: string;
+	readonly value = model<string>();
 
 	public timezones: { value: string; label: string }[] = [];
 
@@ -44,9 +44,10 @@ export class TimezoneEditComponent extends BaseEditFieldComponent {
 		this.timezones.sort((a, b) => a.value.localeCompare(b.value));
 
 		// Check widget params for allow_null option
-		if (this.widgetStructure?.widget_params?.allow_null) {
+		const ws = this.widgetStructure();
+		if (ws?.widget_params?.allow_null) {
 			this.timezones = [{ value: null, label: '' }, ...this.timezones];
-		} else if (this.structure?.allow_null) {
+		} else if (this.structure()?.allow_null) {
 			this.timezones = [{ value: null, label: '' }, ...this.timezones];
 		}
 	}

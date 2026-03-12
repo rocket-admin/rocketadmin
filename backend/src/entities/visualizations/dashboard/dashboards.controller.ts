@@ -21,8 +21,9 @@ import { Timeout } from '../../../decorators/timeout.decorator.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
-import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
+import { DashboardCreateGuard } from '../../../guards/dashboard-create.guard.js';
+import { DashboardEditGuard } from '../../../guards/dashboard-edit.guard.js';
+import { DashboardReadGuard } from '../../../guards/dashboard-read.guard.js';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { CreateDashboardDs } from './data-structures/create-dashboard.ds.js';
 import { FindAllDashboardsDs } from './data-structures/find-all-dashboards.ds.js';
@@ -67,7 +68,7 @@ export class DashboardController {
 		isArray: true,
 	})
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionReadGuard)
+	@UseGuards(DashboardReadGuard)
 	@Get('/dashboards/:connectionId')
 	async findAllDashboards(
 		@SlugUuid('connectionId') connectionId: string,
@@ -98,7 +99,7 @@ export class DashboardController {
 	})
 	@ApiParam({ name: 'dashboardId', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionReadGuard)
+	@UseGuards(DashboardReadGuard)
 	@Get('/dashboard/:dashboardId/:connectionId')
 	async findDashboard(
 		@SlugUuid('connectionId') connectionId: string,
@@ -123,7 +124,7 @@ export class DashboardController {
 	})
 	@ApiBody({ type: CreateDashboardDto })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(DashboardCreateGuard)
 	@Post('/dashboards/:connectionId')
 	async createDashboard(
 		@SlugUuid('connectionId') connectionId: string,
@@ -158,7 +159,7 @@ export class DashboardController {
 	@ApiBody({ type: UpdateDashboardDto })
 	@ApiParam({ name: 'dashboardId', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(DashboardEditGuard)
 	@Put('/dashboard/:dashboardId/:connectionId')
 	async updateDashboard(
 		@SlugUuid('connectionId') connectionId: string,
@@ -186,7 +187,7 @@ export class DashboardController {
 	})
 	@ApiParam({ name: 'dashboardId', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(DashboardEditGuard)
 	@Delete('/dashboard/:dashboardId/:connectionId')
 	async deleteDashboard(
 		@SlugUuid('connectionId') connectionId: string,
