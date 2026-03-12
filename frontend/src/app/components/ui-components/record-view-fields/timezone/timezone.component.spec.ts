@@ -22,13 +22,13 @@ describe('TimezoneRecordViewComponent', () => {
 	});
 
 	it('should display formatted timezone with UTC offset', () => {
-		component.value = 'America/New_York';
+		fixture.componentRef.setInput('value', 'America/New_York');
 		expect(component.formattedTimezone).toContain('America/New_York');
 		expect(component.formattedTimezone).toContain('UTC');
 	});
 
 	it('should display dash for null value', () => {
-		component.value = null;
+		fixture.componentRef.setInput('value', null);
 		expect(component.formattedTimezone).toBe('—');
 	});
 });

@@ -1,6 +1,6 @@
 <mat-form-field class="form-field" appearance="outline">
-    <mat-label>{{normalizedLabel}}</mat-label>
-    <textarea matInput name="{{label}}-{{key}}"
+    <mat-label>{{normalizedLabel()}}</mat-label>
+    <textarea matInput name="{{label()}}-{{key()}}"
         #textareaField="ngModel"
         class="long-textarea"
         [rows]="rowsCount"
@@ -8,12 +8,20 @@
         textValidator
         [validateType]="validateType"
         [regexPattern]="regexPattern"
-        attr.data-testid="record-{{label}}-long-text"
-        [required]="required" [disabled]="disabled" [readonly]="readonly"
+        attr.data-testid="record-{{label()}}-long-text"
+        [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
     </textarea>
-    <div *ngIf="maxLength && maxLength > 0 && value && (maxLength - value.length) < 100" class="counter">{{value.length}} / {{maxLength}}</div>
-    <mat-error *ngIf="textareaField.errors?.['required']">This field is required.</mat-error>
-    <mat-error *ngIf="textareaField.errors?.['maxlength']">Maximum length is {{maxLength}} characters.</mat-error>
-    <mat-error *ngIf="textareaField.errors?.['invalidPattern'] || textareaField.errors?.[('invalid' + validateType)]">{{getValidationErrorMessage()}}</mat-error>
+    @if (maxLength && maxLength > 0 && value() && (maxLength - value().length) < 100) {
+        <div class="counter">{{value().length}} / {{maxLength}}</div>
+    }
+    @if (textareaField.errors?.['required']) {
+        <mat-error>This field is required.</mat-error>
+    }
+    @if (textareaField.errors?.['maxlength']) {
+        <mat-error>Maximum length is {{maxLength}} characters.</mat-error>
+    }
+    @if (textareaField.errors?.['invalidPattern'] || textareaField.errors?.[('invalid' + validateType)]) {
+        <mat-error>{{getValidationErrorMessage()}}</mat-error>
+    }
 </mat-form-field>

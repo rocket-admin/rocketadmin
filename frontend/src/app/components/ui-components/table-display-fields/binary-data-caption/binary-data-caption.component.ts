@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +11,6 @@ import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base
 		'../base-table-display-field/base-table-display-field.component.css',
 		'./binary-data-caption.component.css',
 	],
-	imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+	imports: [MatIconModule, MatButtonModule, MatTooltipModule],
 })
 export class BinaryDataCaptionDisplayComponent extends BaseTableDisplayFieldComponent {}

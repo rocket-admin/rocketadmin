@@ -136,7 +136,7 @@ describe('ForeignKeyEditComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(ForeignKeyEditComponent);
 		component = fixture.componentInstance;
-		component.relations = fakeRelations;
+		fixture.componentRef.setInput('relations', fakeRelations);
 		tablesService = TestBed.inject(TablesService);
 		fixture.detectChanges();
 	});
@@ -151,7 +151,7 @@ describe('ForeignKeyEditComponent', () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetworkWithIdentityColumn));
 
 		component.connectionID = '12345678';
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 
 		await component.ngOnInit();
 		fixture.detectChanges();
@@ -184,7 +184,7 @@ describe('ForeignKeyEditComponent', () => {
 
 		component.connectionID = '12345678';
 
-		component.value = '';
+		fixture.componentRef.setInput('value', '');
 
 		await component.ngOnInit();
 		fixture.detectChanges();
@@ -216,15 +216,15 @@ describe('ForeignKeyEditComponent', () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
 		component.connectionID = '12345678';
-		component.relations = {
+		fixture.componentRef.setInput('relations', {
 			autocomplete_columns: [],
 			column_name: 'userId',
 			constraint_name: '',
 			referenced_column_name: 'id',
 			referenced_table_name: 'users',
 			column_default: '',
-		};
-		component.value = '';
+		});
+		fixture.componentRef.setInput('value', '');
 
 		await component.ngOnInit();
 		fixture.detectChanges();
@@ -301,7 +301,7 @@ describe('ForeignKeyEditComponent', () => {
 
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 
-		component.relations = fakeRelations;
+		fixture.componentRef.setInput('relations', fakeRelations);
 
 		component.suggestions.set([
 			{
@@ -393,7 +393,7 @@ describe('ForeignKeyEditComponent', () => {
 
 		const fakeFetchTable = vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 		component.connectionID = '12345678';
-		component.relations = fakeRelations;
+		fixture.componentRef.setInput('relations', fakeRelations);
 
 		component.suggestions.set([
 			{
@@ -417,12 +417,12 @@ describe('ForeignKeyEditComponent', () => {
 
 		expect(fakeFetchTable).toHaveBeenCalledWith({
 			connectionID: '12345678',
-			tableName: component.relations.referenced_table_name,
+			tableName: component.relations().referenced_table_name,
 			requstedPage: 1,
 			chunkSize: 20,
 			foreignKeyRowName: 'autocomplete',
 			foreignKeyRowValue: component.currentDisplayedString,
-			referencedColumn: component.relations.referenced_column_name,
+			referencedColumn: component.relations().referenced_column_name,
 		});
 
 		expect(component.suggestions()).toEqual([

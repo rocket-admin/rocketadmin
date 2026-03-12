@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, model, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +13,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 })
 export class RangeEditComponent extends BaseEditFieldComponent {
 	@ViewChild('rangeInput') rangeInput: ElementRef<HTMLInputElement>;
-	@Input() value: number;
+	readonly value = model<number>();
 	static type = 'range';
 
 	public min: number = 0;
@@ -30,14 +30,15 @@ export class RangeEditComponent extends BaseEditFieldComponent {
 	}
 
 	public onValueChange(newValue: number): void {
-		this.value = newValue;
-		this.onFieldChange.emit(this.value);
+		this.value.set(newValue);
+		this.onFieldChange.emit(this.value());
 	}
 
 	private _parseWidgetParams(): void {
-		if (this.widgetStructure?.widget_params) {
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
 			try {
-				const params = this.widgetStructure.widget_params;
+				const params = ws.widget_params;
 				if (params.min !== undefined) {
 					this.min = Number(params.min) || 0;
 				}

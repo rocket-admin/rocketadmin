@@ -1,5 +1,4 @@
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +10,7 @@ import { getLanguageFlag, LANGUAGES } from '../../../../consts/languages';
 	selector: 'app-language-display',
 	templateUrl: './language.component.html',
 	styleUrls: ['../base-table-display-field/base-table-display-field.component.css', './language.component.css'],
-	imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule, CommonModule],
+	imports: [ClipboardModule, MatIconModule, MatButtonModule, MatTooltipModule],
 })
 export class LanguageDisplayComponent {
 	static type = 'language';

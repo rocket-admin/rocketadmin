@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,23 +15,22 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule],
 })
 export class DateTimeEditComponent extends BaseEditFieldComponent {
-	@Input() value: string;
+	readonly value = model<string>();
 
 	static type = 'datetime';
 	public date: string;
 	public time: string;
 	public connectionType: DBtype;
 
-	constructor(private _connections: ConnectionsService) {
-		super();
-	}
+	private _connections = inject(ConnectionsService);
 
 	ngOnInit(): void {
 		super.ngOnInit();
 		this.connectionType = this._connections.currentConnection.type;
 
-		if (this.value) {
-			const datetime = new Date(this.value);
+		const val = this.value();
+		if (val) {
+			const datetime = new Date(val);
 			this.date = format(datetime, 'yyyy-MM-dd');
 			this.time = format(datetime, 'HH:mm:ss');
 		}

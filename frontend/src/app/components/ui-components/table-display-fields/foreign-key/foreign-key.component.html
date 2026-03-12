@@ -1,19 +1,22 @@
 <div class="field-display">
   <div class="field-value">
-    <button *ngIf="relations && value"
-      class="foreign-key-button"
-      [ngClass]="{'foreign-key-button_selected': isSelected}"
-      type="button"
-      (click)="handleForeignKeyClick($event)">
-      {{ value }}
-    </button>
-    <span *ngIf="!relations || !value">{{ value || '—' }}</span>
+    @if (relations() && value()) {
+      <button
+        class="foreign-key-button"
+        [ngClass]="{'foreign-key-button_selected': isSelected()}"
+        type="button"
+        (click)="handleForeignKeyClick($event)">
+        {{ value() }}
+      </button>
+    } @else {
+      <span>{{ value() || '—' }}</span>
+    }
   </div>
   <button type="button"
     mat-icon-button
     class="field-copy-button"
     matTooltip="Copy"
-    [cdkCopyToClipboard]="value"
+    [cdkCopyToClipboard]="value()"
     (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Field value was copied to clipboard.')"
     (click)="$event.stopPropagation()">
     <mat-icon>content_copy</mat-icon>

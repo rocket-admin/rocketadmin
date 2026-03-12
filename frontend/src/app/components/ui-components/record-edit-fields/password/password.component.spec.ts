@@ -31,28 +31,28 @@ describe('PasswordEditComponent', () => {
 
 	describe('ngOnInit', () => {
 		it('should reset masked password value to empty string', () => {
-			component.value = '***';
+			fixture.componentRef.setInput('value', '***');
 			component.ngOnInit();
-			expect(component.value).toBe('');
+			expect(component.value()).toBe('');
 		});
 
 		it('should not emit onFieldChange when password is masked (empty after reset)', () => {
 			const event = vi.spyOn(component.onFieldChange, 'emit');
-			component.value = '***';
+			fixture.componentRef.setInput('value', '***');
 			component.ngOnInit();
 			expect(event).not.toHaveBeenCalled();
 		});
 
 		it('should emit onFieldChange when password has actual value', () => {
 			const event = vi.spyOn(component.onFieldChange, 'emit');
-			component.value = 'actualPassword';
+			fixture.componentRef.setInput('value', 'actualPassword');
 			component.ngOnInit();
 			expect(event).toHaveBeenCalledWith('actualPassword');
 		});
 
 		it('should not emit onFieldChange when password is empty string', () => {
 			const event = vi.spyOn(component.onFieldChange, 'emit');
-			component.value = '';
+			fixture.componentRef.setInput('value', '');
 			component.ngOnInit();
 			expect(event).not.toHaveBeenCalled();
 		});

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Injectable, Input, OnInit } from '@angular/core';
+import { Component, model, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,8 +18,6 @@ import {
 } from 'uuid';
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 
-@Injectable()
-
 @Component({
 	selector: 'app-edit-uuid',
 	templateUrl: './uuid.component.html',
@@ -36,7 +34,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	],
 })
 export class UuidEditComponent extends BaseEditFieldComponent implements OnInit {
-	@Input() value: string;
+	readonly value = model<string>();
 
 	static type = 'uuid';
 
@@ -66,15 +64,16 @@ export class UuidEditComponent extends BaseEditFieldComponent implements OnInit 
 		super.ngOnInit();
 
 		// Determine if we're in create or update mode
-		this.isCreateMode = !this.value || this.value === '';
+		this.isCreateMode = !this.value() || this.value() === '';
 
 		// Parse widget parameters
-		if (this.widgetStructure?.widget_params) {
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
 			try {
 				const params =
-					typeof this.widgetStructure.widget_params === 'string'
-						? JSON.parse(this.widgetStructure.widget_params)
-						: this.widgetStructure.widget_params;
+					typeof ws.widget_params === 'string'
+						? JSON.parse(ws.widget_params)
+						: ws.widget_params;
 
 				if (params.version) {
 					this.uuidVersion = params.version;
@@ -128,13 +127,13 @@ export class UuidEditComponent extends BaseEditFieldComponent implements OnInit 
 					uuid = uuidv4();
 			}
 
-			this.value = uuid;
-			this.onFieldChange.emit(this.value);
+			this.value.set(uuid);
+			this.onFieldChange.emit(this.value());
 		} catch (error) {
 			console.error('Error generating UUID:', error);
 			// Fallback to v4
-			this.value = uuidv4();
-			this.onFieldChange.emit(this.value);
+			this.value.set(uuidv4());
+			this.onFieldChange.emit(this.value());
 		}
 	}
 

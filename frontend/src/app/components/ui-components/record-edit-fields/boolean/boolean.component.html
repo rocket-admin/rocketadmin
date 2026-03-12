@@ -1,26 +1,26 @@
-<div *ngIf="isRadiogroup; else checkboxElement" class="radio-line">
-    <label id="">{{normalizedLabel}}</label>
-    <mat-button-toggle-group name="{{label}}-{{key}}"
-        attr.data-testid="record-{{label}}-boolean-radio-group"
-        [hideSingleSelectionIndicator]="true"
-        [disabled]="disabled"
-        [value]="value">
-        <mat-button-toggle [value]=true (click)="onToggleChange(true)">Yes</mat-button-toggle>
-        <mat-button-toggle [value]=false (click)="onToggleChange(false)">No</mat-button-toggle>
-    </mat-button-toggle-group>
-</div>
-
-<ng-template #checkboxElement>
+@if (isRadiogroup) {
     <div class="radio-line">
-        <label id="">{{normalizedLabel}}</label>
-        <mat-button-toggle-group name="{{label}}-{{key}}"
-            attr.data-testid="record-{{label}}-boolean-radio-group"
+        <label id="">{{normalizedLabel()}}</label>
+        <mat-button-toggle-group name="{{label()}}-{{key()}}"
+            attr.data-testid="record-{{label()}}-boolean-radio-group"
             [hideSingleSelectionIndicator]="true"
-            [disabled]="disabled"
+            [disabled]="disabled()"
+            [value]="value()">
+            <mat-button-toggle [value]=true (click)="onToggleChange(true)">Yes</mat-button-toggle>
+            <mat-button-toggle [value]=false (click)="onToggleChange(false)">No</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+} @else {
+    <div class="radio-line">
+        <label id="">{{normalizedLabel()}}</label>
+        <mat-button-toggle-group name="{{label()}}-{{key()}}"
+            attr.data-testid="record-{{label()}}-boolean-radio-group"
+            [hideSingleSelectionIndicator]="true"
+            [disabled]="disabled()"
             [(ngModel)]="value"
             (ngModelChange)="onFieldChange.emit($event)">
             <mat-button-toggle [value]=true>Yes</mat-button-toggle>
             <mat-button-toggle [value]=false>No</mat-button-toggle>
         </mat-button-toggle-group>
     </div>
-</ng-template>
+}

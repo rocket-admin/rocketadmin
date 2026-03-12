@@ -1,6 +1,4 @@
-import { CommonModule } from '@angular/common';
-
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, input, OnChanges, OnInit } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
@@ -9,10 +7,10 @@ import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-rec
 	standalone: true,
 	templateUrl: './range.component.html',
 	styleUrls: ['./range.component.css'],
-	imports: [CommonModule, MatProgressBarModule],
+	imports: [MatProgressBarModule],
 })
 export class RangeRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit, OnChanges {
-	@Input() declare value: number;
+	override readonly value = input<number>();
 	static type = 'range';
 
 	public min: number = 0;
@@ -31,7 +29,7 @@ export class RangeRecordViewComponent extends BaseRecordViewFieldComponent imple
 	}
 
 	public getProgressValue(): number {
-		const numValue = Number(this.value) || 0;
+		const numValue = Number(this.value()) || 0;
 		const range = this.max - this.min;
 		if (range === 0) return 0;
 		const progress = ((numValue - this.min) / range) * 100;
@@ -40,10 +38,10 @@ export class RangeRecordViewComponent extends BaseRecordViewFieldComponent imple
 	}
 
 	private _parseWidgetParams(): void {
-		console.log('Parsing widget params:', this.widgetStructure?.widget_params);
-		if (this.widgetStructure?.widget_params) {
+		console.log('Parsing widget params:', this.widgetStructure()?.widget_params);
+		if (this.widgetStructure()?.widget_params) {
 			try {
-				const params = this.widgetStructure.widget_params;
+				const params = this.widgetStructure().widget_params;
 				if (params.min !== undefined) {
 					this.min = Number(params.min) || 0;
 				}
@@ -61,7 +59,7 @@ export class RangeRecordViewComponent extends BaseRecordViewFieldComponent imple
 	}
 
 	private _updateDisplayValue(): void {
-		const numValue = Number(this.value) || 0;
+		const numValue = Number(this.value()) || 0;
 		this.displayValue = `${numValue} / ${this.max}`;
 	}
 }
