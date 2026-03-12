@@ -267,16 +267,16 @@ test.serial(
 				t.truthy(columnNames.includes(expectedCol), `Structure should include column ${expectedCol}`);
 			}
 
-			const orderIdCol = structureRO.structure.find((col: any) => col.column_name === 'order_id');
-			const customerIdCol = structureRO.structure.find((col: any) => col.column_name === 'customer_id');
+			const orderIdCol = structureRO.structure.find((col: any) => col.column_name === 'ORDER_ID');
+			const customerIdCol = structureRO.structure.find((col: any) => col.column_name === 'CUSTOMER_ID');
 			t.truthy(orderIdCol);
 			t.truthy(customerIdCol);
 
 			// Validate primaryColumns
 			t.truthy(structureRO.primaryColumns);
 			const primaryColumnNames = structureRO.primaryColumns.map((col: any) => col.column_name);
-			t.truthy(primaryColumnNames.includes('order_id'));
-			t.truthy(primaryColumnNames.includes('customer_id'));
+			t.truthy(primaryColumnNames.includes('ORDER_ID'));
+			t.truthy(primaryColumnNames.includes('CUSTOMER_ID'));
 		} catch (e) {
 			console.error(e);
 			throw e;
@@ -313,12 +313,12 @@ test.serial(
 			t.truthy(Array.isArray(structureRO.structure));
 
 			const columnNames = structureRO.structure.map((col: any) => col.column_name);
-			t.truthy(columnNames.includes('item_id'));
-			t.truthy(columnNames.includes('order_id'));
-			t.truthy(columnNames.includes('customer_id'));
-			t.truthy(columnNames.includes('product_name'));
-			t.truthy(columnNames.includes('quantity'));
-			t.truthy(columnNames.includes('price_per_unit'));
+			t.truthy(columnNames.includes('ITEM_ID'));
+			t.truthy(columnNames.includes('ORDER_ID'));
+			t.truthy(columnNames.includes('CUSTOMER_ID'));
+			t.truthy(columnNames.includes('PRODUCT_NAME'));
+			t.truthy(columnNames.includes('QUANTITY'));
+			t.truthy(columnNames.includes('PRICE_PER_UNIT'));
 
 			// Validate foreignKeys are present for referenced table
 			t.truthy(structureRO.foreignKeys);
@@ -972,8 +972,8 @@ test.serial(
 
 			// Validate primaryColumns includes both composite key columns
 			const primaryColumnNames = rowsRO.primaryColumns.map((col: any) => col.column_name);
-			t.truthy(primaryColumnNames.includes('order_id'));
-			t.truthy(primaryColumnNames.includes('customer_id'));
+			t.truthy(primaryColumnNames.includes('ORDER_ID'));
+			t.truthy(primaryColumnNames.includes('CUSTOMER_ID'));
 			t.is(rowsRO.primaryColumns.length, 2);
 
 			// Validate row data
