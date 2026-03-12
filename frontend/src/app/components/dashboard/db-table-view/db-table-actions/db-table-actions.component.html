@@ -1,5 +1,5 @@
-<mat-drawer-container class="drawer">
-    <mat-drawer mode="side" opened>
+<div class="actions-layout">
+    <div class="actions-sidebar">
         <div class="drawer-header">
             <h1 class="mat-h1">Automations</h1>
         </div>
@@ -24,9 +24,9 @@
             (click)="addNewRule(); posthog.capture('Actions: add first action is clicked')">
             <mat-icon>add</mat-icon> Add automation
         </button>
-    </mat-drawer>
+    </div>
 
-    <mat-drawer-content *ngIf="rulesData">
+    <div class="actions-main" *ngIf="rulesData">
         <app-alert></app-alert>
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="actions-breadcrumbs"></app-breadcrumbs>
         <app-content-loader *ngIf="!rules"></app-content-loader>
@@ -432,5 +432,5 @@
             </div>
         </div>
 
-    </mat-drawer-content>
-  </mat-drawer-container>
+    </div>
+</div>

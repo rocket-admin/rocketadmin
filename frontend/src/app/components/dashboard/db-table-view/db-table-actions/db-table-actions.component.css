@@ -1,3 +1,12 @@
+:host {
+	display: block;
+	height: calc(100vh - 44px);
+	margin-bottom: -60px;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
 :host app-alert:not(:empty) {
 	--alert-margin: 0;
 
@@ -5,13 +14,17 @@
 	margin-bottom: 16px;
 }
 
-.drawer {
+.actions-layout {
+	display: flex;
 	height: 100%;
 }
 
-.mat-drawer {
-	padding-bottom: 16px;
+.actions-sidebar {
 	width: clamp(200px, 18%, 320px);
+	padding-bottom: 16px;
+	border-right: 1px solid var(--mat-sidenav-container-divider-color);
+	overflow-y: auto;
+	flex-shrink: 0;
 }
 
 .drawer-header {
@@ -101,10 +114,38 @@
 	width: 100%;
 }
 
-.mat-drawer-content {
+.actions-main {
+	flex: 1;
+	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
-	padding: 20px 24px;
+	background-color: var(--mat-sidenav-content-background-color);
+}
+
+.actions-main > app-alert,
+.actions-main > app-breadcrumbs,
+.actions-main > app-content-loader,
+.actions-main > .creation-flow,
+.actions-main > .empty-state {
+	padding-left: clamp(40px, 5vw, 100px);
+	padding-right: clamp(40px, 5vw, 100px);
+}
+
+.actions-main > app-alert,
+.actions-main > app-breadcrumbs,
+.actions-main > app-content-loader {
+	padding-top: 20px;
+}
+
+@media (width <= 600px) {
+	.actions-main > app-alert,
+	.actions-main > app-breadcrumbs,
+	.actions-main > app-content-loader,
+	.actions-main > .creation-flow,
+	.actions-main > .empty-state {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
 }
 
 .rule {
@@ -343,8 +384,11 @@
 /* ── Creation flow ── */
 
 .creation-flow {
-	flex-grow: 1;
+	flex: 1;
 	margin-top: 20px;
+	max-width: 1400px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .creation-flow__form {
@@ -413,17 +457,19 @@
 }
 
 .actions {
-	position: fixed;
-	left: 0;
+	position: sticky;
 	bottom: 0;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	gap: 16px;
+	margin-left: calc(-1 * clamp(40px, 5vw, 100px));
+	margin-right: calc(-1 * clamp(40px, 5vw, 100px));
+	padding: 0 clamp(40px, 5vw, 100px);
 	background-color: var(--background-color);
 	box-shadow: var(--shadow);
 	height: 64px;
-	padding: 0 calc(5% + 70px) 0 5%;
-	width: 100vw;
+	flex-shrink: 0;
 	z-index: 10;
 }
 
@@ -438,6 +484,14 @@
 	.actions {
 		--shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 		--background-color: #fff;
+	}
+}
+
+@media (width <= 600px) {
+	.actions {
+		margin-left: -16px;
+		margin-right: -16px;
+		padding: 0 16px;
 	}
 }
 
