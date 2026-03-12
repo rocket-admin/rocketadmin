@@ -71,8 +71,8 @@ test.serial(
 			const tableName = testData.firstTableInfo.testTableName;
 
 			const cedarPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
 			].join('\n\n');
 
 			const response = await request(app.getHttpServer())
@@ -113,14 +113,14 @@ test.serial(
 			const tableName = testData.firstTableInfo.testTableName;
 
 			const cedarPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:edit",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"group:read",\n  resource == RocketAdmin::Group::"${groupId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"group:edit",\n  resource == RocketAdmin::Group::"${groupId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:add",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:edit",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:delete",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:edit",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"group:read",\n  resource == RocketAdmin::Group::"${groupId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"group:edit",\n  resource == RocketAdmin::Group::"${groupId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:add",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:edit",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:delete",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
 			].join('\n\n');
 
 			const response = await request(app.getHttpServer())
@@ -160,8 +160,8 @@ test.serial(
 
 			// Save cedar policy with connection:read + table:read
 			const cedarPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
 			].join('\n\n');
 
 			const savePolicyResponse = await request(app.getHttpServer())
@@ -201,8 +201,8 @@ test.serial(
 
 			// Save cedar policy with only connection:read + table:read (no table:add)
 			const cedarPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
 			].join('\n\n');
 
 			const savePolicyResponse = await request(app.getHttpServer())
@@ -244,9 +244,9 @@ test.serial(
 
 			// Save cedar policy with connection:read + table:read + table:add
 			const cedarPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:add",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:add",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
 			].join('\n\n');
 
 			const savePolicyResponse = await request(app.getHttpServer())
@@ -283,7 +283,7 @@ test.serial(
 			const connectionId = testData.connections.firstId;
 			const groupId = testData.groups.createdGroupId;
 
-			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`;
+			const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`;
 
 			// Simple user has readonly access, not edit
 			const response = await request(app.getHttpServer())
@@ -354,7 +354,7 @@ test.serial(
 			const secondConnectionId = testData.connections.secondId;
 			const groupId = testData.groups.createdGroupId;
 
-			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${secondConnectionId}"\n);`;
+			const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${secondConnectionId}"\n);`;
 
 			// Group belongs to first connection, but we're sending to second connection
 			const response = await request(app.getHttpServer())
@@ -383,10 +383,10 @@ test.serial(
 			const groupId = testData.groups.createdGroupId;
 
 			const cedarPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == RocketAdmin::Dashboard::"${connectionId}/dash-1"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"dashboard:create",\n  resource == RocketAdmin::Dashboard::"${connectionId}/dash-1"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"dashboard:edit",\n  resource == RocketAdmin::Dashboard::"${connectionId}/dash-1"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == RocketAdmin::Dashboard::"${connectionId}/dash-1"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:create",\n  resource == RocketAdmin::Dashboard::"${connectionId}/dash-1"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:edit",\n  resource == RocketAdmin::Dashboard::"${connectionId}/dash-1"\n);`,
 			].join('\n\n');
 
 			const response = await request(app.getHttpServer())
@@ -425,12 +425,12 @@ test.serial(
 
 			// First: save policy with full table access
 			const fullPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:edit",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:add",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:edit",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:delete",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:edit",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:add",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:edit",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:delete",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
 			].join('\n\n');
 
 			const firstResponse = await request(app.getHttpServer())
@@ -446,8 +446,8 @@ test.serial(
 
 			// Second: save policy with only read access (overwrite)
 			const readOnlyPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
 			].join('\n\n');
 
 			const secondResponse = await request(app.getHttpServer())
@@ -472,34 +472,6 @@ test.serial(
 //****************************** CEDAR POLICY REFERENCE VALIDATION TESTS ******************************
 
 test.serial(
-	`${currentTest} should reject cedar policy that references a different group as principal`,
-	async (t) => {
-		try {
-			const testData = await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-			const connectionId = testData.connections.firstId;
-			const groupId = testData.groups.createdGroupId;
-			const adminGroupId = testData.groups.firstAdminGroupId;
-
-			// Policy references adminGroupId as principal instead of the target groupId
-			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${adminGroupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`;
-
-			const response = await request(app.getHttpServer())
-				.post(`/connection/cedar-policy/${connectionId}`)
-				.send({ cedarPolicy, groupId })
-				.set('Cookie', testData.users.adminUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-
-			t.is(response.status, 400);
-			t.is(JSON.parse(response.text).message, Messages.CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	},
-);
-
-test.serial(
 	`${currentTest} should reject cedar policy that references a foreign connection`,
 	async (t) => {
 		try {
@@ -509,7 +481,7 @@ test.serial(
 			const groupId = testData.groups.createdGroupId;
 
 			// Policy references secondConnectionId as the resource
-			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${secondConnectionId}"\n);`;
+			const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${secondConnectionId}"\n);`;
 
 			const response = await request(app.getHttpServer())
 				.post(`/connection/cedar-policy/${connectionId}`)
@@ -538,8 +510,8 @@ test.serial(
 
 			// Policy grants group:edit access to a group from the second connection
 			const cedarPolicy = [
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
-				`permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"group:edit",\n  resource == RocketAdmin::Group::"${secondAdminGroupId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"group:edit",\n  resource == RocketAdmin::Group::"${secondAdminGroupId}"\n);`,
 			].join('\n\n');
 
 			const response = await request(app.getHttpServer())
@@ -568,7 +540,7 @@ test.serial(
 			const groupId = testData.groups.createdGroupId;
 			const tableName = testData.firstTableInfo.testTableName;
 
-			const cedarPolicy = `permit(\n  principal in RocketAdmin::Group::"${groupId}",\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${secondConnectionId}/${tableName}"\n);`;
+			const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${secondConnectionId}/${tableName}"\n);`;
 
 			const response = await request(app.getHttpServer())
 				.post(`/connection/cedar-policy/${connectionId}`)

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,21 +12,19 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule, FormsModule],
 })
 export class PasswordEditComponent extends BaseEditFieldComponent {
-	@Input() value: string;
+	readonly value = model<string>();
 
 	public clearPassword: boolean;
 
 	ngOnInit(): void {
 		super.ngOnInit();
-		if (this.value === '***') this.value = '';
-		// Don't emit empty password value to skip sending it to backend
-		if (this.value !== '') {
-			this.onFieldChange.emit(this.value);
+		if (this.value() === '***') this.value.set('');
+		if (this.value() !== '') {
+			this.onFieldChange.emit(this.value());
 		}
 	}
 
 	onPasswordChange(newValue: string) {
-		// Only emit non-empty values to prevent sending empty strings to backend
 		if (newValue !== '') {
 			this.onFieldChange.emit(newValue);
 		}

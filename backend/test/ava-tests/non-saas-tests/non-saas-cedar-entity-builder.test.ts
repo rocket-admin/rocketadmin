@@ -9,16 +9,14 @@ function makeGroup(id: string, isMain: boolean): GroupEntity {
 	return { id, isMain } as unknown as GroupEntity;
 }
 
-test('user entity has correct type, id, suspended=false, and group parents', (t) => {
+test('user entity has correct type, id, suspended=false, and empty parents', (t) => {
 	const groups = [makeGroup('g1', false), makeGroup('g2', true)];
 	const entities = buildCedarEntities(userId, groups, connectionId);
 	const userEntity = entities.find((e) => e.uid.type === 'RocketAdmin::User');
 	t.truthy(userEntity);
 	t.is(userEntity.uid.id, userId);
 	t.is(userEntity.attrs.suspended, false);
-	t.is(userEntity.parents.length, 2);
-	t.deepEqual(userEntity.parents[0], { type: 'RocketAdmin::Group', id: 'g1' });
-	t.deepEqual(userEntity.parents[1], { type: 'RocketAdmin::Group', id: 'g2' });
+	t.deepEqual(userEntity.parents, []);
 });
 
 test('group entities have correct type, isMain attribute, connectionId attribute, empty parents', (t) => {

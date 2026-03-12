@@ -1,5 +1,7 @@
-<span *ngIf="formattedPoint"
-  class="value-wrapper"
-  [matTooltip]="formattedPoint">
-  {{ formattedPoint }}
-</span>
+@if (formattedPoint) {
+  <span
+    class="value-wrapper"
+    [matTooltip]="formattedPoint">
+    {{ formattedPoint }}
+  </span>
+}

@@ -1,6 +1,9 @@
 <div class="static-text">
-    <span>{{ normalizedLabel }}</span>
-    <span *ngIf="value === null" class="static-text__value">NULL</span>
-    <span *ngIf="value" class="static-text__value">{{ value }}</span>
+    <span>{{ normalizedLabel() }}</span>
+    @if (value() === null) {
+        <span class="static-text__value">NULL</span>
+    }
+    @if (value()) {
+        <span class="static-text__value">{{ value() }}</span>
+    }
 </div>
-

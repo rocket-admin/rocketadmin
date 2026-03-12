@@ -6,7 +6,6 @@ import {
 } from '../permission/permission.interface.js';
 
 interface ParsedPermitStatement {
-	groupId: string | null;
 	action: string | null;
 	resourceType: string | null;
 	resourceId: string | null;
@@ -140,17 +139,11 @@ function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
 
 function parsePermitBody(body: string): ParsedPermitStatement {
 	const result: ParsedPermitStatement = {
-		groupId: null,
 		action: null,
 		resourceType: null,
 		resourceId: null,
 		isWildcard: false,
 	};
-
-	const principalMatch = body.match(/principal\s+in\s+RocketAdmin::Group::"([^"]+)"/);
-	if (principalMatch) {
-		result.groupId = principalMatch[1];
-	}
 
 	const actionMatch = body.match(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/);
 	if (actionMatch) {

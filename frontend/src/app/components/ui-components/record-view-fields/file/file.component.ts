@@ -1,4 +1,4 @@
-import { Component, Injectable } from '@angular/core';
+import { Component } from '@angular/core';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
 interface Blob {
@@ -6,7 +6,6 @@ interface Blob {
 	data: any[];
 }
 
-@Injectable()
 @Component({
 	selector: 'app-file-record-view',
 	templateUrl: './file.component.html',
@@ -15,15 +14,15 @@ interface Blob {
 })
 export class FileRecordViewComponent extends BaseRecordViewFieldComponent {
 	get isBlob(): boolean {
-		return typeof this.value === 'object' && this.value !== null && 'type' in this.value && 'data' in this.value;
+		return typeof this.value() === 'object' && this.value() !== null && 'type' in this.value() && 'data' in this.value();
 	}
 
 	get displayText(): string {
 		if (this.isBlob) {
 			return 'Binary Data';
-		} else if (typeof this.value === 'string' && this.value.length > 20) {
+		} else if (typeof this.value() === 'string' && this.value().length > 20) {
 			return 'Binary Data';
 		}
-		return this.value ? String(this.value) : '—';
+		return this.value() ? String(this.value()) : '—';
 	}
 }

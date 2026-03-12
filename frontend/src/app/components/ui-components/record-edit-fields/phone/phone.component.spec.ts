@@ -32,8 +32,8 @@ describe('PhoneEditComponent', () => {
 		component = fixture.componentInstance;
 
 		// Set basic required properties
-		component.label = 'Phone';
-		component.key = 'phone';
+		fixture.componentRef.setInput('label', 'Phone');
+		fixture.componentRef.setInput('key', 'phone');
 
 		fixture.detectChanges();
 	});
@@ -57,7 +57,7 @@ describe('PhoneEditComponent', () => {
 
 			component.onPhoneNumberChange();
 
-			expect(component.value).toBe('+12024561111');
+			expect(component.value()).toBe('+12024561111');
 		});
 
 		it('should format US phone number in E164 format when user enters raw digits', () => {
@@ -66,7 +66,7 @@ describe('PhoneEditComponent', () => {
 
 			component.onPhoneNumberChange();
 
-			expect(component.value).toBe('+12024561111');
+			expect(component.value()).toBe('+12024561111');
 		});
 
 		it('should handle US phone number with different formatting', () => {
@@ -75,7 +75,7 @@ describe('PhoneEditComponent', () => {
 
 			component.onPhoneNumberChange();
 
-			expect(component.value).toBe('+12024561111');
+			expect(component.value()).toBe('+12024561111');
 		});
 
 		it('should handle US phone number with country code already included', () => {
@@ -84,7 +84,7 @@ describe('PhoneEditComponent', () => {
 
 			component.onPhoneNumberChange();
 
-			expect(component.value).toBe('+12024561111');
+			expect(component.value()).toBe('+12024561111');
 		});
 
 		it('should not format invalid US phone number', () => {
@@ -94,7 +94,7 @@ describe('PhoneEditComponent', () => {
 			component.onPhoneNumberChange();
 
 			// Should either be empty or the cleaned input, but not a malformed international number
-			expect(component.value).not.toMatch(/^\+1123$/);
+			expect(component.value()).not.toMatch(/^\+1123$/);
 		});
 	});
 
@@ -110,7 +110,7 @@ describe('PhoneEditComponent', () => {
 
 			component.onPhoneNumberChange();
 
-			expect(component.value).toBe('+442079460958');
+			expect(component.value()).toBe('+442079460958');
 		});
 
 		it('should format German phone number in E164 format', () => {
@@ -124,7 +124,7 @@ describe('PhoneEditComponent', () => {
 
 			component.onPhoneNumberChange();
 
-			expect(component.value).toBe('+493012345678');
+			expect(component.value()).toBe('+493012345678');
 		});
 	});
 
@@ -285,19 +285,19 @@ describe('PhoneEditComponent', () => {
 
 			component.onPhoneNumberChange();
 
-			expect(component.onFieldChange.emit).toHaveBeenCalledWith(component.value);
+			expect(component.onFieldChange.emit).toHaveBeenCalledWith(component.value());
 		});
 	});
 
 	describe('Widget Configuration', () => {
 		it('should configure from widget params', () => {
-			component.widgetStructure = {
+			fixture.componentRef.setInput('widgetStructure', {
 				widget_params: {
 					preferred_countries: ['CA', 'GB'],
 					enable_placeholder: false,
 					phone_validation: false,
 				},
-			} as Partial<WidgetStructure> as WidgetStructure;
+			} as Partial<WidgetStructure> as WidgetStructure);
 
 			component.configureFromWidgetParams();
 
@@ -307,7 +307,7 @@ describe('PhoneEditComponent', () => {
 		});
 
 		it('should handle missing widget params', () => {
-			component.widgetStructure = {} as Partial<WidgetStructure> as WidgetStructure;
+			fixture.componentRef.setInput('widgetStructure', {} as Partial<WidgetStructure> as WidgetStructure);
 
 			expect(() => component.configureFromWidgetParams()).not.toThrow();
 		});

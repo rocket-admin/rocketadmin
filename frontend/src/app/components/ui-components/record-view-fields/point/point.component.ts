@@ -1,8 +1,7 @@
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-point-record-view',
 	templateUrl: './point.component.html',
@@ -19,25 +18,25 @@ export class PointRecordViewComponent extends BaseRecordViewFieldComponent imple
 	}
 
 	private formatPoint() {
-		if (!this.value) {
+		if (!this.value()) {
 			this.formattedPoint = '';
 			return;
 		}
 
 		try {
-			if (typeof this.value === 'string') {
+			if (typeof this.value() === 'string') {
 				// Handle string format like "(x,y)" or "x,y"
-				const pointStr = this.value.trim().replace(/[()]/g, '');
+				const pointStr = this.value().trim().replace(/[()]/g, '');
 				const [x, y] = pointStr.split(',').map((coord) => parseFloat(coord.trim()));
 				this.formattedPoint = `(${x}, ${y})`;
-			} else if (typeof this.value === 'object') {
+			} else if (typeof this.value() === 'object') {
 				// Handle object format like {x: 1, y: 2}
-				const x = this.value.x || this.value[0];
-				const y = this.value.y || this.value[1];
+				const x = this.value().x || this.value()[0];
+				const y = this.value().y || this.value()[1];
 				this.formattedPoint = `(${x}, ${y})`;
 			}
 		} catch (_e) {
-			this.formattedPoint = String(this.value);
+			this.formattedPoint = String(this.value());
 		}
 	}
 }

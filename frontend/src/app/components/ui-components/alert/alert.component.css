@@ -21,10 +21,6 @@
 
 @media (prefers-color-scheme: dark) {
 	.alert {
-		border-top: 1px solid var(--alert-dark-theme-color);
-		border-right: 1px solid var(--alert-dark-theme-color);
-		border-bottom: 1px solid var(--alert-dark-theme-color);
-		border-left: 12px solid var(--alert-dark-theme-color);
 		backdrop-filter: blur(2px);
 	}
 }
@@ -37,27 +33,23 @@
 }
 
 .alert_error {
-	--alert-theme-color: #b71c1c;
-	--alert-dark-theme-color: #e53935;
-	--bg-color: color-mix(in hsl, #b71c1c, transparent 95%);
+	--alert-theme-color: var(--error-color);
+	--bg-color: var(--error-background-color);
 }
 
 .alert_warning {
-	--alert-theme-color: #f79008;
-	--alert-dark-theme-color: #f79008;
-	--bg-color: color-mix(in hsl, #f79008, transparent 95%);
+	--alert-theme-color: var(--warning-color);
+	--bg-color: var(--warning-background-color);
 }
 
 .alert_info {
-	--alert-theme-color: #296ee9;
-	--alert-dark-theme-color: #296ee9;
-	--bg-color: color-mix(in hsl, #296ee9, transparent 95%);
+	--alert-theme-color: var(--info-color);
+	--bg-color: var(--info-background-color);
 }
 
 .alert_success {
-	--alert-theme-color: #1b5e20;
-	--alert-dark-theme-color: #4caf50;
-	--bg-color: color-mix(in hsl, #1b5e20, transparent 95%);
+	--alert-theme-color: var(--success-color);
+	--bg-color: var(--success-background-color);
 }
 
 .alert__icon {
@@ -73,11 +65,6 @@
 	width: 36px;
 }
 
-@media (prefers-color-scheme: dark) {
-	.alert__icon {
-		color: var(--alert-dark-theme-color);
-	}
-}
 
 .alert__message {
 	flex: 1;

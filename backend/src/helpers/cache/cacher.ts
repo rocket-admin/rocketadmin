@@ -66,17 +66,23 @@ export class Cacher {
 		return userInvitations <= 10 && groupInvitations <= 10;
 	}
 
-	public static getCedarPolicyCache(connectionId: string): string | null {
-		const cached = cedarPolicyCache.get(connectionId);
+	public static getCedarPolicyCache(connectionId: string, userId: string): string | null {
+		const cacheKey = `${connectionId}:${userId}`;
+		const cached = cedarPolicyCache.get(cacheKey);
 		return cached !== undefined ? cached : null;
 	}
 
-	public static setCedarPolicyCache(connectionId: string, policies: string): void {
-		cedarPolicyCache.set(connectionId, policies);
+	public static setCedarPolicyCache(connectionId: string, userId: string, policies: string): void {
+		const cacheKey = `${connectionId}:${userId}`;
+		cedarPolicyCache.set(cacheKey, policies);
 	}
 
 	public static invalidateCedarPolicyCache(connectionId: string): void {
-		cedarPolicyCache.delete(connectionId);
+		for (const key of cedarPolicyCache.keys()) {
+			if (key.startsWith(`${connectionId}:`)) {
+				cedarPolicyCache.delete(key);
+			}
+		}
 	}
 
 	public static async clearAllCache(): Promise<void> {

@@ -37,40 +37,40 @@ describe('BooleanEditComponent', () => {
 	});
 
 	it('should set value in true when input value contain anything', () => {
-		component.value = 'anything';
-		component.structure = fakeStructure;
+		fixture.componentRef.setInput('value', 'anything');
+		fixture.componentRef.setInput('structure', fakeStructure);
 		component.ngOnInit();
 
-		expect(component.value).toBeTruthy();
+		expect(component.value()).toBeTruthy();
 	});
 
 	it('should set value in felse when input value is 0', () => {
-		component.value = 0;
-		component.structure = fakeStructure;
+		fixture.componentRef.setInput('value', 0);
+		fixture.componentRef.setInput('structure', fakeStructure);
 		component.ngOnInit();
 
-		expect(component.value).toBeFalsy();
+		expect(component.value()).toBeFalsy();
 	});
 
 	it('should set value in null when input value is undefined', () => {
-		component.value = undefined;
-		component.structure = fakeStructure;
+		fixture.componentRef.setInput('value', undefined);
+		fixture.componentRef.setInput('structure', fakeStructure);
 		component.ngOnInit();
 
-		expect(component.value).toEqual(null);
+		expect(component.value()).toEqual(null);
 	});
 
 	it('should set isRadiogroup in false if allow_null is false', () => {
-		component.value = undefined;
-		component.structure = fakeStructure;
+		fixture.componentRef.setInput('value', undefined);
+		fixture.componentRef.setInput('structure', fakeStructure);
 		component.ngOnInit();
 
 		expect(component.isRadiogroup).toEqual(false);
 	});
 
 	it('should set isRadiogroup in true if allow_null is true', () => {
-		component.value = undefined;
-		component.structure = {
+		fixture.componentRef.setInput('value', undefined);
+		fixture.componentRef.setInput('structure', {
 			column_name: 'banned',
 			column_default: '0',
 			data_type: 'tinyint',
@@ -79,7 +79,7 @@ describe('BooleanEditComponent', () => {
 			auto_increment: false,
 			allow_null: true,
 			character_maximum_length: 1,
-		};
+		});
 		component.ngOnInit();
 
 		expect(component.isRadiogroup).toEqual(true);

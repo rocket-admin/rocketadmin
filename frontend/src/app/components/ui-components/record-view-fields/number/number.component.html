@@ -1,5 +1,9 @@
 <span class="field-view-value" [class.out-of-threshold]="!!isOutOfThreshold">
     {{displayValue}}
-    <mat-icon *ngIf="isOutOfThreshold === 'down'" class="out-of-threshold__icon">north</mat-icon>
-    <mat-icon *ngIf="isOutOfThreshold === 'up'" class="out-of-threshold__icon">south</mat-icon>
+    @if (isOutOfThreshold === 'down') {
+    <mat-icon class="out-of-threshold__icon">north</mat-icon>
+    }
+    @if (isOutOfThreshold === 'up') {
+    <mat-icon class="out-of-threshold__icon">south</mat-icon>
+    }
 </span>

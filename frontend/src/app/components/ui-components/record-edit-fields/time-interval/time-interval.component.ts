@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 
-import { Component, Input } from '@angular/core';
+import { Component, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +14,7 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	styleUrls: ['./time-interval.component.css'],
 })
 export class TimeIntervalEditComponent extends BaseEditFieldComponent {
-	@Input() value;
+	readonly value = model<any>();
 
 	public interval = {
 		years: '',
@@ -28,7 +28,7 @@ export class TimeIntervalEditComponent extends BaseEditFieldComponent {
 
 	ngOnInit(): void {
 		super.ngOnInit();
-		if (this.value) this.interval = this.value;
+		if (this.value()) this.interval = this.value();
 	}
 
 	onInputChange() {

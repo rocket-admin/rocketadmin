@@ -29,13 +29,13 @@ describe('CodeEditComponent', () => {
 		fixture = TestBed.createComponent(CodeEditComponent);
 		component = fixture.componentInstance;
 
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {
 				language: 'css',
 			},
-		} as any;
-		component.label = 'styles';
-		component.value = '.container { display: flex; }';
+		} as any);
+		fixture.componentRef.setInput('label', 'styles');
+		fixture.componentRef.setInput('value', '.container { display: flex; }');
 
 		fixture.detectChanges();
 	});
@@ -69,21 +69,21 @@ describe('CodeEditComponent', () => {
 	});
 
 	it('should support different languages', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {
 				language: 'javascript',
 			},
-		} as any;
-		component.label = 'script';
-		component.value = 'console.log("hello");';
+		} as any);
+		fixture.componentRef.setInput('label', 'script');
+		fixture.componentRef.setInput('value', 'console.log("hello");');
 		component.ngOnInit();
 
 		expect((component.mutableCodeModel as any).language).toBe('javascript');
 	});
 
 	it('should normalize label from base class', () => {
-		component.label = 'custom_styles';
+		fixture.componentRef.setInput('label', 'custom_styles');
 		component.ngOnInit();
-		expect(component.normalizedLabel).toBeDefined();
+		expect(component.normalizedLabel()).toBeDefined();
 	});
 });

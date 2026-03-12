@@ -36,15 +36,15 @@ describe('TimezoneEditComponent', () => {
 	it('should emit value on change', () => {
 		vi.spyOn(component.onFieldChange, 'emit');
 		const testValue = 'America/New_York';
-		component.value = testValue;
+		fixture.componentRef.setInput('value', testValue);
 		component.onFieldChange.emit(testValue);
 		expect(component.onFieldChange.emit).toHaveBeenCalledWith(testValue);
 	});
 
 	it('should add null option when allow_null is true', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { allow_null: true },
-		} as any;
+		} as any);
 		component.ngOnInit();
 		const nullOption = component.timezones.find((tz) => tz.value === null);
 		expect(nullOption).toBeDefined();

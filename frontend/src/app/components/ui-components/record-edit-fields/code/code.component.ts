@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
@@ -11,7 +11,9 @@ import { BaseEditFieldComponent } from '../base-row-field/base-row-field.compone
 	imports: [CommonModule, CodeEditorModule],
 })
 export class CodeEditComponent extends BaseEditFieldComponent {
-	@Input() value;
+	readonly value = model<any>();
+
+	private _uiSettings = inject(UiSettingsService);
 
 	public mutableCodeModel: Object;
 	public codeEditorOptions = {
@@ -22,16 +24,12 @@ export class CodeEditComponent extends BaseEditFieldComponent {
 	};
 	public codeEditorTheme = 'vs-dark';
 
-	constructor(private _uiSettings: UiSettingsService) {
-		super();
-	}
-
 	ngOnInit(): void {
 		super.ngOnInit();
 		this.mutableCodeModel = {
-			language: `${this.widgetStructure.widget_params.language}`,
-			uri: `${this.label}.json`,
-			value: this.value,
+			language: `${this.widgetStructure().widget_params.language}`,
+			uri: `${this.label()}.json`,
+			value: this.value(),
 		};
 
 		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';

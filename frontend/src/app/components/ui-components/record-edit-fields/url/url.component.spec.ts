@@ -14,10 +14,49 @@ describe('UrlComponent', () => {
 
 		fixture = TestBed.createComponent(UrlEditComponent);
 		component = fixture.componentInstance;
-		fixture.detectChanges();
 	});
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	it('should have empty prefix by default', () => {
+		expect(component.prefix).toBe('');
+	});
+
+	it('should parse prefix from widget params object', () => {
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { prefix: 'https://api.example.com/' } } as any);
+		component.ngOnInit();
+		expect(component.prefix).toBe('https://api.example.com/');
+	});
+
+	it('should parse prefix from widget params string', () => {
+		fixture.componentRef.setInput('widgetStructure', { widget_params: JSON.stringify({ prefix: 'https://test.com/' }) } as any);
+		component.ngOnInit();
+		expect(component.prefix).toBe('https://test.com/');
+	});
+
+	it('should keep empty prefix when widget params have no prefix', () => {
+		fixture.componentRef.setInput('widgetStructure', { widget_params: {} } as any);
+		component.ngOnInit();
+		expect(component.prefix).toBe('');
+	});
+
+	it('should update prefix on ngOnChanges', () => {
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { prefix: 'https://updated.com/' } } as any);
+		component.ngOnChanges();
+		expect(component.prefix).toBe('https://updated.com/');
+	});
+
+	it('should handle invalid JSON in widget params gracefully', () => {
+		fixture.componentRef.setInput('widgetStructure', { widget_params: 'invalid-json' } as any);
+		component.ngOnInit();
+		expect(component.prefix).toBe('');
+	});
+
+	it('should not change prefix when widgetStructure is undefined', () => {
+		fixture.componentRef.setInput('widgetStructure', undefined);
+		component.ngOnInit();
+		expect(component.prefix).toBe('');
 	});
 });

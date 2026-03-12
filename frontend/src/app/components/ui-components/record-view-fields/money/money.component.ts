@@ -1,8 +1,7 @@
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { getCurrencyByCode } from 'src/app/consts/currencies';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-money-record-view',
 	templateUrl: './money.component.html',
@@ -16,30 +15,30 @@ export class MoneyRecordViewComponent extends BaseRecordViewFieldComponent imple
 	ngOnInit(): void {
 		// Get currency from widget params
 		this.displayCurrency = '';
-		if (this.widgetStructure?.widget_params?.default_currency) {
-			this.displayCurrency = this.widgetStructure.widget_params.default_currency;
+		if (this.widgetStructure()?.widget_params?.default_currency) {
+			this.displayCurrency = this.widgetStructure().widget_params.default_currency;
 			const currency = getCurrencyByCode(this.displayCurrency);
 			this.currencySymbol = currency ? currency.symbol : '';
 		}
 	}
 
 	get formattedValue(): string {
-		if (!this.value) {
+		if (!this.value()) {
 			return '';
 		}
 
 		let amount: number | string;
 		let currency: string = this.displayCurrency;
 
-		if (typeof this.value === 'object' && this.value.amount !== undefined) {
-			amount = this.value.amount;
-			if (this.value.currency) {
-				currency = this.value.currency;
+		if (typeof this.value() === 'object' && this.value().amount !== undefined) {
+			amount = this.value().amount;
+			if (this.value().currency) {
+				currency = this.value().currency;
 				const currencyObj = getCurrencyByCode(currency);
 				this.currencySymbol = currencyObj ? currencyObj.symbol : '';
 			}
 		} else {
-			amount = this.value;
+			amount = this.value();
 		}
 
 		if (typeof amount === 'string') {
@@ -50,7 +49,7 @@ export class MoneyRecordViewComponent extends BaseRecordViewFieldComponent imple
 			return '';
 		}
 
-		const decimalPlaces = this.widgetStructure?.widget_params?.decimal_places ?? 2;
+		const decimalPlaces = this.widgetStructure()?.widget_params?.decimal_places ?? 2;
 		return `${this.currencySymbol}${(amount as number).toFixed(decimalPlaces)}`;
 	}
 }

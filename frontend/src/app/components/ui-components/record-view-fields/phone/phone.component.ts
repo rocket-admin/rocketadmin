@@ -1,16 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import { COUNTRIES, getCountryFlag } from '../../../../consts/countries';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
-@Injectable()
 @Component({
 	selector: 'app-phone-record-view',
 	templateUrl: './phone.component.html',
 	styleUrls: ['../base-record-view-field/base-record-view-field.component.css', './phone.component.css'],
-	imports: [MatTooltipModule, CommonModule],
+	imports: [MatTooltipModule],
 })
 export class PhoneRecordViewComponent extends BaseRecordViewFieldComponent implements OnInit {
 	public countryFlag: string = '';
@@ -22,7 +20,7 @@ export class PhoneRecordViewComponent extends BaseRecordViewFieldComponent imple
 	}
 
 	private parsePhoneNumber(): void {
-		if (!this.value || typeof this.value !== 'string') {
+		if (!this.value() || typeof this.value() !== 'string') {
 			this.countryFlag = '';
 			this.countryName = '';
 			this.formattedNumber = '';
@@ -30,7 +28,7 @@ export class PhoneRecordViewComponent extends BaseRecordViewFieldComponent imple
 		}
 
 		try {
-			const phoneNumber = parsePhoneNumber(this.value);
+			const phoneNumber = parsePhoneNumber(this.value());
 
 			if (phoneNumber?.country) {
 				const country = COUNTRIES.find((c) => c.code === phoneNumber.country);
@@ -42,17 +40,17 @@ export class PhoneRecordViewComponent extends BaseRecordViewFieldComponent imple
 				} else {
 					this.countryFlag = '';
 					this.countryName = '';
-					this.formattedNumber = this.value;
+					this.formattedNumber = this.value();
 				}
 			} else {
 				this.countryFlag = '';
 				this.countryName = '';
-				this.formattedNumber = this.value;
+				this.formattedNumber = this.value();
 			}
 		} catch (_error) {
 			this.countryFlag = '';
 			this.countryName = '';
-			this.formattedNumber = this.value;
+			this.formattedNumber = this.value();
 		}
 	}
 }

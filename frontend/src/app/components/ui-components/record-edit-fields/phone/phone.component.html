@@ -6,8 +6,8 @@
       matInput
       [formControl]="countryControl"
       [matAutocomplete]="countryAutocomplete"
-      [readonly]="readonly"
-      [disabled]="disabled"
+      [readonly]="readonly()"
+      [disabled]="disabled()"
       placeholder="Search country...">
 
     <mat-autocomplete
@@ -27,17 +27,17 @@
   </mat-form-field>
 
   <mat-form-field class="phone-number-field" appearance="outline">
-    <mat-label>{{normalizedLabel}}</mat-label>
+    <mat-label>{{normalizedLabel()}}</mat-label>
     <input
       matInput
       type="tel"
       [(ngModel)]="displayPhoneNumber"
       (ngModelChange)="onPhoneNumberChange()"
       [placeholder]="getPhoneNumberPlaceholder()"
-      [readonly]="readonly"
-      [disabled]="disabled"
+      [readonly]="readonly()"
+      [disabled]="disabled()"
       [class.invalid]="phoneValidation && !isValidPhoneNumber()"
-      attr.data-testid="record-{{label}}-phone">
+      attr.data-testid="record-{{label()}}-phone">
     @if (selectedCountry && !displayPhoneNumber.startsWith('+')) {
       <mat-hint>Example: {{getExamplePhoneNumber()}}</mat-hint>
     }

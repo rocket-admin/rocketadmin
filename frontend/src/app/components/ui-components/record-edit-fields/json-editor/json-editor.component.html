@@ -1,11 +1,11 @@
-<span class="mat-body-1">{{ normalizedLabel }} {{ required ? '*' : '' }}</span>
+<span class="mat-body-1">{{ normalizedLabel() }} {{ required() ? '*' : '' }}</span>
 
 <div class="code-editor-box ph-no-capture">
     <ngs-code-editor
         [theme]="codeEditorTheme"
         [codeModel]="mutableCodeModel"
         [options]="codeEditorOptions"
-        [readOnly]="readonly"
+        [readOnly]="readonly()"
         (valueChanged)="onFieldChange.emit($event)">
     </ngs-code-editor>
 </div>

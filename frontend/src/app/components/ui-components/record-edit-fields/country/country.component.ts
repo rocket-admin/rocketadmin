@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, Input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, model } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -22,7 +22,7 @@ interface CountryOption {
 	schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CountryEditComponent extends BaseEditFieldComponent {
-	@Input() value: string;
+	readonly value = model<string>();
 
 	public countries: CountryOption[] = [];
 	public countryControl = new FormControl<CountryOption | string>('');
@@ -35,12 +35,13 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 	});
 
 	public showFlag = computed(() => {
-		if (this.widgetStructure?.widget_params) {
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
 			try {
 				const params =
-					typeof this.widgetStructure.widget_params === 'string'
-						? JSON.parse(this.widgetStructure.widget_params)
-						: this.widgetStructure.widget_params;
+					typeof ws.widget_params === 'string'
+						? JSON.parse(ws.widget_params)
+						: ws.widget_params;
 
 				if (params.show_flag !== undefined) {
 					return params.show_flag;
@@ -72,8 +73,8 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 	}
 
 	onCountrySelected(selectedCountry: CountryOption): void {
-		this.value = selectedCountry.value;
-		this.onFieldChange.emit(this.value);
+		this.value.set(selectedCountry.value);
+		this.onFieldChange.emit(this.value());
 	}
 
 	displayFn(country: CountryOption | string): string {
@@ -82,8 +83,8 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 	}
 
 	private setInitialValue(): void {
-		if (this.value) {
-			const country = this.countries.find((c) => c.value === this.value);
+		if (this.value()) {
+			const country = this.countries.find((c) => c.value === this.value());
 			if (country) {
 				this.countryControl.setValue(country);
 			}
@@ -105,7 +106,8 @@ export class CountryEditComponent extends BaseEditFieldComponent {
 			flag: getCountryFlag(country.code),
 		})).toSorted((a, b) => a.label.localeCompare(b.label));
 
-		if (this.widgetStructure?.widget_params?.allow_null || this.structure?.allow_null) {
+		const ws = this.widgetStructure();
+		if (ws?.widget_params?.allow_null || this.structure()?.allow_null) {
 			this.countries = [{ value: null, label: '', flag: '' }, ...this.countries];
 		}
 	}

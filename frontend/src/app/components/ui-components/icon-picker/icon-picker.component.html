@@ -1,19 +1,11 @@
-<button mat-icon-button *ngIf="icon; else addButton"
-    type="button"
-    [matMenuTriggerFor]="menu"
+<button mat-stroked-button type="button" [matMenuTriggerFor]="menu"
+    class="icon-picker-button"
     [matTooltip]="tooltip"
     [matTooltipDisabled]="!tooltip"
-    matTooltipPosition="above"
-    class="anchor-icon-button">
-    <mat-icon>
-        {{ icon }}
-    </mat-icon>
+    matTooltipPosition="above">
+    <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
+    {{ icon ? 'Change icon' : 'Add icon' }}
 </button>
-<ng-template #addButton>
-    <button mat-button type="button" [matMenuTriggerFor]="menu">
-        Add icon
-    </button>
-</ng-template>
 <mat-menu #menu="matMenu">
     <div class="icons-menu">
         <div class="icons-menu__header">
