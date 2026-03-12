@@ -288,21 +288,21 @@ export const createTestIBMDB2TablesWithComplexPFKeys = async (connectionParams: 
 	return {
 		first_referenced_table: {
 			table_name: firstReferencedTableName,
-			column_names: ['order_id', 'customer_id', 'item_id', 'product_name', 'quantity', 'price_per_unit'],
-			primary_key_column_names: ['item_id'],
+			column_names: ['ORDER_ID', 'CUSTOMER_ID', 'ITEM_ID', 'PRODUCT_NAME', 'QUANTITY', 'PRICE_PER_UNIT'],
+			primary_key_column_names: ['ITEM_ID'],
 		},
 		main_table: {
 			table_name: mainTableName,
-			column_names: ['order_id', 'customer_id', 'order_date', 'status', 'total_amount'],
+			column_names: ['ORDER_ID', 'CUSTOMER_ID', 'ORDER_DATE', 'STATUS', 'TOTAL_AMOUNT'],
 			foreign_key_column_names: [],
 			binary_column_names: [],
-			primary_key_column_names: ['order_id', 'customer_id'],
+			primary_key_column_names: ['ORDER_ID', 'CUSTOMER_ID'],
 		},
 		second_referenced_table: {
 			table_name: referencedOnTableName,
-			column_names: ['shipment_id', 'order_id', 'customer_id', 'shipped_date', 'carrier', 'tracking_number'],
-			primary_key_column_names: ['shipment_id'],
-			foreign_key_column_names: ['order_id', 'customer_id'],
+			column_names: ['SHIPMENT_ID', 'ORDER_ID', 'CUSTOMER_ID', 'SHIPPED_DATE', 'CARRIER', 'TRACKING_NUMBER'],
+			primary_key_column_names: ['SHIPMENT_ID'],
+			foreign_key_column_names: ['ORDER_ID', 'CUSTOMER_ID'],
 		},
 	};
 };
@@ -550,21 +550,21 @@ export const createTestIBMDB2TablesWithSimplePFKeys = async (connectionParams: a
 	return {
 		main_table: {
 			table_name: mainTableName,
-			column_names: ['order_id', 'customer_id', 'order_date', 'status', 'total_amount'],
+			column_names: ['ORDER_ID', 'CUSTOMER_ID', 'ORDER_DATE', 'STATUS', 'TOTAL_AMOUNT'],
 			foreign_key_column_names: [],
 			binary_column_names: [],
-			primary_key_column_names: ['order_id'],
+			primary_key_column_names: ['ORDER_ID'],
 		},
 		first_referenced_table: {
 			table_name: firstReferencedTableName,
-			column_names: ['item_id', 'order_id', 'product_name', 'quantity', 'price_per_unit'],
-			primary_key_column_names: ['item_id'],
+			column_names: ['ITEM_ID', 'ORDER_ID', 'PRODUCT_NAME', 'QUANTITY', 'PRICE_PER_UNIT'],
+			primary_key_column_names: ['ITEM_ID'],
 		},
 		second_referenced_table: {
 			table_name: referencedOnTableName,
-			column_names: ['shipment_id', 'order_id', 'shipped_date', 'carrier', 'tracking_number'],
-			primary_key_column_names: ['shipment_id'],
-			foreign_key_column_names: ['order_id'],
+			column_names: ['SHIPMENT_ID', 'ORDER_ID', 'SHIPPED_DATE', 'CARRIER', 'TRACKING_NUMBER'],
+			primary_key_column_names: ['SHIPMENT_ID'],
+			foreign_key_column_names: ['ORDER_ID'],
 		},
 	};
 };
