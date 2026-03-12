@@ -16,7 +16,7 @@ function makePermissions(overrides: Partial<IComplexPermission> = {}): IComplexP
 }
 
 test('isMain=true generates a single wildcard permit', (t) => {
-	const result = generateCedarPolicyForGroup(groupId, connectionId, true, makePermissions());
+	const result = generateCedarPolicyForGroup(connectionId, true, makePermissions());
 	t.true(result.includes('principal,'));
 	t.true(result.includes('action,'));
 	t.true(result.includes('resource'));
@@ -27,7 +27,6 @@ test('isMain=true generates a single wildcard permit', (t) => {
 
 test('connection:edit generates ONLY connection:read + connection:edit (not wildcard)', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -49,7 +48,6 @@ test('connection:edit generates ONLY connection:read + connection:edit (not wild
 
 test('connection:readonly generates only connection:read', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -63,14 +61,13 @@ test('connection:readonly generates only connection:read', (t) => {
 });
 
 test('connection:none generates no connection policies', (t) => {
-	const result = generateCedarPolicyForGroup(groupId, connectionId, false, makePermissions());
+	const result = generateCedarPolicyForGroup(connectionId, false, makePermissions());
 	t.false(result.includes('connection:read'));
 	t.false(result.includes('connection:edit'));
 });
 
 test('group:edit generates group:read + group:edit', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -85,7 +82,6 @@ test('group:edit generates group:read + group:edit', (t) => {
 
 test('group:readonly generates only group:read', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -100,7 +96,6 @@ test('group:readonly generates only group:read', (t) => {
 
 test('table with visibility=true only generates only table:read', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -122,7 +117,6 @@ test('table with visibility=true only generates only table:read', (t) => {
 
 test('table with all flags true generates table:read + table:add + table:edit + table:delete', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -144,7 +138,6 @@ test('table with all flags true generates table:read + table:add + table:edit + 
 
 test('table with add=true only generates table:read + table:add (hasAnyAccess triggers table:read)', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -166,7 +159,6 @@ test('table with add=true only generates table:read + table:add (hasAnyAccess tr
 
 test('table with all flags false generates no policies for that table', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -183,13 +175,12 @@ test('table with all flags false generates no policies for that table', (t) => {
 });
 
 test('all none + no tables returns empty string', (t) => {
-	const result = generateCedarPolicyForGroup(groupId, connectionId, false, makePermissions());
+	const result = generateCedarPolicyForGroup(connectionId, false, makePermissions());
 	t.is(result, '');
 });
 
 test('multiple tables generate separate policies per table with correct resource refs', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -214,7 +205,6 @@ test('multiple tables generate separate policies per table with correct resource
 
 test('dashboard with read=true generates only dashboard:read', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -236,7 +226,6 @@ test('dashboard with read=true generates only dashboard:read', (t) => {
 
 test('dashboard with all flags true generates dashboard:read + dashboard:create + dashboard:edit + dashboard:delete', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -258,7 +247,6 @@ test('dashboard with all flags true generates dashboard:read + dashboard:create 
 
 test('dashboard with all flags false generates no policies for that dashboard', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -276,7 +264,6 @@ test('dashboard with all flags false generates no policies for that dashboard', 
 
 test('dashboard resource ref format uses connectionId/dashboardId', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({
@@ -293,7 +280,6 @@ test('dashboard resource ref format uses connectionId/dashboardId', (t) => {
 
 test('resource ref format validation', (t) => {
 	const result = generateCedarPolicyForGroup(
-		groupId,
 		connectionId,
 		false,
 		makePermissions({

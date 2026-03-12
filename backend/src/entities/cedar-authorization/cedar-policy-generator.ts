@@ -2,7 +2,6 @@ import { AccessLevelEnum } from '../../enums/index.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 
 export function generateCedarPolicyForGroup(
-	groupId: string,
 	connectionId: string,
 	isMain: boolean,
 	permissions: IComplexPermission,

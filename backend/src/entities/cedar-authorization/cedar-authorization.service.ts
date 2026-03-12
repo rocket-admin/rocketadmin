@@ -107,7 +107,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			throw new HttpException({ message: Messages.CANNOT_CHANGE_ADMIN_GROUP }, HttpStatus.BAD_REQUEST);
 		}
 
-		await this.validatePolicyReferences(cedarPolicy, connectionId, groupId);
+		await this.validatePolicyReferences(cedarPolicy, connectionId);
 
 		const classicalPermissions = parseCedarPolicyToClassicalPermissions(cedarPolicy, connectionId, groupId);
 
@@ -273,9 +273,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	private async validatePolicyReferences(
 		cedarPolicy: string,
 		connectionId: string,
-		groupId: string,
 	): Promise<void> {
-		
 		const connectionIds = [
 			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Connection::"([^"]+)"/g),
 		].map((m) => m[1]);
