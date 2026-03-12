@@ -2,7 +2,7 @@ export const CEDAR_SCHEMA = {
 	RocketAdmin: {
 		entityTypes: {
 			User: {
-				memberOfTypes: ['Group'],
+				memberOfTypes: [],
 				shape: {
 					type: 'Record',
 					attributes: {
@@ -28,6 +28,15 @@ export const CEDAR_SCHEMA = {
 				},
 			},
 			Table: {
+				memberOfTypes: ['Connection'],
+				shape: {
+					type: 'Record',
+					attributes: {
+						connectionId: { type: 'String' },
+					},
+				},
+			},
+			Dashboard: {
 				memberOfTypes: ['Connection'],
 				shape: {
 					type: 'Record',
@@ -84,6 +93,30 @@ export const CEDAR_SCHEMA = {
 				appliesTo: {
 					principalTypes: ['User'],
 					resourceTypes: ['Table'],
+				},
+			},
+			'dashboard:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:create': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:edit': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:delete': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
 				},
 			},
 		},

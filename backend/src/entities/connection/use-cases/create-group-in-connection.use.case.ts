@@ -37,7 +37,6 @@ export class CreateGroupInConnectionUseCase
 		const newGroupEntity = buildNewGroupEntityForConnectionWithUser(connectionToUpdate, foundUser, title);
 		const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(newGroupEntity);
 		savedGroup.cedarPolicy = generateCedarPolicyForGroup(
-			savedGroup.id,
 			connectionId,
 			false,
 			{

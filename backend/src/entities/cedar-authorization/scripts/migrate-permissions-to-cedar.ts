@@ -50,7 +50,7 @@ export async function migratePermissionsToCedar(dataSource: DataSource): Promise
 			tables: Array.from(tableMap.values()),
 		};
 
-		const cedarPolicy = generateCedarPolicyForGroup(group.id, connection.id, group.isMain, complexPermission);
+		const cedarPolicy = generateCedarPolicyForGroup(connection.id, group.isMain, complexPermission);
 		group.cedarPolicy = cedarPolicy;
 		await groupRepository.save(group);
 		migratedCount++;

@@ -7,12 +7,17 @@ export enum CedarAction {
 	TableAdd = 'table:add',
 	TableEdit = 'table:edit',
 	TableDelete = 'table:delete',
+	DashboardRead = 'dashboard:read',
+	DashboardCreate = 'dashboard:create',
+	DashboardEdit = 'dashboard:edit',
+	DashboardDelete = 'dashboard:delete',
 }
 
 export enum CedarResourceType {
 	Connection = 'RocketAdmin::Connection',
 	Group = 'RocketAdmin::Group',
 	Table = 'RocketAdmin::Table',
+	Dashboard = 'RocketAdmin::Dashboard',
 }
 
 export const CEDAR_ACTION_TYPE = 'RocketAdmin::Action';
@@ -25,4 +30,5 @@ export interface CedarValidationRequest {
 	connectionId?: string;
 	groupId?: string;
 	tableName?: string;
+	dashboardId?: string;
 }
