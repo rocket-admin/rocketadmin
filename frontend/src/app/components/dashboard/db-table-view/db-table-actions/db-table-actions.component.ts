@@ -1,20 +1,22 @@
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import posthog from 'posthog-js';
@@ -43,14 +45,15 @@ import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delet
 		ClipboardModule,
 		FormsModule,
 		MatButtonModule,
+		MatButtonToggleModule,
 		MatCheckboxModule,
 		MatDialogModule,
 		MatIconModule,
 		MatInputModule,
 		MatSelectModule,
 		MatTooltipModule,
-		MatSidenavModule,
 		MatListModule,
+		MatMenuModule,
 		MatRadioModule,
 		MatTabsModule,
 		CodeEditorModule,
@@ -59,6 +62,7 @@ import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delet
 		ContentLoaderComponent,
 		IconPickerComponent,
 		Angulartics2OnModule,
+		RouterModule,
 	],
 })
 export class DbTableActionsComponent implements OnInit {
@@ -73,6 +77,7 @@ export class DbTableActionsComponent implements OnInit {
 	};
 	public rules: Rule[];
 	public submitting: boolean;
+	public isSaved = false;
 	public selectedRule: Rule = null;
 	public selectedRuleCustomEvent: CustomEvent = null;
 	public customAction: CustomAction = null;
@@ -96,6 +101,9 @@ export class DbTableActionsComponent implements OnInit {
 		'schedule',
 	];
 
+	@ViewChild('newActionInput') newActionInput: ElementRef<HTMLInputElement>;
+	@ViewChild('ruleNameInput') ruleNameInput: ElementRef<HTMLInputElement>;
+
 	public signingKey: string;
 
 	public codeViewerOptions = {
@@ -111,8 +119,16 @@ export class DbTableActionsComponent implements OnInit {
 		{ value: EventType.DeleteRow, label: 'Delete row' },
 		{ value: EventType.Custom, label: 'Custom' },
 	];
+
+	public triggerMeta: Record<string, { icon: string; desc: string; color: string }> = {
+		[EventType.AddRow]: { icon: 'add_circle_outline', desc: 'Fires when a new row is inserted', color: '#4caf50' },
+		[EventType.UpdateRow]: { icon: 'edit', desc: 'Fires when an existing row is modified', color: '#2196f3' },
+		[EventType.DeleteRow]: { icon: 'delete_outline', desc: 'Fires when a row is removed', color: '#e53935' },
+		[EventType.Custom]: { icon: 'tune', desc: 'Manual trigger with custom button', color: '#9c27b0' },
+	};
 	public selectedEvents: string[] = [];
 	public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
+	public isCreationMode = false;
 
 	constructor(
 		private _connections: ConnectionsService,
@@ -175,6 +191,24 @@ export class DbTableActionsComponent implements OnInit {
 		});
 	}
 
+	get hasTriggersSelected(): boolean {
+		return this.selectedRule?.events?.some((e) => e.event !== null) ?? false;
+	}
+
+	get saveDisabledReason(): string {
+		if (!this.selectedRuleTitle) return 'Enter automation name';
+		if (!this.hasTriggersSelected) return 'Select at least one trigger';
+		return '';
+	}
+
+	get activeTriggers() {
+		return this.selectedRule?.events?.filter((e) => e.event !== null) ?? [];
+	}
+
+	get unusedTriggerOptions() {
+		return this.availableEvents.filter((e) => !this.selectedEvents.includes(e.value));
+	}
+
 	get currentConnection() {
 		// this.codeSnippets = codeSnippets(this._connections.currentConnection.signing_key);
 		return this._connections.currentConnection;
@@ -208,6 +242,7 @@ export class DbTableActionsComponent implements OnInit {
 	setSelectedRule(rule: Rule) {
 		this.selectedRule = rule;
 		this.selectedRuleTitle = rule.title;
+		this.isCreationMode = !rule.id;
 		if (this.selectedRule.events[this.selectedRule.events.length - 1].event !== null)
 			this.selectedRule.events.push({ event: null });
 		this.selectedEvents = this.selectedRule.events.map((event) => event.event);
@@ -222,6 +257,11 @@ export class DbTableActionsComponent implements OnInit {
 
 	updateIcon(icon: string) {
 		this.selectedRuleCustomEvent.icon = icon;
+	}
+
+	setCustomEventType(type: string) {
+		this.selectedRuleCustomEvent.type = type as CustomActionType;
+		this.isSaved = false;
 	}
 
 	switchRulesView(rule: Rule) {
@@ -247,7 +287,9 @@ export class DbTableActionsComponent implements OnInit {
 			],
 		};
 
+		this.rules.push(this.newRule);
 		this.setSelectedRule(this.newRule);
+		this.isCreationMode = true;
 	}
 
 	addNewAction() {
@@ -269,6 +311,7 @@ export class DbTableActionsComponent implements OnInit {
 				this.selectedRuleTitle = this.selectedRule.title;
 				this.rules.push(this.selectedRule);
 				this.newRule = null;
+				this.isCreationMode = false;
 			} else {
 				this.actionNameError = 'You already have an action with this name.';
 			}
@@ -276,7 +319,11 @@ export class DbTableActionsComponent implements OnInit {
 	}
 
 	undoRule() {
+		if (this.newRule) {
+			this.rules = this.rules.filter((r) => r !== this.newRule);
+		}
 		this.newRule = null;
+		this.isCreationMode = false;
 		if (this.rules.length) this.setSelectedRule(this.rules[0]);
 	}
 
@@ -298,6 +345,38 @@ export class DbTableActionsComponent implements OnInit {
 	}
 
 	handleRuleSubmitting() {
+		if (!this.selectedRuleTitle) {
+			this.ruleNameInput?.nativeElement?.focus();
+			return;
+		}
+
+		if (!this.hasTriggersSelected) {
+			const triggerCard = document.querySelector('.creation-card') as HTMLElement;
+			if (triggerCard) {
+				triggerCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				triggerCard.classList.add('creation-card--highlight');
+				setTimeout(() => triggerCard.classList.remove('creation-card--highlight'), 1500);
+			}
+			return;
+		}
+
+		const action = this.selectedRule.table_actions[0];
+		if (action) {
+			const method = (action.method as string).toUpperCase();
+			if (method === 'URL' && !action.url) {
+				(document.querySelector('input[name="action-url"]') as HTMLInputElement)?.focus();
+				return;
+			}
+			if (method === 'EMAIL' && (!action.emails || action.emails.length === 0)) {
+				(document.querySelector('mat-select[name="notification-emails"]') as HTMLElement)?.click();
+				return;
+			}
+			if (method === 'SLACK' && !(action as any).slack_url) {
+				(document.querySelector('input[name="action-slack-url"]') as HTMLInputElement)?.focus();
+				return;
+			}
+		}
+
 		if (this.selectedRule.events.filter((event) => event.event !== null).length > 0) {
 			if (this.selectedRule.id) {
 				this.updateRule();
@@ -309,6 +388,8 @@ export class DbTableActionsComponent implements OnInit {
 
 	addRule() {
 		this.submitting = true;
+		if (this.selectedRuleTitle) this.selectedRule.title = this.selectedRuleTitle;
+		this.newRule = null;
 		this.selectedRule.events = this.selectedRule.events.filter((event) => event.event !== null);
 		this.selectedRule.events = this.selectedRule.events.map((event) => {
 			if (event.event === 'CUSTOM') {
@@ -329,6 +410,7 @@ export class DbTableActionsComponent implements OnInit {
 					this.rules = undatedRulesData.action_rules;
 					const currentRule = this.rules.find((rule: Rule) => rule.id === res.id);
 					this.setSelectedRule(currentRule);
+					this.isSaved = true;
 				} catch (error) {
 					if (error instanceof HttpErrorResponse) {
 						console.log(error.error.message);
@@ -361,6 +443,7 @@ export class DbTableActionsComponent implements OnInit {
 					this.rules = undatedRulesData.action_rules;
 					const currentRule = this.rules.find((rule: Rule) => rule.id === res.id);
 					this.setSelectedRule(currentRule);
+					this.isSaved = true;
 				} catch (error) {
 					if (error instanceof HttpErrorResponse) {
 						console.log(error.error.message);
@@ -409,6 +492,44 @@ export class DbTableActionsComponent implements OnInit {
 
 		if (this.selectedRule.events.length < 4) {
 			this.selectedRule.events.push({ event: null });
+		}
+	}
+
+	toggleTriggerTile(eventType: EventType) {
+		this.isSaved = false;
+		const idx = this.selectedEvents.indexOf(eventType);
+		if (idx > -1) {
+			// Remove trigger
+			this.selectedRule.events = this.selectedRule.events.filter((e) => e.event !== eventType);
+			this.selectedEvents = this.selectedEvents.filter((e) => e !== eventType);
+			if (eventType === EventType.Custom) {
+				this.selectedRuleCustomEvent = null;
+			}
+		} else {
+			// Add trigger
+			this.selectedRule.events = this.selectedRule.events.filter((e) => e.event !== null);
+			this.selectedRule.events.push({ event: eventType });
+			this.selectedEvents.push(eventType);
+			if (eventType === EventType.Custom) {
+				this.selectedRuleCustomEvent = {
+					event: EventType.Custom,
+					title: '',
+					type: CustomActionType.Single,
+					icon: '',
+					require_confirmation: false,
+				};
+			}
+		}
+		// Keep trailing null for the old form
+		if (this.selectedRule.events[this.selectedRule.events.length - 1]?.event !== null) {
+			this.selectedRule.events.push({ event: null });
+		}
+	}
+
+	selectActionMethod(method: string) {
+		this.isSaved = false;
+		if (this.selectedRule.table_actions.length) {
+			this.selectedRule.table_actions[0].method = method as CustomActionMethod;
 		}
 	}
 
