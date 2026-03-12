@@ -1,0 +1,124 @@
+export const CEDAR_SCHEMA = {
+	RocketAdmin: {
+		entityTypes: {
+			User: {
+				memberOfTypes: [],
+				shape: {
+					type: 'Record',
+					attributes: {
+						suspended: { type: 'Boolean' },
+					},
+				},
+			},
+			Group: {
+				memberOfTypes: [],
+				shape: {
+					type: 'Record',
+					attributes: {
+						isMain: { type: 'Boolean' },
+						connectionId: { type: 'String' },
+					},
+				},
+			},
+			Connection: {
+				memberOfTypes: [],
+				shape: {
+					type: 'Record',
+					attributes: {},
+				},
+			},
+			Table: {
+				memberOfTypes: ['Connection'],
+				shape: {
+					type: 'Record',
+					attributes: {
+						connectionId: { type: 'String' },
+					},
+				},
+			},
+			Dashboard: {
+				memberOfTypes: ['Connection'],
+				shape: {
+					type: 'Record',
+					attributes: {
+						connectionId: { type: 'String' },
+					},
+				},
+			},
+		},
+		actions: {
+			'connection:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Connection'],
+				},
+			},
+			'connection:edit': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Connection'],
+				},
+			},
+			'group:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Group'],
+				},
+			},
+			'group:edit': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Group'],
+				},
+			},
+			'table:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Table'],
+				},
+			},
+			'table:add': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Table'],
+				},
+			},
+			'table:edit': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Table'],
+				},
+			},
+			'table:delete': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Table'],
+				},
+			},
+			'dashboard:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:create': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:edit': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+			'dashboard:delete': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Dashboard'],
+				},
+			},
+		},
+	},
+};

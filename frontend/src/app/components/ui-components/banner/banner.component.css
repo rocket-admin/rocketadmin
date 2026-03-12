@@ -29,27 +29,23 @@
 }
 
 .banner_error {
-	--alert-theme-color: #b71c1c;
-	--alert-dark-theme-color: #e53935;
-	--bg-color: color-mix(in hsl, #b71c1c, transparent 95%);
+	--alert-theme-color: var(--error-color);
+	--bg-color: var(--error-background-color);
 }
 
 .banner_warning {
-	--alert-theme-color: #f79008;
-	--alert-dark-theme-color: #f79008;
-	--bg-color: color-mix(in hsl, #f79008, transparent 95%);
+	--alert-theme-color: var(--warning-color);
+	--bg-color: var(--warning-background-color);
 }
 
 .banner_info {
-	--alert-theme-color: #296ee9;
-	--alert-dark-theme-color: #296ee9;
-	--bg-color: color-mix(in hsl, #296ee9, transparent 95%);
+	--alert-theme-color: var(--info-color);
+	--bg-color: var(--info-background-color);
 }
 
 .banner_success {
-	--alert-theme-color: #1b5e20;
-	--alert-dark-theme-color: #4caf50;
-	--bg-color: color-mix(in hsl, #1b5e20, transparent 95%);
+	--alert-theme-color: var(--success-color);
+	--bg-color: var(--success-background-color);
 }
 
 .banner-box {
