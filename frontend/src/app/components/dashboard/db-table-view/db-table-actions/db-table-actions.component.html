@@ -4,7 +4,7 @@
             <h1 class="mat-h1">Automations</h1>
         </div>
         <div class="no-actions" *ngIf="rulesData && rules && rules.length === 0 && !isCreationMode">
-            <span>No added automations</span>
+            <span>No automations yet</span>
         </div>
         <mat-action-list *ngIf="rulesData && rules">
             <button mat-list-item *ngFor="let rule of rules; let i = index"
@@ -235,51 +235,80 @@
 
             <div class="example-flow">
                 <div class="example-flow__card">
-                    <span class="example-flow__card-label"><span class="step-label__badge step-label__badge--when">WHEN</span> Trigger</span>
-                    <div class="example-flow__card-items">
-                        <span class="trigger-pill trigger-pill--add-row trigger-pill--active trigger-pill--demo">
-                            <mat-icon class="trigger-pill__icon">add_circle_outline</mat-icon>
-                            <span>Add row</span>
-                        </span>
-                        <span class="trigger-pills__or">or</span>
-                        <span class="trigger-pill trigger-pill--update-row trigger-pill--active trigger-pill--demo">
-                            <mat-icon class="trigger-pill__icon">edit</mat-icon>
-                            <span>Update row</span>
-                        </span>
-                        <span class="trigger-pills__or">or</span>
-                        <span class="trigger-pill trigger-pill--delete-row trigger-pill--active trigger-pill--demo">
-                            <mat-icon class="trigger-pill__icon">delete_outline</mat-icon>
-                            <span>Delete row</span>
-                        </span>
-                        <span class="trigger-pills__or">or</span>
-                        <span class="trigger-pill trigger-pill--custom trigger-pill--active trigger-pill--demo">
-                            <mat-icon class="trigger-pill__icon">download</mat-icon>
-                            <span>Custom</span>
-                        </span>
+                    <!-- WHEN -->
+                    <div class="example-flow__section-label">
+                        <span class="example-flow__badge example-flow__badge--when">WHEN</span>
+                        <span class="example-flow__section-text">Trigger</span>
                     </div>
-                </div>
-                <div class="example-flow__arrow">
-                    <mat-icon class="example-flow__arrow-icon">bolt</mat-icon>
-                </div>
-                <div class="example-flow__branches">
-                    <span class="example-flow__then-badge step-label__badge step-label__badge--then">THEN</span>
-                    <div class="example-flow__branch">
-                        <div class="example-flow__branch-line"></div>
-                        <mat-button-toggle class="example-toggle">
-                            <mat-icon>email</mat-icon> Email
-                        </mat-button-toggle>
+                    <div class="example-flow__triggers">
+                        <div class="example-trigger example-trigger--add">
+                            <div class="example-trigger__icon-box example-trigger__icon-box--add">
+                                <mat-icon>add_circle_outline</mat-icon>
+                            </div>
+                            <div class="example-trigger__text">
+                                <span class="example-trigger__title">Add row</span>
+                                <span class="example-trigger__desc">New record is created</span>
+                            </div>
+                        </div>
+                        <div class="example-trigger example-trigger--update">
+                            <div class="example-trigger__icon-box example-trigger__icon-box--update">
+                                <mat-icon>edit</mat-icon>
+                            </div>
+                            <div class="example-trigger__text">
+                                <span class="example-trigger__title">Update row</span>
+                                <span class="example-trigger__desc">Record is modified</span>
+                            </div>
+                        </div>
+                        <div class="example-trigger example-trigger--delete">
+                            <div class="example-trigger__icon-box example-trigger__icon-box--delete">
+                                <mat-icon>delete_outline</mat-icon>
+                            </div>
+                            <div class="example-trigger__text">
+                                <span class="example-trigger__title">Delete row</span>
+                                <span class="example-trigger__desc">Record is removed</span>
+                            </div>
+                        </div>
+                        <div class="example-trigger example-trigger--custom">
+                            <div class="example-trigger__icon-box example-trigger__icon-box--custom">
+                                <mat-icon>download</mat-icon>
+                            </div>
+                            <div class="example-trigger__text">
+                                <span class="example-trigger__title">Custom</span>
+                                <span class="example-trigger__desc">Custom button trigger</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="example-flow__branch">
-                        <div class="example-flow__branch-line"></div>
-                        <mat-button-toggle class="example-toggle">
-                            <mat-icon>webhook</mat-icon> Webhook
-                        </mat-button-toggle>
+
+                    <!-- Connector -->
+                    <div class="example-flow__connector">
+                        <div class="example-flow__connector-line"></div>
+                        <span class="example-flow__connector-pill">THEN</span>
+                        <div class="example-flow__connector-line"></div>
                     </div>
-                    <div class="example-flow__branch">
-                        <div class="example-flow__branch-line"></div>
-                        <mat-button-toggle class="example-toggle">
-                            <mat-icon>tag</mat-icon> Slack
-                        </mat-button-toggle>
+
+                    <!-- ACTION -->
+                    <div class="example-flow__section-label">
+                        <span class="example-flow__badge example-flow__badge--action">ACTION</span>
+                    </div>
+                    <div class="example-flow__actions">
+                        <div class="example-action">
+                            <div class="example-action__icon-box">
+                                <mat-icon>webhook</mat-icon>
+                            </div>
+                            <span class="example-action__label">Webhook</span>
+                        </div>
+                        <div class="example-action">
+                            <div class="example-action__icon-box">
+                                <mat-icon>email</mat-icon>
+                            </div>
+                            <span class="example-action__label">Email</span>
+                        </div>
+                        <div class="example-action">
+                            <div class="example-action__icon-box">
+                                <mat-icon>tag</mat-icon>
+                            </div>
+                            <span class="example-action__label">Slack</span>
+                        </div>
                     </div>
                 </div>
             </div>
