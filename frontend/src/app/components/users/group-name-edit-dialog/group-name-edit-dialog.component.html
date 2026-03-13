@@ -8,8 +8,24 @@
         </mat-form-field>
 
         <div class="cedar-policy-section">
-            <label class="cedar-policy-label">Cedar policy</label>
-            <div class="code-editor-box">
+            <div class="editor-mode-toggle">
+                <label class="cedar-policy-label">Cedar policy</label>
+                <mat-button-toggle-group [value]="editorMode" (change)="onEditorModeChange($event.value)">
+                    <mat-button-toggle value="form">Form</mat-button-toggle>
+                    <mat-button-toggle value="code">Code</mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+
+            <div *ngIf="editorMode === 'form'">
+                <app-cedar-policy-list
+                    [policies]="policyItems"
+                    [availableTables]="availableTables"
+                    [loading]="tablesLoading"
+                    (policiesChange)="onPolicyItemsChange($event)">
+                </app-cedar-policy-list>
+            </div>
+
+            <div *ngIf="editorMode === 'code'" class="code-editor-box">
                 <ngs-code-editor
                     [theme]="codeEditorTheme"
                     [codeModel]="cedarPolicyModel"

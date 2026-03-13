@@ -8,7 +8,6 @@ import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
-import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 import { UsersComponent } from './users.component';
@@ -18,11 +17,6 @@ describe('UsersComponent', () => {
 	let fixture: ComponentFixture<UsersComponent>;
 	let usersService: UsersService;
 	let dialog: MatDialog;
-	const dialogRefSpyObj = {
-		afterClosed: vi.fn().mockReturnValue(of('delete')),
-		close: vi.fn(),
-		componentInstance: { deleteWidget: of('user_name') },
-	};
 
 	const fakeGroup = {
 		id: 'a9a97cf1-cb2f-454b-a74e-0075dd07ad92',
@@ -30,7 +24,7 @@ describe('UsersComponent', () => {
 		isMain: true,
 	};
 
-	beforeEach(async () => {
+	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [MatSnackBarModule, MatDialogModule, Angulartics2Module.forRoot(), UsersComponent],
 			providers: [provideHttpClient(), provideRouter([]), { provide: MatDialogRef, useValue: {} }],
@@ -98,16 +92,6 @@ describe('UsersComponent', () => {
 		component.openCreateUsersGroupDialog(event);
 		expect(fakeCreateUsersGroupOpen).toHaveBeenCalledWith(GroupAddDialogComponent, {
 			width: '40em',
-		});
-	});
-
-	it('should open permissions dialog', () => {
-		const fakePermissionsDialogOpen = vi.spyOn(dialog, 'open').mockReturnValue(dialogRefSpyObj as any);
-
-		component.openPermissionsDialog(fakeGroup);
-		expect(fakePermissionsDialogOpen).toHaveBeenCalledWith(PermissionsAddDialogComponent, {
-			width: '50em',
-			data: fakeGroup,
 		});
 	});
 

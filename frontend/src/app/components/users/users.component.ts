@@ -22,7 +22,6 @@ import { PlaceholderUserGroupsComponent } from '../skeletons/placeholder-user-gr
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
-import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 
@@ -54,6 +53,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 	public currentConnection: Connection;
 	public connectionID: string | null = null;
 	public companyMembers: [];
+	// biome-ignore lint/suspicious/noExplicitAny: legacy company member type
 	public companyMembersWithoutAccess: any = [];
 	private usersSubscription: Subscription;
 
@@ -90,10 +90,6 @@ export class UsersComponent implements OnInit, OnDestroy {
 		this.usersSubscription = this._usersService.cast.subscribe((arg) => {
 			if (arg.action === 'add group' || arg.action === 'delete group' || arg.action === 'edit group name') {
 				this.getUsersGroups();
-
-				if (arg.action === 'add group') {
-					this.openPermissionsDialog(arg.group);
-				}
 			} else if (arg.action === 'add user' || arg.action === 'delete user') {
 				this.fetchAndPopulateGroupUsers(arg.groupId).subscribe({
 					next: (updatedUsers) => {
@@ -122,6 +118,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 	}
 
 	getUsersGroups() {
+		// biome-ignore lint/suspicious/noExplicitAny: legacy service return type
 		this._usersService.fetchConnectionGroups(this.connectionID).subscribe((groups: any) => {
 			// Sort Admin to the front
 			this.groups = groups.sort((a, b) => {
@@ -148,8 +145,10 @@ export class UsersComponent implements OnInit, OnDestroy {
 		});
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: legacy service return type
 	fetchAndPopulateGroupUsers(groupId: string): Observable<any[]> {
 		return this._usersService.fetcGroupUsers(groupId).pipe(
+			// biome-ignore lint/suspicious/noExplicitAny: legacy service return type
 			tap((res: any[]) => {
 				if (res.length) {
 					let groupUsers = [...res];
@@ -178,13 +177,6 @@ export class UsersComponent implements OnInit, OnDestroy {
 		event.stopImmediatePropagation();
 		this.dialog.open(GroupAddDialogComponent, {
 			width: '40em',
-		});
-	}
-
-	openPermissionsDialog(group: UserGroup) {
-		this.dialog.open(PermissionsAddDialogComponent, {
-			width: '50em',
-			data: group,
 		});
 	}
 
