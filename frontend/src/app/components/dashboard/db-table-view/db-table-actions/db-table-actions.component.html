@@ -212,60 +212,74 @@
         </div>
 
         <div *ngIf="(!selectedRule || !rules.length) && !isCreationMode" class="empty-state">
-            <p class="actions-hint">
-                <strong class="actions-hint__title">Configure custom triggers and actions for database records</strong>
-                <span class="actions-hint__text">React to standard operations like create, update, delete, or define your own.</span>
-            </p>
-            <button mat-flat-button color="accent"
-                angulartics2On="click"
-                angularticsAction="Actions: add first action is clicked"
-                (click)="addNewRule(); posthog.capture('Actions: add first action is clicked')">
-                Create automation
-            </button>
-            <div class="rules-examples">
-                <div class="rule-example">
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">Trigger</span>
-                        <span class="rule-example__value">Add row</span>
-                        <span class="rule-example__value" style="margin-left: -16px;">Update row</span>
-                    </div>
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">Action</span>
-                        <span class="rule-example__value">send&nbsp;<strong>email</strong>&nbsp;notification</span>
-                    </div>
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">to</span>
-                        <span class="rule-example__value">admin&#64;example.com, user&#64;example.com</span>
+            <div class="empty-state__header">
+                <div class="empty-state__icon-box">
+                    <mat-icon class="empty-state__icon">bolt</mat-icon>
+                </div>
+                <h2 class="empty-state__title">Automate your database workflows</h2>
+                <p class="empty-state__subtitle">Set up triggers and actions to react to data changes automatically.</p>
+                <div class="empty-state__cta">
+                    <button mat-flat-button color="accent"
+                        angulartics2On="click"
+                        angularticsAction="Actions: add first action is clicked"
+                        (click)="addNewRule(); posthog.capture('Actions: add first action is clicked')">
+                        Create first automation
+                    </button>
+                    <a class="empty-state__docs-link"
+                        href="https://docs.rocketadmin.com/Reference/Automations/automations_definition"
+                        target="_blank" rel="noopener noreferrer">
+                        Docs <mat-icon class="empty-state__docs-icon">open_in_new</mat-icon>
+                    </a>
+                </div>
+            </div>
+
+            <div class="example-flow">
+                <div class="example-flow__card">
+                    <span class="example-flow__card-label"><span class="step-label__badge step-label__badge--when">WHEN</span> Trigger</span>
+                    <div class="example-flow__card-items">
+                        <span class="trigger-pill trigger-pill--add-row trigger-pill--active trigger-pill--demo">
+                            <mat-icon class="trigger-pill__icon">add_circle_outline</mat-icon>
+                            <span>Add row</span>
+                        </span>
+                        <span class="trigger-pills__or">or</span>
+                        <span class="trigger-pill trigger-pill--update-row trigger-pill--active trigger-pill--demo">
+                            <mat-icon class="trigger-pill__icon">edit</mat-icon>
+                            <span>Update row</span>
+                        </span>
+                        <span class="trigger-pills__or">or</span>
+                        <span class="trigger-pill trigger-pill--delete-row trigger-pill--active trigger-pill--demo">
+                            <mat-icon class="trigger-pill__icon">delete_outline</mat-icon>
+                            <span>Delete row</span>
+                        </span>
+                        <span class="trigger-pills__or">or</span>
+                        <span class="trigger-pill trigger-pill--custom trigger-pill--active trigger-pill--demo">
+                            <mat-icon class="trigger-pill__icon">download</mat-icon>
+                            <span>Custom</span>
+                        </span>
                     </div>
                 </div>
-
-                <div class="rule-example">
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">Trigger</span>
-                        <span class="rule-example__value">Delete row</span>
-                    </div>
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">Action</span>
-                        <span class="rule-example__value">send&nbsp;<strong>Slack</strong>&nbsp;notification</span>
-                    </div>
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">to</span>
-                        <span class="rule-example__value">https://hooks.slack.com/services/...</span>
-                    </div>
+                <div class="example-flow__arrow">
+                    <mat-icon class="example-flow__arrow-icon">bolt</mat-icon>
                 </div>
-
-                <div class="rule-example">
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">Trigger</span>
-                        <span class="rule-example__value"><mat-icon>block</mat-icon>&nbsp;Block user</span>
+                <div class="example-flow__branches">
+                    <span class="example-flow__then-badge step-label__badge step-label__badge--then">THEN</span>
+                    <div class="example-flow__branch">
+                        <div class="example-flow__branch-line"></div>
+                        <mat-button-toggle class="example-toggle">
+                            <mat-icon>email</mat-icon> Email
+                        </mat-button-toggle>
                     </div>
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">Action</span>
-                        <span class="rule-example__value">send&nbsp;<strong>webhook</strong></span>
+                    <div class="example-flow__branch">
+                        <div class="example-flow__branch-line"></div>
+                        <mat-button-toggle class="example-toggle">
+                            <mat-icon>webhook</mat-icon> Webhook
+                        </mat-button-toggle>
                     </div>
-                    <div class="rule-example__row">
-                        <span class="text_highlighted">to</span>
-                        <span class="rule-example__value">https://example.com/webhook</span>
+                    <div class="example-flow__branch">
+                        <div class="example-flow__branch-line"></div>
+                        <mat-button-toggle class="example-toggle">
+                            <mat-icon>tag</mat-icon> Slack
+                        </mat-button-toggle>
                     </div>
                 </div>
             </div>
