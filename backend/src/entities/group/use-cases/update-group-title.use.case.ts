@@ -3,6 +3,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { Cacher } from '../../../helpers/cache/cacher.js';
 import { FoundGroupDataInfoDs } from '../application/data-sctructures/found-user-groups.ds.js';
 import { UpdateGroupTitleDto } from '../dto/update-group-title.dto.js';
 import { IUpdateGroupTitle } from './use-cases.interfaces.js';
@@ -20,7 +21,7 @@ export class UpdateGroupTitleUseCase
 	}
 
 	protected async implementation(groupData: UpdateGroupTitleDto): Promise<FoundGroupDataInfoDs> {
-		const { groupId, title } = groupData;
+		const { groupId, title, cedarPolicy } = groupData;
 		const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 		if (!groupToUpdate) {
 			throw new HttpException(
@@ -34,16 +35,21 @@ export class UpdateGroupTitleUseCase
 			groupToUpdate.connection.id,
 		);
 
-		if (connectionWithGroups.groups.find((group) => group.title === title)) {
+		if (connectionWithGroups.groups.find((group) => group.title === title && group.id !== groupId)) {
 			throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);
 		}
 
 		groupToUpdate.title = title;
+		if (cedarPolicy !== undefined) {
+			groupToUpdate.cedarPolicy = cedarPolicy;
+			Cacher.invalidateCedarPolicyCache(groupToUpdate.connection.id);
+		}
 		const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
 		return {
 			id: updatedGroup.id,
 			title: updatedGroup.title,
 			isMain: updatedGroup.isMain,
+			cedarPolicy: updatedGroup.cedarPolicy,
 		};
 	}
 }

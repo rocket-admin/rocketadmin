@@ -100,7 +100,7 @@ export class PermissionsAddDialogComponent implements OnInit {
 	handleOpenNewGroupPopup() {
 		this.dialogRef.close('add_group');
 		this.dialog.open(GroupAddDialogComponent, {
-			width: '25em',
+			width: '40em',
 		});
 	}
 

@@ -177,7 +177,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 		event.preventDefault();
 		event.stopImmediatePropagation();
 		this.dialog.open(GroupAddDialogComponent, {
-			width: '25em',
+			width: '40em',
 		});
 	}
 
@@ -206,7 +206,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 	openEditGroupNameDialog(e: Event, group: UserGroup) {
 		e.stopPropagation();
 		this.dialog.open(GroupNameEditDialogComponent, {
-			width: '25em',
+			width: '40em',
 			data: group,
 		});
 	}
