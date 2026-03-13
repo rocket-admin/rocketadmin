@@ -50,6 +50,17 @@ describe('CedarPolicyListComponent', () => {
 		expect(component.policies[0].tableName).toBe('customers');
 	});
 
+	it('should add a table policy with wildcard tableName', () => {
+		component.showAddForm = true;
+		component.newAction = 'table:edit';
+		component.newTableName = '*';
+		component.addPolicy();
+
+		expect(component.policies.length).toBe(1);
+		expect(component.policies[0].action).toBe('table:edit');
+		expect(component.policies[0].tableName).toBe('*');
+	});
+
 	it('should not add policy without action', () => {
 		component.showAddForm = true;
 		component.newAction = '';
@@ -113,6 +124,7 @@ describe('CedarPolicyListComponent', () => {
 	it('should return correct table display names', () => {
 		expect(component.getTableDisplayName('customers')).toBe('Customers');
 		expect(component.getTableDisplayName('unknown')).toBe('unknown');
+		expect(component.getTableDisplayName('*')).toBe('All tables');
 	});
 
 	it('should detect needsTable correctly', () => {

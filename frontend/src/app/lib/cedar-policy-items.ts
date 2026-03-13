@@ -37,15 +37,76 @@ export function permissionsToPolicyItems(permissions: Permissions): CedarPolicyI
 		items.push({ action: 'group:read' });
 	}
 
-	for (const table of permissions.tables) {
-		const access = table.accessLevel;
-		if (access.visibility) items.push({ action: 'table:read', tableName: table.tableName });
-		if (access.add) items.push({ action: 'table:add', tableName: table.tableName });
-		if (access.edit) items.push({ action: 'table:edit', tableName: table.tableName });
-		if (access.delete) items.push({ action: 'table:delete', tableName: table.tableName });
+	// Check if all tables share the same permissions — collapse to wildcard '*'
+	const tables = permissions.tables;
+	if (tables.length > 0) {
+		const allRead = tables.every((t) => t.accessLevel.visibility);
+		const allAdd = tables.every((t) => t.accessLevel.add);
+		const allEdit = tables.every((t) => t.accessLevel.edit);
+		const allDelete = tables.every((t) => t.accessLevel.delete);
+		const anyTableAccess = allRead || allAdd || allEdit || allDelete;
+
+		if (anyTableAccess && allRead && allAdd && allEdit && allDelete) {
+			// All tables have full access — single wildcard per action
+			items.push({ action: 'table:read', tableName: '*' });
+			items.push({ action: 'table:add', tableName: '*' });
+			items.push({ action: 'table:edit', tableName: '*' });
+			items.push({ action: 'table:delete', tableName: '*' });
+		} else if (anyTableAccess && (allRead || allAdd || allEdit || allDelete)) {
+			// Some actions apply to all tables, others are per-table
+			if (allRead) items.push({ action: 'table:read', tableName: '*' });
+			if (allAdd) items.push({ action: 'table:add', tableName: '*' });
+			if (allEdit) items.push({ action: 'table:edit', tableName: '*' });
+			if (allDelete) items.push({ action: 'table:delete', tableName: '*' });
+			for (const table of tables) {
+				const access = table.accessLevel;
+				if (!allRead && access.visibility) items.push({ action: 'table:read', tableName: table.tableName });
+				if (!allAdd && access.add) items.push({ action: 'table:add', tableName: table.tableName });
+				if (!allEdit && access.edit) items.push({ action: 'table:edit', tableName: table.tableName });
+				if (!allDelete && access.delete) items.push({ action: 'table:delete', tableName: table.tableName });
+			}
+		} else {
+			for (const table of tables) {
+				const access = table.accessLevel;
+				if (access.visibility) items.push({ action: 'table:read', tableName: table.tableName });
+				if (access.add) items.push({ action: 'table:add', tableName: table.tableName });
+				if (access.edit) items.push({ action: 'table:edit', tableName: table.tableName });
+				if (access.delete) items.push({ action: 'table:delete', tableName: table.tableName });
+			}
+		}
 	}
 
 	return items;
+}
+
+export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId: string, groupId: string): string {
+	const policies: string[] = [];
+
+	for (const item of items) {
+		if (item.action === '*') {
+			policies.push('permit(\n  principal,\n  action,\n  resource\n);');
+			return policies.join('\n\n');
+		}
+
+		const actionRef = `RocketAdmin::Action::"${item.action}"`;
+		let resource: string;
+
+		if (item.action.startsWith('table:')) {
+			if (item.tableName === '*') {
+				resource = `resource == RocketAdmin::Table::"${connectionId}/*"`;
+			} else {
+				resource = `resource == RocketAdmin::Table::"${connectionId}/${item.tableName}"`;
+			}
+		} else if (item.action.startsWith('group:')) {
+			resource = `resource == RocketAdmin::Group::"${groupId}"`;
+		} else {
+			resource = `resource == RocketAdmin::Connection::"${connectionId}"`;
+		}
+
+		policies.push(`permit(\n  principal,\n  action == ${actionRef},\n  ${resource}\n);`);
+	}
+
+	return policies.join('\n\n');
 }
 
 export function policyItemsToPermissions(
@@ -95,8 +156,9 @@ export function policyItemsToPermissions(
 			case 'table:edit':
 			case 'table:delete': {
 				if (!item.tableName) break;
-				const table = result.tables.find((t) => t.tableName === item.tableName);
-				if (table) {
+				const targets =
+					item.tableName === '*' ? result.tables : result.tables.filter((t) => t.tableName === item.tableName);
+				for (const table of targets) {
 					table.accessLevel.visibility = true;
 					switch (item.action) {
 						case 'table:read':

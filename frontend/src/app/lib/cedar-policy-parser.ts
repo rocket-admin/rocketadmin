@@ -64,6 +64,9 @@ export function parseCedarPolicy(
 		}
 	}
 
+	// Apply wildcard table permissions to all tables
+	const wildcardEntry = tableMap.get('*');
+
 	// Merge parsed results with full table list
 	result.tables = availableTables.map((table) => {
 		if (isFullAccess) {
@@ -78,22 +81,31 @@ export function parseCedarPolicy(
 				},
 			};
 		}
+		const base = {
+			visibility: false,
+			readonly: false,
+			add: false,
+			delete: false,
+			edit: false,
+		};
+		if (wildcardEntry) {
+			base.visibility = base.visibility || wildcardEntry.accessLevel.visibility;
+			base.readonly = base.readonly || wildcardEntry.accessLevel.readonly;
+			base.add = base.add || wildcardEntry.accessLevel.add;
+			base.edit = base.edit || wildcardEntry.accessLevel.edit;
+			base.delete = base.delete || wildcardEntry.accessLevel.delete;
+		}
 		const parsed = tableMap.get(table.tableName);
 		if (parsed) {
-			return {
-				...table,
-				accessLevel: { ...parsed.accessLevel },
-			};
+			base.visibility = base.visibility || parsed.accessLevel.visibility;
+			base.readonly = base.readonly || parsed.accessLevel.readonly;
+			base.add = base.add || parsed.accessLevel.add;
+			base.edit = base.edit || parsed.accessLevel.edit;
+			base.delete = base.delete || parsed.accessLevel.delete;
 		}
 		return {
 			...table,
-			accessLevel: {
-				visibility: false,
-				readonly: false,
-				add: false,
-				delete: false,
-				edit: false,
-			},
+			accessLevel: base,
 		};
 	});
 

@@ -8,8 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CodeEditorModule, CodeEditorService } from '@ngstack/code-editor';
 import { registerCedarLanguage } from 'src/app/lib/cedar-monaco-language';
-import { generateCedarPolicy } from 'src/app/lib/cedar-policy-generator';
-import { CedarPolicyItem, permissionsToPolicyItems, policyItemsToPermissions } from 'src/app/lib/cedar-policy-items';
+import { CedarPolicyItem, permissionsToPolicyItems, policyItemsToCedarPolicy } from 'src/app/lib/cedar-policy-items';
 import { parseCedarPolicy } from 'src/app/lib/cedar-policy-parser';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TablePermission } from 'src/app/models/user';
@@ -119,9 +118,8 @@ export class GroupNameEditDialogComponent implements OnInit {
 		if (mode === this.editorMode) return;
 
 		if (mode === 'code') {
-			// Form → Code: convert policy items to cedar text
-			const permissions = policyItemsToPermissions(this.policyItems, this.connectionID, this.group.id, this.allTables);
-			this.cedarPolicy = generateCedarPolicy(this.connectionID, permissions);
+			// Form → Code: convert policy items directly to cedar text
+			this.cedarPolicy = policyItemsToCedarPolicy(this.policyItems, this.connectionID, this.group.id);
 			this.cedarPolicyModel = {
 				language: 'cedar',
 				uri: `cedar-policy-edit-${this.group.id}-${Date.now()}.cedar`,
@@ -141,8 +139,7 @@ export class GroupNameEditDialogComponent implements OnInit {
 
 		// If in form mode, generate cedar policy from policy items
 		if (this.editorMode === 'form') {
-			const permissions = policyItemsToPermissions(this.policyItems, this.connectionID, this.group.id, this.allTables);
-			this.cedarPolicy = generateCedarPolicy(this.connectionID, permissions);
+			this.cedarPolicy = policyItemsToCedarPolicy(this.policyItems, this.connectionID, this.group.id);
 		}
 
 		this._usersService.editUsersGroupName(this.group.id, this.groupTitle, this.cedarPolicy || null).subscribe(

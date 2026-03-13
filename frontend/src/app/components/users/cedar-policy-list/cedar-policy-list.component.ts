@@ -58,6 +58,7 @@ export class CedarPolicyListComponent {
 	}
 
 	getTableDisplayName(tableName: string): string {
+		if (tableName === '*') return 'All tables';
 		return this.availableTables.find((t) => t.tableName === tableName)?.displayName || tableName;
 	}
 
