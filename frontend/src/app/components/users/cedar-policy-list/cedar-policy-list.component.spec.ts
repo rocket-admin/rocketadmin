@@ -119,7 +119,7 @@ describe('CedarPolicyListComponent', () => {
 		expect(component.getActionLabel('*')).toBe('Full access (all permissions)');
 		expect(component.getActionLabel('connection:read')).toBe('Read');
 		expect(component.getActionLabel('table:edit')).toBe('Edit');
-		expect(component.getActionLabel('table:*')).toBe('Full access');
+		expect(component.getActionLabel('table:*')).toBe('Full table access');
 	});
 
 	it('should return correct table display names', () => {

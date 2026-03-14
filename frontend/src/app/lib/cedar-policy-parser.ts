@@ -51,6 +51,7 @@ export function parseCedarPolicy(
 			case 'group:edit':
 				result.group.accessLevel = AccessLevel.Edit;
 				break;
+			case 'table:*':
 			case 'table:read':
 			case 'table:add':
 			case 'table:edit':
@@ -176,7 +177,7 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 		isWildcard: false,
 	};
 
-	const actionMatch = body.match(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/);
+	const actionMatch = body.match(/action\s*(?:==|like)\s*RocketAdmin::Action::"([^"]+)"/);
 	if (actionMatch) {
 		result.action = actionMatch[1];
 	} else {
@@ -230,6 +231,13 @@ function getOrCreateTableEntry(map: Map<string, TablePermission>, tableName: str
 
 function applyTableAction(entry: TablePermission, action: string): void {
 	switch (action) {
+		case 'table:*':
+			entry.accessLevel.visibility = true;
+			entry.accessLevel.readonly = true;
+			entry.accessLevel.add = true;
+			entry.accessLevel.edit = true;
+			entry.accessLevel.delete = true;
+			break;
 		case 'table:read':
 			entry.accessLevel.visibility = true;
 			entry.accessLevel.readonly = true;

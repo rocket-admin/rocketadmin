@@ -38,7 +38,7 @@ export const POLICY_ACTION_GROUPS: PolicyActionGroup[] = [
 	{
 		group: 'Table',
 		actions: [
-			{ value: 'table:*', label: 'Full access', needsTable: true },
+			{ value: 'table:*', label: 'Full table access', needsTable: true },
 			{ value: 'table:read', label: 'Read', needsTable: true },
 			{ value: 'table:add', label: 'Add', needsTable: true },
 			{ value: 'table:edit', label: 'Edit', needsTable: true },
@@ -120,20 +120,10 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 			return policies.join('\n\n');
 		}
 
-		// table:* expands to 4 individual table action permits
-		if (item.action === 'table:*') {
-			const tableResource =
-				item.tableName === '*'
-					? `resource like RocketAdmin::Table::"${connectionId}/*"`
-					: `resource == RocketAdmin::Table::"${connectionId}/${item.tableName}"`;
-			for (const subAction of ['table:read', 'table:add', 'table:edit', 'table:delete']) {
-				const ref = `RocketAdmin::Action::"${subAction}"`;
-				policies.push(`permit(\n  principal,\n  action == ${ref},\n  ${tableResource}\n);`);
-			}
-			continue;
-		}
-
-		const actionRef = `RocketAdmin::Action::"${item.action}"`;
+		const actionRef =
+			item.action === 'table:*'
+				? `action like RocketAdmin::Action::"table:*"`
+				: `action == RocketAdmin::Action::"${item.action}"`;
 		let resource: string;
 
 		if (item.action.startsWith('table:')) {
@@ -148,7 +138,7 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 			resource = `resource == RocketAdmin::Connection::"${connectionId}"`;
 		}
 
-		policies.push(`permit(\n  principal,\n  action == ${actionRef},\n  ${resource}\n);`);
+		policies.push(`permit(\n  principal,\n  ${actionRef},\n  ${resource}\n);`);
 	}
 
 	return policies.join('\n\n');
