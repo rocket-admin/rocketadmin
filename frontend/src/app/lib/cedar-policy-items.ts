@@ -93,7 +93,7 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 
 		if (item.action.startsWith('table:')) {
 			if (item.tableName === '*') {
-				resource = `resource == RocketAdmin::Table::"${connectionId}/*"`;
+				resource = `resource like RocketAdmin::Table::"${connectionId}/*"`;
 			} else {
 				resource = `resource == RocketAdmin::Table::"${connectionId}/${item.tableName}"`;
 			}

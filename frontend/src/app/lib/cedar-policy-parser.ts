@@ -186,7 +186,7 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 		}
 	}
 
-	const resourceMatch = body.match(/resource\s*==\s*(RocketAdmin::\w+)::"([^"]+)"/);
+	const resourceMatch = body.match(/resource\s*(?:==|like)\s*(RocketAdmin::\w+)::"([^"]+)"/);
 	if (resourceMatch) {
 		result.resourceType = resourceMatch[1];
 		result.resourceId = resourceMatch[2];
