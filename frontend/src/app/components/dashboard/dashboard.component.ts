@@ -160,9 +160,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		console.log('getData');
 
 		this._tables.fetchTablesFolders(this.connectionID).subscribe((res) => {
-			console.log('getTables folders');
-			console.log(res);
-
 			const tables = res.find((item) => item.category_id === 'all-tables-kitten')?.tables || [];
 
 			this.tableFolders = res;
@@ -215,6 +212,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 					}
 				});
 			}
+		},
+		(err) => {	
+			this.isServerError = true;
+			this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
+			this.loading = false;
+			this.title.setTitle(`Error | ${this._company.companyTabTitle || 'Rocketadmin'}`);
 		});
 	}
 
