@@ -117,8 +117,8 @@ describe('CedarPolicyListComponent', () => {
 
 	it('should return correct action labels', () => {
 		expect(component.getActionLabel('*')).toBe('Full access (all permissions)');
-		expect(component.getActionLabel('connection:read')).toBe('Read');
-		expect(component.getActionLabel('table:edit')).toBe('Edit');
+		expect(component.getActionLabel('connection:read')).toBe('Connection read');
+		expect(component.getActionLabel('table:edit')).toBe('Table edit');
 		expect(component.getActionLabel('table:*')).toBe('Full table access');
 	});
 

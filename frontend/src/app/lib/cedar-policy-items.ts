@@ -24,25 +24,25 @@ export const POLICY_ACTION_GROUPS: PolicyActionGroup[] = [
 	{
 		group: 'Connection',
 		actions: [
-			{ value: 'connection:read', label: 'Read', needsTable: false },
-			{ value: 'connection:edit', label: 'Full access', needsTable: false },
+			{ value: 'connection:read', label: 'Connection read', needsTable: false },
+			{ value: 'connection:edit', label: 'Connection full access', needsTable: false },
 		],
 	},
 	{
 		group: 'Group',
 		actions: [
-			{ value: 'group:read', label: 'Read', needsTable: false },
-			{ value: 'group:edit', label: 'Manage', needsTable: false },
+			{ value: 'group:read', label: 'Group read', needsTable: false },
+			{ value: 'group:edit', label: 'Group manage', needsTable: false },
 		],
 	},
 	{
 		group: 'Table',
 		actions: [
 			{ value: 'table:*', label: 'Full table access', needsTable: true },
-			{ value: 'table:read', label: 'Read', needsTable: true },
-			{ value: 'table:add', label: 'Add', needsTable: true },
-			{ value: 'table:edit', label: 'Edit', needsTable: true },
-			{ value: 'table:delete', label: 'Delete', needsTable: true },
+			{ value: 'table:read', label: 'Table read', needsTable: true },
+			{ value: 'table:add', label: 'Table add', needsTable: true },
+			{ value: 'table:edit', label: 'Table edit', needsTable: true },
+			{ value: 'table:delete', label: 'Table delete', needsTable: true },
 		],
 	},
 ];
