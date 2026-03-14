@@ -12,6 +12,9 @@ export class FoundGroupInConnectionDTO {
 	@ApiProperty()
 	isMain: boolean;
 
+	@ApiProperty({ required: false, nullable: true })
+	cedarPolicy?: string | null;
+
 	@ApiProperty({ required: false, isArray: true, type: SimpleFoundUserInfoDs })
 	users?: Array<SimpleFoundUserInfoDs>;
 }

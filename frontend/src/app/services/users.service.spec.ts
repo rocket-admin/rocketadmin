@@ -245,7 +245,7 @@ describe('UsersService', () => {
 
 		const req = httpMock.expectOne(`/connection/group/12345678`);
 		expect(req.request.method).toBe('POST');
-		expect(req.request.body).toEqual({ title: 'Managers' });
+		expect(req.request.body).toEqual({ title: 'Managers', cedarPolicy: null });
 		req.flush(groupNetwork);
 
 		expect(isSubscribeCalled).toBe(true);

@@ -26,7 +26,7 @@ export class CreateGroupInConnectionUseCase
 
 	protected async implementation(inputData: CreateGroupInConnectionDs): Promise<FoundGroupResponseDto> {
 		const {
-			group_parameters: { connectionId, title },
+			group_parameters: { connectionId, title, cedarPolicy },
 			creation_info: { cognitoUserName },
 		} = inputData;
 		const connectionToUpdate = await this._dbContext.connectionRepository.findConnectionWithGroups(connectionId);
@@ -36,15 +36,13 @@ export class CreateGroupInConnectionUseCase
 		const foundUser = await this._dbContext.userRepository.findOneUserById(cognitoUserName);
 		const newGroupEntity = buildNewGroupEntityForConnectionWithUser(connectionToUpdate, foundUser, title);
 		const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(newGroupEntity);
-		savedGroup.cedarPolicy = generateCedarPolicyForGroup(
-			connectionId,
-			false,
-			{
+		savedGroup.cedarPolicy =
+			cedarPolicy ??
+			generateCedarPolicyForGroup(connectionId, false, {
 				connection: { connectionId, accessLevel: AccessLevelEnum.none },
 				group: { groupId: savedGroup.id, accessLevel: AccessLevelEnum.none },
 				tables: [],
-			},
-		);
+			});
 		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(savedGroup);
 		Cacher.invalidateCedarPolicyCache(connectionId);
 		return buildFoundGroupResponseDto(savedGroup);

@@ -1,0 +1,101 @@
+<div class="policy-list">
+    <app-content-loader *ngIf="loading"></app-content-loader>
+
+    <div *ngIf="!loading && policies.length === 0 && !showAddForm" class="empty-state">
+        No policies defined. Add a policy to grant permissions.
+    </div>
+
+    <div *ngFor="let policy of policies; let i = index" class="policy-item">
+        <!-- Display mode -->
+        <ng-container *ngIf="editingIndex !== i">
+            <div class="policy-item__content">
+                <mat-icon class="policy-item__icon">security</mat-icon>
+                <span class="policy-item__label">{{ getActionLabel(policy.action) }}</span>
+                <span *ngIf="policy.tableName" class="policy-item__table">
+                    — {{ getTableDisplayName(policy.tableName) }}
+                </span>
+            </div>
+            <div class="policy-item__actions">
+                <button mat-icon-button type="button" (click)="startEdit(i)" matTooltip="Edit">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button type="button" (click)="removePolicy(i)" matTooltip="Delete">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+        </ng-container>
+
+        <!-- Edit mode -->
+        <ng-container *ngIf="editingIndex === i">
+            <div class="policy-item__edit-form">
+                <mat-form-field appearance="outline" class="policy-field">
+                    <mat-label>Action</mat-label>
+                    <mat-select [(ngModel)]="editAction" [ngModelOptions]="{standalone: true}">
+                        <mat-optgroup *ngFor="let group of actionGroups" [label]="group.group">
+                            <mat-option *ngFor="let action of group.actions" [value]="action.value">
+                                {{ action.label }}
+                            </mat-option>
+                        </mat-optgroup>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field *ngIf="editNeedsTable" appearance="outline" class="policy-field">
+                    <mat-label>Table</mat-label>
+                    <mat-select [(ngModel)]="editTableName" [ngModelOptions]="{standalone: true}">
+                        <mat-option value="*">All tables</mat-option>
+                        <mat-option *ngFor="let table of availableTables" [value]="table.tableName">
+                            {{ table.displayName }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <div class="policy-item__edit-actions">
+                    <button mat-button color="primary" type="button" (click)="saveEdit(i)"
+                        [disabled]="!editAction || (editNeedsTable && !editTableName)">
+                        Save
+                    </button>
+                    <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+
+    <!-- Add form -->
+    <div *ngIf="showAddForm" class="policy-item policy-item--add">
+        <div class="policy-item__edit-form">
+            <mat-form-field appearance="outline" class="policy-field">
+                <mat-label>Action</mat-label>
+                <mat-select [(ngModel)]="newAction" [ngModelOptions]="{standalone: true}">
+                    <mat-optgroup *ngFor="let group of actionGroups" [label]="group.group">
+                        <mat-option *ngFor="let action of group.actions" [value]="action.value">
+                            {{ action.label }}
+                        </mat-option>
+                    </mat-optgroup>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="needsTable" appearance="outline" class="policy-field">
+                <mat-label>Table</mat-label>
+                <mat-select [(ngModel)]="newTableName" [ngModelOptions]="{standalone: true}">
+                    <mat-option value="*">All tables</mat-option>
+                    <mat-option *ngFor="let table of availableTables" [value]="table.tableName">
+                        {{ table.displayName }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div class="policy-item__edit-actions">
+                <button mat-button color="primary" type="button" (click)="addPolicy()"
+                    [disabled]="!newAction || (needsTable && !newTableName)">
+                    Add
+                </button>
+                <button mat-button type="button" (click)="resetAddForm()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <button *ngIf="!showAddForm && !loading" mat-button color="primary" type="button"
+        (click)="showAddForm = true" class="add-policy-button">
+        <mat-icon>add</mat-icon> Add policy
+    </button>
+</div>

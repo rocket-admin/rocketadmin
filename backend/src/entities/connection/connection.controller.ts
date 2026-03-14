@@ -22,11 +22,7 @@ import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js'
 import { Messages } from '../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import {
-	isConnectionTypeAgent,
-	slackPostMessage,
-	toPrettyErrorsMsg,
-} from '../../helpers/index.js';
+import { isConnectionTypeAgent, slackPostMessage, toPrettyErrorsMsg } from '../../helpers/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
@@ -413,7 +409,7 @@ export class ConnectionController {
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 	): Promise<FoundGroupResponseDto> {
-		const { title } = groupData;
+		const { title, cedarPolicy } = groupData;
 		if (!title) {
 			throw new BadRequestException(Messages.GROUP_TITLE_MISSING);
 		}
@@ -421,6 +417,7 @@ export class ConnectionController {
 			group_parameters: {
 				title: title,
 				connectionId: connectionId,
+				cedarPolicy: cedarPolicy,
 			},
 			creation_info: {
 				cognitoUserName: userId,
@@ -689,5 +686,4 @@ export class ConnectionController {
 		}
 		return await this.unfreezeConnectionUseCase.execute({ connectionId, userId }, InTransactionEnum.ON);
 	}
-
 }

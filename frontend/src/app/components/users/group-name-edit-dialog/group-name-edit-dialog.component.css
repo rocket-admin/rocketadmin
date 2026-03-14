@@ -1,3 +1,28 @@
 .mat-mdc-form-field {
 	width: 100%;
 }
+
+.cedar-policy-section {
+	margin-top: 8px;
+}
+
+.cedar-policy-label {
+	display: block;
+	font-size: 14px;
+	color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.6));
+	margin-bottom: 0;
+}
+
+.editor-mode-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.code-editor-box {
+	height: 200px;
+	border: 1px solid var(--mdc-outlined-text-field-outline-color, rgba(0, 0, 0, 0.38));
+	border-radius: 4px;
+	overflow: hidden;
+}

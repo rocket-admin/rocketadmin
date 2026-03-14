@@ -50,8 +50,8 @@ export class UsersService {
 		);
 	}
 
-	createUsersGroup(connectionID: string, title: string) {
-		return this._http.post<any>(`/connection/group/${connectionID}`, { title: title }).pipe(
+	createUsersGroup(connectionID: string, title: string, cedarPolicy?: string | null) {
+		return this._http.post<any>(`/connection/group/${connectionID}`, { title, cedarPolicy: cedarPolicy || null }).pipe(
 			map((res) => {
 				this.groups.next({ action: 'add group', group: res });
 				this._notifications.showSuccessSnackbar('Group of users has been created.');
@@ -118,8 +118,8 @@ export class UsersService {
 		);
 	}
 
-	editUsersGroupName(groupId: string, title: string) {
-		return this._http.put<any>(`/group/title`, { title, groupId }).pipe(
+	editUsersGroupName(groupId: string, title: string, cedarPolicy?: string | null) {
+		return this._http.put<any>(`/group/title`, { title, groupId, cedarPolicy }).pipe(
 			map(() => {
 				this.groups.next({ action: 'edit group name', groupId: groupId });
 				this._notifications.showSuccessSnackbar('Group name has been updated.');
