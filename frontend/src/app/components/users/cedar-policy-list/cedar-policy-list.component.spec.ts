@@ -117,8 +117,9 @@ describe('CedarPolicyListComponent', () => {
 
 	it('should return correct action labels', () => {
 		expect(component.getActionLabel('*')).toBe('Full access (all permissions)');
-		expect(component.getActionLabel('connection:read')).toBe('Connection: Read');
-		expect(component.getActionLabel('table:edit')).toBe('Table: Edit');
+		expect(component.getActionLabel('connection:read')).toBe('Read');
+		expect(component.getActionLabel('table:edit')).toBe('Edit');
+		expect(component.getActionLabel('table:*')).toBe('Full access');
 	});
 
 	it('should return correct table display names', () => {
@@ -132,6 +133,9 @@ describe('CedarPolicyListComponent', () => {
 		expect(component.needsTable).toBe(false);
 
 		component.newAction = 'table:read';
+		expect(component.needsTable).toBe(true);
+
+		component.newAction = 'table:*';
 		expect(component.needsTable).toBe(true);
 	});
 

@@ -5,17 +5,49 @@ export interface CedarPolicyItem {
 	tableName?: string;
 }
 
-export const POLICY_ACTIONS = [
-	{ value: '*', label: 'Full access (all permissions)', needsTable: false },
-	{ value: 'connection:read', label: 'Connection: Read', needsTable: false },
-	{ value: 'connection:edit', label: 'Connection: Full access', needsTable: false },
-	{ value: 'group:read', label: 'Group: Read', needsTable: false },
-	{ value: 'group:edit', label: 'Group: Manage', needsTable: false },
-	{ value: 'table:read', label: 'Table: Read', needsTable: true },
-	{ value: 'table:add', label: 'Table: Add', needsTable: true },
-	{ value: 'table:edit', label: 'Table: Edit', needsTable: true },
-	{ value: 'table:delete', label: 'Table: Delete', needsTable: true },
+export interface PolicyAction {
+	value: string;
+	label: string;
+	needsTable: boolean;
+}
+
+export interface PolicyActionGroup {
+	group: string;
+	actions: PolicyAction[];
+}
+
+export const POLICY_ACTION_GROUPS: PolicyActionGroup[] = [
+	{
+		group: 'General',
+		actions: [{ value: '*', label: 'Full access (all permissions)', needsTable: false }],
+	},
+	{
+		group: 'Connection',
+		actions: [
+			{ value: 'connection:read', label: 'Read', needsTable: false },
+			{ value: 'connection:edit', label: 'Full access', needsTable: false },
+		],
+	},
+	{
+		group: 'Group',
+		actions: [
+			{ value: 'group:read', label: 'Read', needsTable: false },
+			{ value: 'group:edit', label: 'Manage', needsTable: false },
+		],
+	},
+	{
+		group: 'Table',
+		actions: [
+			{ value: 'table:*', label: 'Full access', needsTable: true },
+			{ value: 'table:read', label: 'Read', needsTable: true },
+			{ value: 'table:add', label: 'Add', needsTable: true },
+			{ value: 'table:edit', label: 'Edit', needsTable: true },
+			{ value: 'table:delete', label: 'Delete', needsTable: true },
+		],
+	},
 ];
+
+export const POLICY_ACTIONS: PolicyAction[] = POLICY_ACTION_GROUPS.flatMap((g) => g.actions);
 
 export function permissionsToPolicyItems(permissions: Permissions): CedarPolicyItem[] {
 	const items: CedarPolicyItem[] = [];
@@ -47,11 +79,7 @@ export function permissionsToPolicyItems(permissions: Permissions): CedarPolicyI
 		const anyTableAccess = allRead || allAdd || allEdit || allDelete;
 
 		if (anyTableAccess && allRead && allAdd && allEdit && allDelete) {
-			// All tables have full access — single wildcard per action
-			items.push({ action: 'table:read', tableName: '*' });
-			items.push({ action: 'table:add', tableName: '*' });
-			items.push({ action: 'table:edit', tableName: '*' });
-			items.push({ action: 'table:delete', tableName: '*' });
+			items.push({ action: 'table:*', tableName: '*' });
 		} else if (anyTableAccess && (allRead || allAdd || allEdit || allDelete)) {
 			// Some actions apply to all tables, others are per-table
 			if (allRead) items.push({ action: 'table:read', tableName: '*' });
@@ -68,10 +96,14 @@ export function permissionsToPolicyItems(permissions: Permissions): CedarPolicyI
 		} else {
 			for (const table of tables) {
 				const access = table.accessLevel;
-				if (access.visibility) items.push({ action: 'table:read', tableName: table.tableName });
-				if (access.add) items.push({ action: 'table:add', tableName: table.tableName });
-				if (access.edit) items.push({ action: 'table:edit', tableName: table.tableName });
-				if (access.delete) items.push({ action: 'table:delete', tableName: table.tableName });
+				if (access.visibility && access.add && access.edit && access.delete) {
+					items.push({ action: 'table:*', tableName: table.tableName });
+				} else {
+					if (access.visibility) items.push({ action: 'table:read', tableName: table.tableName });
+					if (access.add) items.push({ action: 'table:add', tableName: table.tableName });
+					if (access.edit) items.push({ action: 'table:edit', tableName: table.tableName });
+					if (access.delete) items.push({ action: 'table:delete', tableName: table.tableName });
+				}
 			}
 		}
 	}
@@ -86,6 +118,19 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 		if (item.action === '*') {
 			policies.push('permit(\n  principal,\n  action,\n  resource\n);');
 			return policies.join('\n\n');
+		}
+
+		// table:* expands to 4 individual table action permits
+		if (item.action === 'table:*') {
+			const tableResource =
+				item.tableName === '*'
+					? `resource like RocketAdmin::Table::"${connectionId}/*"`
+					: `resource == RocketAdmin::Table::"${connectionId}/${item.tableName}"`;
+			for (const subAction of ['table:read', 'table:add', 'table:edit', 'table:delete']) {
+				const ref = `RocketAdmin::Action::"${subAction}"`;
+				policies.push(`permit(\n  principal,\n  action == ${ref},\n  ${tableResource}\n);`);
+			}
+			continue;
 		}
 
 		const actionRef = `RocketAdmin::Action::"${item.action}"`;
@@ -151,6 +196,7 @@ export function policyItemsToPermissions(
 			case 'group:edit':
 				result.group.accessLevel = AccessLevel.Edit;
 				break;
+			case 'table:*':
 			case 'table:read':
 			case 'table:add':
 			case 'table:edit':
@@ -161,6 +207,12 @@ export function policyItemsToPermissions(
 				for (const table of targets) {
 					table.accessLevel.visibility = true;
 					switch (item.action) {
+						case 'table:*':
+							table.accessLevel.readonly = true;
+							table.accessLevel.add = true;
+							table.accessLevel.edit = true;
+							table.accessLevel.delete = true;
+							break;
 						case 'table:read':
 							table.accessLevel.readonly = true;
 							break;

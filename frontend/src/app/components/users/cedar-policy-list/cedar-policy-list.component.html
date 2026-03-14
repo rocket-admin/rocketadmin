@@ -31,9 +31,11 @@
                 <mat-form-field appearance="outline" class="policy-field">
                     <mat-label>Action</mat-label>
                     <mat-select [(ngModel)]="editAction" [ngModelOptions]="{standalone: true}">
-                        <mat-option *ngFor="let action of availableActions" [value]="action.value">
-                            {{ action.label }}
-                        </mat-option>
+                        <mat-optgroup *ngFor="let group of actionGroups" [label]="group.group">
+                            <mat-option *ngFor="let action of group.actions" [value]="action.value">
+                                {{ action.label }}
+                            </mat-option>
+                        </mat-optgroup>
                     </mat-select>
                 </mat-form-field>
 
@@ -64,9 +66,11 @@
             <mat-form-field appearance="outline" class="policy-field">
                 <mat-label>Action</mat-label>
                 <mat-select [(ngModel)]="newAction" [ngModelOptions]="{standalone: true}">
-                    <mat-option *ngFor="let action of availableActions" [value]="action.value">
-                        {{ action.label }}
-                    </mat-option>
+                    <mat-optgroup *ngFor="let group of actionGroups" [label]="group.group">
+                        <mat-option *ngFor="let action of group.actions" [value]="action.value">
+                            {{ action.label }}
+                        </mat-option>
+                    </mat-optgroup>
                 </mat-select>
             </mat-form-field>
 

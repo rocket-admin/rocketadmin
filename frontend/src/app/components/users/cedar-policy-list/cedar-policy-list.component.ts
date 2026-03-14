@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CedarPolicyItem, POLICY_ACTIONS } from 'src/app/lib/cedar-policy-items';
+import { CedarPolicyItem, POLICY_ACTION_GROUPS, POLICY_ACTIONS } from 'src/app/lib/cedar-policy-items';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
 
 export interface AvailableTable {
@@ -44,13 +44,14 @@ export class CedarPolicyListComponent {
 	editTableName = '';
 
 	availableActions = POLICY_ACTIONS;
+	actionGroups = POLICY_ACTION_GROUPS;
 
 	get needsTable(): boolean {
-		return this.newAction.startsWith('table:');
+		return this.availableActions.find((a) => a.value === this.newAction)?.needsTable ?? false;
 	}
 
 	get editNeedsTable(): boolean {
-		return this.editAction.startsWith('table:');
+		return this.availableActions.find((a) => a.value === this.editAction)?.needsTable ?? false;
 	}
 
 	getActionLabel(action: string): string {
