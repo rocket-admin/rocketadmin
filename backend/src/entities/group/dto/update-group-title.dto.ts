@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class UpdateGroupTitleDto {
 	@ApiProperty()
@@ -12,4 +12,9 @@ export class UpdateGroupTitleDto {
 	@IsNotEmpty()
 	@IsUUID()
 	groupId: string;
+
+	@IsOptional()
+	@IsString()
+	@ApiProperty({ required: false, nullable: true })
+	cedarPolicy?: string | null;
 }
