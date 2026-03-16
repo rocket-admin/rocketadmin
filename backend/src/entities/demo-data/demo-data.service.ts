@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
@@ -27,6 +28,7 @@ import { TableSettingsEntity } from '../table-settings/common-table-settings/tab
 import { buildNewTableSettingsEntity } from '../table-settings/common-table-settings/utils/build-new-table-settings-entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-groups.js';
+import { generateCedarPolicyForGroup } from '../cedar-authorization/cedar-policy-generator.js';
 import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
@@ -74,6 +76,21 @@ export class DemoDataService {
 		await Promise.all(
 			testPermissionsEntities.map(async (permission: PermissionEntity) => {
 				await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
+			}),
+		);
+
+		await Promise.all(
+			createdTestGroups.map(async (group: GroupEntity) => {
+				const connectionId = group.connection?.id;
+				if (!connectionId) return;
+				group.cedarPolicy = generateCedarPolicyForGroup(connectionId, group.isMain, {
+					connection: { connectionId, accessLevel: AccessLevelEnum.edit },
+					group: { groupId: group.id, accessLevel: AccessLevelEnum.edit },
+					tables: [],
+				});
+				delete group.permissions;
+				delete group.users;
+				await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
 			}),
 		);
 

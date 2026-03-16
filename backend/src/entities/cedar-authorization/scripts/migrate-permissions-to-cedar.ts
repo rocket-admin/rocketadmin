@@ -8,11 +8,15 @@ export async function migratePermissionsToCedar(dataSource: DataSource): Promise
 	const groupRepository = dataSource.getRepository(GroupEntity);
 	let migratedCount = 0;
 
+	// Migrate groups with no Cedar policy OR groups with old-format policies (using "principal in" instead of bare "principal")
 	const groups = await groupRepository
 		.createQueryBuilder('group')
 		.leftJoinAndSelect('group.connection', 'connection')
 		.leftJoinAndSelect('group.permissions', 'permission')
-		.where('group.cedarPolicy IS NULL OR group.cedarPolicy = :empty', { empty: '' })
+		.where('group.cedarPolicy IS NULL OR group.cedarPolicy = :empty OR group.cedarPolicy LIKE :oldFormat', {
+			empty: '',
+			oldFormat: '%principal in RocketAdmin::Group%',
+		})
 		.getMany();
 
 	for (const group of groups) {

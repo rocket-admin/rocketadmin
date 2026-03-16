@@ -1,5 +1,5 @@
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { NotificationsService } from 'src/app/services/notifications.service';
 
 @Component({
@@ -8,12 +8,10 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 	styleUrls: ['./ip-address-button.component.css'],
 	imports: [CdkCopyToClipboard],
 })
-export class IpAddressButtonComponent implements OnInit {
-	@Input() ip: string;
+export class IpAddressButtonComponent {
+	private _notifications = inject(NotificationsService);
 
-	constructor(private _notifications: NotificationsService) {}
-
-	ngOnInit(): void {}
+	ip = input<string>('');
 
 	showCopyNotification(message: string) {
 		this._notifications.showSuccessSnackbar(message);
