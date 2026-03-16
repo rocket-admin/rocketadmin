@@ -1,10 +1,12 @@
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
+import { CreatedConnectionDTO } from '../../../entities/connection/application/dto/created-connection.dto.js';
 import { SaaSRegisterDemoUserAccountDS } from '../../../entities/user/application/data-structures/demo-user-account-register.ds.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../data-structures/common-responce.ds.js';
+import { CreateConnectionForHostedDbDto } from '../data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
 import { GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
@@ -65,4 +67,8 @@ export interface IFreezeConnectionsInCompany {
 
 export interface ISaasSAMLRegisterUser {
 	execute(userData: SaasSAMLUserRegisterDS): Promise<UserEntity>;
+}
+
+export interface ICreateConnectionForHostedDb {
+	execute(inputData: CreateConnectionForHostedDbDto): Promise<CreatedConnectionDTO>;
 }
