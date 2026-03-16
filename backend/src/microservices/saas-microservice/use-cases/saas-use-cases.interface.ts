@@ -7,6 +7,7 @@ import { UserEntity } from '../../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from '../data-structures/create-connecttion-for-selfhosted-db.dto.js';
+import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connection-for-hosted-db.dto.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
 import { GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
@@ -71,4 +72,8 @@ export interface ISaasSAMLRegisterUser {
 
 export interface ICreateConnectionForHostedDb {
 	execute(inputData: CreateConnectionForHostedDbDto): Promise<CreatedConnectionDTO>;
+}
+
+export interface IDeleteConnectionForHostedDb {
+	execute(inputData: DeleteConnectionForHostedDbDto): Promise<CreatedConnectionDTO>;
 }
