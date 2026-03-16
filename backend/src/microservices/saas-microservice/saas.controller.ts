@@ -31,6 +31,8 @@ import { SaasSAMLUserRegisterDS } from './data-structures/saas-saml-user-registe
 import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
 import {
 	ICompanyRegistration,
+	ICreateConnectionForHostedDb,
+	IDeleteConnectionForHostedDb,
 	IFreezeConnectionsInCompany,
 	IGetUserInfo,
 	ILoginUserWithGitHub,
@@ -44,6 +46,9 @@ import {
 	ISuspendUsers,
 	ISuspendUsersOverLimit,
 } from './use-cases/saas-use-cases.interface.js';
+import { CreatedConnectionDTO } from '../../entities/connection/application/dto/created-connection.dto.js';
+import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
+import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @SkipThrottle()
@@ -82,6 +87,10 @@ export class SaasController {
 		private readonly freezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
 		@Inject(UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY)
 		private readonly unfreezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
+		@Inject(UseCaseType.SAAS_CREATE_CONNECTION_FOR_HOSTED_DB)
+		private readonly createConnectionForHostedDbUseCase: ICreateConnectionForHostedDb,
+		@Inject(UseCaseType.SAAS_DELETE_CONNECTION_FOR_HOSTED_DB)
+		private readonly deleteConnectionForHostedDbUseCase: IDeleteConnectionForHostedDb,
 	) {}
 
 	@ApiOperation({ summary: 'Company registered webhook' })
@@ -273,5 +282,31 @@ export class SaasController {
 			samlNameId,
 			samlAttributes,
 		});
+	}
+
+	@ApiOperation({ summary: 'Created connection of hosted database' })
+	@ApiBody({ type: CreateConnectionForHostedDbDto })
+	@ApiResponse({
+		status: 201,
+		type: CreatedConnectionDTO,
+	})
+	@Post('/connection/hosted')
+	async createConnectionForHostedDb(
+		@Body() connectionData: CreateConnectionForHostedDbDto,
+	): Promise<CreatedConnectionDTO> {
+		return await this.createConnectionForHostedDbUseCase.execute(connectionData);
+	}
+
+	@ApiOperation({ summary: 'Delete connection of hosted database' })
+	@ApiBody({ type: DeleteConnectionForHostedDbDto })
+	@ApiResponse({
+		status: 201,
+		type: CreatedConnectionDTO,
+	})
+	@Post('connection/hosted/delete')
+	async deleteConnectionForHostedDb(
+		@Body() deleteConnectionData: DeleteConnectionForHostedDbDto,
+	): Promise<CreatedConnectionDTO> {
+		return await this.deleteConnectionForHostedDbUseCase.execute(deleteConnectionData);
 	}
 }
