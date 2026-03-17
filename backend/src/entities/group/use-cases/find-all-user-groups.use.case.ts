@@ -35,13 +35,14 @@ export class FindAllUserGroupsUseCase extends AbstractUseCase<string, FoundUserG
 			groups: groupsWithAccessLevels.map((g) => {
 				const {
 					accessLevel,
-					group: { id, isMain, title },
+					group: { id, isMain, title, cedarPolicy },
 				} = g;
 				return {
 					group: {
 						id: id,
 						title: title,
 						isMain: isMain,
+						cedarPolicy: cedarPolicy,
 					},
 					accessLevel: accessLevel,
 				};
