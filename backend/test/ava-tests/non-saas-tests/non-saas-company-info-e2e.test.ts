@@ -138,10 +138,11 @@ test.serial(`${currentTest} should return full found company info for company ad
 		t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'author'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO.connections[0], 'groups'), true);
 		t.is(foundCompanyInfoRO.connections[0].groups.length > 0, true);
-		t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0]).length, 4);
+		t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0]).length, 5);
 		t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'id'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'title'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'isMain'), true);
+		t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'cedarPolicy'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO.connections[0].groups[0], 'users'), true);
 		t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
 		t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 9);

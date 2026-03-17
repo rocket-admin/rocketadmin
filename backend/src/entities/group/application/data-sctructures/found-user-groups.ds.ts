@@ -12,8 +12,8 @@ export class FoundGroupDataInfoDs {
 	@ApiProperty()
 	isMain: boolean;
 
-	@ApiProperty({ required: false, nullable: true })
-	cedarPolicy?: string | null;
+	@ApiProperty()
+	cedarPolicy: string | null;
 }
 
 export class FoundGroupDataWithUsersDs extends FoundGroupDataInfoDs {
