@@ -303,7 +303,7 @@ export class SaasController {
 		status: 201,
 		type: CreatedConnectionDTO,
 	})
-	@Post('connection/hosted/delete')
+	@Post('/connection/hosted/delete')
 	async deleteConnectionForHostedDb(
 		@Body() deleteConnectionData: DeleteConnectionForHostedDbDto,
 	): Promise<CreatedConnectionDTO> {
