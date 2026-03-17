@@ -55,7 +55,7 @@
                 <mat-form-field *ngIf="editNeedsDashboard" appearance="outline" class="policy-field">
                     <mat-label>Dashboard</mat-label>
                     <mat-select [(ngModel)]="editDashboardId" [ngModelOptions]="{standalone: true}">
-                        <mat-option value="__new__">New dashboards</mat-option>
+                        <mat-option value="*">All dashboards</mat-option>
                         <mat-option *ngFor="let dashboard of availableDashboards" [value]="dashboard.id">
                             {{ dashboard.name }}
                         </mat-option>

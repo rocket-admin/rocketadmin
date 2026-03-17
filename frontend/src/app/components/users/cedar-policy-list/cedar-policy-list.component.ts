@@ -80,7 +80,7 @@ export class CedarPolicyListComponent {
 	}
 
 	getDashboardDisplayName(dashboardId: string): string {
-		if (dashboardId === '__new__') return 'New dashboards';
+		if (dashboardId === '*') return 'All dashboards';
 		return this.availableDashboards.find((d) => d.id === dashboardId)?.name || dashboardId;
 	}
 

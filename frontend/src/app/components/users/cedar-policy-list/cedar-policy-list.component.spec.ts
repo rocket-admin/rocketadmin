@@ -187,6 +187,6 @@ describe('CedarPolicyListComponent', () => {
 	it('should return correct dashboard display names', () => {
 		expect(component.getDashboardDisplayName('dash-1')).toBe('Sales Dashboard');
 		expect(component.getDashboardDisplayName('unknown')).toBe('unknown');
-		expect(component.getDashboardDisplayName('__new__')).toBe('New dashboards');
+		expect(component.getDashboardDisplayName('*')).toBe('All dashboards');
 	});
 });

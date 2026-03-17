@@ -50,6 +50,7 @@ export const POLICY_ACTION_GROUPS: PolicyActionGroup[] = [
 	{
 		group: 'Dashboard',
 		actions: [
+			{ value: 'dashboard:*', label: 'Full dashboard access', needsTable: false, needsDashboard: true },
 			{ value: 'dashboard:read', label: 'Dashboard read', needsTable: false, needsDashboard: true },
 			{ value: 'dashboard:create', label: 'Dashboard create', needsTable: false, needsDashboard: true },
 			{ value: 'dashboard:edit', label: 'Dashboard edit', needsTable: false, needsDashboard: true },
@@ -132,8 +133,8 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 		}
 
 		const actionRef =
-			item.action === 'table:*'
-				? `action like RocketAdmin::Action::"table:*"`
+			item.action === 'table:*' || item.action === 'dashboard:*'
+				? `action like RocketAdmin::Action::"${item.action}"`
 				: `action == RocketAdmin::Action::"${item.action}"`;
 		let resource: string;
 
@@ -144,8 +145,11 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 				resource = `resource == RocketAdmin::Table::"${connectionId}/${item.tableName}"`;
 			}
 		} else if (item.action.startsWith('dashboard:')) {
-			const dashId = item.dashboardId || '__new__';
-			resource = `resource == RocketAdmin::Dashboard::"${connectionId}/${dashId}"`;
+			if (item.dashboardId === '*') {
+				resource = `resource like RocketAdmin::Dashboard::"${connectionId}/*"`;
+			} else {
+				resource = `resource == RocketAdmin::Dashboard::"${connectionId}/${item.dashboardId}"`;
+			}
 		} else if (item.action.startsWith('group:')) {
 			resource = `resource == RocketAdmin::Group::"${groupId}"`;
 		} else {
