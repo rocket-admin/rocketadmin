@@ -67,9 +67,6 @@ jobs:
           name: bake-meta
           path: /tmp
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -84,6 +81,7 @@ jobs:
         uses: docker/bake-action@v5
         with:
           sbom: true
+          provenance: true
           files: |
             ./docker-bake-agent.hcl
             /tmp/bake-meta.json
@@ -108,7 +106,7 @@ jobs:
           retention-days: 1
 
       - name: Attest Build Provenance
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-digest: "${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
           push-to-registry: false
@@ -116,6 +114,10 @@ jobs:
 
   merge:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     needs:
       - build
     steps:
@@ -146,6 +148,20 @@ jobs:
         run: |
           docker buildx imagetools create $(jq -cr '.target."docker-metadata-action".tags | map(select(startswith("${{ env.REGISTRY_IMAGE }}")) | "-t " + .) | join(" ")' /tmp/bake-meta.json) \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+
+      - name: Get merged manifest digest
+        id: manifest
+        run: |
+          TAG=$(jq -r '.target."docker-metadata-action".args.DOCKER_META_VERSION' /tmp/bake-meta.json)
+          DIGEST="sha256:$(docker buildx imagetools inspect "${{ env.REGISTRY_IMAGE }}:${TAG}" --raw | sha256sum | cut -d ' ' -f1)"
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
+
+      - name: Attest Merged Manifest Provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-digest: ${{ steps.manifest.outputs.digest }}
+          subject-name: ${{ env.REGISTRY_IMAGE }}
+          push-to-registry: false
 
       - name: Inspect image
         run: |
