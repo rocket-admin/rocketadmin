@@ -79,9 +79,9 @@ export class PanelEditDialogComponent implements OnInit {
 			);
 			if (result) {
 				this.angulartics2.eventTrack.next({
-					action: 'Dashboards: widget updated successfully',
+					action: 'Dashboards: panel updated successfully',
 				});
-				posthog.capture('Dashboards: widget updated successfully');
+				posthog.capture('Dashboards: panel updated successfully');
 				this.dialogRef.close(true);
 			}
 		} else {
@@ -96,9 +96,9 @@ export class PanelEditDialogComponent implements OnInit {
 			const result = await this._dashboards.createWidget(this.data.connectionId, this.data.dashboardId, payload);
 			if (result) {
 				this.angulartics2.eventTrack.next({
-					action: 'Dashboards: widget created successfully',
+					action: 'Dashboards: panel created successfully',
 				});
-				posthog.capture('Dashboards: widget created successfully');
+				posthog.capture('Dashboards: panel created successfully');
 				this.dialogRef.close(true);
 			}
 		}
