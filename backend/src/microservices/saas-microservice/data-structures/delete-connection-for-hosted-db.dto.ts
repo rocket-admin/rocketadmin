@@ -13,16 +13,14 @@ export class DeleteConnectionForHostedDbDto {
 
 	@ApiProperty({
 		description: 'Hosted db entity ID',
-		example: '123e4567-e89b-12d3-a456-426614174000',
 	})
 	@IsNotEmpty()
 	@IsString()
-	@IsUUID()
 	hostedDatabaseId: string;
 
 	@ApiProperty({
 		description: 'Database name',
-    example: 'my_database',
+		example: 'my_database',
 	})
 	databaseName: string;
 }
