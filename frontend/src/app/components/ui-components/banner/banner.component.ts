@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 import { AlertType } from 'src/app/models/alert';
 
@@ -7,8 +7,6 @@ import { AlertType } from 'src/app/models/alert';
 	templateUrl: './banner.component.html',
 	styleUrls: ['./banner.component.css'],
 })
-export class BannerComponent implements OnInit {
-	@Input() type: AlertType;
-
-	ngOnInit(): void {}
+export class BannerComponent {
+	type = input<AlertType>();
 }

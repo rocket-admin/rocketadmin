@@ -225,6 +225,7 @@ export const Constants = {
 		if (!isSaaS || isSaaS !== 'true') {
 			return [];
 		}
+
 		const testConnections: Array<CreateConnectionDto> = Constants.getTestConnectionsFromDSN() || [];
 		if (!testConnections.length) {
 			testConnections.push(

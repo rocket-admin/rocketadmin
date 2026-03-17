@@ -1,14 +1,17 @@
 <div class="breadcrumbs">
-    <ng-container *ngFor="let crumb of crumbs; let i = index">
-        <a mat-button *ngIf="crumb.link; else staticCrumb"
-            [routerLink]="crumb.link"
-            [queryParams]="crumb.queryParams"
-            class="breadcrumb">
-            {{crumb.label}}
-        </a>
-        <ng-template #staticCrumb>
-            <strong class="mat-body-1 static-crumb">{{crumb.label}}</strong>
-        </ng-template>
-        <mat-icon *ngIf="crumbs.length !== i + 1" class="breadcrumbDivider">chevron_right</mat-icon>
-    </ng-container>
+    @for (crumb of crumbs(); track crumb.label; let i = $index) {
+        @if (crumb.link) {
+            <a mat-button
+                [routerLink]="crumb.link"
+                [queryParams]="crumb.queryParams"
+                class="breadcrumb">
+                {{crumb.label}}
+            </a>
+        } @else {
+            <strong class="static-crumb">{{crumb.label}}</strong>
+        }
+        @if (crumbs().length !== i + 1) {
+            <mat-icon class="breadcrumbDivider">chevron_right</mat-icon>
+        }
+    }
 </div>
