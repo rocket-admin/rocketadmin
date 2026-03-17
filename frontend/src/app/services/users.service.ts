@@ -67,7 +67,6 @@ export class UsersService {
 
 	saveCedarPolicy(connectionID: string, groupId: string, cedarPolicy: string) {
 		return this._http.post<any>(`/connection/cedar-policy/${connectionID}`, { cedarPolicy, groupId }).pipe(
-			map((res) => res),
 			catchError((err) => {
 				console.log(err);
 				this._notifications.showErrorSnackbar(err.error?.message || err.message);

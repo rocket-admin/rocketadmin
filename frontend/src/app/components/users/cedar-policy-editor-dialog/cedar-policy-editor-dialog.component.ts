@@ -1,15 +1,15 @@
 import { NgIf } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, Inject, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CodeEditorModule, CodeEditorService } from '@ngstack/code-editor';
-import { forkJoin } from 'rxjs';
+import { take } from 'rxjs';
 import { registerCedarLanguage } from 'src/app/lib/cedar-monaco-language';
 import { CedarPolicyItem, permissionsToPolicyItems, policyItemsToCedarPolicy } from 'src/app/lib/cedar-policy-items';
 import { parseCedarDashboardItems, parseCedarPolicy } from 'src/app/lib/cedar-policy-parser';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { Dashboard } from 'src/app/models/dashboard';
 import { TablePermission } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
@@ -56,6 +56,8 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	};
 	public codeEditorTheme: string;
 
+	private _destroyRef = inject(DestroyRef);
+
 	constructor(
 		@Inject(MAT_DIALOG_DATA) public data: CedarPolicyEditorDialogData,
 		public dialogRef: MatDialogRef<Self>,
@@ -67,7 +69,7 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 		private _editorService: CodeEditorService,
 	) {
 		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
-		this._editorService.loaded.subscribe(({ monaco }) => registerCedarLanguage(monaco));
+		this._editorService.loaded.pipe(take(1)).subscribe(({ monaco }) => registerCedarLanguage(monaco));
 	}
 
 	ngOnInit(): void {
@@ -81,36 +83,33 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 
 		this._dashboardsService.setActiveConnection(this.connectionID);
 
-		forkJoin([this._tablesService.fetchTables(this.connectionID)]).subscribe(([tables]) => {
-			this.allTables = tables.map((t) => ({
-				tableName: t.table,
-				display_name: t.display_name || normalizeTableName(t.table),
-				accessLevel: {
-					visibility: false,
-					readonly: false,
-					add: false,
-					delete: false,
-					edit: false,
-				},
-			}));
-			this.availableTables = tables.map((t) => ({
-				tableName: t.table,
-				displayName: t.display_name || normalizeTableName(t.table),
-			}));
+		this._tablesService
+			.fetchTables(this.connectionID)
+			.pipe(takeUntilDestroyed(this._destroyRef))
+			.subscribe((tables) => {
+				this.allTables = [];
+				this.availableTables = [];
+				for (const t of tables) {
+					const displayName = t.display_name || normalizeTableName(t.table);
+					this.allTables.push({
+						tableName: t.table,
+						display_name: displayName,
+						accessLevel: { visibility: false, readonly: false, add: false, delete: false, edit: false },
+					});
+					this.availableTables.push({ tableName: t.table, displayName });
+				}
 
-			this.availableDashboards = this._dashboardsService.dashboards().map((d: Dashboard) => ({
-				id: d.id,
-				name: d.name,
-			}));
+				this.availableDashboards = this._dashboardsService.dashboards().map((d) => ({
+					id: d.id,
+					name: d.name,
+				}));
 
-			this.loading = false;
+				this.loading = false;
 
-			if (this.cedarPolicy) {
-				const parsed = parseCedarPolicy(this.cedarPolicy, this.connectionID, this.data.groupId, this.allTables);
-				const dashboardItems = parseCedarDashboardItems(this.cedarPolicy, this.connectionID);
-				this.policyItems = [...permissionsToPolicyItems(parsed), ...dashboardItems];
-			}
-		});
+				if (this.cedarPolicy) {
+					this.policyItems = this._parseCedarToPolicyItems();
+				}
+			});
 	}
 
 	onCedarPolicyChange(value: string) {
@@ -132,9 +131,7 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 				value: this.cedarPolicy,
 			};
 		} else {
-			const parsed = parseCedarPolicy(this.cedarPolicy, this.connectionID, this.data.groupId, this.allTables);
-			const dashboardItems = parseCedarDashboardItems(this.cedarPolicy, this.connectionID);
-			this.policyItems = [...permissionsToPolicyItems(parsed), ...dashboardItems];
+			this.policyItems = this._parseCedarToPolicyItems();
 		}
 
 		this.editorMode = mode;
@@ -153,15 +150,23 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 			return;
 		}
 
-		this._usersService.saveCedarPolicy(this.connectionID, this.data.groupId, this.cedarPolicy).subscribe(
-			() => {
-				this.submitting = false;
-				this.dialogRef.close();
-			},
-			() => {},
-			() => {
-				this.submitting = false;
-			},
-		);
+		this._usersService
+			.saveCedarPolicy(this.connectionID, this.data.groupId, this.cedarPolicy)
+			.pipe(takeUntilDestroyed(this._destroyRef))
+			.subscribe({
+				next: () => {
+					this.submitting = false;
+					this.dialogRef.close();
+				},
+				complete: () => {
+					this.submitting = false;
+				},
+			});
+	}
+
+	private _parseCedarToPolicyItems(): CedarPolicyItem[] {
+		const parsed = parseCedarPolicy(this.cedarPolicy, this.connectionID, this.data.groupId, this.allTables);
+		const dashboardItems = parseCedarDashboardItems(this.cedarPolicy, this.connectionID);
+		return [...permissionsToPolicyItems(parsed), ...dashboardItems];
 	}
 }

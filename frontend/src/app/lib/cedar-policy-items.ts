@@ -1,4 +1,4 @@
-import { AccessLevel, Permissions, TablePermission } from '../models/user';
+import { AccessLevel, Permissions } from '../models/user';
 
 export interface CedarPolicyItem {
 	action: string;
@@ -139,17 +139,9 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 		let resource: string;
 
 		if (item.action.startsWith('table:')) {
-			if (item.tableName === '*') {
-				resource = `resource like RocketAdmin::Table::"${connectionId}/*"`;
-			} else {
-				resource = `resource == RocketAdmin::Table::"${connectionId}/${item.tableName}"`;
-			}
+			resource = buildResourceRef('Table', connectionId, item.tableName);
 		} else if (item.action.startsWith('dashboard:')) {
-			if (item.dashboardId === '*') {
-				resource = `resource like RocketAdmin::Dashboard::"${connectionId}/*"`;
-			} else {
-				resource = `resource == RocketAdmin::Dashboard::"${connectionId}/${item.dashboardId}"`;
-			}
+			resource = buildResourceRef('Dashboard', connectionId, item.dashboardId);
 		} else if (item.action.startsWith('group:')) {
 			resource = `resource == RocketAdmin::Group::"${groupId}"`;
 		} else {
@@ -162,83 +154,9 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 	return policies.join('\n\n');
 }
 
-export function policyItemsToPermissions(
-	items: CedarPolicyItem[],
-	connectionId: string,
-	groupId: string,
-	availableTables: TablePermission[],
-): Permissions {
-	const result: Permissions = {
-		connection: { connectionId, accessLevel: AccessLevel.None },
-		group: { groupId, accessLevel: AccessLevel.None },
-		tables: availableTables.map((t) => ({
-			...t,
-			accessLevel: { visibility: false, readonly: false, add: false, delete: false, edit: false },
-		})),
-	};
-
-	for (const item of items) {
-		if (item.action === '*') {
-			result.connection.accessLevel = AccessLevel.Edit;
-			result.group.accessLevel = AccessLevel.Edit;
-			result.tables.forEach((t) => {
-				t.accessLevel = { visibility: true, readonly: false, add: true, delete: true, edit: true };
-			});
-			return result;
-		}
-
-		switch (item.action) {
-			case 'connection:read':
-				if (result.connection.accessLevel === AccessLevel.None) {
-					result.connection.accessLevel = AccessLevel.Readonly;
-				}
-				break;
-			case 'connection:edit':
-				result.connection.accessLevel = AccessLevel.Edit;
-				break;
-			case 'group:read':
-				if (result.group.accessLevel === AccessLevel.None) {
-					result.group.accessLevel = AccessLevel.Readonly;
-				}
-				break;
-			case 'group:edit':
-				result.group.accessLevel = AccessLevel.Edit;
-				break;
-			case 'table:*':
-			case 'table:read':
-			case 'table:add':
-			case 'table:edit':
-			case 'table:delete': {
-				if (!item.tableName) break;
-				const targets =
-					item.tableName === '*' ? result.tables : result.tables.filter((t) => t.tableName === item.tableName);
-				for (const table of targets) {
-					table.accessLevel.visibility = true;
-					switch (item.action) {
-						case 'table:*':
-							table.accessLevel.readonly = true;
-							table.accessLevel.add = true;
-							table.accessLevel.edit = true;
-							table.accessLevel.delete = true;
-							break;
-						case 'table:read':
-							table.accessLevel.readonly = true;
-							break;
-						case 'table:add':
-							table.accessLevel.add = true;
-							break;
-						case 'table:edit':
-							table.accessLevel.edit = true;
-							break;
-						case 'table:delete':
-							table.accessLevel.delete = true;
-							break;
-					}
-				}
-				break;
-			}
-		}
+function buildResourceRef(type: string, connectionId: string, id: string | undefined): string {
+	if (id === '*') {
+		return `resource like RocketAdmin::${type}::"${connectionId}/*"`;
 	}
-
-	return result;
+	return `resource == RocketAdmin::${type}::"${connectionId}/${id}"`;
 }

@@ -57,7 +57,7 @@ export function parseCedarPolicy(
 			case 'table:add':
 			case 'table:edit':
 			case 'table:delete': {
-				const tableName = extractTableName(permit.resourceId, connectionId);
+				const tableName = extractResourceSuffix(permit.resourceId, connectionId);
 				if (!tableName) break;
 				const tableEntry = getOrCreateTableEntry(tableMap, tableName);
 				applyTableAction(tableEntry, permit.action);
@@ -125,22 +125,13 @@ export function parseCedarDashboardItems(policyText: string, connectionId: strin
 
 	for (const permit of permits) {
 		if (!permit.action || !permit.action.startsWith('dashboard:')) continue;
-		const dashboardId = extractDashboardId(permit.resourceId, connectionId);
+		const dashboardId = extractResourceSuffix(permit.resourceId, connectionId);
 		if (dashboardId) {
 			items.push({ action: permit.action, dashboardId });
 		}
 	}
 
 	return items;
-}
-
-function extractDashboardId(resourceId: string | null, connectionId: string): string | null {
-	if (!resourceId) return null;
-	const prefix = `${connectionId}/`;
-	if (resourceId.startsWith(prefix)) {
-		return resourceId.slice(prefix.length);
-	}
-	return resourceId;
 }
 
 function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
@@ -231,7 +222,7 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 	return result;
 }
 
-function extractTableName(resourceId: string | null, connectionId: string): string | null {
+function extractResourceSuffix(resourceId: string | null, connectionId: string): string | null {
 	if (!resourceId) return null;
 	const prefix = `${connectionId}/`;
 	if (resourceId.startsWith(prefix)) {
