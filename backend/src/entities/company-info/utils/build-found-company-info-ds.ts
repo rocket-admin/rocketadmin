@@ -39,6 +39,7 @@ export function buildFoundCompanyFullInfoDs(
 					id: group.id,
 					isMain: group.isMain,
 					title: group.title,
+					cedarPolicy: group.cedarPolicy,
 					users: group.users.map((user) => buildSimpleUserInfoDs(user)).filter((user) => !!user),
 				};
 			}),

@@ -44,6 +44,7 @@ export class UpdateGroupTitleUseCase
 			id: updatedGroup.id,
 			title: updatedGroup.title,
 			isMain: updatedGroup.isMain,
+			cedarPolicy: updatedGroup.cedarPolicy,
 		};
 	}
 }

@@ -1184,6 +1184,7 @@ test.serial(`${currentTest} should return connection without deleted group resul
 	const _groupId = result[0].group.id;
 
 	t.is(Object.hasOwn(result[0].group, 'title'), true);
+	t.is(Object.hasOwn(result[0].group, 'cedarPolicy'), true);
 	t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
 	const index = result

@@ -12,6 +12,7 @@ export function buildFoundUserGroupInConnectionDto(
 			id: group.id,
 			title: group.title,
 			isMain: group.isMain,
+			cedarPolicy: group.cedarPolicy,
 			users: group.users?.length ? group.users.map((user) => buildSimpleUserInfoDs(user)) : undefined,
 		},
 		accessLevel,

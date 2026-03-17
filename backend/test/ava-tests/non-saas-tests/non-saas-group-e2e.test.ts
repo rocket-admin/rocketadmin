@@ -117,6 +117,7 @@ test.serial(`${currentTest} should return all user groups`, async (t) => {
 
 		t.is(Object.hasOwn(result[1].group, 'users'), true);
 		t.is(Object.hasOwn(result[0].group, 'title'), true);
+		t.is(Object.hasOwn(result[0].group, 'cedarPolicy'), true);
 		t.is(Object.hasOwn(result[0].group, 'connection'), false);
 		t.is(result[1].accessLevel, AccessLevelEnum.edit);
 	} catch (e) {
@@ -636,6 +637,7 @@ test.serial(`${currentTest} should return an delete result`, async (t) => {
 		t.is(result.length, 1);
 
 		t.is(result[0].group.title, 'Admin');
+		t.is(Object.hasOwn(result[0].group, 'cedarPolicy'), true);
 		t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
 		const index = result
