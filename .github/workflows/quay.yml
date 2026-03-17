@@ -165,7 +165,7 @@ jobs:
         id: manifest
         run: |
           TAG=$(jq -r '.target."docker-metadata-action".args.DOCKER_META_VERSION' /tmp/bake-meta.json)
-          DIGEST=$(docker buildx imagetools inspect "${{ env.REGISTRY_IMAGE }}:${TAG}" --format '{{.Manifest.Digest}}')
+          DIGEST="sha256:$(docker buildx imagetools inspect "${{ env.REGISTRY_IMAGE }}:${TAG}" --raw | sha256sum | cut -d ' ' -f1)"
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Attest Merged Manifest Provenance
