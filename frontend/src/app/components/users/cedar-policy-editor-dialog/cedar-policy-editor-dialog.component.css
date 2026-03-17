@@ -5,6 +5,17 @@
 	margin-bottom: 12px;
 }
 
+.cedar-hint {
+	margin: 0 0 8px;
+	font-size: 12px;
+	color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54));
+}
+
+.cedar-hint a {
+	color: inherit;
+	text-decoration: underline;
+}
+
 .code-editor-box {
 	height: 300px;
 	border: 1px solid var(--mdc-outlined-text-field-outline-color, rgba(0, 0, 0, 0.38));

@@ -1,4 +1,5 @@
 import { AccessLevel, Permissions, TablePermission } from '../models/user';
+import { CedarPolicyItem } from './cedar-policy-items';
 
 interface ParsedPermitStatement {
 	action: string | null;
@@ -62,6 +63,11 @@ export function parseCedarPolicy(
 				applyTableAction(tableEntry, permit.action);
 				break;
 			}
+			case 'dashboard:read':
+			case 'dashboard:create':
+			case 'dashboard:edit':
+			case 'dashboard:delete':
+				break;
 		}
 	}
 
@@ -111,6 +117,30 @@ export function parseCedarPolicy(
 	});
 
 	return result;
+}
+
+export function parseCedarDashboardItems(policyText: string, connectionId: string): CedarPolicyItem[] {
+	const permits = extractPermitStatements(policyText);
+	const items: CedarPolicyItem[] = [];
+
+	for (const permit of permits) {
+		if (!permit.action || !permit.action.startsWith('dashboard:')) continue;
+		const dashboardId = extractDashboardId(permit.resourceId, connectionId);
+		if (dashboardId) {
+			items.push({ action: permit.action, dashboardId });
+		}
+	}
+
+	return items;
+}
+
+function extractDashboardId(resourceId: string | null, connectionId: string): string | null {
+	if (!resourceId) return null;
+	const prefix = `${connectionId}/`;
+	if (resourceId.startsWith(prefix)) {
+		return resourceId.slice(prefix.length);
+	}
+	return resourceId;
 }
 
 function extractPermitStatements(policyText: string): ParsedPermitStatement[] {

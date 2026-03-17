@@ -4,16 +4,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CodeEditorModule, CodeEditorService } from '@ngstack/code-editor';
+import { forkJoin } from 'rxjs';
 import { registerCedarLanguage } from 'src/app/lib/cedar-monaco-language';
 import { CedarPolicyItem, permissionsToPolicyItems, policyItemsToCedarPolicy } from 'src/app/lib/cedar-policy-items';
-import { parseCedarPolicy } from 'src/app/lib/cedar-policy-parser';
+import { parseCedarDashboardItems, parseCedarPolicy } from 'src/app/lib/cedar-policy-parser';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { Dashboard } from 'src/app/models/dashboard';
 import { TablePermission } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DashboardsService } from 'src/app/services/dashboards.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { UsersService } from 'src/app/services/users.service';
-import { AvailableTable, CedarPolicyListComponent } from '../cedar-policy-list/cedar-policy-list.component';
+import {
+	AvailableDashboard,
+	AvailableTable,
+	CedarPolicyListComponent,
+} from '../cedar-policy-list/cedar-policy-list.component';
 import { CedarPolicyEditorDialogComponent as Self } from './cedar-policy-editor-dialog.component';
 
 export interface CedarPolicyEditorDialogData {
@@ -36,8 +43,9 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	public editorMode: 'form' | 'code' = 'form';
 	public policyItems: CedarPolicyItem[] = [];
 	public availableTables: AvailableTable[] = [];
+	public availableDashboards: AvailableDashboard[] = [];
 	public allTables: TablePermission[] = [];
-	public tablesLoading: boolean = true;
+	public loading: boolean = true;
 
 	public cedarPolicyModel: object;
 	public codeEditorOptions = {
@@ -55,6 +63,7 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 		private _usersService: UsersService,
 		private _uiSettings: UiSettingsService,
 		private _tablesService: TablesService,
+		private _dashboardsService: DashboardsService,
 		private _editorService: CodeEditorService,
 	) {
 		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
@@ -70,7 +79,9 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 			value: this.cedarPolicy,
 		};
 
-		this._tablesService.fetchTables(this.connectionID).subscribe((tables) => {
+		this._dashboardsService.setActiveConnection(this.connectionID);
+
+		forkJoin([this._tablesService.fetchTables(this.connectionID)]).subscribe(([tables]) => {
 			this.allTables = tables.map((t) => ({
 				tableName: t.table,
 				display_name: t.display_name || normalizeTableName(t.table),
@@ -86,11 +97,18 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 				tableName: t.table,
 				displayName: t.display_name || normalizeTableName(t.table),
 			}));
-			this.tablesLoading = false;
+
+			this.availableDashboards = this._dashboardsService.dashboards().map((d: Dashboard) => ({
+				id: d.id,
+				name: d.name,
+			}));
+
+			this.loading = false;
 
 			if (this.cedarPolicy) {
 				const parsed = parseCedarPolicy(this.cedarPolicy, this.connectionID, this.data.groupId, this.allTables);
-				this.policyItems = permissionsToPolicyItems(parsed);
+				const dashboardItems = parseCedarDashboardItems(this.cedarPolicy, this.connectionID);
+				this.policyItems = [...permissionsToPolicyItems(parsed), ...dashboardItems];
 			}
 		});
 	}
@@ -115,7 +133,8 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 			};
 		} else {
 			const parsed = parseCedarPolicy(this.cedarPolicy, this.connectionID, this.data.groupId, this.allTables);
-			this.policyItems = permissionsToPolicyItems(parsed);
+			const dashboardItems = parseCedarDashboardItems(this.cedarPolicy, this.connectionID);
+			this.policyItems = [...permissionsToPolicyItems(parsed), ...dashboardItems];
 		}
 
 		this.editorMode = mode;

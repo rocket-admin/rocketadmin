@@ -14,6 +14,11 @@ export interface AvailableTable {
 	displayName: string;
 }
 
+export interface AvailableDashboard {
+	id: string;
+	name: string;
+}
+
 @Component({
 	selector: 'app-cedar-policy-list',
 	imports: [
@@ -32,16 +37,19 @@ export interface AvailableTable {
 export class CedarPolicyListComponent {
 	@Input() policies: CedarPolicyItem[] = [];
 	@Input() availableTables: AvailableTable[] = [];
+	@Input() availableDashboards: AvailableDashboard[] = [];
 	@Input() loading: boolean = false;
 	@Output() policiesChange = new EventEmitter<CedarPolicyItem[]>();
 
 	showAddForm = false;
 	newAction = '';
 	newTableName = '';
+	newDashboardId = '';
 
 	editingIndex: number | null = null;
 	editAction = '';
 	editTableName = '';
+	editDashboardId = '';
 
 	availableActions = POLICY_ACTIONS;
 	actionGroups = POLICY_ACTION_GROUPS;
@@ -50,8 +58,16 @@ export class CedarPolicyListComponent {
 		return this.availableActions.find((a) => a.value === this.newAction)?.needsTable ?? false;
 	}
 
+	get needsDashboard(): boolean {
+		return this.availableActions.find((a) => a.value === this.newAction)?.needsDashboard ?? false;
+	}
+
 	get editNeedsTable(): boolean {
 		return this.availableActions.find((a) => a.value === this.editAction)?.needsTable ?? false;
+	}
+
+	get editNeedsDashboard(): boolean {
+		return this.availableActions.find((a) => a.value === this.editAction)?.needsDashboard ?? false;
 	}
 
 	getActionLabel(action: string): string {
@@ -63,13 +79,22 @@ export class CedarPolicyListComponent {
 		return this.availableTables.find((t) => t.tableName === tableName)?.displayName || tableName;
 	}
 
+	getDashboardDisplayName(dashboardId: string): string {
+		if (dashboardId === '__new__') return 'New dashboards';
+		return this.availableDashboards.find((d) => d.id === dashboardId)?.name || dashboardId;
+	}
+
 	addPolicy() {
 		if (!this.newAction) return;
 		if (this.needsTable && !this.newTableName) return;
+		if (this.needsDashboard && !this.newDashboardId) return;
 
 		const item: CedarPolicyItem = { action: this.newAction };
 		if (this.needsTable) {
 			item.tableName = this.newTableName;
+		}
+		if (this.needsDashboard) {
+			item.dashboardId = this.newDashboardId;
 		}
 		this.policies = [...this.policies, item];
 		this.policiesChange.emit(this.policies);
@@ -85,16 +110,19 @@ export class CedarPolicyListComponent {
 		this.editingIndex = index;
 		this.editAction = this.policies[index].action;
 		this.editTableName = this.policies[index].tableName || '';
+		this.editDashboardId = this.policies[index].dashboardId || '';
 	}
 
 	saveEdit(index: number) {
 		if (!this.editAction) return;
 		if (this.editNeedsTable && !this.editTableName) return;
+		if (this.editNeedsDashboard && !this.editDashboardId) return;
 
 		const updated = [...this.policies];
 		updated[index] = {
 			action: this.editAction,
 			tableName: this.editNeedsTable ? this.editTableName : undefined,
+			dashboardId: this.editNeedsDashboard ? this.editDashboardId : undefined,
 		};
 		this.policies = updated;
 		this.policiesChange.emit(this.policies);
@@ -109,5 +137,6 @@ export class CedarPolicyListComponent {
 		this.showAddForm = false;
 		this.newAction = '';
 		this.newTableName = '';
+		this.newDashboardId = '';
 	}
 }

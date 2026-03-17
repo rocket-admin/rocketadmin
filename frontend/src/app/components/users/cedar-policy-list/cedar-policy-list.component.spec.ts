@@ -12,6 +12,11 @@ describe('CedarPolicyListComponent', () => {
 		{ tableName: 'orders', displayName: 'Orders' },
 	];
 
+	const fakeDashboards = [
+		{ id: 'dash-1', name: 'Sales Dashboard' },
+		{ id: 'dash-2', name: 'Analytics' },
+	];
+
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [CedarPolicyListComponent, FormsModule, BrowserAnimationsModule],
@@ -20,6 +25,7 @@ describe('CedarPolicyListComponent', () => {
 		fixture = TestBed.createComponent(CedarPolicyListComponent);
 		component = fixture.componentInstance;
 		component.availableTables = fakeTables;
+		component.availableDashboards = fakeDashboards;
 		fixture.detectChanges();
 	});
 
@@ -148,5 +154,39 @@ describe('CedarPolicyListComponent', () => {
 		expect(component.showAddForm).toBe(false);
 		expect(component.newAction).toBe('');
 		expect(component.newTableName).toBe('');
+	});
+
+	it('should add a dashboard policy with dashboardId', () => {
+		component.showAddForm = true;
+		component.newAction = 'dashboard:read';
+		component.newDashboardId = 'dash-1';
+		component.addPolicy();
+
+		expect(component.policies.length).toBe(1);
+		expect(component.policies[0].action).toBe('dashboard:read');
+		expect(component.policies[0].dashboardId).toBe('dash-1');
+	});
+
+	it('should not add dashboard policy without dashboard id', () => {
+		component.showAddForm = true;
+		component.newAction = 'dashboard:edit';
+		component.newDashboardId = '';
+		component.addPolicy();
+
+		expect(component.policies.length).toBe(0);
+	});
+
+	it('should detect needsDashboard correctly', () => {
+		component.newAction = 'connection:read';
+		expect(component.needsDashboard).toBe(false);
+
+		component.newAction = 'dashboard:read';
+		expect(component.needsDashboard).toBe(true);
+	});
+
+	it('should return correct dashboard display names', () => {
+		expect(component.getDashboardDisplayName('dash-1')).toBe('Sales Dashboard');
+		expect(component.getDashboardDisplayName('unknown')).toBe('unknown');
+		expect(component.getDashboardDisplayName('__new__')).toBe('New dashboards');
 	});
 });

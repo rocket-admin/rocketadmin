@@ -3,12 +3,14 @@ import { AccessLevel, Permissions, TablePermission } from '../models/user';
 export interface CedarPolicyItem {
 	action: string;
 	tableName?: string;
+	dashboardId?: string;
 }
 
 export interface PolicyAction {
 	value: string;
 	label: string;
 	needsTable: boolean;
+	needsDashboard: boolean;
 }
 
 export interface PolicyActionGroup {
@@ -19,30 +21,39 @@ export interface PolicyActionGroup {
 export const POLICY_ACTION_GROUPS: PolicyActionGroup[] = [
 	{
 		group: 'General',
-		actions: [{ value: '*', label: 'Full access (all permissions)', needsTable: false }],
+		actions: [{ value: '*', label: 'Full access (all permissions)', needsTable: false, needsDashboard: false }],
 	},
 	{
 		group: 'Connection',
 		actions: [
-			{ value: 'connection:read', label: 'Connection read', needsTable: false },
-			{ value: 'connection:edit', label: 'Connection full access', needsTable: false },
+			{ value: 'connection:read', label: 'Connection read', needsTable: false, needsDashboard: false },
+			{ value: 'connection:edit', label: 'Connection full access', needsTable: false, needsDashboard: false },
 		],
 	},
 	{
 		group: 'Group',
 		actions: [
-			{ value: 'group:read', label: 'Group read', needsTable: false },
-			{ value: 'group:edit', label: 'Group manage', needsTable: false },
+			{ value: 'group:read', label: 'Group read', needsTable: false, needsDashboard: false },
+			{ value: 'group:edit', label: 'Group manage', needsTable: false, needsDashboard: false },
 		],
 	},
 	{
 		group: 'Table',
 		actions: [
-			{ value: 'table:*', label: 'Full table access', needsTable: true },
-			{ value: 'table:read', label: 'Table read', needsTable: true },
-			{ value: 'table:add', label: 'Table add', needsTable: true },
-			{ value: 'table:edit', label: 'Table edit', needsTable: true },
-			{ value: 'table:delete', label: 'Table delete', needsTable: true },
+			{ value: 'table:*', label: 'Full table access', needsTable: true, needsDashboard: false },
+			{ value: 'table:read', label: 'Table read', needsTable: true, needsDashboard: false },
+			{ value: 'table:add', label: 'Table add', needsTable: true, needsDashboard: false },
+			{ value: 'table:edit', label: 'Table edit', needsTable: true, needsDashboard: false },
+			{ value: 'table:delete', label: 'Table delete', needsTable: true, needsDashboard: false },
+		],
+	},
+	{
+		group: 'Dashboard',
+		actions: [
+			{ value: 'dashboard:read', label: 'Dashboard read', needsTable: false, needsDashboard: true },
+			{ value: 'dashboard:create', label: 'Dashboard create', needsTable: false, needsDashboard: true },
+			{ value: 'dashboard:edit', label: 'Dashboard edit', needsTable: false, needsDashboard: true },
+			{ value: 'dashboard:delete', label: 'Dashboard delete', needsTable: false, needsDashboard: true },
 		],
 	},
 ];
@@ -132,6 +143,9 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 			} else {
 				resource = `resource == RocketAdmin::Table::"${connectionId}/${item.tableName}"`;
 			}
+		} else if (item.action.startsWith('dashboard:')) {
+			const dashId = item.dashboardId || '__new__';
+			resource = `resource == RocketAdmin::Dashboard::"${connectionId}/${dashId}"`;
 		} else if (item.action.startsWith('group:')) {
 			resource = `resource == RocketAdmin::Group::"${groupId}"`;
 		} else {

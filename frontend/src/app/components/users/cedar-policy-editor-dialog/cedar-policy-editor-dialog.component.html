@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Cedar policy — {{ data.groupTitle }}</h1>
+<h1 mat-dialog-title>Policy — {{ data.groupTitle }}</h1>
 <mat-dialog-content>
     <div class="editor-mode-toggle">
         <mat-button-toggle-group [value]="editorMode" (change)="onEditorModeChange($event.value)">
@@ -11,18 +11,22 @@
         <app-cedar-policy-list
             [policies]="policyItems"
             [availableTables]="availableTables"
-            [loading]="tablesLoading"
+            [availableDashboards]="availableDashboards"
+            [loading]="loading"
             (policiesChange)="onPolicyItemsChange($event)">
         </app-cedar-policy-list>
     </div>
 
-    <div *ngIf="editorMode === 'code'" class="code-editor-box">
-        <ngs-code-editor
-            [theme]="codeEditorTheme"
-            [codeModel]="cedarPolicyModel"
-            [options]="codeEditorOptions"
-            (valueChanged)="onCedarPolicyChange($event)">
-        </ngs-code-editor>
+    <div *ngIf="editorMode === 'code'">
+        <p class="cedar-hint">Edit policy in <a href="https://www.cedarpolicy.com/en" target="_blank" rel="noopener">Cedar</a> format</p>
+        <div class="code-editor-box">
+            <ngs-code-editor
+                [theme]="codeEditorTheme"
+                [codeModel]="cedarPolicyModel"
+                [options]="codeEditorOptions"
+                (valueChanged)="onCedarPolicyChange($event)">
+            </ngs-code-editor>
+        </div>
     </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
