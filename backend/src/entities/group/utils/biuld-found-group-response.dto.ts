@@ -7,7 +7,6 @@ export function buildFoundGroupResponseDto(group: GroupEntity): FoundGroupRespon
 		id: group.id,
 		title: group.title,
 		isMain: group.isMain,
-		cedarPolicy: group.cedarPolicy,
 		users: group.users?.map((user) => buildSimpleUserInfoDs(user)),
 	};
 }

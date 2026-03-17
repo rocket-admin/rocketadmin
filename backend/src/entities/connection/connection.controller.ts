@@ -409,7 +409,7 @@ export class ConnectionController {
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 	): Promise<FoundGroupResponseDto> {
-		const { title, cedarPolicy } = groupData;
+		const { title } = groupData;
 		if (!title) {
 			throw new BadRequestException(Messages.GROUP_TITLE_MISSING);
 		}
@@ -417,7 +417,6 @@ export class ConnectionController {
 			group_parameters: {
 				title: title,
 				connectionId: connectionId,
-				cedarPolicy: cedarPolicy,
 			},
 			creation_info: {
 				cognitoUserName: userId,
