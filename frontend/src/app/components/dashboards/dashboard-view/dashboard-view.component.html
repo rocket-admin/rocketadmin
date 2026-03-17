@@ -3,7 +3,7 @@
 <div class="dashboard-view-page">
     <div class="dashboard-header">
         <div class="header-left">
-            <button mat-icon-button (click)="navigateBack()" matTooltip="Back to dashboards">
+            <button type="button" mat-icon-button (click)="navigateBack()" matTooltip="Back to dashboards">
                 <mat-icon>arrow_back</mat-icon>
             </button>
             <div class="header-info">
@@ -22,11 +22,11 @@
                     data-testid="edit-mode-toggle">
                     Edit mode
                 </mat-slide-toggle>
-                <button mat-flat-button color="primary"
+                <button type="button" mat-flat-button color="primary"
                     (click)="openAddPanelDialog()"
                     data-testid="add-panel-button">
                     <mat-icon>add</mat-icon>
-                    Add chart
+                    Add panel
                 </button>
             </div>
         }
@@ -41,11 +41,11 @@
     @if (!loading() && gridsterItems().length === 0) {
         <div class="no-panels">
             <mat-icon class="no-panels-icon">bar_chart</mat-icon>
-            <h3>No charts yet</h3>
-            <p>Add charts to visualize your data from saved queries.</p>
-            <button mat-flat-button color="primary" (click)="openAddPanelDialog()">
+            <h3>No panels yet</h3>
+            <p>Add panels to visualize your data from saved queries.</p>
+            <button type="button" mat-flat-button color="primary" (click)="openAddPanelDialog()">
                 <mat-icon>add</mat-icon>
-                Add chart
+                Add panel
             </button>
         </div>
     }
@@ -56,19 +56,19 @@
                 <gridster-item [item]="item" class="panel-item" [class.edit-mode]="editMode()">
                     <div class="panel-header">
                         <span class="panel-title">{{ panelRef.savedQuery()?.name || 'Loading...' }}</span>
-                        <button mat-icon-button [matMenuTriggerFor]="panelMenu" class="panel-menu-button">
+                        <button type="button" mat-icon-button [matMenuTriggerFor]="panelMenu" class="panel-menu-button">
                             <mat-icon>more_vert</mat-icon>
                         </button>
                         <mat-menu #panelMenu="matMenu">
                             <a mat-menu-item [routerLink]="['/panels', connectionId(), item.widget.query_id]">
                                 <mat-icon>tune</mat-icon>
-                                <span>Configure chart</span>
+                                <span>Configure panel</span>
                             </a>
-                            <button mat-menu-item (click)="openEditPanelDialog(item.widget)">
+                            <button type="button" mat-menu-item (click)="openEditPanelDialog(item.widget)">
                                 <mat-icon>swap_horiz</mat-icon>
                                 <span>Change query</span>
                             </button>
-                            <button mat-menu-item (click)="openDeletePanelDialog(item.widget)" class="delete-action">
+                            <button type="button" mat-menu-item (click)="openDeletePanelDialog(item.widget)" class="delete-action">
                                 <mat-icon color="warn">delete</mat-icon>
                                 <span>Delete</span>
                             </button>

@@ -34,9 +34,9 @@ export class PanelDeleteDialogComponent {
 		);
 		if (result) {
 			this.angulartics2.eventTrack.next({
-				action: 'Dashboards: widget deleted successfully',
+				action: 'Dashboards: panel deleted successfully',
 			});
-			posthog.capture('Dashboards: widget deleted successfully');
+			posthog.capture('Dashboards: panel deleted successfully');
 			this.dialogRef.close(true);
 		}
 		this.submitting.set(false);

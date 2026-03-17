@@ -191,9 +191,9 @@ export class DashboardViewComponent implements OnInit {
 			},
 		});
 		this.angulartics2.eventTrack.next({
-			action: 'Dashboards: add widget dialog opened',
+			action: 'Dashboards: add panel dialog opened',
 		});
-		posthog.capture('Dashboards: add widget dialog opened');
+		posthog.capture('Dashboards: add panel dialog opened');
 
 		const result = await dialogRef.afterClosed().toPromise();
 		if (result) {
@@ -211,9 +211,9 @@ export class DashboardViewComponent implements OnInit {
 			},
 		});
 		this.angulartics2.eventTrack.next({
-			action: 'Dashboards: edit widget dialog opened',
+			action: 'Dashboards: edit panel dialog opened',
 		});
-		posthog.capture('Dashboards: edit widget dialog opened');
+		posthog.capture('Dashboards: edit panel dialog opened');
 
 		const result = await dialogRef.afterClosed().toPromise();
 		if (result) {
@@ -231,9 +231,9 @@ export class DashboardViewComponent implements OnInit {
 			},
 		});
 		this.angulartics2.eventTrack.next({
-			action: 'Dashboards: delete widget dialog opened',
+			action: 'Dashboards: delete panel dialog opened',
 		});
-		posthog.capture('Dashboards: delete widget dialog opened');
+		posthog.capture('Dashboards: delete panel dialog opened');
 
 		const result = await dialogRef.afterClosed().toPromise();
 		if (result) {
